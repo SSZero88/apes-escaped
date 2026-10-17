@@ -37,7 +37,7 @@ void Model_ProjectVerts(struct S_D_800F4C30 *, struct S_D_800E78C0 *, u8 *);
 void func_80017CD4(u32 *, u8 *, struct S_D_800F4C30 *);
 struct S_D_800EC350_800845E0 { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf_800845E0 db[2]; };
 extern u32 *D_800EC358;
-void func_80016D60(struct S_D_800F4C30 *);
+void Model_CalcEnvMapUVs64(struct S_D_800F4C30 *);
 void func_8001CE54(u32 *, u8 *, struct S_D_800F4C30 *);
 struct S_D_800F4C30_800846D8 { S_Mdl_800846D8 *f_0; u8 pad4[0xC]; };
 struct Game_83470 { u8 pad0[0x8124]; u16 f_8124; u16 f_8126; u8 pad8128[0x120]; Hdr_83470_80083470 *f_8248; };
@@ -318,7 +318,7 @@ void func_800846D8(s32 i, S_846D8_800846D8 *o) {
         buf = D_800E7D00;
     }
     Model_ProjectVerts(s, &m, buf);
-    func_80016D60(s);
+    Model_CalcEnvMapUVs64(s);
     *(u8 *)0x1F8003F4 = 2;
     func_8001CE54(D_800EC358, buf, s);
 }

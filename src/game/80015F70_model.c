@@ -87,7 +87,39 @@ INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_ProjectBonedVerts);
 
 INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_CalcEnvMapUVs);
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", func_80016D60);
+int abs(int);
+typedef struct { u16 f_0; u8 pad2[4]; u16 f_6; } S_Hdr_16D60;
+typedef struct { S_Hdr_16D60 *f_0; } S_Model_16D60;
+typedef struct { u8 pad0[6]; u16 f_6; } S_Out_16D60;
+
+/* Environment-map UVs for the rotated normals in a 64x64 texel area: u from the normal's y and v
+   from its x, both scaled by |z| and clamped to 0..63, packed as (u << 8) | v (permuter match) */
+void Model_CalcEnvMapUVs64(S_Model_16D60 *m)
+{
+    s32 i;
+    int k;
+    S_Out_16D60 *out;
+    SVECTOR *nrm;
+    s32 x, y, z, u, w, t;
+
+    out = (S_Out_16D60 *)D_800EA060;
+    nrm = (SVECTOR *)((u8 *)m->f_0 + m->f_0->f_0 * 4);
+    for (i = 0; i < m->f_0->f_6; i++) {
+        __asm__ volatile("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(&nrm[i]));
+        __asm__ volatile("nop; nop; rtv0");
+        __asm__ volatile("mfc2 %0, $27" : "=r"(z));
+        __asm__ volatile("mfc2 %0, $26" : "=r"(y));
+        __asm__ volatile("mfc2 %0, $25" : "=r"(x));
+        z = abs(z);
+        u = ((z * -(y * 40)) >> 24) + 0x1F;
+        t = u;
+        t = (t < 0) ? 0 : (t >= 0x40) ? 0x3F : t;
+        u = t;
+        t = ((z * (x * (k = 40))) >> 24) + 0x1F;
+        w = (t < 0) ? 0 : (t >= 0x40) ? 0x3F : t;
+        out[i].f_6 = (u << 8) | w;
+    }
+}
 
 /* Advances an animation player's frame (+0x18) by one unless paused (flags +0x1A bit 0). Past the
  * last frame (the count stored data->f_C words into the animation data) it stays on the last

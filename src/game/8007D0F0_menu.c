@@ -65,7 +65,7 @@ s32 rcos(s32 a);
 void *RotMatrixZYX(void *r, void *m);
 void *CompMatrix(void *m0, void *m1, void *m2);
 void Model_ProjectVerts(void *, struct S_D_800AF0A0 *, u8 *);
-void func_80016D60(void *);
+void Model_CalcEnvMapUVs64(void *);
 void func_8001CE54(u32 *, u8 *, void *);
 struct Game_7F5E4 { s32 frame; s32 prim; };
 extern s16 D_800BEF76;
@@ -733,7 +733,7 @@ void Menu_DrawSpinningModel(s32 x, s32 y) {
     RotMatrixZYX(buf, &m);
     CompMatrix(&D_800AF0A0, &m, &m);
     Model_ProjectVerts(mdl, &m, buf);
-    func_80016D60(mdl);
+    Model_CalcEnvMapUVs64(mdl);
     *(u8 *)0x1F8003F4 = 2;
     func_8001CE54((*(struct Game_828F8 *)&g_Game).ot, buf, mdl);
     gte_SetGeomOffset(0xC0, 0x78);
