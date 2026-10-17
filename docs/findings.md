@@ -620,7 +620,7 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   in `if (x) { ... } return 0;` (Link_UpdateArea 8005B68C).
 
 - A third addPrim form: `lwl $4, 2(%0); sll $3, p, 8; swl $3, 2(%0); swl $4, 2(p)`, with hard
-  a0/v1 temps and the OT entry address as an "r" operand (`ADD_PRIM_A0V1` in 8001F3A0.c,
+  a0/v1 temps and the OT entry address as an "r" operand (`ADD_PRIM_A0V1` in 8001F3A0_draw_fx.c,
   Shadow_Draw). The "r" operand also fixes the `addu ot, z*4` operand order and keeps the
   OT address out of the z register.
 - Generalised: many draw functions' addPrim uses fixed temp registers, which differ per function

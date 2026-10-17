@@ -75,7 +75,7 @@ echo "C:/path/to/Ape Escape (USA).bin" > disc.path   # once (gitignored)
 |---|---|
 | `scus_944.23.yaml` | splat config: segment and file layout of the exe |
 | `symbol_addrs.txt` | known symbol names (library functions plus game names as they are found) |
-| `src/game/XXXXXXXX.c` | game code, one file per original object file, named by start address |
+| `src/game/ADDR_name.c` | game code, one file per original object file: start address plus a short subject (`80032E30_monkey.c`); `tools/rename_segments.py` holds the names and renames the C file, its asm folder and every path together |
 | `include/common.h` | basic types plus the 16-byte `.text` alignment each original object had |
 | `include/game.h` | shared game structs and globals, as they get understood |
 | `include/psyq.h` | PsyQ library prototypes |
@@ -111,7 +111,7 @@ echo "C:/path/to/Ape Escape (USA).bin" > disc.path   # once (gitignored)
 ## What the code does so far
 
 - `__start` (`0x800A3660`): clears BSS `0x800B4C60`..`0x800F760C`, sets `$sp`/`$gp`, jumps to `main`.
-- `main` (`src/game/8005BDC0.c`): calls `System_Init` (hardware init: callbacks,
+- `main` (`src/game/8005BDC0_system.c`): calls `System_Init` (hardware init: callbacks,
   GTE, CD, pads, memory card), then loops over the **game-mode table** at
   `0x800AFA30`. Each entry is `{handler, overlay id}`. The overlay is loaded to
   `0x80136000`, then the handler runs until it returns < 0. The current mode lives in
@@ -261,7 +261,7 @@ Pitfalls seen while integrating:
   offset in the function.
 - Converting the last function of a file drops the alignment `nop`s its asm carried; if the
   next object is a 4-byte-aligned library object, end the file with
-  `__asm__(".section .text\n\t.align 4\n");` (see `8001F3A0.c`).
+  `__asm__(".section .text\n\t.align 4\n");` (see `8001F3A0_draw_fx.c`).
 - Permuter output written before a struct type existed can do pointer arithmetic on what is
   now a typed pointer (`g_CurMonkey + 0x60`); cast to `s8 *` when integrating.
 - An inline `bgez x / negu x` absolute value inside a condition is GCC's builtin `abs()`
@@ -269,7 +269,7 @@ Pitfalls seen while integrating:
   (see `Box_IsOccupied`).
 - A byte counter decremented as `addiu v0, v1, 0xFF` is `t + 0xFF` on a `u8` temp, not `t - 1`.
 - A file that needs the shared `Monkey` struct can switch its `#include "common.h"` to
-  `"game.h"` (done for `8008FC30.c`); otherwise use a byte-array view.
+  `"game.h"` (done for `8008FC30_box.c`); otherwise use a byte-array view.
 - The order of an array address `addu` (index + base or base + index, and which register gets
   the result) can be steered: a local pointer `T *w = base + i;` puts the result in the base's
   register (`PlateGate_Update`), and integer arithmetic `(T *)(i * 4 + (s32)base)` keeps
@@ -346,7 +346,7 @@ Pitfalls seen while integrating:
   struct-field load behind it.
 - The two `ABS` spellings compile differently: `x >= 0 ? x : -x` (common.h) copies `x` and
   negates the copy (`move v0, a3; bgez; negu v0, v0`), `x < 0 ? -x : x` (redefined in
-  80032E30.c) negates the original. Spell the ternary out when a file redefines `ABS`
+  80032E30_monkey.c) negates the original. Spell the ternary out when a file redefines `ABS`
   (`func_80040BDC`).
 - A store common to both arms of an `if`, which ours sinks into a later call's delay slot while
   the original keeps it before the argument setup, was written in both arms (cross-jumping
