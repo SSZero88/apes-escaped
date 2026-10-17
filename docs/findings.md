@@ -662,3 +662,6 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
 - Radar_DrawMonkeyCard: reading the frame counter as a struct member (`((struct {u32 frame;} *)&g_Game)->frame`)
   instead of `*(u32 *)&g_Game` kept it after the sprite stores and fixed the size (the
   MEM_IN_STRUCT aliasing rule again).
+- Pickup_Drop: computing the table pointer in the `for` initialiser
+  (`for (i = 0, t = ...; i < 5; ...)`) fixed the size and most of the order (the original sets i
+  and the cum[] address before the pointer).
