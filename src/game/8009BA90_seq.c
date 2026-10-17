@@ -1372,7 +1372,30 @@ s16 func_800A119C(s16 a, s16 b)
   return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8009BA90_seq", func_800A11FC);
+/* Sequencer parameter scaling (note-on, envelope values): a is either a 7-bit value in bits 0-6
+   with flag 0x8000 (taken as value << 7, times b & 0x7FFF) or a plain 16-bit value (times b's
+   7FFF part); >> 12, then inverted (0x7FFF - x) when b has bit 0x8000. Needs the copy-then-mask of
+   a inside the else branch (found by the permuter). */
+s16 Seq_ScaleParam(u16 a, s32 b) {
+    s32 x;
+    s32 y;
+    s16 r;
+
+    if (a & 0x8000) {
+        y = (a & 0x7F) << 7;
+        x = b & 0x7FFF;
+    } else {
+        x = a;
+        x = (u16)x;
+        y = b & 0x7FFF;
+    }
+    x = (x * y) >> 12;
+    r = x;
+    if (b & 0x8000) {
+        r = 0x7FFF - x;
+    }
+    return r;
+}
 
 /* Starts a DMA transfer of `size` bytes between main RAM and SPU RAM.
  */

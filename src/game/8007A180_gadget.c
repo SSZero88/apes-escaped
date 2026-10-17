@@ -163,7 +163,7 @@ void Camera_ExitLook(void);
 void Spike_LoadModelData(void *);
 void Fx_DebrisExplosion(s32, s32, s32);
 void Game_SetMode(s32, s32, s32);
-s32 func_80097A60(void);
+s32 Stage_IsCleared(void);
 void func_80095244(s32);
 void func_8008C064(void *);
 extern u16 D_800E549E;
@@ -812,7 +812,7 @@ void Spike_SetPlayMode(s32 req) {
                 (*(struct Game_7B374 *)&g_Game).f_8150 = req;
                 return;
             }
-            if (func_80097A60()) {
+            if (Stage_IsCleared()) {
                 Game_SetMode(0x12, (*(struct Game_7B374 *)&g_Game).f_8126, (*(struct Game_7B374 *)&g_Game).f_812A);
                 return;
             }

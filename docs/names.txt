@@ -747,3 +747,5 @@ g_MonkeyCount 800AEB68  number of active monkeys in the area (loop bound)
 Camera_FollowRcCar 8004AA58  matched: RC car camera zoom (16..40) from the car's projected depth when it is over 0x180 from Spike; reusing a for x^2 and d for the clamp temp matched (permuter hint)
 Hud_DrawStatusIcon 80046ACC  asm (size-exact draft): one HUD status icon sprite from D_800AF0E0[icon] at (x,y), semi-transparent when flag, in the end-of-OT slot; semi = semi != 0 reuse
 Surface_CylinderHeight 800500D8  matched: height on a cylinder-shaped surface (kind 0x53 curves across z, else x) with slide push D_800AF2EC/F0; needed D_800AF2EC as a struct member and s32 temps
+Seq_ScaleParam 800A11FC  matched (permuter): note-on parameter scaling ((a or (a&0x7F)<<7) * (b&0x7FFF)) >> 12, inverted when b has 0x8000; needs x = a; x = (u16)x in the else branch
+Stage_IsCleared 80097A60  asm (near): 1 when enough monkeys are caught (g_Game+0x8166 vs total +0x8188, or +0x8186 for some modes); per stage kind it also needs a save byte == 5; mode 0x13 (probably Time Trial) only compares counts

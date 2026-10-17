@@ -1194,7 +1194,7 @@ s32 Tutorial_SetNextStage(void) {
 INCLUDE_RODATA("asm/nonmatchings/game/80094F20_stage", jtbl_800A67D0_pad);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80094F20_stage", func_80097A60);
+INCLUDE_ASM("asm/nonmatchings/game/80094F20_stage", Stage_IsCleared);
 
 s32 func_80097BFC(void) {
     if ((g_Game.f_8120 != 0xB) || (g_Game.f_8122 == 3)) {
