@@ -1,0 +1,18 @@
+# Copyrighted game data - never commit
+iso/
+*.bin
+*.cue
+# Generated
+build/
+asm/
+*.ld
+undefined_*_auto.txt
+tools/sigs/repo/
+__pycache__/
+wip/
+disc.path
+# Local / editor
+.idea/
+*.d
+*.tgz
+reloc_addrs.txt

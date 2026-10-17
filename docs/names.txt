@@ -1,0 +1,746 @@
+# Readable names given so far (applied with tools/rename.py docs/names.txt).
+# old_name                new_name                 # evidence in docs/findings.md
+
+# Spike
+D_800EC1E0                g_Spike
+func_80060780             Spike_Update             # idle timer +0x148, per frame
+func_8005E6F0             Spike_TakeDamage
+func_80067A1C             Spike_SwapGadgetState
+func_80032BBC             Spike_SpawnAtStageStart
+func_80068BC0             Spike_UpdateGadgetLoopSound  looping gadget sound (0x3F/0x73) from Spike state 0x47 or speed; matched (abs() builtin)
+D_800EC2D2                g_CurrentGadget
+
+# Gadgets
+D_800F5120                g_GadgetState            # slots at +0x88, loop voices
+func_80067974             Gadget_SelectFromButtons
+func_8008197C             Gadget_UpdateHudCursor
+func_8007A180             Gadget_StopSounds
+func_8007A32C             GuidedAmmo_UpdateLockOn
+func_8007CDFC             GuidedAmmo_FindTarget
+func_8007CF54             GuidedAmmo_DrawCandidates
+D_800F51F0                g_GuidedTargets
+D_800F5090                g_GuidedLocks
+
+# Monkeys
+func_8003958C             Monkey_InitAll
+func_800393E4             Monkey_IsOffScreen
+func_8003A33C             Monkey_UpdateLod
+D_800E5500                g_Monkeys
+D_800B4D08                g_CurMonkey
+D_800B4CF8                g_MonkeyTarget
+D_800B4CF0                g_MonkeyKinds
+
+# Platforms
+func_8008A91C             Platform_Move
+func_8008AA6C             Platform_CarryRiders
+func_8008ABB0             Platform_RotateRiders
+
+# Camera
+func_80048BBC             Camera_UpdateShake
+func_80048DD0             Camera_UpdateOrientation
+D_800E6950                g_CameraShake
+D_800F45A8                g_CameraTarget
+
+# Game state, stages, saving
+D_800EC350                g_Game                   # draw buffers + game state from +0x8100
+func_8005CF34             Game_VSyncCallback
+func_8005CE04             Game_NewGameReset
+func_800961D0             Record_UpdateBestTime
+D_800DFD40                g_BestTimes
+func_80097454             Stage_CountCaughtMonkeys
+func_80096E0C             Stage_SaveStatus
+func_800978FC             Tutorial_SetNextStage
+func_80010A10             MemCard_BuildSaveHeader
+D_800E0018                g_SaveBlock
+
+# Pause menu, cheats
+func_800821D4             Pause_Update
+func_8007FA4C             PauseMenu_Update
+func_8007F40C             Cheat_CheckCodes
+D_800BEF70                g_CheatInput
+D_800B2220                g_CheatCodes
+
+# Input
+D_800E5320                g_Pad
+func_80014168             Pad_Vibrate
+
+# Sound
+func_800878E0             Sound_Play
+func_8008806C             Sound_Stop
+func_800881D0             Sound_AllocSlot
+func_800862E4             Sound_SetVolumes
+func_80087654             Music_DuckForPause
+func_800A0E84             Sound_UpdateFade
+D_800BF670                g_SoundState
+D_800B2D08                g_SoundTable
+D_800BF370                g_SoundSlots
+func_800A03BC             SeqDriver_ReadEvent
+func_8009E940             SeqDriver_AllocChannel
+D_800F5AC0                g_SeqChannels
+D_800E07F0                g_SeqVoices
+func_800A124C             Spu_StartTransfer
+
+# CD
+func_80011F6C             Cd_PlayXaTrack
+
+# Memory, misc, debug
+func_8008C1B8             Mem_Alloc
+func_8008C348             Mem_AllocFailed
+D_800AE8F0                g_RandSeed
+func_800A3720             bios_printf
+func_800A3700             bios_exit
+func_80068FBC             Image_DecodeRle4
+func_80015F70             Model_FindPrim
+func_8004626C             Zone_FindAt
+func_8008C214             Debug_DrawMeter
+func_8005E008             Debug_DrawCpuMeter
+func_80036BD0             Monkey_SetFacingDir      # 8-direction facing; cases were split off by splat
+func_800438F8             Grid_BuildHalfResMap     # 2x2 cell blocks -> 0xFF if clear
+
+# Collision list ("Collision_set Error" string)
+func_80071E44             Collision_Set            # registers an object in the collision list
+func_80071FDC             Collision_AllocEntry
+func_80072018             Collision_Remove
+D_800BBDA0                g_CollisionEntries       # 256 entries
+D_800B20D8                g_CollisionHead
+D_800B20DC                g_CollisionTail
+func_8007AFC4             Gadget_SetupStageLoadout # per-stage gadget slots (tutorial stages give one gadget)
+func_800A1A5C             Sound_LoadBank           # "SShd" header; SPU upload or queued; returns bank slot
+D_800E1180                g_SoundBanks             # 127 x {used, header, size/8}
+D_800E1780                g_SpuUploadQueue         # 32 pending uploads while a transfer is busy
+func_80047690             Camera_Translate         # shifts camera position and target by (dx,dy,dz)
+func_8005BC10             Stage_SpecialSetup       # stages 0x30/0x45/0x47/0x4B/0x56: moves Spike, camera follows
+func_8001F3A0             Ot_SkipEmptyRuns         # relinks the 4096-entry OT past runs of empty entries
+func_8001F434             Mesh_WaveVertices        # per-frame ripple on vertices above a height
+func_8004BD98             Zone_FindBoxContaining   # index of the first enabled box around a point, or -1
+func_8007C468             Gadget_AddHitSpheres     # two collision spheres along the gadget line (7:1 and 5:3)
+func_80033A3C             Monkey_CheckStateTimer   # timer/anim-frame test for the current state
+func_8003FCD8             Monkey_UpdateFall        # y = base + 6*t*t, stops at the ground
+func_80032ADC             Spike_LoadModelData      # sets D_800B4D70's data pointers from a block header
+func_80032708             Mem_ZeroWords            # zero `count` 32-bit words
+func_80010B50             Stage_ResetActors        # stage load: work buffer, clears monkeys/Spike/objects/camera/gadgets
+D_800E6960                g_Objects                # 16 x 0xE4-byte stage objects
+func_80046BC4             Hud_UpdateStatusIcons    # picks/blinks the HUD icons (radar active, slingback, camera mode)
+func_80090754             Box_IsOccupied           # Spike / RC car / solid objects / (state-4) monkeys inside a box
+func_8007C2A0             Spike_UpdateMode8Scene   # g_Game+0x8150 == 8: countdown scene with rumble (what scene? ask user)
+func_8009AA28             Gadget_UpdateSpin        # stick-pumped spin/swing (states 0x8A-0x8B), places the hit points
+func_800332F8             Monkey_RestoreStates     # per-monkey state bytes from g_Game+0x816C at stage start
+func_8007B16C             Gadget_SetupForMode      # starting gadget/slots per game mode (g_Game+0x812C)
+func_80037E8C             Monkey_CanDoAction       # tests an action's requirement flags for the current monkey
+func_80066ADC             Spike_ClampMoveStep      # limits the length of Spike's per-frame move
+Gadget_UpdateSpin         MagicPunch_Update        # user: the stretching glove is the Magic Punch
+Gadget_AddHitSpheres      MagicPunch_AddHitSpheres
+func_800A1174             Math_MaxS16
+func_800965B4             Record_GetBestTime       # stages 0x18..0x1D share entry 0x18
+func_80082230             Text_GetWidth            # sum of per-char widths (table D_800B2734) up to NUL or CR
+func_8008DE1C             Text_GetWidth2           # same with width table D_800B3640 (second font)
+func_80052CA0             Object_SetFlagCF         # sets byte 0xCF of the object mapped from id via D_800E77B0
+func_80057558             Hook_ClearAll            # 2-entry hook list D_800B8D20, count D_800E77A5
+func_80057588             Hook_Add                 # returns 0 full, 2 already there, 1 added
+func_8005760C             Hook_RunAll
+D_800B8D20                g_Hooks
+func_800482C0             Camera_UpdateMode        # picks the camera behaviour for the game sub-mode
+func_8005CFC0             Timing_SampleHBlanks     # D_800B4D60 = VSync(1), h-blanks since the last vsync
+D_800B4D60                g_FrameHBlanks
+func_8007AA98             Slingback_Fire           # ammo type + count, aim (first-person / lock-on / forward), spawn shot
+func_80085630             Projectile_Spawn         # (origin, direction, type) from Slingback_Fire
+func_80072A14             Roller_UpdateSound       # rolling loop 0x16 pitched by speed^2, 0x17 when it stops
+func_80091178             ProxTrigger_Update       # fires func_800717B4 + effect 0x112 when Spike comes near its object
+func_8009B1C0             SkyFlyer_Update          # wind-up 0x1D / flying 0x1E sounds (Spike states 0x80-0x84), draws it
+ProxTrigger_Update        Mailbox_Update           # user: mailboxes show an indicator when Spike is close
+func_800717B4             Mailbox_OpenTip          # reads the Professor's tip (file 0x14 + sector) and opens the tip screen
+func_80012C0C             Cd_GetFileEntry          # fills a CdlFILE-like {pos, size} from file table D_800B7E50
+D_800B7E50                g_CdFileTable            # per file: sector (low 20 bits) | size in 2 KB units << 20
+D_800BBC50                g_TipState               # tip buffer +0x144; mailboxes at +0xE4 (4 x 0x18)
+func_80097678             Game_IsTimed             # timed modes: g_Game+0x8120 == 0x13 (probably Time Trial, chips stop the clock; the user says Gladiator Attack has no chips) or sub-mode 3 (race stages: Stadium / Gladiator Attack, user)
+func_8008F468             SwitchMover_Reset        # puts a switch-driven object back at its start
+func_8008F53C             SwitchMover_Update       # moves an object by the sum of 1-2 switches' press depth, grinding sound 0x7F
+func_800424D4             Monkey_UpdateAll         # per frame: target (Spike or RC car) + AI for the 4 active monkeys
+D_800E54F0                g_ActiveMonkeys          # 4 pointers into g_Monkeys
+D_800B4D04                g_MonkeyTargetIsRC       # 1 while monkeys react to the RC car instead of Spike
+D_800F5A20                g_RcCar
+SwitchMover_Update        PlateGate_Update         # user: pressure-plate gates (reach them with the Super Hoop before they close)
+SwitchMover_Reset         PlateGate_Reset
+func_80078A18             Pickup_Collect           # 1 cookie?, 2 life, 3/5 energy chip x1/x5, 4 Specter coin, 6/7 explosive/guided ammo
+func_80083AA8             Pickup_Drop              # picks what a drop spawns (fixed type, weighted random, or chips in races)
+func_80083844             Pickup_Spawn
+func_8005E794             Spike_Heal               # cookie pickup calls Spike_Heal(1)
+func_8003516C             Monkey_IsTargetInRange   # detection range by state; halved at some spots on stages 0x4D/0x1A
+func_80095030             TimeLimit_Update         # countdown: beep each second (sound 6), time up (sound 7) ends the stage
+func_8009A800             StunClub_Update          # twin of MagicPunch_Update with the club's loop sound 0x3D (probably the club)
+func_8004875C             Camera_UpdateRadarLive   # Monkey Radar LIVE camera (user): pad bit 0 toggles camera mode D_800E68D0+0x38 = 1 on the radar target, draws Radar_DrawMonkeyCard; not the normal first-person look
+func_800931C8             SpinHazard_Update        # spinning arm that knocks Spike back (collision type 6, 0x203)
+func_8004B5FC             Camera_UpdateOrbit       # sub-mode 3 (Jake race) camera: D-pad/stick orbit around Spike
+func_80064208             Spike_SetState           # sets action state + animation (blends some transitions)
+D_800F4DE0                g_SpikeAnimSets          # [0] base set, [gadget+1] per-gadget set: {model, anim table}
+func_8006BFB8             Spike_UpdateFootEffects  # foot dust and puffs (effect 0x10F); user: shows with all gadgets except Radar and RC car
+func_8006C334             Spike_UpdateStatusEffect # timed status (kind 1/2/3) particles around Spike; resets tint at the end
+func_80094C10             Platform_MoveChain       # moves a stage object (+ riders, model) and its linked objects
+func_8006FEE8             Shockwave_UpdateAll      # 16 expanding damaging rings (collision type 0x10)
+func_8003710C             Monkey_TryReaction       # chance + distance band per monkey kind, then switch state
+func_80042E18             Monkey_UpdateFrame       # per-frame monkey driver (counters, Monkey_UpdateAll, passes)
+func_800405C4             Monkey_CanSeeTarget      # sight distance/angle per direction + line of sight -> flag bits 28/29
+D_800BAF00                g_Shockwaves
+func_8006C2E8             Spike_StartDamageEffect  # kind 1/2/3: 50-frame effect + tint (called per damage type)
+Spike_UpdateStatusEffect  Spike_UpdateDamageEffect
+func_80066FC8             Spike_HandleHit          # dispatches on damage type 0x200/0x300/0x400 (effect + sound)
+func_80091D24             ShockBox_Update          # box hazard: Spike inside gets a type-0x200 (shock) knockback
+PlateLift_Update func_800920AC  object raised by up to two pressure plates (half of each plate's press), holds at max then lowers
+Monkey_StateRoam func_8003D9D4  monkey state handler: every 3rd frame looks for Spike (react/flee), else moves by velocity, turning for f_94 frames
+Camera_SelectSetting func_80046DE8  picks the camera setting (D_800B4D40 entry) from the D_800E68D0 candidates and starts a transition
+Camera_SetSetting func_80046DAC  sets D_800E68D0 current setting index/pointer
+CamFlyby_Update func_8004D40C  scripted camera path (D_800B8CC0): moves eye/target by per-frame deltas, fades at the end, chains segments
+CamFlyby_StartSegment func_8004D39C  starts segment i of D_800E68D0+0x60 (0x20-byte keyframes)
+Camera_HandleViewButtons func_80048454  L2 enters look (or Slingback aim), L1 recentres the camera, L1/L2 leaves look; then func_8004AC84
+Camera_EnterLook func_80048398  D_800E68D0+0x32 = 1 (first-person look), sound 4; buzzes if func_8005AB00
+Camera_ExitLook func_80048430  clears D_800E68D0+0x32
+Camera_EnterAim func_8004B4B8  D_800E68D0+0x46 = 1 (Slingback aim), sound 4
+Camera_ExitAim func_8004B510  clears D_800E68D0+0x46, sound 5
+Camera_DenyLook func_8004898C  HUD icon blink (+0x2F = 12) and sound 0x30 when look is not allowed
+WaterNet_Shoot func_8007C618  R3 underwater while Spike has health (g_Spike+0xE8 > 0): launches the net shot (D_800F51D0) along Spike's aim, vibration + sound 0x28
+WaterNet_UpdateShot func_8007C6CC  moves/grows/draws the Water Net shot, catch sphere (collision kind 8), fades after frame 10, ends at 0x15
+Camera_UpdateLook func_8004AC84  first-person look/aim camera: eye at Spike, stick/D-pad turn Spike and tilt the view
+Zone_CheckSpike func_80010D80  checks Spike against the stage zones (g_Game+0x8238, count +0x828C, 0x28 each); returns (dest<<8)|sub or -1 (still asm)
+Spike_TryGrabLedge func_80063EC4  while falling (+0x34 > 0) with health left (+0xE8), steps up onto a ledge 0x81..0xFF above in the facing direction (state 0xE)
+Radar_GetSignal func_8009A1A4  Monkey Radar: signal strength (0..32) from uncaught monkeys in front of Spike, sets target g_GadgetState+0x18; if none in the area, 1 when facing an exit to an area with monkeys left (still asm)
+Gadget_Select func_8007AC64  switches Spike's gadget (g, prev): stops the old one's sounds, per-gadget setup (Slingback re-select cycles ammo), records +0xF2/+0xF3, sound 0x24
+Monkey_PickNextAction func_80037550  monkey decision when its action ends: alert (0xB) when func_800339EC, else wander/idle (3) or 30% state 8, path follow etc.
+Monkey_TrySpecialAction func_80036CD0  per-kind special behaviour from trait flags +0x228 (0x100, 0x800, 0x20, 0x20000, 8, 4, 0x10, 1, 0x10000, 0x800000, 0x1000000); returns 1 if one ran
+PushBlock_Update func_80088F2C  block Spike can push (his +0x70 kind 0x70 = pushing): slides by his push velocity, falls with gravity, scraping sound 0xAE (stage 0xB) / 0xB1 (stages 0xF, 0x65)
+Spike_Init func_8003272C  relocates Spike's data block at 0x80103000 (model, anim sets, effect tables), resets his state (health +0xE8 = 5) and movement constants D_800EC010
+Camera_UpdateZoneBox func_8004BF20  finds the camera zone box Spike is in (Zone_FindBoxContaining); on change selects/derives its camera setting (still asm)
+Stage_UpdateAreaState func_8005D890  per-frame stage sub-state machine (g_Game+0x812C low byte): exit zones (3-5), area loading (6), special states 18-20/24-25
+Platform_RunTrigger func_8008B980  platform trigger command ('M' Spike on it, 'T' object/Spike within range, 'C', 'S' linked switch active, 'Z' timed move) (still asm)
+Sound_Shutdown func_8008725C  stops the music/stream channel (g_SoundState+6), waits for pending sound loads (+0, +2, +4), resets the sound library
+Area_SaveObjectMask func_800509CC  when leaving an area, stores a bitmask of its spawn records still present (+0x16 == 0) in D_800B8D00[area within stage]
+MemCard_BuildHeader func_8001088C  fills the memory card save header D_800E1880 (SC magic, title, CRD0, palette, icon frames) (still asm)
+FallBlock_Update func_80088D78  block that shakes (+-32) for +0x32 frames, then falls to the floor
+SlideDoor_Init func_8008F720  sets up a sliding door (stage object g_Game+0x820C[t->f_4]) for its direction t->f_8 (0..7): open position, trigger box, start state
+SlideDoor_Update func_8008F8D4  sliding door states: 3 closed waiting -> 5 opening (32/frame) -> 0 open waiting -> 2 closing; 1/4 stay open/closed
+Save_SumStageMonkeys func_800962B0  sum of the 25 per-stage monkey counts (save block +0x48, or the live table D_800DFC98)
+Save_GetCompletion func_8009816C  completion score of a save block: monkeys + 15/25 per stage state (+0x28), time-trial ranks (+0x690 vs thresholds at 0x80102400: +8/+7/+5), extras; +15 for +0x46 == 2 and +0x668 flags 0x10/0x1000, +2 per +0x68 entry, +8 per value 5 in +0x670/+0x674; matched
+Camera_StartShake func_80048A00  starts a camera shake of level 0..2 (10/11/12 frames, random offsets +-2/4/8) unless a stronger one is running
+Camera_StopShake func_800489EC  clears the camera shake timer and level
+FloorSwitch_Update func_8009468C  floor switch: pressed when Spike stands on it (g_Spike+0x58 == its object), func_80094E5C or the linked object; sound 0x9C; sinks via func_80094B6C
+Link_SendEvent func_8005B880  event cmd (0..15) to stage link record g_Game+0x8220[idx] (from monkey AI): switches, quake starts, flyby, state changes by arg
+Bumper_Update func_80093F04  object that bounces Spike back when he touches it (direction by t->f_8), sound 0xB3 (stage 0x15) / 0xB4 (stage 0x54), squash animation
+Spike_StartKnockback func_80066EEC  sets Spike's knockback direction (+0xD8), duration (+0xDE) and flag 8, then func_8006CE9C (hit effect 0x116); matched
+Monkey_PickIdleAction func_80037908  monkey that has not noticed the target picks its next idle action (per-kind odds in g_MonkeyKinds: +8 percent for func_80036300, +0xE/+0x12 distances); defers to Monkey_PickNextAction once it notices
+Water_Query func_800797F8  finds the water volume (stage object kind 9) containing a point; fills scratchpad 0x1F8003D4 (kind, surface, current) and returns (kind<<4)|depth (2 near surface, 1 within 0xC0) (still asm)
+Geo_DiagonalDistance func_800774B8  signed distance from p (x,z) to the 45-degree line through o for orientation 0/0x400/0x800/0xC00; q = projected point
+Box_SwingAroundCorner func_8008ECFC  moves a box's centre as if turned 90 degrees around one of its corners (hinge dir 0..7, m == 2 the other way) and swaps its half sizes
+Puff_Spawn func_80070B70  spawns a puff/debris particle (ring of 8 at D_800BB840): random velocity scaled by speed, mirrored (flag 0x100) or random second velocity
+Link_RestoreSaved func_8005AF4C  applies the saved link-record states (64 x 0x1E at D_800B9030) for the current area to g_Game+0x8220, by record kind (still asm)
+Surface_SlopeHeight func_8004EA1C  height of a 45-degree slope surface (kinds 7-10, sets slide push D_800AF2EC/F0) or ramp-with-floor (64-67) inside a box; 0 if outside
+SwingDoor_Update func_8008E90C  swinging door: 3 closed -> 5 opening (angle +0x20/frame to 0x400, then box turned with Box_SwingAroundCorner) -> 0 open -> 2 closing; 1/4 stay
+LiftDoor_Update func_8008F0BC  door that rises out of the way (y -0x20/frame up to its +8 height): same states as SlideDoor_Update
+Door_IsTriggered func_8008EB58  true when Spike, the RC Car (when out) or a monkey in state 4 is inside the door's trigger box (func_8008EC70)
+Door_PlaySound func_8008EAE4  plays a door's sound (func_8005BB98 of its +0x16), positional unless g_Game+0x8100 bit 0
+Door_PointInBox func_8008EC70  is point p within the door's trigger box (half sizes box[0]/box[1] around its saved position +0x24/+0x28, +-height +8 in y)
+SwingDoor_Init func_8008E5C0  sets up a swinging door: halves its box sizes, places box/pivot for hinge t->f_8 (0..7), saves its position, start state (auto 3 / closed 4 / open 0-1 with the box swung)
+SwingDoor_SetModelRot func_8008F308  rotates a swinging door's model by its angle t->f_6 about y (or x/z for kinds 3/20), sign by hinge
+Stage_GetSpecialKind func_8005AB00  1..5 for the special areas 0x44, 0x53, 0x56, 0x46, 0x57 (overlay code), else 0
+Camera_UpdateSpecial func_8005AC28  camera hook for the special areas: runs the area overlay's camera function (kind 1 always takes over); returns 1 if it did
+ScreenWipe_Update func_80079B10  screen transition states g_Game+0x8130 (timer +0x8132): 1 fade then next stage state (0x18/0x19/3), 4 ring wipe, 2 fade out (-1), 3 fade out + wait for loads, state 0xD
+CamFlyby_SetupSegment func_8004D134  sets up a flyby segment from a 0x20-byte keyframe: start eye, per-frame steps to the end, look direction from the two rotations (still asm)
+ToggleSwitch_Update func_800943E0  switch that toggles on each press (states 0 up, 1 going down, 2 down, 3 coming up); press = Spike standing on it or func_80094E5C; sound 0x9C; notifies link t->f_A (func_800949BC 1/3)
+Matrix_Copy func_80015F24  copy a 0x20-byte MATRIX (dst, src) as 8 words in 3/2/3 groups
+Effect_Spawn func_800696EC  spawn effect id at pos: id < 0x100 = one particle; 0x100.. = script (scripts[id-0x100], or [id-0x1C8] for >= 0x1C8) of commands {type, dy, ...}: 0x32 -> func_80070284(D_800B1BD4[a], b, c), 0x33 -> func_8006ED78(a, b, c), else n + rand*m/256 particles of that type
+Particle_Spawn func_8006962C  allocate particle (func_80069548) of type at pos, sprite from tbl[type] (or tbl[type-200])
+MemCard_Callback func_800104E0  libmcrd MemCardCallback handler (cmd, result): result 0 ok -> state 0 (+MemCardClose after file read/write), 1 no card -> -7, 2 invalid -> MemCard_Retry, 3 new card -> restart the pending op via func_80010000, 4 unformatted -> -8 (accept), 5 file missing -> -5
+MemCard_Retry func_800106C4  bump retry count (+8); after 6 tries give up (state -1), else restart op D_800E3880.f_4
+Geo_ProjectOnLine func_800933F8  project XZ point p onto the line through c at angle ang: out x/z = foot point, out[2] = distance p->foot; returns distance c->foot (spinning arm hit test)
+Cd_IssueRequest func_80012A0C  issue a queued CD request {com, buf, len, result, done*, param}: com 0x20 = data read (CdlReadN + Cd_ReadReady callback, becomes 9 CdlPause), else plain CdControl; updates the CD state block D_800E3890 and the ring index f_74 (mod 16); returns 1 if issued
+Cd_ReadReady func_800128C8  CdReadyCallback for data reads
+Cd_PollStatus func_80012110  poll CdSync: on complete, every 10th tick (f_2C) GetlocP and when the XA track D_800A8530[f_40] passes its length restart it (flag 2 = loop) and set state 0x50000; else GetStat error print; on disk error (5) restart looping track (state 0xF0000)
+Boot_LoadingScreen func_80011754  startup: clear VRAM, load file 6 (font/image) to 0x80154000, then load the file list D_800A8528 {1, 7, 12} one after another while blinking "Now Loading..." (D_800A850C, custom font codes) at 110,180 (frame % 40 >= 21)
+Cd_StartFileLoad func_80011104  matched: start an async file load: (0, n) = file table D_800A7120[n], (1, n) = entry D_800A81B0[n]
+Hud_DrawLives func_80095690  lives counter HUD (icon + 'x' + lives-1): state f_E 0 slide in, 1 rise (f_C -2/frame), 2 hold 40 frames, 3 slide out, 4 hide (clear flag 8 of f_20); on a 1-up f_10 counts down from ~26: old count blinks, then the new count bounces
+Matrix_FromDirection func_8001484C  build a rotation matrix whose Z axis is -normalize(dir) (up = Y, or Z when dir is vertical); columns x, y, z
+Matrix_LookAt func_80014A84  rotation matrix from dir + up: z = -dir, x = up x z; mode 0 re-orthogonalises z = x x up (keeps up), mode 1 y = z x x (keeps dir)
+Sound_LoadBanks func_80086CAC  mode 1: common VAB (header 0x80100000, body 0x80154000) -> g_SoundState.f_0; 3: VAB at 0x80146000 + reverb (type 4, depth 10) -> f_4; 2: stage sound pack at 0x80146000 (offsets +0x14..+0x24 relocated, saved in g_Game+0x822C/+0x8230) -> f_2 and optional f_4, then func_80087388 and (except for D_800E38B4 0x35/0x18/0x48/0x57/0x4E) func_8008745C
+Object_UpdateAll func_800511A4  per-frame object loop: runs the mode hook D_800AF574[D_800E77A0.f_0], then for each live object (flag 0x10) of the D_800E77D0.f_10 slots: advance anim frame (+0x5C, loops per D_800B..f_88[f_7F]), turn by f_B2 while f_AE counts down, func_80052BC8, func_80052A24 == 2 -> func_800528E0; if it dropped 0x800 below f_9C (unless flag 0x40000) it is destroyed (type 0x3F: overlay func_8013F660); else its type handler D_800AF350[f_7E] runs (when f_82 == 0 or flag 0x200000); then Hook_RunAll, func_80058954
+Object_Destroy func_80051F1C  remove an object with a poof effect (0x102, or 0x106 + sound 0x6E for kind 2 of f_E3), Pickup_Drop path via func_8005216C
+Anim_BlendFrames func_8001526C  blend two packed animation frames (rot x:10 y:12 z:10 per joint, shortest way round) by t/4096 into the joint table D_800F4B30, root position into m->root
+Cd_InitFileTable func_80011CF8  find the data archive (D_800A40D0), read its 0x1C0-entry file table (sector:20, size:12) to g_CdFileTable and make sectors absolute; set the XA music track start sectors (D_800A8530 4..57 from files 0x1C0-0x1C5); CdlSetmode 0xC8 (double speed, XA), CdlDemute
+Platform_RotatePoint func_8008AD14  rotate a rider offset d about centre c by this frame's platform turn (axis Y +0x2C, X +0x2A or Z +0x2E; angle from func_8008AF98(speed, +0x36)), writing the new position; nudges by 1 when the rotation rounds to no change
+Platform_TurnStep func_8008AF98  angle (0x1000 = full turn) a platform turns between frame t-1 and t of its period (negative period = reverse)
+Sound_UnloadBanks func_80086FD0  stop the playing sequence (f_6) and free sound banks: 3 = sequence only, 1 = + stage banks f_4/f_2, 0 = + common bank f_0, 2 = nothing; counterpart of Sound_LoadBanks
+Anim_BlendFrameIndex func_80014FA0  Anim_BlendFrames for frames fa / fb of the model's own animation data (m+0x18, n + 2 words per frame)
+CamPoint_Update func_8004CA70  camera point object (pos +0xA, look +0x12, both SVECTOR): runs while timer +0x88 is non-zero; a script (+3) goes to CamPoint_RunScript; else look = func_8004B8F4(+0x91) and by type +0x90: 2 pos from func_8004B8F4 too, 5 orbit (radius +0x38 grows by +0x9C, angle +0x40 by +0x8C, rises by +0x9E), 7 drift by +0x9C/+0x9E/+0xA0, 8 follow Spike at 1/4 from base +0xA8 looking at him, 9 fixed at +0xA8 looking at Spike (sets +0x33); D_800AF131 lowers pos 6 and raises look 3
+CamPoint_RunScript func_8004D880  dispatch D_800AF140[mode](o)
+Effect_HitCallback func_80084C04  effect hit callback: spawn effect +0x32 at +0x10 and play sound +0x26/+0x27 (kind 0/1; 2 = nothing) (permuter if/else hack)
+Monkey_PickNextNode func_80038A9C  at path node f_F2 choose the next node: calm monkeys (f_79 == 0) take the first free link (not where they came from f_EC, not blocked f_1DA); alert ones score the links (Monkey_ScoreLinks -> f_176) and take the lowest score, 5% chance to take the first under cos(60 deg) (or cos of func_80037D6C), fail unless force when none is under; without 'any' and target out of range -> func_80038914; returns 1 when moving
+Monkey_GoToNode func_80035080  push node onto the monkey's 6-entry path history (f_F2..) and start moving
+Node_GetLink func_8003386C  matched: k-th link with bit 0x4000 of path node n (D_800B4D00), masked 0x3FFF; -1 if none
+Monkey_ScoreLinks func_8003AC54  per-link score of the current node relative to g_MonkeyTarget into f_176[]
+Platform_MoveRiders func_8008A4B0  moving platform (dir +0x2A..+0x2E times speed +0x1C) carries Spike when inside its box (x/z half sizes +6/+0xA, height +8 above top +2): type 0x300 adds the step to his velocity (half while state group 0x80) + camera, may make him state 8 when it pushes him into the floor; 0x800 calls overlay func_8013FC18; 0x100 only moves him in state group 0xC0; others move him directly; the RC car is moved directly except for types 0x300/0x800
+Monkey_ChooseRoute func_8003B074  at a path node: calm -> func_80038A1C or Monkey_PickNextNode; alert -> func_80038A1C / Monkey_PickNextNode (state 0x3D takes link 0), then unless the next node is flagged 0x10000 looks one node ahead and picks the best scored (or a random one of up to 10) next-next node, restoring its path history if none; fires Monkey_NodeEvents on node change and func_8003B674; prints a debug line when forced but stuck
+Monkey_NodeEvents func_80040D90  node arrival flags (D_800B4D00 f_0): 0x20 set 0x4000000, 0x1000 jump (state 0x27), 0x4000 Object_SetFlagCF, 0x800/0x20000/0x40000 Link_SendEvent 0/1/2, 0x400 func_80034B74 + state 0x29, 0x80000 calm -> func_80035918, 4 state 0x42 (wait f_22C), 8 ... ; still asm
+Coll_CurvedCorner func_8004F984  quarter-round corner piece ('F'..'I'): height between +0x26 and +8 along the arc, slope normal to out; -1 above, -2 off the ring, -3 outside the corner box
+Bouncy_Update func_8009398C  bouncy stage object (mushroom/jelly?): Spike landing on it (+0x58 == its entity) makes it squash vertically (state 1, or spin state 3 if +0xC) with stage sound (0xB5 stage 7, 0xB3 0x51/0x52/0x54, 0xB6 0x32, 0xAE 0x47), rumble and func_80066F34 (bounce Spike up); touching its side knocks Spike back (Spike_StartKnockback 30) and it wobbles sideways (state 2, sound 0xBB in stage 0x19); wobble amplitude +8 halves each cycle; scale via func_800147D0
+Club_SwingUpdate func_8007A514  Stun Club swing (Spike states 0x80 swing, 0x81 jump swing, 0x82 spin by stick +0x182): swing speed/state in g_GadgetState +4/+8, two hit spheres (types 0xD tip, 0xC mid, radius 150) each active frame; a hit on a type-0xA target bounces it back (sound 0x1C, rumble); still asm
+Spike_AnimEvents func_80064454  per-frame animation event script {state, frame, type, arg[,data]}: 1 sound, 8 func_8006896C, 2 hit sphere (type 6) at a rotated offset with direction, 7/3 attack sphere (type 8) at offset / gadget tip, 4/5 callbacks D_800B027C/D_800B03AC, 6 MagicPunch_AddHitSpheres; still asm
+Spike_StateClimb func_80067CAC  climbing states 0x38-0x3C (climbable trees, per the user: level 1 has some; maybe also poles/ladders): keeps Spike centred on the climbable (+0xB4/+0xB8 minus his facing), stick up/down moves him (down twice as fast), clamps between top +0xB6-+0xBE and bottom +0xB6; at the top with +0xBA == 1 he climbs off (state 0xE), past the bottom he drops (state 0), L/R stick turns him, a hit (scratch 0x54&0x58&0xA) knocks him off (state 8)
+RcCar_Update func_800994A8  RC car per-frame physics: gravity (vy +7, min -14), short push from Spike's facing after launch (+0x78), floor normal, dies on hazard floors (scratch +8 kinds 0-3, effect 0x102, sound 0x79) or after 31 frames in water (0x100 splash, sound 0x72, puffs), explodes when hit by type 0xB; steered by the analog stick magnitude +0x182 along its heading /0x3000, slides down slopes, ram collision (type 6) when fast; still asm
+Pickup_UpdateAll func_80083CB8  the 32 dropped pickups (D_800BEFA0, 0x18 each: col, x/y/z, kind, spin, vel, ground, state, age, timer, fade): a collision sphere (type 9) exists only while Spike or the RC car is within 0x200; collecting (hit types 1-4, 8, 11-13) pops it up and shrinks it away (effect 0x104), kinds 2/4 burst with sparkles (kind 4 also g_PickupSignTimer = 0x20, CenterSign_ShowPickup); bouncing physics with ground, settles after 90 frames, fades after 240; still asm
+Monkey_StateMove func_8003C6D4  monkey moving along its route (walk 3 / run 8 / sneak 0x24 ...): tracks whether it still sees Spike (byte +0x249 counts frames without sight), re-plans routes when the target is in range, otherwise moves by its velocity +0x70..+0x74 (turning with the matrix +0x9C while +0x94 > 0); when the state timer ends picks the next or an idle action
+Monkey_UpdateSpeed func_8003B9C0  sets g_CurMonkey's speed: jump arc (flag 1 of +0x24C, dust), states 0x3D/0x3E ramps, alerted = kind +4, 0x1E/0x20 wobble, 0x1A/0x35, calm by distance (cos curve up to 600), slowed while turning (+0x94) or stunned (+0x120); velocity +0x70 = direction +0x68 * speed / 32768; +0x220 = anim speed (74% for walk/run); still asm
+Cd_Update func_800125B8  per-frame CD driver state machine (D_800E3890.f_0): 0x10000 XA playing (Cd_PollStatus every 5th frame), 0x40000 data read (10 s watchdog -> 0xE0000), 0xE0000 restart the read (setmode, CdlReadN), 0xF0000 error recovery (getstat, standby, setmode; shell open 0x10 -> keep polling, 2 -> 0x50000), else wait for CdSync: done -> issue the next queued request or go idle, disk error -> retry state
+Spike_HandleHit (asm) hit reaction: hit kinds by collision type (f_50>>28): 4/5 stomped-on push-back (state 0x24), 0xB real hit: 0x600 grab (state 0x2F), 0xA00 drain (lose a life piece unless guarding), 0xB00 drop gadget, else damage (+f_24 & 0xF), knockback from tables D_800B0264 / D_800B0250 (states 0x1B/0x1C/0x1D/0x2B, guard 0x4C), rumble + camera shake; repeated light hits (states 0x1B/0x1C) escalate after 6
+Spike_UpdateWaterFx (func_8006BA2C): tracks Spike entering/leaving water (f_138>>12 == 1); entry splash/sound when falling fast, ripple/drip timers in D_800BAD78, bubbles and wake effects at the surface height f_13C
+Projectile_UpdateAll (func_80084C94): per-frame update of the 32 projectiles at D_800F5380 (0x34 bytes): lifetime, hit tests (collision kind 6/0xB end, kind 10 bounce per flag bits 0x60), water entry splash, movement with optional gravity, collision box refresh, trail effect (flag 0x10)
+Projectile_Alloc (func_80084AC8): finds a free projectile slot and resets it
+Projectile_InitAll (func_80084A60): clears all projectile slots
+Projectile_End (func_80084BC0): calls the projectile's hit callback (+4) with the reason (0 hit, 1 bounce stop, 2 expired) and frees the slot
+Monkey_PickGoalLink (func_80038120): picks the next link from the current node: random when the target is noticed, otherwise the unblocked link whose node has the highest priority D_800B4D00[n].f_14[monkey f_7B] (higher than the current node's, unless forced), subject to a turn-angle limit (rcos threshold) when the monkey is alerted (f_79)
+Zone_FindIndexAt (func_800792C8): scans the stage zones (g_Game+0x820C, count +0x8284, 0x38 bytes) from last to first and stores in p->f_34 the index of each zone containing point p (so the lowest index wins). Shape by flags +0x10 & 0xF000: 0 box, 0x2000 shaped box (func_8004F884), 0x3000 cylinder or special shapes 0x24/0x25 and 0x53/0x54, 0x4000 diagonal box. Skips disabled zones (+0x18). mode 1 (Spike) is skipped in some states and in game mode 6
+Hoop_Update (func_800986E0): Super Hoop gadget. State 0 (g_GadgetState+4): stick rotation (scratch +0x78) charges spin power (+8, -8 per frame); above 0x140 it starts spinning (state 1, sound 0x2C). State 1: power -3 per frame (sound pitch, pad vibration), three hit spheres orbit Spike at radius power (Collision_Set kind 6, stored at +0xC/+0x10/+0x14); a sphere that hit something pushes Spike back and costs 0x3C power. Spike states 0x31..0x33 are the hoop states (else Hoop_UpdateModel/func_8007CD0C(1))
+Hoop_UpdateModel (func_80098DD0): positions the hoop model matrices for the current hoop state
+Platform_ReachWaypoint (func_80089D6C): moving platform arriving at its waypoint (g_Game+0x8214, 16 bytes: pos, extents/angles, wait, next): carries riders by the remaining delta, snaps to the point, rotates (mode 8) or rescales (else) its model and adjusts Spike/RC car standing on it, copies extents (mode 0xC), then advances to the next waypoint
+Collider_PushApart (func_800777AC): pushes a collider out of overlapping colliders of kinds 1..5 (cylinder test), records the hit (+0x2C), and moves either the other body (with camera for Spike) or itself until separated
+Object_Reset (func_80050D04): resets an object's state and per-kind flag bits (+0xE0) when (re)spawned, registers its collision box
+Monkey_Spawn (func_8003A414): (re)spawns the current monkey: kind/route group, resets state fields, picks a start node (spawn table or random), places it, chooses an initial route and idle action
+Game_SetMode (func_8005D100): sets the game mode g_Game+0x812C (ignored while it is 0x20/0x22) and runs its entry actions: 1 start stage (load stage/area, Spike_Init), 2 load new stage (ClearImage, sound banks), 4/11 load area, 6 enter area, 7/21/23/27/28/30 save + exit (func_8007B374 0xD/0xB), 8/9 stage clear (save, counter +0x8158), 10 retry after a miss (lives +0x813C; 0 -> mode 9), 13 restart, 16-20/24/25/29/33 menus and movies
+Spike_SetPlayMode (func_8007B374): handles a play-mode change request for Spike (g_Game+0x8150). 0xB/0xE: forced end (stop, mode +0x8152 = 0xB). From modes 0/5/6: 1/3 = get off the vehicle D_800B4DC4 (take its position), 5/6 = set up the two-point move (state 0x38/0x3D), 7, 8, 9 (state 0x48, stop camera modes), 10 = enter object D_800B4D70 (model swap), 12 = drop (state 0x24), 0 = normal. From 1/3: get back on the vehicle (or it exploded when its health +0x8E <= 0). From 8: 9 or leave to Game_SetMode 3/0x12. From 10: restore Spike's model and gadget
+Game_MainLoop (func_8005BF70): in-stage main loop. Each frame: advance both random seeds; mode 6 (area change) only runs Stage_UpdateAreaState; otherwise pause menu (result 2 -> mode 0x1C, 3 -> mode 7), frame counter g_Game+0, screen wipe (negative = leave the loop), Spike or the cutscene player (g_Game+0x8100 bit 0), active gadget callbacks (D_800B4DCC / D_800B4DD0), RC car, projectiles, objects, monkeys and the other subsystems, collision, sound, then input shortcuts (pad 0x800 / 0x100 open menus) and the double-buffered draw. On exit, picks the next menu screen (g_Game+0x8120) from the leaving mode (g_Game+0x812C)
+EnemyShot_UpdateAll (func_80059FA4): updates the 16 enemy projectiles at D_800B8D30 (0x30 bytes: hit box +0, owner +8, state +0xC, start delay +0xE, position +0x1C, velocity +0x24, ground +0x2A, timer +0x2E). States: 1/2 follow the owner object until it is gone; 10 explodes when it is; 3/4 one-frame blast hit boxes; 5 hopping object that bounces toward Spike when he comes near and blinks out after 60-90 frames; 6 homing missile (steers toward Spike's predicted position, explodes on the ground, on a hit or after 90 frames); 7 bouncing bomb; 8/9 thrown rocks that bounce and settle
+EnemyShot_SetHitbox (func_80059A54): gives an enemy projectile a collision sphere (radius, flags) at its position
+EnemyShot_InitAll (func_800592E0): clears all enemy projectile slots
+EnemyShot_Frame (func_80059B08): per-frame enemy projectile update (skipped while g_Game+0x8100 & 6) and draw
+Overlay_Update (func_8009B7FC): runs an in-game overlay requested by Overlay_Request (D_800F5AA0: state, loaded, ready, arg, fade). State 1: stops Spike's play mode, loads file 0x180 to 0x80136000 through the CD queue, fades in, then calls its entry func_80137248(arg) and goes to state 2; state 2 fades out and returns Spike to play mode 0
+Overlay_Request (func_8009B7B0): requests the overlay with argument arg (state 1)
+Overlay_GetState (func_8009B7A0): returns the overlay state byte
+Fx_UpdateExplosionSmoke (func_8006B168): while the smoke timer (D_800BAD68+8, set to 0x10F by Fx_BigExplosion) runs: every 4th frame two rising smoke particles (D_800B1894 templates), every frame random sparks (effects 5 and 0x2B) around the spot
+Fx_BigExplosion (func_8006B31C): large explosion at a position: 40 debris effects (0x29), blast effect 0x112, particle burst D_800B1C28, starts the lingering smoke, camera shake and sound 0xA7
+Camera_ProbeDrop (func_8004906C): samples the ground at two points between the camera and its target (scratch 0x1F800000); when either is more than 0x100 below the target (a drop), counts frames in +0x36 (resets +0x37), holds +0x35 = 6 and with flag set restores +0x40 from +0x44; otherwise counts frames over solid ground in +0x37
+Minigame_Run (func_80011A2C): runs minigame executable n (file id D_800A8508[n]): copies its 0x80-byte save block (Minigame_GetSaveData) and two option flags (g_Game+0x813A, +0x8138) to the scratchpad, loads the EXE with Exe_Load, sets its stack to 0x801EFFF0 and Exec()s it; on return re-initialises graphics and copies the (updated) block and flags back, then shows the loading screen and selects menu screen 3
+Minigame_GetSaveData (func_800119F4): pointer to minigame n's 0x84-byte block in the save data (+0x168 + n*0x84)
+Exe_Load (func_80011C1C): reads a PS-X EXE by file id: its header into D_800B7650, the 15-word exec info to *out, then the text section to its load address
+Fx_UpdateBlastSequence (func_8006C6D4): counts down a scripted explosion at D_800BAD80 (timer u8, position +4): frame 30 spinning debris x3 (D_800B1A8C), flash 0x112/0x108, shock ring (func_8006ED78) and sounds 0x36/0x37; 18 and 14 sounds 0x38/0x39; 5 smoke D_800B1A38; 1 final blast: 20 debris effects, 0x112/0x109/0x108, two particle bursts and sounds 0x3A-0x3C
+Zone_UpdateAll (func_80088AB8): per-frame zone/platform update (skipped while g_Game+0x8100 & 8): for each zone (g_Game+0x820C, 0x38 bytes) from last to first: kind (+0x18 & 0xF) 3 = inactive, 1 = only func_8008B7F8 when +0x30 >= 0; otherwise copies the zone into the work buffer D_800B3340, runs its type handler D_800B3344[type +0x12] (types 0/1 also set g_Game+0x8290 = index), then func_8008B7F8, and copies it back
+Camera_BlendToSetting (func_80047FF0): moves the camera eye/look (g_Game+0x8258/+0x8260) from the saved view (D_800E68D0+0x1C/+0x24) to the current setting's view (setting +0xA/+0x12) by weight t/128 (D_800E68D0+0x30), shrinking t each frame by the blend kind (+0x2E): 0 linear (-1, or -3 above 0x20), 1 fast then ease (-8, then *7/8 below 0x30), 2 *3/4, 3 cut
+Platform_GlideToWaypoint (func_800892C4): moves a platform from its start point (+0x24) toward the current waypoint over 2*wait frames (+0xC counts up), carrying and turning riders and its model; at the end advances to the next waypoint, skipping (snapping through) waypoints with wait <= 0
+Coll_RampHeight (func_8004F000): for a point (relative to a box with half extents e[0..2]) inside the box footprint, writes the ramp surface height to *h for ramp kinds 0x55/0x57 (sloping along z) and 0x58/0x56 (along x), and the slope per axis to D_800AF2EC (x) / D_800AF2F0 (z); boxes thinner than 0x41 are flat (height e[1]). Returns 0 outside
+Area_SaveProgress (func_80096FAC): on leaving an area: saves object state and the area's 8-byte object mask (g_Game+0x816C) into the stage's area table D_800DFE00 (24-byte rows, area = current - first area of the stage); when going to stage 0x45 from the stage's first area in mode 6, copies the stage's rows into the persistent table D_800DF820 (or, in race stages 0x1C/0x1B, into D_800DFF20) and stores g_Game+0x8166 to D_800DFCB0
+MemCard_Request (func_80010000): starts a memory-card operation (D_800E3880: status +0 = 1 while busy, request +4): 0/10/17 accept, 4/11/16 check card, 7 build the save image, 1 read the main save (0x2000 bytes), 12 read the 0x180 header, 5 create + write the main save, 2 write it, 13 create + write the 0x18000 data file, 14/15 write it, 3 format, 8/9 install/remove the libmcrd callback. Create/format error codes become status -4/-6/-7/-8
+Light_SetColorMode (func_80015D58): sets the GTE light colour matrix (D_800EBFF0) by mode: 0 white lights, 1 white (dimmed red/green 0xAAA when g_Game+0x827C>>12 == 1), 2 custom first light colour (r,g,b) after saving the matrix to D_800E78E0, 3 restore the saved matrix
+Pendulum_Update (func_80092B0C): swinging hazard: alternates two half swings of period +0xA frames (state +2, timer +6) with angle amplitude +0xE (cosine eased) around X or Z (+8), moves the model's matrix and an electric hit box (ShockBox_Update kind 4, size +0x10) at its end (length +0x12); swish sound at mid-swing (0xB4 in stage 0x3C when D_800EC208 < -0xB00, 0xB2 in stage 0x17)
+Sound_PlayAt (func_80087A20): play a sound effect positioned in the world (volume/pan from Sound_CalcVolume3D)
+Sound_CalcVolume3D (func_80087C8C): distance attenuation from listener D_800BF688 (full volume within 0x800, silent past range) and left/right pan from camera direction; returns 0 if both channels < 8
+Coll_PushCurvedCorner (func_80076AC8): wall push-out against a quarter-round corner piece: radial x/z correction to the ring's inner/outer edge, or step-up height in out[3] when on top of it
+Coll_PushDiagonalWall (func_80076488): wall push-out against a 45-degree diagonal wall piece (foot of perpendicular from Geo_DiagonalDistance)
+Coll_PushWallSegment (func_800761AC): wall push-out against a thin wall piece with faces 0x100 off centre; returns which axis (1 x, 2 z) was corrected
+Box_ContainsXZ (func_80073B64): point inside a box's x/z footprint
+Coll_PushBox (func_80073BC8): solid box push-out (x or z face by quadrant) plus step-up height onto its top in out[3]
+CurvedCorner_GetCentre (func_8004FE48): centre of the arc of a quarter-round corner piece 'F'..'I'
+Coll_PastEdge (func_8004FF20): edge pieces 'N'..'Q': is the point beyond the edge line
+Coll_HeightRangeHit (func_800739FC): vertical range overlap test (top/height pairs)
+Tutorial_Complete (func_80097820): gadget tutorial finished: sets its done bit and grants the gadget
+Coll_PushWallEdge (func_80075F48): wall-edge push-out, face by orientation or quadrant
+Coll_PushHalfCylinder (func_80075630): half-cylinder solid push-out with circular top height
+Rotor_Update (func_800909FC): four-armed rotating object driven by a zone (kinds 0x37..0x3A); ask user what it is
+Object_DefeatedUpdate (func_80055174): defeated object: overlay effect, destroy, drop pickup kind 2 (needs linker alias D_8013D6B8_52)
+Seq_ReadDeltaTime (func_800A01BC): sequencer: read MIDI varlen delta time and scale it by tempo
+Spu_ProcessUploadQueue (func_800A0700): start next queued SPU upload, or run the done callback
+Seq_UpdateChannelFades (func_800A0B64): per-tick volume ramps of a sequencer channel (master +0x8A.. and 16 per-track ramps +0x3A..), clears the ramp table when nothing moved
+Sound_BusyWait (func_8009D79C): spin loop of n*0x300 iterations
+Sound_LerpU8 (func_800A0B0C): a + (b - a) * t / n for fades
+Seq_VoiceVolume (func_800A0A64): voice volume = product of 4 gain stages (+0x28..+0x2E) >>14 * channel pan[ch] >>7, with optional override byte (+0x4A)
+Spu_Upload (func_800A1830): start an SPU upload (src, size, dst) now, or queue it (max 32) while a transfer runs; -1 on bad args
+Spu_Download (func_800A192C): like Spu_Upload but transfer mode 1 (SPU -> RAM?), queued with bit 31 set
+Seq_NoteVolume (func_8009E6B4): new note volume = instrument/channel/track gains >>14 * velocity curve D_800B4190 >>7 (+ override byte)
+Sound_Init (func_800A13EC): sound system init: clears SPU registers, sets DMA register pointers, installs the upload callback, uploads a 16-byte silent sample to 0x1010, resets voices/banks
+Seq_CmdLoop (func_8009FA28): sequence loop command: jump to offset (data[2..3]) up to data[4] times (0 = forever)
+Seq_CmdNrpnData (func_8009FB08): NRPN data entry: by selected parameter (+0x11B) sets ADSR fields of the current instrument (D_800B4DF0 +6/+8) and pushes them to matching voices, or calls effect setters (15..19)
+Seq_ReleaseFinishedVoices (func_800A048C): frees channels whose voices all ended and voices whose SPU envelope ran out (ADSR level < 0x10 while releasing)
+Seq_Tick (func_8009BA90): sequencer tick: for each of 24 channels reads and dispatches due MIDI events (note on/off, CC 1/2/6/7/10/64/65/96/98/99, program, pitch bend, meta end/tempo), merges key-on/off masks, writes SPU key regs, then voice update (func_8009CE18) and fades
+Link_ResetTree (func_80090230): marks a link record active (+2 = 1), resets its object's model/flags, recursively resets its three child links (+0xE/+0x10/+0x12) and then stores the object's position into them
+Seq_CmdPortamento (func_8009F060): CC 65 portamento: glide time from data byte scaled by tempo for matching voices
+Seq_CmdModulation (func_8009EC48): CC 1 modulation depth for the channel's voices
+Seq_CmdModRate (func_8009EE28): CC 2: modulation rate (240 / (60 - v*58/127))
+Seq_CmdVolume (func_8009F218): CC 7 channel volume (or a timed volume slide when +0x27)
+Seq_CmdPan (func_8009F568): CC 10 pan (or a timed pan slide when +0x27)
+Seq_CmdNrpnLsb (func_8009FEB4): CC 98 NRPN select
+Seq_CmdNrpnMsb (func_8009FF38): CC 99 NRPN select
+Seq_CmdSustain (func_8009F8A8): CC 64 sustain pedal
+Seq_EndOfTrack (func_8009EAAC): meta 0x2F: loop back to the start (0x110) or stop the channel
+Seq_SetTempo (func_8009EB84): meta 0x51 tempo
+Seq_NoteOff (func_8009E2DC): 0x80 note off: release matching voices
+Seq_ProgramChange (func_8009EBD0): 0xC0 program change
+Seq_PitchBend (func_800A0050): 0xE0 pitch bend: retune matching voices
+Coll_HeightOverlap (func_80050490): vertical overlap of a body (top y, height h) with a solid (top oy, height oh), sampled at y-0x60, the middle and the bottom (bodies under 0x60 tall only at y-0x60)
+Object_SpikeWithin (func_80056EAC): 1 if Spike (D_800EC204..) is within d of the object on all three axes
+Monkey_IsPathLooping (func_80035604): 1 if the monkey's last path nodes (+0xF2..+0xFC) repeat (same node 3 times, or an A-B-A-B / A-B-C-A-B-C pattern)
+Object_DrawAll (func_80051534): for each object flagged visible (+0xE0 bit 4): frustum test (func_80051410, radius +0x46/2), then draw (func_80051C00 when +0xC8 set, else func_80051A28)
+Sound_PlayFixed (func_800877F8): play a non-positional sound effect id (returns the voice or -1)
+Monkey_UpdateActive 80042B68 per-frame update of the 4 active monkeys (skips lost/caught/offscreen; stops sound 0x602D in area 0x24)
+Puff_UpdateAll 80070D94 updates/draws the 8 puff particles (jittered 8-point strip)
+Puff_ClearAll 80070B48 clears the 8 puff slots
+Platform_UpdateOrbit 800895F0 platform moving on a circle (plane from flags 0xF00), optional bob/spin
+Contact_Add 80072334 add (kind, thing) to the 16-entry contact list D_800BEEA0
+Contact_IsNew 80072380 1 if (kind, thing) not already in contact (else marks seen)
+Contact_Expire 800723E8 drop contacts not seen this frame, count up held frames
+Contact_ClearSeen 80072454 clear the seen marks
+Coll_PushWedge 8007449C push Spike out of a box cut along a 45-degree diagonal (wedge)
+Stage_Begin 800966B4 start a level: world/stage ids, subsystem resets, monkey count/list/caught flags for the stage
+Object_SpawnFromRecord 800508B8 set up an object from a stage placement record, map placement id -> slot
+Anim_StepFrame 80016E68 advance an animation frame: pause (bit0), hold last (bit1), else loop to 1
+Box_ContainsPoint 8009091C point inside an s16 box (centre, half sizes; y from top down)
+Model_SetTurnAngle 80091C04 set a type-3 model's rotation to one angle about the axis of a direction code
+Spike_AnimEndOnTriangle 800655C4 Spike's animation just ended and the last buffered press is Triangle
+Spike_AnimEndOnCircle 8006562C same for Circle
+Gadget_Cancel 800657F0 put the gadget away (state 0x1000): stop sounds, reset aim, leave aim camera
+Pad_RecentR2/L1/R1/Triangle/Circle 80064B24/80064F90/8006501C/800654AC/80065538 button pressed within the last 10 history entries
+Pad_RecentCross 80064BBC Cross pressed within the last 10 history entries
+Object_SpikeWithinXZ 80056F6C Spike within r of an object on both x and z
+Coll_ClipColumnHeight 80072D28 cut a probe column's height at the first step above the floor
+Block_GetCornerPos 8008BE4C position of a block, moved half a size towards its direction corner for type 0x4000
+Pickup_SpawnArea 80083470 spawn the area's pickups from the area data (skipping collected ones), pick the drop table
+Spike_PlaceAtSpawn 80032D38 put Spike on an area's spawn point, on the floor, facing its direction
+Anim_SetFrame 80014D70 unpack one animation frame into the joint table and root offset
+Save_InitSlots 80010720 reset the 4 save slots and their names
+Object_DetachLink 800582EC clear object link i, return the linked object's kind
+Collision_TickCounter 80071D20 counts collision frames (D_800B2130++)
+Collision_Init 80071D3C reset collision entries (256), shape pool (128) and contact list
+Collision_GetShape 80072170 shape of collision entry id (0 if out of range)
+CollShape_Alloc 80072220 take a free collision shape from the 128-entry pool D_800BD1A0
+CollShape_Clear 8007228C zero a collision shape
+CollShape_Free 800722D4 return a shape to the pool
+Collision_UpdateMoveRumble 80072BE8 in play mode 1 loops sound 0xAD and pad rumble while the body moves or buttons are held
+Probe_ShiftCorners 800733DC shift the corner probe points (D_800B20B0) by (dx, dz)
+Box_NearPoint 80073AA0 0 if a point is within an s16 box grown by 0x200, else -1
+Coll_PushFlatWall 8007734C push out of a flat wall piece (kinds 0x4A/0x4C along z, others along x)
+Coll_UnknownShape 80077490 debug print for an unhandled shape
+Dir_QuadrantIndex 8007774C direction code 0xF00 -> 0..3
+Collider_GetCentre 80077C28 centre point of a collider (cylinders: middle of the height)
+Collider_HitSound 80078808 sound for a collider hit (0x29 = none)
+Collision_KindOfOwner 80078864 kind of the collision entry belonging to an object (-1 if none)
+Pickup_CheckTouch 800788B8 collect the pickup when a Spike/RC-car collider touches it
+Math_Atan2 80046340 ratan2(y, x) with y == 0 handled (0 or 0x800)
+Math_ISqrt 80046584 rounded integer square root (GTE leading-zero count)
+Vec_Length 80046618 length of (x, y, z) via the GTE square
+Vec_AngleBetweenXZ 800344C8 signed angle between two vectors on the x/z plane
+Vec_DistXZ_SV 800345D4 x/z distance between a VECTOR and an SVECTOR
+Vec_Dist 80034684 3D distance between two VECTORs
+Vec_DistXZ 8003473C x/z distance between two VECTORs
+Monkey_AimAtGoal 800347D8 g_CurMonkey direction +0x68 = normalised (goal +0xBC - position)
+Monkey_TurnToGoal 80034834 aim at the goal and face it on x/z unless the monkey is in a state that keeps its facing
+SVec_DotXZ 800348CC x/z dot product of two normalised SVECTORs (4096 = parallel)
+Vec_DotXZ 80034940 same for VECTORs
+Math_Atan2Pos 800349B4 ratan2 in 0..0xFFF (0x400/0xC00 when the second argument is 0)
+MemCard_Start 80010AF0 MemCardInit(0) + MemCardStart
+MemCard_Stop 80010B1C MemCardStop + MemCardEnd
+Cd_GetAreaFileSector 80010D04 sector of area file i (variant picked by func_800115F4)
+Cd_ReadCurrentFile 80011208 queue a read of the current file (D_800E3890 +0x1C[+0x20])
+Cd_ReadFile 800112E4 queue reading a whole file to dest (waits for a pending stream first)
+Cd_ReadFilePart 800113CC queue reading size bytes at offset of a file to dest
+Cd_SeekAreaFile 800114D8 select area file i (two variants) and queue a seek to it
+Cd_ProcessLoaded 80011970 post-load step by kind (1 graphics via func_80068D10, 2-4 sound banks)
+Cd_WaitIdle 8001256C spin Cd_Update until the CD queue is idle
+Cd_WaitQueue 80012964 wait for queued CD commands (-1: just drop them)
+Cd_QueueCommand 80012360 queue a CdControl-style command (cmd, params, response buffer, done flag) in the 16-entry ring; matched
+System_Init 8005CD50 boot-time init: callbacks, GTE, sound, CD, memory card, pads, VSync handlers, file table
+System_Shutdown 8005CEC0 stop sound, memory card, root counters, GPU, pads and callbacks
+Gfx_InitDisplay 8005CFEC set up the two 384x240 draw/display environments
+Gfx_VSyncFlip 8005DDF4 VSync handler: after 2 fields puts the pending display/draw env and draws the OT(s)
+Gfx_WaitFlip 8005DE8C wait for the pending buffer flip, then DrawSync
+Gfx_BeginFrame 8005DF48 swap to the other draw buffer and clear its ordering table
+Stage_StartTimerAndMusic 80094F48 reset the stage timer (race modes keep it in world 3) and start the stage's XA music track (not in stages 0x1F/0x21 or areas 0x4E/0x56)
+Stage_StoreClearState 80096638 store g_Game+0x812E (stage clear state, used by Save_GetCompletion: 1 cleared, 2 all monkeys) for stage i (0x18..0x1D share one entry); not in races
+Area_Enter 800972E0 entering area st of the current stage: take this area's caught flags (D_800DFE00) into g_Game+0x816C, or start the stage (Stage_Begin) when coming from area 0x45
+Stage_GetInfo 80097D0C fill the stage info record (best time, monkey totals from the 0x80102400 table, clear state) for stage idx
+Save_GetCurrentCompletion 80098088 completion percentage of the current progress (builds a save block, Save_GetCompletion)
+Sound_InitState 80086040 reset the sound state, clear sound RAM (upload zeros) and set SPU defaults
+Sound_ResumeStreams 80086170 re-apply the stream volumes (menu modes use the saved volume +0x10, else 0x7F)
+Sound_RestoreVolumes 800864FC copy the saved volumes (+0x14/+0x12) back and apply them
+Sound_UpdateVoice3D 80087B34 set voice a's volume from its 3D position (silent when out of range)
+Sound_ReserveSlot 80088434 reserve a sound slot for id a with tag b (no voice yet)
+Sound_PlayTracked 800884B8 play a sound and record its voice in a sound slot
+Effect_SpawnAt 800698B8 spawn effect id at a position (default effect tables)
+Effect_SpawnXYZ 800698E4 same with x, y, z arguments
+Fx_ClearAll 8006A9B0 reset all effect pools (puffs, shockwaves, ...)
+Fx_UpdateAll 8006A9F8 per-frame update of all effect pools
+Fx_GroundBlast 8006B570 blast on the floor below (x,y,z): ring effect, camera shake, 25 random debris effects 0x16
+Fx_UpdateSpikeEffects 8006B800 explosion smoke, and while active Spike's water and damage effects
+Spike_WaterSplashIn 8006B848 Spike entering water: splash effect 0x100 at the surface, sound 0x72, ripple timer from his fall speed
+Spike_WaterSplashOut 8006B950 leaving water: effect 0x101, sound 0x74 (0x9D when fast and near the bottom)
+Pickup_Frame 80084598 update pickups (unless paused) and draw them
+Pickup_SaveAreaMask 800847EC store which of the area's 32 pickups are gone as the area's bit mask D_800BF2B8[area]
+Projectile_Frame 80084AA0 update and draw projectiles
+Object_SpawnNearby 80050B04 spawn placement records (not yet spawned, spawns left +0x10) once Spike is farther than their radius
+Object_Frame 80050C34 per-frame: enemy shots, object update (unless paused), draw, spawn new objects
+Object_EnableCollision 80051DCC register the object's collider (flags 0x4002 -> collision kind 4)
+Object_DisableCollision 80051E34 remove the object's collider
+Object_DropPickups 8005216C drop the pickups listed for its drop table +0xDC (D_800AF300, 0x63 = none)
+Object_FinishAction 800528E0 end of an action: stop, then re-enable collision / destroy, or switch to the next animation
+Object_UpdateAction 80052A24 run the object's action (+0x82 modes 4/5 move toward a target); 2 when the animation ended
+CamScript_Event 8004BA0C camera script event (opcode 22): 2 = switch to mode 0x13 with an event camera, 3 = effect 0x119 + rumble, 4/5 = set/clear D_800AF131
+Camera_StartEventCam 8004BB68 create an event camera object (kind 4) running script a; makes it the active camera unless b
+CamFlyby_End 8004D6F4 stop the stage flyby and go to mode 0x19
+CamFlyby_StepSegments 8004D7A0 step the flyby through its segments; any of Start/face buttons skips it
+RcCar_Place 80099360 put the RC car (gadget 7) at x,y,z facing like Spike and register its collider
+RcCar_Remove 8009946C remove the RC car and its collider
+Link_UpdatePressurePlate 80090660 link object: while its box is occupied it is on (sound 0x75) and sends its events, off again when left
+Link_UpdateKnockbackZone 80093788 link object: knocks Spike back (30 frames) when he touches its box, then waits 30 frames
+Link_UpdateGrowBox 800918FC link object: grows its box/model from 0 to full (sound 0x9B), then shrinks back
+Link_TouchesSpike 80093848 1 (with the push vector) when Spike is inside the link's box
+Monkey_EnableCollision 80033008 register g_CurMonkey's collider (kind 3) once
+Monkey_DisableCollision 80033068 remove it
+Monkey_QueueSound 80033744  queue sound a with delay b at g_CurMonkey's position in the 16-entry list D_800E6780 (was Monkey_PostEvent)
+Object_GetJointPos 80034D30 world position of vertex j of joint matrix i of object a (skeleton recomputed)
+Monkey_GetJointPos 80034E3C world position of point j through joint matrix i of g_CurMonkey (+0xDC up)
+Gfx_InitProjection 80020A88 GTE projection distance 0x148 and Z scale factors
+Stage_ApplyFog 800323F8 set the stage's far (fog) colour and depth range from D_800EBFA0
+Matrix_RotateY 80014750 multiply m by a rotation about Y
+Spu_SetDmaCallback 800A06DC DMACallback(4 = SPU, f)
+Camera_KeepAboveFloor 80048F6C keep a camera point between the floor ahead and 0x400 above the target
+Camera_ResetToStart 80049514 put the current camera at the area start point (g_Game+0x8258), distance 0x460, facing Spike
+Camera_RcCarActive 8004A978 1 when the RC car (gadget 7) is out and the area allows its camera
+Object_SetVelY 8005325C set an object's vertical speed (+0x96)
+Object_MoveTowardSpike 80053B44 set the object's x/z velocity (+0x94/+0x98) toward Spike at the given speed
+Surface_NarrowPathHeight 8004E444 floor height of narrow walkway tiles (straight 3-6, corners 0x2A-0x2D) in play mode 1
+Object_SeekHeight 80055B9C  set Y velocity (f_96) toward target height f_9C at given speed; snaps and returns 1 when within speed
+Stage_GetWorld 80010CC0  world (era) index of a stage, D_800A81B0[stage].f_4
+World_FirstStage 8009764C  first stage index of a world, D_800B3858[world]
+Seq_SetTempo 8009EB84  matched: MIDI meta 0x51, tempo u16 from stream+2
+Gadget_SelectFromButtons 800679A0  matched: Triangle/Square/Circle/Cross pick gadget slots 0..3
+Gadget_UpdateHudCursor 8008197C  matched: HUD cursor to current gadget's slot, else (0x148,0x48)
+Cd_GetFileEntry 80012C0C  matched: CdlLOC + byte size of a disc file from g_CdFileTable
+Monkey_InitDebugMenu 80043060  matched: debug page items D_800AEC20 (byte var D_800F44D4, 0..8) and +0x24 (D_800AEB66 active-monkey limit, 0..4)
+DebugItem_Init 8007D1E0  debug menu value item: bind variable pointer and size, default range -9999..9999
+DebugItem_SetRange 8007D290  debug menu value item: set min (0x10) and max (0x14)
+Zone_FindAt 8004626C  matched: OR of flags of zone boxes (16 bytes: centre, half-size, flags) containing a point; none -> 0xFFFF/0x8000. Bug: |dy| uses -dx
+Zone_SetTable 80043380  install the zone table (count word followed by Zone records), or clear it for NULL
+Monkey_SelectActive 800426C4  pick the D_800AEB66 monkeys nearest Spike (by f_210 distance) for the active slots g_ActiveMonkeys; respawn/reset the rest
+Object_StepGrowShrink 80056DC4  matched: ramp +0xA8 up to max*8 while flag 0x10000, then down; returns 1 when back at 0
+Monkey_AvoidConeAngle 80037DEC  matched: path-choice cone half-angle, 60 deg under distance 260 shrinking to 0 at 3000
+Monkey_UpdateQueuedSounds 800337C4  matched: count down the 16 queued monkey sounds, play each at its position at 0
+Monkey_ClearQueuedSounds 80033708  reset the 16-entry queued sound list
+Image_DecodeNibbleRuns 80068F0C  matched: 4bpp decode of (colour<<4 | count) byte runs into a buffer from func_8008C09C
+GadgetTrail_Push 8001F8B0  matched: push gadget line (g_GadgetState+0x34/+0x3C) into the 12-entry swing trail ring, intensity 0xFF
+Gadget_StopSounds 8007A180  matched
+Monkey_AnyInBox 80094E5C  matched: 1 if a spawned monkey (f_7A 4) is inside box b {x,y,z,hx,hy,hz}: |dx|<hx, |dz|<hz, y in [y-hy-16, y)
+Fx_SpawnFadeRing 8006ED78  matched: effect cmd 0x33, ring slot of 8 (D_800F5010): delay, 15-frame fade, radius b/4 -> b (or -b -> 0)
+Fx_UpdateFadeRings 8006EE3C  matched: draw rings grey = timer*6, ease radius 1/8 toward target
+Fx_DrawFadeRing 8006E5B4  draw one fading ring (radius, shape, colour)
+Spike_WithinRadiusXZ 800570F4  Spike's XZ distance to (x, z) < r
+Object_SpikeOutOfYRange 800564EC  matched: 1 if Spike is more than 0x600 above/below y, or always with object flag bit 2 of +0xE0
+Object_SpikeOutOfRange 8005654C  Object_SpikeOutOfYRange, or r != 0 and Spike outside XZ radius r
+Object_AddAttackSphere 8005813C  allocate a type-6 collision sphere (radius, pos, two params) owned by the object
+Object_AddAttackSphereNear 80058220  matched (K&R s16 params): Object_AddAttackSphere only when Spike is within radius + 0x200
+Stage_PairInSharedSet 800115F4  matched: 1 if both stages a and b are in the list D_800A851C {0x45-0x48, 0x4D, 0x4E, 0x38, 0x39, 0x50, 0x53} (never in mode 11); picks the alternate area file / keeps sound banks
+Vehicle_UpdateSpikeOnTop 8009B6C8  matched: near the vehicle D_800B4DC4 (|dx|,|dz| <= 64, Y window) count +0x8F down to 2; at 0 with Spike state nibble 0x40 zero his X/Z velocity
+Link_SaveStates 8005B480  matched: store link-record states (64 x 0x1E at D_800B9030): kind 0x22 with state -> SaveFlag_Set(+0x18), kind 0x32 -> SaveByte_Set(+0x10, +0xE)
+SaveFlag_Set 800962F4  set bit n of the persistent flag array D_800DFCC0
+SaveFlag_Test 8009632C  test bit n of D_800DFCC0
+SaveByte_Set 80096360  set byte n of the persistent byte array D_800DFDD8
+SaveByte_Get 800963AC  read byte n of D_800DFDD8
+Monkey_StartLink 8003B674  matched (K&R): set the current link from->to, flags from sorted table D_800B4D1C into f_228, derive f_4A/f_EC/f_248 bits
+Spike_BounceBack 80066358  matched: step back vel/32, launch -16*vel and up -0x1E000, copy pad dir, play mode 0
+Node_GetPosition 80034EF8  matched: path node world position: flag 0x400 -> object joint (Node_GetJointRef + Object_GetJointPos), flag 1 -> offset from moving platform g_Game+0x820C[f_10], else fixed f_4/f_6/f_8
+Node_GetJointRef 80034B74  decode a node's f_10/f_12 (decimal-packed) into object, joint and sub index
+Link_ApplySaveFlags 8005B318  matched: for this area's link objects (g_Game+0x8220 by group g_Game+0x821C): kind 0x22 -> state 1 if SaveFlag_Test(+0x12), kind 0x32 -> state SaveByte_Get(+0xA)
+Link_InitArea 8005B538  run the area's link-group init functions (D_800AF868[stage]) on each object after Link_RestoreSaved + Link_ApplySaveFlags; matched (needs an empty do { } while (0) before the call)
+Node_LinkFlag 80038608  matched: 0x4000 flag of node n's link to v (sorted link list), 0 if not linked
+Monkey_StepAnimFrame 800330C8  matched: f_5C++ clamped to the current animation's last frame (f_16C[func_80032E84()].f_2 + 1)
+Spike_Land 80066770  matched (name tentative): fall counter +0xFC >= 6 -> 1 damage, rumble, state 0x18/0x4B, sound 0x43; else sound 0x42 or 0x13/0x12 by +0x34
+Object_ApplyVelocity 800554F0  pos (+0x24..) += velocity (+0x94..)
+Object_PlaySound 80055404  play sound b at the object's position
+Object_CameraShake 800553CC  camera shake unless object flag bit 2 (+0xE0)
+Object_WouldLeaveHome 80055370  1 if pos+vel is outside the home radius (+0xA6 + extra) around home (+0x9A/+0x9E)
+Object_SetVelocityToward 80055524  normalise dir, velocity = dir * speed, then Object_TurnToward it at rate b
+Object_HeadTowardSpike 800555D8  velocity toward Spike in XZ at speed b
+Object_HeadHome 80055674  velocity toward the home point (+0x9A/+0x9E) at speed a, turn rate b
+Object_StepOrbitAngle 800559E8  orbit angle +0xAA += a degrees/4 (reversed with flag bit 19)
+Object_OrbitAround 80056238  step the orbit angle and place the object on a circle of radius r around (x, z), facing along it
+Object_ChaseSpike 80055C00  turn toward Spike (rate +0xB0) and move forward at speed
+Object_TurnTowardSpike 8005696C  turn toward Spike at rate +0xB0
+Object_TurnToward 8005685C  turn the facing (+0x60/+0x64) toward direction (dx, dz) by at most max
+Object_SetForwardVelocity 80056200  velocity = facing * speed (XZ)
+Object_IsFacingDir 800565C4  set +0xA2 to the cone angle; 1 if the facing is within it of (dx, dz)
+Object_HomeSeesSpike 80056674  Spike inside the home range and in the facing cone from the object
+Object_SpikeBehind 80056714  Spike within r and on the back side (cone of object - Spike)
+Object_SpikeInFront 800567B8  Spike within r and inside the facing cone
+Object_SpikeInView3D 800558C4  Spike in the home range and inside a 3D facing cone
+Object_StepOnGround 80056344  move by velocity if the floor there is no more than h below; else clear flag 0x100
+Object_StepOnGroundFixed 80055460  step if the floor is within 0x40, always snap Y to it
+Object_FallToFloor 8005648C  y += vy until the floor; 1 when landed
+Object_FloorAt 80056C58  floor height at the object's position plus an offset
+Object_PlaceRandomAroundHome 80056CE0  place at a random angle on radius r around home
+Object_SetAnim 80056E50  set state (+0x80), animation (+0x7F, previous in +0xCE) and its first frame
+Math_WithinSquare 80056E7C  |dx| < r and |dz| < r
+Object_SpikeNear 80056FF4  Spike in range and Object_SpikeWithin
+Object_SpikeNearXZ 80057064  Spike in range and Object_SpikeWithinXZ
+Object_ClampAnimFrame 800570D4  keep frame +0x5C below max
+Object_SpawnEffect 80057504  effect id at the object's position plus an offset
+Object_AddAttackSphereAt 80058324  attack sphere at a given point (0xB00, 0x200)
+Object_SetPath 800583BC  path index -> point count +0x8C and point list +0x90
+Object_PlaceAtPathPoint 80058638  position = path point i
+Object_PathPointNear 8005846C  1 if path point i is within r of a position (XZ)
+Monkey_Rand 80032E30  monkey-AI random number: LCG D_800B4D10 = x*5+1, returns bits 8..15
+Monkey_CurAnimIndex 80032E84  animation index for the current state (D_800AE940[state].f_0; +0x242 for states 0x32..0x34)
+Monkey_RestartAnim 800331B0  frame = start of the current animation; clear Y speed unless the state flags bit 2
+Monkey_AnimJustStarted 80033ACC  1 on the first frame after Monkey_RestartAnim
+Monkey_SetState 80033220  set state +0x78 (swapping the animation set for states 0x32..0x34) and restart its animation
+Monkey_SwapPathNodes 80038694  swap the current and previous path nodes (+0xF2/+0xF4)
+Monkey_AvoidConeAngleAlt 80037D6C  path-choice cone for special stages: 50 under distance 800, shrinking to 0 at 2000
+Platform_ProcessEvents 8008B7F8  matched (K&R): walk the zone's event chain (+0x30, next +0xE): type 3 Platform_RunTrigger (with Spike's distance), type 5 code 0x50 copies a switch state (f_20C[a].f_18 & 0xF == 1) into f_214[b].f_E
+Monkey_UpdateJump 8003FD7C  matched: jump timer +0x96 up to +0x128: frames follow the timer, Y = y0 - vy*t + 4t^2 clamped to the floor; at the end choose a route or go back to state 0
+Floor_GetHeight 80043400  floor height at (x, y, z) (collision/zone query)
+Monkey_CheckRouteAway 800386C8  matched: 0 if the monkey's next path node lies inside the avoid cone toward its target (swaps nodes in some cases); 1 otherwise
+Link_UpdateFlybyTrigger 80092FBC  matched: link waits for another link's counter (+0x16 >= +0xA) in play mode 8, then starts camera flyby segment +0xC - 1 when the mode is back to 0 (g_Game+0x8100 = 7)
+Camera_HandleManualInput 8004923C  D-pad (0x1000 up, 0x2000 right, 0x4000 down, 0x8000 left) or right stick turns (+0x6E = +-0x22) and tilts (+0x6C = +-0x30, clamped) the camera (still asm)
+Menu_DrawStatusScreen 80082A04  matched: status page: two-digit counter (g_Game+0x816A), the save percentage (Save_GetCurrentCompletion, digits + '%' glyph 0xBC) and labels
+Fx_Explosion 8006AA60  matched: effect 0x109 + func_80071120(pos, b); kind 0 / default: effects 0x105, 0x103, sounds 0x4B + 0x5F; kind 1: sounds 0x4D + 0x5F; kind 2: sound 0xB9
+Sound_PauseVolumes 80086788  matched: mode 0: volume 0 for every active sound slot except types 1..5 (+0 & 0xF000 in 0x1000..0x5000); otherwise volume 0x1000 for type-0 slots (not +0x16 == 1)
+Link_UpdateFlybyOnSwitch 80093110  matched: once the linked switch (+0x8) is in state 1, start camera flyby segment +0xC - 1 (g_Game+0x8100 = 7, D_800EC238 = -1) and mark done
+GuidedAmmo_ClearLocks 8007A304  clear the three guided-ammo lock-on slots
+Gadget_SaveSlots 8007C9D8  back up the four slot assignments (+0x88..0x8B) and the current gadget into +0x8C..+0x90
+Gadget_RestoreSlots 8007CA10  restore them
+Gadget_Unlock 8007B358  owned-gadget mask g_GadgetState+0xA4 |= mask (saved into the save block)
+Save_StoreGame 80095B3C  matched: copy live progress (world, flags, stage lists, records, gadget state via func_80095D44) into the save block; race mode copies only the best times
+Fx_DebrisExplosion 8006B3F0  matched (K&R s16 x,y,z): effect 0x10D, fade ring 800, two debris bursts, 16 x effect 0x17, 16 random effect-7 sparks, camera shake 1
+Link_ToggleSwitch 80090370  matched: kinds 0x2A..0x2D (2 states) / 0x2E..0x31 (3 states): set state from +0xA, trigger the target link (+0xC) when on, swap the model frame (func_80090E54 / func_80015CC8)
+Monkey_Draw 80039ED4  matched: every 3rd frame (or always when f_7A==4) build the monkey matrix (scale-in via +0x24A/+0xF0), draw body (detail level +0xD5), stage 0x46/0x24 extras (0x602D loop sound in state 0x1A), per-kind part models (kind +0x1E list, D_800AEBB4 model ids) and a model from D_800AEBF8[kind f_0>>6] (helmet light?)
+Model_BindMesh 80015C34  matched (permuter): bind mesh data to a model instance (+0 hdr, +4 body, +8/+C tables at hdr word offsets 5/4; 0x300000 flags -> +0x1A bits)
+Model_BindStageMesh 80015CC8  named: Model_BindMesh with entry n of the stage mesh table g_Game+0x8224 (used to swap switch/door model frames)
+Coll_HalfCylinderHeight 8004FFC8  matched (permuter): half-cylinder piece height (kind 0x24 axis along x, else along z), sqrt of radius^2 - offset^2; clears the slope on the flat axis
+Object_Draw 80051C00  matched: per-object draw for Object_DrawAll: shadow (+0xA0 size), model matrix, extras (+0xE0 bit 13, +0x70 joint), alternate func_8001D530 path (+0xE0 bit 26) or flash while hit timer +0x84 runs
+Club_Draw 8007CAE0  matched: Stun Club draw (shaft stretched by len, head scaled len*3 clamped 0x1000..0x2000); optional save of the head position to g_GadgetState+0xC
+Radar_DrawModel 8009A574  matched: Monkey Radar model draw (body, model 14 twice mirrored and tilted by angle, models 13/15 at body vertex 0x140 along dir, scaled by dir->vy)
+Monkey_FireShot 80033CCC  matched (permuter+hand): monkey fires enemy shot type k at the target (types 3/4 from feet level, type 6 cycles aim pattern D_800AEBF4 % 5)
+MemCard_BuildHeader 8001088C  matched: memory-card save header (SC, icon flag 0x11, 1 block, title, tag CRD0, palette/icon)
+Seq_VoiceBindSample 800A0900 sequencer: point voice at its sample header (bank or channel), set L/R volumes
+Pickup_DrawAll 8008435C draws the 32 pickups (blink, z/screen cull, model per kind) and the g_PickupSignTimer countdown model above Spike
+Menu_DrawSpinningModel 800828F8 status screen: draws model D_800F4D00 spinning (frame-based rsin/rcos tilt) with the screen offset moved to (x, y)
+PauseMenu_DrawItemModel 8007F5E4 pause menu: draws item model (kind 0-2 -> D_800F4CA0 slot 2/3/1, else 0) at (x,y) scaled by the menu open/close state; unavailable items drawn flat
+Debris_UpdateAll 80071370 12 debris pieces (D_800BB920, 0x44 each): draw, spin, fall with gravity 10, bounce on floor with effect 5 (vy = -vy/3); bounces counts down, blink every other frame on the last
+Anim_BlendCurrentEntry 80014E34 blends the model between keyframes of anim entry f_16C[f_5E] (start, step, first key) at time f_5C
+Monkey_UpdateHelmetLight 80039C38 monkey helmet alarm light: (user: blue calm / yellow lost sight / red alert) level from func_80039B90 (0/0x1C0/0x380 -> kind 0/1/2, flashes 10 frames on change), placed on the head joint (D_800F4730[6]) for LOD 0-2, drawn by func_8006ABF0
+Spike_ApplyAnalogMove 800661D4 with the analog stick active (g_Pad+0x178): Spike's move direction (+0x74) from the stick (+0x194/+0x198), velocity +0x114/+0x11C scaled by scratch +0x64 and the move params D_800EC010 +0x24/+0x30; else +0x74 = facing (+0x60). Also sets +0x120..+0x128
+Flare_Add 8006E054 adds a 6-frame entry to the 8-slot ring D_800BAEA0 (index D_800B1B40_1): position a[0..2], bytes b[0..2] (probably a colour); cleared by func_8006E02C
+Monkey_StateInPlace 8003DC7C Monkey_Update handler for the in-place states (0,1,0xB,0x16-0x18,0x1B,0x1C,0x21,0x22,0x26-0x2B,0x37,0x38,0x42): idle countdown and random idle picks, per-kind attack windows (atk[] at kind+0x1E: on/min/max distance) firing shots, node 0x400 (climb/drop) handling, then whether to act (func_800378C0) or pick a new action
+Monkey_Update 800412B0 per-frame update of g_CurMonkey: timers, turning to goal, animation, the big state switch (Monkey_StateMove/Roam/InPlace and other handlers), speed, falling/floor, collision, node events, helmet light
+Collision_UpdateAll 8007247C per-frame collision pass: frees expired temporary shapes, then for each collider in g_CollisionHead runs its kind's handler (1 Spike: rumble, column clip, ground, ledge grab, zone; 2 roller; 3-5 push-apart; 6-8/0xC-0xF hit shapes; 9 pickups; 0x10/0x11), clamps x/z into the stage bounds D_800EBFA0
+Seq_AllocVoice func_8009DAB4  pick a sequencer voice: next free one round-robin, else steal by rank [5] (released voices first); 0xFF if none
+Camera_LookAt func_80046670  build the view matrix from eye/target (+ roll), rotation matrix, D_800EBFD0 = view*rot; camera water state g_Game+0x827C = Water_Query(eye)
+Monkey_AttackChance func_80037068  % chance of attack window i (kind +0x1E {on, chance, min, max}); window 7 x100 while +0xD4 > 0
+Debug_MonkeyParamMenu func_800430F0  developers' debug menu editing a monkey kind record: sight distances per Spike pose (TO-MEI/RUN/WALK/SEISHI/HAI+FURI/HAI/FUSE/MARU), Speed1/2, attack windows Mgun/Missile/Banana/Coconut/Stone/Scratch; matched
+Monkey_StartNodeJump 800364BC  matched: ballistic jump setup to path node +0xF2: direction +0x68, launch angle from height difference, velocity +0x13C/0x140/0x144, duration +0x128 (Monkey_UpdateJump runs it)
+Model_DrawPrims 800180B8  matched: draws a model's primitives by type, textured (FT3/FT4/GT3/GT4) with GTE far colour 0, then F3/F4/G3/G4 with D_800EBFA0 far colour
+Hud_DrawLivesIcon 8005F5FC  matched: lives counter, Spike's 32x32 face sprite (semi-transparent); first use of ADD_PRIM_ASM, the original addPrim macro
+Hud_DrawTimeMedal 8005F68C  matched: time attack medal sprite; CLUT row 0x1F5/0x1F4/0x1F3 by how many of the stage's 3 target times the record beats
+Stage_GetTargetTimes 80097E60  stage id < 30 -> 0x80102400 + id*16 + 8, the stage's three time-attack target times (s16)
+Hud_DrawBigDigit 8005F770  matched: one 24x24 HUD digit (glyph order 1..9,0,x; n=-1 -> x)
+Hud_DrawBigNumber 8005F87C  matched earlier: up to 4-digit number in 24x24 digits (lives count etc.)
+Hud_DrawTime 8005F978  matched: time (frames) as m'ss"cc in the 8x16 small font, dashes for -1; time attack records
+Hud_DrawHealth 8005E4A8  matched: health cookies (g_Spike.f_E8 of them, positions D_800B01E0) + frame sprite
+Debug_DrawPadGraph 8005EC9C  matched: debug bar graph of the g_Pad 40-sample history (value red, delta blue)
+MonkeyInfo_DrawStatPips 80060224  matched: monkey info card stat row, 5 pips (first n lit), CLUT per row
+Hud_DrawWindow 80060334  matched: 9-slice window box of 8x8 sprites (u 0x80/88/90, v 0xA0/A8/B0)
+Text_Draw 80082288  matched: draws a string in the 16x16 font (palette arg), widths D_800B2734
+Menu_DrawWindow 80081F18  matched: pause/status menu window box (8x8 tiles, grey 0x606060, back of OT)
+GuidedAmmo_DrawCandidates 8007CF7C  matched: red POLY_F3 marker on each guided-ammo candidate
+Debug_DrawMeter 8008C214  matched: 64 debug lines, one per D_800BF690 pointer slot, coloured by address bits 0x800/0x1000/0x2000
+Menu_DrawVolumeBar 8008332C  matched: options menu volume slider (staircase of POLY_G4 columns + caps)
+Link_SaveState 8005B130  matched (permuter hint: case 10 test inverted): saves a link's state to a free D_800B9030 record (counterpart of Link_RestoreSaved)
+Shadow_Draw 8001F604  matched: drop shadow, 2 semi-transparent POLY_FT4 on the ground, shrinks with height (d/20); addPrim with hard a0/v1 temps and OT as a register operand (ADD_PRIM_A0V1)
+Hud_DrawAirMeter 80081180  asm (near): underwater air meter (user) ring of POLY_F4 segments, one per 15 frames of g_AirTimer (600 max), red<150 yellow<300 blue
+g_AirTimer 800F4DC8  air left in frames (reset to 600 by Spike_ResetAir, counted down in Spike_Update)
+Hud_DrawSlingAmmo 800813D8  asm (near): Slingback ammo panel sliding in from the right, 3 rows (normal, counts +0xA1/+0xA2), cursor on +0xA0
+Hud_DrawSmallNumber 800819E8  matched: two-digit 8x11 number (or blank for -1), returns next prim
+Tex_MakeFogLevels 8005E7EC  matched: builds 7 fog-tinted copies (k/8 toward the fog colour) of a texture rect in VRAM 0x240,0x100+
+Tex_DrawFogLevels 8005EAB0  asm (near): DR_MOVE copies of those fog levels back over the texture, linked at OT depths between camera z0/z1
+Weapon_DrawSwingTrail 8001F954  matched: Stun Club / Magic Punch swing trail, POLY_G4 between consecutive points of the 12-entry ring D_800B8AB0, fading by life
+ScreenWipe_DrawSpiral 80079ECC  matched (ADD_PRIM_R a0/v1): ring/spiral screen wipe of black POLY_F4 quads, timer g_Game+0x8132 up to 24
+Hud_DrawMonkeyHeads 8005F2E0  asm (near): row of monkey heads, caught ones lit; one head on stages 17/22-30
+Hud_Draw 8005E0F0  asm (near): main HUD, sky/ground background tiles at the horizon, then HUD parts by D_800F4DB0+0x20 flags
+Hud_DrawGadgets 80081664  asm (near): four face-button gadget slots + sliding 48x48 cursor; air meter underwater, Sling ammo panel
+Menu_DrawCaps 8008211C  matched (permuter: do-while addPrim): menu highlight bar end caps, 16x16 each side
+Radar_DrawMonkeyCard 80060448  asm (near): Monkey Radar live view card over a live camera following the monkey (user: LIVE title, name, Monkey Level n, Speed/Attack/Alert pips, fact line) from Camera_UpdateFirstPerson
+GuidedAmmo_DrawReticle 80085E08  matched: guided ammo lock-on reticle, rotating POLY_FT4 rings
+Screen_DrawAfterimage 8004CEB4  asm (near): redraws the previous frame over the screen for g_AfterimageFrames frames (event camera cut)
+g_AfterimageFrames 800AF130  frames left of Screen_DrawAfterimage, 24 from func_8004BBF0
+Debug_DrawSticks 8005EF28  asm (near): debug analog stick dots from the g_Pad history
+OptionsMenu_Update 80082D6C  asm (near): options menu draw + input (vibration +0x8138, stereo +0x813A, volumes D_800BEF90 +4/+8)
+Str_GetNth 800832FC  matched earlier: pointer to the n-th NUL-separated string of a table
+Sound_SetStereo 80087C64  called with the options stereo flag (g_Game+0x813A)
+DebugFont_PutChar 8008C434  asm (near): debug console character (8x8 font, or proportional 16-high for mode>=4)
+PauseMenu_DrawStageInfo 80082398  asm (near): pause screen stage info (monkey grid, counter, times + medals)
+Model_DrawOnScreen 800207B4  asm (near): draws a model at a screen position on the HUD OT (spinning menu/HUD icons)
+Tex_UpdateAnims 800691F8  matched: stage texture animations (scroll / frame flip / copy from display) as DR_MOVE at OT back
+Tip_DrawAll 800719F8  asm (near): draws/animates the tip mailboxes and cookie dispensers (g_TipState+0xE4 entries)
+Ripple_Spawn 8006EF08  matched earlier: takes a free water ripple slot (life 12-15) at a position
+Ripple_DrawAll 8006EF88  asm (near): draws the 8 water ripples as GTE-projected POLY_FT4 ground quads
+Msg_PutChar 8008D9D0  asm (near): message/tip text glyph (icons, digits, bold font)
+Msg_ReadChar 8008DD68  matched earlier: reads one message char, prefix 10 -> 0x100 icon, 11 -> 0x200 digit
+Msg_Update 8008DFFC  asm (near): message box state machine (1/5 slide, 2 page, 3 wait with blinking arrow, 4 end; confirm/start)
+Msg_DrawWindow 8008E23C  matched: message window (sliding frame tiles, gradient stripes, gradient background)
+DebugFont_Printf 8008C6F0  debug console printf (varargs)
+MinigameMenu_Main 8008D1F0  game mode main loop of the MINI GAME select screen (mode table D_800AFA30)
+MinigameMenu_Update 8008D50C  MINI GAME select list
+DebugFont_DrawBox 8008CAD4  asm (near): textured box at the debug console cursor
+DebugFont_DrawIcon 8008CF04  asm (near): 24x24 icon n from a 5-wide sheet at the console origin
+DebugFont_DrawWord 8008CC80  draws a word from glyph-id table D_800B34BC
+Shockwave_Draw 8006FA10  asm: draws one shockwave ring (rotated matrix, rsin/rcos segments), from Shockwave_UpdateAll
+Slingback_Update 8009AD60  asm: Slingback aiming: ammo select, guided lock-on (GuidedAmmo_UpdateLockOn)
+EnemyShot_DrawAll 80059B54  asm: draws the enemy shots (model + shadow each), from EnemyShot_Frame
+CenterSign_Draw 800983E8  matched: centre-screen sign (time-limit digits / Specter coin sign), POLY_FT4 with 4 shrinking afterimages, state 5 zooms out and fades
+CenterSign_ShowDigit 80098330  shows time-limit digit n on the centre sign (n==1: wide 160px sign, the time-up sign?)
+CenterSign_ShowPickup 80098398  shows the 62x62 centre sign for pickup kind 4
+g_CenterSign 800E07C0  centre sign state: state, timer, size, u, v, w, h, clut, tpage
+g_PickupSignTimer 800B28B2  counts down after collecting pickup kind 4: model over Spike + big centre sign
+Fx_DrawGlowBeam 8002020C  matched: additive glow beam between two projected points (6 POLY_G4: body halves + end caps), width scaled by GTE H / depth
+SuperHoop_DrawSparkles 8006DAF8  matched: Super Hoop sparkle ring around Spike once the hoop is activated (user) (40 particles, 5-bit timer / 3-bit size flags), POLY_FT4 sized by size/depth
+g_HoopSparks 800F4ED0  40 Super Hoop sparkles: s16 x,y,z; u16 flags (bits 0-4 timer, 5-7 size)
+TimeNet_Update 80098FEC  matched: Time Net (gadget 1) per-frame: swing from grip-point motion (x64, clamp +-0x1000) bent into handle/net matrices, draws the net model
+TimeNet_Init 80098FB0  loads the Time Net model (g_TimeNetModel) and points its matrices at D_800E9C60
+g_TimeNetModel 800E07D0  Time Net model instance (+0x14 matrix block: base, handle, net)
+Gadget_UpdateSoftStrands 8001FB98  no caller found (like Spike_UpdateFootEffects, so callers may be in packed data); maybe the RC remote antenna's 6 tip lines (user), matched: smooths 6 anchor + 6 tip vertices of the gadget-in-hand model over frames (double buffer D_800B8BA8) and projects them into D_800E7D00; no callers found (unused?)
+Flare_Spawn 8006E0DC  matched: adds a flare at pos (mode 1: x/z jitter -63..64, y-0x80; else y raised 0..255 at random)
+Body_FallToFloor 80072DCC  matched: drops a body onto the floor with gravity; falling 0xFF below the last safe spot (D_800B20B8) resets it there (Spike: damage + voice clip; RC car: removed with sound/effect)
+Model_ProjectVerts 800161C0  hand asm: loads a matrix into the GTE and rtpt-projects a model's vertices (count hdr+6) into the screen vertex buffer, 3 at a time
+Model_ProjectVertsAlt 800160EC  hand asm: as Model_ProjectVerts but vertex count from hdr+0x12 (used by 8006FA10 objects)
+Model_ProjectBonedVerts 80016A60  hand asm: per-bone matrix (stride 0x20) then rtpt-projects each bone's vertex range; used for Spike and monkeys
+Model_CalcEnvMapUVs 80016B94  hand asm: rotates each bone's normals (mvmva) and turns them into 0..63 shiny/env-map UVs
+Model_ProjectMorphFrame 800168C8  hand asm: projects vertices of a vertex-animated model (flag 0x2000: frame = f_18>>12 picks the vertex set)
+Debug_DrawWorldQuad 800590CC  hand asm: projects 4 world corners and adds a semi-transparent white POLY_F4 (debug overlay helper)
+Collision_GetId 800721B4  matched: collision entry id, following the owner link at owner+0x4C; -2 if out of range
+Monkey_GetAlertLevel 80039B90  matched: helmet-light level of the current monkey: 0 calm, 0x1C0 caution (alerted with lost-sight counter near func_80033000, or f_248 bit 19), 0x380 alert
+Link_UpdateArea 8005B68C  matched: per-frame run of the stage link table D_800AF868[stage] (each fn per group record, skipped while g_Game+0x8100 bit 3), needs early return
+Hud_DrawRaceClock 8005FCA4  matched: the spinning clock next to the timer in Stadium Attack and Gladiator Attack (user), 8-frame 16x16 sprite at (0x90, 0x20), frame = timer g_Game+0x8140 >> 3; addPrim with hard v1/v0 (ADD_PRIM_R)
+Debug_DrawSpikeVectors 80020010  matched: debug LINE_F2s from Spike along (f_74,f_78)>>3 (red) and (f_60,f_64)>>3 (yellow); ADD_PRIM_A0V1 + do{}while(0) on one gte load
+Spike_SetBlinkFrame 80067C08  matched (permuter): DR_MOVE of the 16x64 VRAM strip of face frame i (x 0x3D0+16i) to x 0x3C0 at the OT end; ADD_PRIM_R v1/v0
+Spike_UpdateBlink 80067AF0  matched: picks Spike's blink frame (user: he blinks): 0 in overlay state 1, 1 (half-closed) when g_SpikeHealth <= 0 (dead; user: half-closed eyes when he dies), 2 in game mode 10 with D_800B4D70->f_86 == 7, else a 120-frame cycle (frame 0x72/0x76 -> 1, 0x74 -> 2): Spike blinking (user)
+Game_NotExiting 8005DCE4  matched: 1 unless game mode g_Game+0x812C is 7 or 0x1C (leaving the stage from the pause menu); needs if (m != 7 && m != 0x1C) return 1
+Model_AddFT3 800197EC  C with inline GTE (asm for now): adds the model's run of code 0x24 primitives (clip, nclip, depth cue, OT insert); called by Model_DrawPrims, returns the next prim
+Model_AddFT4 8001A598  C with inline GTE (asm for now): adds the model's run of code 0x2C primitives (clip, nclip, depth cue, OT insert); called by Model_DrawPrims, returns the next prim
+Model_AddGT3 80019DDC  C with inline GTE (asm for now): adds the model's run of code 0x34 primitives (clip, nclip, depth cue, OT insert); called by Model_DrawPrims, returns the next prim
+Model_AddGT4 8001B3CC  C with inline GTE (asm for now): adds the model's run of code 0x3C primitives (clip, nclip, depth cue, OT insert); called by Model_DrawPrims, returns the next prim
+Model_AddF3 80018EA0  C with inline GTE (asm for now): adds the model's run of code 0x20 primitives (clip, nclip, depth cue, OT insert); called by Model_DrawPrims, returns the next prim
+Model_AddF4 800191D8  C with inline GTE (asm for now): adds the model's run of code 0x28 primitives (clip, nclip, depth cue, OT insert); called by Model_DrawPrims, returns the next prim
+Model_AddG3 80018250  C with inline GTE (asm for now): adds the model's run of code 0x30 primitives (clip, nclip, depth cue, OT insert); called by Model_DrawPrims, returns the next prim
+Model_AddG4 80018604  C with inline GTE (asm for now): adds the model's run of code 0x38 primitives (clip, nclip, depth cue, OT insert); called by Model_DrawPrims, returns the next prim
+Model_DrawLit 8001A414  asm for now: lights the model's colour table into scratch (GTE cc, scratch flag 7) then runs every Model_Add* primitive builder
+SpecterCoin_ClearAll 800848C0  matched: clears the collected-Specter-coin stage list (128 entries of {stage, 1}, 0xFF ends it)
+SpecterCoin_IsCollected 80084904  matched: 1 if the stage's Specter coin is in the collected list (Pickup area load skips spawning it)
+SpecterCoin_Add 80084964  matched: adds the stage to the collected Specter coin list unless already there or 0x7F coins
+SpecterCoin_Count 80084A04  matched: number of stages in the collected Specter coin list
+Spike_IsUnderwater 80068B7C  matched: 1 in Spike's underwater states (D_800EC23E 0x46, 0x47, 0x49, 0x4A, 0x4C); the HUD then shows the air meter (user)
+g_StrLive 800B0214  card title text LIVE (custom font encoding: A=0x10, a=0x30)
+g_StrSpeed 800B021C  monkey card label Speed
+g_StrAttack 800B0224  monkey card label Attack
+g_StrAlert 800B022C  monkey card label Alert
+g_StrMonkeyLevel 800B0234  monkey card Monkey Level n (glyph at [13] set from the thousands digit of the kind's stats)
+Radar_GetLiveTarget 80047E8C  matched: g_RadarLiveTarget = the radar's monkey (g_GadgetState+0x18) when +0x1C is set and func_800468EC allows, else 0
+g_RadarLiveTarget 800B4D44  monkey followed by the Monkey Radar live camera (LIVE card)
+g_SpikeHealth 800EC2C8  Spike's health (g_Spike+0xE8, cookies, max 5; Spike_Heal); at 0 he dies and his eyes go half-closed (Spike_UpdateBlink, user)
+TimeTrial_AddClockStop 8005DD78  matched: probably Time Trial (mode 0x13): each energy chip adds 60 frames to the clock-stop counter D_800B01C2
+TimeTrial_ClockRunning 8005DDA0  matched: while the clock-stop counter D_800B01C2 > 0 (and D_800B01C0 set) counts it down and returns 0, else returns D_800B01C0
+g_TimerOn 800B01C0  the game timer g_Game+0x8140 counts in Game_VSyncCallback while this is set
+g_ClockStopFrames 800B01C2  frames the timer stays stopped (60 per energy chip in mode 0x13, probably Time Trial)
+MagicPunch_Draw 8009ABF4  matched: draws the Magic Punch: glove base, the arm stretched by sc along Y, and an additive pulsing 0xFF8080 Fx_DrawGlowBeam along the arm (user sees no glow: faint or hidden)
+Screen_DrawLetterbox 8009B9C8  matched (permuter): cinematic letterbox, semi-transparent TILEs over the top/bottom rows, shade c; ADD_PRIM_R a0/v0 + do{}while(0)
+Monkey_UpdateSlotStatus 800334C8  matched (permuter): status byte per monkey slot g_Game+0x816C[i]: 0 if no monkeys or D_800B4CF4, 5 (mode 4, node flag 0x400, action 0x2B), 0 mode 1, 2 mode 3, else mode
+g_MonkeyCount 800AEB68  number of active monkeys in the area (loop bound)
