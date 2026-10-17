@@ -65,12 +65,12 @@ struct D4DB0_80046BC4 { u8 pad0[4]; u16 f_4; u8 pad6[0x1A]; s32 f_20; };
 struct Cam_80046BC4 { u8 pad0[0x2F]; u8 f_2F; u8 pad30[2]; u8 f_32; u8 pad33[0x13]; u8 f_46; };
 struct GS_80046BC4 { u8 pad0[0x18]; s32 f_18; s32 f_1C; };
 extern M2C_UNK D_800F4DB0;
-void func_80046ACC(s32, s32, s16, s32);
+void Hud_DrawStatusIcon(s32, s32, s16, s32);
 struct Game_800482C0 { u8 pad0[0x8150]; u16 f_8150; };
 void Camera_UpdateOrbit(void);
 void func_8004B590(s32, void *);
 s32 Camera_RcCarActive(void);
-void func_8004AA58(void *);
+void Camera_FollowRcCar(void *);
 s32 func_8004A940(void);
 void func_8013D000(void *);
 s32 Camera_UpdateSpecial(void *);
@@ -245,9 +245,9 @@ void func_80046A78(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80046670_camera", func_80046ACC);
+INCLUDE_ASM("asm/nonmatchings/game/80046670_camera", Hud_DrawStatusIcon);
 
-/* Places the HUD status icons (via func_80046ACC(icon, x, y, flag)) along the bottom-left,
+/* Places the HUD status icons (via Hud_DrawStatusIcon(icon, x, y, flag)) along the bottom-left,
  * shifted by D_800F4DB0+4 when its flag 8 is set. Icon 1 flashes to 2 every 4 frames while the
  * Monkey Radar (gadget 2) is active; icon 4 and the 0 marker move when camera mode
  * (D_800E68D0+0x46 or +0x32) is 1; icon 3 blinks while the D_800E68D0+0x2F counter runs down;
@@ -267,19 +267,19 @@ void Hud_UpdateStatusIcons(void) {
     if (((*(s32 *)&g_Game) & 4) && g_CurrentGadget == 2 && HUD_GS->f_1C == 1 && HUD_GS->f_18 != 0) {
         a = 2;
     }
-    func_80046ACC(a, 0x18, y, 0);
+    Hud_DrawStatusIcon(a, 0x18, y, 0);
     x = 0x18;
     flag = 0;
     if (HUD_CAM->f_46 == 1 || HUD_CAM->f_32 == 1) {
         x = 0x2D;
         flag = 1;
     }
-    func_80046ACC(4, 0x19, y + 0x10, flag);
+    Hud_DrawStatusIcon(4, 0x19, y + 0x10, flag);
     t = HUD_CAM->f_2F;
     if (t != 0) {
         HUD_CAM->f_2F = t + 0xFF;
         if (t & 1) {
-            func_80046ACC(3, 0x2D, y + 0x12, 0);
+            Hud_DrawStatusIcon(3, 0x2D, y + 0x12, 0);
         }
     }
     icon = 5;
@@ -288,8 +288,8 @@ void Hud_UpdateStatusIcons(void) {
     } else if (g_CurrentGadget == 3) {
         icon = 7;
     }
-    func_80046ACC(icon, 0x2D, y + 0x12, flag ^ 1);
-    func_80046ACC(0, x - 2, y + 0xE, 1);
+    Hud_DrawStatusIcon(icon, 0x2D, y + 0x12, flag ^ 1);
+    Hud_DrawStatusIcon(0, x - 2, y + 0xE, 1);
 }
 
 void func_80046D80(u16 arg0)
@@ -624,7 +624,7 @@ void Camera_BlendToSetting(void) {
 }
 
 /* Camera update for game sub-mode g_Game+0x8150: 3 -> Camera_UpdateOrbit, 1 -> func_8004B590(1, cam);
- * otherwise the first that applies of func_8004AA58 (when Camera_RcCarActive says so), the stage
+ * otherwise the first that applies of Camera_FollowRcCar (when Camera_RcCarActive says so), the stage
  * overlay hook func_8013D000 (when func_8004A940 says so), or, unless Camera_UpdateSpecial handled it
  * or D_800E6908 is 1, the normal camera func_800495F4(cam, 0). */
 void Camera_UpdateMode(void *cam) {
@@ -634,7 +634,7 @@ void Camera_UpdateMode(void *cam) {
     } else if (m == 1) {
         func_8004B590(1, cam);
     } else if (Camera_RcCarActive() != 0) {
-        func_8004AA58(cam);
+        Camera_FollowRcCar(cam);
     } else if (func_8004A940() != 0) {
         func_8013D000(cam);
     } else if (Camera_UpdateSpecial(cam) == 0 && (*(u8 *)&D_800E6908) != 1) {

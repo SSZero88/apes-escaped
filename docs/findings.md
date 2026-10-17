@@ -653,3 +653,12 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   jingles or voice clips, not the stage music); Game_SetMode 19 (mode 0x13) plays track 0x39, the last
   one; a fall in game mode 0x20 plays 0xD or 0xF at random; the playing track loops if its flag bit 2
   is set. Stage music itself is probably sequenced (the stage sound pack in Sound_LoadBanks mode 2).
+- Register swaps between temporaries often mean the original reused one variable for unrelated
+  values: Camera_FollowRcCar matched once `a` held the x^2 term before the clamp and the clamp
+  temp was written as `d` (the distance, dead by then). The permuter found the first half.
+- Checked: the scratch-pad `lh` with a shared `lui` base seen in Model_AddF3 comes from no available
+  compiler (2.8.1-psx, 2.8.1, 2.7.2-psx, 2.7.2-cdk, 2.91.66 all give either `lhu; sll; sra` with a
+  shared base or `lh` with a fresh `lui`), so the difference is in the source, not the compiler.
+- Radar_DrawMonkeyCard: reading the frame counter as a struct member (`((struct {u32 frame;} *)&g_Game)->frame`)
+  instead of `*(u32 *)&g_Game` kept it after the sprite stores and fixed the size (the
+  MEM_IN_STRUCT aliasing rule again).

@@ -306,7 +306,69 @@ void func_8004AA24(void)
   *new_var = 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80048DD0_camera2", func_8004AA58);
+
+/* Camera while driving the RC car: zoom (cam->zoom, 16..40) from the car's screen depth 0x2900/z
+   (z from RotTransPers of the car 4 frames ahead), set only when the car is over 0x180 from Spike
+   and D_800E54A2 is set; past 0x14 of it +0x81 latches, and in camera mode 1 the car-to-Spike
+   direction goes to scratch +0x40. The x^2 term and the clamps reuse a and d to match. */
+void Camera_FollowRcCar(Cam_8004AA58_8004AA58 *cam) {
+    SVECTOR v;
+    s32 sxy;
+    s32 p;
+    u16 x, y, z;
+    s32 d;
+    s32 k;
+    s32 t;
+    s32 a;
+    u8 *scratch = (u8 *)0x1F800000;
+    x = g_RcCar.x;
+    y = g_RcCar.y;
+    v.vx = x + g_RcCar.vx * 4;
+    v.vy = y;
+    z = g_RcCar.z;
+    v.vz = z + g_RcCar.vz * 4;
+    SetRotMatrix(&D_800E78C0);
+    SetTransMatrix(&D_800E78C0);
+    t = RotTransPers(&v, &sxy, &p, &p);
+    if (t <= 0) {
+        t = 1;
+    }
+    a = ((s16)x - SP_4AA58->x) * ((s16)x - SP_4AA58->x);
+    k = 0x2900 / t;
+    d = SquareRoot0(a + ((s16)z - SP_4AA58->z) * ((s16)z - SP_4AA58->z));
+    cam->zoom = 0;
+    if (d > 0x180 && D_800E54A2 != 0) {
+        d = k + 0x10;
+        if (d > 0) {
+            if (d < 0x29) {
+                a = d;
+            } else {
+                a = 0x28;
+            }
+        } else {
+            a = 1;
+        }
+        d = a * 40 / 32;
+        if (d < 0x10) {
+            a = 0x10;
+        } else if (d < 0x29) {
+            a = d;
+        } else {
+            a = 0x28;
+        }
+        cam->zoom = a;
+    }
+    if (D_800E54A2 > 0x14) {
+        cam->f_81 = 1;
+    }
+    if (D_800E68D6 == 1 && cam->f_81 != 0) {
+        ((SVECTOR *)(scratch + 0x40))->vx = x - SP_4AA58->x;
+        ((SVECTOR *)(scratch + 0x40))->vy = y - SP_4AA58->y;
+        ((SVECTOR *)(scratch + 0x40))->vz = z - SP_4AA58->z;
+        VectorNormalSS((SVEC_80049514 *)(scratch + 0x40), (SVEC_80049514 *)(scratch + 0x40));
+    }
+    func_800495F4(cam, 0);
+}
 
 /* Look / aim camera (run by Camera_HandleViewButtons). Unless the current setting type
  * (D_800E68D0+6) is 2 it only eases towards the normal camera. Otherwise the eye is at Spike's

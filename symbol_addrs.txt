@@ -991,3 +991,5 @@ MagicPunch_Draw = 0x8009ABF4; // type:func
 g_MonkeyCount = 0x800AEB68; // type:data
 Screen_DrawLetterbox = 0x8009B9C8; // type:func
 Monkey_UpdateSlotStatus = 0x800334C8; // type:func
+Camera_FollowRcCar = 0x8004AA58; // type:func
+Hud_DrawStatusIcon = 0x80046ACC; // type:func

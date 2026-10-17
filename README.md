@@ -492,7 +492,7 @@ Pitfalls seen while integrating:
 - Branchy `|a - b| < lim` checks that load the limit before the subtraction come from a macro
   `ABSDIFF(a, b) ((a) - (b) >= 0 ? (a) - (b) : (b) - (a))` inside the comparison
   (`Object_SpikeOutOfYRange`, the door handler). A `lw` of an int field where ours narrows to `lhu`
-  came from `x * 4` instead of `x << 2` (`func_8004AA58`).
+  came from `x * 4` instead of `x << 2` (`Camera_FollowRcCar`).
 - Judge near-misses by check_c, not by `sd.py` line counts: sd counts symbol+offset relocation
   displays (`%lo(X)` vs `24`) as differences, and check_c's `~~` lines can hide register swaps.
   `wip/_try/realdiff.py [-v] FUNC FILE` counts only structural differences (register names and
