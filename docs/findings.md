@@ -633,7 +633,7 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   g_Game declaration when it already has the field.
 - GCC 2.x MEM_IN_STRUCT_P aliasing: a store through a struct pointer (p->tpage) is assumed not to
   alias a plain scalar global, so the scheduler hoists the global's load above the store. When the
-  original keeps the store first (func_8005E5F4), declare the global as a struct member
+  original keeps the store first (Debug_DrawBar), declare the global as a struct member
   (`extern struct { u32 f; } D_800EC250;` and read `.f`) so both accesses are in-struct.
 - `bgez x, 1f; nop; negu x, x` (unfilled delay slot) is GCC's built-in `abs()` (abssi2 template),
   not `if (x < 0) x = -x` (Model_CalcEnvMapUVs64).

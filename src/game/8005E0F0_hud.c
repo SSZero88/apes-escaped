@@ -77,7 +77,47 @@ void Hud_DrawHealth(void) {
     G_DRAW.prim = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8005E0F0_hud", func_8005E5F4);
+extern struct { u32 f; } D_800EC250;
+typedef struct { u32 tag; u32 tpage; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, p1; s16 x1, y1; u8 r2, g2, b2, p2; s16 x2, y2; u8 r3, g3, b3, p3; s16 x3, y3; } PolyG4Tp;
+
+/* Unused debug bar (no callers): a green-to-red Gouraud quad at (10, 40), 8 high, n * 32 wide, where
+ * n = 8 - (low nibble of D_800EC250), or 0 when the nibble is 0. Colours: left edge green, right edge
+ * (n * 30, ~(n * 30), 0). */
+void Debug_DrawBar(void) {
+    PolyG4Tp *p = (PolyG4Tp *)G_DRAW.prim;
+    s32 n;
+
+    ((u8 *)p)[3] = 9;
+    p->code = 0x3A;
+    p->tpage = 0xE1000200;
+    n = D_800EC250.f & 0xF;
+    if (n != 0) {
+        n = 8 - n;
+    }
+    p->x0 = 10;
+    p->y0 = 0x28;
+    p->x1 = n * 32 + 10;
+    p->y1 = 0x28;
+    p->x2 = 10;
+    p->y2 = 0x30;
+    p->x3 = n * 32 + 10;
+    p->y3 = 0x30;
+    p->r0 = 0;
+    p->g0 = 0xFF;
+    p->g2 = 0xFF;
+    p->b0 = 0;
+    p->r2 = 0;
+    p->b2 = 0;
+    p->r1 = n * 30;
+    p->g1 = ~(n * 30);
+    p->b1 = 0;
+    p->r3 = n * 30;
+    p->g3 = ~(n * 30);
+    p->b3 = 0;
+    ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$4", "$3");
+    p++;
+    G_DRAW.prim = (u8 *)p;
+}
 
 /* Spike loses `dmg` health (floored at 0) and becomes invulnerable for 60 frames;
  * the HUD shows the amount. No damage in stage modes 0x1F/0x20.
