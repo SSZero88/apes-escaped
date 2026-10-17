@@ -648,6 +648,20 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   register across a loop, as the original does (EnemyShot_DrawAll draft).
 - Two locals in different branches at the same stack offset: one variable reused (a VECTOR in one
   branch, cast to SVECTOR * in the other). A short array or 2-short struct takes an 8-byte slot.
+- Varargs (DebugFont_Printf): the original stores a0-a3 at 0..0xC(sp) on entry and re-reads the
+  format pointer from its stack slot each use. That is old-style `ap = (char *)&fmt + 4` (address
+  of the last fixed argument), not `__builtin_next_arg`; `va_arg` is `*(T *)((ap += 4) - 4)`.
+  Characters loaded with `lb` mean `s8` (plain `char` is unsigned here). A `%c` whose word is
+  passed on without `sll/sra` is `PutChar(va_arg(ap, int) - 0x20)`, no char cast. Case bodies
+  come out in source order, so put them in the order of the original's code (d, x, s, c).
+- A function defined with a different prototype than the one its file already declares (here a
+  `(void)` declaration used by a forwarding caller): define it under another C name with
+  `asm("RealName")` on its declaration; `wip/_try/ins.py FUNC DRAFT ASMNAME` inserts it.
+- A callee that returns `s16` makes the caller sign-extend the result; if the original doesn't,
+  the callee returns `s32` (MinigameMenu_Update).
+- `%hi(sym)` kept in its own saved register next to the full address (MinigameMenu_Main's frame
+  counter): the same symbol is used both as a scalar (`g_Game` frame, `%lo(g_Game)(s2)`) and
+  through its address. Declare it once as a scalar and reach the struct through a cast.
 - func_8004F6E8 (floor cell lookup): `if (A || (dd = ..., B) || C) return 0;` puts the shared
   `return 0` inline after the last test, which all earlier tests branch to. A while loop that the
   original enters at its bottom test, reloading globals each pass, is a goto loop (goto check;
