@@ -128,7 +128,7 @@ s32 SquareRoot0(s32);
 struct Game_800792C8 { u8 pad0[0x8150]; u16 f_8150; u8 pad8152[0xBA]; A_792C8_800792C8 *f_820C; u8 pad8210[0x74]; u16 f_8284; };
 extern struct { u8 pad0[0x5E]; u16 f_5E; u8 pad60[0x10]; s32 f_70; } g_Spike;
 s32 Coll_HalfCylinderHeight(s32, s16 *, V3_792C8_800792C8 *, V3_792C8_800792C8 *);
-s32 func_800500D8(s32, s16 *, V3_792C8_800792C8 *, V3_792C8_800792C8 *);
+s32 Surface_CylinderHeight(s32, s16 *, V3_792C8_800792C8 *, V3_792C8_800792C8 *);
 s32 func_8004F884(s32, A_792C8_800792C8 *, V3_792C8_800792C8 *, V3_792C8_800792C8 *);
 s32 Coll_CurvedCorner(O_76AC8_80076AC8 *, P_76AC8_80076AC8 *, s32 *, s16 *);
 void CurvedCorner_GetCentre(O_76AC8_80076AC8 *, s32 *);
@@ -1786,7 +1786,7 @@ s32 Zone_FindIndexAt(P_792C8_800792C8 *p, s16 mode) {
                 d[0] = p->x - a->x;
                 d[1] = p->y - a->y;
                 d[2] = p->z - a->z;
-                if (func_800500D8(t, &a->f_6, (V3_792C8_800792C8 *)d, e) == 0) {
+                if (Surface_CylinderHeight(t, &a->f_6, (V3_792C8_800792C8 *)d, e) == 0) {
                     continue;
                 }
                 if (p->y < a->y - e->x || a->y - e->x + 0x40 < p->y) {

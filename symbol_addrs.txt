@@ -993,3 +993,4 @@ Screen_DrawLetterbox = 0x8009B9C8; // type:func
 Monkey_UpdateSlotStatus = 0x800334C8; // type:func
 Camera_FollowRcCar = 0x8004AA58; // type:func
 Hud_DrawStatusIcon = 0x80046ACC; // type:func
+Surface_CylinderHeight = 0x800500D8; // type:func

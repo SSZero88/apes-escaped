@@ -701,7 +701,95 @@ s32 Coll_HalfCylinderHeight(s16 k, S_8004FFC8_8004FFC8 *b, s32 *p, s32 *out)
   return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8004D8C0_collision", func_800500D8);
+typedef struct { s32 x, y, z; } V3_500D8;
+extern struct { s32 v; } SlideX_500D8 asm("D_800AF2EC");
+
+/* Height of a cylinder-shaped surface (a log or rounded top) at point p, relative to a box with half
+   extents e: kind 0x53 curves across z (height sqrt(r^2 - z^2), radius e[2] +- 0x100), the other
+   kind across x; it also sets the slide push D_800AF2EC / D_800AF2F0 on the curved part. Returns
+   whether there is a surface (*h != 0). */
+s32 Surface_CylinderHeight(s16 kind, s16 *e, V3_500D8 *p, s32 *h) {
+    s32 d;
+    s32 r;
+    s32 t;
+    s32 t_s0;
+
+    *h = 0;
+    if (kind == 0x53) {
+        if (ABS(p->z) > e[2] + 0x100) {
+            return 0;
+        }
+        if (ABS(p->x) > e[0]) {
+            return 0;
+        }
+        d = Vec_Length(p->y, 0, p->z);
+        if (p->y < 0) {
+            if (e[2] - 0x100 < d) {
+                *h = SquareRoot0((e[2] + 0x100) * (e[2] + 0x100) - p->z * p->z);
+            } else {
+                *h = -SquareRoot0((e[2] - 0x100) * (e[2] - 0x100) - p->z * p->z);
+            }
+        } else {
+            if (e[2] + 0x100 < d) {
+                *h = 0;
+            } else if (d < e[2] - 0xC0) {
+                *h = -SquareRoot0((e[2] - 0x100) * (e[2] - 0x100) - p->z * p->z);
+            } else {
+                *h = -SquareRoot0((e[2] + 0x100) * (e[2] + 0x100) - p->z * p->z);
+            }
+        }
+        SlideX_500D8.v = 0;
+        if (*h < 0) {
+            t_s0 = ABS(*h) + 0x100;
+            D_800AF2F0 = (e[2] - t_s0) * 3 * 1024 / (e[2] - 0x100);
+            if (p->z > 0) {
+                D_800AF2F0 = -D_800AF2F0;
+            }
+            if (ABS(D_800AF2F0) < 0x80) {
+                D_800AF2F0 = 0;
+            }
+        } else {
+            D_800AF2F0 = 0;
+        }
+    } else {
+        if (ABS(p->x) > e[0] + 0x100) {
+            return 0;
+        }
+        if (ABS(p->z) > e[2]) {
+            return 0;
+        }
+        d = Vec_Length(p->y, 0, p->x);
+        if (p->y < 0) {
+            if (e[0] - 0x100 < d) {
+                *h = SquareRoot0((e[0] + 0x100) * (e[0] + 0x100) - p->x * p->x);
+            } else {
+                *h = -SquareRoot0((e[0] - 0x100) * (e[0] - 0x100) - p->x * p->x);
+            }
+        } else {
+            if (e[0] + 0x100 < d) {
+                *h = 0;
+            } else if (d < e[0] - 0xC0) {
+                *h = -SquareRoot0((e[0] - 0x100) * (e[0] - 0x100) - p->x * p->x);
+            } else {
+                *h = -SquareRoot0((e[0] + 0x100) * (e[0] + 0x100) - p->x * p->x);
+            }
+        }
+        D_800AF2F0 = 0;
+        if (*h < 0) {
+            t = ABS(*h) + 0x100;
+            SlideX_500D8.v = (e[0] - t) * 3 * 1024 / (e[0] - 0x100);
+            if (p->x > 0) {
+                SlideX_500D8.v = -SlideX_500D8.v;
+            }
+            if (ABS(SlideX_500D8.v) < 0x80) {
+                SlideX_500D8.v = 0;
+            }
+        } else {
+            SlideX_500D8.v = 0;
+        }
+    }
+    return *h != 0;
+}
 
 s32 Coll_HeightOverlap(s32 y, s32 h, s32 oy, s32 oh) {
     if (y - 0x60 > oy - oh && y - 0x60 < oy) {
