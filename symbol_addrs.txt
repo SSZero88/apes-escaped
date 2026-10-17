@@ -997,3 +997,4 @@ Surface_CylinderHeight = 0x800500D8; // type:func
 Seq_ScaleParam = 0x800A11FC; // type:func
 Stage_IsCleared = 0x80097A60; // type:func
 Model_CalcEnvMapUVs64 = 0x80016D60; // type:func
+Spike_CreateModel = 0x8009B3CC; // type:func

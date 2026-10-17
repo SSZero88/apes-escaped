@@ -636,7 +636,12 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   original keeps the store first (func_8005E5F4), declare the global as a struct member
   (`extern struct { u32 f; } D_800EC250;` and read `.f`) so both accesses are in-struct.
 - `bgez x, 1f; nop; negu x, x` (unfilled delay slot) is GCC's built-in `abs()` (abssi2 template),
-  not `if (x < 0) x = -x` (func_80016D60).
+  not `if (x < 0) x = -x` (Model_CalcEnvMapUVs64).
+- Prologue saving the second argument's s-register first (`sw s2; move s2,a1; sw s1; move s1,a0`)
+  when ours saves them in argument order: copy the first argument into a local at the top
+  (`T *ff = f;`) and use only the copy (Spike_CreateModel).
+- A delay-slot `li` copy of a constant used to store a field (`move v1,a1; sh v1,..`): store through
+  a second variable (`t = 40; f = t; x = t;`), func_8009529C.
 - func_8004F6E8 (floor cell lookup): `if (A || (dd = ..., B) || C) return 0;` puts the shared
   `return 0` inline after the last test, which all earlier tests branch to. A while loop that the
   original enters at its bottom test, reloading globals each pass, is a goto loop (goto check;
