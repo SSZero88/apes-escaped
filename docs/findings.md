@@ -642,6 +642,12 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   (`T *ff = f;`) and use only the copy (Spike_CreateModel).
 - A delay-slot `li` copy of a constant used to store a field (`move v1,a1; sh v1,..`): store through
   a second variable (`t = 40; f = t; x = t;`), func_8009529C.
+- C-side addPrim (`and` with 0xFFFFFF / 0xFF000000 instead of the lwl/swl macro) is PsyQ's own
+  bitfield macro: `((P_TAG *)p)->addr = ((P_TAG *)ot)->addr; ((P_TAG *)ot)->addr = (u32)p;` with
+  `struct { unsigned addr : 24; unsigned len : 8; }`. The bitfield form keeps 0xFFFFFF in a saved
+  register across a loop, as the original does (EnemyShot_DrawAll draft).
+- Two locals in different branches at the same stack offset: one variable reused (a VECTOR in one
+  branch, cast to SVECTOR * in the other). A short array or 2-short struct takes an 8-byte slot.
 - func_8004F6E8 (floor cell lookup): `if (A || (dd = ..., B) || C) return 0;` puts the shared
   `return 0` inline after the last test, which all earlier tests branch to. A while loop that the
   original enters at its bottom test, reloading globals each pass, is a goto loop (goto check;
