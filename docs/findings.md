@@ -756,3 +756,11 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   held the constant in a variable (`half = 0x40; ... + half`); found by the permuter
   (Surface_RampHeight). Hud_DrawStatusIcon needed addPrim written with explicit 0xFF000000/0xFFFFFF
   masks instead of the 24-bit bitfield (the bitfield form swaps two temporaries).
+- s16 reads through a *constant* scratch pointer (`sc = (S *)0x1F800000; x = sc->f`) compile to
+  `lhu` + `sll`/`sra`, never `lh` (also with `register ... asm("$9")`, unions or casts). `lh off(base)`
+  with a hoisted constant base, as in Model_AddF3/G3 and func_8001E828, only comes out when the base
+  is opaque to the optimiser (a pointer parameter or global, `asm("" : "=r"(p) : "0"(0x1F800000))`),
+  or with `-fforce-addr` / `-fno-expensive-optimizations` / `-O1`. Those flags change the
+  matched functions in 80015F70_model.c, so if the original used them it was a different
+  translation unit for the Model_Add* family. Unresolved; see wip/_hand/Model_AddF3.c.
+- Byte-pointer reads `*(s16 *)(scratch + 0)` at offset 0 do give `lh` (func_800653C0).
