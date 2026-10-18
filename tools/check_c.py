@@ -28,7 +28,7 @@ data, masks = ad['func_code']('/tmp/check.o', name)
 orig = ad['ORIG'][addr - 0x80010000 + 0x800:][:size]
 def dis(b, base):
     open('/tmp/d.bin', 'wb').write(b)
-    out = subprocess.run(['mips-linux-gnu-objdump', '-D', '-b', 'binary', '-m', 'mips:3000', '-EL', '--adjust-vma', hex(base), '/tmp/d.bin'], capture_output=True, text=True).stdout
+    out = subprocess.run(['mips-linux-gnu-objdump', '-D', '-z', '-b', 'binary', '-m', 'mips:3000', '-EL', '--adjust-vma', hex(base), '/tmp/d.bin'], capture_output=True, text=True).stdout
     return [l.split('\t', 2)[-1] for l in out.splitlines() if re.match(r'\s*[0-9a-f]+:\t', l)]
 a, b = dis(orig, addr), dis(data or b'', addr)
 print(f'NO MATCH {name}: orig {size:#x} bytes, ours {len(data or b""):#x} bytes')

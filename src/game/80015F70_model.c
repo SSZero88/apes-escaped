@@ -360,9 +360,59 @@ INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_AddFT3);
 
 INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_AddGT3);
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_DrawLit);
+typedef struct { u8 pad0[0xE]; u16 nColors; } LitHdr_1A42C;
+typedef struct { u32 colors[0xFD]; u8 mode; } Scr_1A42C;
+typedef struct { LitHdr_1A42C *hdr; u32 *colors; u8 *prims; } LitMdl_1A42C;
 
-INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4598);
+/* Draws a model's primitives with its vertex colours put through the GTE light-colour step
+   (into the scratch pad, light mode 7), dispatching on each primitive's GPU code until one that
+   is not a polygon. */
+void Model_DrawLit(s32 ot, s32 arg, LitMdl_1A42C *m) {
+    u8 *prim = m->prims;
+    u32 *src;
+    s32 i, n;
+
+    ((Scr_1A42C *)0x1F800000)->mode = 7;
+    n = m->hdr->nColors;
+    src = m->colors;
+    for (i = 0; i < n; i++) {
+        gte_ldIR(0x1000, 0, 0);
+        gte_ldRGB(&src[i]);
+        gte_cc();
+        gte_stRGB2(&((u32 *)0x1F800000)[i]);
+    }
+    for (;;) {
+        switch (prim[3] & 0xFC) {
+        case 0x20:
+            prim = Model_AddF3(ot, prim, arg);
+            break;
+        case 0x24:
+            prim = Model_AddFT3(ot, prim, arg);
+            break;
+        case 0x28:
+            prim = Model_AddF4(ot, prim, arg);
+            break;
+        case 0x2C:
+            prim = Model_AddFT4(ot, prim, arg);
+            break;
+        case 0x30:
+            prim = Model_AddG3(ot, prim, arg);
+            break;
+        case 0x34:
+            prim = Model_AddGT3(ot, prim, arg);
+            break;
+        case 0x38:
+            prim = Model_AddG4(ot, prim, arg);
+            break;
+        case 0x3C:
+            prim = Model_AddGT4(ot, prim, arg);
+            break;
+        default:
+            return;
+        }
+    }
+}
+
 INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4598_pad);
 
 
