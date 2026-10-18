@@ -539,9 +539,107 @@ done:
 INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4610_pad);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", func_8001C918);
+typedef struct { u32 sxy; u16 z; u16 pad; } Vtx_1C918;
+typedef struct { u8 pad0[8]; u8 *prims; } Mdl_1C918;
+typedef struct { u8 pad0[0x3C4]; u32 sxy[4]; s32 z; s32 opz; u16 idx[4]; } Scr_1C918;
+typedef struct { u32 tag; u8 r0, g0, b0, code; u32 xy[6]; } Line_1C918;
+extern u8 *D_800EC354_1C918 asm("D_800EC354");
+#define gte_ldsxy3_1C918(p) __asm__ volatile ("lwc2 $12, 0(%0); lwc2 $13, 4(%0); lwc2 $14, 8(%0)" : : "r"(p))
+#define gte_nclip_1C918() __asm__ volatile ("nop; nop; nclip")
+#define gte_stopz_1C918(p) __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(p) : "memory")
+#define gte_stsxy_3l_1C918(p) __asm__ volatile ("swc2 $12, 8(%0); swc2 $13, 12(%0); swc2 $14, 16(%0); swc2 $12, 20(%0)" : : "r"(p) : "memory")
+#define gte_stsxy_4l_1C918(p) __asm__ volatile ("swc2 $12, 8(%0); swc2 $13, 12(%0); swc2 $14, 20(%0); swc2 $12, 24(%0)" : : "r"(p) : "memory")
 
-INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4688);
+/* Model_DrawWireframe: draws a model as a green wireframe: each visible triangle or quad becomes a closed polyline
+   (v0 v1 v2 v0, or v0 v1 v3 v2 v0), with the same culling and depth as Model_DrawScreenMapped. */
+void Model_DrawWireframe(u32 *ot, Vtx_1C918 *v, Mdl_1C918 *m) {
+    Scr_1C918 *sc = (Scr_1C918 *)0x1F800000;
+    u8 *prim = D_800EC354_1C918;
+    u8 *pr = m->prims;
+
+    for (;;) {
+        switch (pr[3] & 0xFC) {
+        case 0x20:
+        case 0x24:
+        case 0x30:
+        case 0x34:
+            sc->idx[0] = ((u16 *)pr)[2];
+            sc->sxy[0] = v[(s16)sc->idx[0]].sxy;
+            sc->idx[1] = ((u16 *)pr)[3];
+            sc->sxy[1] = v[(s16)sc->idx[1]].sxy;
+            sc->idx[2] = ((u16 *)pr)[4];
+            sc->sxy[2] = v[(s16)sc->idx[2]].sxy;
+            gte_ldsxy3_1C918(sc->sxy);
+            gte_nclip_1C918();
+            if (((sc->sxy[0] & 0xFFFF) > 0x180 & (sc->sxy[1] & 0xFFFF) > 0x180 & (sc->sxy[2] & 0xFFFF) > 0x180)
+                || ((sc->sxy[0] >> 16) > 0xF0 & (sc->sxy[1] >> 16) > 0xF0 & (sc->sxy[2] >> 16) > 0xF0)) {
+                pr += pr[1] * 4;
+            } else {
+                gte_stopz_1C918(&sc->opz);
+                if (sc->opz < 0 || (s16)v[(s16)sc->idx[0]].z < 0x1B) {
+                    pr += pr[1] * 4;
+                } else {
+                    sc->z = (((s16)v[(s16)sc->idx[0]].z >> 2) + ((s16)v[(s16)sc->idx[1]].z >> 2) + ((s16)v[(s16)sc->idx[2]].z >> 2)) / 3;
+                    sc->z = (sc->z < 0) ? 0 : ((sc->z >= 0xFC0) ? 0xFBF : sc->z);
+                    ADD_PRIM_R(&ot[sc->z], prim, "$4", "$2");
+                    gte_stsxy_3l_1C918(prim);
+                    prim[3] = 6;
+                    ((Line_1C918 *)prim)->code = 0x4C;
+                    ((Line_1C918 *)prim)->xy[4] = 0x55555555;
+                    ((Line_1C918 *)prim)->r0 = 0;
+                    ((Line_1C918 *)prim)->g0 = 0xFF;
+                    ((Line_1C918 *)prim)->b0 = 0;
+                    prim += 0x1C;
+                    pr += pr[1] * 4;
+                }
+            }
+            break;
+        case 0x28:
+        case 0x2C:
+        case 0x38:
+        case 0x3C:
+            sc->idx[0] = ((u16 *)pr)[2];
+            sc->sxy[0] = v[(s16)sc->idx[0]].sxy;
+            sc->idx[1] = ((u16 *)pr)[3];
+            sc->sxy[1] = v[(s16)sc->idx[1]].sxy;
+            sc->idx[2] = ((u16 *)pr)[4];
+            sc->sxy[2] = v[(s16)sc->idx[2]].sxy;
+            sc->idx[3] = ((u16 *)pr)[5];
+            sc->sxy[3] = v[(s16)sc->idx[3]].sxy;
+            gte_ldsxy3_1C918(sc->sxy);
+            gte_nclip_1C918();
+            if (((sc->sxy[0] & 0xFFFF) > 0x180 & (sc->sxy[1] & 0xFFFF) > 0x180 & (sc->sxy[2] & 0xFFFF) > 0x180 & (sc->sxy[3] & 0xFFFF) > 0x180)
+                || ((sc->sxy[0] >> 16) > 0xF0 & (sc->sxy[1] >> 16) > 0xF0 & (sc->sxy[2] >> 16) > 0xF0 & (sc->sxy[3] >> 16) > 0xF0)) {
+                pr += pr[1] * 4;
+            } else {
+                gte_stopz_1C918(&sc->opz);
+                if (sc->opz < 0 || (s16)v[(s16)sc->idx[0]].z < 0x1B) {
+                    pr += pr[1] * 4;
+                } else {
+                    sc->z = ((s16)v[(s16)sc->idx[0]].z >> 4) + ((s16)v[(s16)sc->idx[1]].z >> 4) + ((s16)v[(s16)sc->idx[2]].z >> 4) + ((s16)v[(s16)sc->idx[3]].z >> 4);
+                    sc->z = (sc->z < 0) ? 0 : ((sc->z >= 0xFC0) ? 0xFBF : sc->z);
+                    ADD_PRIM_R(&ot[sc->z], prim, "$4", "$2");
+                    ((Line_1C918 *)prim)->r0 = 0;
+                    ((Line_1C918 *)prim)->g0 = 0xFF;
+                    ((Line_1C918 *)prim)->b0 = 0;
+                    gte_stsxy_4l_1C918(prim);
+                    ((Line_1C918 *)prim)->xy[2] = sc->sxy[3];
+                    prim[3] = 7;
+                    ((Line_1C918 *)prim)->code = 0x4C;
+                    ((Line_1C918 *)prim)->xy[5] = 0x55555555;
+                    prim += 0x20;
+                    pr += pr[1] * 4;
+                }
+            }
+            break;
+        default:
+            goto done;
+        }
+    }
+done:
+    D_800EC354_1C918 = prim;
+}
+
 INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4688_pad);
 
 
