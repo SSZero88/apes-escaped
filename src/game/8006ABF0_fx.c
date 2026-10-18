@@ -106,7 +106,7 @@ extern u8 D_800B1AE0[];
 extern u8 D_800B193C[];
 extern u8 D_800B1F1C[];
 
-INCLUDE_ASM("asm/nonmatchings/game/8006ABF0_fx", func_8006ABF0);
+INCLUDE_ASM("asm/nonmatchings/game/8006ABF0_fx", Monkey_DrawHelmetLight);
 
 void Fx_UpdateExplosionSmoke(void) {
     struct S_D_800BAD68_8006B168 *e = ((struct S_D_800BAD68_8006B168 *)&D_800BAD68);

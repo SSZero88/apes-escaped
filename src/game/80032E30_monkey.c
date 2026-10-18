@@ -388,7 +388,7 @@ s32 func_800882C4(s32, s32, s32);
 s32 rsin(s32);
 extern u8 D_800AEBF4;
 s32 Monkey_GetAlertLevel(void);
-void func_8006ABF0(SVECTOR *, s32, s32);
+void Monkey_DrawHelmetLight(SVECTOR *, s32, s32);
 struct Game_3DC7C { u8 pad0[0x812C]; u8 f_812C; u8 pad812D[0xDF]; Pt_3DC7C_8003DC7C *f_820C; };
 s32 func_80035750();
 void func_80036460(void);
@@ -2840,7 +2840,7 @@ void Monkey_UpdateHelmetLight(void) {
         v.vz = M_39C38->z;
         break;
     }
-    func_8006ABF0(&v, kind, vis);
+    Monkey_DrawHelmetLight(&v, kind, vis);
     M_39C38->flash--;
 }
 

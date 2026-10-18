@@ -1007,3 +1007,4 @@ Model_CycleVertexColors = 0x8001D4A8; // type:func
 Model_DrawCycledColors = 0x8001D530; // type:func
 Model_CalcJointMatrices = 0x80015504; // type:func
 Surface_RampHeight = 0x8004EE94; // type:func
+Monkey_DrawHelmetLight = 0x8006ABF0; // type:func
