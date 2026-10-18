@@ -538,7 +538,7 @@ Pitfalls seen while integrating:
   PsyQ library functions have real return types that drafts often drop: `VectorNormal*`,
   `SquareRoot0`, `rsin`/`rcos` return `long`; `RotMatrix*`, `MulMatrix*`, `CompMatrix`,
   `ApplyMatrix*`, `ScaleMatrix*` return `MATRIX *`/`VECTOR *`; `ClearImage`, `LoadImage`, `DrawSync`
-  return `int`; the BIOS memset stub `func_800A3740` returns a pointer. `func_8003C568` matched
+  return `int`; the BIOS memset stub `memset` returns a pointer. `func_8003C568` matched
   only after `VectorNormalSS` was declared returning `long`. `wip/_try/psyqret.py FUNC FILE`
   rewrites a draft's library prototypes with these types.
 - **hand_apply can break other functions**: the prototypes it adds to the file (here a new return

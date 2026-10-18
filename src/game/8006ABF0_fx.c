@@ -28,7 +28,7 @@ typedef struct { s16 vx, vy, vz, pad; } SVEC_8006B3F0_8006B3F0;
 extern M2C_UNK D_800B1BD4;
 
 void func_8013F0C0(void);
-void func_800A3740(void *, s32, s32);
+void memset(void *, s32, s32);
 
 M2C_UNK Camera_StartShake(M2C_UNK);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
@@ -214,7 +214,7 @@ void func_8006B70C(void) {
         return;
     }
     if (g_Game.f_0 & 1) {
-        func_800A3740(&v, 0, 8);
+        memset(&v, 0, 8);
         v.vx = g_Spike.f_24 - g_Spike.f_30 * 2;
         v.vy = g_Spike.f_28 - 0x20;
         v.vz = g_Spike.f_2C - g_Spike.f_38 * 2;
@@ -249,7 +249,7 @@ void Spike_WaterSplashIn(void) {
     if (D_800BAD78.f_0 == 0) {
         Water_Query(((struct S_D_800EC1E0_8006B848 *)&g_Spike)->f_24, ((struct S_D_800EC1E0_8006B848 *)&g_Spike)->f_28, ((struct S_D_800EC1E0_8006B848 *)&g_Spike)->f_2C);
         D_800B4D90 = d->f_4 = sc->f_A - sc->f_10;
-        func_800A3740(&v, 0, 8);
+        memset(&v, 0, 8);
         v.vx = ((struct S_D_800EC1E0_8006B848 *)&g_Spike)->f_24;
         v.vy = d->f_4;
         v.vz = ((struct S_D_800EC1E0_8006B848 *)&g_Spike)->f_2C;
@@ -320,7 +320,7 @@ void Spike_UpdateWaterFx(void) {
         Water_Query(sp->x, sp->y, sp->z);
         D_800B4D90 = d->f_4 = sc->f_A - sc->f_10;
         if (ABS(sp->vy) > 16 && (dy = sp->f_12C - sp->y) < 0x90 && dy >= 0x31) {
-            func_800A3740(&v, 0, 8);
+            memset(&v, 0, 8);
             v.vx = sp->x;
             v.vy = d->f_4;
             v.vz = sp->z;
@@ -366,7 +366,7 @@ void Spike_UpdateWaterFx(void) {
             Spike_WaterSplashOut();
         }
         if (!(g_Game.f_0 & 1)) {
-            func_800A3740(&w, 0, 8);
+            memset(&w, 0, 8);
             w.vx = SPK->x;
             w.vy = SPK->water;
             w.vz = SPK->z;
@@ -533,12 +533,12 @@ void func_8006C58C(void) {
     SVEC_8006C58C_8006C58C b;
     s32 i;
 
-    func_800A3740(&a, 0, 8);
+    memset(&a, 0, 8);
     a.vx = ((struct S_D_800EC1E0_8006C58C *)&g_Spike)->f_24;
     a.vy = ((struct S_D_800EC1E0_8006C58C *)&g_Spike)->f_28 - 0x50;
     a.vz = ((struct S_D_800EC1E0_8006C58C *)&g_Spike)->f_2C;
     n = a;
-    func_800A3740(&b, 0, 8);
+    memset(&b, 0, 8);
     b.vx = ((struct S_D_800EC1E0_8006C58C *)&g_Spike)->f_30;
     b.vy = ((struct S_D_800EC1E0_8006C58C *)&g_Spike)->f_34;
     b.vz = ((struct S_D_800EC1E0_8006C58C *)&g_Spike)->f_38;

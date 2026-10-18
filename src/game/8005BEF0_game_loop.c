@@ -59,7 +59,7 @@ s32 ScreenWipe_Update(void);
 void Text_Draw(void *, s32, s32, s32);
 void func_80047BD0(void);
 void Light_SetColorMode(s32, s32, s32, s32);
-void func_80063628(void);
+void Spike_Draw(void);
 void Spike_Update(void);
 void Vehicle_UpdateSpikeOnTop(void);
 void RcCar_Update(void);
@@ -185,7 +185,7 @@ s32 Game_MainLoop(void) {
             func_80047BD0();
             Light_SetColorMode(1, 0, 0, 0);
             if (GM_5BF70->f_8100 & 1) {
-                func_80063628();
+                Spike_Draw();
             } else {
                 Spike_Update();
             }

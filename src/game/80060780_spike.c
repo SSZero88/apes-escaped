@@ -1,5 +1,6 @@
 #include "common.h"
 #include "m2c_macros.h"
+#include "gte.h"
 #include "common.h"
 #define SP_80066ADC ((struct Spike_80066ADC *)&g_Spike)
 #define SP_64208 ((struct Spike_80064208 *)&g_Spike)
@@ -181,9 +182,223 @@ INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5B10);
 INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5B10_pad);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80060780_spike", func_80063628);
+typedef struct { s16 vx, vy, vz, pad; } SV_63628;
+typedef struct { s32 vx, vy, vz, pad; } V_63628;
+typedef struct { u8 pad0[4]; u16 f_4; u16 f_6; } Hdr_63628;
+struct Spike_63628 { Hdr_63628 *f_0; u8 pad4[0x10]; void *f_14; u8 pad18[4]; s16 f_1C; s16 f_1E; s16 f_20; u8 pad22[2]; s32 f_24; s32 f_28; s32 f_2C; u8 pad30[0x2C]; u16 f_5C; u16 f_5E; u16 f_60; u8 pad62[2]; u16 f_64; u8 pad66[2]; SV_63628 f_68; s32 f_70; u8 pad74[0xC]; SV_63628 f_80; u16 f_88; u16 f_8A; u16 f_8C; u8 pad8E[2]; s32 f_90; s32 f_94[8]; u8 padB4[0x2C]; s32 f_E0; u8 padE4[0x10]; u8 f_F4; u8 f_F5; u8 f_F6; u8 padF7; u8 f_F8; u8 f_F9; u8 f_FA; u8 padFB[3]; s16 f_FE; u8 pad100[2]; s16 f_102; s32 f_104; u8 pad108[0x24]; s32 f_12C; u8 pad130[6]; s16 f_136; u16 f_138; u8 pad13A[2]; u16 f_13C; };
+typedef struct { u8 pad0[0x10]; SV_63628 f_10; V_63628 f_18; u8 pad28[0x3CC]; u8 f_3F4; } Scr_63628;
+typedef struct { u8 pad0[0x32]; u8 f_32; u8 pad33[0x13]; u8 f_46; } Cam_63628;
+typedef struct { u8 pad0[0x18]; s16 f_18; s16 f_1A; } Snd_63628;
+typedef struct { u8 pad0[4]; s16 f_4; u8 pad6[2]; s32 f_8; } Gs_63628;
+typedef struct { u8 pad0[0x1A]; u16 f_1A; u16 f_1C; } Dbg_63628;
+typedef struct { u8 pad0[0xA2]; s8 f_A2; s8 f_A3; u8 padA4[0xB4]; u32 f_158; u8 pad15C[4]; u32 f_160; } Pad_63628;
+typedef struct { Hdr_63628 *hdr; u8 pad4[0xC]; } Gm_63628;
+extern struct Spike_63628 g_Spike_63628 asm("g_Spike");
+extern struct { u8 pad0[0xC]; s32 cur; u8 pad10[0x70]; u8 ot[0x8150 - 0x80]; u16 f_8150; u8 pad8152[0x12A]; u32 f_827C; } g_Game_63628 asm("g_Game");
+extern Pad_63628 g_Pad_63628 asm("g_Pad");
+extern Cam_63628 D_800E68D0_63628 asm("D_800E68D0");
+extern u8 D_800E6902_63628 asm("D_800E6902");
+extern u8 D_800E78C0_63628[] asm("D_800E78C0");
+extern u8 D_800E7D00_63628[] asm("D_800E7D00");
+extern u8 D_800E9C60_63628[] asm("D_800E9C60");
+extern u8 D_800E9E40_63628[] asm("D_800E9E40");
+extern Gm_63628 D_800EC060_63628[] asm("D_800EC060");
+extern u8 D_800EC0E0_63628[] asm("D_800EC0E0");
+extern Dbg_63628 D_800F4B30_63628 asm("D_800F4B30");
+extern s16 D_800F4DCE_63628 asm("D_800F4DCE");
+extern Snd_63628 D_800F51D0_63628 asm("D_800F51D0");
+extern s32 D_800F51E0_63628 asm("D_800F51E0");
+extern s8 g_CurrentGadget_63628 asm("g_CurrentGadget");
+extern Gs_63628 g_GadgetState_63628 asm("g_GadgetState");
+extern s16 g_SpikeHealth_63628 asm("g_SpikeHealth");
+void Anim_BlendFrameIndex_63628(void *, s32, s32, s32) asm("Anim_BlendFrameIndex");
+void Anim_BlendFrames_63628(void *, s32, s32, s32) asm("Anim_BlendFrames");
+void Anim_SetFrame_63628(void *) asm("Anim_SetFrame");
+s32 func_80015240_63628(void *, s32) asm("func_80015240");
+void Matrix_Copy_63628(void *, void *) asm("Matrix_Copy");
+void Matrix_LookAt_63628(SV_63628 *, SV_63628 *, void *, s32) asm("Matrix_LookAt");
+void func_800A3740_63628(void *, s32, s32) asm("memset");
+s32 rsin_63628(s32) asm("rsin");
+void ScaleMatrix_63628(void *, void *) asm("ScaleMatrix");
+void func_80015504_63628(void *, s32) asm("func_80015504");
+void Model_ProjectBonedVerts_63628(void *) asm("Model_ProjectBonedVerts");
+void SetRotMatrix_63628(void *) asm("SetRotMatrix");
+void SetTransMatrix_63628(void *) asm("SetTransMatrix");
+void Mesh_WaveVertices_63628(void *, s32, s32) asm("Mesh_WaveVertices");
+void Model_CalcEnvMapUVs_63628(void *) asm("Model_CalcEnvMapUVs");
+void func_8001CE54_63628(void *, void *, void *) asm("func_8001CE54");
+void Fx_DrawFadeRing_63628(SV_63628 *, s32, s32, s32) asm("Fx_DrawFadeRing");
+void Light_SetColorMode_63628(s32, s32, s32, s32) asm("Light_SetColorMode");
+s32 func_800463A4_63628(s32, s32, s32) asm("func_800463A4");
+void func_80017CD4_63628(void *, void *, void *) asm("func_80017CD4");
+s32 Spike_IsUnderwater_63628(void) asm("Spike_IsUnderwater");
+void Model_ProjectVerts_63628(void *, void *, void *) asm("Model_ProjectVerts");
+void WaterNet_Shoot_63628(void) asm("WaterNet_Shoot");
+void WaterNet_UpdateShot_63628(void) asm("WaterNet_UpdateShot");
+void Spike_UpdateGadgetLoopSound_63628(void) asm("Spike_UpdateGadgetLoopSound");
+void Sound_Stop_63628(s32, s32) asm("Sound_Stop");
+void Hoop_Update_63628(void) asm("Hoop_Update");
+void Slingback_Update_63628(void) asm("Slingback_Update");
+void TimeNet_Update_63628(void) asm("TimeNet_Update");
+void StunClub_Update_63628(void) asm("StunClub_Update");
+void func_80099C44_63628(void) asm("func_80099C44");
+void Club_SwingUpdate_63628(void) asm("Club_SwingUpdate");
+void SkyFlyer_Update_63628(void) asm("SkyFlyer_Update");
+void func_80099D70_63628(void) asm("func_80099D70");
+void func_8005E000_63628(s32, s32) asm("func_8005E000");
+void Gadget_StopSounds_63628(s32, void *) asm("Gadget_StopSounds");
+void Shadow_Draw_63628(void *, s32, s32, s32) asm("Shadow_Draw");
+#define OT_63628 ((u8 *)&g_Game_63628 + g_Game_63628.cur * 0x4078 + 0x80)
 
-INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5B28);
+/* Spike_Draw: per-frame Spike model update and draw. Steps the animation (blend modes by +0x8C),
+ * builds the body matrix (look-at, or copied when +0xE0 bit 0), squashes it while +0xFE > 0, projects
+ * the bones (wave-deformed at the water line), then draws Spike: env-mapped with a fade ring when
+ * +0x102, otherwise lit with his colour easing towards the target (blinking while D_800F4DCE is
+ * * odd). Underwater he holds the water net (R3 shoots); otherwise the held gadget is updated by
+ * g_CurrentGadget (default: just draw its model). Ends with the CPU meter and his shadow. */
+void Spike_Draw(void) {
+    Scr_63628 *sc = (Scr_63628 *)0x1F800000;
+    s32 sy;
+
+    if (g_Game_63628.f_8150 == 0xC) {
+        return;
+    }
+    if ((g_Spike_63628.f_70 & 0xF0) == 0x20 || g_Spike_63628.f_8C == 0xFFFF) {
+        g_Spike_63628.f_88 = g_Spike_63628.f_5C + 1;
+        Anim_BlendFrameIndex_63628(&g_Spike_63628, g_Spike_63628.f_5C, g_Spike_63628.f_88, g_Spike_63628.f_8A);
+    } else if (g_Spike_63628.f_8C == 0xFFFE) {
+        Anim_BlendFrameIndex_63628(&g_Spike_63628, g_Spike_63628.f_5C, g_Spike_63628.f_88, g_Spike_63628.f_8A);
+    } else if (g_Spike_63628.f_8C != 0) {
+        Anim_BlendFrames_63628(&g_Spike_63628, func_80015240_63628(&g_Spike_63628, g_Spike_63628.f_5C), g_Spike_63628.f_90, g_Spike_63628.f_8C * 0x333);
+    } else {
+        Anim_SetFrame_63628(&g_Spike_63628);
+    }
+    if (g_Spike_63628.f_E0 & 1) {
+        Matrix_Copy_63628(g_Spike_63628.f_14, g_Spike_63628.f_94);
+    } else {
+        switch (g_Spike_63628.f_5E) {
+        case 0x46:
+        case 0x47:
+        case 0x4C:
+            Matrix_LookAt_63628(&g_Spike_63628.f_80, &g_Spike_63628.f_68, g_Spike_63628.f_14, 1);
+            break;
+        default:
+            Matrix_LookAt_63628((SV_63628 *)&g_Spike_63628.f_60, &g_Spike_63628.f_68, g_Spike_63628.f_14, 0);
+            break;
+        }
+    }
+    if (g_Spike_63628.f_FE > 0) {
+        V_63628 s = { 0x1000, 0x1000 - (g_Spike_63628.f_FE << 12) / 80 - rsin_63628(g_Spike_63628.f_FE * 300) * g_Spike_63628.f_FE / 240, 0x1000 };
+        ScaleMatrix_63628(g_Spike_63628.f_14, &s);
+    }
+    if (D_800E6902_63628 == 1) {
+        D_800F4B30_63628.f_1A -= g_Pad_63628.f_A2 * 4;
+        D_800F4B30_63628.f_1C -= g_Pad_63628.f_A3 * 4;
+    }
+    func_80015504_63628(&g_Spike_63628, (g_Game_63628.f_8150 == 6) ? 7 : 3);
+    Model_ProjectBonedVerts_63628(&g_Spike_63628);
+    if ((g_Spike_63628.f_138 >> 12) == 1 && (g_Game_63628.f_827C >> 12) != 1) {
+        sc->f_10.vx = g_Spike_63628.f_24;
+        sc->f_10.vy = g_Spike_63628.f_13C;
+        sc->f_10.vz = g_Spike_63628.f_2C;
+        SetRotMatrix_63628(D_800E78C0_63628);
+        SetTransMatrix_63628(D_800E78C0_63628);
+        gte_ldv0(&sc->f_10);
+        gte_rtps();
+        __asm__ volatile ("mfc2 %0, $14" : "=r"(sy));
+        Mesh_WaveVertices_63628(D_800E7D00_63628, g_Spike_63628.f_0->f_6, sy >> 16);
+    }
+    if (g_Spike_63628.f_102 != 0) {
+        Model_CalcEnvMapUVs_63628(&g_Spike_63628);
+        sc->f_3F4 = 2;
+        func_8001CE54_63628(OT_63628, D_800E7D00_63628, &g_Spike_63628);
+        {
+            SV_63628 p = { g_Spike_63628.f_24, g_Spike_63628.f_28 - 0xC0, g_Spike_63628.f_2C };
+            Fx_DrawFadeRing_63628(&p, 0x180, 1, 0x404040);
+        }
+    } else if (D_800E68D0_63628.f_32 != 1 && D_800E68D0_63628.f_46 != 1) {
+        if (D_800F4DCE_63628 <= 0 || !(D_800F4DCE_63628 & 1)) {
+            Light_SetColorMode_63628(2, g_Spike_63628.f_F4 * 16, g_Spike_63628.f_F5 * 16, g_Spike_63628.f_F6 * 16);
+            if (*(s32 *)&g_Spike_63628.f_F4 != *(s32 *)&g_Spike_63628.f_F8) {
+                g_Spike_63628.f_F4 = func_800463A4_63628(g_Spike_63628.f_F4, g_Spike_63628.f_F8, 4);
+                g_Spike_63628.f_F5 = func_800463A4_63628(g_Spike_63628.f_F5, g_Spike_63628.f_F9, 4);
+                g_Spike_63628.f_F6 = func_800463A4_63628(g_Spike_63628.f_F6, g_Spike_63628.f_FA, 4);
+            }
+            func_80017CD4_63628(OT_63628, D_800E7D00_63628, &g_Spike_63628);
+            Light_SetColorMode_63628(3, 0, 0, 0);
+        }
+    }
+    if (D_800E68D0_63628.f_32 == 1) {
+        if (g_CurrentGadget_63628 == 4 && g_GadgetState_63628.f_4 == 1) {
+            g_GadgetState_63628.f_4 = 0;
+            g_GadgetState_63628.f_8 = 0;
+            Gadget_StopSounds_63628(4, &g_GadgetState_63628);
+        }
+    } else if (Spike_IsUnderwater_63628() != 0) {
+        Model_ProjectVerts_63628(D_800EC0E0_63628, D_800E9E40_63628, D_800E7D00_63628);
+        func_80017CD4_63628(OT_63628, D_800E7D00_63628, D_800EC0E0_63628);
+        if (D_800E68D0_63628.f_32 != 1 && (g_Pad_63628.f_158 & g_Pad_63628.f_160 & 0x400) && g_SpikeHealth_63628 > 0 && D_800F51E0_63628 == 0) {
+            WaterNet_Shoot_63628();
+        }
+        if (D_800F51E0_63628 > 0) {
+            WaterNet_UpdateShot_63628();
+        }
+        Spike_UpdateGadgetLoopSound_63628();
+    } else {
+        if (D_800F51D0_63628.f_18 != -1) {
+            Sound_Stop_63628(D_800F51D0_63628.f_1A, D_800F51D0_63628.f_18);
+            D_800F51D0_63628.f_18 = -1;
+            D_800F51D0_63628.f_1A = -1;
+        }
+        switch (g_CurrentGadget_63628) {
+        case 8:
+        default: {
+            Gm_63628 *g = &D_800EC060_63628[g_CurrentGadget_63628];
+            Model_ProjectVerts_63628(g, D_800E9C60_63628 + (g->hdr->f_4 << 5), D_800E7D00_63628);
+            func_80017CD4_63628(OT_63628, D_800E7D00_63628, g);
+            break;
+        }
+        case 4:
+            Hoop_Update_63628();
+            break;
+        case 3:
+            Slingback_Update_63628();
+            break;
+        case 1:
+            TimeNet_Update_63628();
+            break;
+        case 0:
+            StunClub_Update_63628();
+            break;
+        case 7:
+            func_80099C44_63628();
+            break;
+        case 5:
+            Club_SwingUpdate_63628();
+            break;
+        case 6:
+            SkyFlyer_Update_63628();
+            break;
+        case 2:
+            func_80099D70_63628();
+            break;
+        case 9:
+            break;
+        }
+    }
+    func_8005E000_63628(1, 0xFFFFFF);
+    sc->f_18.vx = g_Spike_63628.f_1C;
+    sc->f_18.vy = g_Spike_63628.f_1E;
+    sc->f_18.vz = g_Spike_63628.f_20;
+    if ((u16)(g_Spike_63628.f_5E - 0xE) < 2) {
+        sc->f_18.vx -= (s16)g_Spike_63628.f_60 >> 8;
+        sc->f_18.vz -= (s16)g_Spike_63628.f_64 >> 8;
+    }
+    if (D_800E68D0_63628.f_32 != 1 && D_800E68D0_63628.f_46 != 1 && g_Spike_63628.f_136 != 0) {
+        Shadow_Draw_63628(&sc->f_18, g_Spike_63628.f_12C, 0x54, g_Spike_63628.f_104);
+    }
+}
+
 
 
 /* Ledge grab: while Spike has health (+0xE8 > 0) and is falling (+0x34 > 0) above the floor,

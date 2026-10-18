@@ -115,7 +115,7 @@ void *ApplyMatrixLV(void *m, void *v0, void *v1);
 void VectorNormal(void *v0, void *v1);
 s32 rcos(s32);
 s32 rsin(s32);
-void func_800A3740(void *p, s32 c, s32 n);
+void memset(void *p, s32 c, s32 n);
 s32 Water_Query(s32 x, s32 y, s32 z);
 struct S_D_800EC350_80046670 { u8 pad_0[0x827C]; s32 f_827C; };
 
@@ -181,7 +181,7 @@ void Camera_LookAt(SV_80046670_80046670 *eye, SV_80046670_80046670 *at, MAT_8004
         r.m[2][0] = 0;
         r.m[2][1] = 0;
         r.m[2][2] = 0x1000;
-        func_800A3740(r.t, 0, 12);
+        memset(r.t, 0, 12);
         MulMatrix0(&r, view, view);
     }
     ApplyMatrixLV(view, view->t, view->t);
@@ -445,11 +445,11 @@ void func_80047290(s32 i) {
 typedef struct { s16 vx, vy, vz, pad; } SVEC_80047360;
 typedef struct { u8 pad0[0x10]; u16 f_10; u8 pad12[2]; u16 f_14; u8 pad16[0x2A]; u16 f_40; u8 pad42[2]; u16 f_44; u8 pad46[0x2E]; s32 f_74; s32 f_78; } SCR_80047360;
 typedef struct { u8 pad0[0xA]; s16 f_A; s16 f_C; s16 f_E; } S_80047360;
-void *Bios_Memset_47360(void *, s32, s32) asm("func_800A3740");
+void *Bios_Memset_47360(void *, s32, s32) asm("memset");
 void func_80047360_(S_80047360 *s) asm("func_80047360");
 /* func_80047360: camera side vector: from the camera (scratch +0x10/+0x14) to the target s (f_A,
  * f_E) in xz, normalised; scratch +0x78/+0x74 = its dot and cross products with the scratch
- * direction (+0x40/+0x44). func_800A3740 (BIOS memset) must be declared returning a pointer. */
+ * direction (+0x40/+0x44). memset (BIOS memset) must be declared returning a pointer. */
 void func_80047360_(S_80047360 *s) {
     SVEC_80047360 n;
     SVEC_80047360 v;

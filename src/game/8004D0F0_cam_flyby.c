@@ -23,7 +23,7 @@ extern u8 D_800E68E8;
 extern A_8004D40C_8004D40C *D_800B4D40;
 extern struct { u8 pad0[0x24]; u16 f_24; u8 pad26[2]; u16 f_28; u8 pad2A[2]; u16 f_2C; } g_Spike;
 struct Game_8004D40C { u8 pad0[0x8100]; s32 f_8100; u8 pad8104[0x154]; SV_8004D40C_8004D40C f_8258; SV_8004D40C_8004D40C f_8260; };
-void func_800A3740(void *, s32, s32);
+void memset(void *, s32, s32);
 void CamFlyby_StartSegment(s32 i);
 void func_80048D10(void *arg0, void *arg1, s32 arg2);
 void func_8005DD18(void);
@@ -71,7 +71,7 @@ void CamFlyby_Update(void) {
     SV_8004D40C_8004D40C w;
     SV_8004D40C_8004D40C v;
     s32 a;
-    func_800A3740(&v, 0, 8);
+    memset(&v, 0, 8);
     v.vx = g_Spike.f_24;
     v.vy = g_Spike.f_28;
     v.vz = g_Spike.f_2C;

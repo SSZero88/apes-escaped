@@ -577,7 +577,7 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
 - Super Hoop sparkles (SuperHoop_DrawSparkles, gadget 4; user: particles appear when the hoop is activated): 40 particles respawn on a ring around Spike
   while gadget state +4 is 1 (Hoop_Update state 1 = activated, spinning) (radius +8 / 6 + 90); flags word = 5-bit life, 3-bit size, written with
   hand-written mask macros (timer read through a byte, size through the halfword).
-- Time Net (gadget 1, TimeNet_Update from the per-gadget switch in func_80063628): the grip point's
+- Time Net (gadget 1, TimeNet_Update from the per-gadget switch in Spike_Draw): the grip point's
   frame-to-frame motion (x64, clamped) is stored at g_GadgetState+0x68.. and bent into the handle
   matrix and, halved, into the net matrix, so the net lags and swings behind Spike's hand (user: the net swings in a vertical arc in his hands).
 - Fx_DrawGlowBeam: additive glow beam between two projected points (6 POLY_G4), width scaled by the
@@ -728,3 +728,13 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   statements (Tip_DrawAll box kinds and states); if/else chains put the blocks in another order.
 - A value read through a second declaration of the same symbol (`extern ... g_GameT asm("g_Game")`)
   is not CSE'd with reads through the first, so the address is rebuilt (Hud_Draw's timer).
+- check_c only compares .text, so a switch can "MATCH" with a wrong jump table. Always confirm the
+  full build: case values must be listed exactly as the table has them. Spike_Draw's 10-entry
+  gadget table needed `case 8:` on the default (so the default label is a table target and
+  g_CurrentGadget is reloaded there) and `case 9: break;` (entry points at the join, not the
+  default); func_8008FC30 needed `case 7:` placed before case 0x1B so 0x1B falls into its store.
+- Stack temps that the original shares between two branches (same sp offsets) came from block
+  initialisers (`V s = { 0x1000, expr, 0x1000 };`): GCC builds them in a reused temp slot with
+  memset + stores and then copies them. memset is the BIOS A0:2A stub at 0x800A3740.
+- One register-pinned local (`register u32 y asm("$4");`) was the only way to match
+  func_800687D8's a0 choice for a copied coordinate.

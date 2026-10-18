@@ -15,7 +15,7 @@ extern s8 D_800B0200[];
 extern struct S_D_800A5A10 { s32 w[4]; } D_800A5A10;
 extern u8 D_800F4D20[];
 void Sound_PlayFixed(s32);
-void func_800A3740(void *, s32, s32);
+void memset(void *, s32, s32);
 void Model_DrawOnScreen(void *, SV_5FD80_8005FD80 *, SV_5FD80_8005FD80 *, struct S_D_800A5A10 *);
 struct S_D_800F4DB0_8005FD80 { s16 f_0; u8 f_2; u8 f_3; };
 
@@ -510,11 +510,11 @@ s32 func_8005FD80(void)
   d = v / 10;
   Hud_DrawBigDigit(0xA6, y1 + 8, d);
   Hud_DrawBigDigit(0xBA, y2 + 8, v - (d * 10));
-  func_800A3740(&pos, 0, 8);
+  memset(&pos, 0, 8);
   pos.vx = 0x96;
   pos.vy = y1 + 0x16;
   pos.vz = 0x148;
-  func_800A3740(&r2, 0, 8);
+  memset(&r2, 0, 8);
   *((s32 *) 0x1F8003C8) = 2;
   r2.vy = (*(struct Game_5FD80 *)&g_Game).f_0 << 5;
   rot = r2;

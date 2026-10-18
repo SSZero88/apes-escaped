@@ -96,7 +96,7 @@ extern u16 D_800AE8F2;
 
 extern s8 D_800E77ED;
 
-void func_800A3740(void *, s32, s32);
+void memset(void *, s32, s32);
 extern struct S_D_800E6960 { u8 pad_0[0x7E]; u8 f_7E; u8 pad_7F[0x2]; u8 f_81; u8 pad_82[0x18]; u16 f_9A; s16 f_9C; u16 f_9E; u8 pad_A0[4]; s16 f_A4; s16 f_A6; u8 pad_A8[0x38]; u32 f_E0; } g_Objects[];
 s32 func_800569C4(s16 kind, s16 flag);
 void func_80056AE4(S_56AE4_80056AE4 *s, s32 *pos, s32 k);
@@ -1392,7 +1392,7 @@ void Object_DefeatedUpdate(Obj_55174_80055174 *o) {
         }
         fn((s16)o->x, (s16)o->y, (s16)o->z);
         Object_Destroy(o);
-        func_800A3740(&v, 0, 8);
+        memset(&v, 0, 8);
         v.vx = o->x;
         v.vy = o->y - 0x40;
         v.vz = o->z;
@@ -1476,7 +1476,7 @@ void Object_SetVelocityToward(void *arg0, void *arg1, s32 arg2, s16 arg3) {
 void Object_HeadTowardSpike(S_555D8_800555D8 *s, s32 b) {
     SVEC_800555D8 tmp;
     SVEC_800555D8 v;
-    func_800A3740(&v, 0, 8);
+    memset(&v, 0, 8);
     v.vx = g_Spike.f_24 - s->f_24;
     v.vz = g_Spike.f_2C - s->f_2C;
     tmp = v;
@@ -1486,7 +1486,7 @@ void Object_HeadTowardSpike(S_555D8_800555D8 *s, s32 b) {
 void Object_HeadHome(S_55674_80055674 *s, s32 a, s32 b) {
     SVEC_80055674 tmp;
     SVEC_80055674 v;
-    func_800A3740(&v, 0, 8);
+    memset(&v, 0, 8);
     v.vx = s->f_9A - s->f_24;
     v.vz = s->f_9E - s->f_2C;
     tmp = v;
@@ -1496,7 +1496,7 @@ void Object_HeadHome(S_55674_80055674 *s, s32 a, s32 b) {
 s32 func_80055718(S_O_80055718_80055718 *o, s32 x, s32 y, s32 z, s32 r) {
     SVECTOR w;
     SVECTOR v;
-    func_800A3740(&v, 0, 8);
+    memset(&v, 0, 8);
     v.vx = x - o->f_24;
     v.vy = y - o->f_28;
     v.vz = z - o->f_2C;
@@ -2090,7 +2090,7 @@ void func_800573EC(s16 *p)
 void func_8005744C(S_5744C_8005744C *s, s32 dx, s32 dy, s32 dz) {
     SVEC_8005744C tmp;
     SVEC_8005744C v;
-    func_800A3740(&v, 0, 8);
+    memset(&v, 0, 8);
     v.vx = s->f_24 + dx;
     v.vy = s->f_28 - dy;
     v.vz = s->f_2C + dz;

@@ -21,7 +21,7 @@ extern u8 D_800B1B78[][8];
 void Projectile_End(void *arg0, s32 kind);
 void Sound_PlayFixed(s32);
 s32 Water_Query(s32, s32, s32);
-void func_800A3740(void *, s32, s32);
+void memset(void *, s32, s32);
 Col_84C94_80084C94 *CollShape_Alloc(void);
 void Collision_Set(s32, void *, s32);
 void func_8006F3D0(SV_84C94_80084C94 *, s32, void *, s32);
@@ -194,7 +194,7 @@ void Projectile_UpdateAll(void) {
         pos = p->pos;
         w = Water_Query(pos->vx, pos->vy, pos->vz);
         if (((u16)w >> 12) == 1 && (p->water >> 12) != 1) {
-            func_800A3740(&a, 0, 8);
+            memset(&a, 0, 8);
             a.vx = pos->vx;
             a.vy = sc->f_A - sc->f_10;
             a.vz = pos->vz;

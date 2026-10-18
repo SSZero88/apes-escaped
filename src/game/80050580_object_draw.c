@@ -45,7 +45,7 @@ typedef struct { u32 frame; u8 pad4[8]; s32 cur; Db_51C00_80051C00 db[2]; } Game
 void func_80014804(s32, MAT_800522A8 *);
 M2C_UNK Object_TurnToward(void *, s16, s16, s16, s32);
 
-void func_800A3740(void *, s32, s32);
+void memset(void *, s32, s32);
 void func_80051E98(void *arg0, s32 arg1);
 void Effect_SpawnAt(s32, SVEC_80051F1C *);
 void Object_PlaySound(S_51F1C_80051F1C *, s32);
@@ -621,7 +621,7 @@ void func_80051E98(void *arg0, s32 arg1)
 void Object_Destroy(S_51F1C_80051F1C *s) {
     SVEC_80051F1C tmp;
     SVEC_80051F1C v;
-    func_800A3740(&v, 0, 8);
+    memset(&v, 0, 8);
     v.vx = s->f_24;
     v.vy = s->f_28;
     v.vz = s->f_2C;
@@ -688,7 +688,7 @@ void Object_DropPickups(S_51F1C_80051F1C_8005216C *s) {
     SVEC_80051F1C_8005216C v;
     s32 i;
     s32 k;
-    func_800A3740(&v, 0, 8);
+    memset(&v, 0, 8);
     v.vx = s->f_24;
     v.vy = s->f_28 - 50;
     v.vz = s->f_2C;

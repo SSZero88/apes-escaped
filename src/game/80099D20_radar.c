@@ -26,7 +26,7 @@ void RotMatrixX(s32, struct S_D_800E78C0 *);
 void RotMatrixY(s32, struct S_D_800E78C0 *);
 void CompMatrix(struct S_D_800E78C0 *, struct S_D_800E78C0 *, struct S_D_800E78C0 *);
 void func_80014804(SV_9A574_8009A574 *, struct S_D_800E78C0 *);
-void func_800A3740(void *, s32, s32);
+void memset(void *, s32, s32);
 void ScaleMatrix(struct S_D_800E78C0 *, VEC_9A574_8009A574 *);
 
 void func_80099D20(void) {
@@ -107,7 +107,7 @@ void Radar_DrawModel(struct S_D_800E78C0 *base, struct S_D_800E78C0 *rt, SV_9A57
     z = sv.vz;
     func_80014804(dir, &m);
     if (dir->vy > 0) {
-        func_800A3740(&tmp, 0, 16);
+        memset(&tmp, 0, 16);
         tmp.vx = dir->vy;
         tmp.vy = dir->vy;
         tmp.vz = dir->vy;

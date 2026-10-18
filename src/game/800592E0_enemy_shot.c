@@ -21,7 +21,7 @@ void EnemyShot_SetHitbox(void *arg0, s16 arg1, s16 arg2, s16 arg3);
 s16 Floor_GetHeight(s32, s32, s32);
 void Sound_PlayFixed(s32);
 void Camera_StartShake(s32);
-void func_800A3740(void *, s32, s32);
+void memset(void *, s32, s32);
 void VectorNormalSS(void *, void *);
 s32 SquareRoot0(s32);
 struct S_D_800B8D30_80059FA4 { Col_59FA4_80059FA4 *col; s32 f_4; u8 *obj; u8 state; u8 f_D; u8 delay; u8 f_F; u8 f_10; u8 f_11; u8 f_12; u8 hidden; u8 f_14; u8 f_15; u8 pad16[6]; SV_59FA4_80059FA4 pos; s16 vx; s16 vy; s16 vz; s16 ground; u8 pad2C[2]; u16 timer; };
@@ -170,7 +170,7 @@ void EnemyShot_UpdateAll(void) {
             }
             if (p->f_F == 0) {
                 if (p->f_D == 0) {
-                func_800A3740(&a, 0, 8);
+                memset(&a, 0, 8);
                 a.vx = g_Spike.vx * 4 + g_Spike.x - p->pos.vx;
                 a.vy = (g_Spike.vy * 2 - 0x80) + g_Spike.y - p->pos.vy;
                 a.vz = g_Spike.z + g_Spike.vz * 4 - p->pos.vz;

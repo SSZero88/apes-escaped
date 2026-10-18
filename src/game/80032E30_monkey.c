@@ -127,7 +127,7 @@ typedef struct { s32 vx, vy, vz, pad; } VEC_80040CFC_800364BC;
 
 s32 Monkey_EnableCollision(void);
 
-void func_800A3740(void *, s32, s32);
+void memset(void *, s32, s32);
 void Square0(VEC_8003473C *, VEC_8003473C *);
 s32 SquareRoot0(s32);
 extern s16 D_800EC2CA;
@@ -953,7 +953,7 @@ s32 func_8003455C(void) {
 s32 Vec_DistXZ_SV(VEC_800345D4 *a, SVECTOR *b) {
     VEC_800345D4 sq;
     VEC_800345D4 d;
-    func_800A3740(&d, 0, 0x10);
+    memset(&d, 0, 0x10);
     d.vx = a->vx - b->vx;
     d.vy = a->vy - b->vy;
     d.vz = a->vz - b->vz;
@@ -965,7 +965,7 @@ s32 Vec_DistXZ_SV(VEC_800345D4 *a, SVECTOR *b) {
 s32 Vec_Dist(VEC_80034684 *a, VEC_80034684 *b) {
     VEC_80034684 sq;
     VEC_80034684 d;
-    func_800A3740(&d, 0, 0x10);
+    memset(&d, 0, 0x10);
     d.vx = a->vx - b->vx;
     d.vy = a->vy - b->vy;
     d.vz = a->vz - b->vz;
@@ -977,7 +977,7 @@ s32 Vec_Dist(VEC_80034684 *a, VEC_80034684 *b) {
 s32 Vec_DistXZ(VEC_8003473C *a, VEC_8003473C *b) {
     VEC_8003473C sq;
     VEC_8003473C d;
-    func_800A3740(&d, 0, 0x10);
+    memset(&d, 0, 0x10);
     d.vx = a->vx - b->vx;
     d.vz = a->vz - b->vz;
     sq = d;
@@ -4268,7 +4268,7 @@ void Monkey_Update(void) {
             break;
         case 0x33:
             if ((CM->f_242 == 7) && (!(((u16) Monkey_Rand()) % 10))) {
-                func_800A3740(&tmp, 0, 8);
+                memset(&tmp, 0, 8);
                 tmp.vx = CM->x;
                 tmp.vy = CM->y - 0x20;
                 tmp.vz = CM->z;

@@ -37,7 +37,7 @@ extern struct S_D_800B1BD4 { u8 pad[0x54]; } D_800B1BD4[];
 void func_80070284(s16 *pos, struct S_D_800B1BD4 *d, s32 a, s32 b, s32 c);
 void Fx_SpawnFadeRing(s16 *pos, s32 a, s32 b, s32 c);
 extern struct { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; u8 pad30[0x30]; u16 f_60; u16 pad62; u16 f_64; } g_Spike;
-void func_800A3740(void *, s32, s32);
+void memset(void *, s32, s32);
 void Effect_SpawnAt(s32, void *);
 void func_80071120(s16 *, s32);
 void Sound_PlayFixed(s32);
@@ -229,7 +229,7 @@ void Fx_Explosion(s16 *pos, s32 b, s32 kind) {
 void func_8006AB10(void) {
     SVEC_8006AB10 tmp;
     SVEC_8006AB10 v;
-    func_800A3740(&v, 0, 8);
+    memset(&v, 0, 8);
     v.vy = g_Spike.f_28 - 0x80;
     v.vx = g_Spike.f_24 + (s16)g_Spike.f_60 / 12;
     v.vz = g_Spike.f_2C + (s16)g_Spike.f_64 / 12;
