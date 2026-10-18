@@ -524,7 +524,68 @@ void Fx_DrawGlowBeam(ScrPt_2020C *a, ScrPt_2020C *b, s32 width, u32 color) {
     D_800EC354 = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8001F3A0_draw_fx", Model_DrawOnScreen);
+typedef struct { u8 pad0[8]; u16 nColors; u16 padA; u32 colors[1]; } MdlHdr_207A0;
+typedef struct { MdlHdr_207A0 *hdr; u8 pad4[4]; void *prims; } Mdl_207A0;
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_207A0;
+extern u8 D_800E7D00[];
+void func_8004637C(MAT_207A0 *);
+void RotMatrixZYX(SVECTOR *, MAT_207A0 *);
+void ScaleMatrix(MAT_207A0 *, void *);
+void MatrixNormal(MAT_207A0 *, MAT_207A0 *);
+void Model_ProjectVerts(void *, void *, void *);
+void Model_CalcEnvMapUVs64(Mdl_207A0 *);
+void func_8001CE54(u32 *, void *, Mdl_207A0 *);
+void Model_DrawPrims(u32 *, void *, void *);
+
+/* Draws a model straight onto the screen (HUD monkey heads, menu items): pos is in screen units
+   from the centre (0xC0, 0x78), turned by rot and scaled, projected at H = 0x148. Scratchpad +0x3C8
+   picks the colours: 0 the model's own, 1 a quarter of them, 2 environment-mapped (func_8001CE54).
+   Goes to the HUD ordering table. */
+void Model_DrawOnScreen(Mdl_207A0 *mdl, SVECTOR *pos, SVECTOR *rot, void *scale) {
+    u8 *scratch = (u8 *)0x1F800000;
+    MAT_207A0 m;
+    void *prims = mdl->prims;
+    s32 h, i;
+    u32 *src, *dst;
+
+    func_8004637C(&m);
+    m.t[0] = pos->vx - 0xC0;
+    m.t[1] = pos->vy - 0x78;
+    m.t[2] = pos->vz;
+    RotMatrixZYX(rot, &m);
+    ScaleMatrix(&m, scale);
+    __asm__ volatile("cfc2 %0, $26" : "=r"(h));
+    __asm__ volatile("li $8, 0x148; ctc2 $8, $26" : : : "$8");
+    Model_ProjectVerts(mdl, &m, D_800E7D00);
+    gte_SetGeomScreen(h);
+    switch (*(s32 *)(scratch + 0x3C8)) {
+    case 0:
+        src = mdl->hdr->colors;
+        for (i = 0; i < mdl->hdr->nColors; i++) {
+            ((u32 *)scratch)[i] = src[i];
+        }
+        break;
+    case 1:
+        src = mdl->hdr->colors;
+        for (i = 0; i < mdl->hdr->nColors; i++) {
+            ((u32 *)scratch)[i] = (src[i] & 0xFCFCFC) >> 2;
+        }
+        break;
+    case 2:
+        MatrixNormal(&m, &m);
+        SetRotMatrix(&m);
+        Model_CalcEnvMapUVs64(mdl);
+        *(u8 *)(scratch + 0x3F4) = 1;
+        func_8001CE54(G_HUD_OT, D_800E7D00, mdl);
+        return;
+    }
+    *(s16 *)(scratch + 0x3C6) = 0;
+    *(s16 *)(scratch + 0x3C4) = 0;
+    *(u8 *)(scratch + 0x3F4) = 7;
+    *(s16 *)(scratch + 0x3C0) = D_800EBFA0.f_24;
+    *(s16 *)(scratch + 0x3C2) = D_800EBFA0.f_28;
+    Model_DrawPrims(G_HUD_OT, prims, D_800E7D00);
+}
 
 void func_80020A20(S_20A20_80020A20 **a, s16 b, s16 c, u8 d, s32 e) {
     u8 *scratch = (u8 *)0x1F800000;
