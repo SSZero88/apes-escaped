@@ -147,7 +147,7 @@ s32 func_80051410(Vec4_80051410 *pos, s32 dy, s32 far);
 /* Draws one stage object (called from Object_DrawAll): normalizes its facing (+0x60), drops a
  * shadow of size +0xA0 at the floor below it, builds the model matrix, applies the optional
  * extras (flag bit 13 of +0xE0, a joint-override when +0x70 != 0xFFFF) and adds it to the OT.
- * Flag bit 26 sends it through the alternate func_8001D4A8/func_8001D530 path (header +6 is
+ * Flag bit 26 sends it through the alternate Model_CycleVertexColors/Model_DrawCycledColors path (header +6 is
  * passed); otherwise it is drawn with a flash brightness while the hit timer +0x84 counts down. */
 void Object_Draw(Obj_51C00_80051C00 *o);
 void func_80051A28(void *arg0);
@@ -160,8 +160,8 @@ void VectorNormalSS(void *, void *);
 void Shadow_Draw(void *, s32, s32, s32);
 void func_800516D8(void *arg0);
 void Model_ProjectBonedVerts(Obj_51C00_80051C00 *);
-void func_8001D4A8(u8 *, u16);
-void func_8001D530(u32 *, u8 *, Obj_51C00_80051C00 *);
+void Model_CycleVertexColors(u8 *, u16);
+void Model_DrawCycledColors(u32 *, u8 *, Obj_51C00_80051C00 *);
 typedef struct { u8 pad0[0x8]; u16 f_8; u8 padA[2]; s32 rgb[1]; } S_Hdr_51AA4;
 typedef struct { S_Hdr_51AA4 *f_0; s32 f_4; s32 f_8; } S_Model_51AA4;
 typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } S_Scr_51AA4;
@@ -558,8 +558,8 @@ void Object_Draw(Obj_51C00_80051C00 *o) {
     }
     Model_ProjectBonedVerts(o);
     if ((o->f_E0 >> 26) & 1) {
-        func_8001D4A8(D_800E7D00, o->hdr->f_6);
-        func_8001D530((*(Game_51C00_80051C00 *)&g_Game).db[(*(Game_51C00_80051C00 *)&g_Game).cur].ot, D_800E7D00, o);
+        Model_CycleVertexColors(D_800E7D00, o->hdr->f_6);
+        Model_DrawCycledColors((*(Game_51C00_80051C00 *)&g_Game).db[(*(Game_51C00_80051C00 *)&g_Game).cur].ot, D_800E7D00, o);
         return;
     }
     if (o->f_84 != 0) {

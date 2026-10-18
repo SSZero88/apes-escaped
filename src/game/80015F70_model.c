@@ -649,7 +649,9 @@ INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4700);
 INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4700_pad);
 
 
-void func_8001D4A8(S_1D4A8_8001D4A8 *a, s32 n) {
+/* Model_CycleVertexColors: per-vertex colour i = palette D_800AE860[(frame + vertex +2) % 20],
+ * for Model_DrawCycledColors (objects with flag bit 26). */
+void Model_CycleVertexColors(S_1D4A8_8001D4A8 *a, s32 n) {
     S_1D4A8_8001D4A8 *p = a;
     s32 *d = D_800EA060;
     s32 base = g_Game.f_0;
@@ -664,7 +666,9 @@ void func_8001D4A8(S_1D4A8_8001D4A8 *a, s32 n) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", func_8001D530);
+/* Model_DrawCycledColors (hand-written asm: uses add, which GCC never emits): draws a model as
+ * gouraud polys with the per-vertex colours from Model_CycleVertexColors (D_800EA060). */
+INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_DrawCycledColors);
 
 INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4778);
 INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4778_pad);

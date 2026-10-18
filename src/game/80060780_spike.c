@@ -125,8 +125,8 @@ void Matrix_LookAt(SVECTOR *, SVECTOR *, MAT_800689F0 *, s32);
 void ScaleMatrixL(MAT_800689F0 *, VEC_800689F0 *);
 void func_80015504(void *, s32);
 void Model_ProjectBonedVerts(void *);
-void func_8001D4A8(u8 *, s32);
-void func_8001D530(u32 *, u8 *, void *);
+void Model_CycleVertexColors(u8 *, s32);
+void Model_DrawCycledColors(u32 *, u8 *, void *);
 struct S_D_800EC1E0_800689F0 { S_Hdr_800689F0 *f_0; u8 pad4[0x10]; MAT_800689F0 *f_14; u8 pad18[0x48]; SVECTOR f_60; SVECTOR f_68; u8 pad70[0x90]; s16 f_100; };
 s32 Vec_Length(s32, s32, s32);
 struct Spike_80066ADC { u8 pad0[0x114]; s32 f_114; s32 f_118; s32 f_11C; s32 f_120; s32 f_124; s32 f_128; };
@@ -2139,8 +2139,8 @@ void func_800689F0(void) {
     ((struct S_D_800EC1E0_800689F0 *)&g_Spike)->f_14->t[2] = 0;
     func_80015504(((struct S_D_800EC1E0_800689F0 *)&g_Spike), 7);
     Model_ProjectBonedVerts(((struct S_D_800EC1E0_800689F0 *)&g_Spike));
-    func_8001D4A8(D_800E7D00, ((struct S_D_800EC1E0_800689F0 *)&g_Spike)->f_0->f_6);
-    func_8001D530(D_800EC358, D_800E7D00, ((struct S_D_800EC1E0_800689F0 *)&g_Spike));
+    Model_CycleVertexColors(D_800E7D00, ((struct S_D_800EC1E0_800689F0 *)&g_Spike)->f_0->f_6);
+    Model_DrawCycledColors(D_800EC358, D_800E7D00, ((struct S_D_800EC1E0_800689F0 *)&g_Spike));
 }
 
 void func_80068ADC(void) {
