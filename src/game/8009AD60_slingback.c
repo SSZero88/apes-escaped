@@ -59,7 +59,7 @@ void Slingback_Update(void) {
     s32 x, y, z, st;
     LineG3_9AD60 *p;
 
-    if (g_Game_9AD60.f_8152 != 0xB && (g_Pad_9AD60.held & g_Pad_9AD60.pressed & 0x400)) {
+    if (g_Game_9AD60.f_8152 != 0xB && (g_Pad_9AD60.held & g_Pad_9AD60.pressed & PAD_R3)) {
         Gadget_Select(3, 3);
     }
     if (D_800EC23E == 0x83) {

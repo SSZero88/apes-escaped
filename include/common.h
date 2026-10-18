@@ -2,6 +2,7 @@
 #define COMMON_H
 
 #include "include_asm.h"
+#include "consts.h"
 
 #ifndef M2CTX
 /* PsyQ aligned every object's .text and .rodata to 16 bytes */

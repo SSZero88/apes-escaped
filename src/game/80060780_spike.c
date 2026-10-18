@@ -337,7 +337,7 @@ void Spike_Draw(void) {
     } else if (Spike_IsUnderwater_63628() != 0) {
         Model_ProjectVerts_63628(D_800EC0E0_63628, D_800E9E40_63628, D_800E7D00_63628);
         func_80017CD4_63628(OT_63628, D_800E7D00_63628, D_800EC0E0_63628);
-        if (D_800E68D0_63628.f_32 != 1 && (g_Pad_63628.f_158 & g_Pad_63628.f_160 & 0x400) && g_SpikeHealth_63628 > 0 && D_800F51E0_63628 == 0) {
+        if (D_800E68D0_63628.f_32 != 1 && (g_Pad_63628.f_158 & g_Pad_63628.f_160 & PAD_R3) && g_SpikeHealth_63628 > 0 && D_800F51E0_63628 == 0) {
             WaterNet_Shoot_63628();
         }
         if (D_800F51E0_63628 > 0) {

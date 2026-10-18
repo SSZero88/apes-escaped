@@ -405,11 +405,11 @@ void Camera_UpdateLook(Cam_8004AC84_8004AC84 *cam) {
         lift = 0x50;
     }
     r = g_Pad.sx / 4;
-    if (g_Pad.held & 0x8000) {
+    if (g_Pad.held & PAD_LEFT) {
         r -= 0x18;
     }
     rot = r;
-    if (g_Pad.held & 0x2000) {
+    if (g_Pad.held & PAD_RIGHT) {
         rot += 0x18;
     }
     func_8004637C(m);
@@ -419,11 +419,11 @@ void Camera_UpdateLook(Cam_8004AC84_8004AC84 *cam) {
     scr->at.vx = cam->f_12 = sp->x + sp->dir.vx / 2;
     scr->at.vz = cam->f_16 = sp->z + sp->dir.vz / 2;
     y = cam->f_14 + g_Pad.sy * 2;
-    if (g_Pad.held & 0x1000) {
+    if (g_Pad.held & PAD_UP) {
         y += 0x100;
     }
     one = 1;
-    if (g_Pad.held & 0x4000) {
+    if (g_Pad.held & PAD_DOWN) {
         y -= 0x100;
     }
     scr->at.vy = y;

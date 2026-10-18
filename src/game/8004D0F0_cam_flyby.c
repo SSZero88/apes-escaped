@@ -160,7 +160,7 @@ void CamFlyby_StepSegments(void) {
             p->f_26 = ++p->f_25;
         }
     }
-    if (g_Pad.f_158 & g_Pad.f_160 & 0x8E0) {
+    if (g_Pad.f_158 & g_Pad.f_160 & (PAD_START | PAD_SQUARE | PAD_CROSS | PAD_CIRCLE)) {
         CamFlyby_End();
     }
 }
