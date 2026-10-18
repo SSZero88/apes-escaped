@@ -572,7 +572,7 @@ s32 Pad_RecentR2(void) {
     }
     idx = (*(S_E5320_80064B24 *)&g_Pad).f_170;
     for (i = 0; i < 10; i++) {
-        if ((*(S_E5320_80064B24 *)&g_Pad).f_A4[(idx + 40 - i) % 40] == 2) {
+        if ((*(S_E5320_80064B24 *)&g_Pad).f_A4[(idx + PAD_HISTORY_LEN - i) % PAD_HISTORY_LEN] == PAD_R2) {
             return 1;
         }
     }
@@ -588,7 +588,7 @@ s32 Pad_RecentCross(void)
   new_var = ((struct S_D_800E5320_80064BBC *)&g_Pad)->f_170;
   for (i = 0; i < 10; i++)
   {
-    if (((struct S_D_800E5320_80064BBC *)&g_Pad)->f_A4[((new_var + 40) - i) % 40] == 0x40)
+    if (((struct S_D_800E5320_80064BBC *)&g_Pad)->f_A4[((new_var + PAD_HISTORY_LEN) - i) % PAD_HISTORY_LEN] == PAD_CROSS)
     {
       return 1;
     }
@@ -747,7 +747,7 @@ s32 Pad_RecentL1(void) {
         return 0;
     }
     for (i = 0; i < 10; i++) {
-        if (g_Pad.f_A4[(u32)(g_Pad.f_170 + 40 - i) % 40] == 4) {
+        if (g_Pad.f_A4[(u32)(g_Pad.f_170 + PAD_HISTORY_LEN - i) % PAD_HISTORY_LEN] == PAD_L1) {
             return 1;
         }
     }
@@ -762,7 +762,7 @@ s32 Pad_RecentR1(void) {
         return 0;
     }
     for (i = 0; i < 10; i++) {
-        if (g_Pad.f_A4[(u32)(g_Pad.f_170 + 40 - i) % 40] == 8) {
+        if (g_Pad.f_A4[(u32)(g_Pad.f_170 + PAD_HISTORY_LEN - i) % PAD_HISTORY_LEN] == PAD_R1) {
             return 1;
         }
     }
@@ -954,7 +954,7 @@ s32 Pad_RecentTriangle(void) {
         return 0;
     }
     for (i = 0; i < 10; i++) {
-        if (g_Pad.f_A4[(u32)(g_Pad.f_170 + 40 - i) % 40] == 0x10) {
+        if (g_Pad.f_A4[(u32)(g_Pad.f_170 + PAD_HISTORY_LEN - i) % PAD_HISTORY_LEN] == PAD_TRIANGLE) {
             return 1;
         }
     }
@@ -969,7 +969,7 @@ s32 Pad_RecentCircle(void) {
         return 0;
     }
     for (i = 0; i < 10; i++) {
-        if (g_Pad.f_A4[(u32)(g_Pad.f_170 + 40 - i) % 40] == 0x20) {
+        if (g_Pad.f_A4[(u32)(g_Pad.f_170 + PAD_HISTORY_LEN - i) % PAD_HISTORY_LEN] == PAD_CIRCLE) {
             return 1;
         }
     }
@@ -980,7 +980,7 @@ s32 Pad_RecentCircle(void) {
  * (+0x5E & 0x7F in the table at *0x1F800048) and the latest entry of the button-press history
  * (g_Pad+0xA4, index +0x170) is Triangle (0x10). */
 s32 Spike_AnimEndOnTriangle(void) {
-    if (G_SPIKE_800655C4->f_5C == (*(S_1F800048_800655C4 **)0x1F800048)[G_SPIKE_800655C4->f_5E & 0x7F].f_0 + 1 && G_PAD_800655C4->f_A4[G_PAD_800655C4->f_170] == 0x10) {
+    if (G_SPIKE_800655C4->f_5C == (*(S_1F800048_800655C4 **)0x1F800048)[G_SPIKE_800655C4->f_5E & 0x7F].f_0 + 1 && G_PAD_800655C4->f_A4[G_PAD_800655C4->f_170] == PAD_TRIANGLE) {
         return 1;
     }
     return 0;
@@ -990,7 +990,7 @@ s32 Spike_AnimEndOnTriangle(void) {
  * (+0x5E & 0x7F in the table at *0x1F800048) and the latest entry of the button-press history
  * (g_Pad+0xA4, index +0x170) is Circle (0x20). */
 s32 Spike_AnimEndOnCircle(void) {
-    if (G_SPIKE_800655C4->f_5C == (*(S_1F800048_800655C4 **)0x1F800048)[G_SPIKE_800655C4->f_5E & 0x7F].f_0 + 1 && G_PAD_800655C4->f_A4[G_PAD_800655C4->f_170] == 0x20) {
+    if (G_SPIKE_800655C4->f_5C == (*(S_1F800048_800655C4 **)0x1F800048)[G_SPIKE_800655C4->f_5E & 0x7F].f_0 + 1 && G_PAD_800655C4->f_A4[G_PAD_800655C4->f_170] == PAD_CIRCLE) {
         return 1;
     }
     return 0;

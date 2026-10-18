@@ -459,8 +459,8 @@ void Model_DrawScreenMapped(u32 *ot, Vtx_1C2E8 *v, Mdl_1C2E8 *m) {
             sc->sxy[2] = v[(s16)sc->idx[2]].sxy;
             gte_ldsxy3_(sc->sxy);
             gte_nclip_();
-            if (((sc->sxy[0] & 0xFFFF) > 0x180 & (sc->sxy[1] & 0xFFFF) > 0x180 & (sc->sxy[2] & 0xFFFF) > 0x180)
-                || ((sc->sxy[0] >> 16) > 0xF0 & (sc->sxy[1] >> 16) > 0xF0 & (sc->sxy[2] >> 16) > 0xF0)) {
+            if (((sc->sxy[0] & 0xFFFF) > SCREEN_W & (sc->sxy[1] & 0xFFFF) > SCREEN_W & (sc->sxy[2] & 0xFFFF) > SCREEN_W)
+                || ((sc->sxy[0] >> 16) > SCREEN_H & (sc->sxy[1] >> 16) > SCREEN_H & (sc->sxy[2] >> 16) > SCREEN_H)) {
                 pr += pr[1] * 4;
             } else {
                 gte_stopz_(&sc->opz);
@@ -468,7 +468,7 @@ void Model_DrawScreenMapped(u32 *ot, Vtx_1C2E8 *v, Mdl_1C2E8 *m) {
                     pr += pr[1] * 4;
                 } else {
                     sc->z = (((s16)v[(s16)sc->idx[0]].z >> 2) + ((s16)v[(s16)sc->idx[1]].z >> 2) + ((s16)v[(s16)sc->idx[2]].z >> 2)) / 3;
-                    sc->z = (sc->z < 0) ? 0 : ((sc->z >= 0xFC0) ? 0xFBF : sc->z);
+                    sc->z = (sc->z < 0) ? 0 : ((sc->z >= OT_MAX_Z) ? OT_MAX_Z - 1 : sc->z);
                     ADD_PRIM_R(&ot[sc->z], prim, "$4", "$2");
                     gte_stsxy3_ft3_(prim);
                     prim[3] = 7;
@@ -499,8 +499,8 @@ void Model_DrawScreenMapped(u32 *ot, Vtx_1C2E8 *v, Mdl_1C2E8 *m) {
             sc->sxy[3] = v[(s16)sc->idx[3]].sxy;
             gte_ldsxy3_(sc->sxy);
             gte_nclip_();
-            if (((sc->sxy[0] & 0xFFFF) > 0x180 & (sc->sxy[1] & 0xFFFF) > 0x180 & (sc->sxy[2] & 0xFFFF) > 0x180 & (sc->sxy[3] & 0xFFFF) > 0x180)
-                || ((sc->sxy[0] >> 16) > 0xF0 & (sc->sxy[1] >> 16) > 0xF0 & (sc->sxy[2] >> 16) > 0xF0 & (sc->sxy[3] >> 16) > 0xF0)) {
+            if (((sc->sxy[0] & 0xFFFF) > SCREEN_W & (sc->sxy[1] & 0xFFFF) > SCREEN_W & (sc->sxy[2] & 0xFFFF) > SCREEN_W & (sc->sxy[3] & 0xFFFF) > SCREEN_W)
+                || ((sc->sxy[0] >> 16) > SCREEN_H & (sc->sxy[1] >> 16) > SCREEN_H & (sc->sxy[2] >> 16) > SCREEN_H & (sc->sxy[3] >> 16) > SCREEN_H)) {
                 pr += pr[1] * 4;
             } else {
                 gte_stopz_(&sc->opz);
@@ -508,7 +508,7 @@ void Model_DrawScreenMapped(u32 *ot, Vtx_1C2E8 *v, Mdl_1C2E8 *m) {
                     pr += pr[1] * 4;
                 } else {
                     sc->z = ((s16)v[(s16)sc->idx[0]].z >> 4) + ((s16)v[(s16)sc->idx[1]].z >> 4) + ((s16)v[(s16)sc->idx[2]].z >> 4) + ((s16)v[(s16)sc->idx[3]].z >> 4);
-                    sc->z = (sc->z < 0) ? 0 : ((sc->z >= 0xFC0) ? 0xFBF : sc->z);
+                    sc->z = (sc->z < 0) ? 0 : ((sc->z >= OT_MAX_Z) ? OT_MAX_Z - 1 : sc->z);
                     ADD_PRIM_R(&ot[sc->z], prim, "$4", "$2");
                     gte_stsxy3_ft3_(prim);
                     *(u32 *)&((Poly_1C2E8 *)prim)->x3 = sc->sxy[3];
@@ -571,8 +571,8 @@ void Model_DrawWireframe(u32 *ot, Vtx_1C918 *v, Mdl_1C918 *m) {
             sc->sxy[2] = v[(s16)sc->idx[2]].sxy;
             gte_ldsxy3_1C918(sc->sxy);
             gte_nclip_1C918();
-            if (((sc->sxy[0] & 0xFFFF) > 0x180 & (sc->sxy[1] & 0xFFFF) > 0x180 & (sc->sxy[2] & 0xFFFF) > 0x180)
-                || ((sc->sxy[0] >> 16) > 0xF0 & (sc->sxy[1] >> 16) > 0xF0 & (sc->sxy[2] >> 16) > 0xF0)) {
+            if (((sc->sxy[0] & 0xFFFF) > SCREEN_W & (sc->sxy[1] & 0xFFFF) > SCREEN_W & (sc->sxy[2] & 0xFFFF) > SCREEN_W)
+                || ((sc->sxy[0] >> 16) > SCREEN_H & (sc->sxy[1] >> 16) > SCREEN_H & (sc->sxy[2] >> 16) > SCREEN_H)) {
                 pr += pr[1] * 4;
             } else {
                 gte_stopz_1C918(&sc->opz);
@@ -580,7 +580,7 @@ void Model_DrawWireframe(u32 *ot, Vtx_1C918 *v, Mdl_1C918 *m) {
                     pr += pr[1] * 4;
                 } else {
                     sc->z = (((s16)v[(s16)sc->idx[0]].z >> 2) + ((s16)v[(s16)sc->idx[1]].z >> 2) + ((s16)v[(s16)sc->idx[2]].z >> 2)) / 3;
-                    sc->z = (sc->z < 0) ? 0 : ((sc->z >= 0xFC0) ? 0xFBF : sc->z);
+                    sc->z = (sc->z < 0) ? 0 : ((sc->z >= OT_MAX_Z) ? OT_MAX_Z - 1 : sc->z);
                     ADD_PRIM_R(&ot[sc->z], prim, "$4", "$2");
                     gte_stsxy_3l_1C918(prim);
                     prim[3] = 6;
@@ -608,8 +608,8 @@ void Model_DrawWireframe(u32 *ot, Vtx_1C918 *v, Mdl_1C918 *m) {
             sc->sxy[3] = v[(s16)sc->idx[3]].sxy;
             gte_ldsxy3_1C918(sc->sxy);
             gte_nclip_1C918();
-            if (((sc->sxy[0] & 0xFFFF) > 0x180 & (sc->sxy[1] & 0xFFFF) > 0x180 & (sc->sxy[2] & 0xFFFF) > 0x180 & (sc->sxy[3] & 0xFFFF) > 0x180)
-                || ((sc->sxy[0] >> 16) > 0xF0 & (sc->sxy[1] >> 16) > 0xF0 & (sc->sxy[2] >> 16) > 0xF0 & (sc->sxy[3] >> 16) > 0xF0)) {
+            if (((sc->sxy[0] & 0xFFFF) > SCREEN_W & (sc->sxy[1] & 0xFFFF) > SCREEN_W & (sc->sxy[2] & 0xFFFF) > SCREEN_W & (sc->sxy[3] & 0xFFFF) > SCREEN_W)
+                || ((sc->sxy[0] >> 16) > SCREEN_H & (sc->sxy[1] >> 16) > SCREEN_H & (sc->sxy[2] >> 16) > SCREEN_H & (sc->sxy[3] >> 16) > SCREEN_H)) {
                 pr += pr[1] * 4;
             } else {
                 gte_stopz_1C918(&sc->opz);
@@ -617,7 +617,7 @@ void Model_DrawWireframe(u32 *ot, Vtx_1C918 *v, Mdl_1C918 *m) {
                     pr += pr[1] * 4;
                 } else {
                     sc->z = ((s16)v[(s16)sc->idx[0]].z >> 4) + ((s16)v[(s16)sc->idx[1]].z >> 4) + ((s16)v[(s16)sc->idx[2]].z >> 4) + ((s16)v[(s16)sc->idx[3]].z >> 4);
-                    sc->z = (sc->z < 0) ? 0 : ((sc->z >= 0xFC0) ? 0xFBF : sc->z);
+                    sc->z = (sc->z < 0) ? 0 : ((sc->z >= OT_MAX_Z) ? OT_MAX_Z - 1 : sc->z);
                     ADD_PRIM_R(&ot[sc->z], prim, "$4", "$2");
                     ((Line_1C918 *)prim)->r0 = 0;
                     ((Line_1C918 *)prim)->g0 = 0xFF;

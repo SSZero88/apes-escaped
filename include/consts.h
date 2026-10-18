@@ -21,6 +21,7 @@
 #define PAD_RIGHT    0x2000
 #define PAD_DOWN     0x4000
 #define PAD_LEFT     0x8000
+#define PAD_HISTORY_LEN 40 /* g_Pad +0xA4: ring of the last 40 frames' new presses, write index +0x170 */
 
 /* Screen and ordering table. */
 #define SCREEN_W     384     /* 0x180: both draw buffers are 384x240 (Gfx_InitDisplay) */
