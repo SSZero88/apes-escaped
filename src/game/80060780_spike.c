@@ -1819,7 +1819,56 @@ void func_80068634(void) {
 }
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80060780_spike", func_800687D8);
+typedef struct { s16 m[3][3]; s32 t[3]; } MAT_800687D8;
+typedef struct { u8 pad0[0x70]; u32 ot[0x1000]; u8 pad[0x8]; } DrawBuf_800687D8;
+struct GameDb_800687D8 { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf_800687D8 db[2]; };
+typedef struct { s32 x, y, z; } V3_800687D8;
+typedef struct { u8 pad0[0x48]; V3_800687D8 v; } Scr_800687D8;
+typedef struct { s32 f_0; V3_800687D8 f_4; u8 f_10[0x14]; MAT_800687D8 *f_24; u8 pad28[0xC]; s32 f_34; s32 f_38; s32 f_3C; u8 pad40[0x2C]; s16 f_6C; u8 pad6E[0x18]; s16 f_86; } Obj_800687D8;
+struct Spike_800687D8 { u8 pad0[0x18]; s32 f_18; u8 pad1C[8]; s32 f_24; s32 f_28; s32 f_2C; u8 pad30[0x2C]; u16 f_5C; u8 pad5E[2]; SVECTOR f_60; SVECTOR f_68; u8 pad70[0xB0]; s32 f_120; s32 f_124; s32 f_128; };
+extern Obj_800687D8 *D_800B4D70_687 asm("D_800B4D70");
+void func_800649D8_687(void) asm("func_800649D8");
+void Matrix_LookAt_687(SVECTOR *, SVECTOR *, MAT_800687D8 *, s32) asm("Matrix_LookAt");
+void func_80015780(void *, s32);
+void func_80017CD4(u32 *, void *, void *);
+void Fx_DrawGlowBeam(void *, void *, s32, s32);
+
+/* func_800687D8: update and draw Spike while he is riding/attached to the object at D_800B4D70:
+ * Spike takes the object's frame, steps his animation, the object copies his position back and
+ * is drawn; in state 5 a pulsing glow beam is added. y is pinned to a0 to match the allocation. */
+void func_800687D8(void) {
+    Scr_800687D8 *scratch = (Scr_800687D8 *) 0x1F800000;
+    u32 a;
+    register u32 y asm("$4");
+    scratch->v.x = D_800B4D70_687->f_4.x;
+    y = D_800B4D70_687->f_4.y;
+    scratch->v.y = y;
+    scratch->v.z = D_800B4D70_687->f_4.z;
+    ((struct Spike_800687D8 *) (&g_Spike))->f_18 = D_800B4D70_687->f_0;
+    ((struct Spike_800687D8 *) (&g_Spike))->f_5C++;
+    ((struct Spike_800687D8 *) (&g_Spike))->f_120 = 0;
+    ((struct Spike_800687D8 *) (&g_Spike))->f_124 = 0;
+    ((struct Spike_800687D8 *) (&g_Spike))->f_128 = 0;
+    func_800649D8_687();
+    D_800B4D70_687->f_34 = ((struct Spike_800687D8 *) (&g_Spike))->f_24;
+    D_800B4D70_687->f_38 = ((struct Spike_800687D8 *) (&g_Spike))->f_28;
+    D_800B4D70_687->f_3C = ((struct Spike_800687D8 *) (&g_Spike))->f_2C;
+    D_800B4D70_687->f_6C = ((struct Spike_800687D8 *) (&g_Spike))->f_5C;
+    Matrix_LookAt_687(&((struct Spike_800687D8 *) (&g_Spike))->f_60, &((struct Spike_800687D8 *) (&g_Spike))->f_68, D_800B4D70_687->f_24, 1);
+    func_80015780(D_800B4D70_687->f_10, 1);
+    Model_ProjectBonedVerts(D_800B4D70_687->f_10);
+    func_80017CD4(((struct GameDb_800687D8 *) (&g_Game))->db[((struct GameDb_800687D8 *) (&g_Game))->cur].ot, D_800E7D00, D_800B4D70_687->f_10);
+    if (D_800B4D70_687->f_86 == 5) {
+        a = ((struct GameDb_800687D8 *) (&g_Game))->frame & 0x1F;
+        if (a > 0x10) {
+            a = 0x20 - a;
+        }
+        Fx_DrawGlowBeam(D_800E7D00 + 0x268, D_800E7D00 + 0x270, a + 0x18, 0xFF8080);
+    }
+    scratch->v.x = D_800B4D70_687->f_4.x;
+    scratch->v.y = D_800B4D70_687->f_4.y;
+    scratch->v.z = D_800B4D70_687->f_4.z;
+}
 
 void func_8006896C(s32 a) {
     s32 id;
