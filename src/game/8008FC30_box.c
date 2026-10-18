@@ -27,7 +27,6 @@ typedef struct { u8 pad0[2]; s16 f_2; s16 f_4; u8 pad6[2]; u16 f_8; s16 f_A; s16
 extern S_4D64 *D_800B4D64;
 void Model_BindStageMesh(S_4D64 *, s16);
 
-M2C_UNK func_8008FC30(s16, void *);
 s32 func_80090E54(s16 a, s16 b, s16 c, s16 d);
 extern struct S_D_800EC350 { u8 pad_0[0x820C]; s32 f_820C; } g_Game;
 
@@ -57,9 +56,215 @@ void RotMatrixZYX(SV_909FC_800909FC *, void *);
 struct S_D_800EC350_80090230 { u8 pad0[0x820C]; S_820C_80090230_80090230 *f_820C; u8 pad8210[0x10]; S_Node_80090230_80090230 *f_8220; };
 struct S_D_800EC350_80090370 { u8 pad0[0x820C]; S_820C_80090370_80090370 *f_820C; };
 
-INCLUDE_ASM("asm/nonmatchings/game/8008FC30_box", func_8008FC30);
+typedef struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; u16 f_8; s16 f_A; s16 f_C; s16 f_E; s16 f_10; s16 f_12; u8 pad14[4]; } L_8FC30;
+typedef struct { s16 f_0; s16 f_2; s16 f_4; u8 pad6[8]; s16 f_E; u8 pad10[2]; u16 f_12; s16 f_14; u8 pad16[2]; u16 f_18; u8 pad1A[0x1E]; } O_8FC30;
+typedef struct { u8 pad0[0x16]; u16 f_16; u8 pad18[8]; } M_8FC30;
+struct Game_8FC30 { u8 pad0[0x8124]; u16 f_8124; u16 f_8126; u8 pad8128[0xE4]; O_8FC30 *f_820C; u8 pad8210[0x10]; L_8FC30 *f_8220; };
+extern struct Game_8FC30 g_Game_8FC30 asm("g_Game");
+extern M_8FC30 *D_800B4D64_8FC30 asm("D_800B4D64");
+s32 Box_SwingAroundCorner(void *o, s16 dir, s16 m);
+void Sound_PlayAt_8FC30(s32, void *) asm("Sound_PlayAt");
+s32 Link_ResetTree_8FC30(L_8FC30 *) asm("Link_ResetTree");
+void func_801414A0(L_8FC30 *);
+void Sound_PlayFixed(s32);
 
-INCLUDE_RODATA("asm/nonmatchings/game/8008FC30_box", jtbl_800A6570);
+s32 func_8008FC30(s16 idx, L_8FC30 *from) {
+    L_8FC30 *l;
+    O_8FC30 *o;
+    L_8FC30 *l2;
+    s16 a;
+    if (idx < 0) {
+        return 0;
+    }
+    l = &g_Game_8FC30.f_8220[idx];
+    o = &g_Game_8FC30.f_820C[l->f_4];
+    switch (l->f_0) {
+    case 0x65:
+        switch (l->f_2) {
+        case 4:
+            if (l->f_8 < 8) {
+                l->f_2 = 5;
+                o->f_18 |= 0x8000;
+                break;
+            }
+            if (from->f_2 == 0) {
+                l->f_2 = 5;
+            }
+            break;
+        case 5:
+            if (l->f_8 < 8) {
+                o->f_18 |= 0x8000;
+                l->f_2 = 2;
+                Box_SwingAroundCorner(o, l->f_8, 2);
+                return 0;
+            }
+            if (from->f_2 == 1) {
+                l->f_2 = 2;
+            }
+            break;
+        case 2:
+            if (l->f_8 < 8) {
+                o->f_18 |= 0x8000;
+                l->f_2 = 5;
+                Box_SwingAroundCorner(o, l->f_8, 5);
+                return 0;
+            }
+            if (from->f_2 == 0) {
+                l->f_2 = 5;
+            }
+            break;
+        case 1:
+            if (l->f_8 < 8) {
+                o->f_18 |= 0x8000;
+                l->f_2 = 2;
+                break;
+            }
+            if (from->f_2 != 1) {
+                return 0;
+            }
+            if (o->f_E >= 0) {
+                D_800B4D64_8FC30[o->f_E].f_16 = 0xFFFF;
+            }
+            l->f_2 = 2;
+            break;
+        }
+        break;
+    case 2:
+        if ((l->f_8 >= 0x2E) && (l->f_8 < 0x32)) {
+            Sound_PlayAt_8FC30(0x75, o);
+            if (l->f_2 == 2) {
+                l->f_2 = 0;
+                func_80090E54(o->f_E, l->f_E, l->f_E, 0);
+            } else if (l->f_2 == 0) {
+                l->f_2 = 2;
+                func_80090E54(o->f_E, l->f_12, l->f_12, 0);
+            }
+        }
+        break;
+    case 0x26:
+    case 0x27:
+        if (l->f_2 != 4) {
+            return 0;
+        }
+        l->f_2 = 5;
+        o->f_18 |= 0x8000;
+        break;
+    case 3:
+    case 0x14:
+        if (l->f_2 == 0) {
+            l->f_2 = 1;
+        } else if (l->f_2 == 2) {
+            l->f_2 = 3;
+        } else {
+            return 0;
+        }
+        o->f_18 |= 0x8000;
+        break;
+    case 0x16:
+        if ((g_Game_8FC30.f_8124 == 6) || (g_Game_8FC30.f_8126 == 0x65)) {
+            Sound_PlayAt_8FC30(0xB0, o);
+        }
+    case 6:
+        l->f_2 = 1;
+        if (o->f_E >= 0) {
+            D_800B4D64_8FC30[o->f_E].f_16 = 0xFFFF;
+        }
+        o->f_18 = (o->f_18 & 0xFFF0) | 2;
+        break;
+    case 0xA:
+        Link_ResetTree_8FC30(l);
+        return 0;
+    case 5:
+        o->f_14 = l->f_A;
+        o->f_12 &= 0xF0FF;
+        if (l->f_A & 0xE) {
+            o->f_12 |= 0x400;
+        } else {
+            o->f_12 |= 0x500;
+        }
+        func_8008FC30(l->f_C, l);
+        l->f_2 = 2;
+        if (g_Game_8FC30.f_8126 == 0x10) {
+            Sound_PlayFixed(0xB0);
+        }
+        return 0;
+    case 0x19:
+        l->f_2 = 1;
+        l->f_E = o->f_0;
+        l->f_10 = o->f_2;
+        l->f_12 = o->f_4;
+        o->f_18 = (o->f_18 & 0xFFF0) | 2;
+        break;
+    case 0x2C:
+        l->f_2 = 2;
+        o->f_18 = (o->f_18 & 0xFFF0) | 2;
+        break;
+    case 0x1A:
+    case 0x1D:
+        if (from->f_2 == 0) {
+            l->f_2 = 1;
+        } else {
+            l->f_2 = 2;
+        }
+        if (g_Game_8FC30.f_8126 == 0x15) {
+            Sound_PlayAt_8FC30(0x9B, o);
+        }
+        return 0;
+    case 0x24:
+        if ((from->f_2 == 0) && (l->f_2 == 0)) {
+            l->f_2 = 1;
+        }
+        l = &g_Game_8FC30.f_8220[idx + 1];
+        if ((from->f_2 == 0) && (l->f_2 == 0)) {
+            l->f_2 = 1;
+        }
+        break;
+    case 0x1F:
+        if ((from->f_2 == 0) && (l->f_2 == 0)) {
+            l->f_2 = 1;
+        }
+        break;
+    case 0x28:
+        if (from->f_2 != 0) {
+            return 0;
+        }
+        if (l->f_2 != 0) {
+            return 0;
+        }
+        l->f_2 = 1;
+        o->f_18 = (o->f_18 & 0xFFF0) | 2;
+        break;
+    case 7:
+        l->f_2 = 1;
+        break;
+    case 0x1B:
+        if (((from->f_2 == 0) && (from->f_0 == 2)) || (from->f_0 == 0x1B)) {
+            func_8008FC30(l->f_C, l);
+            l->f_2 = 1;
+        }
+        break;
+    case 0x1C:
+        if (from->f_2 == 0) {
+            func_80090E54(o->f_E, l->f_10, l->f_10, 0);
+        } else {
+            func_80090E54(o->f_E, l->f_E, l->f_E, 0);
+        }
+        break;
+    case 0x1E:
+        l2 = &g_Game_8FC30.f_8220[(s16) l->f_8];
+        l2->f_2 = 5;
+        l2 = &g_Game_8FC30.f_8220[l->f_A];
+        l2->f_2 = 5;
+        break;
+    case 0x29:
+        if (l->f_2 == 0) {
+            func_801414A0(l);
+        }
+        break;
+    }
+    return 0;
+}
+
 
 
 s32 Link_ResetTree(S_Node_80090230_80090230 *n) {
