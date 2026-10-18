@@ -760,7 +760,16 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   `lhu` + `sll`/`sra`, never `lh` (also with `register ... asm("$9")`, unions or casts). `lh off(base)`
   with a hoisted constant base, as in Model_AddF3/G3 and func_8001E828, only comes out when the base
   is opaque to the optimiser (a pointer parameter or global, `asm("" : "=r"(p) : "0"(0x1F800000))`),
-  or with `-fforce-addr` / `-fno-expensive-optimizations` / `-O1`. Those flags change the
-  matched functions in 80015F70_model.c, so if the original used them it was a different
-  translation unit for the Model_Add* family. Unresolved; see wip/_hand/Model_AddF3.c.
+  or with `-fforce-addr` / `-fno-expensive-optimizations` / `-O1` (those flags break matched
+  functions in the same file and did not help). Solved for the Model_Add* family (2026-10-18):
+  take the scratch pointer from `__asm__("" : "=r"(MS) : "0"(0x1F800000))` (placed before the
+  first other load so its `lui` comes first) and read the s16 fields through typed members
+  (`union { u32 w; struct { s16 x, y; } s; } sxy[3]`): that gives `lh`. The vertex indices,
+  which the original reads as `lhu; sll 16; sra 16` (or `sra 13` when merged with the `* 8`), are
+  read as `(s16)((volatile u16 *)&MS->idx01)[k]` into locals first, then one asm statement per
+  `lwc2`. The min/max of three screen coordinates is written per branch
+  (`if (x1 < x0) { hi = x2; if (hi < x0) hi = x0; lo = x2; if (x1 < x2) lo = x1; } else ...`),
+  which keeps the loads in x0, x1, x2 order. A culled primitive steps with its own
+  `prim += 0x10; continue;` (the original has two increments). Model_AddF3 is 1 instruction
+  off with this (wip/_hand/Model_AddF3.c).
 - Byte-pointer reads `*(s16 *)(scratch + 0)` at offset 0 do give `lh` (func_800653C0).
