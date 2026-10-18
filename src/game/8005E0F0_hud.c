@@ -618,4 +618,73 @@ void Hud_DrawWindow(s32 x, s32 y, s32 w, s32 h) {
     G_DRAW.prim = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8005E0F0_hud", Radar_DrawMonkeyCard);
+typedef struct { u8 pad0[0x1C]; s16 stats; u8 pad1E[0x40]; u8 name[0xC]; u8 desc[0x1E]; } Kind_60448;
+extern Kind_60448 *g_MonkeyKinds_60448 asm("g_MonkeyKinds");
+typedef struct { u8 pad0[0x7C]; u8 kind; } Monkey_60448;
+typedef struct { u32 tag; u32 tpage; u8 r0, g0, b0, code; u32 xy; u8 u0, v0; u16 clut; u32 wh; } SprtTpW_60448;
+extern u8 g_StrLive[];
+extern u8 g_StrSpeed[];
+extern u8 g_StrAttack[];
+extern u8 g_StrAlert[];
+extern u8 g_StrMonkeyLevel[];
+void func_8008227C(s32);
+void Text_Draw(u8 *s, s32 x, s32 y, s32 col);
+s32 Text_GetWidth(u8 *s);
+void MonkeyInfo_DrawStatPips(s32 row, s32 n);
+void Hud_DrawWindow(s32 x, s32 y, s32 w, s32 h);
+
+/* Monkey Radar live view card (user: "LIVE" shows over a live camera following the monkey; the
+   Monkey Book shows the same info with a still picture instead, and the level name and world above
+   it): "LIVE" title with a blinking 24x24 icon, kind name (+0x5E), "Monkey Level n" from the
+   thousands digit of the kind's stats, then Speed / Attack / Alert = hundreds / tens / ones digits
+   as 5-pip rows (MonkeyInfo_DrawStatPips), the centred fact line (+0x6A), each in a box. */
+void Radar_DrawMonkeyCard(Monkey_60448 *m) {
+    Kind_60448 *k;
+    s32 d;
+    s32 v, h, t;
+    SprtTpW_60448 *p;
+    u32 *ot;
+    s32 u;
+
+    if (m == NULL) {
+        return;
+    }
+    func_8008227C(0);
+    k = &g_MonkeyKinds_60448[m->kind];
+    Text_Draw(g_StrLive, 0x38, 0x18, 2);
+    Text_Draw((u8 *)k + 0x5E, 0x20, 0x30, 2);
+    d = (s16)((s16)(k->stats / 1000) % 10);
+    g_StrMonkeyLevel[13] = (d >= 6) ? d + 0x74 : d + 0x6A;
+    Text_Draw(g_StrMonkeyLevel, 0x3C, 0x40, 2);
+    Text_Draw(g_StrSpeed, 0xE0, 0x20, 2);
+    Text_Draw(g_StrAttack, 0xE0, 0x30, 2);
+    Text_Draw(g_StrAlert, 0xE0, 0x40, 2);
+    Text_Draw(k->desc, (0x180 - Text_GetWidth(k->desc)) / 2, 0xC8, 2);
+    ot = G_HUD_OT;
+    p = (SprtTpW_60448 *)G_DRAW.prim;
+    ((u8 *)p)[3] = 5;
+    p->tpage = 0xE100023A;
+    p->code = 0x67;
+    p->wh = 0x180018;
+    p->xy = 0x100020;
+    u = 0;
+    if (!(((struct { u32 frame; } *)&g_Game)->frame & 0x10)) {
+        u = 0x18;
+    }
+    p->v0 = 0xA8;
+    p->u0 = u;
+    p->clut = 0x75EB;
+    ADD_PRIM_ASM(ot, p);
+    p++;
+    G_DRAW.prim = (u8 *)p;
+    v = k->stats;
+    h = v / 100;
+    MonkeyInfo_DrawStatPips(0, h % 10);
+    t = v / 10;
+    MonkeyInfo_DrawStatPips(1, t - h * 10);
+    MonkeyInfo_DrawStatPips(2, v - t * 10);
+    Hud_DrawWindow(0x1C, 0x14, 0x50, 0x18);
+    Hud_DrawWindow(0x1C, 0x2C, 0xB0, 0x28);
+    Hud_DrawWindow(0xDC, 0x1C, 0x80, 0x38);
+    Hud_DrawWindow(0x1C, 0xC4, 0x140, 0x18);
+}
