@@ -379,7 +379,7 @@ extern Model_39ED4_80039ED4 D_800EC0C0;
 extern Model_39ED4_80039ED4 D_800EC180;
 void Matrix_FromDirection(SVECTOR *, void *);
 void ScaleMatrix(void *, s32 *);
-void func_80015504(void *, s32);
+void Model_CalcJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void func_80017D94(void *, u8 *, void *, s32);
 void Monkey_UpdateHelmetLight(void);
@@ -2877,7 +2877,7 @@ void Monkey_Draw(void) {
                 ScaleMatrix(CM->mat, scale);
             }
         }
-        func_80015504(CM, 3);
+        Model_CalcJointMatrices(CM, 3);
         Model_ProjectBonedVerts(CM);
         if (func_800339EC()) {
             func_80017CD4((Db_39E50_80039E50 *)GDB->db[GDB->cur].ot, D_800E7D00, (Model_39E50_80039E50 *)CM);

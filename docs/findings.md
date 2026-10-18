@@ -738,3 +738,17 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   memset + stores and then copies them. memset is the BIOS A0:2A stub at 0x800A3740.
 - One register-pinned local (`register u32 y asm("$4");`) was the only way to match
   func_800687D8's a0 choice for a copied coordinate.
+- Register-starved functions (PauseMenu_Update, func_8007D530, func_80070560, Fx_DrawFadeRing):
+  when the original reloads values from stack slots into s4/s5/s7/t6-t9 right before each use
+  (`lw s7, 0x30(sp)`, `lui t8, %hi(x)` + `addu t9, t8, zero`), those are pseudos that lost their
+  hard register and are rematerialised by reload; the same C gives the same pattern only when the
+  set of long-lived values (and their use counts) matches. Get the structure right first (typed
+  g_Game so `&g_Game` is CSE'd into a saved register, loop pointers as in the original), then
+  leave the allocation to the permuter.
+- Loop pointer shape matters: if the original walks one pointer and reads p[0], p[1], p[2], GCC
+  makes one extra induction register (p+1) and indexes it with 0/2 offsets; two separate source
+  pointers produce a different (larger) giv set. Conversely, separate per-array pointers in the
+  original (one register each) need separate pointer variables in C (func_8006F3D0).
+- The order of a for loop's increments matters: `for (...; k++, i++)` vs `i++, k++` changes the
+  order GCC's loop pass handles the induction variables, and so the order of the strength-reduced
+  register set-ups in the preheader (Model_CalcJointMatrices).

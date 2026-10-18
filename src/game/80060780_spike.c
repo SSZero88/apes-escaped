@@ -123,7 +123,7 @@ extern u32 *D_800EC358;
 void Anim_SetFrame(void *);
 void Matrix_LookAt(SVECTOR *, SVECTOR *, MAT_800689F0 *, s32);
 void ScaleMatrixL(MAT_800689F0 *, VEC_800689F0 *);
-void func_80015504(void *, s32);
+void Model_CalcJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void Model_CycleVertexColors(u8 *, s32);
 void Model_DrawCycledColors(u32 *, u8 *, void *);
@@ -220,7 +220,7 @@ void Matrix_LookAt_63628(SV_63628 *, SV_63628 *, void *, s32) asm("Matrix_LookAt
 void func_800A3740_63628(void *, s32, s32) asm("memset");
 s32 rsin_63628(s32) asm("rsin");
 void ScaleMatrix_63628(void *, void *) asm("ScaleMatrix");
-void func_80015504_63628(void *, s32) asm("func_80015504");
+void func_80015504_63628(void *, s32) asm("Model_CalcJointMatrices");
 void Model_ProjectBonedVerts_63628(void *) asm("Model_ProjectBonedVerts");
 void SetRotMatrix_63628(void *) asm("SetRotMatrix");
 void SetTransMatrix_63628(void *) asm("SetTransMatrix");
@@ -2137,7 +2137,7 @@ void func_800689F0(void) {
     ((struct S_D_800EC1E0_800689F0 *)&g_Spike)->f_14->t[0] = 0;
     ((struct S_D_800EC1E0_800689F0 *)&g_Spike)->f_14->t[1] = k << 5;
     ((struct S_D_800EC1E0_800689F0 *)&g_Spike)->f_14->t[2] = 0;
-    func_80015504(((struct S_D_800EC1E0_800689F0 *)&g_Spike), 7);
+    Model_CalcJointMatrices(((struct S_D_800EC1E0_800689F0 *)&g_Spike), 7);
     Model_ProjectBonedVerts(((struct S_D_800EC1E0_800689F0 *)&g_Spike));
     Model_CycleVertexColors(D_800E7D00, ((struct S_D_800EC1E0_800689F0 *)&g_Spike)->f_0->f_6);
     Model_DrawCycledColors(D_800EC358, D_800E7D00, ((struct S_D_800EC1E0_800689F0 *)&g_Spike));

@@ -85,7 +85,7 @@ extern u8 D_800E7D00[];
 extern M2C_UNK D_800F50D4;
 void Matrix_LookAt(SVECTOR *, SVECTOR *, MAT_8007C2A0_8007C2A0 *, s32);
 void Anim_SetFrame(void *);
-void func_80015504(void *, s32);
+void Model_CalcJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void func_80017CD4(u32 *, void *, void *);
 void func_8007BD38(void);
@@ -876,7 +876,7 @@ void Spike_UpdateMode8Scene(void) {
     s16 t;
     Matrix_LookAt(&SPK_7C2A0->f_60, &SPK_7C2A0->f_68, SPK_7C2A0->f_14, 0);
     Anim_SetFrame(SPK_7C2A0);
-    func_80015504(SPK_7C2A0, 3);
+    Model_CalcJointMatrices(SPK_7C2A0, 3);
     Model_ProjectBonedVerts(SPK_7C2A0);
     func_80017CD4(((struct GameDb_8007C2A0 *)&g_Game)->db[((struct GameDb_8007C2A0 *)&g_Game)->cur].ot, D_800E7D00, SPK_7C2A0);
     func_8007BD38();

@@ -287,7 +287,65 @@ void func_800154DC(void *arg0, SVECTOR *arg1) {
     *arg1 = *(SVECTOR *)((u8 *)arg0 + 0x1C);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80014750_anim", func_80015504);
+typedef struct { s16 x; s16 y; s16 z; s16 pad; } Rot_8001526C;
+typedef struct { u8 pad0[4]; u16 n; } Hdr_80015504;
+typedef struct { u8 pad0[4]; s16 x; s16 y; s16 z; u16 parent; } Joint_80015504;
+typedef struct {
+    Hdr_80015504 *hdr; u8 pad4[8]; Joint_80015504 *joints; u8 pad10[4]; MAT_80014750 *mats; u8 pad18[4];
+    s16 f_1C; s16 f_1E; s16 f_20; u8 pad22[2]; s32 x; s32 y; s32 z;
+} Model_80015504;
+extern MAT_80014750 D_800F4730_15504[] asm("D_800F4730");
+extern Rot_8001526C D_800F4B30_15504[] asm("D_800F4B30");
+extern MAT_80014750 D_800E78C0_15504 asm("D_800E78C0");
+void RotMatrixZYX_15504(void *r, void *m) asm("RotMatrixZYX");
+void CompMatrix_15504(void *a, void *b, void *c) asm("CompMatrix");
+
+/* Model_CalcJointMatrices: sets the root translation (added when flags bit 2), then for bit 1 builds
+ * the joints' world matrices in D_800F4730 (joint 0 = root; +0x1C gets joint 1's position) and for
+ * bit 0 the camera-space matrices in m->mats, each joint as RotMatrixZYX(angles) + offset
+ * composed onto its parent. */
+void Model_CalcJointMatrices(Model_80015504 *m, s32 flags) {
+    s32 n = m->hdr->n;
+    MAT_80014750 *mats = m->mats;
+    Joint_80015504 *j;
+    Joint_80015504 *k;
+    s32 i;
+
+    if (flags & 4) {
+        mats->t[0] += m->x;
+        mats->t[1] += m->y;
+        mats->t[2] += m->z;
+    } else {
+        mats->t[0] = m->x;
+        mats->t[1] = m->y;
+        mats->t[2] = m->z;
+    }
+    if (flags & 2) {
+        j = m->joints;
+        D_800F4730_15504[0] = *mats;
+        for (i = 0; i < n; i++, j++) {
+            RotMatrixZYX_15504(&D_800F4B30_15504[i], &D_800F4730_15504[i + 1]);
+            D_800F4730_15504[i + 1].t[0] = j->x;
+            D_800F4730_15504[i + 1].t[1] = j->y;
+            D_800F4730_15504[i + 1].t[2] = j->z;
+            CompMatrix_15504(&D_800F4730_15504[j->parent], &D_800F4730_15504[i + 1], &D_800F4730_15504[i + 1]);
+        }
+        m->f_1C = D_800F4730_15504[1].t[0];
+        m->f_1E = D_800F4730_15504[1].t[1];
+        m->f_20 = D_800F4730_15504[1].t[2];
+    }
+    if (flags & 1) {
+        k = m->joints;
+        CompMatrix_15504(&D_800E78C0_15504, mats, mats);
+        for (i = 0; i < n; k++, i++) {
+            RotMatrixZYX_15504(&D_800F4B30_15504[i], &mats[i + 1]);
+            mats[i + 1].t[0] = k->x;
+            mats[i + 1].t[1] = k->y;
+            mats[i + 1].t[2] = k->z;
+            CompMatrix_15504(&mats[k->parent], &mats[i + 1], &mats[i + 1]);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/80014750_anim", func_80015780);
 
