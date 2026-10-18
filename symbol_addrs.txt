@@ -1001,3 +1001,4 @@ Spike_CreateModel = 0x8009B3CC; // type:func
 Debug_DrawBar = 0x8005E5F4; // type:func
 memset = 0x800A3740; // type:func
 Spike_Draw = 0x80063628; // type:func
+Model_DrawScreenMapped = 0x8001C2E8; // type:func
