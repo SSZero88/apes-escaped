@@ -37,7 +37,50 @@ for hdr in ('game.h', 'common.h'):
         break
 if r.returncode:
     sys.exit(r.stderr)
-open(f'{d}/base.c', 'w').write(r.stdout)
+
+
+def hide_asm(src):
+    """The permuter's C parser has no GNU asm, so each asm statement becomes __permasm(N);
+    and compile.sh puts the text back (tools/permasm.py) before cc1."""
+    out, stmts, i = [], [], 0
+    for m in re.finditer(r'\b(__asm__|asm)\s*(volatile|__volatile__)?\s*\(', src):
+        if m.start() < i:
+            continue
+        # string-aware scan to the matching ')'
+        j, depth, q = m.end(), 1, None
+        while depth:
+            c = src[j]
+            if q:
+                if c == '\\':
+                    j += 1
+                elif c == q:
+                    q = None
+            elif c in '"\'':
+                q = c
+            elif c == '(':
+                depth += 1
+            elif c == ')':
+                depth -= 1
+            j += 1
+        k = j
+        while src[k] in ' \t\n':
+            k += 1
+        if src[k] != ';':
+            continue  # asm label on a declaration: leave it
+        out.append(src[i:m.start()])
+        out.append(f'__permasm({len(stmts)})')
+        stmts.append(src[m.start():j])
+        i = j
+    out.append(src[i:])
+    return ''.join(out), stmts
+
+
+base, stmts = hide_asm(r.stdout)
+if stmts:
+    base = 'void __permasm(int);\n' + base
+    import json
+    json.dump(stmts, open(f'{d}/asm.json', 'w'))
+open(f'{d}/base.c', 'w').write(base)
 
 s = f'{d}/target.s'
 open(s, 'w').write('.include "include/macro.inc"\n.set noat\n.set noreorder\n.section .text\n'
@@ -49,7 +92,8 @@ if r.returncode:
 
 open(f'{d}/compile.sh', 'w').write(
     '#!/bin/bash\nset -o pipefail\n'
-    '/opt/cc/2.8.1-psx/cc1 -quiet -mcpu=3000 -fgnu-linker -mgas -gcoff -w -O2 -mhard-float -G0 < "$1" '
+    + (f'python3 /work/tools/permasm.py /work/{d}/asm.json < "$1" | ' if stmts else 'cat "$1" | ') +
+    '/opt/cc/2.8.1-psx/cc1 -quiet -mcpu=3000 -fgnu-linker -mgas -gcoff -w -O2 -mhard-float -G0 '
     '| python3 /work/tools/maspsx/maspsx.py --aspsx-version=2.79 --expand-div --use-comm-section '
     # GTE opcodes (rtpt, cc, ...) are macros from macro.inc, which the build gets via include_asm.h
     '| { echo \'.include "/work/include/macro.inc"\'; cat; } '
@@ -72,6 +116,7 @@ if args.run:
     if outs and re.match(r'.*output-0-', outs[0]):
         # keep the draft's own declarations, take the permuted function
         src = open(f'{outs[0]}/source.c').read()
+        src = re.sub(r'__permasm\((\d+)\)', lambda m: stmts[int(m.group(1))], src)
         m = re.search(rf'^[^\n;]*\b{args.func}\([^;{{]*\)\s*\{{', src, re.M)
         depth, i = 0, src.index('{', m.end() - 1)
         for j in range(i, len(src)):
