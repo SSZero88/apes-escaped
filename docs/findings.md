@@ -714,3 +714,17 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   to a separate pointer variable first. Reusing an existing variable changes the allocation.
 - Order of the colour stores into a primitive can matter even when every store is independent
   (Slingback_Update matched once c0 came first; the permuter found it).
+- Model_ProjectVerts/Alt, Model_DrawLit are compiled C too (flagged only for GTE ops). The vertex
+  loop matched with the PsyQ-style register macros (`lw $12..$14; ctc2` for the matrix) and "m"
+  operands for the z loads (`"m"(v[0].vz)`). Pointers that GCC strength-reduces into a second
+  register offset from the first (here +40, in Tip_DrawAll +6) went away when the loop indexed
+  the array (`v = &vs[i]` inside the loop, `&dst[i]`) instead of stepping a pointer.
+- check_c.py now passes `-z` to objdump: without it, runs of zero words (nops) are shown as `...`
+  and dropped from the diff, which hides missing or extra nops.
+- A store to a fixed scratch-pad address that the original keeps before later loads of a model
+  header was written through a struct (`((Scr *)0x1F800000)->mode = 7`), not `*(u8 *)0x1F8003F4`
+  (Model_DrawLit; MEM_IN_STRUCT again).
+- Branch layouts with the small-case test first (`slti 2; bnez; li 2; beq`) are `switch`
+  statements (Tip_DrawAll box kinds and states); if/else chains put the blocks in another order.
+- A value read through a second declaration of the same symbol (`extern ... g_GameT asm("g_Game")`)
+  is not CSE'd with reads through the first, so the address is rebuilt (Hud_Draw's timer).
