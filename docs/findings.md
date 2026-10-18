@@ -690,3 +690,27 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
 - Pickup_Drop: computing the table pointer in the `for` initialiser
   (`for (i = 0, t = ...; i < 5; ...)`) fixed the size and most of the order (the original sets i
   and the cum[] address before the pointer).
+- splat's "Handwritten function" flag only means the function has GTE instructions (`mfc2`, `cfc2`
+  and so on). Most flagged functions have normal GCC prologues and match from C with small GTE asm
+  macros (Debug_DrawWorldQuad, Slingback_Update, Model_DrawOnScreen). Model_Add* and Model_Project*
+  look like real hand-written asm.
+- When the original reloads a stack or scratch-pad value after primitive stores (z, sxy[]), but
+  ours keeps it in a register or moves it past them, the original wrote the primitive through a
+  plain `u32 *` (`p[2] = sxy[0]`), not a struct pointer. This is the MEM_IN_STRUCT aliasing rule
+  again (Debug_DrawWorldQuad).
+- `p++; G_DRAW.prim = (u8 *)p;` and `G_DRAW.prim = (u8 *)(p + 1);` allocate differently
+  (Debug_DrawWorldQuad matched only with the first).
+- GTE register reads (Slingback_Update): reusing one `s32` temp for IR1 and IR3 matched. The second
+  read kills the first value, so later reads of that field come from memory, and the IR3 field
+  still uses the register sign-extended. Separate `s16` temps keep both in registers.
+- A clobbered `a3` before a call (here loaded with a value that is then stored) means the callee
+  takes three arguments. Model_DrawPrims takes (ot, prims, verts).
+- A copy loop that reloads its count from the model header every pass, but walks the source with
+  one pointer, was `src = mdl->hdr->colors; ... scratch[i] = src[i]` (Model_DrawOnScreen).
+- `sll 11; srl 11; multu 0x5B05B33; mfhi` is GCC's unsigned divide by 0x16800 (45 << 11): the
+  pre-shift strips the 11 trailing zeros. func_80069920's sprite height is
+  `sy * 0x148 * 0x11D00 / 0x16800` (0x148 times 19/24).
+- decomp-permuter's C parser rejects arithmetic inside asm operands (`"r"(p + 0xA28)`): assign it
+  to a separate pointer variable first. Reusing an existing variable changes the allocation.
+- Order of the colour stores into a primitive can matter even when every store is independent
+  (Slingback_Update matched once c0 came first; the permuter found it).

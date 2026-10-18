@@ -2480,4 +2480,70 @@ INCLUDE_RODATA("asm/nonmatchings/game/80052D70_object", D_800A5304);
 INCLUDE_RODATA("asm/nonmatchings/game/80052D70_object", D_800A5308);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80052D70_object", Debug_DrawWorldQuad);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_592C;
+typedef struct { s32 vx, vy, vz; } VEC_592C;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_592C;
+#define ADDPRIM_BF(ot, p) (((PTag_592C *)(p))->addr = ((PTag_592C *)(ot))->addr, ((PTag_592C *)(ot))->addr = (u32)(p))
+extern MAT_592C D_800EC330;
+extern MAT_592C D_800E78C0;
+void CompMatrix(MAT_592C *, MAT_592C *, MAT_592C *);
+void SetRotMatrix(MAT_592C *);
+void SetTransMatrix(MAT_592C *);
+#define gte_ldv3c_(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(v))
+#define gte_rtpt_n() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxy3c_(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
+#define gte_stszotz(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+#define gte_ldv0_(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
+#define gte_rtps_n() __asm__ volatile ("nop; nop; rtps")
+#define gte_stsxy_(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+
+/* Debug: a translucent red quad 2w wide and h tall standing (in the D_800EC330 orientation) on the
+   world point pos, depth-sorted by its first three corners. */
+void Debug_DrawWorldQuad(VEC_592C *pos, s32 w, s32 h) {
+    SVECTOR v[4];
+    s32 sxy[4];
+    MAT_592C m;
+    s32 z;
+    u32 *p;
+    u32 *ot;
+
+    m = D_800EC330;
+    v[0].vx = -w;
+    v[0].vy = -h;
+    v[0].vz = 0;
+    v[1].vx = w;
+    v[1].vy = -h;
+    v[1].vz = 0;
+    v[2].vx = -w;
+    v[2].vy = 0;
+    v[2].vz = 0;
+    v[3].vx = w;
+    v[3].vy = 0;
+    v[3].vz = 0;
+    m.t[0] = pos->vx;
+    m.t[1] = pos->vy;
+    m.t[2] = pos->vz;
+    CompMatrix(&D_800E78C0, &m, &m);
+    SetRotMatrix(&m);
+    SetTransMatrix(&m);
+    gte_ldv3c_(v);
+    gte_rtpt_n();
+    gte_stsxy3c_(sxy);
+    gte_stszotz(&z);
+    gte_ldv0_(&v[3]);
+    gte_rtps_n();
+    gte_stsxy_(&sxy[3]);
+    if ((u32)(z - 1) < 0xFFF) {
+        p = (u32 *)G_DRAW.prim;
+        ot = G_DRAW.db[G_DRAW.cur].ot;
+        ((u8 *)p)[3] = 5;
+        p[1] = 0x290000FF;
+        p[2] = sxy[0];
+        p[3] = sxy[1];
+        p[4] = sxy[2];
+        p[5] = sxy[3];
+        ADDPRIM_BF(ot + z, p);
+        p += 6;
+        G_DRAW.prim = (u8 *)p;
+    }
+}
