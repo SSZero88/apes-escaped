@@ -27,7 +27,7 @@ def sh(cmd, inp=None):
 def compile_c(src_text, compiler, out_o):
     cpp = ('mips-linux-gnu-cpp -Iinclude -Isrc -undef -Wall -lang-c -fno-builtin -D__GNUC__=2 -Dmips '
            '-D__mips__ -D__mips -Dpsx -D__psx__ -D__psx -D_PSYQ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C')
-    cmd = (f'{cpp} - | /opt/cc/{compiler}/cc1 -quiet -mcpu=3000 -fgnu-linker -mgas -gcoff -w -O2 -mhard-float -G0 '
+    cmd = (f'{cpp} - | /opt/cc/{compiler}/cc1 -quiet -mcpu=3000 -fgnu-linker -mgas -gcoff -w -O2 -mhard-float -G0 {os.environ.get("EXTRA_CFLAGS", "")} '
            f'| python3 /work/tools/maspsx/maspsx.py --aspsx-version=2.79 --expand-div --use-comm-section '
            f'| mips-linux-gnu-as -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 -EL -o {out_o}')
     r = subprocess.run(['bash', '-o', 'pipefail', '-c', cmd], input=src_text, capture_output=True, text=True)
