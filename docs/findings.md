@@ -752,3 +752,7 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
 - The order of a for loop's increments matters: `for (...; k++, i++)` vs `i++, k++` changes the
   order GCC's loop pass handles the induction variables, and so the order of the strength-reduced
   register set-ups in the preheader (Model_CalcJointMatrices).
+- To stop GCC re-associating `a + ((k - 19) * 128 + 0x40)` into `(a + k*128) - 2368`, the original
+  held the constant in a variable (`half = 0x40; ... + half`); found by the permuter
+  (Surface_RampHeight). Hud_DrawStatusIcon needed addPrim written with explicit 0xFF000000/0xFFFFFF
+  masks instead of the 24-bit bitfield (the bitfield form swaps two temporaries).

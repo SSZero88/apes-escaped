@@ -337,9 +337,62 @@ INCLUDE_ASM("asm/nonmatchings/game/8004D8C0_collision", func_8004ED30);
 INCLUDE_RODATA("asm/nonmatchings/game/8004D8C0_collision", jtbl_800A4EF8);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/8004D8C0_collision", func_8004EE94);
+typedef struct { s32 vx, vy, vz; } VEC_8004EE94;
+extern s32 D_800AF2F0_EE94 asm("D_800AF2F0");
+extern s32 D_800AF2EC_EE94 asm("D_800AF2EC");
 
-INCLUDE_RODATA("asm/nonmatchings/game/8004D8C0_collision", jtbl_800A4F18);
+/* Surface_RampHeight: height on a sloped surface (kinds 19-34; the four kind ranges are the four
+   facing directions): the point must lie inside the half-size extent a; the height climbs by
+   0x80 per kind step plus a quarter of the offset along the slope, and D_800AF2EC_EE94/F0 get the
+   slide push down the slope. Returns 1 when the point is on it. */
+s32 Surface_RampHeight(s16 k, SVECTOR *a, VEC_8004EE94 *b, s32 *out) {
+    s32 t;
+    u32 half;
+    *out = 0;
+    if (b->vx < -a->vx || a->vx < b->vx || b->vz < -a->vz || a->vz < b->vz) {
+        return 0;
+    }
+    switch (k) {
+    case 19:
+    case 20:
+    case 21:
+    case 22:
+        half = 0x40;
+        *out = (b->vz / 4) + (((k - 19) * 128) + half);
+        D_800AF2F0_EE94 = -0x80;
+        D_800AF2EC_EE94 = 0;
+        break;
+    case 27:
+    case 28:
+    case 29:
+    case 30:
+        t = ((k - 27) * 128) + 0x40;
+        *out = t - (b->vz / 4);
+        D_800AF2F0_EE94 = 0x80;
+        D_800AF2EC_EE94 = 0;
+        break;
+    case 31:
+    case 32:
+    case 33:
+    case 34:
+        half = 0x40;
+        *out = (b->vx / 4) + (((k - 31) * 128) + half);
+        D_800AF2EC_EE94 = -0x80;
+        D_800AF2F0_EE94 = 0;
+        break;
+    case 23:
+    case 24:
+    case 25:
+    case 26:
+        t = ((k - 23) * 128) + 0x40;
+        *out = t - (b->vx / 4);
+        D_800AF2EC_EE94 = 0x80;
+        D_800AF2F0_EE94 = 0;
+        break;
+    }
+    return 1;
+}
+
 INCLUDE_RODATA("asm/nonmatchings/game/8004D8C0_collision", jtbl_800A4F18_pad);
 
 
