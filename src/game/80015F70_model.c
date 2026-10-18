@@ -75,9 +75,77 @@ s32 Model_FindPrim(S_Model_80015F70_80015F70 *m, S_Out_80015F70_80015F70 *out, s
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_ProjectVertsAlt);
+typedef struct { u8 pad0[0x12]; u16 nVerts; } MdlHdr_16100;
+typedef struct { MdlHdr_16100 *hdr; u8 pad4[8]; SVECTOR *verts; } Mdl_16100;
+typedef struct { u32 sxy; s32 sz; } Proj_16100;
+#define gte_SetRotMatrix_(m) __asm__ volatile ( \
+    "lw $12, 0(%0); lw $13, 4(%0); ctc2 $12, $0; ctc2 $13, $1; lw $12, 8(%0); lw $13, 12(%0); lw $14, 16(%0); ctc2 $12, $2; ctc2 $13, $3; ctc2 $14, $4" \
+    : : "r"(m) : "$12", "$13", "$14")
+#define gte_SetTransMatrix_(m) __asm__ volatile ( \
+    "lw $12, 20(%0); lw $13, 24(%0); ctc2 $12, $5; lw $14, 28(%0); ctc2 $13, $6; ctc2 $14, $7" \
+    : : "r"(m) : "$12", "$13", "$14")
+#define gte_ldVXY3_(a, b, c) __asm__ volatile ("mtc2 %0, $0; nop; mtc2 %1, $2; nop; mtc2 %2, $4" : : "r"(a), "r"(b), "r"(c))
+#define gte_ldVZ3_(v) __asm__ volatile ("lwc2 $1, %0; lwc2 $3, %1; lwc2 $5, %2" : : "m"((v)[0].vz), "m"((v)[1].vz), "m"((v)[2].vz))
+#define gte_rtpt_n() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxyz3_(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $17, 4(%0); swc2 $13, 8(%0); swc2 $18, 12(%0); swc2 $14, 16(%0); swc2 $19, 20(%0)" : : "r"(p) : "memory")
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_ProjectVerts);
+/* Model_ProjectVerts for a model whose vertex count is at header +0x12 (read before the matrix
+   is loaded). */
+void Model_ProjectVertsAlt(Mdl_16100 *mdl, void *m, Proj_16100 *out) {
+    s32 i = 0;
+    SVECTOR *vs = mdl->verts;
+    SVECTOR *v;
+    s32 n = mdl->hdr->nVerts;
+    s32 a, b, c;
+
+    gte_SetRotMatrix_(m);
+    gte_SetTransMatrix_(m);
+    a = *(s32 *)&vs[0];
+    b = *(s32 *)&vs[1];
+    c = *(s32 *)&vs[2];
+    for (; i < n; i += 3) {
+        v = &vs[i];
+        gte_ldVXY3_(a, b, c);
+        gte_ldVZ3_(v);
+        gte_rtpt_n();
+        a = *(s32 *)&v[3];
+        b = *(s32 *)&v[4];
+        c = *(s32 *)&v[5];
+        gte_stsxyz3_(out);
+        out += 3;
+    }
+}
+
+typedef struct { u8 pad0[6]; u16 nVerts; } MdlHdr_161C0;
+typedef struct { MdlHdr_161C0 *hdr; u8 pad4[8]; SVECTOR *verts; } Mdl_161C0;
+typedef struct { u32 sxy; s32 sz; } Proj_161C0;
+
+/* Projects a model's vertices through matrix m into out (screen point and depth per vertex),
+   three at a time, fetching the next triple's x/y words while the GTE works. */
+void Model_ProjectVerts(Mdl_161C0 *mdl, void *m, Proj_161C0 *out) {
+    s32 i = 0;
+    SVECTOR *vs = mdl->verts;
+    SVECTOR *v;
+    s32 n, a, b, c;
+
+    gte_SetRotMatrix_(m);
+    gte_SetTransMatrix_(m);
+    a = *(s32 *)&vs[0];
+    b = *(s32 *)&vs[1];
+    c = *(s32 *)&vs[2];
+    n = mdl->hdr->nVerts;
+    for (; i < n; i += 3) {
+        v = &vs[i];
+        gte_ldVXY3_(a, b, c);
+        gte_ldVZ3_(v);
+        gte_rtpt_n();
+        a = *(s32 *)&v[3];
+        b = *(s32 *)&v[4];
+        c = *(s32 *)&v[5];
+        gte_stsxyz3_(out);
+        out += 3;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", func_80016294);
 
