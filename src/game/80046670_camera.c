@@ -245,7 +245,32 @@ void func_80046A78(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80046670_camera", Hud_DrawStatusIcon);
+typedef struct { u32 addr : 24; u32 len : 8; } P_TAG_7F0;
+typedef struct { P_TAG_7F0 tag; u32 mode; u32 code; u32 xy; u32 uvc; u32 wh; } S_Spr_7F0;
+typedef struct { u8 u; u8 v; u8 w; u8 h; u16 clut; u16 tpage; } S_SprDef_7F0;
+typedef struct { u8 pad0[0x70]; u32 ot[0x1000]; u32 term; u8 *prims; } DrawBuf_func_80046ACC;
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf_func_80046ACC db[2]; } g_Game_7F0 asm("g_Game");
+extern S_SprDef_7F0 D_800AF0E0_7F0[] asm("D_800AF0E0");
+
+/* Hud_DrawStatusIcon: one HUD icon sprite (D_800AF0E0[idx]: u, v, w, h, clut, tpage) at x, y in the
+ * HUD OT, semi-transparent when semi; addPrim written out with the 0xFFFFFF masks. */
+void Hud_DrawStatusIcon(s32 idx, s32 x, s16 y, s32 semi) {
+    s32 m;
+    S_Spr_7F0 *p = (S_Spr_7F0 *)g_Game_7F0.prim;
+    S_SprDef_7F0 *t = &D_800AF0E0_7F0[idx];
+    u32 *ot = &g_Game_7F0.db[g_Game_7F0.cur].term;
+    p->tag.len = 5;
+    semi = semi != 0;
+    m = t->tpage & 0x9FF;
+    p->code = (semi << 25) | 0x65000000;
+    p->xy = (y << 16) | (u16)x;
+    p->mode = m | 0xE1000200;
+    p->wh = (t->h << 16) | t->w;
+    p->uvc = (t->v << 8) | t->u | (t->clut << 16);
+    *(u32 *)&p->tag = (*(u32 *)&p->tag & 0xFF000000) | (*ot & 0xFFFFFF);
+    *ot = (*ot & 0xFF000000) | ((u32)p & 0xFFFFFF);
+    g_Game_7F0.prim = (u8 *)(p + 1);
+}
 
 /* Places the HUD status icons (via Hud_DrawStatusIcon(icon, x, y, flag)) along the bottom-left,
  * shifted by D_800F4DB0+4 when its flag 8 is set. Icon 1 flashes to 2 every 4 frames while the
