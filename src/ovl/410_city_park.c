@@ -424,7 +424,15 @@ void func_8014015C(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_801401DC);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_80140228);
+s32 Math_Atan2(s32, s32);
+
+void func_80140228(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 4;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 0;
+    M2C_FIELD(arg0, u16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+    M2C_FIELD(arg0, s32 *, 0xE0) &= 0xFF3FFFFF;
+    M2C_FIELD(arg0, s16 *, 0xAA) = (Math_Atan2(M2C_FIELD(arg0, s16 *, 0x9A) - M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s16 *, 0x9E) - M2C_FIELD(arg0, s32 *, 0x2C)) + 0x1000) % 0x1000;
+}
 
 void func_801402B4(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x80) = 2;
@@ -454,7 +462,6 @@ void func_80140320(void *arg0) {
 s16 Object_FloorAt(void *, M2C_UNK, M2C_UNK, M2C_UNK);
 M2C_UNK Object_StepGrowShrink(void *, M2C_UNK, M2C_UNK, M2C_UNK);
 M2C_UNK VectorNormalSS(void *, void *);
-M2C_UNK func_80140228(void *);
 
 void func_801403E4(void *arg0) {
     void *temp_a0;

@@ -11,7 +11,33 @@ INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80136554);
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_801368E8);
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80136A88);
+u8 *func_80136A88(u8 *arg0, s32 arg1)
+{
+  s32 var_v0;
+  s32 new_var;
+  int new_var2;
+  s32 var_v1;
+  u8 *var_a0;
+  var_a0 = arg0;
+  new_var2 = arg1 > 0;
+  var_v1 = 0;
+  if (new_var2)
+  {
+    do
+    {
+      new_var = var_v1;
+      var_v0 = new_var < arg1;
+      if ((*var_a0) == 0)
+      {
+        var_v1 += 1;
+      }
+      var_v0 = var_v1 < arg1;
+      var_a0 += 1;
+    }
+    while (var_v0 != 0);
+  }
+  return var_a0;
+}
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80136AB8);
 

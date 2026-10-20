@@ -137,7 +137,15 @@ INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013EA18);
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013ED00);
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013EF6C);
+s32 Math_Atan2(s32, s32);
+
+void func_8013EF6C(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 4;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 0;
+    M2C_FIELD(arg0, u16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+    M2C_FIELD(arg0, s32 *, 0xE0) &= 0xFF3FFFFF;
+    M2C_FIELD(arg0, s16 *, 0xAA) = (Math_Atan2(M2C_FIELD(arg0, s16 *, 0x9A) - M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s16 *, 0x9E) - M2C_FIELD(arg0, s32 *, 0x2C)) + 0x1000) % 0x1000;
+}
 
 void func_8013EFF8(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x80) = 2;

@@ -43,7 +43,18 @@ s32 func_8013D040(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013D080);
+void Object_SetAnim(void *, s32, s32);
+
+void func_8013D080(void *arg0, s16 arg1) {
+    Object_SetAnim(arg0, 2, arg1);
+    if (arg1 == 5) {
+        M2C_FIELD(arg0, s16 *, 0x46) = -0xA0;
+        M2C_FIELD(arg0, s16 *, 0x44) = 0x78;
+    } else if (arg1 == 1) {
+        M2C_FIELD(arg0, s16 *, 0x46) = -0x14A;
+        M2C_FIELD(arg0, s16 *, 0x44) = 0xA0;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013D0EC);
 
