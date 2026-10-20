@@ -48,7 +48,22 @@ INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D904);
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D9EC);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013DA9C);
+M2C_UNK Object_PlaySound(void *, M2C_UNK);
+s32 Object_SpikeInFront(void *, s32, s32, s16);
+
+s32 func_8013DA9C(void *arg0) {
+    if (Object_SpikeInFront(arg0, 0x5A, 0xB50, 0x300) != 0) {
+        M2C_FIELD(arg0, s8 *, 0x80) = 5;
+        if (M2C_FIELD(arg0, u16 *, 0x5C) == M2C_FIELD(((M2C_FIELD(arg0, u8 *, 0x7F) * 4) + M2C_FIELD(arg0, void **, 0x88)), u16 *, 2)) {
+            M2C_FIELD(arg0, u8 *, 0x7F) = 3U;
+            M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0xC);
+        }
+        M2C_FIELD(arg0, s16 *, 0xAE) = 0;
+        Object_PlaySound(arg0, 0xB4);
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013DB2C);
 

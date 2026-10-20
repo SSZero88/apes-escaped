@@ -53,7 +53,20 @@ void func_8013D938(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013DA14);
 
-INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013DA94);
+s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
+M2C_UNK Object_PlaySound(void *, M2C_UNK);
+u32 Object_DetachLink(void *, s32);
+
+void func_8013DA94(void *arg0) {
+    if (Object_DetachLink(arg0, 0) == 6) {
+        M2C_FIELD(arg0, s8 *, 0x80) = 4;
+        M2C_FIELD(arg0, s8 *, 0x7F) = 3;
+        M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0xC);
+        Object_PlaySound(arg0, 0x51);
+        return;
+    }
+    M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0x96, M2C_FIELD(arg0, s16 *, 0x24), (s16) (M2C_FIELD(arg0, u16 *, 0x28) - ((s32) (M2C_FIELD(arg0, u16 *, 0x46) << 0x10) >> 0x11)), (s32) M2C_FIELD(arg0, s16 *, 0x2C), (s32) M2C_FIELD(arg0, s16 *, 0x48), (s32) M2C_FIELD(arg0, s16 *, 0x4A));
+}
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013DB38);
 

@@ -25,7 +25,6 @@ M2C_UNK func_80058134(void *, s16);
 M2C_UNK func_8013FA08(void *);
 s32 func_8013FBD4();
 M2C_UNK func_8013FCE4(void *);
-M2C_UNK func_8013FD44(void *);
 M2C_UNK func_8013FD80(void *);
 M2C_UNK func_8013FDE0(void *);
 M2C_UNK Object_SeekHeight(void *, M2C_UNK);
@@ -238,7 +237,10 @@ INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FC30);
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FCE4);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FD44);
+void func_8013FD44(s32 arg0) {
+    func_800573A0(arg0, 0, 0, 0);
+    func_80051E98(arg0, 1);
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FD80);
 
@@ -325,7 +327,12 @@ INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_801401DC);
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_80140228);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_801402B4);
+void func_801402B4(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 2;
+    Object_PlaySound(arg0, 0x6F);
+    M2C_FIELD(arg0, s32 *, 0xE0) = (s32) (M2C_FIELD(arg0, s32 *, 0xE0) & ~1);
+    func_8005588C(arg0, 0xA);
+}
 
 s32 func_800563E0(void *, s32);
 

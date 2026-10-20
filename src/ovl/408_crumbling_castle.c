@@ -22,7 +22,6 @@ M2C_UNK Sound_PlayFixed(M2C_UNK);
 M2C_UNK func_800573A0(void *, M2C_UNK, M2C_UNK, M2C_UNK);
 void func_801401D4(void *arg0);
 extern s32 D_80145D24;
-M2C_UNK func_80140398(s32, M2C_UNK);
 extern M2C_UNK D_80145D30;
 s32 Spike_WithinRadiusXZ(s16, s16, s16);
 s32 func_8013D0C8();
@@ -202,7 +201,9 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_801402D8);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140358);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140398);
+void func_80140398(s32 arg0, s32 arg1) {
+    Puff_Spawn(arg0, 0, 0, arg1 + 0xFA);
+}
 
 void func_801403C0(void *arg0) {
     s32 temp_s0;
@@ -232,7 +233,18 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_801408C8);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8014095C);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_801409AC);
+M2C_UNK Object_StepOnGroundFixed(s32);
+s32 Object_WouldLeaveHome(void *, s16);
+
+void func_801409AC(s32 arg0, s32 arg1) {
+    if (Object_WouldLeaveHome(arg0, 0) == 0) {
+        Object_StepOnGroundFixed(arg0);
+        return;
+    }
+    if ((arg1 != 0) && (D_80145D24 >= 0x1E)) {
+        D_80145D24 = 0x1D;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140A18);
 
@@ -311,7 +323,18 @@ void func_80141DDC(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80141EB8);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80141F38);
+u32 Object_DetachLink(void *, s32);
+
+void func_80141F38(void *arg0) {
+    if (Object_DetachLink(arg0, 0) == 6) {
+        M2C_FIELD(arg0, s8 *, 0x80) = 4;
+        M2C_FIELD(arg0, s8 *, 0x7F) = 3;
+        M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0xC);
+        Object_PlaySound(arg0, 0x51);
+        return;
+    }
+    M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0x96, M2C_FIELD(arg0, s16 *, 0x24), (s16) (M2C_FIELD(arg0, u16 *, 0x28) - ((s32) (M2C_FIELD(arg0, u16 *, 0x46) << 0x10) >> 0x11)), (s32) M2C_FIELD(arg0, s16 *, 0x2C), (s32) M2C_FIELD(arg0, s16 *, 0x48), (s32) M2C_FIELD(arg0, s16 *, 0x4A));
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80141FDC);
 

@@ -15,7 +15,6 @@ M2C_UNK func_80058134(void *, s16);
 M2C_UNK func_8013D000(void *);
 s32 func_8013D1CC();
 M2C_UNK func_8013D2DC(void *);
-M2C_UNK func_8013D33C(void *);
 M2C_UNK func_8013D378(void *);
 M2C_UNK func_8013D3D8(void *);
 M2C_UNK Object_PlaySound(s32, M2C_UNK);
@@ -51,7 +50,12 @@ INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D228);
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D2DC);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D33C);
+void func_800573A0(void *, s32, s32, s32);
+
+void func_8013D33C(s32 arg0) {
+    func_800573A0(arg0, 0, 0, 0);
+    func_80051E98(arg0, 1);
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D378);
 
@@ -140,7 +144,11 @@ void func_8013D738(s32 arg0) {
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D764);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D834);
+void func_8013D834(void *arg0) {
+    if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 0xB) {
+        Object_PlaySound(arg0, 0x15);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D868);
 
@@ -230,7 +238,13 @@ INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013EF54);
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013F0A0);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013F12C);
+void func_8013F12C(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 2;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 2;
+    M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 8);
+    Object_PlaySound(arg0, 0x62);
+    M2C_FIELD(arg0, s32 *, 0xE0) = (s32) (M2C_FIELD(arg0, s32 *, 0xE0) & ~1);
+}
 
 s32 func_800563E0(void *, s32);
 

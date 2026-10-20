@@ -259,7 +259,31 @@ INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013FEB0);
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013FEF0);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013FF58);
+s32 Math_Atan2(s32, s32);
+M2C_UNK func_8005588C(void *, M2C_UNK);
+M2C_UNK func_8013FEF0(void *);
+void func_80055F1C(void *, s32);
+
+void func_8013FF58(void *arg0) {
+    s32 temp_v1;
+    s32 var_v0;
+
+    M2C_FIELD(arg0, s16 *, 0xA6) = (s16) (M2C_FIELD(D_80140D4C, u16 *, 0xA6) - 0x200);
+    M2C_FIELD(arg0, u16 *, 0x9A) = (u16) M2C_FIELD(D_80140D4C, u16 *, 0x9A);
+    M2C_FIELD(arg0, u16 *, 0x9E) = (u16) M2C_FIELD(D_80140D4C, u16 *, 0x9E);
+    func_80055F1C(arg0, 0x28);
+    func_8013FEF0(arg0);
+    var_v0 = Math_Atan2(M2C_FIELD(arg0, s32 *, 0x24) - (s16) M2C_FIELD(D_80140D4C, u16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x2C) - (s16) M2C_FIELD(D_80140D4C, u16 *, 0x9E));
+    temp_v1 = var_v0;
+    if (temp_v1 < 0) {
+        var_v0 = temp_v1 + 0xFFF;
+    }
+    M2C_FIELD(arg0, s16 *, 0xAA) = (s16) (temp_v1 - ((var_v0 >> 0xC) << 0xC));
+    M2C_FIELD(arg0, s8 *, 0x80) = 2;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 3;
+    M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0xC);
+    func_8005588C(arg0, 0x14);
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8014001C);
 

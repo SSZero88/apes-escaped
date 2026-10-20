@@ -98,7 +98,13 @@ INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E9D8);
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013EEB8);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013EFDC);
+M2C_UNK Object_DropPickups(s32);
+
+void func_8013EFDC(s32 arg0) {
+    func_800573A0(arg0, 0, 0, 0);
+    Object_DropPickups(arg0);
+    func_80051E98(arg0, 1);
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013F020);
 
@@ -206,7 +212,14 @@ void func_8013FDF0(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013FE4C);
+void func_80052038(s32, s32);
+
+void func_8013FE4C(void *arg0) {
+    func_80052038(arg0, 0x52);
+    M2C_FIELD(arg0, s8 *, 0x80) = 6;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 3;
+    M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0xC);
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013FE94);
 

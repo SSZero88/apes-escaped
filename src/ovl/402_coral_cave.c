@@ -84,7 +84,16 @@ INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DEA8);
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DF04);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DF8C);
+s32 Object_StepGrowShrink(void *, s16, s16, s16);
+
+void func_8013DF8C(void *arg0) {
+    s32 temp_v0;
+
+    Object_StepGrowShrink(arg0, 0, 0, -4);
+    temp_v0 = (s32) (M2C_FIELD(arg0, u16 *, 0xA8) << 0x10) >> 0x13;
+    M2C_FIELD(arg0, s32 *, 0x24) = (s32) (M2C_FIELD(arg0, s32 *, 0x24) + ((s32) (M2C_FIELD(arg0, s16 *, 0x60) * temp_v0) >> 0xC));
+    M2C_FIELD(arg0, s32 *, 0x2C) = (s32) (M2C_FIELD(arg0, s32 *, 0x2C) + ((s32) (M2C_FIELD(arg0, s16 *, 0x64) * temp_v0) >> 0xC));
+}
 
 void func_8013E004(void *arg0) {
     s32 temp_v0;
@@ -213,13 +222,30 @@ INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_801401E0);
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_801402BC);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8014033C);
+M2C_UNK Object_PlaySound(void *, M2C_UNK);
+
+void func_8014033C(void *arg0) {
+    if (Object_DetachLink(arg0, 0) == 6) {
+        M2C_FIELD(arg0, s8 *, 0x80) = 4;
+        M2C_FIELD(arg0, s8 *, 0x7F) = 3;
+        M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0xC);
+        Object_PlaySound(arg0, 0x51);
+        return;
+    }
+    M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0x96, M2C_FIELD(arg0, s16 *, 0x24), (s16) (M2C_FIELD(arg0, u16 *, 0x28) - ((s32) (M2C_FIELD(arg0, u16 *, 0x46) << 0x10) >> 0x11)), (s32) M2C_FIELD(arg0, s16 *, 0x2C), (s32) M2C_FIELD(arg0, s16 *, 0x48), (s32) M2C_FIELD(arg0, s16 *, 0x4A));
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_801403E0);
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8014061C);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_801406A8);
+void func_801406A8(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 2;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 2;
+    M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 8);
+    Object_PlaySound(arg0, 0x62);
+    M2C_FIELD(arg0, s32 *, 0xE0) = (s32) (M2C_FIELD(arg0, s32 *, 0xE0) & ~1);
+}
 
 s32 func_800563E0(void *, s32);
 

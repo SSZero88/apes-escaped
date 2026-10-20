@@ -178,11 +178,32 @@ INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013F460);
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013F7F8);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013F8BC);
+extern s32 D_800EC208;
+extern s32 D_801422E0;
+s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s16);
+
+s32 func_8013F8BC(void *arg0) {
+    s32 var_v0;
+
+    var_v0 = 0;
+    if (Object_SpikeOutOfRange(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s16 *, 0x9E), (s32) M2C_FIELD(arg0, s16 *, 0xA6)) == 0) {
+        var_v0 = D_800EC208 >= D_801422E0;
+    }
+    return var_v0;
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013F91C);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013F9D4);
+extern u16 g_RandSeed;
+
+void func_8013F9D4(void *arg0) {
+    u16 temp_a1;
+
+    M2C_FIELD(arg0, s8 *, 0x80) = 1;
+    temp_a1 = (g_RandSeed * 5) + 1;
+    g_RandSeed = temp_a1;
+    func_8005588C(arg0, ((u32) (temp_a1 & 0xFFFF) >> 9) + 0x40);
+}
 
 void func_8013FA20(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x80) = 3;
@@ -203,11 +224,34 @@ void func_8013FAB8(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0xC0) = (s16) (u16) M2C_FIELD(arg0, s32 *, 0x2C);
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013FB54);
+M2C_UNK Object_ApplyVelocity(void *);
+s32 Object_WouldLeaveHome(void *, M2C_UNK);
+s32 Object_StepGrowShrink(void *, s16, s16, s16);
+
+void func_8013FB54(void *arg0, s16 arg1, s16 arg2, s16 arg3) {
+    if (M2C_FIELD(arg0, u16 *, 0xE2) & 1) {
+        Object_StepGrowShrink(arg0, 0x1E, 0x14, 0);
+    }
+    func_80055718(arg0, arg1, arg2, arg3, (s32) (M2C_FIELD(arg0, u16 *, 0xA8) << 0x10) >> 0x13);
+    if (Object_WouldLeaveHome(arg0, 0) == 0) {
+        Object_ApplyVelocity(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013FC04);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013FC4C);
+s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
+u32 Object_DetachLink(void *, s32);
+
+void func_8013FC4C(void *arg0) {
+    if (!(M2C_FIELD(arg0, s32 *, 0xE0) & 1)) {
+        if (Object_DetachLink(arg0, 0) == 6) {
+            M2C_FIELD(arg0, s32 *, 0xE0) = (s32) (M2C_FIELD(arg0, s32 *, 0xE0) | 1);
+            return;
+        }
+        M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0xC8, M2C_FIELD(arg0, s16 *, 0x24), (s16) (M2C_FIELD(arg0, u16 *, 0x28) - 0xD7), (s32) M2C_FIELD(arg0, s16 *, 0x2C), 0x401, 0x202);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013FCE0);
 

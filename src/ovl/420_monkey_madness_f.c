@@ -89,7 +89,12 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DC3C);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DC88);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DD14);
+void func_8013DD14(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 2;
+    Object_PlaySound(arg0, 0x6F);
+    M2C_FIELD(arg0, s32 *, 0xE0) = (s32) (M2C_FIELD(arg0, s32 *, 0xE0) & ~1);
+    func_8005588C(arg0, 0xA);
+}
 
 s32 func_800563E0(void *, s32);
 

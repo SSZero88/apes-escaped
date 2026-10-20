@@ -86,7 +86,12 @@ INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013DD60);
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013DDAC);
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013DE38);
+void func_8013DE38(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 2;
+    Object_PlaySound(arg0, 0x6F);
+    M2C_FIELD(arg0, s32 *, 0xE0) = (s32) (M2C_FIELD(arg0, s32 *, 0xE0) & ~1);
+    func_8005588C(arg0, 0xA);
+}
 
 s32 func_800563E0(void *, s32);
 

@@ -208,7 +208,11 @@ INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80140DAC);
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80140E94);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80140FA0);
+s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s16);
+
+s32 func_80140FA0(void *arg0) {
+    return Object_SpikeOutOfRange(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s16 *, 0x9E), (s32) M2C_FIELD(arg0, s16 *, 0xA4)) == 0;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80140FD4);
 
@@ -225,7 +229,10 @@ void func_8014124C(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141290);
+void func_80141290(void *arg0) {
+    func_80052038(arg0, 6);
+    M2C_FIELD(arg0, s8 *, 0x8F) = 0;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801412BC);
 
@@ -251,7 +258,22 @@ void func_80141A98(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0xC2) = (s16) (u16) M2C_FIELD(arg0, s16 *, 0xA8);
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141AF8);
+M2C_UNK Object_ApplyVelocity(void *);
+M2C_UNK Object_TurnTowardSpike(void *);
+s32 Object_WouldLeaveHome(void *, M2C_UNK);
+M2C_UNK func_80055718(void *, s16, s16, s16, s32);
+s32 Object_StepGrowShrink(void *, s16, s16, s16);
+
+void func_80141AF8(void *arg0, s16 arg1, s16 arg2, s16 arg3) {
+    if (M2C_FIELD(arg0, u16 *, 0xE2) & 1) {
+        Object_StepGrowShrink(arg0, 0x1E, 0x14, 0);
+    }
+    func_80055718(arg0, arg1, arg2, arg3, (s32) (M2C_FIELD(arg0, u16 *, 0xA8) << 0x10) >> 0x13);
+    Object_TurnTowardSpike(arg0);
+    if (Object_WouldLeaveHome(arg0, 0) == 0) {
+        Object_ApplyVelocity(arg0);
+    }
+}
 
 void func_80141BB0(void *arg0) {
     s16 temp_v0;
@@ -272,7 +294,15 @@ void func_80141BB0(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141C1C);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141C74);
+void func_80141C74(void *arg0) {
+    if (!(M2C_FIELD(arg0, s32 *, 0xE0) & 1)) {
+        if (Object_DetachLink(arg0, 0) == 6) {
+            M2C_FIELD(arg0, s32 *, 0xE0) = (s32) (M2C_FIELD(arg0, s32 *, 0xE0) | 1);
+            return;
+        }
+        M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0xC8, M2C_FIELD(arg0, s16 *, 0x24), M2C_FIELD(arg0, s16 *, 0x28), (s32) M2C_FIELD(arg0, s16 *, 0x2C), 0x401, 0x202);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141CFC);
 

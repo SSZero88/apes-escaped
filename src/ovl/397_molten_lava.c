@@ -33,9 +33,28 @@ INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D468);
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D5A4);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D648);
+s32 Object_SpikeBehind(s32, M2C_UNK, M2C_UNK, s16);
+s32 Object_SpikeInFront(void *, s32, s32, s16);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D6C4);
+s32 func_8013D648(s32 arg0, s16 arg1, s32 arg2) {
+    s32 var_s1;
+
+    var_s1 = Object_SpikeInFront(arg0, 0x5A, 0xB50, arg1);
+    if (arg2 != 0) {
+        var_s1 |= Object_SpikeBehind(arg0, 0x5A, 0xB50, arg1) * 2;
+    }
+    return var_s1;
+}
+
+M2C_UNK Object_ApplyVelocity(void *);
+s16 Object_PathPointNear(void *, void *, s16, u8);
+s32 func_800585D0(void *, s16, s8, s8);
+
+s16 func_8013D6C4(void *arg0, s16 arg1, s16 arg2, s8 arg3) {
+    func_800585D0(arg0, arg1, 0, arg3);
+    Object_ApplyVelocity(arg0);
+    return Object_PathPointNear(arg0, arg0 + 0x24, arg2, M2C_FIELD(arg0, u8 *, 0x8E));
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D730);
 
@@ -67,7 +86,17 @@ INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E174);
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E1C4);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E214);
+s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
+extern M2C_UNK D_80141168;
+u32 Object_DetachLink(void *, s32);
+
+void func_8013E214(void *arg0) {
+    if (Object_DetachLink(arg0, 0) == 6) {
+        M2C_FIELD(arg0, s8 *, 0xC9) = 0;
+        return;
+    }
+    M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0x12C, M2C_FIELD(&D_80141168, s16 *, 0), M2C_FIELD(&D_80141168, s16 *, 4), (s32) M2C_FIELD(&D_80141168, s16 *, 8), 1, 0x203);
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E284);
 
