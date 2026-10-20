@@ -129,7 +129,19 @@ void func_8013E018(s32 arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E0E0);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E128);
+typedef struct { s16 x, y, z, vx, vy, vz, active, unkE; s32 unk10; } Drip_396;
+extern Drip_396 D_8013F2A0_s[8] asm("D_801421D0");
+
+s32 func_8013E128(void) {
+    s32 i;
+
+    for (i = 7; i >= 0; i--) {
+        if (D_8013F2A0_s[i].active == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E164);
 
@@ -137,7 +149,16 @@ s32 func_8013E2A4(void *arg0) {
     return Floor_GetHeight(M2C_FIELD(arg0, s16 *, 0), M2C_FIELD(arg0, s16 *, 2), M2C_FIELD(arg0, s16 *, 4)) < M2C_FIELD(arg0, s16 *, 2);
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E2E0);
+void Effect_SpawnAt(s32, SVECTOR *);
+
+void func_8013E2E0(SVECTOR *arg0) {
+    SVECTOR v;
+
+    v.vx = arg0->vx;
+    v.vy = arg0->vy;
+    v.vz = arg0->vz;
+    Effect_SpawnAt(4, &v);
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E320);
 

@@ -73,7 +73,14 @@ s32 func_8013D948(void *arg0) {
     return Floor_GetHeight(M2C_FIELD(arg0, s16 *, 0), M2C_FIELD(arg0, s16 *, 2), M2C_FIELD(arg0, s16 *, 4)) < M2C_FIELD(arg0, s16 *, 2);
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013D98C);
+void func_8013D98C(SVECTOR *arg0) {
+    SVECTOR v;
+
+    v.vx = arg0->vx;
+    v.vy = arg0->vy;
+    v.vz = arg0->vz;
+    Effect_SpawnAt(4, &v);
+}
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013D9CC);
 

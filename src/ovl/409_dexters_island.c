@@ -309,11 +309,32 @@ void func_80140938(s32 arg0, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80140A00);
+typedef struct { s16 x, y, z, vx, vy, vz, active, unkE; s32 unk10; } Drip_396;
+extern Drip_396 D_8013F2A0_s[8] asm("D_801440F0");
+void func_80140CAC(void);
+void Hook_Add(void *);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80140A54);
+void func_80140A00(void *arg0) {
+    s32 i;
 
-s32 func_80140A54(void);
+    func_80140898(arg0, D_80144190, 0x83);
+    for (i = 7; i >= 0; i--) {
+        D_8013F2A0_s[i].active = 0;
+    }
+    Hook_Add(func_80140CAC);
+}
+
+s32 func_80140A54(void) {
+    s32 i;
+
+    for (i = 7; i >= 0; i--) {
+        if (D_8013F2A0_s[i].active == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 s16 rsin_8013D858(s16) asm("rsin");
 extern u8 D_801440F0[];
 
@@ -344,7 +365,16 @@ s32 func_80140BC8(void *arg0) {
     return Floor_GetHeight(M2C_FIELD(arg0, s16 *, 0), M2C_FIELD(arg0, s16 *, 2), M2C_FIELD(arg0, s16 *, 4)) < M2C_FIELD(arg0, s16 *, 2);
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80140C0C);
+void Effect_SpawnAt(s32, SVECTOR *);
+
+void func_80140C0C(SVECTOR *arg0) {
+    SVECTOR v;
+
+    v.vx = arg0->vx;
+    v.vy = arg0->vy;
+    v.vz = arg0->vz;
+    Effect_SpawnAt(4, &v);
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80140C4C);
 
@@ -396,7 +426,22 @@ void func_80141038(void *arg0) {
     Object_DisableCollision(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80141110);
+void Object_TurnTowardSpike(void *);
+
+s32 func_80141110(void *arg0) {
+    u32 s;
+
+    Object_TurnTowardSpike(arg0);
+    s = M2C_FIELD(arg0, u32 *, 0x50) >> 28;
+    if (s == 6) {
+        M2C_FIELD(arg0, u8 *, 0x80) = s;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 0;
+        M2C_FIELD(arg0, u16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+        func_80140E88(arg0);
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8014116C);
 
