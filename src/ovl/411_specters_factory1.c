@@ -270,7 +270,21 @@ INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013EEB4);
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013F484);
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013F4F0);
+s32 Object_AddAttackSphereNear_8013F4F0(void *, s16, s16, s16, s32, s32, s32) asm("Object_AddAttackSphereNear");
+M2C_UNK Object_PlaySound_8013F4F0(s32, M2C_UNK) asm("Object_PlaySound");
+
+s32 func_8013F4F0(void *arg0, s32 arg1, s32 arg2) {
+    SVECTOR v;
+
+    if (arg2 == 2) {
+        Object_PlaySound_8013F4F0(arg0, 0x79);
+    }
+    v.vx = M2C_FIELD(arg0, u16 *, 0x1C);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x1E);
+    v.vz = M2C_FIELD(arg0, u16 *, 0x20);
+    Object_AddAttackSphereNear_8013F4F0(arg0, arg2 * 0x118 / arg1, v.vx, v.vy, v.vz, M2C_FIELD(arg0, s16 *, 0x48), M2C_FIELD(arg0, s16 *, 0x4A));
+    return arg2 == arg1;
+}
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013F5D4);
 

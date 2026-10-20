@@ -112,7 +112,20 @@ INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013EA38);
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013ED30);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013ED9C);
+s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
+
+s32 func_8013ED9C(void *arg0, s32 arg1, s32 arg2) {
+    SVECTOR v;
+
+    if (arg2 == 2) {
+        Object_PlaySound(arg0, 0x79);
+    }
+    v.vx = M2C_FIELD(arg0, u16 *, 0x1C);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x1E);
+    v.vz = M2C_FIELD(arg0, u16 *, 0x20);
+    Object_AddAttackSphereNear(arg0, arg2 * 0x118 / arg1, v.vx, v.vy, v.vz, M2C_FIELD(arg0, s16 *, 0x48), M2C_FIELD(arg0, s16 *, 0x4A));
+    return arg2 == arg1;
+}
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013EE80);
 
