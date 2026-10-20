@@ -773,3 +773,35 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   `prim += 0x10; continue;` (the original has two increments). Model_AddF3 is 1 instruction
   off with this (wip/_hand/Model_AddF3.c).
 - Byte-pointer reads `*(s16 *)(scratch + 0)` at offset 0 do give `lh` (func_800653C0).
+
+## Overlays (2026-10-20)
+- Code files 384-431 of the KKIIDDZZ table (files past KKIIDDZZ.DAT's end are in KKIIDDZZ.BNS,
+  which follows it on the disc). Stage load list entries are {u16 file, u16 type, u32 address}:
+  type 2 at 0x80146000, type 1 and type 0 at 0x80154000 are level data; the type-0 file at
+  0x8013D000 is the world overlay, shared by all stages of a level.
+- The dev stage-select menu (overlay 393) lists the internal stage names by era, in stage order:
+  MESOZOIC AWORLD1 (stage 1), DINOWA1, DINOWB1-3; CENOZOIC JUNGLE1-5, RUINSA1-4, RUINSB1-4,
+  DSPACE1, DIMA1; PRIMITIVE KAIGAN1-2, SUICYU1-2, WORMHL1-5; ICEWORLD SNOWYA1, SNOWYB1-3,
+  SNOWYC1-3, DSPACE2, DIMB1; PROGRESS CIVILA1-3, CIVILB1-5, CASTLE1-7; SPECTOR MACHIA1-3,
+  PLANTB1-7, BUILDA1-4, BUILDC1-2; AMPARK AMUSEA1 ... AMUSEF9; EXSTAGE EXSTG1; ETC SELECT1/3/4,
+  TUTO1-7.
+- World overlays (0x8013D000), by the stages that load them: 396 Primordial Ooze, 397 Molten Lava,
+  398 Thick Jungle, 399 Dark Ruins, 400 Cryptic Relics, 401 Crabby Beach, 402 Coral Cave,
+  409 Dexter's Island, 403 Snowy Mammoth, 404 Frosty Retreat, 405 Hot Springs, 406 Sushi Temple,
+  407 Wabi Sabi Wall, 408 Crumbling Castle, 410 City Park, 411/412 Specter's Factory (PLANTB1-3 /
+  4-7), 413/414 TV Tower (BUILDA1-4 + BUILDC1 / BUILDC2), 415-423 Monkey Madness (415 AMUSEA1,
+  416 AMUSEB1, 417 AMUSEC1, 418 AMUSED1-5, 419 AMUSEE1, 420/421/422/423 the AMUSEF rooms),
+  424 Peak Point Matrix, 425 the two races (Stadium Attack, Gladiator Attack), 426 the Time
+  Station (SELECT) and the seven training rooms (TUTO). Fossil Field (stage 1) has none.
+  Stages 99-103 replay Molten Lava, Thick Jungle, Cryptic Relics, Crabby Beach and City Park data
+  with an extra file at 0x801A0800 (question for the user: what are they?).
+- Game-mode overlays (0x80136000, mode table D_800AFA30 {entry, file}): 384 FMV player (opening,
+  title, takeoff and three endings from \DEMO), 386 title menu (Continue / New Game / options),
+  387 sound test, 388 stage demo, 393 stage select, 427 a two-player minigame menu (Normal Play /
+  3 Minute Time Attack), 428 STR movie decoder; 385 and 390 hold hand-written asm (CPU debug
+  registers; an exception handler), 389 loads at 0x80146000.
+- Layout: text, then jump tables (16-aligned), then data, zero-padded to whole sectors. 390 is
+  four programs back to back, each with its own tables and data. 422 and 424 end in stale bytes
+  from an older build of the same overlay (nothing refers to them).
+- SCUS calls the world overlay at fixed addresses (func_8013D000 from the camera; object code
+  calls e.g. func_8013D714), so the overlays it calls have to keep those functions where they are.

@@ -1,4 +1,8 @@
 #include "common.h"
+#include "m2c_macros.h"
+
+M2C_UNK Cd_PlayXaTrack(s32);
+extern s32 D_8013705C;
 
 INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136000);
 
@@ -16,6 +20,8 @@ INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136AA0);
 
 INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136C04);
 
-INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136C6C);
+void func_80136C6C(void) {
+    Cd_PlayXaTrack(D_8013705C);
+}
 
 INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136C94);

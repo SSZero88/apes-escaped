@@ -10,7 +10,7 @@ ad = {}
 exec(compile(src, 'auto_decomp', 'exec'), ad)
 name, cfile = args[0], args[1]
 compiler = args[2] if len(args) > 2 else '2.8.1-psx'
-asm_path = glob.glob(f'asm/nonmatchings/**/{name}.s', recursive=True)[0]
+asm_path = glob.glob(f'{ad["ASM_DIR"]}/**/{name}.s', recursive=True)[0]  # OVL=<file>: an overlay's
 asm = open(asm_path).read()
 size = int(re.search(r'^nonmatching \w+, (0x[0-9A-F]+)', asm, re.M).group(1), 16)
 addr = int(re.search(r'/\* [0-9A-F]+ ([0-9A-F]{8}) ', asm).group(1), 16)
@@ -25,7 +25,7 @@ if not ok:
 if ad['matches']('/tmp/check.o', name, addr, size):
     print(f'MATCH {name}'); sys.exit(0)
 data, masks = ad['func_code']('/tmp/check.o', name)
-orig = ad['ORIG'][addr - 0x80010000 + 0x800:][:size]
+orig = ad['ORIG'][addr - ad['VRAM'] + ad['OFF']:][:size]
 def dis(b, base):
     open('/tmp/d.bin', 'wb').write(b)
     out = subprocess.run(['mips-linux-gnu-objdump', '-D', '-z', '-b', 'binary', '-m', 'mips:3000', '-EL', '--adjust-vma', hex(base), '/tmp/d.bin'], capture_output=True, text=True).stdout

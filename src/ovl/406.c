@@ -1,4 +1,8 @@
 #include "common.h"
+#include "m2c_macros.h"
+
+M2C_UNK Object_PlaySound(void *, M2C_UNK);
+s32 Spike_WithinRadiusXZ(s32, s32, M2C_UNK);
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406", func_8013D000);
 
@@ -26,7 +30,13 @@ INCLUDE_ASM("asm/ovl/406/nonmatchings/406", func_8013DC70);
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406", func_8013DD94);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406", func_8013DE4C);
+void func_8013DE4C(void *arg0) {
+    if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 6) {
+        M2C_FIELD(arg0, s8 *, 0x80) = 3;
+        M2C_FIELD(arg0, s8 *, 0x7F) = 7;
+        M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0x1C);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406", func_8013DE84);
 
@@ -38,7 +48,11 @@ INCLUDE_ASM("asm/ovl/406/nonmatchings/406", func_8013E058);
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406", func_8013E134);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406", func_8013E9EC);
+void func_8013E9EC(void *arg0, M2C_UNK arg1) {
+    if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s32 *, 0x2C), 0xA00) != 0) {
+        Object_PlaySound(arg0, arg1);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406", func_8013EA38);
 

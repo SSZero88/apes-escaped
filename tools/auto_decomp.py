@@ -8,13 +8,24 @@ Matching drafts are written into src/ in place of their INCLUDE_ASM line.
 The full build + sha1 check (make) is the final arbiter.
 
 Usage: python3 tools/auto_decomp.py [--max-size 0x400] [--compiler 2.8.1-psx] [--dry-run] [--only func,...]
+With OVL=<file> in the environment it works on that overlay instead (src/ovl/<file>*.c against
+iso/ovl/<file>.bin); overlays reuse addresses, so each one is its own run.
 """
 import argparse, glob, json, multiprocessing, os, re, subprocess, sys, tempfile
 from elftools.elf.elffile import ELFFile
 from elftools.elf.relocation import RelocationSection
 
-VRAM, OFF = 0x80010000, 0x800
-ORIG = open('iso/SCUS_944.23', 'rb').read()
+OVL = os.environ.get('OVL')
+if OVL:
+    VRAM, OFF = int(re.search(r'vram: (0x[0-9A-F]+)', open(f'ovl/{OVL}.yaml').read()).group(1), 16), 0
+    ORIG = open(f'iso/ovl/{OVL}.bin', 'rb').read()
+    ASM_DIR, SYMS = f'asm/ovl/{OVL}/nonmatchings', f'ovl/{OVL}.sym.txt'
+    SRC_FILES = [f for f in glob.glob('src/ovl/*.c') if re.fullmatch(rf'{OVL}[a-h]?', os.path.basename(f)[:-2])]
+else:
+    VRAM, OFF = 0x80010000, 0x800
+    ORIG = open('iso/SCUS_944.23', 'rb').read()
+    ASM_DIR, SYMS = 'asm/nonmatchings', 'symbol_addrs.txt'
+    SRC_FILES = [f for f in glob.glob('src/**/*.c', recursive=True) if not f.startswith('src/ovl/')]
 SKIP_RE = re.compile(r'\b(mtc2|mfc2|ctc2|cfc2|lwc2|swc2)\b|handwritten|\bsyscall\b')
 INC_RE = re.compile(r'INCLUDE_ASM\("([^"]+)", (\w+)\);\n')
 DECL_NAME_RE = re.compile(r'(\w+)\s*(\(|\[|;|=)')
@@ -642,7 +653,7 @@ def unify(old, new, g, file_code, body, prefer_new=False):
 
 def func_info(name):
     """(addr, size) of a game function from its asm/nonmatchings file."""
-    path = glob.glob(f'asm/nonmatchings/**/{name}.s', recursive=True)
+    path = glob.glob(f'{ASM_DIR}/**/{name}.s', recursive=True)
     if not path:
         return None
     s = open(path[0]).read()
@@ -652,7 +663,11 @@ def func_info(name):
 
 
 def rodata_start(src):
-    """Original address of this game file's .rodata (rodata_runs.txt), or None."""
+    """Original address of this game file's .rodata (rodata_runs.txt; for an overlay its yaml), or None."""
+    if OVL:
+        name = os.path.splitext(os.path.basename(src))[0]
+        m = re.search(rf'\[(0x[0-9A-F]+), \.rodata, {name}\]', open(f'ovl/{OVL}.yaml').read())
+        return VRAM + int(m.group(1), 16) if m else None
     owner = os.path.splitext(src)[0].replace('src/', '', 1)
     for line in open('rodata_runs.txt'):
         f = line.split('#')[0].split()
@@ -681,7 +696,7 @@ def rodata_matches(o_path, start):
 
 def symbol_addr(name):
     """Address of a renamed symbol from symbol_addrs.txt, or None."""
-    for line in open('symbol_addrs.txt'):
+    for line in open(SYMS):
         m = re.match(rf'^{re.escape(name)} = (0x[0-9A-Fa-f]+);', line)
         if m:
             return int(m.group(1), 16)
@@ -819,7 +834,7 @@ def main():
 
     pool = multiprocessing.Pool(os.cpu_count())
     total = ok = 0
-    for src in sorted(glob.glob('src/**/*.c', recursive=True)):
+    for src in sorted(SRC_FILES):
         text = open(src).read()
         file_decls = {}  # name -> decl line already present in this file (from earlier passes)
         if '#include "game.h"' in text:  # names owned by the shared header can't be redeclared

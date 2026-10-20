@@ -1,6 +1,44 @@
 #include "common.h"
+#include "m2c_macros.h"
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80136000);
+M2C_UNK StSetRing(s32, s32);
+M2C_UNK StSetStream(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32);
+s32 func_8008C09C(s32);
+extern s32 D_8013C1A8;
+s32 CdControl(M2C_UNK, s32, M2C_UNK);
+s32 CdRead2(M2C_UNK);
+M2C_UNK CdSync(M2C_UNK, M2C_UNK);
+M2C_UNK func_801398B0(s32 *, s32 *);
+extern s32 D_8013C544;
+extern s32 D_8013C548;
+M2C_UNK func_8008C064(s32);
+extern s32 D_8013C560;
+extern s32 D_8013C564;
+extern s32 D_8013C574;
+M2C_UNK Model_BindMesh();
+M2C_UNK func_80015AC0();
+extern s32 D_8013C760;
+M2C_UNK CdGetSector(s32, s32);
+M2C_UNK CdReadyCallback(s32);
+extern s32 D_8013C770;
+extern s32 D_8013C774;
+extern s32 D_8013C778;
+extern s32 D_8013C77C;
+extern M2C_UNK D_8013C7B0;
+
+void func_80136000(s32 arg0, s32 arg1) {
+    s32 var_s0;
+
+    var_s0 = arg1;
+    if (var_s0 == 0) {
+        var_s0 = 0x28;
+    }
+    if (D_8013C1A8 == 0) {
+        D_8013C1A8 = func_8008C09C(var_s0 << 0xB);
+    }
+    StSetRing(D_8013C1A8, var_s0);
+    StSetStream(0, 0, -1, 0, 0);
+}
 
 INCLUDE_RODATA("asm/ovl/384/nonmatchings/384", D_8013BEF0);
 
@@ -62,7 +100,15 @@ INCLUDE_RODATA("asm/ovl/384/nonmatchings/384", D_8013C254);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80136074);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80136454);
+void func_80136454(s32 arg0, M2C_UNK arg1) {
+    do {
+loop_1:
+        if (CdControl(2, arg0, 0) == 0) {
+            goto loop_1;
+        }
+        CdSync(0, 0);
+    } while (CdRead2(arg1) == 0);
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_801364B0);
 
@@ -118,9 +164,21 @@ INCLUDE_RODATA("asm/ovl/384/nonmatchings/384", D_8013C4B4);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80137AC0);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80137D20);
+void func_80137D20(void) {
+    s32 sp10;
+    s32 sp14;
+    s32 temp_v0;
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80137D74);
+    func_801398B0(&sp10, &sp14);
+    temp_v0 = func_8008C09C((sp10 * 8) + (sp14 * 4));
+    D_8013C544 = temp_v0;
+    D_8013C548 = temp_v0 + (sp14 * 4);
+}
+
+void func_80137D74(void) {
+    func_8008C064(D_8013C544);
+    func_8008C064(D_8013C548);
+}
 
 void func_80137DAC(void) {
 }
@@ -216,27 +274,82 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_801398B0);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_801398D0);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_801398F0);
+u8 func_801398F0(s32 arg0) {
+    return M2C_FIELD(((arg0 * 4) + D_8013C560), u8 *, 3);
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013990C);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80139DAC);
+void func_80139DAC(void) {
+    func_8008C064(D_8013C574);
+    func_8008C064(D_8013C564);
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80139DE4);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80139E00);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80139E44);
+void func_80139E44(void *arg0) {
+    void *temp_v1;
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80139E88);
+    Model_BindMesh();
+    temp_v1 = M2C_FIELD(arg0, void **, 0);
+    M2C_FIELD(temp_v1, u16 *, 8) = (u16) M2C_FIELD(temp_v1, u16 *, 0xE);
+    M2C_FIELD(arg0, s32 *, 0x18) = (s32) M2C_FIELD(arg0, s32 *, 4);
+}
+
+void func_80139E88(void *arg0, s32 arg1) {
+    s32 temp_s0;
+
+    func_80015AC0();
+    temp_s0 = arg1 + 0xC;
+    M2C_FIELD(arg0, s32 *, 4) = temp_s0;
+    M2C_FIELD(arg0, s32 *, 0x18) = temp_s0;
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80139EC4);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80139F0C);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80139F38);
+s32 func_80139F38(void *arg0, s32 arg1) {
+    s32 var_a2;
+    s32 var_v1;
+    u8 temp_v0;
+    void *var_a0;
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80139F6C);
+    var_a0 = arg0;
+    var_v1 = 0;
+    var_a2 = 0;
+    if (arg1 > 0) {
+        do {
+            temp_v0 = M2C_FIELD(var_a0, u8 *, 1);
+            var_v1 += 1;
+            var_a2 += temp_v0;
+            var_a0 += temp_v0 * 4;
+        } while (var_v1 < arg1);
+    }
+    return var_a2;
+}
+
+u32 func_80139F6C(void *arg0, u32 arg1) {
+    u32 var_v1;
+    u8 temp_v0;
+    void *var_a0;
+
+    var_a0 = arg0;
+    var_v1 = 0;
+    if (arg1 != 0) {
+        do {
+            temp_v0 = M2C_FIELD(var_a0, u8 *, 1);
+            var_v1 += temp_v0;
+            var_a0 += temp_v0 * 4;
+        } while (var_v1 < arg1);
+    }
+    return var_v1;
+}
+
+/* an original object file starts at 0x80139FA0 (16-byte aligned) */
+__asm__(".section .text\n.balign 16");
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_80139FA0);
 
@@ -250,35 +363,122 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013A8A0);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013AA70);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013AAC8);
+void func_8013AAC8(s32 *arg0, s32 arg1) {
+    s32 *var_a0;
+    s32 temp_a1;
+    s32 var_v1;
+
+    var_a0 = arg0;
+    temp_a1 = arg1 >> 2;
+    var_v1 = 0;
+    if (temp_a1 > 0) {
+        do {
+            *var_a0 = 0;
+            var_v1 += 1;
+            var_a0 = (void *)((u8 *)var_a0 + (4));
+        } while (var_v1 < temp_a1);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013AAF0);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013AC98);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013AD04);
+s32 func_8013AD04(u8 *arg0) {
+    s32 var_v1;
+    u8 *var_a0;
+    u8 temp_v0;
+
+    var_v1 = 0;
+    var_a0 = arg0 + 1;
+    if (*arg0 != 0) {
+        do {
+            temp_v0 = *var_a0;
+            if (temp_v0 == 0xD) {
+                var_v1 += 1;
+            }
+            var_a0 += 1;
+        } while (temp_v0 != 0);
+    }
+    return var_v1;
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013AD40);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013ADA0);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013AE80);
+s32 func_8013AE80(void) {
+    return D_8013C760;
+}
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013AE90);
+void func_8013AE90(s32 arg0) {
+    s32 temp_a0;
+    s32 temp_v0;
+
+    temp_a0 = arg0 & 0xFF;
+    if (temp_a0 == 1) {
+        if (D_8013C770 != temp_a0) {
+            CdGetSector(D_8013C774, 0x200);
+            D_8013C774 += 0x800;
+        } else {
+            CdGetSector(D_8013C774, D_8013C778);
+            D_8013C774 += D_8013C778 * 4;
+        }
+        temp_v0 = D_8013C770 - 1;
+        D_8013C770 = temp_v0;
+        if (temp_v0 == 0) {
+            CdReadyCallback(D_8013C77C);
+            D_8013C760 = 0;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013AF50);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013B390);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013B8D0);
+s32 func_8013B8D0(void *arg0, s32 arg1, void *arg2) {
+    s32 var_t0;
+    void *var_a3;
+
+    var_a3 = arg0;
+    var_t0 = 0;
+    if (arg1 > 0) {
+        do {
+            if (M2C_FIELD(arg2, u8 *, 3) & 1) {
+                M2C_FIELD(var_a3, u8 *, 3) = (u8) ((M2C_FIELD(var_a3, u8 *, 3) & 0xFD) | (M2C_FIELD(arg2, u8 *, 0) * 2));
+            }
+            if (M2C_FIELD(arg2, u8 *, 3) & 2) {
+                M2C_FIELD(var_a3, u8 *, 2) = (u8) ((M2C_FIELD(var_a3, u8 *, 2) & 0xE7) | (M2C_FIELD(arg2, u8 *, 2) * 8));
+                if (M2C_FIELD(var_a3, u8 *, 3) & 4) {
+                    M2C_FIELD(var_a3, u16 *, 0x12) = (u16) ((M2C_FIELD(var_a3, u16 *, 0x12) & 0xFF9F) | (M2C_FIELD(arg2, u8 *, 2) << 5));
+                }
+            }
+            if (M2C_FIELD(arg2, u8 *, 3) & 4) {
+                M2C_FIELD(var_a3, u8 *, 3) = (u8) (M2C_FIELD(arg2, u8 *, 1) | (M2C_FIELD(var_a3, u8 *, 3) & 0xFE));
+            }
+            var_t0 += 1;
+            var_a3 += M2C_FIELD(var_a3, u8 *, 1) * 4;
+        } while (var_t0 < arg1);
+    }
+    return 0;
+}
+
+/* an original object file starts at 0x8013B9B0 (16-byte aligned) */
+__asm__(".section .text
+.balign 16");
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013B9B0);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013BA80);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013BB8C);
+s32 func_8013BB8C(void) {
+    return 6;
+}
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013BB94);
+void *func_8013BB94(s32 arg0) {
+    return (void *)((u8 *)&D_8013C7B0 + (arg0 * 8));
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384", func_8013BBA8);
 

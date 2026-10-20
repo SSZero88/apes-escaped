@@ -1,4 +1,12 @@
 #include "common.h"
+#include "m2c_macros.h"
+
+M2C_UNK Object_SetVelocityToward(void *, void *, M2C_UNK, M2C_UNK);
+M2C_UNK Object_StepOnGround(void *, M2C_UNK);
+s32 rcos(s16);
+s32 rsin(s16, s32);
+s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, void *);
+M2C_UNK func_80088120(s8);
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401", func_8013D000);
 
@@ -18,7 +26,30 @@ INCLUDE_ASM("asm/ovl/401/nonmatchings/401", func_8013D67C);
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401", func_8013D8C0);
 
-INCLUDE_ASM("asm/ovl/401/nonmatchings/401", func_8013D938);
+void func_8013D938(void *arg0) {
+    s16 temp_a0;
+    s16 temp_v0;
+    s32 temp_a1;
+    s32 temp_lo;
+    s32 temp_v1;
+    s32 var_v0;
+
+    temp_a0 = M2C_FIELD(arg0, s16 *, 0xAA);
+    temp_v1 = temp_a0 + 0x22;
+    var_v0 = temp_v1;
+    if (temp_v1 < 0) {
+        var_v0 = temp_a0 + 0x1021;
+    }
+    temp_v0 = temp_v1 - ((var_v0 >> 0xC) << 0xC);
+    M2C_FIELD(arg0, s16 *, 0xAA) = temp_v0;
+    temp_a1 = (s32) (rcos(temp_v0) * M2C_FIELD(arg0, s16 *, 0xA6)) >> 0xC;
+    M2C_FIELD(arg0, s16 *, 0x94) = (s16) ((M2C_FIELD(arg0, u16 *, 0x9A) + temp_a1) - M2C_FIELD(arg0, u16 *, 0x24));
+    temp_lo = rsin(M2C_FIELD(arg0, s16 *, 0xAA), temp_a1) * M2C_FIELD(arg0, s16 *, 0xA6);
+    M2C_FIELD(arg0, s16 *, 0x96) = (s16) (M2C_FIELD(arg0, u16 *, 0x9C) - M2C_FIELD(arg0, u16 *, 0x28));
+    M2C_FIELD(arg0, s16 *, 0x98) = (s16) ((M2C_FIELD(arg0, u16 *, 0x9E) + (temp_lo >> 0xC)) - M2C_FIELD(arg0, u16 *, 0x2C));
+    Object_SetVelocityToward(arg0, arg0 + 0x94, 0x3C, 0);
+    Object_StepOnGround(arg0, 0x40);
+}
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401", func_8013DA14);
 
@@ -26,9 +57,21 @@ INCLUDE_ASM("asm/ovl/401/nonmatchings/401", func_8013DA94);
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401", func_8013DB38);
 
-INCLUDE_ASM("asm/ovl/401/nonmatchings/401", func_8013DD74);
+void func_8013DD74(void *arg0) {
+    if (M2C_FIELD(arg0, s8 *, 0x7C) == -1) {
+        M2C_FIELD(arg0, s8 *, 0x7C) = Sound_ReserveSlot(0x705D, 0x1000, arg0 + 0x24);
+    }
+}
 
-INCLUDE_ASM("asm/ovl/401/nonmatchings/401", func_8013DDB4);
+void func_8013DDB4(void *arg0) {
+    s8 temp_a0;
+
+    temp_a0 = M2C_FIELD(arg0, s8 *, 0x7C);
+    if (temp_a0 != -1) {
+        func_80088120(temp_a0);
+    }
+    M2C_FIELD(arg0, s8 *, 0x7C) = -1;
+}
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401", func_8013DDF8);
 

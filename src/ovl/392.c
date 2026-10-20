@@ -1,4 +1,10 @@
 #include "common.h"
+#include "m2c_macros.h"
+
+s32 func_801361D8(M2C_UNK *, s16);
+M2C_UNK func_80139628(s32);
+extern M2C_UNK D_8013B490;
+extern M2C_UNK D_8013B998;
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80136000);
 
@@ -36,7 +42,23 @@ INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801385B0);
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80138E04);
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_8013912C);
+void func_8013912C(void *arg0, s32 arg1) {
+    if ((arg1 > 0) && (M2C_FIELD(arg0, s16 *, 0) >= 0)) {
+        M2C_FIELD(&D_8013B998, u16 *, 0) = (u16) M2C_FIELD(arg0, u16 *, 2);
+        M2C_FIELD(&D_8013B998, u16 *, 2) = (u16) M2C_FIELD(arg0, u16 *, 4);
+        func_80139628(func_801361D8(&D_8013B490, M2C_FIELD(arg0, s16 *, 0)));
+        if ((arg1 >= 2) && (M2C_FIELD(arg0, s16 *, 6) >= 0)) {
+            M2C_FIELD(&D_8013B998, u16 *, 0) = (u16) M2C_FIELD(arg0, u16 *, 8);
+            M2C_FIELD(&D_8013B998, u16 *, 2) = (u16) M2C_FIELD(arg0, u16 *, 0xA);
+            func_80139628(func_801361D8(&D_8013B490, M2C_FIELD(arg0, s16 *, 6)));
+            if ((arg1 >= 3) && (M2C_FIELD(arg0, s16 *, 0xC) >= 0)) {
+                M2C_FIELD(&D_8013B998, u16 *, 0) = (u16) M2C_FIELD(arg0, u16 *, 0xE);
+                M2C_FIELD(&D_8013B998, u16 *, 2) = (u16) M2C_FIELD(arg0, u16 *, 0x10);
+                func_80139628(func_801361D8(&D_8013B490, M2C_FIELD(arg0, s16 *, 0xC)));
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80139248);
 

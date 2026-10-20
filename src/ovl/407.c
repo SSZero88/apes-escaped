@@ -1,4 +1,12 @@
 #include "common.h"
+#include "m2c_macros.h"
+
+M2C_UNK Object_PlaySound(void *, M2C_UNK);
+s32 func_8013D6BC();
+s32 Spike_WithinRadiusXZ(s32, s32, M2C_UNK);
+extern s32 g_Game;
+s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, void *);
+M2C_UNK func_80088120(s8);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013D000);
 
@@ -14,7 +22,15 @@ INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013D5C0);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013D6BC);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013D6F0);
+void func_8013D6F0(void *arg0) {
+    if (func_8013D6BC() != 0) {
+        M2C_FIELD(arg0, s8 *, 0x80) = 2;
+        M2C_FIELD(arg0, s8 *, 0x7F) = 1;
+        M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 4);
+        Object_PlaySound(arg0, 0x62);
+        M2C_FIELD(arg0, s8 *, 0x8F) = 0;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013D744);
 
@@ -34,7 +50,11 @@ INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013E044);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013E0D0);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013E358);
+void func_8013E358(void *arg0) {
+    if ((Spike_WithinRadiusXZ(M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s32 *, 0x2C), 0x800) != 0) && !(g_Game & 3)) {
+        Object_PlaySound(arg0, 0x12);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013E3AC);
 
@@ -54,19 +74,40 @@ INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013E6F8);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013E7E8);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013EA9C);
+void func_8013EA9C(void *arg0) {
+    if (M2C_FIELD(arg0, s8 *, 0x7C) == -1) {
+        M2C_FIELD(arg0, s8 *, 0x7C) = Sound_ReserveSlot(0x705D, 0x1000, arg0 + 0x24);
+    }
+}
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013EADC);
+void func_8013EADC(void *arg0) {
+    s8 temp_a0;
+
+    temp_a0 = M2C_FIELD(arg0, s8 *, 0x7C);
+    if (temp_a0 != -1) {
+        func_80088120(temp_a0);
+    }
+    M2C_FIELD(arg0, s8 *, 0x7C) = -1;
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013EB20);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013EB9C);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013EDB8);
+s32 func_8013EDB8(void *arg0) {
+    M2C_FIELD(arg0, s16 *, 0x16) = -1;
+    M2C_FIELD(arg0, s16 *, 2) = 0;
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013EDD0);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013EFA0);
+s32 func_8013EFA0(void *arg0) {
+    M2C_FIELD(arg0, s16 *, 2) = 0;
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013EFB0);
 
@@ -78,7 +119,15 @@ INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013F3F8);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013F584);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013F8D4);
+s32 func_8013F8D4(void *arg0) {
+    M2C_FIELD(arg0, s16 *, 0xE) = 0x100;
+    M2C_FIELD(arg0, s16 *, 0x10) = 0x100;
+    M2C_FIELD(arg0, s16 *, 0x14) = 1;
+    M2C_FIELD(arg0, s16 *, 2) = 0;
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    M2C_FIELD(arg0, s16 *, 0x12) = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013F8FC);
 
@@ -90,7 +139,11 @@ INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013FEA4);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_8013FF40);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_801400A4);
+s32 func_801400A4(void *arg0) {
+    M2C_FIELD(arg0, s16 *, 2) = 4;
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407", func_801400B8);
 
