@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl412
+  - name: ovl412_specters_factory2
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 412]
-      - [0x49E0, .rodata, 412]
-      - [0x4A48, data, 412]
+      - [0x0, c, 412_specters_factory2]
+      - [0x49E0, .rodata, 412_specters_factory2]
+      - [0x4A48, data, 412_specters_factory2]
   - [0x5800]

@@ -31,11 +31,11 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl426
+  - name: ovl426_time_station
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 426]
-      - [0x1420, data, 426]
+      - [0x0, c, 426_time_station]
+      - [0x1420, data, 426_time_station]
   - [0x1800]

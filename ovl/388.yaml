@@ -31,11 +31,11 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl388
+  - name: ovl388_stage_demo
     type: code
     start: 0x0
     vram: 0x80136000
     subsegments:
-      - [0x0, c, 388]
-      - [0x3D4, data, 388]
+      - [0x0, c, 388_stage_demo]
+      - [0x3D4, data, 388_stage_demo]
   - [0x800]

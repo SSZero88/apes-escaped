@@ -31,13 +31,13 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl424
+  - name: ovl424_peak_point_matrix
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 424]
-      - [0x4C50, .rodata, 424]
-      - [0x4CB8, data, 424]
-  - [0x5B40, bin, 424b]
+      - [0x0, c, 424_peak_point_matrix]
+      - [0x4C50, .rodata, 424_peak_point_matrix]
+      - [0x4CB8, data, 424_peak_point_matrix]
+  - [0x5B40, bin, 424b_peak_point_matrix]
   - [0x6000]

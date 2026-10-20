@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl399
+  - name: ovl399_dark_ruins
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 399]
-      - [0x4150, .rodata, 399]
-      - [0x4198, data, 399]
+      - [0x0, c, 399_dark_ruins]
+      - [0x4150, .rodata, 399_dark_ruins]
+      - [0x4198, data, 399_dark_ruins]
   - [0x4800]

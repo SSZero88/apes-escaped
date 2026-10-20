@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl393
+  - name: ovl393_stage_select
     type: code
     start: 0x0
     vram: 0x80136000
     subsegments:
-      - [0x0, c, 393]
-      - [0x29D0, .rodata, 393]
-      - [0x2A08, data, 393]
+      - [0x0, c, 393_stage_select]
+      - [0x29D0, .rodata, 393_stage_select]
+      - [0x2A08, data, 393_stage_select]
   - [0x4000]

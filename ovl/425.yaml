@@ -31,11 +31,11 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl425
+  - name: ovl425_races
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 425]
-      - [0xDD4, data, 425]
+      - [0x0, c, 425_races]
+      - [0xDD4, data, 425_races]
   - [0x1000]

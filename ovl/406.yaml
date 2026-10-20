@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl406
+  - name: ovl406_sushi_temple
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 406]
-      - [0x2670, .rodata, 406]
-      - [0x26A0, data, 406]
+      - [0x0, c, 406_sushi_temple]
+      - [0x2670, .rodata, 406_sushi_temple]
+      - [0x26A0, data, 406_sushi_temple]
   - [0x3000]

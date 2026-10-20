@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl386
+  - name: ovl386_title_menu
     type: code
     start: 0x0
     vram: 0x80136000
     subsegments:
-      - [0x0, c, 386]
-      - [0x16F0, .rodata, 386]
-      - [0x1810, data, 386]
+      - [0x0, c, 386_title_menu]
+      - [0x16F0, .rodata, 386_title_menu]
+      - [0x1810, data, 386_title_menu]
   - [0x2000]

@@ -76,6 +76,7 @@ $(BUILD_DIR)/ovl/%.bin: $(BUILD_DIR)/ovl/%.elf
 
 split-ovl:
 	python3 tools/scus_syms.py
+	python3 tools/ovl_syms.py
 	for y in ovl/*.yaml; do o=$$(basename $$y .yaml); rm -rf asm/ovl/$$o; python3 -m splat split $$y; done
 
 split:

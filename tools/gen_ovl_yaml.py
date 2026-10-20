@@ -13,6 +13,47 @@ import hashlib, os, struct, sys
 MODE_ADDR, WORLD_ADDR = 0x80136000, 0x8013D000
 WORLD = range(396, 427)
 BASE = {389: 0x80146000}  # loaded by another overlay, not the mode table; found from its own calls
+# file names (src/ovl/<file>_<name>.c): the level or game mode, from docs/findings.md
+NAMES = {
+    384: 'fmv',
+    386: 'title_menu',
+    387: 'sound_test',
+    388: 'stage_demo',
+    393: 'stage_select',
+    427: 'minigame_menu',
+    428: 'str_player',
+    396: 'primordial_ooze',
+    397: 'molten_lava',
+    398: 'thick_jungle',
+    399: 'dark_ruins',
+    400: 'cryptic_relics',
+    401: 'crabby_beach',
+    402: 'coral_cave',
+    403: 'snowy_mammoth',
+    404: 'frosty_retreat',
+    405: 'hot_springs',
+    406: 'sushi_temple',
+    407: 'wabi_sabi_wall',
+    408: 'crumbling_castle',
+    409: 'dexters_island',
+    410: 'city_park',
+    411: 'specters_factory1',
+    412: 'specters_factory2',
+    413: 'tv_tower1',
+    414: 'tv_tower2',
+    415: 'monkey_madness_a',
+    416: 'monkey_madness_b',
+    417: 'monkey_madness_c',
+    418: 'monkey_madness_d',
+    419: 'monkey_madness_e',
+    420: 'monkey_madness_f',
+    421: 'monkey_madness_f6',
+    422: 'monkey_madness_f9',
+    423: 'monkey_madness_f4',
+    424: 'peak_point_matrix',
+    425: 'races',
+    426: 'time_station',
+}
 PARTS = {
     385: [(0, 'c'), (0x1280, 'asm')],  # + CPU debug-register (breakpoint) setup
     390: [(0, 'c'), (0x5400, 'c'), (0x65E0, 'c'), (0x9630, 'c'), (0xF280, 'asm')],  # + exception handler
@@ -88,7 +129,7 @@ def segments(n, b, vram):
     out = []
     for k, (lo, kind) in enumerate(parts):
         hi = parts[k + 1][0] if k + 1 < len(parts) else len(b)
-        name = n if k == 0 else f'{n}{"abcdefgh"[k]}'
+        name = (str(n) if k == 0 else f'{n}{"abcdefgh"[k]}') + (f'_{NAMES[n]}' if n in NAMES else '')
         if kind == 'bin':
             out.append(f'  - [0x{lo:X}, bin, {name}]')
             continue

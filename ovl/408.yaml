@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl408
+  - name: ovl408_crumbling_castle
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 408]
-      - [0x78D0, .rodata, 408]
-      - [0x7950, data, 408]
+      - [0x0, c, 408_crumbling_castle]
+      - [0x78D0, .rodata, 408_crumbling_castle]
+      - [0x7950, data, 408_crumbling_castle]
   - [0x9000]

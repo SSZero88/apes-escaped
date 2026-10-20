@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl418
+  - name: ovl418_monkey_madness_d
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 418]
-      - [0x59B0, .rodata, 418]
-      - [0x5A10, data, 418]
+      - [0x0, c, 418_monkey_madness_d]
+      - [0x59B0, .rodata, 418_monkey_madness_d]
+      - [0x5A10, data, 418_monkey_madness_d]
   - [0x6800]

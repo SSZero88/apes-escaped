@@ -20,7 +20,7 @@ if OVL:
     VRAM, OFF = int(re.search(r'vram: (0x[0-9A-F]+)', open(f'ovl/{OVL}.yaml').read()).group(1), 16), 0
     ORIG = open(f'iso/ovl/{OVL}.bin', 'rb').read()
     ASM_DIR, SYMS = f'asm/ovl/{OVL}/nonmatchings', f'ovl/{OVL}.sym.txt'
-    SRC_FILES = [f for f in glob.glob('src/ovl/*.c') if re.fullmatch(rf'{OVL}[a-h]?', os.path.basename(f)[:-2])]
+    SRC_FILES = [f for f in glob.glob('src/ovl/*.c') if re.fullmatch(rf'{OVL}[a-h]?(_\w+)?', os.path.basename(f)[:-2])]
 else:
     VRAM, OFF = 0x80010000, 0x800
     ORIG = open('iso/SCUS_944.23', 'rb').read()

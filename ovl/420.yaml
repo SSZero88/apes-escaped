@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl420
+  - name: ovl420_monkey_madness_f
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 420]
-      - [0x7000, .rodata, 420]
-      - [0x7068, data, 420]
+      - [0x0, c, 420_monkey_madness_f]
+      - [0x7000, .rodata, 420_monkey_madness_f]
+      - [0x7068, data, 420_monkey_madness_f]
   - [0x8000]

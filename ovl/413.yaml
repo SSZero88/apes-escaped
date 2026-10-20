@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl413
+  - name: ovl413_tv_tower1
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 413]
-      - [0x70D0, .rodata, 413]
-      - [0x7138, data, 413]
+      - [0x0, c, 413_tv_tower1]
+      - [0x70D0, .rodata, 413_tv_tower1]
+      - [0x7138, data, 413_tv_tower1]
   - [0x8000]

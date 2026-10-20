@@ -1,0 +1,5 @@
+func_80136000 = 0x80136000; // type:func
+func_801361BC = 0x801361BC; // type:func
+func_80136244 = 0x80136244; // type:func
+func_80136698 = 0x80136698; // type:func
+func_8013684C = 0x8013684C; // type:func

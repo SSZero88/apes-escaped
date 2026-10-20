@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl384
+  - name: ovl384_fmv
     type: code
     start: 0x0
     vram: 0x80136000
     subsegments:
-      - [0x0, c, 384]
-      - [0x5EF0, .rodata, 384]
-      - [0x64E8, data, 384]
+      - [0x0, c, 384_fmv]
+      - [0x5EF0, .rodata, 384_fmv]
+      - [0x64E8, data, 384_fmv]
   - [0x6800]

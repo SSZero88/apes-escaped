@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl403
+  - name: ovl403_snowy_mammoth
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 403]
-      - [0x3990, .rodata, 403]
-      - [0x39C0, data, 403]
+      - [0x0, c, 403_snowy_mammoth]
+      - [0x3990, .rodata, 403_snowy_mammoth]
+      - [0x39C0, data, 403_snowy_mammoth]
   - [0x5000]

@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl401
+  - name: ovl401_crabby_beach
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 401]
-      - [0x1810, .rodata, 401]
-      - [0x1840, data, 401]
+      - [0x0, c, 401_crabby_beach]
+      - [0x1810, .rodata, 401_crabby_beach]
+      - [0x1840, data, 401_crabby_beach]
   - [0x2000]

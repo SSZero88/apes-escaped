@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl410
+  - name: ovl410_city_park
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 410]
-      - [0x4190, .rodata, 410]
-      - [0x41C8, data, 410]
+      - [0x0, c, 410_city_park]
+      - [0x4190, .rodata, 410_city_park]
+      - [0x41C8, data, 410_city_park]
   - [0x5000]

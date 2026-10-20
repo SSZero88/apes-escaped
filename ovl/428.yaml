@@ -31,11 +31,11 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl428
+  - name: ovl428_str_player
     type: code
     start: 0x0
     vram: 0x80136000
     subsegments:
-      - [0x0, c, 428]
-      - [0x2EA0, data, 428]
+      - [0x0, c, 428_str_player]
+      - [0x2EA0, data, 428_str_player]
   - [0x3000]

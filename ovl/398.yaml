@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl398
+  - name: ovl398_thick_jungle
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 398]
-      - [0x5540, .rodata, 398]
-      - [0x55D0, data, 398]
+      - [0x0, c, 398_thick_jungle]
+      - [0x5540, .rodata, 398_thick_jungle]
+      - [0x55D0, data, 398_thick_jungle]
   - [0x6800]

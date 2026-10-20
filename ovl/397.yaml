@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl397
+  - name: ovl397_molten_lava
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 397]
-      - [0x3EB0, .rodata, 397]
-      - [0x3F08, data, 397]
+      - [0x0, c, 397_molten_lava]
+      - [0x3EB0, .rodata, 397_molten_lava]
+      - [0x3F08, data, 397_molten_lava]
   - [0x4800]

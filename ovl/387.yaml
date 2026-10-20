@@ -31,11 +31,11 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl387
+  - name: ovl387_sound_test
     type: code
     start: 0x0
     vram: 0x80136000
     subsegments:
-      - [0x0, c, 387]
-      - [0xA74, data, 387]
+      - [0x0, c, 387_sound_test]
+      - [0xA74, data, 387_sound_test]
   - [0x1000]

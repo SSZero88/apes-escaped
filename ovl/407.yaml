@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl407
+  - name: ovl407_wabi_sabi_wall
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 407]
-      - [0x4AC0, .rodata, 407]
-      - [0x4AF8, data, 407]
+      - [0x0, c, 407_wabi_sabi_wall]
+      - [0x4AC0, .rodata, 407_wabi_sabi_wall]
+      - [0x4AF8, data, 407_wabi_sabi_wall]
   - [0x5000]

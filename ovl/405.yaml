@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl405
+  - name: ovl405_hot_springs
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 405]
-      - [0x4010, .rodata, 405]
-      - [0x40B0, data, 405]
+      - [0x0, c, 405_hot_springs]
+      - [0x4010, .rodata, 405_hot_springs]
+      - [0x40B0, data, 405_hot_springs]
   - [0x4800]

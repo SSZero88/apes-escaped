@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl402
+  - name: ovl402_coral_cave
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 402]
-      - [0x41B0, .rodata, 402]
-      - [0x41F8, data, 402]
+      - [0x0, c, 402_coral_cave]
+      - [0x41B0, .rodata, 402_coral_cave]
+      - [0x41F8, data, 402_coral_cave]
   - [0x5000]

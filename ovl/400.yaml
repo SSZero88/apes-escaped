@@ -31,11 +31,11 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl400
+  - name: ovl400_cryptic_relics
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 400]
-      - [0x17F0, data, 400]
+      - [0x0, c, 400_cryptic_relics]
+      - [0x17F0, data, 400_cryptic_relics]
   - [0x2000]

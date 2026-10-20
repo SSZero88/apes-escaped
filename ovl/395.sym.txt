@@ -1,0 +1,16 @@
+func_80136000 = 0x80136000; // type:func
+func_801361D8 = 0x801361D8; // type:func
+func_80136208 = 0x80136208; // type:func
+func_80136954 = 0x80136954; // type:func
+func_80137214 = 0x80137214; // type:func
+func_80137334 = 0x80137334; // type:func
+func_801373A4 = 0x801373A4; // type:func
+func_801374D0 = 0x801374D0; // type:func
+func_80137CD4 = 0x80137CD4; // type:func
+func_80137D4C = 0x80137D4C; // type:func
+func_80137DF0 = 0x80137DF0; // type:func
+func_801380D8 = 0x801380D8; // type:func
+func_801383B8 = 0x801383B8; // type:func
+func_801383D8 = 0x801383D8; // type:func
+func_80138468 = 0x80138468; // type:func
+func_80138490 = 0x80138490; // type:func

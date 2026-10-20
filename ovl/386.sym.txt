@@ -1,0 +1,9 @@
+func_80136000 = 0x80136000; // type:func
+func_8013654C = 0x8013654C; // type:func
+func_8013674C = 0x8013674C; // type:func
+func_80136AC0 = 0x80136AC0; // type:func
+func_80136C5C = 0x80136C5C; // type:func
+func_80136D00 = 0x80136D00; // type:func
+func_80136F54 = 0x80136F54; // type:func
+func_801374E4 = 0x801374E4; // type:func
+func_801375C4 = 0x801375C4; // type:func

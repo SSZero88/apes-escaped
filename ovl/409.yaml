@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl409
+  - name: ovl409_dexters_island
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 409]
-      - [0x59E0, .rodata, 409]
-      - [0x5A58, data, 409]
+      - [0x0, c, 409_dexters_island]
+      - [0x59E0, .rodata, 409_dexters_island]
+      - [0x5A58, data, 409_dexters_island]
   - [0x7800]

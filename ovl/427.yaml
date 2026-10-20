@@ -31,12 +31,12 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl427
+  - name: ovl427_minigame_menu
     type: code
     start: 0x0
     vram: 0x80136000
     subsegments:
-      - [0x0, c, 427]
-      - [0x8A90, .rodata, 427]
-      - [0x8F8C, data, 427]
+      - [0x0, c, 427_minigame_menu]
+      - [0x8A90, .rodata, 427_minigame_menu]
+      - [0x8F8C, data, 427_minigame_menu]
   - [0xA800]
