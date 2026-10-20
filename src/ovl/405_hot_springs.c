@@ -71,7 +71,39 @@ INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013DB2C);
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013DD04);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013DD5C);
+M2C_UNK Object_PlaceAtPathPoint(void *, M2C_UNK);
+s32 func_80057140(void *, M2C_UNK, M2C_UNK);
+M2C_UNK func_8005866C(void *, M2C_UNK);
+
+void func_8013DD5C(void *arg0)
+{
+  *((s16 *) (((s8 *) arg0) + 0xB0)) = 0x16;
+  *((s16 *) (((s8 *) arg0) + 0x48)) = 1;
+  *((s16 *) (((s8 *) arg0) + 0x4A)) = -0x3DFD;
+  *((s8 *) (((s8 *) arg0) + 0xC8)) = 7;
+  *((s16 *) (((s8 *) arg0) + 0x44)) = 0x118;
+  *((s8 *) (((s8 *) arg0) + 0x81)) = 3;
+  *((s16 *) (((s8 *) arg0) + 0xA0)) = 0x190;
+  *((u8 *) (((s8 *) arg0) + 0xDD)) = 0xFF;
+  *((s16 *) (((s8 *) arg0) + 0x46)) = 0x190;
+  *((s16 *) (((s8 *) arg0) + 0x98)) = 0;
+  *((s16 *) (((s8 *) arg0) + 0x96)) = 0;
+  *((s16 *) (((s8 *) arg0) + 0x94)) = 0;
+  *((s16 *) (((s8 *) arg0) + 0xAC)) = 0;
+  *((s32 *) (((s8 *) arg0) + 0xE0)) = (s32) ((*((s32 *) (((s8 *) arg0) + 0xE0))) & (~0x1000));
+  *((s16 *) (((s8 *) arg0) + 0x60)) = rcos(0);
+  *((s16 *) (((s8 *) arg0) + 0x64)) = rsin(*((s16 *) (((s8 *) arg0) + 0xAC)));
+  if ((*((u16 *) (((s8 *) arg0) + 0x8C))) != 0)
+  {
+    Object_PlaceAtPathPoint(arg0, 0);
+    func_8005866C(arg0, 1);
+  }
+  *((s32 *) (((s8 *) arg0) + 0xE0)) = (s32) ((*((s32 *) (((s8 *) arg0) + 0xE0))) | 0x2000);
+  *((s32 *) (((s8 *) arg0) + 0x74)) = func_80057140(arg0, 9, 0);
+  *((s8 *) (((s8 *) arg0) + 0x7C)) = -1;
+  *((s8 *) (((s8 *) arg0) + 0x7F)) = 4;
+  *((u16 *) (((s8 *) arg0) + 0x5C)) = (u16) (*((u16 *) (((s8 *) (*((void **) (((s8 *) arg0) + 0x88)))) + 0x10)));
+}
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013DE5C);
 

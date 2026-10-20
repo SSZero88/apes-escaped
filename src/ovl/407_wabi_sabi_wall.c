@@ -104,7 +104,22 @@ INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E46C);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E51C);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E5C4);
+s32 func_8005588C(void *, s32);
+
+void func_8013E5C4(void *arg0)
+{
+  u16 new_var3;
+  int new_var;
+  s8 *new_var2;
+  *((s8 *) (((s8 *) arg0) + 0x80)) = 1;
+  new_var = 0x3C;
+  *((s8 *) (((s8 *) arg0) + 0x7F)) = 0;
+  new_var3 = (u16) (*(*((u16 **) (((s8 *) arg0) + 0x88))));
+  new_var2 = ((s8 *) arg0) + 0xB0;
+  *((s16 *) new_var2) = 0x5B;
+  *((u16 *) (((s8 *) arg0) + 0x5C)) = new_var3;
+  func_8005588C(arg0, new_var);
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E604);
 
