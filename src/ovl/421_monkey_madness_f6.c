@@ -1,10 +1,19 @@
 #include "common.h"
+#include "m2c_macros.h"
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D000);
+M2C_UNK Pad_Vibrate(M2C_UNK, M2C_UNK, M2C_UNK);
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D028);
+void func_8013D000(void) {
+    Pad_Vibrate(1, 0xC8, 0xA);
+}
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D050);
+void func_8013D028(void) {
+    Pad_Vibrate(1, 0x3C, 2);
+}
+
+void func_8013D050(void) {
+    Pad_Vibrate(1, 0x78, 2);
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D078);
 
