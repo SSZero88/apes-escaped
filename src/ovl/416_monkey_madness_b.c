@@ -265,6 +265,30 @@ INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013F5A8);
 
 INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013F6F8);
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013F954);
+typedef struct { u32 addr : 24; u32 len : 8; } P_TAG_414;
+typedef struct { P_TAG_414 tag; u32 rgbc; u32 xy; u32 wh; } TILE_414;
+typedef struct { P_TAG_414 tag; u32 code; } DR_MODE_414;
+typedef struct { u8 pad0[0x70]; u32 ot[0x1000]; u32 term; u8 *prims; } DrawBuf_414;
+struct Game_414 { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf_414 db[2]; };
+
+void func_8013F954(s32 c)
+{
+  TILE_414 *p = (TILE_414 *) ((struct Game_414 *)&g_Game)->prim;
+  u32 *ot = ((struct Game_414 *)&g_Game)->db[((struct Game_414 *)&g_Game)->cur].ot;
+  DR_MODE_414 *m;
+  p->tag.len = 3;
+  p->rgbc = c | 0x62000000;
+  p->xy = 0;
+  p->wh = 0xF00180;
+  p->tag.addr = ((P_TAG_414 *) ot)->addr;
+  ((P_TAG_414 *) ot)->addr = (u32) p;
+  p = (TILE_414 *) (p - -1);
+  m = (DR_MODE_414 *) p;
+  m->tag.len = 1;
+  m->code = 0xE1000220;
+  m->tag.addr = ((P_TAG_414 *) ot)->addr;
+  ((P_TAG_414 *) ot)->addr = (u32) m;
+  ((struct Game_414 *)&g_Game)->prim = (u8 *) (m + 1);
+}
 
 INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013FA2C);
