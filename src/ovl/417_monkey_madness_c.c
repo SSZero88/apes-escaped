@@ -215,7 +215,12 @@ void func_8013F490(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x7C) = -1;
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013F4D4);
+void func_8013F4D4(void *arg0, s32 arg1) {
+    if (M2C_FIELD(arg0, s8 *, 0x7C) != -1) {
+        func_8013F490(arg0);
+    }
+    M2C_FIELD(arg0, s8 *, 0x7C) = Sound_ReserveSlot(arg1 | 0x7000, 0x1000, arg0 + 0x24);
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013F528);
 

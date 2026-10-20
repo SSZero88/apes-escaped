@@ -8,7 +8,6 @@ s32 Sound_Play(M2C_UNK, s32);
 M2C_UNK func_8013D440(M2C_UNK, M2C_UNK *, void *);
 extern M2C_UNK D_80141D20;
 extern M2C_UNK D_801421C0;
-M2C_UNK func_8013EF00(M2C_UNK);
 M2C_UNK func_8013EF0C(M2C_UNK *, M2C_UNK);
 extern M2C_UNK D_80142260;
 extern struct S_D_80141880 { u8 pad_0[0x10]; s32 f_10; s32 f_14; } D_80141880;
@@ -120,9 +119,22 @@ void func_8013EE74(void) {
     D_80141880.f_10 = 0;
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013EEB8);
+M2C_UNK Sound_PlayFixed(M2C_UNK);
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013EF00);
+void func_8013EEB8(void) {
+    M2C_FIELD(&D_80141880, s8 *, 0) = 0;
+    func_8013EE74();
+    M2C_FIELD(&D_80141880, s32 *, 0x18) = 0;
+    M2C_FIELD(&D_80141880, s32 *, 0x14) = 0x5A;
+    func_8013DF38(0xB1);
+    Sound_PlayFixed(4);
+}
+
+extern s8 D_80141881;
+
+void func_8013EF00(s8 arg0) {
+    D_80141881 = arg0;
+}
 
 INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013EF0C);
 

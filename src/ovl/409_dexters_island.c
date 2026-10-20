@@ -119,7 +119,15 @@ void func_8013E5FC(void *arg0) {
     func_80088120(M2C_FIELD(arg0, s8 *, 0x7C));
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013E620);
+M2C_UNK func_80051E98(s32, M2C_UNK);
+M2C_UNK func_800573A0(s32, M2C_UNK, M2C_UNK, M2C_UNK);
+
+void func_8013E620(s32 arg0) {
+    func_8013E5FC(arg0);
+    func_800573A0(arg0, 0, 0, 0);
+    Object_PlaySound(arg0, 0x5F);
+    func_80051E98(arg0, 1);
+}
 
 void func_8013E670(void *arg0) {
     if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 0xB) {

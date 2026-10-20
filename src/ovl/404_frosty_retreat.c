@@ -29,8 +29,8 @@ INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013D144);
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013D1E0);
 
-void func_8013D210(void *arg0) {
-    Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6));
+s32 func_8013D210(void *arg0) {
+    return Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6));
 }
 
 s32 func_8013D240(void *arg0) {
@@ -42,7 +42,14 @@ s32 func_8013D240(void *arg0) {
     return ((temp_v0 * temp_v0) + (temp_v0_2 * temp_v0_2)) < 0x121;
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013D27C);
+void func_8013D27C(void *arg0) {
+    if ((func_8013D210(arg0) == 0) && (func_8013D240(arg0) != 0)) {
+        M2C_FIELD(arg0, s16 *, 0x98) = 0;
+        M2C_FIELD(arg0, s16 *, 0x94) = 0;
+        M2C_FIELD(arg0, s32 *, 0x24) = (s32) M2C_FIELD(arg0, s16 *, 0x9A);
+        M2C_FIELD(arg0, s32 *, 0x2C) = (s32) M2C_FIELD(arg0, s16 *, 0x9E);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013D2D0);
 

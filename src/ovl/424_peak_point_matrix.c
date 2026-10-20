@@ -9,7 +9,6 @@ M2C_UNK Effect_Spawn(M2C_UNK, s32, M2C_UNK *, M2C_UNK);
 extern M2C_UNK D_80141F88;
 extern M2C_UNK D_801427A0;
 extern M2C_UNK D_801427C0;
-M2C_UNK func_8013F398(M2C_UNK);
 extern s8 D_80142320;
 extern M2C_UNK D_80142940;
 extern struct S_D_801429C0 { u8 pad_0[0xB]; s8 f_B; } D_801429C0[];
@@ -133,7 +132,11 @@ void func_8013F370(void) {
     func_8013F398(1);
 }
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013F398);
+extern s8 D_80142321;
+
+void func_8013F398(s8 arg0) {
+    D_80142321 = arg0;
+}
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013F3A4);
 

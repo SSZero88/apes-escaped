@@ -8,7 +8,6 @@ extern s32 D_8013C1A8;
 s32 CdControl(M2C_UNK, s32, M2C_UNK);
 s32 CdRead2(M2C_UNK);
 M2C_UNK CdSync(M2C_UNK, M2C_UNK);
-M2C_UNK func_801398B0(s32 *, s32 *);
 extern s32 D_8013C544;
 extern s32 D_8013C548;
 M2C_UNK func_8008C064(s32);
@@ -270,7 +269,13 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013973C);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013980C);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801398B0);
+extern s32 D_8013C56C;
+extern s32 D_8013C570;
+
+void func_801398B0(s32 *arg0, s32 *arg1) {
+    *arg0 = D_8013C56C;
+    *arg1 = D_8013C570;
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801398D0);
 
@@ -465,8 +470,7 @@ s32 func_8013B8D0(void *arg0, s32 arg1, void *arg2) {
 }
 
 /* an original object file starts at 0x8013B9B0 (16-byte aligned) */
-__asm__(".section .text
-.balign 16");
+__asm__(".section .text\n.balign 16");
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013B9B0);
 

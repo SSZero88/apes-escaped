@@ -17,7 +17,7 @@ M2C_UNK Hook_Add(M2C_UNK *);
 extern M2C_UNK func_8013FA20;
 extern struct S_D_801431B0 { u8 pad_0[0x10]; s32 f_10; } D_801431B0[];
 s32 func_8013F948();
-s32 Spike_WithinRadiusXZ(s16, s16, s16);
+s32 Spike_WithinRadiusXZ(s32 x, s32 z, s32 r);
 s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, s32);
 M2C_UNK func_80088120(s8);
 M2C_UNK Object_TurnToward(void *, s16, s16, M2C_UNK, s32);
@@ -230,9 +230,26 @@ void func_80140538(void *arg0) {
     func_80088120(M2C_FIELD(arg0, s8 *, 0x7C));
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8014055C);
+M2C_UNK func_80051E98(s32, M2C_UNK);
+M2C_UNK func_800573A0(s32, M2C_UNK, M2C_UNK, M2C_UNK);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801405AC);
+void func_8014055C(s32 arg0) {
+    func_80140538(arg0);
+    func_800573A0(arg0, 0, 0, 0);
+    Object_PlaySound(arg0, 0x5F);
+    func_80051E98(arg0, 1);
+}
+
+M2C_UNK func_800525E0(void *);
+M2C_UNK func_80052864(void *);
+
+void func_801405AC(void *arg0) {
+    if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 0xB) {
+        func_80140538(arg0);
+        func_800525E0(arg0);
+        func_80052864(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801405F8);
 
@@ -272,7 +289,11 @@ INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801411B8);
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801412C4);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801413AC);
+void func_801413AC(void *arg0, M2C_UNK arg1) {
+    if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s32 *, 0x2C), 0x400) != 0) {
+        Object_PlaySound(arg0, arg1);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801413F8);
 

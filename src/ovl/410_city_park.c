@@ -46,9 +46,25 @@ void func_8013D7B0(void) {
 void func_8013D7B8(void) {
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013D7C0);
+M2C_UNK func_800573A0(s32, M2C_UNK, M2C_UNK, M2C_UNK);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013D810);
+void func_8013D7C0(s32 arg0) {
+    func_8013D7B8();
+    func_800573A0(arg0, 0, 0, 0);
+    Object_PlaySound(arg0, 0x5F);
+    func_80051E98(arg0, 1);
+}
+
+M2C_UNK func_800525E0(void *);
+M2C_UNK func_80052864(void *);
+
+void func_8013D810(void *arg0) {
+    if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 0xB) {
+        func_8013D7B8();
+        func_800525E0(arg0);
+        func_80052864(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013D85C);
 
