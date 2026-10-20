@@ -319,7 +319,18 @@ void func_801401E0(void *arg0) {
     Object_StepOnGround(arg0, 0x40);
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_801402BC);
+s32 Spike_WithinRadiusXZ(s32, s32, s32);
+
+void func_801402BC(void *arg0) {
+    if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), 0xA00) == 0 && ((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1)) {
+        M2C_FIELD(arg0, s8 *, 0x80) = 1;
+        M2C_FIELD(arg0, s8 *, 0x7F) = 0;
+        M2C_FIELD(arg0, u16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+        M2C_FIELD(arg0, s32 *, 0x24) = M2C_FIELD(arg0, s16 *, 0x9A);
+        M2C_FIELD(arg0, s32 *, 0x28) = M2C_FIELD(arg0, s16 *, 0x9C) + 0x100;
+        M2C_FIELD(arg0, s32 *, 0x2C) = M2C_FIELD(arg0, s16 *, 0x9E);
+    }
+}
 
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
 

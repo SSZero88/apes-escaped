@@ -89,7 +89,18 @@ void func_8013D514(void *arg0) {
     Object_StepOnGround(arg0, 0x40);
 }
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013D5F0);
+s32 Spike_WithinRadiusXZ(s32, s32, s32);
+
+void func_8013D5F0(void *arg0) {
+    if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), 0xA00) == 0 && ((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1)) {
+        M2C_FIELD(arg0, s8 *, 0x80) = 1;
+        M2C_FIELD(arg0, s8 *, 0x7F) = 0;
+        M2C_FIELD(arg0, u16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+        M2C_FIELD(arg0, s32 *, 0x24) = M2C_FIELD(arg0, s16 *, 0x9A);
+        M2C_FIELD(arg0, s32 *, 0x28) = M2C_FIELD(arg0, s16 *, 0x9C) + 0x100;
+        M2C_FIELD(arg0, s32 *, 0x2C) = M2C_FIELD(arg0, s16 *, 0x9E);
+    }
+}
 
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 u32 Object_DetachLink(void *, s32);
