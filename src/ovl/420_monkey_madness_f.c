@@ -56,7 +56,25 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013D218);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013D6B8);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013D73C);
+void Effect_SpawnAt(s32, SVECTOR *);
+s32 rcos_8013EF18(s32) asm("rcos");
+s32 rsin_8013EF18(s32) asm("rsin");
+extern u16 D_800AE8F2;
+#define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
+#define RAND2() (D_800AE8F2 = D_800AE8F2 * 5 + 1)
+
+void func_8013D73C(void *arg0) {
+    SVECTOR v;
+    s32 a;
+    s32 r;
+
+    r = RAND() >> 8;
+    a = (M2C_FIELD(arg0, s16 *, 0xAC) + (r << 12) / 510 + 0xC00) % 0x1000;
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24) + ((rcos_8013EF18(a) << 8) >> 12);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28) - (RAND2() >> 8) - 300;
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C) + ((rsin_8013EF18(a) << 8) >> 12);
+    Effect_SpawnAt(7, &v);
+}
 
 void func_8013D840(s32 arg0) {
     u16 temp_v0;
@@ -69,7 +87,22 @@ void func_8013D840(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013D8A8);
+void func_8006D548(SVECTOR *);
+s32 rcos_8013F084(s32) asm("rcos");
+s32 rsin_8013F084(s32) asm("rsin");
+
+void func_8013D8A8(void *arg0) {
+    SVECTOR v;
+    s32 a;
+    s32 r;
+
+    r = RAND() >> 8;
+    a = (M2C_FIELD(arg0, s16 *, 0xAC) + (r << 12) / 510 + 0xC00) % 0x1000;
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24) + ((rcos_8013F084(a) << 8) >> 12);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28) - (RAND2() >> 9) - 200;
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C) + ((rsin_8013F084(a) << 8) >> 12);
+    func_8006D548(&v);
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013D9A8);
 
