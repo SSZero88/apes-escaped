@@ -22,7 +22,6 @@ extern struct S_D_80143170 { u8 pad_0[0x20]; s16 f_20; s16 f_22; s16 f_24; s16 f
 M2C_UNK Hook_Add(M2C_UNK *);
 extern M2C_UNK func_8013FA20;
 extern struct S_D_801431B0 { u8 pad_0[0x10]; s32 f_10; } D_801431B0[];
-s32 func_8013F948();
 s32 Spike_WithinRadiusXZ(s32 x, s32 z, s32 r);
 s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, s32);
 M2C_UNK func_80088120(s8);
@@ -217,7 +216,15 @@ void func_8013F904(void) {
     Hook_Add(&func_8013FA20);
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013F948);
+s32 func_8013F948(void) {
+    s32 i;
+    for (i = 11; i >= 0; i--) {
+        if (D_801431B0[i].f_10 == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 void func_8013F984(void *arg0, void *arg1) {
     s32 temp_v0;

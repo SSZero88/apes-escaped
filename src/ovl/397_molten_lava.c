@@ -255,7 +255,30 @@ void func_8013FF84(void *arg0, void *arg1, M2C_UNK arg2) {
     M2C_FIELD(arg1, s32 *, 0x2C) = (s32) M2C_FIELD(arg0, s32 *, 0x2C);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_80140024);
+void Matrix_FromDirection(void *, s32);
+void Model_ProjectBonedVerts(void *);
+void ScaleMatrix(s32, void *);
+void func_80015780(void *, s32);
+void func_80016EBC(void *, void *, void *);
+s32 func_80051410(void *, s32, s32);
+extern M2C_UNK D_800E7D00;
+extern u8 D_80141240[];
+extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_80140024 asm("g_Game");
+
+void func_80140024(s32 arg0, s32 arg1) {
+    s32 v[3];
+    u8 *m;
+
+    m = D_80141240 + arg0 * 0x70;
+    if (func_80051410(m + 0x24, 0, 0) == 0) {
+        v[0] = v[1] = v[2] = arg1 << 8;
+        Matrix_FromDirection(m + 0x60, M2C_FIELD(m, s32 *, 0x14));
+        ScaleMatrix(M2C_FIELD(m, s32 *, 0x14), v);
+        func_80015780(m, 3);
+        Model_ProjectBonedVerts(m);
+        func_80016EBC(g_Game_80140024.f_80 + g_Game_80140024.f_C * 0x4078, &D_800E7D00, m);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_801400EC);
 
@@ -275,9 +298,35 @@ INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_801403C0);
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8014059C);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_801405C8);
+void func_800525E0(void *);
+void func_80052864(void *);
+void func_800573A0(void *, s32, s32, s32);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_80140658);
+void func_801405C8(void *arg0) {
+    if ((M2C_FIELD(arg0, u32 *, 0x50) >> 28) == 0xB && !((M2C_FIELD(arg0, u32 *, 0xE0) >> 1) & 1)) {
+        M2C_FIELD(arg0, u8 *, 0xCE) = M2C_FIELD(arg0, u8 *, 0x7F);
+        M2C_FIELD(arg0, u8 *, 0x7F) = M2C_FIELD(arg0, u8 *, 0xCD);
+        M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));
+        func_800573A0(arg0, 0, 0, 0);
+        func_800525E0(arg0);
+        func_80052864(arg0);
+    }
+}
+
+void Object_TurnToward(void *, s16, s16, s32, s32);
+void func_8014059C(void *);
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[6]; u16 z; } g_Spike_80140658 asm("g_Spike");
+
+void func_80140658(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 3;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 1;
+    M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 4);
+    M2C_FIELD(arg0, s16 *, 0x98) = 0;
+    M2C_FIELD(arg0, s16 *, 0x96) = 0;
+    M2C_FIELD(arg0, s16 *, 0x94) = 0;
+    func_8014059C(arg0);
+    Object_TurnToward(arg0, g_Spike_80140658.x - M2C_FIELD(arg0, u16 *, 0x24), g_Spike_80140658.z - M2C_FIELD(arg0, u16 *, 0x2C), 0, 0x1000);
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_801406E8);
 

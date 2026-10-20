@@ -15,7 +15,29 @@ void func_8013D050(void) {
     Pad_Vibrate(1, 0x78, 2);
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D078);
+extern struct S_g_Game { u8 pad_0[0x8154]; u16 f_8154; u8 pad_8156[0xCA]; void * f_8220; } g_Game;
+M2C_UNK Pickup_Drop(M2C_UNK, s32, M2C_UNK, M2C_UNK);
+extern u8 D_800F51C1;
+extern u16 g_RandSeed;
+extern s16 g_SpikeHealth;
+
+void func_8013D078(s32 arg0) {
+    M2C_UNK var_a2;
+    u16 temp_v0;
+
+    var_a2 = 1;
+    if (g_SpikeHealth >= 3) {
+        temp_v0 = (g_RandSeed * 5) + 1;
+        g_RandSeed = temp_v0;
+        if ((temp_v0 >> 8) & 1) {
+            var_a2 = 6;
+            if (g_Game.f_8154 == D_800F51C1) {
+                var_a2 = 3;
+            }
+        }
+    }
+    Pickup_Drop(var_a2, arg0, 3, 0);
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D10C);
 
