@@ -11,7 +11,6 @@ M2C_UNK func_800520A8(void *, M2C_UNK);
 s32 Floor_GetHeight(s16, s16, s16);
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 s32 Object_DetachLink(void *, M2C_UNK);
-M2C_UNK func_8013F984();
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013D000);
 
@@ -57,7 +56,21 @@ s32 func_8013D968(s32 *arg0, s32 arg1, s32 arg2) {
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013D9A4);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DAD8);
+M2C_UNK func_8013D9A4(void *, s32, s32);
+s32 rsin_8013DAD8(s16) asm("rsin");
+extern s32 D_800EC208;
+void Object_StepOrbitAngle(void *, s16);
+
+void func_8013DAD8(void *arg0) {
+    s32 sp10;
+    s32 temp_s0;
+
+    sp10 = D_800EC208 - M2C_FIELD(arg0, s32 *, 0x28);
+    Object_StepOrbitAngle(arg0, 8);
+    temp_s0 = (s32) (rsin_8013DAD8(M2C_FIELD(arg0, s16 *, 0xAA)) * 0xC8) >> 0xC;
+    func_8013D968(&sp10, 5, -5);
+    func_8013D9A4(arg0, sp10, M2C_FIELD(arg0, s16 *, 0x9C) + M2C_FIELD(arg0, s16 *, 0x96) + temp_s0);
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DB6C);
 
@@ -186,7 +199,16 @@ void func_8013F790(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013F878);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013F984);
+M2C_UNK Object_DisableCollision(void *);
+
+void func_8013F984(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 3;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 0;
+    M2C_FIELD(arg0, u16 *, 0x5C) = (u16) *M2C_FIELD(arg0, u16 **, 0x88);
+    func_80052038(arg0, 0x9F);
+    M2C_FIELD(arg0, s16 *, 0x5E) = 1;
+    Object_DisableCollision(arg0);
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013F9D4);
 
@@ -194,7 +216,7 @@ INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013FA50);
 
 void func_8013FB40(void *arg0) {
     if (M2C_FIELD(arg0, u8 *, 0xCF) == 4) {
-        func_8013F984();
+        func_8013F984(arg0);
         M2C_FIELD(arg0, u8 *, 0xCF) = 0U;
     }
 }
@@ -218,7 +240,35 @@ INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013FF9C);
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_80140168);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_801401E0);
+M2C_UNK Object_SetVelocityToward(void *, void *, M2C_UNK, M2C_UNK);
+M2C_UNK Object_StepOnGround(void *, M2C_UNK);
+s32 rcos_801401E0(s16) asm("rcos");
+s32 rsin_801401E0(s16, s32) asm("rsin");
+
+void func_801401E0(void *arg0) {
+    s16 temp_a0;
+    s16 temp_v0;
+    s32 temp_a1;
+    s32 temp_lo;
+    s32 temp_v1;
+    s32 var_v0;
+
+    temp_a0 = M2C_FIELD(arg0, s16 *, 0xAA);
+    temp_v1 = temp_a0 + 0x22;
+    var_v0 = temp_v1;
+    if (temp_v1 < 0) {
+        var_v0 = temp_a0 + 0x1021;
+    }
+    temp_v0 = temp_v1 - ((var_v0 >> 0xC) << 0xC);
+    M2C_FIELD(arg0, s16 *, 0xAA) = temp_v0;
+    temp_a1 = (s32) (rcos_801401E0(temp_v0) * M2C_FIELD(arg0, s16 *, 0xA6)) >> 0xC;
+    M2C_FIELD(arg0, s16 *, 0x94) = (s16) ((M2C_FIELD(arg0, u16 *, 0x9A) + temp_a1) - M2C_FIELD(arg0, u16 *, 0x24));
+    temp_lo = rsin_801401E0(M2C_FIELD(arg0, s16 *, 0xAA), temp_a1) * M2C_FIELD(arg0, s16 *, 0xA6);
+    M2C_FIELD(arg0, s16 *, 0x96) = (s16) (M2C_FIELD(arg0, u16 *, 0x9C) - M2C_FIELD(arg0, u16 *, 0x28));
+    M2C_FIELD(arg0, s16 *, 0x98) = (s16) ((M2C_FIELD(arg0, u16 *, 0x9E) + (temp_lo >> 0xC)) - M2C_FIELD(arg0, u16 *, 0x2C));
+    Object_SetVelocityToward(arg0, arg0 + 0x94, 0x3C, 0);
+    Object_StepOnGround(arg0, 0x40);
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_801402BC);
 
@@ -253,7 +303,23 @@ void func_801406F8(void *arg0) {
     func_800563E0(arg0, 0x14);
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_80140718);
+M2C_UNK Object_SeekHeight(void *, M2C_UNK);
+s32 func_80055718(void *, s16, s16, s16, s32);
+M2C_UNK func_8005588C(void *, M2C_UNK);
+s32 rcos_80140718(s16) asm("rcos");
+s32 rsin_80140718(s16) asm("rsin");
+
+void func_80140718(void *arg0) {
+    s16 temp_s0;
+
+    temp_s0 = M2C_FIELD(arg0, u16 *, 0x9A) + ((s32) (rcos_80140718(M2C_FIELD(arg0, s16 *, 0xAA)) * M2C_FIELD(arg0, s16 *, 0xA6)) >> 0xC);
+    if (func_80055718(arg0, temp_s0, M2C_FIELD(arg0, s16 *, 0x28), (s16) (M2C_FIELD(arg0, u16 *, 0x9E) + ((s32) (rsin_80140718(M2C_FIELD(arg0, s16 *, 0xAA)) * M2C_FIELD(arg0, s16 *, 0xA6)) >> 0xC)), 0x14) != 0) {
+        M2C_FIELD(arg0, s8 *, 0x80) = 1;
+        func_8005588C(arg0, 0x1E);
+    }
+    Object_SeekHeight(arg0, 8);
+    func_801406F8(arg0);
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_801407DC);
 

@@ -41,7 +41,6 @@ M2C_UNK Object_SetVelocityToward(void *, void *, M2C_UNK, M2C_UNK);
 M2C_UNK Object_StepOnGround(void *, M2C_UNK);
 s32 rcos(s16);
 s32 rsin(s16, s32);
-s32 func_801423E4();
 s16 Sound_Play(M2C_UNK, M2C_UNK);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D000);
@@ -364,10 +363,12 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80142218);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_801422E8);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_801423E4);
+s32 func_801423E4(void *arg0) {
+    return Object_SpikeOutOfRange(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s16 *, 0x9E), (s32) M2C_FIELD(arg0, s16 *, 0xA4)) == 0;
+}
 
 void func_80142418(void *arg0) {
-    if (func_801423E4() != 0) {
+    if (func_801423E4(arg0) != 0) {
         M2C_FIELD(arg0, s8 *, 0x80) = 2;
         M2C_FIELD(arg0, s8 *, 0x7F) = 1;
         M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 4);

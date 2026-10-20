@@ -2,7 +2,6 @@
 #include "m2c_macros.h"
 
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
-s32 func_8013D1CC();
 M2C_UNK Object_SetVelocityToward(void *, void *, M2C_UNK, M2C_UNK);
 M2C_UNK Object_StepOnGround(void *, M2C_UNK);
 s32 rcos(s16);
@@ -12,10 +11,14 @@ INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013D000);
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013D0D0);
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013D1CC);
+s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s16);
+
+s32 func_8013D1CC(void *arg0) {
+    return Object_SpikeOutOfRange(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s16 *, 0x9E), (s32) M2C_FIELD(arg0, s16 *, 0xA4)) == 0;
+}
 
 void func_8013D200(void *arg0) {
-    if (func_8013D1CC() != 0) {
+    if (func_8013D1CC(arg0) != 0) {
         M2C_FIELD(arg0, s8 *, 0x80) = 2;
         M2C_FIELD(arg0, s8 *, 0x7F) = 1;
         M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 4);

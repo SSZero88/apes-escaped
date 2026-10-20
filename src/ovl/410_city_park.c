@@ -171,15 +171,39 @@ void func_8013E980(void *arg0) {
     M2C_FIELD(arg0, u16 *, 0x5C) = (u16) *M2C_FIELD(arg0, u16 **, 0x88);
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013E99C);
+s32 Object_SpikeOutOfRange_8013E99C(void *, s32, s32, s32, s16) asm("Object_SpikeOutOfRange");
+
+void func_8013E99C(void *arg0) {
+    if (Object_SpikeOutOfRange_8013E99C(arg0, M2C_FIELD(arg0, void **, 0x24), M2C_FIELD(arg0, void **, 0x28), M2C_FIELD(arg0, void **, 0x2C), (void *)0x400) == 0) {
+        func_8013E804(arg0);
+        return;
+    }
+    if (Object_SpikeOutOfRange_8013E99C(arg0, M2C_FIELD(arg0, void **, 0x24), M2C_FIELD(arg0, void **, 0x28), M2C_FIELD(arg0, void **, 0x2C), 0x800) == 0) {
+        M2C_FIELD(arg0, s8 *, 0x80) = 5;
+        M2C_FIELD(arg0, s8 *, 0x7F) = 6;
+        M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0x18);
+        func_8013E2A4(arg0, 0);
+        M2C_FIELD(arg0, s16 *, 0xAE) = 0;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013EA38);
 
-void func_8013EABC(void *arg0) {
-    Math_WithinSquare(M2C_FIELD(arg0, s32 *, 0x24) - M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x2C) - M2C_FIELD(arg0, s16 *, 0x9E), 0x32);
+s32 func_8013EABC(void *arg0) {
+    return Math_WithinSquare(M2C_FIELD(arg0, s32 *, 0x24) - M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x2C) - M2C_FIELD(arg0, s16 *, 0x9E), 0x32);
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013EAF4);
+M2C_UNK func_80055AA0(void *, s16, s16, s16);
+M2C_UNK func_8013EA38(void *);
+s16 func_80056010(void *, s16, s16, s32);
+
+void func_8013EAF4(void *arg0) {
+    func_80055AA0(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), func_80056010(arg0, 0x3C, 0, 0));
+    func_8013EA38(arg0);
+    if (func_8013EABC(arg0) != 0) {
+        M2C_FIELD(arg0, s8 *, 0x80) = 0xA;
+    }
+}
 
 void func_8013EB58(void *arg0) {
     u8 temp_v1;
@@ -201,7 +225,23 @@ void func_8013EB58(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013EBD4);
+M2C_UNK Object_ChaseSpike_8013EBD4(void *, s16) asm("Object_ChaseSpike");
+s32 Object_SpikeOutOfRange_8013EBD4(void *, s32, s32, s32, s32) asm("Object_SpikeOutOfRange");
+
+void func_8013EBD4(void *arg0) {
+    if (M2C_FIELD(arg0, u8 *, 0x7F) == 2) {
+        Object_ChaseSpike_8013EBD4(arg0, func_80056010(arg0, 0x3C, 0, 0));
+        func_8013EA38(arg0);
+    }
+    if (Object_SpikeOutOfRange_8013EBD4(arg0, M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s32 *, 0x2C), 0x200) == 0) {
+        M2C_FIELD(arg0, s8 *, 0x80) = 3;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 3U;
+        M2C_FIELD(arg0, s16 *, 0x5C) = (s16) (M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0xC) + 0x23);
+    }
+    if (!(M2C_FIELD(arg0, s32 *, 0xE0) & 1)) {
+        func_8013E980(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013EC88);
 

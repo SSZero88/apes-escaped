@@ -2,7 +2,6 @@
 #include "m2c_macros.h"
 
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
-s32 func_8013D6BC();
 s32 Spike_WithinRadiusXZ(s32, s32, M2C_UNK);
 extern s32 g_Game;
 s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, void *);
@@ -20,10 +19,14 @@ INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D4F0);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D5C0);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D6BC);
+s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s16);
+
+s32 func_8013D6BC(void *arg0) {
+    return Object_SpikeOutOfRange(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s16 *, 0x9E), (s32) M2C_FIELD(arg0, s16 *, 0xA4)) == 0;
+}
 
 void func_8013D6F0(void *arg0) {
-    if (func_8013D6BC() != 0) {
+    if (func_8013D6BC(arg0) != 0) {
         M2C_FIELD(arg0, s8 *, 0x80) = 2;
         M2C_FIELD(arg0, s8 *, 0x7F) = 1;
         M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 4);

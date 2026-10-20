@@ -4,7 +4,6 @@
 extern struct S_D_800E7880 { s32 f_0; s32 f_4; s32 f_8; s32 f_C; s32 f_10; s32 f_14; s32 f_18; } D_800E7880;
 
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
-s32 func_8013D540();
 M2C_UNK Object_SpawnEffect(s32, M2C_UNK, M2C_UNK, M2C_UNK, s32);
 s32 Spike_WithinRadiusXZ(s16, s16, s16);
 M2C_UNK Object_SetVelocityToward(void *, void *, M2C_UNK, M2C_UNK);
@@ -26,10 +25,14 @@ INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013D374);
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013D444);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013D540);
+s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s16);
+
+s32 func_8013D540(void *arg0) {
+    return Object_SpikeOutOfRange(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s16 *, 0x9E), (s32) M2C_FIELD(arg0, s16 *, 0xA4)) == 0;
+}
 
 void func_8013D574(void *arg0) {
-    if (func_8013D540() != 0) {
+    if (func_8013D540(arg0) != 0) {
         M2C_FIELD(arg0, s8 *, 0x80) = 2;
         M2C_FIELD(arg0, s8 *, 0x7F) = 1;
         M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 4);

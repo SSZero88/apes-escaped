@@ -106,7 +106,23 @@ INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013DB44);
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013DE2C);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013E02C);
+M2C_UNK Object_StepOrbitAngle(void *, s16);
+s32 rsin_8013E02C(s16) asm("rsin");
+
+void func_8013E02C(void *arg0, s16 arg1, s32 arg2, s32 arg3) {
+    s32 temp_s4;
+    s32 temp_v0;
+
+    temp_s4 = (s32) (rsin_8013E02C(M2C_FIELD(arg0, s16 *, 0xAA)) * arg2) >> 0xC;
+    Object_StepOrbitAngle(arg0, arg1);
+    if (arg3 == 0) {
+        temp_v0 = ((s32) (rsin_8013E02C(M2C_FIELD(arg0, s16 *, 0xAA)) * arg2) >> 0xC) - temp_s4;
+        M2C_FIELD(arg0, u16 *, 0x94) = (u16) (M2C_FIELD(arg0, u16 *, 0x94) + ((s32) (M2C_FIELD(arg0, s16 *, 0x64) * temp_v0) >> 0xC));
+        M2C_FIELD(arg0, u16 *, 0x98) = (u16) (M2C_FIELD(arg0, u16 *, 0x98) - ((s32) (M2C_FIELD(arg0, s16 *, 0x60) * temp_v0) >> 0xC));
+        return;
+    }
+    M2C_FIELD(arg0, s16 *, 0x96) = (s16) ((s32) (rsin_8013E02C(M2C_FIELD(arg0, s16 *, 0xAA)) * arg2) >> 0xC);
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013E11C);
 
@@ -296,7 +312,23 @@ void func_801414D4(void *arg0) {
     func_800563E0(arg0, 0x14);
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801414F4);
+M2C_UNK Object_SeekHeight(void *, M2C_UNK);
+s32 func_80055718(void *, s16, s16, s16, s32);
+M2C_UNK func_8005588C(void *, M2C_UNK);
+s32 rcos(s16);
+s32 rsin_801414F4(s16) asm("rsin");
+
+void func_801414F4(void *arg0) {
+    s16 temp_s0;
+
+    temp_s0 = M2C_FIELD(arg0, u16 *, 0x9A) + ((s32) (rcos(M2C_FIELD(arg0, s16 *, 0xAA)) * M2C_FIELD(arg0, s16 *, 0xA6)) >> 0xC);
+    if (func_80055718(arg0, temp_s0, M2C_FIELD(arg0, s16 *, 0x28), (s16) (M2C_FIELD(arg0, u16 *, 0x9E) + ((s32) (rsin_801414F4(M2C_FIELD(arg0, s16 *, 0xAA)) * M2C_FIELD(arg0, s16 *, 0xA6)) >> 0xC)), 0x14) != 0) {
+        M2C_FIELD(arg0, s8 *, 0x80) = 1;
+        func_8005588C(arg0, 0x1E);
+    }
+    Object_SeekHeight(arg0, 8);
+    func_801414D4(arg0);
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801415B8);
 
