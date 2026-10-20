@@ -423,7 +423,26 @@ void func_80141F38(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80141FDC);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80142218);
+void func_8006D568(void *);
+
+void func_80142218(void *arg0) {
+    SVECTOR v;
+
+    if (M2C_FIELD(arg0, u8 *, 0x8F) != 0) {
+        M2C_FIELD(arg0, u8 *, 0x8F)++;
+        M2C_FIELD(arg0, u16 *, 0xBC) += M2C_FIELD(arg0, u16 *, 0x94);
+        M2C_FIELD(arg0, u16 *, 0xBE) += M2C_FIELD(arg0, u16 *, 0x96);
+        M2C_FIELD(arg0, u16 *, 0xC0) += M2C_FIELD(arg0, u16 *, 0x98);
+        v.vx = M2C_FIELD(arg0, u16 *, 0xBC);
+        v.vy = M2C_FIELD(arg0, u16 *, 0xBE);
+        v.vz = M2C_FIELD(arg0, u16 *, 0xC0);
+        func_8006D568(&v);
+        M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0x50, v.vx, v.vy, v.vz, M2C_FIELD(arg0, s16 *, 0x48), M2C_FIELD(arg0, s16 *, 0x4A));
+        if (M2C_FIELD(arg0, u8 *, 0x8F) >= 0x33) {
+            M2C_FIELD(arg0, u8 *, 0x8F) = 0;
+        }
+    }
+}
 
 void func_801422E8(void *arg0) {
     u8 st;

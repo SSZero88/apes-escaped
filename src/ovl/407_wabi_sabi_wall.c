@@ -19,7 +19,27 @@ INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D358);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D3BC);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D4F0);
+void func_8006D568(void *);
+s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
+
+void func_8013D4F0(void *arg0) {
+    SVECTOR v;
+
+    if (M2C_FIELD(arg0, u8 *, 0x8F) != 0) {
+        M2C_FIELD(arg0, u8 *, 0x8F)++;
+        M2C_FIELD(arg0, u16 *, 0xBC) += M2C_FIELD(arg0, u16 *, 0x94);
+        M2C_FIELD(arg0, u16 *, 0xBE) += M2C_FIELD(arg0, u16 *, 0x96);
+        M2C_FIELD(arg0, u16 *, 0xC0) += M2C_FIELD(arg0, u16 *, 0x98);
+        v.vx = M2C_FIELD(arg0, u16 *, 0xBC);
+        v.vy = M2C_FIELD(arg0, u16 *, 0xBE);
+        v.vz = M2C_FIELD(arg0, u16 *, 0xC0);
+        func_8006D568(&v);
+        M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0x50, v.vx, v.vy, v.vz, M2C_FIELD(arg0, s16 *, 0x48), M2C_FIELD(arg0, s16 *, 0x4A));
+        if (M2C_FIELD(arg0, u8 *, 0x8F) >= 0x33) {
+            M2C_FIELD(arg0, u8 *, 0x8F) = 0;
+        }
+    }
+}
 
 void func_8013D5C0(void *arg0) {
     u8 st;

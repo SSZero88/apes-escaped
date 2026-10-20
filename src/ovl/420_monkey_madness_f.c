@@ -162,7 +162,21 @@ block_8:
     }
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DFA8);
+s32 func_8013DFA8(void *arg0) {
+    u8 old;
+
+    if ((M2C_FIELD(arg0, u32 *, 0x50) >> 28) == 0xB) {
+        M2C_FIELD(arg0, s32 *, 0xE0) &= 0xFF3FFFFF;
+        old = M2C_FIELD(arg0, u8 *, 0x7F);
+        M2C_FIELD(arg0, u8 *, 0xCE) = old;
+        M2C_FIELD(arg0, u8 *, 0x7F) = M2C_FIELD(arg0, u8 *, 0xCD);
+        M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));
+        func_800525E0(arg0);
+        func_80052864(arg0);
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013E02C);
 

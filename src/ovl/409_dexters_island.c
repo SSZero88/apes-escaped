@@ -336,7 +336,22 @@ void func_80140F44(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80140FD4);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80141038);
+void func_80141038(void *arg0) {
+    M2C_FIELD(arg0, s16 *, 0x44) = 0xC8;
+    M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
+    M2C_FIELD(arg0, s16 *, 0x4A) = -0x7EFD;
+    M2C_FIELD(arg0, s8 *, 0xCD) = 5;
+    M2C_FIELD(arg0, s8 *, 0x7D) = 8;
+    M2C_FIELD(arg0, s8 *, 0xC8) = 0xE;
+    M2C_FIELD(arg0, s8 *, 0xDC) = 1;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 1;
+    M2C_FIELD(arg0, s16 *, 0xA0) = 0;
+    M2C_FIELD(arg0, s16 *, 0x48) = 0;
+    M2C_FIELD(arg0, s32 *, 0xE0) &= ~0x1000;
+    M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 4);
+    func_8005588C(arg0, M2C_FIELD(arg0, s16 *, 0x9A) % 60 + 60);
+    Object_DisableCollision(arg0);
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80141110);
 
@@ -386,7 +401,21 @@ void func_801414F4(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801415B8);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801416DC);
+s32 func_801416DC(void *arg0) {
+    u8 old;
+
+    if ((M2C_FIELD(arg0, u32 *, 0x50) >> 28) == 0xB) {
+        M2C_FIELD(arg0, s32 *, 0xE0) &= 0xFF3FFFFF;
+        old = M2C_FIELD(arg0, u8 *, 0x7F);
+        M2C_FIELD(arg0, u8 *, 0xCE) = old;
+        M2C_FIELD(arg0, u8 *, 0x7F) = M2C_FIELD(arg0, u8 *, 0xCD);
+        M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));
+        func_800525E0(arg0);
+        func_80052864(arg0);
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80141760);
 
