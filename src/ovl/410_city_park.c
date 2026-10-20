@@ -29,8 +29,6 @@ s32 func_800572CC(void *);
 M2C_UNK func_80058134(void *, s16);
 M2C_UNK func_8013FA08(void *);
 s32 func_8013FBD4();
-M2C_UNK func_8013FCE4(void *);
-M2C_UNK func_8013FD80(void *);
 M2C_UNK func_8013FDE0(void *);
 M2C_UNK Object_SeekHeight(void *, M2C_UNK);
 s32 func_80055718(void *, s16, s16, s16, s32);
@@ -283,16 +281,60 @@ void func_8013FC08(void *arg0, s16 arg1, s16 arg2) {
     M2C_FIELD(arg0, s32 *, 0xE0) = (s32) ((M2C_FIELD(arg0, s32 *, 0xE0) & ~0x20) | 0x400);
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FC30);
+M2C_UNK func_80056AE4(void *, void *, s8);
+void *func_8013FB38(void *, s32, s32);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FCE4);
+void func_8013FC30(void *arg0, s32 arg1) {
+    s32 temp_s2;
+    s32 temp_s3;
+    void *temp_v0;
+
+    temp_s3 = (s32) (M2C_FIELD(arg0, s16 *, 0x64) * -0xF) >> 0xC;
+    temp_s2 = (s32) (M2C_FIELD(arg0, s16 *, 0x60) * 0xF) >> 0xC;
+    temp_v0 = func_8013FB38(arg0, arg1, 0);
+    if (temp_v0 != NULL) {
+        func_80056AE4(temp_v0, arg0 + 0x24, M2C_FIELD(arg0, s8 *, 0xCB));
+        func_8013FC08(temp_v0, temp_s3, temp_s2);
+    }
+    M2C_FIELD(arg0, s8 *, 0x7E) = arg1;
+    func_8013FC08(arg0, -temp_s3, -temp_s2);
+    func_8013FA08(arg0);
+}
+
+
+void func_8013FCE4(void *arg0) {
+    u8 s = M2C_FIELD(arg0, u8 *, 0x7E);
+    if (s == 0x67) {
+        func_8013FC30(arg0, 0x68);
+    } else if (s == 0x68) {
+        func_8013FC30(arg0, 0x69);
+    }
+    func_800573A0(arg0, 0, 0, 0);
+}
 
 void func_8013FD44(s32 arg0) {
     func_800573A0(arg0, 0, 0, 0);
     func_80051E98(arg0, 1);
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FD80);
+void func_8013FD80(void *arg0) {
+    s32 var_a1;
+    u8 temp_v1;
+
+    temp_v1 = M2C_FIELD(arg0, u8 *, 0x7E);
+    var_a1 = 0x118;
+    if (temp_v1 != 0x67) {
+        var_a1 = 0x46;
+        if (temp_v1 == 0x68) {
+            var_a1 = 0x8C;
+        }
+    }
+    if (((u32) M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1) {
+        M2C_FIELD(arg0, s16 *, 0x46) = var_a1;
+        return;
+    }
+    M2C_FIELD(arg0, s16 *, 0x46) = ((M2C_FIELD(arg0, s32 *, 0x28) - M2C_FIELD(arg0, s16 *, 0x1E)) * 2) + var_a1;
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FDE0);
 
@@ -402,7 +444,38 @@ void func_80140320(void *arg0) {
     func_80140300(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_801403E4);
+s16 Object_FloorAt(void *, M2C_UNK, M2C_UNK, M2C_UNK);
+M2C_UNK Object_StepGrowShrink(void *, M2C_UNK, M2C_UNK, M2C_UNK);
+M2C_UNK VectorNormalSS(void *, void *);
+M2C_UNK func_80140228(void *);
+
+void func_801403E4(void *arg0) {
+    void *temp_a0;
+
+    if (Object_DetachLink(arg0, 0) == 6) {
+        Object_PlaySound(arg0, 0x5F);
+        goto block_8;
+    }
+    if (M2C_FIELD(arg0, u16 *, 0xE2) & 1) {
+        Object_StepGrowShrink(arg0, 0x53, 0x37, 0);
+    }
+    if (func_80055718(arg0, M2C_FIELD(arg0, s16 *, 0xBC), M2C_FIELD(arg0, s16 *, 0xBE), M2C_FIELD(arg0, s16 *, 0xC0), (s32) (M2C_FIELD(arg0, u16 *, 0xA8) << 0x10) >> 0x13) != 0) {
+        func_80140228(arg0);
+    } else {
+        M2C_FIELD(arg0, u16 *, 0x60) = (u16) M2C_FIELD(arg0, u16 *, 0x94);
+        temp_a0 = arg0 + 0x60;
+        M2C_FIELD(temp_a0, u16 *, 2) = (u16) M2C_FIELD(arg0, u16 *, 0x96);
+        M2C_FIELD(temp_a0, u16 *, 4) = (u16) M2C_FIELD(arg0, u16 *, 0x98);
+        M2C_FIELD(arg0, s32 *, 0xE0) = (s32) ((M2C_FIELD(arg0, s32 *, 0xE0) & 0xFF3FFFFF) | 0x800000);
+        VectorNormalSS(temp_a0, temp_a0);
+        Object_ApplyVelocity(arg0);
+        M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, (s16) (M2C_FIELD(arg0, u16 *, 0x44) + 0x32), M2C_FIELD(arg0, s16 *, 0x24), (s16) (M2C_FIELD(arg0, u16 *, 0x28) - 0x1E), (s32) M2C_FIELD(arg0, s16 *, 0x2C), 0x401, 0x103);
+    }
+    if (Object_FloorAt(arg0, 0, 0, 0) < M2C_FIELD(arg0, s32 *, 0x28)) {
+block_8:
+        func_80140228(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_80140548);
 

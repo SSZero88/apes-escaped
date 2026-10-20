@@ -116,7 +116,39 @@ void func_8013DD80(void *arg0) {
     func_8013DD60(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DE44);
+M2C_UNK Object_ApplyVelocity(void *);
+s16 Object_FloorAt(void *, M2C_UNK, M2C_UNK, M2C_UNK);
+M2C_UNK Object_StepGrowShrink(void *, M2C_UNK, M2C_UNK, M2C_UNK);
+M2C_UNK VectorNormalSS(void *, void *);
+M2C_UNK func_8013DC88(void *);
+
+void func_8013DE44(void *arg0) {
+    void *temp_a0;
+
+    if (Object_DetachLink(arg0, 0) == 6) {
+        Object_PlaySound(arg0, 0x5F);
+        goto block_8;
+    }
+    if (M2C_FIELD(arg0, u16 *, 0xE2) & 1) {
+        Object_StepGrowShrink(arg0, 0x53, 0x37, 0);
+    }
+    if (func_80055718(arg0, M2C_FIELD(arg0, s16 *, 0xBC), M2C_FIELD(arg0, s16 *, 0xBE), M2C_FIELD(arg0, s16 *, 0xC0), (s32) (M2C_FIELD(arg0, u16 *, 0xA8) << 0x10) >> 0x13) != 0) {
+        func_8013DC88(arg0);
+    } else {
+        M2C_FIELD(arg0, u16 *, 0x60) = (u16) M2C_FIELD(arg0, u16 *, 0x94);
+        temp_a0 = arg0 + 0x60;
+        M2C_FIELD(temp_a0, u16 *, 2) = (u16) M2C_FIELD(arg0, u16 *, 0x96);
+        M2C_FIELD(temp_a0, u16 *, 4) = (u16) M2C_FIELD(arg0, u16 *, 0x98);
+        M2C_FIELD(arg0, s32 *, 0xE0) = (s32) ((M2C_FIELD(arg0, s32 *, 0xE0) & 0xFF3FFFFF) | 0x800000);
+        VectorNormalSS(temp_a0, temp_a0);
+        Object_ApplyVelocity(arg0);
+        M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, (s16) (M2C_FIELD(arg0, u16 *, 0x44) + 0x32), M2C_FIELD(arg0, s16 *, 0x24), (s16) (M2C_FIELD(arg0, u16 *, 0x28) - 0x1E), (s32) M2C_FIELD(arg0, s16 *, 0x2C), 0x401, 0x103);
+    }
+    if (Object_FloorAt(arg0, 0, 0, 0) < M2C_FIELD(arg0, s32 *, 0x28)) {
+block_8:
+        func_8013DC88(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DFA8);
 
@@ -163,7 +195,28 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013EF20);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013EF5C);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013F018);
+M2C_UNK Object_AddAttackSphere(void *, M2C_UNK, s16, s16, s32, s32, s32);
+s32 Spike_WithinRadiusXZ(s16, s16, M2C_UNK);
+extern s32 D_800EC208;
+extern M2C_UNK g_Objects;
+
+void func_8013F018(void *arg0) {
+    s16 temp_a3;
+    s32 var_v0;
+    void *temp_s1;
+
+    temp_s1 = (u8 *)&g_Objects + (M2C_FIELD(arg0, s8 *, 0x12) * 0xE4);
+    if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0), M2C_FIELD(arg0, s16 *, 4), 0xC8) != 0) {
+        temp_a3 = M2C_FIELD(arg0, s16 *, 2);
+        var_v0 = (temp_a3 - D_800EC208) + 0x7D;
+        if (var_v0 < 0) {
+            var_v0 = -var_v0;
+        }
+        if (var_v0 < 0xC9) {
+            Object_AddAttackSphere(temp_s1, 0x64, M2C_FIELD(arg0, s16 *, 0), temp_a3, (s32) M2C_FIELD(arg0, s16 *, 4), 0x201, 0x202);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013F0CC);
 

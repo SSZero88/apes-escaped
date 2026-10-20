@@ -110,7 +110,40 @@ void func_8013DDC8(void *arg0) {
     func_8013DDA8(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013DE8C);
+s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
+M2C_UNK Object_ApplyVelocity(void *);
+s16 Object_FloorAt(void *, M2C_UNK, M2C_UNK, M2C_UNK);
+M2C_UNK Object_StepGrowShrink(void *, M2C_UNK, M2C_UNK, M2C_UNK);
+M2C_UNK VectorNormalSS(void *, void *);
+M2C_UNK func_8013DCD0(void *);
+
+void func_8013DE8C(void *arg0) {
+    void *temp_a0;
+
+    if (Object_DetachLink(arg0, 0) == 6) {
+        Object_PlaySound(arg0, 0x5F);
+        goto block_8;
+    }
+    if (M2C_FIELD(arg0, u16 *, 0xE2) & 1) {
+        Object_StepGrowShrink(arg0, 0x53, 0x37, 0);
+    }
+    if (func_80055718(arg0, M2C_FIELD(arg0, s16 *, 0xBC), M2C_FIELD(arg0, s16 *, 0xBE), M2C_FIELD(arg0, s16 *, 0xC0), (s32) (M2C_FIELD(arg0, u16 *, 0xA8) << 0x10) >> 0x13) != 0) {
+        func_8013DCD0(arg0);
+    } else {
+        M2C_FIELD(arg0, u16 *, 0x60) = (u16) M2C_FIELD(arg0, u16 *, 0x94);
+        temp_a0 = arg0 + 0x60;
+        M2C_FIELD(temp_a0, u16 *, 2) = (u16) M2C_FIELD(arg0, u16 *, 0x96);
+        M2C_FIELD(temp_a0, u16 *, 4) = (u16) M2C_FIELD(arg0, u16 *, 0x98);
+        M2C_FIELD(arg0, s32 *, 0xE0) = (s32) ((M2C_FIELD(arg0, s32 *, 0xE0) & 0xFF3FFFFF) | 0x800000);
+        VectorNormalSS(temp_a0, temp_a0);
+        Object_ApplyVelocity(arg0);
+        M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, (s16) (M2C_FIELD(arg0, u16 *, 0x44) + 0x32), M2C_FIELD(arg0, s16 *, 0x24), (s16) (M2C_FIELD(arg0, u16 *, 0x28) - 0x1E), (s32) M2C_FIELD(arg0, s16 *, 0x2C), 0x401, 0x103);
+    }
+    if (Object_FloorAt(arg0, 0, 0, 0) < M2C_FIELD(arg0, s32 *, 0x28)) {
+block_8:
+        func_8013DCD0(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013DFF0);
 

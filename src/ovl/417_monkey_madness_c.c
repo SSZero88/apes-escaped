@@ -185,7 +185,17 @@ void func_8013E864(void) {
     Link_SendEvent(0xB, 1, 0);
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E88C);
+void func_80051E98(void *, s32);
+M2C_UNK func_8013E730();
+extern M2C_UNK D_80140D00;
+extern M2C_UNK D_80140D38;
+
+void func_8013E88C(void *arg0) {
+    func_80051E98(arg0, 0);
+    Collision_Remove(&D_80140D00);
+    func_8007CDC4(&D_80140D38);
+    func_8013E730();
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E8CC);
 
@@ -242,7 +252,17 @@ INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013F6FC);
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013F7A8);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013FE04);
+s32 func_800569C4(M2C_UNK, M2C_UNK);
+extern M2C_UNK g_Objects;
+
+void func_8013FE04(void) {
+    s32 temp_v0;
+
+    temp_v0 = func_800569C4(0x22, 1);
+    if (temp_v0 != -1) {
+        func_80051E98((u8 *)&g_Objects + (temp_v0 * 0xE4), 0);
+    }
+}
 
 s32 func_8013FE5C(void *arg0, s32 arg1) {
     s32 temp_a1;
