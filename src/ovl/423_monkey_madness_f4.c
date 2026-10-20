@@ -27,7 +27,34 @@ s32 func_8013D000(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013D028);
+s16 Floor_GetHeight(s16, s16, s16);
+extern struct { s16 x, y, z, floor; s8 vx, vy, vz; u8 life; } D_80144590_8013D028[] asm("D_8013FAD0");
+#define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
+#define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
+
+void func_8013D028(SVECTOR *arg0, s32 arg1) {
+    s32 i;
+    u16 x = arg0->vx;
+    u16 y = arg0->vy;
+    u16 z = arg0->vz;
+    s16 floor = Floor_GetHeight(arg0->vx, arg0->vy, arg0->vz);
+
+    for (i = 15; i >= 0; i--) {
+        if (D_80144590_8013D028[i].life == 0) {
+            D_80144590_8013D028[i].life = (RAND() >> 8 & 0x1F) + 0x28;
+            D_80144590_8013D028[i].floor = floor;
+            D_80144590_8013D028[i].x = x + ((RAND() >> 8) - 0x80) / 4;
+            D_80144590_8013D028[i].y = y - ((RAND() >> 8) - 0x80) / 4;
+            D_80144590_8013D028[i].z = z + ((RAND() >> 8) - 0x80) / 4;
+            D_80144590_8013D028[i].vx = ((RAND() >> 8) - 0x80) / 8;
+            D_80144590_8013D028[i].vy = -(RAND() >> 8 & 0x1F) - 0x18;
+            D_80144590_8013D028[i].vz = ((RAND() >> 8) - 0x80) / 8;
+            if (--arg1 == 0) {
+                break;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013D218);
 
@@ -164,7 +191,16 @@ void func_8013E8A0(void *arg0) {
     func_8013E22C(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E948);
+s32 rsin(s16);
+void Object_StepOrbitAngle(void *, s16);
+
+void func_8013E948(void *arg0)
+{
+  int new_var;
+  new_var = 0xC8;
+  Object_StepOrbitAngle(arg0, 0x10);
+  *((s32 *) (((s8 *) arg0) + 0x28)) = (s32) ((*((s16 *) (((s8 *) arg0) + 0x9C))) - ((((s32) (rsin(*((s16 *) (((s8 *) arg0) + 0xAA))) << 7)) >> 0xC) + new_var));
+}
 
 INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E994);
 

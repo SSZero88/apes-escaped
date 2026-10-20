@@ -313,7 +313,32 @@ INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80140A00);
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80140A54);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80140A90);
+s32 func_80140A54(void);
+s16 rsin_8013D858(s16) asm("rsin");
+extern u8 D_801440F0[];
+
+void func_80140A90(void *arg0, s32 arg1, s16 arg2)
+{
+  s32 i;
+  u8 *p;
+  s16 c;
+  s16 s;
+  i = func_80140A54();
+  if (i != (-1))
+  {
+    p = D_801440F0 + (i * 0x14);
+    c = rcos(*((s16 *) (((s8 *) arg0) + 0xAC)));
+    s = rsin_8013D858(*((s16 *) (((s8 *) arg0) + 0xAC)));
+    *((s16 *) (((s8 *) p) + 0)) = (*((u16 *) (((s8 *) arg0) + 0x24))) + ((c * arg2) >> 12);
+    *((s16 *) (((s8 *) p) + 2)) = (*((u16 *) (((s8 *) arg0) + 0x28))) - arg1;
+    *((s16 *) (((s8 *) p) + 4)) = (*((u16 *) (((s8 *) arg0) + 0x2C))) + ((s * arg2) >> 12);
+    *((s16 *) (((s8 *) p) + 6)) = c / 48;
+    *((s16 *) (((s8 *) p) + 0xA)) = s / 48;
+    *((s16 *) (((s8 *) p) + 8)) = -0x28;
+    *((u16 *) (((s8 *) p) + 0xC)) += 1;
+    *((s16 *) (((s8 *) p) + 0xE)) = *((s8 *) (((s8 *) arg0) + 0xCB));
+  }
+}
 
 s32 func_80140BC8(void *arg0) {
     return Floor_GetHeight(M2C_FIELD(arg0, s16 *, 0), M2C_FIELD(arg0, s16 *, 2), M2C_FIELD(arg0, s16 *, 4)) < M2C_FIELD(arg0, s16 *, 2);

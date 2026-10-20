@@ -210,7 +210,30 @@ INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013ED00);
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013EE30);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013EEF4);
+M2C_UNK Object_ApplyVelocity(void *);
+M2C_UNK func_80055AA0(void *, s16, s16, s32);
+s32 Object_StepGrowShrink(void *, s16, s16, s16);
+
+void func_8013EEF4(void *arg0, s32 arg1, s32 arg2)
+{
+  int new_var;
+  if (((*((u16 *) (((s8 *) arg0) + 0xE2))) & 1) == arg1)
+  {
+    Object_StepGrowShrink(arg0, 0x32, 0xA, 0);
+  }
+  new_var = 0x24;
+  if (arg2 != 0)
+  {
+    func_80055AA0(arg0, *((s16 *) (((s8 *) (&g_Spike)) + new_var)), *((s16 *) (((s8 *) (&g_Spike)) + 0x2C)), ((s32) ((*((u16 *) (((s8 *) arg0) + 0xA8))) << 0x10)) >> 0x13);
+    *((s16 *) (((s8 *) arg0) + 0x96)) = (s16) (((s32) ((*((s32 *) (((s8 *) (&g_Spike)) + 0x28))) - (*((s32 *) (((s8 *) arg0) + 0x28))))) >> 2);
+  }
+  else
+  {
+    *((s16 *) (((s8 *) arg0) + 0x96)) = 0;
+    *((s16 *) (((s8 *) arg0) + 0xAE)) = 0;
+  }
+  Object_ApplyVelocity(arg0);
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013EF94);
 
