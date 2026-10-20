@@ -1,6 +1,8 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+void Object_PlaySound(void *, s32);
+
 M2C_UNK Collision_Remove(M2C_UNK *);
 M2C_UNK func_80052038(void *, M2C_UNK);
 M2C_UNK func_8007CDC4(M2C_UNK *);
@@ -137,7 +139,12 @@ INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013ED00);
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013EF6C);
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013EFF8);
+void func_8013EFF8(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 2;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 2;
+    M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 8);
+    Object_PlaySound(arg0, 0x62);
+}
 
 void func_8013F030(void *arg0) {
     s16 temp_s0;

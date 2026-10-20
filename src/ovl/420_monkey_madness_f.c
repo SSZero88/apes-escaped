@@ -1,6 +1,8 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s16);
+
 extern struct S_D_80144590 { u8 pad_0[0xB]; s8 f_B; } D_80144590[];
 M2C_UNK Object_PlaySound(s32, M2C_UNK);
 M2C_UNK Puff_Spawn(s32, M2C_UNK, M2C_UNK, M2C_UNK);
@@ -281,7 +283,9 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80140598);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80140694);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_801406FC);
+s32 func_801406FC(void *arg0) {
+    return Object_SpikeOutOfRange(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s16 *, 0x9E), 0x800) == 0;
+}
 
 s32 func_80140730(void *arg0) {
     void *temp_a3;

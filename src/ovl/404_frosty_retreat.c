@@ -1,6 +1,8 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+void Object_PlaySound(void *, s32);
+
 M2C_UNK Spike_WithinRadiusXZ(s16, s16, s16);
 M2C_UNK Object_StepOnGroundFixed(s32);
 M2C_UNK func_80056128(s32, M2C_UNK);
@@ -154,7 +156,12 @@ INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013EF7C);
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013F0EC);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013F178);
+void func_8013F178(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 2;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 2;
+    M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 8);
+    Object_PlaySound(arg0, 0x62);
+}
 
 void func_8013F1B0(void *arg0) {
     s16 temp_s0;
@@ -238,7 +245,11 @@ void func_8013FB54(void *arg0, s16 arg1, s16 arg2, s16 arg3) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013FC04);
+void func_8013FC04(void *arg0) {
+    if (func_80055718(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9C), M2C_FIELD(arg0, s16 *, 0x9E), 0xA) == 0) {
+        Object_ApplyVelocity(arg0);
+    }
+}
 
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 u32 Object_DetachLink(void *, s32);

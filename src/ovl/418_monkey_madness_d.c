@@ -1,6 +1,8 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+extern struct S_D_800E7880 { s32 f_0; s32 f_4; s32 f_8; s32 f_C; s32 f_10; s32 f_14; s32 f_18; } D_800E7880;
+
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
 s32 func_8013D540();
 M2C_UNK Object_SpawnEffect(s32, M2C_UNK, M2C_UNK, M2C_UNK, s32);
@@ -13,7 +15,6 @@ void *Collision_GetShape(s32);
 M2C_UNK Object_Destroy(void *);
 M2C_UNK func_8013F418(void *);
 M2C_UNK func_800880D0(M2C_UNK, s16);
-extern M2C_UNK D_800E7880;
 extern M2C_UNK D_801434C0;
 extern M2C_UNK D_801434C4;
 s32 SaveByte_Get(M2C_UNK);
@@ -171,13 +172,13 @@ s32 func_801402F8(void) {
     M2C_FIELD(&D_801434C0, s16 *, 2) = 0;
     func_800880D0(0x50AE, M2C_FIELD(&D_801434C4, s16 *, 0));
     M2C_FIELD(&D_801434C4, s16 *, 2) = 0;
-    M2C_FIELD(&D_800E7880, s32 *, 0) = 0;
-    M2C_FIELD(&D_800E7880, s32 *, 8) = 0;
-    M2C_FIELD(&D_800E7880, s32 *, 4) = 0;
-    M2C_FIELD(&D_800E7880, s32 *, 0xC) = 0;
-    M2C_FIELD(&D_800E7880, s32 *, 0x14) = 0;
-    M2C_FIELD(&D_800E7880, s32 *, 0x10) = 0;
-    M2C_FIELD(&D_800E7880, s32 *, 0x18) = 0;
+    D_800E7880.f_0 = 0;
+    D_800E7880.f_8 = 0;
+    D_800E7880.f_4 = 0;
+    D_800E7880.f_C = 0;
+    D_800E7880.f_14 = 0;
+    D_800E7880.f_10 = 0;
+    D_800E7880.f_18 = 0;
     return 0;
 }
 
@@ -187,7 +188,16 @@ INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80140430);
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_801408CC);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80140988);
+s32 func_80140988(void) {
+    s32 temp_v1;
+
+    temp_v1 = D_800E7880.f_14 + 0x10;
+    D_800E7880.f_8 = (s32) (D_800E7880.f_8 + temp_v1);
+    D_800E7880.f_14 = temp_v1;
+    D_800E7880.f_0 = (s32) (D_800E7880.f_0 + ((s32) D_800E7880.f_C / 2));
+    D_800E7880.f_4 = (s32) (D_800E7880.f_4 + ((s32) (D_800E7880.f_10 + ((u32) D_800E7880.f_10 >> 0x1F)) >> 1));
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_801409E8);
 

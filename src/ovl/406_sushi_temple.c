@@ -1,10 +1,17 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+void Object_SetAnim(void *, u8, u8);
+
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
 s32 Spike_WithinRadiusXZ(s32, s32, M2C_UNK);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D000);
+void func_8013D000(void *arg0) {
+    if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 0xB) {
+        Object_SetAnim(arg0, 2, 1);
+        Object_PlaySound(arg0, 0xAC);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D04C);
 

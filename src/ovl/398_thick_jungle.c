@@ -1,6 +1,10 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+M2C_UNK Object_ApplyVelocity(void *);
+M2C_UNK Object_SetForwardVelocity(void *, M2C_UNK);
+M2C_UNK func_801405F8(void *, s32, M2C_UNK);
+
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 M2C_UNK Object_DisableCollision();
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
@@ -268,7 +272,12 @@ INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801405F8);
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_80140684);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801406D8);
+void func_801406D8(void *arg0) {
+    Object_TurnToward(arg0, (s16) (M2C_FIELD(arg0, u16 *, 0x9A) - M2C_FIELD(arg0, u16 *, 0x24)), (s16) (M2C_FIELD(arg0, u16 *, 0x9E) - M2C_FIELD(arg0, u16 *, 0x2C)), 0, (s32) M2C_FIELD(arg0, s16 *, 0xB0));
+    Object_SetForwardVelocity(arg0, 0x12);
+    func_801405F8(arg0, (s32) (M2C_FIELD(arg0, s16 *, 0x9C) - M2C_FIELD(arg0, s32 *, 0x28)) >> 2, 0x14);
+    Object_ApplyVelocity(arg0);
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_80140760);
 

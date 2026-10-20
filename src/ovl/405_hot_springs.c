@@ -178,7 +178,12 @@ INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013FAEC);
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013FFD4);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_80140060);
+void func_80140060(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 2;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 2;
+    M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 8);
+    Object_PlaySound(arg0, 0x62);
+}
 
 void func_80140098(void *arg0) {
     s16 temp_s0;

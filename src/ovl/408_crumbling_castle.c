@@ -1,6 +1,12 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+M2C_UNK func_80051E98(void *, M2C_UNK);
+M2C_UNK func_80088120(s8);
+M2C_UNK func_8013F1CC(void *);
+void Object_SpawnEffect(void *, s16, s32, s32, s32);
+M2C_UNK Object_CameraShake(void *, M2C_UNK);
+
 s32 SaveByte_Get(M2C_UNK);
 M2C_UNK Effect_SpawnAt(M2C_UNK, s32);
 M2C_UNK Link_SendEvent(M2C_UNK, M2C_UNK, M2C_UNK);
@@ -142,7 +148,19 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013F1CC);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013F4B4);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013F65C);
+void func_8013F65C(void *arg0) {
+    s8 temp_a0;
+
+    Object_SpawnEffect(arg0, 6, 0, 0x80, 0);
+    func_8013F1CC(arg0);
+    Object_PlaySound(arg0, 0x4D);
+    D_800E77A0.f_1 = (u8) (D_800E77A0.f_1 - 1);
+    func_80051E98(arg0, 0);
+    temp_a0 = M2C_FIELD(arg0, s8 *, 0x7C);
+    if (temp_a0 != -1) {
+        func_80088120(temp_a0);
+    }
+}
 
 void func_8013F6DC(void *arg0) {
     s32 var_a0;
@@ -229,7 +247,11 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140610);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140778);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_801408C8);
+void func_801408C8(void *arg0, s32 arg1) {
+    Object_SpawnEffect(arg0, 5, (s16) (-((s32) (M2C_FIELD(arg0, s16 *, 0x64) * 0x41) >> 0xB) * arg1), 0, (s32) (s16) (((s32) (M2C_FIELD(arg0, s16 *, 0x60) * 0x41) >> 0xB) * arg1));
+    Object_PlaySound(arg0, 0xB7);
+    Object_CameraShake(arg0, 0);
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8014095C);
 

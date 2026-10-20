@@ -1,6 +1,8 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+M2C_UNK Object_TurnToward(void *, s16, s16, M2C_UNK, s32);
+
 s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
 M2C_UNK Object_ChaseSpike(void *, M2C_UNK);
 s32 Object_DetachLink(void *, M2C_UNK);
@@ -142,7 +144,26 @@ void func_8013D738(s32 arg0) {
     func_8013D6EC(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D764);
+void func_8013D764(void *arg0) {
+    u16 temp_v1;
+    void *temp_a0;
+    void *temp_v0;
+    void *temp_v0_2;
+
+    temp_v0 = M2C_FIELD(arg0, void **, 0x90);
+    if (func_80055718(arg0, M2C_FIELD(temp_v0, s16 *, 0), M2C_FIELD(temp_v0, s16 *, 2), M2C_FIELD(temp_v0, s16 *, 4), 0xC) != 0) {
+        temp_v0_2 = M2C_FIELD(arg0, void **, 0x90);
+        Object_TurnToward(arg0, (s16) (M2C_FIELD(temp_v0_2, u16 *, 8) - M2C_FIELD(arg0, u16 *, 0x24)), (s16) (M2C_FIELD(temp_v0_2, u16 *, 0xC) - M2C_FIELD(arg0, u16 *, 0x2C)), 0, (s32) M2C_FIELD(arg0, s16 *, 0xB0));
+        M2C_FIELD(arg0, s8 *, 0x80) = 5;
+    }
+    func_8013D738(arg0);
+    temp_v1 = M2C_FIELD(arg0, u16 *, 0x5C) + 1;
+    temp_a0 = (M2C_FIELD(arg0, u8 *, 0x7F) * 4) + M2C_FIELD(arg0, s32 *, 0x88);
+    M2C_FIELD(arg0, u16 *, 0x5C) = temp_v1;
+    if ((u16) M2C_FIELD(temp_a0, u16 *, 2) < (u32) (temp_v1 & 0xFFFF)) {
+        M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(temp_a0, u16 *, 0);
+    }
+}
 
 void func_8013D834(void *arg0) {
     if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 0xB) {

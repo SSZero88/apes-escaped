@@ -292,7 +292,13 @@ void func_80141BB0(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0xAE) = 0;
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141C1C);
+void func_80141C1C(void *arg0) {
+    if (func_80055718(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9C), M2C_FIELD(arg0, s16 *, 0x9E), 0xA) == 0) {
+        Object_ApplyVelocity(arg0);
+        return;
+    }
+    func_80141BB0(arg0);
+}
 
 void func_80141C74(void *arg0) {
     if (!(M2C_FIELD(arg0, s32 *, 0xE0) & 1)) {

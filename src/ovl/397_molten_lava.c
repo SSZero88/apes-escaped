@@ -1,6 +1,11 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+void * Object_AddAttackSphere(void *, s16, s16, s16, s16, s16, s16);
+M2C_UNK Object_OrbitAround(void *, s16, s16, s32, s32);
+extern s32 D_8014115C;
+s16 func_80056010(void *, s16, s16, s32);
+
 M2C_UNK func_8013D730();
 M2C_UNK func_8013E994();
 extern s32 D_80141158;
@@ -23,7 +28,12 @@ INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D040);
 void func_8013D1B0(void) {
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D1B8);
+void func_8013D1B8(void *arg0) {
+    void *temp_v0;
+
+    temp_v0 = M2C_FIELD(arg0, void **, 0x74);
+    M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphere(arg0, 0x12C, M2C_FIELD(temp_v0, s16 *, 0), M2C_FIELD(temp_v0, s16 *, 2), (s32) M2C_FIELD(temp_v0, s16 *, 4), 1, 0x202);
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D208);
 
@@ -62,7 +72,12 @@ void func_8013D7B4(void) {
     func_8013D730();
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D7D4);
+void func_8013D7D4(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 2;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 2;
+    M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 8);
+    Object_PlaySound(arg0, 0xAE);
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D80C);
 
@@ -98,7 +113,9 @@ void func_8013E214(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0x12C, M2C_FIELD(&D_80141168, s16 *, 0), M2C_FIELD(&D_80141168, s16 *, 4), (s32) M2C_FIELD(&D_80141168, s16 *, 8), 1, 0x203);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E284);
+void func_8013E284(void *arg0) {
+    Object_OrbitAround(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), D_8014115C, (s32) func_80056010(arg0, 5, 2, 6));
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E2D8);
 

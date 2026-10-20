@@ -1,6 +1,11 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+M2C_UNK Object_ApplyVelocity(void *);
+M2C_UNK Object_SetForwardVelocity(void *, M2C_UNK);
+M2C_UNK func_8013D85C(void *, s32, M2C_UNK);
+void Object_TurnToward(void *, s16, s16, s16, s16);
+
 s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, void *);
 M2C_UNK func_80088120(s8);
 s32 Object_DetachLink(void *, M2C_UNK);
@@ -68,7 +73,12 @@ INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013D85C);
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013D8E8);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013D93C);
+void func_8013D93C(void *arg0) {
+    Object_TurnToward(arg0, (s16) (M2C_FIELD(arg0, u16 *, 0x9A) - M2C_FIELD(arg0, u16 *, 0x24)), (s16) (M2C_FIELD(arg0, u16 *, 0x9E) - M2C_FIELD(arg0, u16 *, 0x2C)), 0, (s32) M2C_FIELD(arg0, s16 *, 0xB0));
+    Object_SetForwardVelocity(arg0, 0x12);
+    func_8013D85C(arg0, (s32) (M2C_FIELD(arg0, s16 *, 0x9C) - M2C_FIELD(arg0, s32 *, 0x28)) >> 2, 0x14);
+    Object_ApplyVelocity(arg0);
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013D9C4);
 

@@ -122,7 +122,12 @@ INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E948);
 
 INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E994);
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013EB00);
+void func_8013EB00(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 4;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 2;
+    M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 8);
+    func_8005588C(arg0, 0x3C);
+}
 
 void func_8013EB3C(void *arg0) {
     u32 temp_s1;
