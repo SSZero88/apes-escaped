@@ -94,7 +94,20 @@ INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E768);
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E7EC);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E848);
+M2C_UNK func_8013E7EC(void *);
+extern s32 D_80143160;
+
+void func_8013E848(void *arg0) {
+    if ((u32) (M2C_FIELD(arg0, u8 *, 0x7F) - 2) < 2U) {
+        func_8013E7EC(arg0);
+    } else {
+        M2C_FIELD(arg0, s8 *, 0x80) = 9;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 9U;
+        M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0x24);
+        func_8005588C(arg0, 0x3C);
+    }
+    D_80143160 = 0;
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E8A8);
 

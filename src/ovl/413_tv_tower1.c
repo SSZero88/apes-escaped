@@ -220,7 +220,12 @@ INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8014102C);
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8014105C);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141214);
+M2C_UNK func_8014105C(void *, M2C_UNK, M2C_UNK);
+
+void func_80141214(s32 arg0) {
+    func_8014105C(arg0, 0, 0);
+    Object_PlaySound(arg0, 0xA0);
+}
 
 void func_8014124C(void *arg0) {
     if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 0xB) {

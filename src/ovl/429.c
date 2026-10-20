@@ -1,4 +1,5 @@
 #include "common.h"
+#include "m2c_macros.h"
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80136000);
 
@@ -20,7 +21,16 @@ INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80136FF0);
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_801371C0);
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80137308);
+M2C_UNK Cd_ReadFilePart(M2C_UNK, s32, M2C_UNK, s32);
+s32 func_801371C0(void *);
+extern s16 D_801391B6;
+extern s32 D_80139478;
+
+s32 func_80137308(void *obj) {
+    D_801391B6 = 4;
+    Cd_ReadFilePart(0x54, func_801371C0(obj) * 7, 7, D_80139478);
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_8013734C);
 

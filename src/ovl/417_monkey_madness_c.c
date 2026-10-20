@@ -6,7 +6,6 @@ M2C_UNK func_80088120(s8);
 M2C_UNK Effect_Spawn(M2C_UNK, s32, M2C_UNK *, M2C_UNK);
 extern M2C_UNK D_801409FC;
 s32 func_8013DF60();
-M2C_UNK func_8013DFF4(void *);
 extern s32 D_80140CF8;
 M2C_UNK Collision_Remove(void *);
 M2C_UNK func_8007CDC4(void *);
@@ -46,7 +45,16 @@ void func_8013D3B4(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D3E4);
+M2C_UNK Object_PlaySound(s32, M2C_UNK);
+M2C_UNK Sound_PlayFixed(M2C_UNK);
+
+void func_8013D3E4(s32 arg0) {
+    func_8013D180(arg0, 0, 0, 0);
+    Object_PlaySound(arg0, 0x5F);
+    Sound_PlayFixed(0x15);
+    func_80051E98(arg0, 1);
+    func_8013D3B4(arg0);
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D43C);
 
@@ -108,7 +116,14 @@ INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013DF10);
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013DF60);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013DFF4);
+M2C_UNK func_8013D8F0(void *, M2C_UNK);
+
+void func_8013DFF4(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x72) = 2;
+    M2C_FIELD(arg0, s8 *, 0x7D) = 0x46;
+    func_8013D8F0(arg0, 1);
+    func_8013DA44(arg0);
+}
 
 void func_8013E034(void *arg0) {
     s32 temp_v0;

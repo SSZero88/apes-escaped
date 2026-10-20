@@ -66,7 +66,13 @@ void func_8013D9B8(s32 arg0) {
     D_80142798 = Sound_Play(0, arg0);
 }
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013D9E0);
+M2C_UNK Sound_Stop(void *, s32);
+
+void func_8013D9E0(void *obj) {
+    if (D_80142798 != -1) {
+        Sound_Stop(obj, D_80142798);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013DA10);
 

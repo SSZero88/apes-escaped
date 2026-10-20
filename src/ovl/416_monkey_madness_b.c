@@ -65,7 +65,13 @@ void func_8013DF38(s32 arg0) {
     D_80142728 = Sound_Play(0, arg0);
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013DF60);
+M2C_UNK Sound_Stop(void *, s32);
+
+void func_8013DF60(void *obj) {
+    if (D_80142728 != -1) {
+        Sound_Stop(obj, D_80142728);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013DF90);
 

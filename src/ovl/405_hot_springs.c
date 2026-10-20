@@ -170,7 +170,11 @@ INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013F8C8);
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013F958);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013F9E8);
+M2C_UNK func_8013F4D8(void *, M2C_UNK, M2C_UNK);
+
+void func_8013F9E8(void *obj) {
+    func_8013F4D8(obj, 0x46, 0xA0);
+}
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013FA0C);
 

@@ -272,7 +272,12 @@ void func_8013F9C0(void *arg0, s32 arg1) {
     Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6) + arg1);
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F9F4);
+extern M2C_UNK D_80141F90;
+
+void func_8013F9F4(void *obj) {
+    func_8013D168(obj, &D_80141F90, 0xA0);
+    func_8013DB38();
+}
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013FA24);
 

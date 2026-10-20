@@ -126,7 +126,11 @@ INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E554);
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E5E4);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E674);
+M2C_UNK func_8013E164(void *, M2C_UNK, M2C_UNK);
+
+void func_8013E674(void *obj) {
+    func_8013E164(obj, 0x46, 0xA0);
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E698);
 

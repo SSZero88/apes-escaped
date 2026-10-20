@@ -71,7 +71,13 @@ void func_8013DBA8(s32 arg0) {
     D_801442C8 = Sound_Play(0, arg0);
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013DBD0);
+M2C_UNK Sound_Stop(void *, s32);
+
+void func_8013DBD0(void *obj) {
+    if (D_801442C8 != -1) {
+        Sound_Stop(obj, D_801442C8);
+    }
+}
 
 void func_8013DC00(void) {
     D_801442CC = -1;
@@ -81,7 +87,11 @@ void func_8013DC10(s32 arg0) {
     D_801442CC = Sound_Play(0, arg0);
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013DC38);
+void func_8013DC38(void *obj) {
+    if (D_801442CC != -1) {
+        Sound_Stop(obj, D_801442CC);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013DC68);
 
