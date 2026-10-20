@@ -23,8 +23,11 @@ Run `python tools/progress.py`.
   for the permuter (hand-written drafts in `wip/_hand/`), and `wip/_gte/` holds unfinished GTE drafts.
 - PsyQ SDK code (about 83 KB): 89 library objects / 278 functions identified
   automatically by signature, from PsyQ 4.5 with some older objects. These stay as asm.
-- Not started: level overlays in `KKIIDDZZ.DAT` (loaded at `0x80136000`),
-  `MINIGAME/MINI1.EXE`, `MINIGAME/MINI2.EXE`.
+- Overlays (48 code files in the `KKIIDDZZ` file table): all split, rebuilt and matching, still all
+  asm. Files 396-426 are the world overlays (one per level, loaded at `0x8013D000` by the stage
+  load lists), 384-395 and 427-431 the game-mode overlays (title, menus, ...; `0x80136000`, from
+  the mode table `D_800AFA30`).
+- Not started: `MINIGAME/MINI1.EXE`, `MINIGAME/MINI2.EXE`.
 
 ## Setup
 
@@ -42,6 +45,12 @@ git clone --depth 1 https://github.com/lab313ru/psx_psyq_signatures tools/sigs/r
 
 # 4. split the exe into asm/ and build. It must print "build/SCUS_944.23: OK"
 ./make.sh split
+./make.sh -j8
+
+# 5. the overlays: extract them from KKIIDDZZ.DAT/.BNS, split (needs the exe built) and build;
+#    every build/ovl/<file>.bin must say OK
+python tools/extract_ovl.py
+./make.sh split-ovl
 ./make.sh -j8
 ```
 
@@ -74,6 +83,8 @@ echo "C:/path/to/Ape Escape (USA).bin" > disc.path   # once (gitignored)
 | Path | What |
 |---|---|
 | `scus_944.23.yaml` | splat config: segment and file layout of the exe |
+| `ovl/<file>.yaml` | splat config of each overlay (from `tools/gen_ovl_yaml.py`), `ovl/<file>.sym.txt` its symbol names, `ovl/overlays.sha1` the checksums |
+| `src/ovl/<file>.c` | overlay code |
 | `symbol_addrs.txt` | known symbol names (library functions plus game names as they are found) |
 | `src/game/ADDR_name.c` | game code, one file per original object file: start address plus a short subject (`80032E30_monkey.c`); `tools/rename_segments.py` holds the names and renames the C file, its asm folder and every path together |
 | `include/common.h` | basic types plus the 16-byte `.text` alignment each original object had |

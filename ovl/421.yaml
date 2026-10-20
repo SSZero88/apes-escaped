@@ -1,0 +1,42 @@
+name: '421'
+sha1: 5fd541f3c3d781397977f7bc3f043e4a0e0dc036
+options:
+  basename: '421'
+  target_path: iso/ovl/421.bin
+  elf_path: build/ovl/421.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/421
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/421.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/421.sym.txt
+  undefined_funcs_auto_path: ovl/421.undef_funcs.txt
+  undefined_syms_auto_path: ovl/421.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/421/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl421
+    type: code
+    start: 0x0
+    vram: 0x8013D000
+    subsegments:
+      - [0x0, c, 421]
+      - [0x4830, .rodata, 421]
+      - [0x486C, data, 421]
+  - [0x5000]

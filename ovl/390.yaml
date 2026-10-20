@@ -1,0 +1,73 @@
+name: '390'
+sha1: 062d80dd75ac5a402354916db3bd360228607e6b
+options:
+  basename: '390'
+  target_path: iso/ovl/390.bin
+  elf_path: build/ovl/390.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/390
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/390.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/390.sym.txt
+  undefined_funcs_auto_path: ovl/390.undef_funcs.txt
+  undefined_syms_auto_path: ovl/390.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/390/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl390
+    type: code
+    start: 0x0
+    vram: 0x80136000
+    subsegments:
+      - [0x0, c, 390]
+      - [0x4990, .rodata, 390]
+      - [0x4DA8, data, 390]
+  - name: ovl390b
+    type: code
+    start: 0x5400
+    vram: 0x8013B400
+    subsegments:
+      - [0x5400, c, 390b]
+      - [0x64E0, .rodata, 390b]
+      - [0x6538, data, 390b]
+  - name: ovl390c
+    type: code
+    start: 0x65E0
+    vram: 0x8013C5E0
+    subsegments:
+      - [0x65E0, c, 390c]
+      - [0x8EE0, .rodata, 390c]
+      - [0x9280, data, 390c]
+  - name: ovl390d
+    type: code
+    start: 0x9630
+    vram: 0x8013F630
+    subsegments:
+      - [0x9630, c, 390d]
+      - [0xEFE0, .rodata, 390d]
+      - [0xF0B8, data, 390d]
+  - name: ovl390e
+    type: code
+    start: 0xF280
+    vram: 0x80145280
+    subsegments:
+      - [0xF280, asm, 390e]
+      - [0xF5B0, data, 390e]
+  - [0xF800]

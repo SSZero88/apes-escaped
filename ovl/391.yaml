@@ -1,0 +1,42 @@
+name: '391'
+sha1: 46f78d68f2e630abfb01cd0567718194d60d4077
+options:
+  basename: '391'
+  target_path: iso/ovl/391.bin
+  elf_path: build/ovl/391.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/391
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/391.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/391.sym.txt
+  undefined_funcs_auto_path: ovl/391.undef_funcs.txt
+  undefined_syms_auto_path: ovl/391.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/391/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl391
+    type: code
+    start: 0x0
+    vram: 0x80136000
+    subsegments:
+      - [0x0, c, 391]
+      - [0x3470, .rodata, 391]
+      - [0x3540, data, 391]
+  - [0x4000]

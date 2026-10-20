@@ -1,0 +1,42 @@
+name: '401'
+sha1: 0fd7e0c357dcf2d8cce16637a38763ccdcdfd326
+options:
+  basename: '401'
+  target_path: iso/ovl/401.bin
+  elf_path: build/ovl/401.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/401
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/401.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/401.sym.txt
+  undefined_funcs_auto_path: ovl/401.undef_funcs.txt
+  undefined_syms_auto_path: ovl/401.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/401/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl401
+    type: code
+    start: 0x0
+    vram: 0x8013D000
+    subsegments:
+      - [0x0, c, 401]
+      - [0x1810, .rodata, 401]
+      - [0x1840, data, 401]
+  - [0x2000]

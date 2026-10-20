@@ -1,0 +1,42 @@
+name: '405'
+sha1: c3d792d6e87cf4e963446f02515881b266d6416d
+options:
+  basename: '405'
+  target_path: iso/ovl/405.bin
+  elf_path: build/ovl/405.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/405
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/405.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/405.sym.txt
+  undefined_funcs_auto_path: ovl/405.undef_funcs.txt
+  undefined_syms_auto_path: ovl/405.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/405/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl405
+    type: code
+    start: 0x0
+    vram: 0x8013D000
+    subsegments:
+      - [0x0, c, 405]
+      - [0x4010, .rodata, 405]
+      - [0x40B0, data, 405]
+  - [0x4800]

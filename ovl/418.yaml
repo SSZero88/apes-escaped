@@ -1,0 +1,42 @@
+name: '418'
+sha1: dff4c511690c2bd77b183b5977020a8a7fa86317
+options:
+  basename: '418'
+  target_path: iso/ovl/418.bin
+  elf_path: build/ovl/418.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/418
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/418.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/418.sym.txt
+  undefined_funcs_auto_path: ovl/418.undef_funcs.txt
+  undefined_syms_auto_path: ovl/418.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/418/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl418
+    type: code
+    start: 0x0
+    vram: 0x8013D000
+    subsegments:
+      - [0x0, c, 418]
+      - [0x59B0, .rodata, 418]
+      - [0x5A10, data, 418]
+  - [0x6800]

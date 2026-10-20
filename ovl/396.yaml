@@ -1,0 +1,41 @@
+name: '396'
+sha1: 301efd0e53acbabee3cd924877ba93be85eeb23c
+options:
+  basename: '396'
+  target_path: iso/ovl/396.bin
+  elf_path: build/ovl/396.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/396
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/396.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/396.sym.txt
+  undefined_funcs_auto_path: ovl/396.undef_funcs.txt
+  undefined_syms_auto_path: ovl/396.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/396/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl396
+    type: code
+    start: 0x0
+    vram: 0x8013D000
+    subsegments:
+      - [0x0, c, 396]
+      - [0x21B4, data, 396]
+  - [0x3000]

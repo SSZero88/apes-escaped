@@ -1,0 +1,41 @@
+name: '428'
+sha1: 046c96e1f576e56566370df319fc3b83808da5d7
+options:
+  basename: '428'
+  target_path: iso/ovl/428.bin
+  elf_path: build/ovl/428.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/428
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/428.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/428.sym.txt
+  undefined_funcs_auto_path: ovl/428.undef_funcs.txt
+  undefined_syms_auto_path: ovl/428.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/428/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl428
+    type: code
+    start: 0x0
+    vram: 0x80136000
+    subsegments:
+      - [0x0, c, 428]
+      - [0x2EA0, data, 428]
+  - [0x3000]

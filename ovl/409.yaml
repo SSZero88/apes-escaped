@@ -1,0 +1,42 @@
+name: '409'
+sha1: 70a0dcafc02dcdd9a868a5203a66aee880603d3e
+options:
+  basename: '409'
+  target_path: iso/ovl/409.bin
+  elf_path: build/ovl/409.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/409
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/409.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/409.sym.txt
+  undefined_funcs_auto_path: ovl/409.undef_funcs.txt
+  undefined_syms_auto_path: ovl/409.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/409/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl409
+    type: code
+    start: 0x0
+    vram: 0x8013D000
+    subsegments:
+      - [0x0, c, 409]
+      - [0x59E0, .rodata, 409]
+      - [0x5A58, data, 409]
+  - [0x7800]

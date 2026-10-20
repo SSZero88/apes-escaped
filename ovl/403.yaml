@@ -1,0 +1,42 @@
+name: '403'
+sha1: 77f89594a7ecc80125f7f9ce15bceda0e305f864
+options:
+  basename: '403'
+  target_path: iso/ovl/403.bin
+  elf_path: build/ovl/403.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/403
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/403.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/403.sym.txt
+  undefined_funcs_auto_path: ovl/403.undef_funcs.txt
+  undefined_syms_auto_path: ovl/403.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/403/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl403
+    type: code
+    start: 0x0
+    vram: 0x8013D000
+    subsegments:
+      - [0x0, c, 403]
+      - [0x3990, .rodata, 403]
+      - [0x39C0, data, 403]
+  - [0x5000]

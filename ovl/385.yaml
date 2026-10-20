@@ -1,0 +1,48 @@
+name: '385'
+sha1: da4e952b4a49965c1a17c3b2e34ab2b297ebfb7c
+options:
+  basename: '385'
+  target_path: iso/ovl/385.bin
+  elf_path: build/ovl/385.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/385
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/385.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/385.sym.txt
+  undefined_funcs_auto_path: ovl/385.undef_funcs.txt
+  undefined_syms_auto_path: ovl/385.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/385/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl385
+    type: code
+    start: 0x0
+    vram: 0x80136000
+    subsegments:
+      - [0x0, c, 385]
+      - [0x119C, data, 385]
+  - name: ovl385b
+    type: code
+    start: 0x1280
+    vram: 0x80137280
+    subsegments:
+      - [0x1280, asm, 385b]
+      - [0x158C, data, 385b]
+  - [0x1800]

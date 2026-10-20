@@ -1,0 +1,42 @@
+name: '415'
+sha1: 2f279179de979f493fcbc295430ee1159053fa03
+options:
+  basename: '415'
+  target_path: iso/ovl/415.bin
+  elf_path: build/ovl/415.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/415
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/415.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/415.sym.txt
+  undefined_funcs_auto_path: ovl/415.undef_funcs.txt
+  undefined_syms_auto_path: ovl/415.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/415/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl415
+    type: code
+    start: 0x0
+    vram: 0x8013D000
+    subsegments:
+      - [0x0, c, 415]
+      - [0x6B0, .rodata, 415]
+      - [0x6C8, data, 415]
+  - [0x800]

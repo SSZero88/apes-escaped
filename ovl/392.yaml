@@ -1,0 +1,42 @@
+name: '392'
+sha1: e2fb5e002284518574039108ef272a3d099c1de7
+options:
+  basename: '392'
+  target_path: iso/ovl/392.bin
+  elf_path: build/ovl/392.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/392
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/392.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/392.sym.txt
+  undefined_funcs_auto_path: ovl/392.undef_funcs.txt
+  undefined_syms_auto_path: ovl/392.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/392/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl392
+    type: code
+    start: 0x0
+    vram: 0x80136000
+    subsegments:
+      - [0x0, c, 392]
+      - [0x4DB0, .rodata, 392]
+      - [0x4E58, data, 392]
+  - [0x6000]

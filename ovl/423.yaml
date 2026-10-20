@@ -1,0 +1,42 @@
+name: '423'
+sha1: a841591f50874a87d2353f2db991fc91f0dbddbd
+options:
+  basename: '423'
+  target_path: iso/ovl/423.bin
+  elf_path: build/ovl/423.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/423
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/423.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/423.sym.txt
+  undefined_funcs_auto_path: ovl/423.undef_funcs.txt
+  undefined_syms_auto_path: ovl/423.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/423/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl423
+    type: code
+    start: 0x0
+    vram: 0x8013D000
+    subsegments:
+      - [0x0, c, 423]
+      - [0x2950, .rodata, 423]
+      - [0x2990, data, 423]
+  - [0x3000]

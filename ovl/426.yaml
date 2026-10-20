@@ -1,0 +1,41 @@
+name: '426'
+sha1: 394c35faaeb8e95bf64879b6b2cd71dc520376eb
+options:
+  basename: '426'
+  target_path: iso/ovl/426.bin
+  elf_path: build/ovl/426.elf
+  base_path: ..
+  platform: psx
+  compiler: PSYQ
+  asm_path: asm/ovl/426
+  src_path: src/ovl
+  build_path: build
+  ld_script_path: ovl/426.ld
+  find_file_boundaries: True
+  subalign: null
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  auto_link_sections: [".data", ".rodata", ".bss"]
+  symbol_addrs_path:
+    - build/scus_syms.txt
+    - ovl/426.sym.txt
+  undefined_funcs_auto_path: ovl/426.undef_funcs.txt
+  undefined_syms_auto_path: ovl/426.undef_syms.txt
+  extensions_path: tools/splat_ext
+  asset_path: asm/ovl/426/assets
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: ovl426
+    type: code
+    start: 0x0
+    vram: 0x8013D000
+    subsegments:
+      - [0x0, c, 426]
+      - [0x1420, data, 426]
+  - [0x1800]

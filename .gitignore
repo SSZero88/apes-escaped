@@ -16,3 +16,4 @@ disc.path
 *.d
 *.tgz
 reloc_addrs.txt
+ovl/*.undef_*.txt
