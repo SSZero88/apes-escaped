@@ -20,7 +20,6 @@ extern struct S_D_80144BE8 { u8 pad_0[0xC]; s8 f_C; u8 pad_D[0x3]; s16 f_10; } D
 M2C_UNK Camera_StartShake(M2C_UNK);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 M2C_UNK func_80070284(s16 *, M2C_UNK *, M2C_UNK, M2C_UNK, s32);
-M2C_UNK func_8013D4A4(s16 *);
 M2C_UNK func_80142508(s32, M2C_UNK);
 extern M2C_UNK D_801441B8;
 extern struct S_D_80145430 { u8 pad_0[0x9]; s8 f_9; u8 pad_A[0x2]; } D_80145430[];
@@ -43,7 +42,25 @@ void func_8013D47C(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013D4A4);
+extern struct { s16 x, y, z, vy; s8 vx, vz, life; u8 pad; } D_80143F08_8013D554[] asm("D_80144C18");
+#define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
+
+void func_8013D4A4(SVECTOR *arg0) {
+    s32 i;
+    s16 x = arg0->vx;
+    s16 y = arg0->vy;
+    s16 z = arg0->vz;
+
+    for (i = 0x4F; i >= 0; i--) {
+        D_80143F08_8013D554[i].life = (RAND() >> 8 & 0x1F) + 0x28;
+        D_80143F08_8013D554[i].x = x + ((RAND() >> 8) - 0x80) * 2;
+        D_80143F08_8013D554[i].y = y - ((RAND() >> 8) - 0x80) * 2;
+        D_80143F08_8013D554[i].z = z + ((RAND() >> 8) - 0x80) * 2;
+        D_80143F08_8013D554[i].vx = ((RAND() >> 8) - 0x80) / 2;
+        D_80143F08_8013D554[i].vy = -(RAND() >> 8 & 0x3F) - 0x20;
+        D_80143F08_8013D554[i].vz = ((RAND() >> 8) - 0x80) / 2;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013D60C);
 

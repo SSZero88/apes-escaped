@@ -53,7 +53,25 @@ void func_8013D52C(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013D554);
+#define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
+extern struct { s16 x, y, z, vy; s8 vx, vz, life; u8 pad; } D_80143F08_8013D554[] asm("D_80143F08");
+
+void func_8013D554(SVECTOR *arg0) {
+    s32 i;
+    s16 x = arg0->vx;
+    s16 y = arg0->vy;
+    s16 z = arg0->vz;
+
+    for (i = 0x4F; i >= 0; i--) {
+        D_80143F08_8013D554[i].life = (RAND() >> 8 & 0x1F) + 0x28;
+        D_80143F08_8013D554[i].x = x + ((RAND() >> 8) - 0x80) * 2;
+        D_80143F08_8013D554[i].y = y - ((RAND() >> 8) - 0x80) * 2;
+        D_80143F08_8013D554[i].z = z + ((RAND() >> 8) - 0x80) * 2;
+        D_80143F08_8013D554[i].vx = ((RAND() >> 8) - 0x80) / 2;
+        D_80143F08_8013D554[i].vy = -(RAND() >> 8 & 0x3F) - 0x20;
+        D_80143F08_8013D554[i].vz = ((RAND() >> 8) - 0x80) / 2;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013D6BC);
 
