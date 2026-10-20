@@ -44,6 +44,9 @@ for name, folder, addr, size in funcs:
         continue
     decls, body = ad['split_decls'](code, name)
     body = ad['fix_unsigned_consts'](ad['fix_params'](body))
+    pt = ad['fix_passthrough'](decls, body)
+    if pt:
+        decls, body = pt
     tu = '#include "common.h"\n#include "m2c_macros.h"\n\n' + '\n'.join(decls) + '\n\n' + body
     ok, err = ad['compile_c'](tu, '2.8.1-psx', '/tmp/tri.o')
     if not ok:

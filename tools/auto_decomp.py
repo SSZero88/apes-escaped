@@ -528,9 +528,6 @@ def try_func(job):
         fixed = fix_ptr_steps(body)
         if fixed != body:
             cands.append((list(extra) + decls, fixed))
-        pt = fix_passthrough(list(extra) + decls, body)
-        if pt:
-            cands.append(pt)
         for d, b in list(cands):
             fb = fix_addr_offsets(b)
             if fb != b:
@@ -543,6 +540,10 @@ def try_func(job):
             fb = fix_scratchpad(b)
             if fb != b:
                 cands.append((d, fb))
+        for d, b in list(cands):
+            pt = fix_passthrough(d, b)
+            if pt:
+                cands.append(pt)
         for d, b in list(cands):
             s = structify(d, b)
             if s:
