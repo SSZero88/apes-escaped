@@ -1,6 +1,14 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+s32 func_800569C4(M2C_UNK, M2C_UNK);
+extern M2C_UNK g_Objects;
+M2C_UNK Object_TurnToward(void *, s16, s16, M2C_UNK, s32);
+M2C_UNK func_80052864(void *);
+s32 Object_SpikeInFront(void *, s32, s32, s16);
+extern struct S_g_Spike { u8 pad_0[0x24]; u16 f_24; u8 pad_26[0x2]; u16 f_28; u8 pad_2A[0x2]; u16 f_2C; } g_Spike;
+M2C_UNK VectorNormalSS(void *, void *);
+
 M2C_UNK func_80051E98(void *, M2C_UNK);
 M2C_UNK func_80088120(s8);
 M2C_UNK func_8013F1CC(void *);
@@ -43,7 +51,24 @@ s32 rcos(s16);
 s32 rsin(s16, s32);
 s16 Sound_Play(M2C_UNK, M2C_UNK);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D000);
+void func_8013D000(void) {
+    s32 temp_v0;
+    s32 temp_v0_2;
+    s32 temp_v0_3;
+
+    temp_v0 = func_800569C4(0x64, 1);
+    if (temp_v0 != -1) {
+        func_80051E98((void *)((u8 *)&g_Objects + (temp_v0 * 0xE4)), 0);
+    }
+    temp_v0_2 = func_800569C4(0x65, 1);
+    if (temp_v0_2 != -1) {
+        func_80051E98((void *)((u8 *)&g_Objects + (temp_v0_2 * 0xE4)), 0);
+    }
+    temp_v0_3 = func_800569C4(0x51, 1);
+    if (temp_v0_3 != -1) {
+        func_80051E98((void *)((u8 *)&g_Objects + (temp_v0_3 * 0xE4)), 0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D0C8);
 
@@ -100,7 +125,28 @@ void func_8013E1D0(void *arg0) {
     func_800525E0();
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013E1F4);
+void func_8013E1F4(void *arg0, s32 arg1) {
+    u32 temp_s1;
+
+    temp_s1 = (u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C;
+    if (temp_s1 == 0xB) {
+        if ((Object_SpikeInFront(arg0, 0xB4, 0, 0) != 0) && (arg1 == 0)) {
+            M2C_FIELD(arg0, s8 *, 0x80) = (s8) temp_s1;
+            M2C_FIELD(arg0, s8 *, 0x7F) = 8;
+            M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0x20);
+            Object_DisableCollision(arg0);
+            Object_TurnToward(arg0, (s16) (g_Spike.f_24 - M2C_FIELD(arg0, u16 *, 0x24)), (s16) (g_Spike.f_2C - M2C_FIELD(arg0, u16 *, 0x2C)), 0, 0x1000);
+            Object_PlaySound(arg0, 0x67);
+            M2C_FIELD(arg0, s32 *, 0xE0) = (s32) (M2C_FIELD(arg0, s32 *, 0xE0) & ~1);
+            return;
+        }
+        func_80052864(arg0);
+        M2C_FIELD(arg0, s8 *, 0x80) = 5;
+        M2C_FIELD(arg0, s8 *, 0x7F) = 6;
+        M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0x18);
+        func_8013E1D0(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013E308);
 
@@ -386,7 +432,15 @@ void func_80142418(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8014246C);
+void func_8014246C(void *arg0) {
+    void *temp_a0;
+
+    M2C_FIELD(arg0, s16 *, 0x60) = (s16) (g_Spike.f_24 - M2C_FIELD(arg0, u16 *, 0x24));
+    M2C_FIELD(arg0, s16 *, 0x62) = (s16) (g_Spike.f_28 - M2C_FIELD(arg0, u16 *, 0x28));
+    M2C_FIELD(arg0, s16 *, 0x64) = (s16) (g_Spike.f_2C - M2C_FIELD(arg0, u16 *, 0x2C));
+    temp_a0 = arg0 + 0x60;
+    VectorNormalSS(temp_a0, temp_a0);
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_801424D4);
 

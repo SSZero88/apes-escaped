@@ -1,6 +1,16 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+M2C_UNK func_8013D94C(void *);
+extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; s32 f_820C; } g_Game;
+M2C_UNK Matrix_FromDirection(void *, s32);
+M2C_UNK Model_ProjectBonedVerts(void *);
+M2C_UNK func_80015780(void *, M2C_UNK);
+M2C_UNK func_80016EBC(void *, M2C_UNK *, void *);
+s32 func_80051410(void *, M2C_UNK, M2C_UNK);
+extern M2C_UNK D_800E7D00;
+extern M2C_UNK D_80144690;
+
 M2C_UNK func_80052038(void *, M2C_UNK);
 M2C_UNK func_800520A8(void *, M2C_UNK);
 s16 Floor_GetHeight(s16, s16, s16);
@@ -36,7 +46,20 @@ INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D46C);
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D548);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D620);
+s32 func_8013D620(void *arg0) {
+    void *temp_s0;
+
+    temp_s0 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    M2C_FIELD(temp_s0, u16 *, 0x18) = (u16) ((M2C_FIELD(temp_s0, u16 *, 0x18) & 0xFFF0) | 1);
+    M2C_FIELD(arg0, s16 *, 2) = 0;
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    if (M2C_FIELD(temp_s0, s16 *, 0x32) < ((M2C_FIELD(arg0, s16 *, 0xA) * 2) + 1)) {
+        do {
+            func_8013D94C(temp_s0);
+        } while (M2C_FIELD(temp_s0, s16 *, 0x32) < ((M2C_FIELD(arg0, s16 *, 0xA) * 2) + 1));
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D6D0);
 
@@ -107,7 +130,17 @@ void func_8013F4B0(void *arg0, void *arg1, M2C_UNK arg2) {
     M2C_FIELD(arg1, s32 *, 0x2C) = (s32) M2C_FIELD(arg0, s32 *, 0x2C);
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013F550);
+void func_8013F550(s32 arg0) {
+    void *temp_s0;
+
+    temp_s0 = (void *)((u8 *)&D_80144690 + (arg0 * 0x70));
+    if (func_80051410(temp_s0 + 0x24, 0, 0) == 0) {
+        Matrix_FromDirection(temp_s0 + 0x60, M2C_FIELD(temp_s0, s32 *, 0x14));
+        func_80015780(temp_s0, 3);
+        Model_ProjectBonedVerts(temp_s0);
+        func_80016EBC((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013F5F4);
 

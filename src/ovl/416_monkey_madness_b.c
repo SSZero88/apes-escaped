@@ -1,6 +1,18 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+extern s32 D_800B4D64;
+extern struct S_g_Game { u8 pad_0[0x8154]; u16 f_8154; u8 pad_8156[0xB6]; s32 f_820C; } g_Game;
+M2C_UNK Pickup_Drop(M2C_UNK, s32, M2C_UNK, M2C_UNK);
+extern u8 D_800F51C1;
+extern u16 g_RandSeed;
+extern s16 g_SpikeHealth;
+M2C_UNK Effect_Spawn(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK);
+extern M2C_UNK D_800B4D88;
+extern M2C_UNK D_80141640;
+extern struct S_D_80141880 { u8 pad_0[0x2]; u16 f_2; s16 f_4; u8 pad_6[0x2]; s16 f_8; u8 pad_A[0x6]; s32 f_10; s32 f_14; } D_80141880;
+extern struct S_g_Spike { u8 pad_0[0x2C]; s32 f_2C; s32 f_30; u8 pad_34[0x4]; s32 f_38; } g_Spike;
+
 extern struct S_D_80142368 { u8 pad_0[0xA]; s8 f_A; u8 pad_B[0x1]; } D_80142368[];
 M2C_UNK Pad_Vibrate(M2C_UNK, M2C_UNK, M2C_UNK);
 extern s32 D_80142728;
@@ -10,10 +22,22 @@ extern M2C_UNK D_80141D20;
 extern M2C_UNK D_801421C0;
 M2C_UNK func_8013EF0C(M2C_UNK *, M2C_UNK);
 extern M2C_UNK D_80142260;
-extern struct S_D_80141880 { u8 pad_0[0x10]; s32 f_10; s32 f_14; } D_80141880;
 extern M2C_UNK D_801418A0;
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013D000);
+s32 func_8013D000(void *arg0) {
+    s16 temp_a0;
+    void *temp_v1;
+
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    M2C_FIELD(arg0, u16 *, 2) = (u16) M2C_FIELD(arg0, u16 *, 8);
+    temp_v1 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    M2C_FIELD(temp_v1, u16 *, 0x18) = (u16) (M2C_FIELD(temp_v1, u16 *, 0x18) | 0x8000);
+    temp_a0 = M2C_FIELD(arg0, s16 *, 0xC);
+    if (temp_a0 >= 0) {
+        M2C_FIELD(((temp_a0 << 5) + D_800B4D64), s16 *, 0x16) = 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013D06C);
 
@@ -55,7 +79,23 @@ void func_8013DE6C(void) {
     Pad_Vibrate(1, 0x78, 2);
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013DE94);
+void func_8013DE94(s32 arg0) {
+    M2C_UNK var_a2;
+    u16 temp_v0;
+
+    var_a2 = 1;
+    if (g_SpikeHealth >= 3) {
+        temp_v0 = (g_RandSeed * 5) + 1;
+        g_RandSeed = temp_v0;
+        if ((temp_v0 >> 8) & 1) {
+            var_a2 = 6;
+            if (g_Game.f_8154 == D_800F51C1) {
+                var_a2 = 3;
+            }
+        }
+    }
+    Pickup_Drop(var_a2, arg0, 3, 0);
+}
 
 void func_8013DF28(void) {
     D_80142728 = -1;
@@ -167,7 +207,22 @@ void func_8013EF44(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013EFCC);
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013F0E0);
+void func_8013F0E0(void) {
+    if (D_80141880.f_2 != 0) {
+        D_80141880.f_2 = (u16) (D_80141880.f_2 - 1);
+        g_Spike.f_30 = (s32) D_80141880.f_4;
+        g_Spike.f_38 = (s32) D_80141880.f_8;
+        if (g_Spike.f_2C >= -0xC3F) {
+            g_Spike.f_2C = -0xC40;
+        }
+        if (g_Spike.f_2C < -0x1FA4) {
+            g_Spike.f_2C = -0x1FB8;
+        }
+        D_80141880.f_4 = (s16) ((s32) (D_80141880.f_4 * 7) / 8);
+        D_80141880.f_8 = (s16) ((s32) (D_80141880.f_8 * 7) / 8);
+        Effect_Spawn(0xCE, &D_800B4D88, &D_80141640, 0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013F1AC);
 

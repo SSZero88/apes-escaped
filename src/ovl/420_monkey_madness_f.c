@@ -1,6 +1,11 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+extern struct S_g_Spike { u8 pad_0[0x24]; u16 f_24; u8 pad_26[0x2]; u16 f_28; u8 pad_2A[0x2]; u16 f_2C; } g_Spike;
+extern s32 D_800B4D64;
+extern struct S_g_Game { u8 pad_0[0x820C]; s32 f_820C; } g_Game;
+s32 SaveByte_Get(M2C_UNK);
+
 s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s16);
 
 extern struct S_D_80144590 { u8 pad_0[0xB]; s8 f_B; } D_80144590[];
@@ -334,7 +339,15 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_801403E8);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80140598);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80140694);
+void func_80140694(void *arg0) {
+    void *temp_a0;
+
+    M2C_FIELD(arg0, s16 *, 0x60) = (s16) (g_Spike.f_24 - M2C_FIELD(arg0, u16 *, 0x24));
+    M2C_FIELD(arg0, s16 *, 0x62) = (s16) (g_Spike.f_28 - M2C_FIELD(arg0, u16 *, 0x28));
+    M2C_FIELD(arg0, s16 *, 0x64) = (s16) (g_Spike.f_2C - M2C_FIELD(arg0, u16 *, 0x2C));
+    temp_a0 = arg0 + 0x60;
+    VectorNormalSS(temp_a0, temp_a0);
+}
 
 s32 func_801406FC(void *arg0) {
     return Object_SpikeOutOfRange(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s16 *, 0x9E), 0x800) == 0;
@@ -421,7 +434,25 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80141FCC);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8014205C);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142154);
+s32 func_80142154(void *arg0) {
+    s16 temp_a1;
+    void *temp_a0;
+
+    temp_a0 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    M2C_FIELD(temp_a0, u16 *, 0x34) = (u16) M2C_FIELD(temp_a0, u16 *, 8);
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    if (M2C_FIELD(arg0, s16 *, 0x14) != 0) {
+        temp_a1 = M2C_FIELD(temp_a0, s16 *, 0xE);
+        if (temp_a1 >= 0) {
+            M2C_FIELD(((temp_a1 << 5) + D_800B4D64), s16 *, 0x16) = 0;
+        }
+        M2C_FIELD(temp_a0, u16 *, 0x18) = (u16) (M2C_FIELD(temp_a0, u16 *, 0x18) | 0x8000);
+        M2C_FIELD(arg0, s16 *, 2) = 2;
+    } else {
+        M2C_FIELD(arg0, s16 *, 2) = 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_801421E4);
 
@@ -447,7 +478,18 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142D9C);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142EA0);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142F40);
+s32 func_80142F40(void *arg0) {
+    void *temp_v1;
+
+    temp_v1 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    M2C_FIELD(temp_v1, u16 *, 0x18) = (u16) (M2C_FIELD(temp_v1, u16 *, 0x18) | 0x8000);
+    if (SaveByte_Get(0xD) == 5) {
+        M2C_FIELD(arg0, s16 *, 2) = 0;
+    } else {
+        M2C_FIELD(arg0, s16 *, 2) = 3;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142FB8);
 

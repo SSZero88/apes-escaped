@@ -1,6 +1,10 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+M2C_UNK Cd_PlayXaTrack(s32);
+extern s32 D_80139B6C;
+extern struct S_g_Game { u8 pad_0[0x8126]; u16 f_8126; } g_Game;
+
 M2C_UNK func_8008DDB0(s16, s16);
 M2C_UNK func_8008DDC8(s32);
 extern M2C_UNK D_80139B20;
@@ -38,7 +42,19 @@ INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_8013836C);
 
 INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_801384A0);
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80138660);
+void func_80138660(void) {
+    s32 var_a0;
+
+    if (g_Game.f_8126 == 0xFF) {
+        var_a0 = 0x17;
+        goto block_3;
+    }
+    var_a0 = D_80139B6C;
+    if (var_a0 != 0) {
+block_3:
+        Cd_PlayXaTrack(var_a0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_801386B8);
 

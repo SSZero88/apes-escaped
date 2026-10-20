@@ -1,6 +1,16 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+M2C_UNK VectorNormalSS(void *, void *);
+extern struct S_g_Spike { u8 pad_0[0x24]; u16 f_24; u8 pad_26[0x2]; u16 f_28; u8 pad_2A[0x2]; u16 f_2C; } g_Spike;
+M2C_UNK Sound_PlayFixed(M2C_UNK);
+M2C_UNK func_800573A0(void *, M2C_UNK, M2C_UNK, M2C_UNK);
+void Object_TurnToward(void *, s16, s16, s16, s16);
+M2C_UNK func_8013E214();
+M2C_UNK func_8013E52C();
+extern struct S_g_Game { u8 pad_0[0x8126]; u16 f_8126; u8 pad_8128[0xE4]; s32 f_820C; u8 pad_8210[0x4]; s32 f_8214; } g_Game;
+s32 func_800889A4();
+
 extern struct S_D_800E7880 { s32 f_0; s32 f_4; s32 f_8; s32 f_C; s32 f_10; s32 f_14; s32 f_18; } D_800E7880;
 
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
@@ -41,7 +51,15 @@ void func_8013D574(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013D5C8);
+void func_8013D5C8(void *arg0) {
+    void *temp_a0;
+
+    M2C_FIELD(arg0, s16 *, 0x60) = (s16) (g_Spike.f_24 - M2C_FIELD(arg0, u16 *, 0x24));
+    M2C_FIELD(arg0, s16 *, 0x62) = (s16) (g_Spike.f_28 - M2C_FIELD(arg0, u16 *, 0x28));
+    M2C_FIELD(arg0, s16 *, 0x64) = (s16) (g_Spike.f_2C - M2C_FIELD(arg0, u16 *, 0x2C));
+    temp_a0 = arg0 + 0x60;
+    VectorNormalSS(temp_a0, temp_a0);
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013D630);
 
@@ -63,7 +81,16 @@ void func_8013DEEC(s32 arg0, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013DF40);
+void func_8013DF40(void *arg0) {
+    M2C_FIELD(arg0, s8 *, 0x80) = 6;
+    M2C_FIELD(arg0, s8 *, 0x7F) = 1;
+    M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 4);
+    Object_TurnToward(arg0, (s16) (g_Spike.f_24 - M2C_FIELD(arg0, u16 *, 0x24)), (s16) (g_Spike.f_2C - M2C_FIELD(arg0, u16 *, 0x2C)), 0, 0x1000);
+    func_800573A0(arg0, 0, 0, 0);
+    Sound_PlayFixed(0x5F);
+    Sound_PlayFixed(0x15);
+    Object_PlaySound(arg0, 0xB6);
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013DFEC);
 
@@ -79,7 +106,13 @@ INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013E214);
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013E52C);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013E7A4);
+void func_8013E7A4(void) {
+    if (g_Game.f_8126 == 0x4C) {
+        func_8013E52C();
+        return;
+    }
+    func_8013E214();
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013E7F4);
 
@@ -156,7 +189,23 @@ void func_8013F818(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013F894);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013FA8C);
+s32 func_8013FA8C(s32 *arg0, void **arg1) {
+    s16 temp_a0;
+    void *temp_a1;
+
+    temp_a1 = g_Game.f_820C + (func_800889A4() * 0x38);
+    if (M2C_FIELD(temp_a1, u8 *, 0x12) == 0xD) {
+        temp_a0 = M2C_FIELD(temp_a1, s16 *, 0x22);
+        if (temp_a0 >= 0) {
+            *arg0 = g_Game.f_8214 + (temp_a0 * 0x10);
+            *arg1 = temp_a1 + 0x32;
+            return 1;
+        }
+        /* Duplicate return node #4. Try simplifying control flow for better match */
+        return 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013FB20);
 

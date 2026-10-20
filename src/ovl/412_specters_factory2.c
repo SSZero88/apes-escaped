@@ -1,6 +1,18 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+M2C_UNK Matrix_FromDirection(void *, s32);
+M2C_UNK Model_ProjectBonedVerts(void *);
+M2C_UNK func_80015780(void *, M2C_UNK);
+M2C_UNK func_80016EBC(void *, M2C_UNK *, void *);
+s32 func_80051410(void *, M2C_UNK, M2C_UNK);
+extern M2C_UNK D_800E7D00;
+extern M2C_UNK D_80141E40;
+extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; s32 f_820C; u8 pad_8210[0x10]; s32 f_8220; } g_Game;
+M2C_UNK func_80141090(void *);
+M2C_UNK func_80141134(void *);
+extern s32 D_800B4D64;
+
 M2C_UNK func_80052038(void *, M2C_UNK);
 M2C_UNK func_800520A8(void *, M2C_UNK);
 s16 Floor_GetHeight(s16, s16, s16);
@@ -37,7 +49,17 @@ void func_8013D168(void *arg0, void *arg1, M2C_UNK arg2) {
     M2C_FIELD(arg1, s32 *, 0x2C) = (s32) M2C_FIELD(arg0, s32 *, 0x2C);
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013D208);
+void func_8013D208(s32 arg0) {
+    void *temp_s0;
+
+    temp_s0 = (void *)((u8 *)&D_80141E40 + (arg0 * 0x70));
+    if (func_80051410(temp_s0 + 0x24, 0, 0) == 0) {
+        Matrix_FromDirection(temp_s0 + 0x60, M2C_FIELD(temp_s0, s32 *, 0x14));
+        func_80015780(temp_s0, 3);
+        Model_ProjectBonedVerts(temp_s0);
+        func_80016EBC((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013D2AC);
 
@@ -289,9 +311,53 @@ INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_80140CDC);
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_80140D60);
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_80140F9C);
+s32 func_80140F9C(void *arg0) {
+    s32 var_s0;
+    u16 temp_v0;
+    void *temp_s1;
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_80141090);
+    temp_s1 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    M2C_FIELD(temp_s1, u16 *, 0x18) = (u16) ((M2C_FIELD(temp_s1, u16 *, 0x18) & 0xFFF0) | 1);
+    temp_v0 = M2C_FIELD(arg0, u16 *, 0xC);
+    M2C_FIELD(arg0, s16 *, 2) = 0;
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    M2C_FIELD(temp_s1, u16 *, 0xE) = temp_v0;
+    if ((s16) temp_v0 >= 0) {
+        M2C_FIELD((((s16) temp_v0 << 5) + D_800B4D64), s16 *, 0x16) = 0;
+    }
+    var_s0 = 0;
+    if (M2C_FIELD(arg0, s16 *, 0xA) > 0) {
+        do {
+            func_80141090(arg0);
+            if ((M2C_FIELD(temp_s1, u16 *, 0x18) & 0xF) != 1) {
+                func_80141134(temp_s1);
+            }
+            var_s0 += 1;
+        } while (var_s0 < M2C_FIELD(arg0, s16 *, 0xA));
+    }
+    return 0;
+}
+
+s32 func_80141090(void *arg0) {
+    s16 temp_a0;
+    u16 temp_v0;
+    void *temp_a1;
+
+    temp_a1 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    if (M2C_FIELD(arg0, s16 *, 2) == 0) {
+        temp_v0 = M2C_FIELD(arg0, u16 *, 6) + 1;
+        M2C_FIELD(arg0, u16 *, 6) = temp_v0;
+        if (M2C_FIELD(arg0, s16 *, 8) < (s16) temp_v0) {
+            M2C_FIELD(arg0, s16 *, 2) = 1;
+            temp_a0 = M2C_FIELD(temp_a1, s16 *, 0xE);
+            if (temp_a0 >= 0) {
+                M2C_FIELD(((temp_a0 << 5) + D_800B4D64), u16 *, 0x16) = 0xFFFF;
+            }
+            M2C_FIELD(temp_a1, u16 *, 0x18) = (u16) ((M2C_FIELD(temp_a1, u16 *, 0x18) & 0xFFF0) | 2);
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_80141134);
 
@@ -299,7 +365,19 @@ INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_801413D8);
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_80141494);
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8014173C);
+s32 func_8014173C(s16 arg0, s16 arg1) {
+    void *temp_a0;
+    void *temp_v1;
+
+    temp_a0 = g_Game.f_8220 + (arg0 * 0x18);
+    temp_v1 = g_Game.f_820C + (M2C_FIELD(temp_a0, s16 *, 4) * 0x38);
+    M2C_FIELD(temp_v1, u16 *, 0x18) = (u16) ((M2C_FIELD(temp_v1, u16 *, 0x18) & 0xFFF0) | 2);
+    M2C_FIELD(temp_a0, s16 *, 2) = arg1;
+    M2C_FIELD(temp_a0, u16 *, 0x12) = (u16) M2C_FIELD(temp_v1, u16 *, 0);
+    M2C_FIELD(temp_a0, u16 *, 0x14) = (u16) M2C_FIELD(temp_v1, u16 *, 2);
+    M2C_FIELD(temp_a0, u16 *, 0x16) = (u16) M2C_FIELD(temp_v1, u16 *, 4);
+    return 0;
+}
 
 s32 func_801417C8(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0x16) = -1;

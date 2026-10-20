@@ -1,6 +1,8 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+extern struct S_g_Game { u8 pad_0[0x820C]; s32 f_820C; } g_Game;
+
 extern s32 D_80142A60;
 s32 rsin(s16, s32);
 extern struct S_D_800E77A0 { u8 pad_0[0x8]; u16 f_8; s16 f_A; u16 f_C; } D_800E77A0;
@@ -360,7 +362,15 @@ INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801423F8);
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801426D4);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8014277C);
+s32 func_8014277C(void *arg0) {
+    void *temp_v1;
+
+    temp_v1 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    M2C_FIELD(temp_v1, u16 *, 0x18) = (u16) (M2C_FIELD(temp_v1, u16 *, 0x18) | 0x8000);
+    M2C_FIELD(arg0, s16 *, 2) = 0;
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801427C4);
 

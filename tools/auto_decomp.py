@@ -261,13 +261,13 @@ TYPE_SIZE = {'s8': 1, 'u8': 1, 's16': 2, 'u16': 2, 's32': 4, 'u32': 4, 'f32': 4,
              'char': 1, 'short': 2, 'int': 4, 'void': 4,
              'SVECTOR': 8, 'S16x6': 12, 'S16x8': 16, 'S16x10': 20, 'S16x12': 24, 'S16x16': 32}
 TYPE_ALIGN = {'SVECTOR': 2, 'S16x6': 2, 'S16x8': 2, 'S16x10': 2, 'S16x12': 2, 'S16x16': 2}
-FIELD_RE = re.compile(r'M2C_FIELD\(&(D_[0-9A-F]{8}), ([\w ]+?\*+), (0x[0-9A-Fa-f]+|\d+)\)')
-AFIELD_RE = re.compile(r'M2C_FIELD\(\(\((?P<i>\w+) \* (?P<k>0x[0-9A-Fa-f]+|\d+)\) \+ &(?P<g>D_[0-9A-F]{8})\), '
+FIELD_RE = re.compile(r'M2C_FIELD\(&((?!(?:sp[0-9A-Fa-f]+|arg\d+|var_\w*|temp_\w*|saved_reg_\w*|phi_\w*)\b)[A-Za-z_]\w*), ([\w ]+?\*+), (0x[0-9A-Fa-f]+|\d+)\)')
+AFIELD_RE = re.compile(r'M2C_FIELD\(\(\((?P<i>\w+) \* (?P<k>0x[0-9A-Fa-f]+|\d+)\) \+ &(?P<g>(?!(?:sp[0-9A-Fa-f]+|arg\d+|var_\w*|temp_\w*|saved_reg_\w*|phi_\w*)\b)[A-Za-z_]\w*)\), '
                        r'(?P<t>[\w ]+?\*+), (?P<off>0x[0-9A-Fa-f]+|\d+)\)')
 
 
 def structify(decls, body):
-    """Turn byte-offset accesses on globals into fields of a real struct.
+    """Turn byte-offset accesses on globals (D_X or named, like the overlays' g_Pad) into fields of a real struct.
     GCC addresses a struct global once (la base; op off(base)), which the original
     code does and M2C_FIELD casts don't."""
     acc, stride = {}, {}
@@ -309,15 +309,15 @@ def structify(decls, body):
     return new_decls, body
 
 
-ADDR_OFF_RE = re.compile(r'&(D_[0-9A-F]{8}) \+ (0x[0-9A-Fa-f]+|\d+)\b')
+ADDR_OFF_RE = re.compile(r'&((?!(?:sp[0-9A-Fa-f]+|arg\d+|var_\w*|temp_\w*|saved_reg_\w*|phi_\w*)\b)[A-Za-z_]\w*) \+ (0x[0-9A-Fa-f]+|\d+)\b')
 
 
-ADDR_EXPR_RE = re.compile(r'\(([^()]*(?:\([^()]*\)[^()]*)*)\) \+ &(D_[0-9A-F]{8})\b')
+ADDR_EXPR_RE = re.compile(r'\(([^()]*(?:\([^()]*\)[^()]*)*)\) \+ &((?!(?:sp[0-9A-Fa-f]+|arg\d+|var_\w*|temp_\w*|saved_reg_\w*|phi_\w*)\b)[A-Za-z_]\w*)\b')
 BYTE_CONST_RE = re.compile(r', s8 \*, (\w+)\) = (0x[89A-Fa-f][0-9A-Fa-f]|12[89]|1[3-9]\d|2[0-5]\d);')
 HALF_CONST_RE = re.compile(r', s16 \*, (\w+)\) = (0x[89A-Fa-f][0-9A-Fa-f]{3});')
 
 
-ADDR_VAR_RE = re.compile(r'(?<![\w.>)\]])\b([a-z_]\w*) \+ &(D_[0-9A-F]{8})\b')
+ADDR_VAR_RE = re.compile(r'(?<![\w.>)\]])\b([a-z_]\w*) \+ &((?!(?:sp[0-9A-Fa-f]+|arg\d+|var_\w*|temp_\w*|saved_reg_\w*|phi_\w*)\b)[A-Za-z_]\w*)\b')
 INDEX_RE = re.compile(r'M2C_FIELD\(\((\w+) \+ \((\w+) \* (\d+)\)\), ([\w ]+?\*+), (0x[0-9A-Fa-f]+|\d+)\)')
 
 
@@ -858,7 +858,7 @@ def render(text, cands):
             text = text.replace(old + '\n', new + '\n')
     lines, seen = [], set()
     for l in text.split('\n'):  # identical top-level declarations may now appear twice
-        top_decl = l.startswith('extern ') or (not l.startswith((' ', '\t', '}', '#', '/')) and l.endswith(');'))
+        top_decl = l.startswith('extern ') or (not l.startswith((' ', '\t', '}', '#', '/', '__asm__')) and l.endswith(');'))
         if top_decl:
             if l in seen:
                 continue

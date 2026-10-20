@@ -1,6 +1,15 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+M2C_UNK func_8013973C(s32, s32, M2C_UNK);
+s32 func_801398D0(u8);
+M2C_UNK func_8013B9B0(void *, M2C_UNK *, s32, M2C_UNK *);
+extern M2C_UNK D_800E7D00;
+extern struct S_D_8013C550 { u8 pad_0[0x4]; s32 f_4; } D_8013C550;
+extern struct S_D_8013C558 { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } D_8013C558;
+extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; } g_Game;
+M2C_UNK func_8013980C(s32, s32);
+
 M2C_UNK StSetRing(s32, s32);
 M2C_UNK StSetStream(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32);
 s32 func_8008C09C(s32);
@@ -184,7 +193,21 @@ void func_80137DAC(void) {
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80137DB4);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80137F64);
+void func_80137F64(void *arg0, s32 arg1) {
+    s32 temp_a1;
+    s32 temp_s0;
+
+    temp_s0 = func_801398D0(M2C_FIELD(arg0, u8 *, 3));
+    temp_a1 = temp_s0;
+    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = func_80137F64;
+    D_8013C550.f_4 = arg1;
+    func_8013973C(arg1, temp_a1, 1);
+    D_8013C558.f_0 = 0;
+    D_8013C558.f_2 = 0;
+    D_8013C558.f_4 = 2;
+    D_8013C558.f_6 = 0;
+    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0, &D_8013C558);
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013800C);
 
@@ -192,7 +215,21 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138094);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013818C);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138254);
+void func_80138254(void *arg0, s32 arg1) {
+    s32 temp_a1;
+    s32 temp_s0;
+
+    temp_s0 = func_801398D0(M2C_FIELD(arg0, u8 *, 3));
+    temp_a1 = temp_s0;
+    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = func_80138254;
+    D_8013C550.f_4 = arg1;
+    func_8013973C(arg1, temp_a1, 0);
+    D_8013C558.f_0 = 0;
+    D_8013C558.f_2 = 0;
+    D_8013C558.f_4 = 2;
+    D_8013C558.f_6 = 0;
+    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0, &D_8013C558);
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801382FC);
 
@@ -209,7 +246,21 @@ void func_801383FC(void) {
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138404);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801385CC);
+void func_801385CC(void *arg0, s32 arg1) {
+    s32 temp_a1;
+    s32 temp_s0;
+
+    temp_s0 = func_801398D0(M2C_FIELD(arg0, u8 *, 3));
+    temp_a1 = temp_s0;
+    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = func_801385CC;
+    D_8013C550.f_4 = arg1;
+    func_8013980C(arg1, temp_a1);
+    D_8013C558.f_0 = 0;
+    D_8013C558.f_2 = 0;
+    D_8013C558.f_4 = 2;
+    D_8013C558.f_6 = 0;
+    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0, &D_8013C558);
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138670);
 
@@ -471,7 +522,6 @@ s32 func_8013B8D0(void *arg0, s32 arg1, void *arg2) {
 
 /* an original object file starts at 0x8013B9B0 (16-byte aligned) */
 __asm__(".section .text\n.balign 16");
-
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013B9B0);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013BA80);

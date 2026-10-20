@@ -1,6 +1,8 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+extern struct S_g_Pad { u8 pad_0[0x1BC]; s16 f_1BC; s16 f_1BE; } g_Pad;
+
 M2C_UNK Object_ApplyVelocity(void *);
 M2C_UNK Object_SetForwardVelocity(void *, M2C_UNK);
 M2C_UNK func_801405F8(void *, s32, M2C_UNK);
@@ -27,9 +29,19 @@ M2C_UNK func_80088120(s8);
 M2C_UNK Object_TurnToward(void *, s16, s16, M2C_UNK, s32);
 M2C_UNK Object_TurnTowardSpike(void *);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013D000);
+s32 func_8013D000(void) {
+    if ((g_Pad.f_1BC >= 0x191) || (g_Pad.f_1BE >= 0x191)) {
+        return 1;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013D040);
+s32 func_8013D040(void) {
+    if ((g_Pad.f_1BC >= 0x641) || (g_Pad.f_1BE >= 0x641)) {
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013D080);
 

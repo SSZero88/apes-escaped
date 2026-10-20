@@ -1,6 +1,8 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+extern struct S_g_Game { u8 pad_0[0x820C]; s32 f_820C; } g_Game;
+
 s32 func_8013D520();
 M2C_UNK Spike_WithinRadiusXZ(s16, s16, s16);
 M2C_UNK Object_StepOnGroundFixed(s32);
@@ -209,7 +211,16 @@ INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_801402D4);
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_80140348);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_801406E0);
+s32 func_801406E0(void *arg0) {
+    void *temp_v1;
+
+    temp_v1 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    M2C_FIELD(temp_v1, u16 *, 0x18) = (u16) ((M2C_FIELD(temp_v1, u16 *, 0x18) & 0xFFF0) | 1);
+    M2C_FIELD(temp_v1, u16 *, 0x26) = (u16) M2C_FIELD(temp_v1, u16 *, 2);
+    M2C_FIELD(arg0, s16 *, 2) = 0;
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_80140730);
 

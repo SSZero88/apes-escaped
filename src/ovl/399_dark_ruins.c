@@ -1,6 +1,9 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+extern struct S_g_Game { u8 pad_0[0x820C]; s32 f_820C; } g_Game;
+M2C_UNK Sound_PlayAt(M2C_UNK, void *);
+
 M2C_UNK Object_TurnToward(void *, s16, s16, M2C_UNK, s32);
 
 s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
@@ -364,7 +367,15 @@ INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013FC18);
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013FC64);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_80140098);
+s32 func_80140098(void *arg0) {
+    void *temp_v1;
+
+    temp_v1 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    M2C_FIELD(temp_v1, u16 *, 0x18) = (u16) ((M2C_FIELD(temp_v1, u16 *, 0x18) & 0xFFF0) | 1);
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    M2C_FIELD(arg0, s16 *, 2) = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_801400E4);
 
@@ -390,10 +401,28 @@ INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_80140B50);
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_80140BF4);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_80140CF8);
+s32 func_80140CF8(void *arg0) {
+    void *temp_v1;
+
+    temp_v1 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    M2C_FIELD(temp_v1, u16 *, 0x18) = (u16) ((M2C_FIELD(temp_v1, u16 *, 0x18) & 0xFFF0) | 1);
+    M2C_FIELD(temp_v1, u16 *, 0x26) = (u16) M2C_FIELD(temp_v1, u16 *, 2);
+    M2C_FIELD(arg0, s16 *, 2) = 0;
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    M2C_FIELD(arg0, s16 *, 0x14) = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_80140D4C);
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_80141034);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_801410F4);
+s32 func_801410F4(void *arg0) {
+    void *temp_a1;
+
+    temp_a1 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    if (M2C_FIELD(temp_a1, s16 *, 0x32) == M2C_FIELD(arg0, s16 *, 8)) {
+        Sound_PlayAt(0xAE, temp_a1);
+    }
+    return 0;
+}

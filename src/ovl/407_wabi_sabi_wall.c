@@ -1,6 +1,10 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+M2C_UNK VectorNormalSS(void *, void *);
+extern struct S_g_Spike { u8 pad_0[0x24]; u16 f_24; u8 pad_26[0x2]; u16 f_28; u8 pad_2A[0x2]; u16 f_2C; } g_Spike;
+s32 Object_IsFacingDir(void *, M2C_UNK, M2C_UNK, s16, s32);
+
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
 s32 Spike_WithinRadiusXZ(s32, s32, M2C_UNK);
 extern s32 g_Game;
@@ -35,7 +39,15 @@ void func_8013D6F0(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D744);
+void func_8013D744(void *arg0) {
+    void *temp_a0;
+
+    M2C_FIELD(arg0, s16 *, 0x60) = (s16) (g_Spike.f_24 - M2C_FIELD(arg0, u16 *, 0x24));
+    M2C_FIELD(arg0, s16 *, 0x62) = (s16) (g_Spike.f_28 - M2C_FIELD(arg0, u16 *, 0x28));
+    M2C_FIELD(arg0, s16 *, 0x64) = (s16) (g_Spike.f_2C - M2C_FIELD(arg0, u16 *, 0x2C));
+    temp_a0 = arg0 + 0x60;
+    VectorNormalSS(temp_a0, temp_a0);
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D7AC);
 
@@ -49,7 +61,15 @@ INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013DE8C);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013DF50);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E044);
+s32 func_8013E044(void *arg0) {
+    s32 var_s0;
+
+    var_s0 = 0;
+    if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s32 *, 0x2C), 0x1200) != 0) {
+        var_s0 = Object_IsFacingDir(arg0, 0x5A, 0xB50, (s16) (g_Spike.f_24 - (u16) M2C_FIELD(arg0, s32 *, 0x24)), (s32) (s16) (g_Spike.f_2C - (u16) M2C_FIELD(arg0, s32 *, 0x2C))) != 0;
+    }
+    return var_s0;
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E0D0);
 

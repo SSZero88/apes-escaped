@@ -1,6 +1,12 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+M2C_UNK VectorNormalSS(void *, void *);
+extern struct S_g_Spike { u8 pad_0[0x24]; u16 f_24; u8 pad_26[0x2]; u16 f_28; u8 pad_2A[0x2]; u16 f_2C; } g_Spike;
+extern s32 D_800B4D64;
+extern struct S_g_Game { u8 pad_0[0x820C]; s32 f_820C; u8 pad_8210[0x10]; s32 f_8220; } g_Game;
+M2C_UNK Sound_PlayFixed(M2C_UNK, void *);
+
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
 M2C_UNK Object_SetVelocityToward(void *, void *, M2C_UNK, M2C_UNK);
 M2C_UNK Object_StepOnGround(void *, M2C_UNK);
@@ -27,7 +33,15 @@ void func_8013D200(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013D254);
+void func_8013D254(void *arg0) {
+    void *temp_a0;
+
+    M2C_FIELD(arg0, s16 *, 0x60) = (s16) (g_Spike.f_24 - M2C_FIELD(arg0, u16 *, 0x24));
+    M2C_FIELD(arg0, s16 *, 0x62) = (s16) (g_Spike.f_28 - M2C_FIELD(arg0, u16 *, 0x28));
+    M2C_FIELD(arg0, s16 *, 0x64) = (s16) (g_Spike.f_2C - M2C_FIELD(arg0, u16 *, 0x2C));
+    temp_a0 = arg0 + 0x60;
+    VectorNormalSS(temp_a0, temp_a0);
+}
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013D2BC);
 
@@ -80,11 +94,50 @@ INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013D950);
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013D9A4);
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013DA34);
+s32 func_8013DA34(void *arg0) {
+    s16 temp_a0;
+    s16 temp_a0_2;
+    void *temp_a1;
+
+    temp_a1 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    M2C_FIELD(temp_a1, u16 *, 0x18) = (u16) ((M2C_FIELD(temp_a1, u16 *, 0x18) & 0xFFF0) | 1);
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    M2C_FIELD(arg0, u16 *, 2) = (u16) M2C_FIELD(arg0, u16 *, 0x14);
+    if (M2C_FIELD(arg0, s16 *, 8) == 0) {
+        temp_a0 = M2C_FIELD(temp_a1, s16 *, 0xE);
+        if (temp_a0 >= 0) {
+            M2C_FIELD(((temp_a0 << 5) + D_800B4D64), s16 *, 0x16) = 0;
+        }
+    }
+    if ((s16) M2C_FIELD(arg0, u16 *, 0x14) == 1) {
+        temp_a0_2 = M2C_FIELD(temp_a1, s16 *, 0xE);
+        if (temp_a0_2 >= 0) {
+            M2C_FIELD(((temp_a0_2 << 5) + D_800B4D64), u16 *, 0x16) = 0xFFFF;
+        }
+        M2C_FIELD(temp_a1, u16 *, 0x18) = (u16) ((M2C_FIELD(temp_a1, u16 *, 0x18) & 0xFFF0) | 2);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013DAFC);
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013DC70);
+s32 func_8013DC70(s32 arg0, s16 arg1) {
+    s16 temp_a0;
+    void *temp_a2;
+    void *temp_v1;
+
+    temp_a2 = g_Game.f_8220 + (arg0 * 0x18);
+    temp_v1 = g_Game.f_820C + (M2C_FIELD(temp_a2, s16 *, 4) * 0x38);
+    M2C_FIELD(temp_v1, u16 *, 0x18) = (u16) ((M2C_FIELD(temp_v1, u16 *, 0x18) & 0xFFF0) | 2);
+    if (M2C_FIELD(temp_a2, s16 *, 8) == 0) {
+        temp_a0 = M2C_FIELD(temp_v1, s16 *, 0xE);
+        if (temp_a0 >= 0) {
+            M2C_FIELD(((temp_a0 << 5) + D_800B4D64), u16 *, 0x16) = 0xFFFF;
+        }
+    }
+    M2C_FIELD(temp_a2, s16 *, 2) = arg1;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013DD08);
 
@@ -94,12 +147,45 @@ INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013DE90);
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013DFAC);
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013E170);
+s32 func_8013E170(void *arg0) {
+    s16 temp_a1;
+    void *temp_a0;
+
+    temp_a0 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    if (((u16) M2C_FIELD(arg0, u16 *, 8) >> 8) == 0) {
+        M2C_FIELD(arg0, s16 *, 2) = 0;
+        M2C_FIELD(arg0, s16 *, 6) = 3;
+        M2C_FIELD(arg0, s16 *, 0xA) = 0;
+        M2C_FIELD(arg0, s16 *, 0x16) = 0;
+    } else {
+        M2C_FIELD(arg0, s16 *, 2) = 2;
+        temp_a1 = M2C_FIELD(temp_a0, s16 *, 0xE);
+        if (temp_a1 >= 0) {
+            M2C_FIELD(((temp_a1 << 5) + D_800B4D64), s16 *, 0x16) = 0;
+        }
+        M2C_FIELD(temp_a0, u16 *, 0x18) = (u16) (M2C_FIELD(temp_a0, u16 *, 0x18) | 0x8000);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013E208);
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013E3A4);
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013E4A8);
+s32 func_8013E4A8(void *arg0) {
+    void *temp_a0;
+
+    temp_a0 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    if (M2C_FIELD(arg0, s16 *, 2) == 1) {
+        if (M2C_FIELD(temp_a0, s16 *, 0x32) >= (M2C_FIELD(arg0, s16 *, 0xC) * 2)) {
+            M2C_FIELD(temp_a0, u16 *, 0x18) = (u16) ((M2C_FIELD(temp_a0, u16 *, 0x18) & 0xFFF0) | 1);
+            M2C_FIELD(arg0, s16 *, 2) = 2;
+        }
+        if (M2C_FIELD(temp_a0, s16 *, 0x32) == (M2C_FIELD(arg0, s16 *, 0x16) * 2)) {
+            Sound_PlayFixed(0x2A, arg0);
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013E54C);

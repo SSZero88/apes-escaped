@@ -1,6 +1,14 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+s32 Math_Atan2(s32, s32);
+extern struct S_g_Spike { u8 pad_0[0x24]; s32 f_24; u8 pad_28[0x4]; s32 f_2C; } g_Spike;
+extern s32 D_800B4D64;
+extern struct S_g_Game { u8 pad_0[0x820C]; s32 f_820C; } g_Game;
+M2C_UNK Camera_StartShake(M2C_UNK);
+M2C_UNK Fx_Explosion(void *, s16, M2C_UNK);
+M2C_UNK Pad_Vibrate(M2C_UNK, M2C_UNK, M2C_UNK, void *);
+
 void Object_SetAnim(void *, u8, u8);
 
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
@@ -17,7 +25,29 @@ INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D04C);
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D1BC);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D2B0);
+void func_8013D2B0(void *arg0) {
+    s32 temp_v0;
+    s32 temp_v0_2;
+    s32 var_v0;
+    s32 var_v1;
+
+    if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6) - 0x32) != 0) {
+        temp_v0 = Math_Atan2(g_Spike.f_24 - M2C_FIELD(arg0, s32 *, 0x24), g_Spike.f_2C - M2C_FIELD(arg0, s32 *, 0x2C));
+        var_v1 = temp_v0 + 0x1000;
+        var_v0 = var_v1;
+        if (var_v1 < 0) {
+            var_v0 = temp_v0 + 0x1FFF;
+        }
+    } else {
+        temp_v0_2 = Math_Atan2(M2C_FIELD(arg0, s16 *, 0x9A) - M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s16 *, 0x9E) - M2C_FIELD(arg0, s32 *, 0x2C));
+        var_v1 = temp_v0_2 + 0x1100;
+        var_v0 = var_v1;
+        if (var_v1 < 0) {
+            var_v0 = temp_v0_2 + 0x20FF;
+        }
+    }
+    M2C_FIELD(arg0, s16 *, 0xAC) = (s16) (var_v1 - ((var_v0 >> 0xC) << 0xC));
+}
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D368);
 
@@ -92,9 +122,44 @@ INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013EFE4);
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013F08C);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013F1D8);
+s32 func_8013F1D8(void *arg0) {
+    s16 temp_a0;
+    void *temp_a1;
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013F264);
+    temp_a1 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    if (M2C_FIELD(arg0, s16 *, 0xA) == 0) {
+        M2C_FIELD(arg0, s16 *, 2) = 0;
+        M2C_FIELD(arg0, s16 *, 0xA) = 0;
+    } else {
+        M2C_FIELD(arg0, s16 *, 2) = 1;
+        temp_a0 = M2C_FIELD(temp_a1, s16 *, 0xE);
+        if (temp_a0 >= 0) {
+            M2C_FIELD(((temp_a0 << 5) + D_800B4D64), s16 *, 0x16) = 0;
+        }
+        M2C_FIELD(temp_a1, u16 *, 0x18) = (u16) (M2C_FIELD(temp_a1, u16 *, 0x18) | 0x8000);
+    }
+    M2C_FIELD(arg0, s16 *, 6) = 0;
+    return 0;
+}
+
+s32 func_8013F264(void *arg0) {
+    s16 temp_a1;
+    void *temp_s0;
+
+    temp_s0 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    if ((M2C_FIELD(arg0, s16 *, 2) == 0) && (M2C_FIELD(temp_s0, s16 *, 0x1E) >= 0) && (((u16) M2C_FIELD(temp_s0, s16 *, 0x1E) & 0x700) == 0x700)) {
+        M2C_FIELD(temp_s0, u16 *, 0x18) = (u16) (M2C_FIELD(temp_s0, u16 *, 0x18) | 0x8000);
+        M2C_FIELD(arg0, s16 *, 2) = 1;
+        Pad_Vibrate(0, 1, 3, arg0);
+        temp_a1 = M2C_FIELD(temp_s0, s16 *, 0xE);
+        if (temp_a1 >= 0) {
+            M2C_FIELD(((temp_a1 << 5) + D_800B4D64), s16 *, 0x16) = 0;
+            Fx_Explosion(temp_s0, M2C_FIELD(temp_s0, s16 *, 0xE), 1);
+            Camera_StartShake(0);
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013F330);
 

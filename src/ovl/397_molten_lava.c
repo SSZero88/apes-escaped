@@ -1,6 +1,11 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+extern struct S_g_Pad { u8 pad_0[0x1BC]; s16 f_1BC; s16 f_1BE; } g_Pad;
+extern struct S_g_Spike { u8 pad_0[0x24]; u16 f_24; u8 pad_26[0x6]; u16 f_2C; } g_Spike;
+M2C_UNK Sound_PlayAt(M2C_UNK, void *);
+extern struct S_g_Game { u8 pad_0[0x820C]; s32 f_820C; } g_Game;
+
 void * Object_AddAttackSphere(void *, s16, s16, s16, s16, s16, s16);
 M2C_UNK Object_OrbitAround(void *, s16, s16, s32, s32);
 extern s32 D_8014115C;
@@ -13,7 +18,7 @@ s32 Collision_GetShape(s32);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 M2C_UNK func_8005240C(void *, s32);
 M2C_UNK func_8005588C(void *, M2C_UNK);
-s32 func_8013D000();
+s32 func_8013D000(void);
 M2C_UNK func_8013F368(void *);
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
 s32 Spike_WithinRadiusXZ(s32, s32, M2C_UNK);
@@ -21,7 +26,12 @@ M2C_UNK func_80052038(void *, M2C_UNK);
 M2C_UNK func_800520A8(void *, M2C_UNK);
 s16 Floor_GetHeight(s16, s16, s16);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D000);
+s32 func_8013D000(void) {
+    if ((g_Pad.f_1BC >= 0x321) || (g_Pad.f_1BE >= 0x321)) {
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D040);
 
@@ -179,7 +189,16 @@ INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013F100);
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013F144);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013F26C);
+void func_8013F26C(void *arg0) {
+    if (((u32) (M2C_FIELD(arg0, u8 *, 0x80) - 2) >= 2U) && (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6)) != 0)) {
+        M2C_FIELD(arg0, u8 *, 0x80) = 2U;
+        M2C_FIELD(arg0, s8 *, 0x7F) = 2;
+        M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 8);
+        Object_PlaySound(arg0, 0xB3);
+        M2C_FIELD(arg0, u16 *, 0xC2) = (u16) g_Spike.f_24;
+        M2C_FIELD(arg0, u16 *, 0xC6) = (u16) g_Spike.f_2C;
+    }
+}
 
 void func_8013F300(void *arg0, void *arg1) {
     void *temp_a2;
@@ -270,4 +289,14 @@ INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_80140880);
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_80140B0C);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_80140E40);
+s32 func_80140E40(void *arg0) {
+    s16 temp_a0;
+    void *temp_a1;
+
+    temp_a1 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
+    temp_a0 = M2C_FIELD(temp_a1, s16 *, 0x32);
+    if ((temp_a0 == 1) || (temp_a0 == 0x3D) || (temp_a0 == 0xA1) || (temp_a0 == 0xDD)) {
+        Sound_PlayAt(0x9C, temp_a1);
+    }
+    return 0;
+}

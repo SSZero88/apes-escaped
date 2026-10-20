@@ -1,6 +1,11 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+M2C_UNK Pickup_Drop(M2C_UNK, s32, M2C_UNK, M2C_UNK);
+extern u8 D_800F51C1;
+extern s16 g_SpikeHealth;
+extern struct S_g_Game { u8 pad_0[0x8154]; u16 f_8154; } g_Game;
+
 extern struct S_D_80144C18 { u8 pad_0[0xA]; s8 f_A; u8 pad_B[0x1]; } D_80144C18[];
 M2C_UNK Pad_Vibrate(M2C_UNK, M2C_UNK, M2C_UNK);
 extern struct S_D_80144FD8 { u8 pad_0[0x6]; s8 f_6; u8 pad_7[0x9]; } D_80144FD8[];
@@ -54,7 +59,23 @@ void func_8013DA2C(void) {
     Pad_Vibrate(1, 0x78, 2);
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013DA54);
+void func_8013DA54(s32 arg0) {
+    M2C_UNK var_a2;
+    u16 temp_v0;
+
+    var_a2 = 1;
+    if (g_SpikeHealth >= 3) {
+        temp_v0 = (g_RandSeed * 5) + 1;
+        g_RandSeed = temp_v0;
+        if ((temp_v0 >> 8) & 1) {
+            var_a2 = 6;
+            if (g_Game.f_8154 == D_800F51C1) {
+                var_a2 = 3;
+            }
+        }
+    }
+    Pickup_Drop(var_a2, arg0, 3, 0);
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013DAE8);
 
