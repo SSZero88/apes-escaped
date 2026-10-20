@@ -274,7 +274,25 @@ INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013FF1C);
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_80140044);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801400B0);
+M2C_UNK Object_ApplyVelocity_801400B0(void *, s32) asm("Object_ApplyVelocity");
+s32 func_80140044(void *);
+s32 Object_StepGrowShrink(void *, s16, s16, s16);
+
+void func_801400B0(void *arg0)
+{
+  s32 temp_lo;
+  temp_lo = Object_StepGrowShrink(arg0, 0x50, 0, -0xA);
+  if ((temp_lo != 0) || (func_80140044(arg0) != 0))
+  {
+    *((s8 *) (((s8 *) arg0) + 0x80)) = 3;
+    *((u16 *) (((s8 *) arg0) + 0xAA)) = (u16) (*((u16 *) (((s8 *) arg0) + 0xAC)));
+    return;
+  }
+  temp_lo = (*((s16 *) (((s8 *) arg0) + 0x60))) * (((s32) ((*((u16 *) (((s8 *) arg0) + 0xA8))) << 0x10)) >> 0x13);
+  *((s16 *) (((s8 *) arg0) + 0x94)) = (s16) (temp_lo >> 0xC);
+  *((s16 *) (((s8 *) arg0) + 0x98)) = (s16) (((s32) ((*((s16 *) (((s8 *) arg0) + 0x64))) * (((s32) ((*((u16 *) (((s8 *) arg0) + 0xA8))) << 0x10)) >> 0x13))) >> 0xC);
+  Object_ApplyVelocity_801400B0(arg0, temp_lo);
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_80140150);
 
@@ -313,7 +331,19 @@ void func_801405AC(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801405F8);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_80140684);
+extern s32 D_800EC208;
+void Object_ChaseSpike(void *, s16);
+
+void func_80140684(void *arg0)
+{
+  int new_var;
+  int new_var2;
+  new_var = 0x28;
+  Object_ChaseSpike(arg0, 0x12);
+  new_var2 = (*((s32 *) (((s8 *) arg0) + new_var))) + 0x100;
+  func_801405F8(arg0, ((s32) (D_800EC208 - new_var2)) >> 3, 0x32);
+  Object_ApplyVelocity(arg0);
+}
 
 void func_801406D8(void *arg0) {
     Object_TurnToward(arg0, (s16) (M2C_FIELD(arg0, u16 *, 0x9A) - M2C_FIELD(arg0, u16 *, 0x24)), (s16) (M2C_FIELD(arg0, u16 *, 0x9E) - M2C_FIELD(arg0, u16 *, 0x2C)), 0, (s32) M2C_FIELD(arg0, s16 *, 0xB0));

@@ -76,7 +76,18 @@ void func_8013D810(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013D85C);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013D8E8);
+extern s32 D_800EC208;
+
+void func_8013D8E8(void *arg0)
+{
+  int new_var;
+  int new_var2;
+  new_var = 0x28;
+  Object_ChaseSpike(arg0, 0x12);
+  new_var2 = (*((s32 *) (((s8 *) arg0) + new_var))) + 0x100;
+  func_8013D85C(arg0, ((s32) (D_800EC208 - new_var2)) >> 3, 0x32);
+  Object_ApplyVelocity(arg0);
+}
 
 void func_8013D93C(void *arg0) {
     Object_TurnToward(arg0, (s16) (M2C_FIELD(arg0, u16 *, 0x9A) - M2C_FIELD(arg0, u16 *, 0x24)), (s16) (M2C_FIELD(arg0, u16 *, 0x9E) - M2C_FIELD(arg0, u16 *, 0x2C)), 0, (s32) M2C_FIELD(arg0, s16 *, 0xB0));
