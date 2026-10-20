@@ -449,6 +449,55 @@ def fix_unsigned_consts(body):
 FROM_WIP = False
 
 
+API = None
+
+
+def fix_passthrough(decls, body):
+    """m2c leaves out an argument that arrives in a0 and is passed on untouched (usually the
+    object): calls to exe functions with one argument fewer than their prototype in
+    include/scus_api.h (tools/gen_scus_api.py) get the function's first parameter prepended,
+    and the callee's declaration gets the real parameter list. (decls, body), or None."""
+    global API
+    if API is None:
+        API = {}
+        if os.path.exists('include/scus_api.h'):
+            for l in open('include/scus_api.h'):
+                m = re.match(r'^(.*?\b)(\w+)\((.*)\);$', l.strip())
+                if m:
+                    API[m.group(2)] = (m.group(1).strip(), [] if m.group(3) == 'void' else m.group(3).split(', '))
+    fn = re.match(r'^[^\n;]*?\b\w+\(([^)]*)\)\s*\{', body)
+    if not fn:
+        return None
+    params = [p.strip() for p in fn.group(1).split(',') if p.strip() not in ('', 'void')]
+    if not params:
+        return None
+    first = re.search(r'(\w+)$', params[0]).group(1)
+    edits = []
+    for m in re.finditer(r'\b(\w+)\(', body):
+        if m.group(1) not in API or m.start() < fn.end():
+            continue
+        i, depth, n, cur = m.end(), 1, 0, ''
+        while depth:
+            c = body[i]
+            depth += (c == '(') - (c == ')')
+            if depth == 1 and c == ',':
+                n += 1
+            elif depth and not c.isspace():
+                cur += c
+            i += 1
+        n = n + 1 if cur else 0
+        if n == len(API[m.group(1)][1]) - 1:
+            edits.append((m.end(), m.group(1), n))
+    if not edits:
+        return None
+    for at, name, n in sorted(edits, reverse=True):
+        body = body[:at] + first + (', ' if n else '') + body[at:]
+    names = {e[1] for e in edits}
+    decls = [d for d in decls if decl_name(d.replace('extern ', '')) not in names]
+    decls += [f'{API[n][0]} {n}({", ".join(API[n][1]) or "void"});' for n in sorted(names)]
+    return decls, body
+
+
 def try_func(job):
     name, folder, addr, size, compiler = job
     asm_path = f'{folder}/{name}.s'
@@ -479,6 +528,9 @@ def try_func(job):
         fixed = fix_ptr_steps(body)
         if fixed != body:
             cands.append((list(extra) + decls, fixed))
+        pt = fix_passthrough(list(extra) + decls, body)
+        if pt:
+            cands.append(pt)
         for d, b in list(cands):
             fb = fix_addr_offsets(b)
             if fb != b:
