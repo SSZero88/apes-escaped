@@ -313,7 +313,27 @@ void func_8013F084(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013F184);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013F264);
+void Object_PlaySound_8013F264(void *, s32) asm("Object_PlaySound");
+s32 rcos_8013F264(s32) asm("rcos");
+s32 rsin_8013F264(s32) asm("rsin");
+extern u32 g_Game_8013F264 asm("g_Game");
+
+void func_8013F264(void *arg0) {
+    SVECTOR v;
+    s32 a;
+    s32 r;
+
+    if (g_Game_8013F264 % 5 == 0 || g_Game_8013F264 % 17 == 0) {
+
+        a = (M2C_FIELD(arg0, s16 *, 0xAC) + ((RAND() >> 8) << 12) / 510 + 0xC00) % 0x1000;
+        v.vx = M2C_FIELD(arg0, u16 *, 0x24) + ((rcos_8013F264(a) << 8) >> 12);
+        v.vy = M2C_FIELD(arg0, u16 *, 0x28) - ((RAND() >> 9) + 0xFA);
+        v.vz = M2C_FIELD(arg0, u16 *, 0x2C) + ((rsin_8013F264(a) << 8) >> 12);
+        Effect_SpawnAt(0x102, &v);
+        Object_PlaySound_8013F264(arg0, 0x4D);
+        Object_PlaySound_8013F264(arg0, 0x6C);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013F3D0);
 

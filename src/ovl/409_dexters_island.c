@@ -126,7 +126,25 @@ void func_8013E02C(void *arg0, s16 arg1, s32 arg2, s32 arg3) {
     M2C_FIELD(arg0, s16 *, 0x96) = (s16) ((s32) (rsin_8013E02C(M2C_FIELD(arg0, s16 *, 0xAA)) * arg2) >> 0xC);
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013E11C);
+M2C_UNK func_80051E98_8013E11C(void *, M2C_UNK) asm("func_80051E98");
+M2C_UNK func_8013DB44(void *);
+void Object_SpawnEffect(void *, s16, s32, s32, s32);
+M2C_UNK Object_PlaySound_8013E11C(void *, M2C_UNK) asm("Object_PlaySound");
+extern struct S_D_800E77A0_8013E11C { u8 pad_0[0x1]; u8 f_1; } D_800E77A0_8013E11C asm("D_800E77A0");
+
+void func_8013E11C(void *arg0) {
+    s8 temp_a0;
+
+    Object_SpawnEffect(arg0, 6, 0, 0x80, 0);
+    func_8013DB44(arg0);
+    Object_PlaySound_8013E11C(arg0, 0x4D);
+    D_800E77A0_8013E11C.f_1 = (u8) (D_800E77A0_8013E11C.f_1 - 1);
+    func_80051E98_8013E11C(arg0, 0);
+    temp_a0 = M2C_FIELD(arg0, s8 *, 0x7C);
+    if (temp_a0 != -1) {
+        func_80088120(temp_a0);
+    }
+}
 
 void func_8013E19C(void *arg0) {
     s32 var_a0;

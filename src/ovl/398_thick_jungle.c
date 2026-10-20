@@ -352,7 +352,26 @@ void func_801406D8(void *arg0) {
     Object_ApplyVelocity(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_80140760);
+M2C_UNK func_80055F1C(void *, M2C_UNK);
+
+void func_80140760(void *arg0)
+{
+  *((s16 *) (((s8 *) arg0) + 0xB0)) = 0x7D;
+  *((s16 *) (((s8 *) arg0) + 0x48)) = 1;
+  *((s16 *) (((s8 *) arg0) + 0x4A)) = 0x103;
+  *((s8 *) (((s8 *) arg0) + 0xC8)) = 4;
+  *((s16 *) (((s8 *) arg0) + 0x44)) = 0x1E;
+  *((s16 *) (((s8 *) arg0) + 0xA0)) = 0x32;
+  *((s8 *) (((s8 *) arg0) + 0x7D)) = 0xA;
+  *((s16 *) (((s8 *) arg0) + 0x46)) = 0x32;
+  *((s16 *) (((s8 *) arg0) + 0xAA)) = 0;
+  *((s8 *) (((s8 *) arg0) + 0xDC)) = 0;
+  *((s32 *) (((s8 *) arg0) + 0xE0)) = (s32) ((*((s32 *) (((s8 *) arg0) + 0xE0))) & (~0x1000));
+  func_80140504(arg0);
+  func_80055F1C(arg0, 0x32);
+  *((s8 *) (((s8 *) arg0) + 0x7F)) = 0;
+  *((u16 *) (((s8 *) arg0) + 0x5C)) = (u16) (*(*((u16 **) (((s8 *) arg0) + 0x88))));
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801407F8);
 
