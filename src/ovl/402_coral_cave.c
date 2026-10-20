@@ -221,7 +221,11 @@ INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8014061C);
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_801406A8);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_801406F8);
+s32 func_800563E0(void *, s32);
+
+void func_801406F8(void *arg0) {
+    func_800563E0(arg0, 0x14);
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_80140718);
 

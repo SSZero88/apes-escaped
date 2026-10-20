@@ -30,7 +30,6 @@ M2C_UNK func_8013FD80(void *);
 M2C_UNK func_8013FDE0(void *);
 M2C_UNK Object_SeekHeight(void *, M2C_UNK);
 s32 func_80055718(void *, s16, s16, s16, s32);
-M2C_UNK func_80140300(void *);
 s32 rcos(s16);
 s32 rsin(s16);
 
@@ -328,7 +327,11 @@ INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_80140228);
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_801402B4);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_80140300);
+s32 func_800563E0(void *, s32);
+
+void func_80140300(void *arg0) {
+    func_800563E0(arg0, 0x14);
+}
 
 void func_80140320(void *arg0) {
     s16 temp_s0;

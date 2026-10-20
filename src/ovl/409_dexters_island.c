@@ -247,7 +247,11 @@ INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801413F8);
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80141484);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801414D4);
+s32 func_800563E0(void *, s32);
+
+void func_801414D4(void *arg0) {
+    func_800563E0(arg0, 0x14);
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801414F4);
 

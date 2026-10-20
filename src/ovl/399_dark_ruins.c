@@ -31,7 +31,6 @@ M2C_UNK func_80088120(s8);
 extern struct S_D_801413F0 { u8 pad_0[0x18]; s32 f_18; u8 pad_1C[0x4]; s32 f_20; } D_801413F0;
 M2C_UNK Object_SeekHeight(void *, M2C_UNK);
 s32 func_80055718(void *, s16, s16, s16, s32);
-M2C_UNK func_8013F17C(void *);
 s32 rcos(s16);
 s32 rsin(s16);
 
@@ -233,7 +232,11 @@ INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013F0A0);
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013F12C);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013F17C);
+s32 func_800563E0(void *, s32);
+
+void func_8013F17C(void *arg0) {
+    func_800563E0(arg0, 0x14);
+}
 
 void func_8013F19C(void *arg0) {
     s16 temp_s0;

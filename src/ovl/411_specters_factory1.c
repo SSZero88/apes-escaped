@@ -13,7 +13,6 @@ extern u16 g_RandSeed;
 M2C_UNK Object_SeekHeight(void *, M2C_UNK);
 s32 func_80055718(void *, s16, s16, s16, s32);
 M2C_UNK func_8005588C(void *, M2C_UNK);
-M2C_UNK func_8013DE84(void *);
 s32 rcos(s16);
 s32 rsin(s16);
 void *Collision_GetShape(s32);
@@ -89,7 +88,11 @@ INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013DDAC);
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013DE38);
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013DE84);
+s32 func_800563E0(void *, s32);
+
+void func_8013DE84(void *arg0) {
+    func_800563E0(arg0, 0x14);
+}
 
 void func_8013DEA4(void *arg0) {
     s16 temp_s0;

@@ -8,7 +8,6 @@ extern u16 g_RandSeed;
 M2C_UNK Object_SeekHeight(void *, M2C_UNK);
 s32 func_80055718(void *, s16, s16, s16, s32);
 M2C_UNK func_8005588C(void *, M2C_UNK);
-M2C_UNK func_8013DD60(void *);
 s32 rcos(s16);
 s32 rsin(s16);
 s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, void *);
@@ -92,7 +91,11 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DC88);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DD14);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DD60);
+s32 func_800563E0(void *, s32);
+
+void func_8013DD60(void *arg0) {
+    func_800563E0(arg0, 0x14);
+}
 
 void func_8013DD80(void *arg0) {
     s16 temp_s0;

@@ -8,7 +8,6 @@ M2C_UNK Object_DisableCollision(void *);
 M2C_UNK Object_DropPickups(void *);
 M2C_UNK func_8005588C(void *, M2C_UNK);
 M2C_UNK func_8013DD64(void *);
-M2C_UNK func_8013E15C();
 M2C_UNK func_800525E0();
 M2C_UNK Object_ApplyVelocity(void *);
 M2C_UNK Object_HeadTowardSpike(void *, s32);
@@ -78,10 +77,12 @@ void func_8013E134(void) {
     Link_SendEvent(8, 6, 0);
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013E15C);
+void func_8013E15C(void *arg0) {
+    Object_PlaySound(arg0, 0x60);
+}
 
 void func_8013E17C(void *arg0) {
-    func_8013E15C();
+    func_8013E15C(arg0);
     M2C_FIELD(arg0, s8 *, 0x80) = 0xD;
     M2C_FIELD(arg0, s8 *, 0xC8) = 0;
     func_8005588C(arg0, 0x5A);

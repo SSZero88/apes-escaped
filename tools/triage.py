@@ -2,7 +2,9 @@
 
 For a sample of INCLUDE_ASM functions: m2c failure, compile failure, wrong size
 (with the size difference), or same size (number of differing instructions).
-Usage: python3 tools/triage.py [--sample 60] [--max-size 0x400] [--seed 1]
+Usage: python3 tools/triage.py [--sample 60] [--max-size 0x400] [--seed 1] [--save DIR]
+With OVL=<file> it samples that overlay; --sample 0 takes every function. --save DIR writes
+each same-size draft to DIR/<func>.c (with its diff count in the first line) for hand fixing.
 """
 import argparse, collections, glob, os, random, re, sys
 
@@ -15,10 +17,11 @@ ap.add_argument('--sample', type=int, default=60)
 ap.add_argument('--max-size', type=lambda x: int(x, 0), default=0x400)
 ap.add_argument('--seed', type=int, default=1)
 ap.add_argument('--only', default='')
+ap.add_argument('--save', default='')
 args = ap.parse_args()
 
 funcs = []
-for c in sorted(glob.glob('src/game/*.c')):
+for c in sorted(ad['SRC_FILES']):
     for folder, name in re.findall(r'INCLUDE_ASM\("([^"]+)", (\w+)\);', open(c).read()):
         asm = open(f'{folder}/{name}.s').read()
         if ad['SKIP_RE'].search(asm):
@@ -28,7 +31,7 @@ for c in sorted(glob.glob('src/game/*.c')):
             funcs.append((name, folder, addr, size))
 if args.only:
     funcs = [f for f in funcs if f[0] in args.only.split(',')]
-else:
+elif args.sample:
     random.seed(args.seed)
     funcs = random.sample(funcs, min(args.sample, len(funcs)))
 
@@ -54,5 +57,9 @@ for name, folder, addr, size in funcs:
         print(f'{name} {size:#x}: size {ours:#x} ({ours - size:+d} bytes)')
     else:
         stats['same-size'] += 1
-        print(f'{name} {size:#x}: same size, {ad["diff_count"]("/tmp/tri.o", name, addr, size)} diffs')
+        n = ad["diff_count"]("/tmp/tri.o", name, addr, size)
+        print(f'{name} {size:#x}: same size, {n} diffs')
+        if args.save:
+            os.makedirs(args.save, exist_ok=True)
+            open(f'{args.save}/{name}.c', 'w').write(f'/* {n} diffs, {size:#x} bytes */\n' + '\n'.join(decls) + '\n\n' + body)
 print(dict(stats))
