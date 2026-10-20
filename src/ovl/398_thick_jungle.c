@@ -376,7 +376,20 @@ void func_80140EDC(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x7C) = -1;
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_80140F20);
+void Fx_BigExplosion(SVECTOR *);
+void *memset(void *, s32, s32);
+
+void func_80140F20(void *arg0) {
+    SVECTOR q;
+    SVECTOR p;
+
+    memset(&p, 0, 8);
+    p.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    p.vy = M2C_FIELD(arg0, u16 *, 0x28);
+    p.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    q = p;
+    Fx_BigExplosion(&q);
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_80140F9C);
 

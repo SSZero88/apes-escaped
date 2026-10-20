@@ -199,7 +199,20 @@ void func_8013ECA0(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x7C) = -1;
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013ECE4);
+void Fx_BigExplosion(SVECTOR *);
+void *memset(void *, s32, s32);
+
+void func_8013ECE4(void *arg0) {
+    SVECTOR q;
+    SVECTOR p;
+
+    memset(&p, 0, 8);
+    p.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    p.vy = M2C_FIELD(arg0, u16 *, 0x28);
+    p.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    q = p;
+    Fx_BigExplosion(&q);
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013ED60);
 
