@@ -266,7 +266,15 @@ INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013FC70);
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013FDF0);
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8014022C);
+M2C_UNK func_80070284(s32, M2C_UNK *, M2C_UNK, M2C_UNK, s32);
+M2C_UNK func_8013FC70(s32, M2C_UNK);
+extern M2C_UNK D_800B1C7C;
+
+void func_8014022C(s32 arg0, s32 arg1) {
+    func_8013FC70(arg0, 0x20);
+    func_80070284(arg0, &D_800B1C7C, 1, 0, arg1);
+    func_80070284(arg0, (u8 *)&D_800B1C7C + 0x2A0, 1, 0, arg1);
+}
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_801402A0);
 

@@ -47,7 +47,24 @@ void func_8013DE4C(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013DE84);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013DF60);
+M2C_UNK func_80052038(void *, M2C_UNK);
+M2C_UNK func_80052134(void *, M2C_UNK);
+M2C_UNK func_8005588C(void *, M2C_UNK);
+M2C_UNK func_8013DC70(s16, s16, s16);
+
+void func_8013DF60(void *arg0) {
+    func_8013DC70(M2C_FIELD(arg0, s16 *, 0x24), M2C_FIELD(arg0, s16 *, 0x28), M2C_FIELD(arg0, s16 *, 0x2C));
+    Object_PlaySound(arg0, 0xB1);
+    M2C_FIELD(arg0, s8 *, 0x80) = 0xB;
+    func_8005588C(arg0, 0x3C);
+    func_80052038(arg0, 0x6E);
+    func_80052134(arg0, 0x6E);
+    M2C_FIELD(arg0, s16 *, 0xD4) = 0xC00;
+    M2C_FIELD(arg0, s8 *, 0xC8) = 0;
+    M2C_FIELD(arg0, s16 *, 0x96) = 0;
+    M2C_FIELD(arg0, s32 *, 0xE0) = (s32) ((M2C_FIELD(arg0, s32 *, 0xE0) & 0xFF3FFFFF) | 0x400000);
+    M2C_FIELD(arg0, s32 *, 0x28) -= 0x1F4;
+}
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013E004);
 

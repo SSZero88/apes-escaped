@@ -71,7 +71,21 @@ INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E5C4);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E604);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E6A8);
+void func_8013E6A8(s16 *arg0, s32 arg1, s32 arg2) {
+    s16 temp_v0;
+
+    if (arg2 != 0) {
+        if (*arg0 < (arg1 * 8)) {
+            *arg0 = (u16) *arg0 + 0xA;
+        }
+    } else {
+        temp_v0 = (u16) *arg0 - 5;
+        *arg0 = temp_v0;
+        if ((s16) temp_v0 < 0) {
+            *arg0 = 0;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E6F8);
 

@@ -330,7 +330,15 @@ INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80142080);
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80142200);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8014263C);
+M2C_UNK func_80070284(s32, M2C_UNK *, M2C_UNK, M2C_UNK, s32);
+M2C_UNK func_80142080(s32, M2C_UNK);
+extern M2C_UNK D_800B1C7C;
+
+void func_8014263C(s32 arg0, s32 arg1) {
+    func_80142080(arg0, 0x20);
+    func_80070284(arg0, &D_800B1C7C, 1, 0, arg1);
+    func_80070284(arg0, (u8 *)&D_800B1C7C + 0x2A0, 1, 0, arg1);
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801426B0);
 

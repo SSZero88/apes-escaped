@@ -290,7 +290,16 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140F84);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8014183C);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8014194C);
+M2C_UNK func_8006F274(void *, void *, u16);
+extern M2C_UNK D_80145D48;
+extern u16 g_Game;
+
+void func_8014194C(void *arg0) {
+    s32 temp_v0;
+
+    temp_v0 = M2C_FIELD(arg0, u8 *, 0x8F) * 0x10;
+    func_8006F274((u8 *)&D_80145D48 + temp_v0, (u8 *)&D_80145D48 - 8 + temp_v0, g_Game);
+}
 
 void func_8014198C(void *arg0) {
     if (!(((u32) M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1)) {
