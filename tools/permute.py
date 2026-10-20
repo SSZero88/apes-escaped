@@ -1,6 +1,7 @@
 """Set up (and optionally run) decomp-permuter for one near-miss function (run in the container).
 
 Usage: python3 tools/permute.py <func> <draft.c> [--run SECONDS] [-j 8]
+With OVL=<file> in the environment the function is that overlay's (build/perm/<file>_<func>/).
 
 Creates build/perm/<func>/ with
   base.c      the draft, preprocessed together with game.h/m2c_macros.h
@@ -18,8 +19,10 @@ ap.add_argument('--run', type=int, default=0)
 ap.add_argument('-j', type=int, default=os.cpu_count())
 args = ap.parse_args()
 
-asm_path = glob.glob(f'asm/nonmatchings/**/{args.func}.s', recursive=True)[0]
-d = f'build/perm/{args.func}'
+OVL = os.environ.get('OVL')
+asm_path = glob.glob(f'asm/ovl/{OVL}/nonmatchings/**/{args.func}.s' if OVL else f'asm/nonmatchings/**/{args.func}.s',
+                     recursive=True)[0]
+d = f'build/perm/{OVL}_{args.func}' if OVL else f'build/perm/{args.func}'
 shutil.rmtree(d, ignore_errors=True)
 os.makedirs(d)
 
@@ -126,5 +129,6 @@ if args.run:
         draft = open(args.draft).read()
         dm = re.search(rf'^[^\n;]*\b{args.func}\([^;{{]*\)\s*\{{', draft, re.M)
         out = draft[:dm.start()] + src[m.start():j + 1] + '\n'
-        open(f'wip/{args.func}.perm.c', 'w').write(out)
-        print(f'MATCH -> wip/{args.func}.perm.c')
+        res = f'wip/{OVL}_{args.func}.perm.c' if OVL else f'wip/{args.func}.perm.c'
+        open(res, 'w').write(out)
+        print(f'MATCH -> {res}')
