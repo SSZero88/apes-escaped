@@ -36,7 +36,6 @@ void func_801401D4(void *arg0);
 extern s32 D_80145D24;
 extern M2C_UNK D_80145D30;
 s32 Spike_WithinRadiusXZ(s16, s16, s16);
-s32 func_8013D0C8();
 s32 func_8013D118(void);
 void func_80140530(void *arg0);
 extern s32 D_80145D20;
@@ -68,7 +67,17 @@ void func_8013D000(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D0C8);
+s32 func_8005BB5C(s32);
+
+s32 func_8013D0C8(void) {
+    s32 r;
+
+    r = 0;
+    if (SaveByte_Get(1) >= 2 || func_8005BB5C(1) >= 2) {
+        r = 1;
+    }
+    return r;
+}
 
 s32 func_8013D118(void) {
     return SaveByte_Get(1) == 5;
@@ -155,7 +164,12 @@ s32 func_8013E308(obj)
     return (s16)func_80056010(obj, 0x19, 4, 0);
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013E334);
+s32 func_8013E334(void *arg0) {
+    if (Object_DetachLink(arg0, 0) == 6 || Object_DetachLink(arg0, 1) == 6) {
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013E384);
 

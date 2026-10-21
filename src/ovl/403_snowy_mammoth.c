@@ -189,7 +189,17 @@ void func_8013F030(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013F0F8);
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013F21C);
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; } g_Spike_8013F21C asm("g_Spike");
+
+void func_8013F21C(void *arg0) {
+    M2C_FIELD(arg0, u8 *, 0x80) = 3;
+    M2C_FIELD(arg0, s16 *, 0xA8) = 0;
+    M2C_FIELD(arg0, u32 *, 0xE0) |= 0x10000;
+    M2C_FIELD(arg0, u16 *, 0xBC) = g_Spike_8013F21C.x;
+    M2C_FIELD(arg0, u16 *, 0xC0) = g_Spike_8013F21C.z;
+    M2C_FIELD(arg0, u16 *, 0xBE) = g_Spike_8013F21C.y - 0xC8;
+    M2C_FIELD(arg0, u8 *, 0x8F) = 0;
+}
 
 void func_8013F26C(void *arg0) {
     if (M2C_FIELD(arg0, u8 *, 0x81) == 0) {
@@ -229,4 +239,14 @@ INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_80140484);
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_801408E4);
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_80140938);
+extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; } g_Game;
+void func_80094B6C(s32, void *, void *);
+
+s32 func_80140938(s16 *p) {
+    func_80094B6C(p[4], g_Game.f_820C + p[2] * 0x38, p + 7);
+    return 0;
+}
+
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop\n\tnop");

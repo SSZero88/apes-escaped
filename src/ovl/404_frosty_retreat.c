@@ -373,7 +373,17 @@ void func_8013F1B0(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013F278);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013F39C);
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; } g_Spike_8013F39C asm("g_Spike");
+
+void func_8013F39C(void *arg0) {
+    M2C_FIELD(arg0, u8 *, 0x80) = 3;
+    M2C_FIELD(arg0, s16 *, 0xA8) = 0;
+    M2C_FIELD(arg0, u32 *, 0xE0) |= 0x10000;
+    M2C_FIELD(arg0, u16 *, 0xBC) = g_Spike_8013F39C.x;
+    M2C_FIELD(arg0, u16 *, 0xC0) = g_Spike_8013F39C.z;
+    M2C_FIELD(arg0, u16 *, 0xBE) = g_Spike_8013F39C.y - 0xC8;
+    M2C_FIELD(arg0, u8 *, 0x8F) = 0;
+}
 
 void func_8013F3EC(void *arg0) {
     if (M2C_FIELD(arg0, u8 *, 0x81) == 0) {

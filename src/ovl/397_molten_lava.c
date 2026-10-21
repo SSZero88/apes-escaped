@@ -117,9 +117,26 @@ void func_8013DFC4(void *arg0, s32 n, s16 x, s32 z) {
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E010);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E174);
+void func_8013E174(void *arg0, s32 f1, s32 f2) {
+    s32 d = M2C_FIELD(arg0, u16 *, 0x5C) - *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E1C4);
+    if (d == f1) {
+        Object_PlaySound(arg0, 0xAC);
+    } else if (d == f2) {
+        Object_PlaySound(arg0, 0xAD);
+    }
+}
+
+void func_8013E1C4(void *arg0) {
+    switch (M2C_FIELD(arg0, u8 *, 0x7F)) {
+    case 0:
+        func_8013E174(arg0, 0x10, 0x2E);
+        break;
+    case 1:
+        func_8013E174(arg0, 5, 0x12);
+        break;
+    }
+}
 
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 extern M2C_UNK D_80141168;

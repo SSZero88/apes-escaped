@@ -392,7 +392,17 @@ void func_80140098(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_80140160);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_80140284);
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; } g_Spike_8013F21C asm("g_Spike");
+
+void func_80140284(void *arg0) {
+    M2C_FIELD(arg0, u8 *, 0x80) = 3;
+    M2C_FIELD(arg0, s16 *, 0xA8) = 0;
+    M2C_FIELD(arg0, u32 *, 0xE0) |= 0x10000;
+    M2C_FIELD(arg0, u16 *, 0xBC) = g_Spike_8013F21C.x;
+    M2C_FIELD(arg0, u16 *, 0xC0) = g_Spike_8013F21C.z;
+    M2C_FIELD(arg0, u16 *, 0xBE) = g_Spike_8013F21C.y - 0xC8;
+    M2C_FIELD(arg0, u8 *, 0x8F) = 0;
+}
 
 void func_801402D4(void *arg0) {
     if (M2C_FIELD(arg0, u8 *, 0x81) == 0) {

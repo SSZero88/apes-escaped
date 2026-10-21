@@ -379,7 +379,14 @@ INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80140F30);
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80140FE0);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8014119C);
+s32 func_8014119C(s16 *p) {
+    u8 *e = g_Game.f_820C + p[2] * 0x38;
+
+    p[3] = 0;
+    M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+    p[1] = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_801411E8);
 
