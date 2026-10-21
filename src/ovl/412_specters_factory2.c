@@ -107,7 +107,14 @@ void func_8013D810(SVECTOR *arg0) {
     Effect_SpawnAt(4, &v);
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013D850);
+void func_8013D850(SVECTOR *arg0) {
+    SVECTOR v;
+
+    v.vx = arg0->vx;
+    v.vy = arg0->vy;
+    v.vz = arg0->vz;
+    Effect_SpawnAt(0x102, &v);
+}
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013D890);
 

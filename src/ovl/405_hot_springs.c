@@ -111,7 +111,22 @@ INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013E7B8);
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013E8A4);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013E8FC);
+s16 Object_FloorAt(void *, s16, s16, s16);
+void func_80070284(SVECTOR *, void *, s32, s32, s32);
+extern u8 D_8014117C[];
+
+void func_8013E8FC(void *arg0) {
+    SVECTOR v;
+
+    if (M2C_FIELD(arg0, u8 *, 0x7F) == 3 &&
+        M2C_FIELD(arg0, u16 *, 0x5C) == *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88)) + 0x1F) {
+        v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+        v.vy = Object_FloorAt(arg0, 0, 0, 0);
+        v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+        func_80070284(&v, D_8014117C, 1, 0, 0);
+        Object_PlaySound(arg0, 0x4B);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013E998);
 
@@ -238,7 +253,14 @@ void func_8013F654(SVECTOR *arg0) {
     Effect_SpawnAt(4, &v);
 }
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013F694);
+void func_8013F694(SVECTOR *arg0) {
+    SVECTOR v;
+
+    v.vx = arg0->vx;
+    v.vy = arg0->vy;
+    v.vz = arg0->vz;
+    Effect_SpawnAt(0x102, &v);
+}
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013F6D4);
 
@@ -315,7 +337,20 @@ INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_80140160);
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_80140284);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_801402D4);
+void func_801402D4(void *arg0) {
+    if (M2C_FIELD(arg0, u8 *, 0x81) == 0) {
+        M2C_FIELD(arg0, u32 *, 0xE0) &= ~0x200000;
+        return;
+    }
+    if (M2C_FIELD(arg0, s16 *, 0x96) >= 0x39) {
+        M2C_FIELD(arg0, u8 *, 0x82) = 0;
+        M2C_FIELD(arg0, u8 *, 0x8F) = 0;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 0;
+        M2C_FIELD(arg0, u32 *, 0xE0) &= ~0x100000;
+        M2C_FIELD(arg0, u16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+        M2C_FIELD(arg0, u8 *, 0x80) = 5;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_80140348);
 

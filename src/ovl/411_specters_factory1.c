@@ -82,7 +82,16 @@ void func_8013D98C(SVECTOR *arg0) {
     Effect_SpawnAt(4, &v);
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013D9CC);
+void Effect_SpawnAt(s32, SVECTOR *);
+
+void func_8013D9CC(SVECTOR *arg0) {
+    SVECTOR v;
+
+    v.vx = arg0->vx;
+    v.vy = arg0->vy;
+    v.vz = arg0->vz;
+    Effect_SpawnAt(0x102, &v);
+}
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013DA0C);
 
@@ -297,7 +306,19 @@ void func_8013ED48(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013EEB4);
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013F484);
+s32 Object_AddAttackSphereNear_8013F484(void *, s16, s16, s16, s32, s32, s32) asm("Object_AddAttackSphereNear");
+void func_8006D548(SVECTOR *);
+
+void func_8013F484(void *arg0, s16 x, s16 y, s16 z) {
+    SVECTOR v;
+
+    v.vx = x;
+    v.vy = y;
+    v.vz = z;
+    func_8006D548(&v);
+    Object_AddAttackSphereNear_8013F484(arg0, M2C_FIELD(arg0, u16 *, 0x44) + 0x32, v.vx, v.vy, v.vz,
+                               M2C_FIELD(arg0, s16 *, 0x48), M2C_FIELD(arg0, s16 *, 0x4A));
+}
 
 s32 Object_AddAttackSphereNear_8013F4F0(void *, s16, s16, s16, s32, s32, s32) asm("Object_AddAttackSphereNear");
 M2C_UNK Object_PlaySound_8013F4F0(s32, M2C_UNK) asm("Object_PlaySound");

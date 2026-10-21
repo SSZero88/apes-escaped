@@ -124,7 +124,22 @@ void func_80140D88(SVECTOR *arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_80140F78);
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_80141418);
+void Effect_SpawnAt(s32, SVECTOR *);
+void Fx_SpawnFadeRing(SVECTOR *, s32, s32, s32);
+void Effect_SpawnAt(s32, SVECTOR *);
+void *memset(void *, s32, s32);
+
+void func_80141418(s16 x, s16 y, s16 z) {
+    SVECTOR v;
+
+    memset(&v, 0, 8);
+    v.vx = x;
+    v.vy = y - 0x60;
+    v.vz = z;
+    func_80140D88(&v, 0x10);
+    Effect_SpawnAt(0x112, &v);
+    Fx_SpawnFadeRing(&v, 5, 0x80, 0);
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8014149C);
 

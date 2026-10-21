@@ -110,7 +110,19 @@ void func_8013E9EC(void *arg0, M2C_UNK arg1) {
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013EA38);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013ED30);
+s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
+void func_8006D548(SVECTOR *);
+
+void func_8013ED30(void *arg0, s16 x, s16 y, s16 z) {
+    SVECTOR v;
+
+    v.vx = x;
+    v.vy = y;
+    v.vz = z;
+    func_8006D548(&v);
+    Object_AddAttackSphereNear(arg0, M2C_FIELD(arg0, u16 *, 0x44) + 0x32, v.vx, v.vy, v.vz,
+                               M2C_FIELD(arg0, s16 *, 0x48), M2C_FIELD(arg0, s16 *, 0x4A));
+}
 
 s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
 

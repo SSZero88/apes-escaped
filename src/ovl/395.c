@@ -106,7 +106,19 @@ INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_801373A4);
 
 INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_801374D0);
 
-INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_80137CD4);
+extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; } g_Game;
+void SetDrawStp(void *, s32);
+
+void func_80137CD4(void) {
+    u8 *p;
+    u32 *ot;
+
+    p = G_DRAW.prim;
+    SetDrawStp(p, 1);
+    ot = &G_DRAW.db[G_DRAW.cur].ot[0xFFF];
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    G_DRAW.prim = p + 0xC;
+}
 
 INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_80137D4C);
 

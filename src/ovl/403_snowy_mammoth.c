@@ -79,7 +79,22 @@ INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013E4FC);
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013E5E8);
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013E640);
+s16 Object_FloorAt(void *, s16, s16, s16);
+void func_80070284(SVECTOR *, void *, s32, s32, s32);
+extern u8 D_80140A74[];
+
+void func_8013E640(void *arg0) {
+    SVECTOR v;
+
+    if (M2C_FIELD(arg0, u8 *, 0x7F) == 3 &&
+        M2C_FIELD(arg0, u16 *, 0x5C) == *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88)) + 0x1F) {
+        v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+        v.vy = Object_FloorAt(arg0, 0, 0, 0);
+        v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+        func_80070284(&v, D_80140A74, 1, 0, 0);
+        Object_PlaySound(arg0, 0x4B);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013E6DC);
 
@@ -170,7 +185,20 @@ INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013F0F8);
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013F21C);
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013F26C);
+void func_8013F26C(void *arg0) {
+    if (M2C_FIELD(arg0, u8 *, 0x81) == 0) {
+        M2C_FIELD(arg0, u32 *, 0xE0) &= ~0x200000;
+        return;
+    }
+    if (M2C_FIELD(arg0, s16 *, 0x96) >= 0x39) {
+        M2C_FIELD(arg0, u8 *, 0x82) = 0;
+        M2C_FIELD(arg0, u8 *, 0x8F) = 0;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 0;
+        M2C_FIELD(arg0, u32 *, 0xE0) &= ~0x100000;
+        M2C_FIELD(arg0, u16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+        M2C_FIELD(arg0, u8 *, 0x80) = 5;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013F2E0);
 

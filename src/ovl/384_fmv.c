@@ -284,7 +284,18 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138980);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138A6C);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138AC8);
+void SetDrawStp(void *, s32);
+
+void func_80138AC8(void) {
+    u8 *p;
+    u32 *ot;
+
+    p = G_DRAW.prim;
+    SetDrawStp(p, 1);
+    ot = &G_DRAW.db[G_DRAW.cur].ot[0xFFF];
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    G_DRAW.prim = p + 0xC;
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138B40);
 

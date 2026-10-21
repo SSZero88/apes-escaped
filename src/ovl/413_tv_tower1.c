@@ -159,7 +159,16 @@ void func_8013FAC0(SVECTOR *arg0) {
     Effect_SpawnAt(4, &v);
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013FB00);
+void Effect_SpawnAt(s32, SVECTOR *);
+
+void func_8013FB00(SVECTOR *arg0) {
+    SVECTOR v;
+
+    v.vx = arg0->vx;
+    v.vy = arg0->vy;
+    v.vz = arg0->vz;
+    Effect_SpawnAt(0x102, &v);
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013FB40);
 

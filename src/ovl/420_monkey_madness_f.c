@@ -80,7 +80,20 @@ void func_8013D028(SVECTOR *arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013D218);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013D6B8);
+void Effect_SpawnAt(s32, SVECTOR *);
+void Fx_SpawnFadeRing(SVECTOR *, s32, s32, s32);
+
+void func_8013D6B8(s16 x, s16 y, s16 z) {
+    SVECTOR v;
+
+    memset(&v, 0, 8);
+    v.vx = x;
+    v.vy = y - 0x60;
+    v.vz = z;
+    func_8013D028(&v, 0x10);
+    Effect_SpawnAt(0x112, &v);
+    Fx_SpawnFadeRing(&v, 5, 0x80, 0);
+}
 
 void Effect_SpawnAt(s32, SVECTOR *);
 s32 rcos_8013EF18(s32) asm("rcos");

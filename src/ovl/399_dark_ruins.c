@@ -311,7 +311,18 @@ void func_8013E810(void) {
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013E86C);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013EBBC);
+void func_8006D548(SVECTOR *);
+
+void func_8013EBBC(void *arg0, s16 x, s16 y, s16 z) {
+    SVECTOR v;
+
+    v.vx = x;
+    v.vy = y;
+    v.vz = z;
+    func_8006D548(&v);
+    Object_AddAttackSphereNear(arg0, M2C_FIELD(arg0, u16 *, 0x44) + 0x32, v.vx, v.vy, v.vz,
+                               M2C_FIELD(arg0, s16 *, 0x48), M2C_FIELD(arg0, s16 *, 0x4A));
+}
 
 s32 func_8013EC28(void *arg0, s32 arg1, s32 arg2) {
     SVECTOR v;
