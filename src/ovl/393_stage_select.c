@@ -15,7 +15,15 @@ INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_80137950);
 
 INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_801382D8);
 
-INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_801383EC);
+typedef struct { u8 pad0[0x12C]; s16 world[24]; } StageSet_393;
+extern u8 D_80139914[];
+extern StageSet_393 D_80138A20[];
+s32 Stage_GetWorld(s32);
+void func_80096580(s32);
+
+void func_801383EC(s32 world, s32 stage) {
+    func_80096580(Stage_GetWorld(D_80138A20[world].world[D_80139914[stage * 2 + world * 9 + 1]]));
+}
 
 INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_80138468);
 

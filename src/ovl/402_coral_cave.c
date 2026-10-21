@@ -396,7 +396,21 @@ void func_8013F984(void *arg0) {
     Object_DisableCollision(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013F9D4);
+extern u8 D_80141200[];
+void func_800702B0(SVECTOR *, void *);
+void Object_CameraShake(void *, s32);
+
+void func_8013F9D4(void *arg0) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28) - 0x64;
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    func_800702B0(&v, D_80141200);
+    func_800702B0(&v, D_80141200 + 0xC);
+    Object_CameraShake(arg0, 0);
+    Object_PlaySound(arg0, 0x79);
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013FA50);
 

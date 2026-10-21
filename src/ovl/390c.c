@@ -60,7 +60,27 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013D834);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013D92C);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DA00);
+extern s16 D_800E3880_8013DA00 asm("D_800E3880");
+void func_8013CD1C(s32, s32);
+
+s32 func_8013DA00(void) {
+    switch (D_800E3880_8013DA00) {
+    case -7:
+        if (D_8013AF56 != 0x26) {
+            func_8013CD1C(0x12, 0);
+        }
+        break;
+    case -2:
+    case -1:
+        func_8013CD1C(0x29, 0);
+        break;
+    case -8:
+        break;
+    case 1:
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DA7C);
 
@@ -76,7 +96,25 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DEB4);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DF40);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013E098);
+extern s16 D_8013F284;
+void MemCardSync(s32, s32 *, s32 *);
+void func_801444D4(s32);
+void func_8014236C(s32, s32 *, s32 *);
+
+s32 func_8013E098(void) {
+    s32 cmd;
+    s32 res;
+
+    MemCardSync(0, &cmd, &res);
+    func_801444D4(0);
+    func_8014236C(0, &cmd, &res);
+    if (res == 0) {
+        D_8013F284 = 0;
+    } else {
+        D_8013F284 = 1;
+    }
+    return 0;
+}
 
 extern s16 D_8013F284;
 void MemCardSync(s32, s32 *, s32 *);
@@ -117,7 +155,25 @@ s32 func_8013E22C(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013E290);
+void func_8013E438(void);
+void func_8013E604(void);
+void func_8013EBD0(void);
+s32 func_8013FEA0(void);
+void func_80136160(s32, s32, s32, s32);
+void func_80139A68(void);
+
+s32 func_8013E290(void) {
+    func_8013E438();
+    func_8013E604();
+    if (D_8013AF56 == 0x1D) {
+        func_8013EBD0();
+        func_8013FEA0();
+    }
+    func_80136160(0xC, 0x14, 0x160, 0x5E);
+    func_80136160(0xC, 0x6E, 0x160, 0x6A);
+    func_80139A68();
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013E30C);
 

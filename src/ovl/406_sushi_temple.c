@@ -74,7 +74,20 @@ INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D9C4);
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013DAFC);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013DBF4);
+s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s32);
+s32 Object_SpikeInFront(void *, s32, s32, s32);
+
+s32 func_8013DBF4(void *arg0) {
+    if (Object_SpikeOutOfRange(arg0, M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s32 *, 0x28),
+                               M2C_FIELD(arg0, s32 *, 0x2C), 0x300) == 0 ||
+        Object_SpikeInFront(arg0, 0x5A, 0xB50, 0x600) != 0) {
+        M2C_FIELD(arg0, u8 *, 0x80) = 3;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 4;
+        M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, u8 **, 0x88), u16 *, 0x10);
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013DC70);
 
