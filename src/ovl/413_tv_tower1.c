@@ -307,7 +307,14 @@ s32 func_80140FA0(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80140FD4);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8014102C);
+void func_8014102C(void *arg0, s32 a) {
+    if (a != 0) {
+        a = 0xC;
+    } else {
+        a = 6;
+    }
+    func_80052038(arg0, a);
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8014105C);
 

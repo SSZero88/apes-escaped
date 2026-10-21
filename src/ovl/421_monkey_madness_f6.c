@@ -113,7 +113,17 @@ INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013E97C);
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013EE04);
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013F4F0);
+extern struct { s32 f_0; s32 f_4; u8 pad8[0x12]; u8 f_1A[18]; } D_80140D30;
+
+void func_8013F4F0(void) {
+    s32 i;
+
+    for (i = 0; i < 18; i++) {
+        D_80140D30.f_1A[i] = 0;
+        D_80140D30.f_0 = 0;
+        D_80140D30.f_4 = 0;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013F520);
 

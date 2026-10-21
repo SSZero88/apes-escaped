@@ -151,7 +151,17 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80137104);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013730C);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80137424);
+typedef struct { u8 f_0; u8 f_1; u8 pad2[14]; } Ent_390;
+
+s32 func_80137424(void) {
+    s32 i;
+    s32 s;
+
+    for (i = s = 0; i < 30; i++) {
+        s += ((Ent_390 *)0x80102400)[i].f_1;
+    }
+    return s;
+}
 
 s16 func_80137454(void) {
     s16 temp_a0;
@@ -221,7 +231,16 @@ s32 func_80137DA8(s32 arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80137E1C);
+s32 func_80137E4C(void);
+
+s32 func_80137E1C(void) {
+    s32 r = func_80137E4C();
+
+    if (r != 0) {
+        return r;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80137E4C);
 

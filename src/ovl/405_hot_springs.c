@@ -7,7 +7,6 @@ s32 func_8013D520();
 M2C_UNK Spike_WithinRadiusXZ(s16, s16, s16);
 M2C_UNK Object_StepOnGroundFixed(s32);
 M2C_UNK func_80056128(s32, M2C_UNK);
-s32 func_8013E998();
 M2C_UNK func_800525E0();
 M2C_UNK func_80052864(void *);
 M2C_UNK func_80052038(void *, M2C_UNK);
@@ -148,7 +147,14 @@ void func_8013E8FC(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013E998);
+/* called without arguments (old-style declaration), so defined old-style */
+s32 func_8013E998(arg0)
+    void *arg0;
+{
+    s32 d = M2C_FIELD(arg0, u16 *, 0x5C) - *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));
+
+    return d < 9 || d > 0x1F;
+}
 
 s32 func_8013E9C8(void *arg0) {
     return Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6));

@@ -152,7 +152,17 @@ INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_801388A4);
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138978);
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138ABC);
+typedef struct { u8 f_0; u8 f_1; u8 pad2[14]; } Ent_390;
+
+s32 func_80138ABC(void) {
+    s32 i;
+    s32 s;
+
+    for (i = s = 0; i < 30; i++) {
+        s += ((Ent_390 *)0x80102400)[i].f_1;
+    }
+    return s;
+}
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138AEC);
 
