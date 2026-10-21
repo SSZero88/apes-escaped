@@ -262,7 +262,21 @@ void func_80137F64(void *arg0, s32 arg1) {
     func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0, &D_8013C558);
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013800C);
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_384;
+extern Mat_384 D_800E78C0;
+extern Mat_384 D_800AF0A0;
+s32 func_8002FAF0(s32);
+void CompMatrix(void *, void *, void *);
+typedef struct { s32 f_0; Mat_384 m; } CamKey_384;
+
+void func_8013800C(void *arg0, CamKey_384 *k)
+{
+  Mat_384 *new_var;
+  func_8002FAF0(k->f_0);
+  D_800E78C0 = k->m;
+  new_var = &D_800AF0A0;
+  CompMatrix(new_var, &D_800E78C0, &D_800E78C0);
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138094);
 
