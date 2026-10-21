@@ -11,7 +11,6 @@ M2C_UNK Object_OrbitAround(void *, s16, s16, s32, s32);
 extern s32 D_8014115C;
 s16 func_80056010(void *, s16, s16, s32);
 
-M2C_UNK func_8013E994();
 extern s32 D_80141158;
 s32 Collision_GetShape(s32);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
@@ -137,7 +136,18 @@ void func_8013DDF8(u8 *a) {
     D_80141158 = 0;
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013DE98);
+extern struct { s32 x, y, z; u8 padC[0x14]; s16 w, h; } D_80141168_8013DE98 asm("D_80141168");
+extern u8 D_800E77E5;
+void Debug_DrawWorldQuad(void *, s32, s32);
+
+void func_8013DE98(u8 *a) {
+    D_80141168_8013DE98.x = M2C_FIELD(a, s32 *, 0x24) + ((M2C_FIELD(a, s16 *, 0x60) * 115) >> 10);
+    D_80141168_8013DE98.y = M2C_FIELD(a, s32 *, 0x28) - 0x104;
+    D_80141168_8013DE98.z = M2C_FIELD(a, s32 *, 0x2C) + ((M2C_FIELD(a, s16 *, 0x64) * 115) >> 10);
+    if (D_800E77E5 >= 2) {
+        Debug_DrawWorldQuad(&D_80141168_8013DE98, D_80141168_8013DE98.w, D_80141168_8013DE98.h);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013DF3C);
 
@@ -230,7 +240,25 @@ void func_8013E934(void *arg0, void *arg1) {
     M2C_FIELD(arg0, s32 *, 0x2C) = (s32) (M2C_FIELD(temp_a2, s16 *, 4) + ((s32) -(M2C_FIELD(arg1, s16 *, 0x60) * 0x28) >> 0xC));
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E994);
+void func_80051E98(void *, s32);
+
+/* called without all its arguments (old-style declaration), so defined old-style */
+void func_8013E994(a)
+    u8 *a;
+{
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(a, u16 *, 0x24);
+    v.vy = M2C_FIELD(a, u16 *, 0x28);
+    v.vz = M2C_FIELD(a, u16 *, 0x2C);
+    Effect_SpawnAt(0x102, &v);
+    func_80051E98(a, 0);
+    a[0x82] = 0;
+    M2C_FIELD(a, u32 *, 0xE0) &= ~0x100000;
+    Object_PlaySound(a, 0x6E);
+    Object_AddAttackSphereNear(a, 0x12C, M2C_FIELD(a, s16 *, 0x24), M2C_FIELD(a, s16 *, 0x28), M2C_FIELD(a, s16 *, 0x2C),
+                               0x201, 0x202);
+}
 
 void func_8013EA38(void *arg0) {
     if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 5) {

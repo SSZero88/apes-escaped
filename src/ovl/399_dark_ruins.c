@@ -627,7 +627,30 @@ INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8014090C);
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_801409D8);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_80140B50);
+extern u8 *D_800B4D64;
+
+s32 func_80140B50(s16 *p) {
+    u16 *e = (u16 *)(g_Game.f_820C + p[2] * 0x38);
+    s32 d;
+    u16 y;
+
+    e[0xC] = (e[0xC] & 0xFFF0) | 1;
+    e[0x14] = e[2];
+    if (p[10] == 0) {
+        p[1] = 0;
+        p[3] = 0;
+    } else {
+        p[1] = 2;
+        d = (s16)e[5] * 2;
+        p[3] = d;
+        y = e[0x14] + d;
+        e[2] = y;
+        if ((s16)e[7] >= 0) {
+            M2C_FIELD(D_800B4D64 + (s16)e[7] * 32, u16 *, 0x14) = y;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_80140BF4);
 

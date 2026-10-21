@@ -171,7 +171,24 @@ void func_8013E5C4(void *arg0)
   func_8005588C(arg0, new_var);
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E604);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; } Spike_407;
+extern Spike_407 g_Spike_8013E604 asm("g_Spike");
+s32 Math_WithinSquare(s32, s32, s32);
+s16 Object_FloorAt(void *, s32, s32, s32);
+
+s32 func_8013E604(void *a) {
+    Spike_407 *sp;
+
+    if (Math_WithinSquare(M2C_FIELD(a, s32 *, 0x24) - M2C_FIELD(a, s16 *, 0x9A), M2C_FIELD(a, s32 *, 0x2C) - M2C_FIELD(a, s16 *, 0x9E),
+                          M2C_FIELD(a, s16 *, 0xA6) + 0x400)) {
+        sp = &g_Spike_8013E604;
+        if (Object_FloorAt(a, 0, 0, 0) >= sp->y && M2C_FIELD(a, s16 *, 0x9C) < sp->y) {
+            return 0;
+        }
+    }
+    func_8013E5C4(a);
+    return 1;
+}
 
 void func_8013E6A8(s16 *arg0, s32 arg1, s32 arg2) {
     s16 temp_v0;

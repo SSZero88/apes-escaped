@@ -58,7 +58,21 @@ s32 func_8013D280(void) {
     return r;
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D2D0);
+void *memset(void *, s32, s32);
+void Pickup_Drop(s32, SVECTOR *, s32, s32);
+
+void func_8013D2D0(s32 *p) {
+    SVECTOR w;
+    SVECTOR v;
+
+    memset(&v, 0, 8);
+    v.vx = p[0];
+    v.vy = p[1] - 0x32;
+    v.vz = p[2];
+    w = v;
+    Pickup_Drop(1, &w, 3, 1);
+    Pickup_Drop(3, &w, 3, 0);
+}
 
 void func_8013D374(void *arg0) {
     if (M2C_FIELD(arg0, s8 *, 0x7C) == -1) {
@@ -268,7 +282,6 @@ void func_8013E3B8(void *arg0) {
 
 void func_800573A0(void *, s32, s32, s32);
 void func_8013E310(s32);
-void func_8013D2D0(void *);
 
 void func_8013E44C(void *arg0) {
     u32 s = M2C_FIELD(arg0, u32 *, 0x50) >> 28;
