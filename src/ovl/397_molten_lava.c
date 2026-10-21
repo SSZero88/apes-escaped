@@ -450,7 +450,22 @@ void func_801402F8(SVECTOR *arg0) {
     Effect_SpawnAt(4, &v);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_80140338);
+void func_80140338(SVECTOR *p) {
+    SVECTOR v;
+    s32 i;
+
+    v.vx = p->vx;
+    v.vy = p->vy;
+    v.vz = p->vz;
+    for (i = 0; i < 16; i++) {
+        Effect_SpawnAt(10, &v);
+        if (i & 1) {
+            Effect_SpawnAt(0x16, &v);
+        }
+    }
+    Effect_SpawnAt(5, &v);
+    Effect_SpawnAt(0x108, &v);
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_801403C0);
 

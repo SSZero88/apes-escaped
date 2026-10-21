@@ -327,7 +327,24 @@ void func_8013FE4C(void *arg0) {
     M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0xC);
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013FE94);
+extern u32 g_Game_8013FE94 asm("g_Game");
+void func_8013FAF4(void *, SVECTOR *);
+
+void func_8013FE94(void *arg0) {
+    SVECTOR v;
+
+    func_8013FA90(arg0, &v);
+    if (Spike_WithinRadiusXZ(v.vx, v.vz, 0x400)) {
+        func_8013FAF4(arg0, &v);
+        if (g_Game_8013FE94 & 1) {
+            func_80052038(arg0, 0x52);
+        } else {
+            func_80052038(arg0, 0x8A);
+        }
+    } else {
+        func_8013FE4C(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013FF1C);
 

@@ -188,7 +188,22 @@ void func_8013D9CC(SVECTOR *arg0) {
     Effect_SpawnAt(4, &v);
 }
 
-INCLUDE_ASM("asm/ovl/396/nonmatchings/396_primordial_ooze", func_8013DA0C);
+void func_8013DA0C(SVECTOR *p) {
+    SVECTOR v;
+    s32 i;
+
+    v.vx = p->vx;
+    v.vy = p->vy;
+    v.vz = p->vz;
+    for (i = 0; i < 16; i++) {
+        Effect_SpawnAt(10, &v);
+        if (i & 1) {
+            Effect_SpawnAt(0x16, &v);
+        }
+    }
+    Effect_SpawnAt(5, &v);
+    Effect_SpawnAt(0x108, &v);
+}
 
 INCLUDE_ASM("asm/ovl/396/nonmatchings/396_primordial_ooze", func_8013DA94);
 

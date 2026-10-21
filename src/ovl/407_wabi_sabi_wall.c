@@ -282,7 +282,23 @@ s32 func_801400A4(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_801400B8);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8014019C);
+extern u8 *D_800B4D64;
+void RotMatrixZYX(SVECTOR *, void *);
+
+s32 func_8014019C(s16 *p) {
+    SVECTOR r;
+
+    if ((**(u32 **)(D_800B4D64 + p[6] * 32) & 0xF) != 3) {
+        return 0;
+    }
+    {
+        r.vy = 0;
+        r.vx = 0;
+        r.vz = (u16)p[3] * (u16)p[4];
+        RotMatrixZYX(&r, M2C_FIELD(D_800B4D64 + p[6] * 32, void **, 0x1C));
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_80140224);
 
