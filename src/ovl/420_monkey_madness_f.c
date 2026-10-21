@@ -540,9 +540,75 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8014143C);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8014153C);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80141790);
+extern struct { u8 pad0[0x20C]; u8 *f_20C; } D_800F4350;
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_801418DC);
+s32 func_80141790(u8 *a) {
+    s16 ids[8];
+    s16 i;
+    s16 n;
+    s16 id;
+    u8 *e;
+    u8 *tbl;
+
+    ids[0] = M2C_FIELD(a, u16 *, 0xC) >> 8;
+    ids[1] = M2C_FIELD(a, u8 *, 0xC);
+    ids[2] = M2C_FIELD(a, u16 *, 0xE) >> 8;
+    ids[3] = M2C_FIELD(a, u8 *, 0xE);
+    ids[4] = M2C_FIELD(a, u16 *, 0x10) >> 8;
+    ids[5] = M2C_FIELD(a, u8 *, 0x10);
+    ids[6] = M2C_FIELD(a, u16 *, 0x12) >> 8;
+    ids[7] = M2C_FIELD(a, u8 *, 0x12);
+    tbl = D_800B4D64;
+    n = i = 0;
+    for (; i < 8; i++) {
+        id = ids[i];
+        if (id >= 0 && id != 0xFF) {
+            e = D_800F4350.f_20C + id * 0x38;
+            n++;
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+            M2C_FIELD(e, s16 *, 0xE) += i;
+            M2C_FIELD(tbl + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+        }
+    }
+    M2C_FIELD(a, s16 *, 0x14) = M2C_FIELD(a, s16 *, 0xA) / n;
+    M2C_FIELD(a, s16 *, 0x2) = 0;
+    M2C_FIELD(a, s16 *, 0x6) = 0;
+    return 0;
+}
+
+extern struct S_g_Game_801409C8 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; } g_Game_801409C8 asm("g_Game");
+
+s32 func_801418DC(u8 *a) {
+    s16 ids[8];
+    s16 t;
+    s32 r;
+    s32 d;
+    u8 *e;
+
+    t = ++M2C_FIELD(a, s16 *, 0x6);
+    if (t < M2C_FIELD(a, s16 *, 0xA) * 2) {
+        if (t < (M2C_FIELD(a, s16 *, 0x14) / 2) * 2) {
+            return 0;
+        }
+        ids[0] = M2C_FIELD(a, u16 *, 0xC) >> 8;
+        ids[1] = M2C_FIELD(a, u8 *, 0xC);
+        ids[2] = M2C_FIELD(a, u16 *, 0xE) >> 8;
+        ids[3] = M2C_FIELD(a, u8 *, 0xE);
+        ids[4] = M2C_FIELD(a, u16 *, 0x10) >> 8;
+        ids[5] = M2C_FIELD(a, u8 *, 0x10);
+        ids[6] = M2C_FIELD(a, u16 *, 0x12) >> 8;
+        ids[7] = M2C_FIELD(a, u8 *, 0x12);
+        r = M2C_FIELD(a, s16 *, 0x6) - (M2C_FIELD(a, s16 *, 0x14) / 2) * 2;
+        d = M2C_FIELD(a, s16 *, 0x14) * 2;
+        if (r % d != 0) {
+            return 0;
+        }
+        e = g_Game_801409C8.f_820C + ids[r / d] * 0x38;
+        M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+        M2C_FIELD(D_800B4D64 + M2C_FIELD(e, s16 *, 0xE) * 32, u16 *, 0x16) = 0xFFFF;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80141A6C);
 
