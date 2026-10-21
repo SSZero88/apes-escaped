@@ -11,7 +11,6 @@ extern M2C_UNK D_80140BB8;
 extern s32 D_80140BC0;
 M2C_UNK Object_StepOnGroundFixed(s32);
 M2C_UNK func_800585D0(s32, M2C_UNK, M2C_UNK, M2C_UNK);
-M2C_UNK func_8013D780();
 M2C_UNK Spike_WithinRadiusXZ(s16, s16, s16);
 M2C_UNK func_80056128(s32, M2C_UNK);
 M2C_UNK func_800525E0();
@@ -32,7 +31,24 @@ INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D488);
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D6A4);
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D780);
+extern struct { u8 pad0[0x24]; s32 x, y, z; } g_Spike_8013D780 asm("g_Spike");
+s32 Math_WithinSquare(s32, s32, s32);
+void Object_CameraShake(void *, s32);
+
+/* called without all its arguments (old-style declaration), so defined old-style */
+void func_8013D780(arg0)
+    void *arg0;
+{
+    s32 f = M2C_FIELD(arg0, u16 *, 0x5C) - *(u16 *)(M2C_FIELD(arg0, u8 **, 0x88) + M2C_FIELD(arg0, u8 *, 0x7F) * 4);
+
+    if (Math_WithinSquare(M2C_FIELD(arg0, s32 *, 0x24) - g_Spike_8013D780.x,
+                          M2C_FIELD(arg0, s32 *, 0x2C) - g_Spike_8013D780.z, 0xFA0)) {
+        if (f == 0xF || f == 0x31) {
+            Object_CameraShake(arg0, 1);
+            Object_PlaySound(arg0, 0xAC);
+        }
+    }
+}
 
 void func_8013D81C(void *arg0) {
     Collision_Remove(&D_80140B80);

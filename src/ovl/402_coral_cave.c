@@ -106,7 +106,14 @@ void func_8013DDA8(void *arg0, s16 speed) {
     func_8013DCF8(arg0, speed);
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DE0C);
+void func_8013DE0C(void *arg0, s32 k, s16 r) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24) + ((M2C_FIELD(arg0, s16 *, 0x60) * k) >> 12);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28);
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C) + ((M2C_FIELD(arg0, s16 *, 0x64) * k) >> 12);
+    Object_AddAttackSphereNear(arg0, r, v.vx, v.vy, v.vz, M2C_FIELD(arg0, s16 *, 0x48), M2C_FIELD(arg0, s16 *, 0x4A));
+}
 
 void func_8013DEA8(void *arg0) {
     s32 d = M2C_FIELD(arg0, u16 *, 0x5C) - *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));

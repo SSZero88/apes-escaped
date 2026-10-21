@@ -37,7 +37,22 @@ s32 rsin(s16);
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D000);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D130);
+extern s16 D_800E77E0;
+extern u8 g_Objects_8013D130[] asm("g_Objects");
+
+u8 *func_8013D130(u8 *arg0, s32 type, s32 flag) {
+    s32 i;
+    u8 *o;
+
+    for (i = 0; i < D_800E77E0; i++) {
+        o = g_Objects_8013D130 + i * 0xE4;
+        if (M2C_FIELD(arg0, s8 *, 0xCB) != i && o[0x7E] == type && ((M2C_FIELD(o, u32 *, 0xE0) >> 4) & 1) == flag &&
+            M2C_FIELD(o, s16 *, 0x9A) == M2C_FIELD(arg0, s16 *, 0x9A) && M2C_FIELD(o, s32 *, 0x9C) == M2C_FIELD(arg0, s32 *, 0x9C)) {
+            return o;
+        }
+    }
+    return 0;
+}
 
 /* called without all its arguments (old-style declaration), so defined old-style */
 s32 func_8013D1CC(arg0)
@@ -57,7 +72,6 @@ void func_8013D200(void *arg0, s16 arg1, s16 arg2) {
 }
 
 M2C_UNK func_80056AE4(void *, void *, s8);
-void *func_8013D130(void *, s32, s32);
 
 void func_8013D228(void *arg0, s32 arg1) {
     s32 temp_s2;
@@ -308,7 +322,23 @@ void func_8013DDD8(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013DE6C);
+extern u8 D_80141254[];
+void *memset(void *, s32, s32);
+
+void func_8013DE6C(void *arg0) {
+    SVECTOR w;
+    SVECTOR v;
+
+    memset(&v, 0, 8);
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28);
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    w = v;
+    func_800702B0(&w, D_80141254);
+    Object_PlaySound(arg0, 0x4D);
+    Object_DropPickups(arg0);
+    func_80051E98(arg0, 1);
+}
 
 void func_8013DF08(void) {
     Link_SendEvent(4, 3, 0);
