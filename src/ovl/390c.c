@@ -78,7 +78,24 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DF40);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013E098);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013E114);
+extern s16 D_8013F284;
+void MemCardSync(s32, s32 *, s32 *);
+void func_8014464C(s32, s16 *);
+void func_8014236C(s32, s32 *, s32 *);
+
+s32 func_8013E114(void) {
+    s16 info[16];
+    s32 cmd;
+    s32 res;
+
+    if (D_8013F284 != 0) {
+        return 0;
+    }
+    MemCardSync(0, &cmd, &res);
+    func_8014464C(0, info);
+    func_8014236C(0, &cmd, &res);
+    return info[0];
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013E188);
 

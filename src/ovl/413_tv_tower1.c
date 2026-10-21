@@ -32,7 +32,24 @@ INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D000);
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D08C);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D19C);
+extern struct S_g_Game_8013D19C { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013D19C asm("g_Game");
+extern u8 *D_800B4D64;
+
+s32 func_8013D19C(s16 *p) {
+    u8 *e;
+
+    p[3] = 0;
+    e = g_Game_8013D19C.f_8220 + p[4] * 0x18;
+    if (M2C_FIELD(e, s16 *, 2) == 0) {
+        p[1] = 0;
+    } else {
+        p[1] = 2;
+        if (p[6] >= 0) {
+            M2C_FIELD(D_800B4D64 + p[6] * 32, s16 *, 0x16) = 0;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D210);
 
@@ -255,7 +272,16 @@ void func_8013FD48(void) {
     Hook_Add(&func_8013FB40);
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013FD8C);
+extern u8 D_80141788_8013E464[] asm("D_80144690");
+
+void func_8013FD8C(void *arg0) {
+    func_8013F4B0(arg0, D_80141788_8013E464, 0x85);
+    func_8013F4B0(arg0, D_80141788_8013E464 + 0x70, 0x86);
+    func_8013F4B0(arg0, D_80141788_8013E464 + 0xE0, 0xB4);
+    func_8013F4B0(arg0, D_80141788_8013E464 + 0x150, 0x87);
+    M2C_FIELD(arg0, u8 *, 0x8F) = 0;
+    func_8013FD48();
+}
 
 typedef struct { u8 b[0x54]; } FxDef_411;
 extern u32 g_Game_8013E4D8 asm("g_Game");

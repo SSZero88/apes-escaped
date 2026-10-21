@@ -319,7 +319,25 @@ INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013AFC0);
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013B14C);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013B444);
+extern u8 g_Game[];
+
+void func_8013B444(s16 x, s16 y) {
+    SprtTp *p;
+    register u32 *ot asm("$4");
+
+    p = (SprtTp *)G_DRAW.prim;
+    ((u8 *)p)[3] = 5;
+    p->code = 0x65;
+    M2C_FIELD(p, u16 *, 0x10) = 0x40A0;
+    p->tpage = 0xE100020F;
+    p->clut = 0x3A7F;
+    p->x0 = x;
+    p->y0 = y;
+    M2C_FIELD(p, u32 *, 0x14) = 0x200020;
+    ot = G_DRAW.ot;
+    ADD_PRIM_R(ot, p, "$5", "$3");
+    G_DRAW.prim = (u8 *)(p + 1);
+}
 
 extern u8 D_8013F184[];
 
@@ -465,7 +483,31 @@ void func_8013E874(s32 arg0, s32 arg1, s8 arg2, s16 arg3) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013E8D0);
+typedef struct { u8 pad0[0xA]; u8 f_A; u8 f_B; u8 padC[0x26]; s16 f_32; s16 f_34; s16 f_36; } Tm_427;
+extern Tm_427 D_8013FC08_8013E8D0[2] asm("D_8013FC08");
+
+void func_8013E8D0(void) {
+    s32 i;
+    Tm_427 *e;
+
+    for (i = 0; i < 2; i++) {
+        e = &D_8013FC08_8013E8D0[i];
+        if (e->f_32 != 0) {
+            if (e->f_34 > 0) {
+                e->f_34--;
+            } else {
+                e->f_A = 0;
+            }
+            if (e->f_36 > 0) {
+                e->f_36--;
+                continue;
+            }
+        } else {
+            e->f_A = 0;
+        }
+        e->f_B = 0;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013E940);
 

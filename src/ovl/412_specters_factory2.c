@@ -296,7 +296,17 @@ void func_8013E8C4(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x7C) = -1;
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013E908);
+extern u8 D_80141B10[];
+
+void func_8013E908(void *arg0) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28) - 0x40;
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    func_80070284(&v, D_80141B10, 1, 0, 0);
+    func_80070284(&v, D_80141B10 + 0x54, 1, 0, 0);
+}
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013E97C);
 
@@ -533,4 +543,16 @@ s32 func_801417C8(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_801417DC);
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_80141960);
+extern u32 g_Game_80141960 asm("g_Game");
+#define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
+void Sound_PlayAt(s32, void *);
+
+s32 func_80141960(u8 *arg0) {
+    if (g_Game_80141960 % 10 == 0) {
+        Sound_PlayAt(((RAND() >> 8) & 3) + 0xB6, arg0 + 8);
+    }
+    return 0;
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop\n\tnop\n\tnop");

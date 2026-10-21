@@ -471,4 +471,15 @@ s32 func_80140968(s16 *p) {
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_801409B0);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_80140F94);
+extern u32 g_Game_80140F94 asm("g_Game");
+void Sound_PlayAt(s32, void *);
+
+s32 func_80140F94(u8 *arg0) {
+    if (g_Game_80140F94 % 10 == 0) {
+        Sound_PlayAt(((RAND() >> 8) & 3) + 0xB6, arg0 + 8);
+    }
+    return 0;
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop\n\tnop");

@@ -257,7 +257,16 @@ s32 func_8013E0CC(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013E150);
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013E464);
+extern u8 D_80141788_8013E464[] asm("D_80141788");
+
+void func_8013E464(void *arg0) {
+    func_8013D37C(arg0, D_80141788_8013E464, 0x85);
+    func_8013D37C(arg0, D_80141788_8013E464 + 0x70, 0x86);
+    func_8013D37C(arg0, D_80141788_8013E464 + 0xE0, 0xB4);
+    func_8013D37C(arg0, D_80141788_8013E464 + 0x150, 0x87);
+    M2C_FIELD(arg0, u8 *, 0x8F) = 0;
+    func_8013DC14();
+}
 
 typedef struct { u8 b[0x54]; } FxDef_411;
 extern u32 g_Game_8013E4D8 asm("g_Game");
