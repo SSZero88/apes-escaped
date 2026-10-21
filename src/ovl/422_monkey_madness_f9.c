@@ -205,13 +205,29 @@ INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F198);
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F598);
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F75C);
+void func_8013F75C(void *arg0, s32 anim) {
+    if (M2C_FIELD(arg0, u16 *, 0x90) != anim) {
+        M2C_FIELD(arg0, u16 *, 0x90) = anim;
+        M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(anim * 4 + M2C_FIELD(arg0, u8 **, 0x8C));
+    }
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F78C);
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F86C);
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F930);
+typedef struct { u8 pad0[0x92]; u8 f_92; u8 pad93[9]; s16 f_9C; u8 pad9E[2]; } Ent_422b;
+extern Ent_422b D_80144AA8[2];
+
+void func_8013F930(void) {
+    s32 i;
+    Ent_422b *p;
+
+    for (i = 0, p = D_80144AA8; i < 2; i++, p++) {
+        p->f_92 = 1;
+        p->f_9C = 0;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F964);
 

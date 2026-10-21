@@ -226,7 +226,14 @@ void func_8013F398(s8 arg0) {
     D_80142321 = arg0;
 }
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013F3A4);
+void func_8013F3A4(void *arg0, s32 anim) {
+    if (M2C_FIELD(arg0, u16 *, 0x78) != anim) {
+        M2C_FIELD(arg0, u16 *, 0x78) = anim;
+        M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(anim * 4 + M2C_FIELD(arg0, u8 **, 0x74));
+        M2C_FIELD(arg0, u8 *, 0x7A) = 1;
+        M2C_FIELD(arg0, u8 *, 0x7B) = 0;
+    }
+}
 
 void func_8013F3DC(void *arg0) {
     u16 temp_a0;

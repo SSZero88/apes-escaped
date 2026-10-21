@@ -18,7 +18,6 @@ M2C_UNK func_80056128(void *, M2C_UNK);
 s32 func_800572CC(void *);
 M2C_UNK func_80058134(void *, s16);
 M2C_UNK func_8013D000(void *);
-s32 func_8013D1CC();
 M2C_UNK func_8013D3D8(void *);
 M2C_UNK Object_PlaySound(s32, M2C_UNK);
 extern u16 g_RandSeed;
@@ -40,7 +39,15 @@ INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D000);
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D130);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D1CC);
+/* called without all its arguments (old-style declaration), so defined old-style */
+s32 func_8013D1CC(arg0)
+    void *arg0;
+{
+    if (M2C_FIELD(arg0, u8 *, 0x7E) == 0x68) {
+        return func_8013D130(arg0, 0x67, 1);
+    }
+    return 0;
+}
 
 void func_8013D200(void *arg0, s16 arg1, s16 arg2) {
     M2C_FIELD(arg0, s16 *, 0x96) = -0x2D;

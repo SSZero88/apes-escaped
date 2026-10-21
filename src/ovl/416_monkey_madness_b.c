@@ -20,7 +20,6 @@ s32 Sound_Play(M2C_UNK, s32);
 M2C_UNK func_8013D440(M2C_UNK, M2C_UNK *, void *);
 extern M2C_UNK D_80141D20;
 extern M2C_UNK D_801421C0;
-M2C_UNK func_8013EF0C(M2C_UNK *, M2C_UNK);
 extern M2C_UNK D_80142260;
 extern M2C_UNK D_801418A0;
 
@@ -204,7 +203,14 @@ void func_8013EF00(s8 arg0) {
     D_80141881 = arg0;
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013EF0C);
+void func_8013EF0C(void *arg0, s32 anim) {
+    if (M2C_FIELD(arg0, u16 *, 0x78) != anim) {
+        M2C_FIELD(arg0, u16 *, 0x78) = anim;
+        M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(anim * 4 + M2C_FIELD(arg0, u8 **, 0x74));
+        M2C_FIELD(arg0, u8 *, 0x7A) = 1;
+        M2C_FIELD(arg0, u8 *, 0x7B) = 0;
+    }
+}
 
 void func_8013EF44(void *arg0) {
     u16 temp_a0;

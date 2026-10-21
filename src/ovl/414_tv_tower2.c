@@ -284,7 +284,13 @@ s32 func_80140794(void *arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_801407FC);
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_80140948);
+void func_80140948(void *arg0, s32 anim) {
+    if (M2C_FIELD(arg0, u16 *, 0x78) != anim) {
+        M2C_FIELD(arg0, u16 *, 0x78) = anim;
+        M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(anim * 4 + M2C_FIELD(arg0, u8 **, 0x74));
+        M2C_FIELD(arg0, u8 *, 0xBB) = 1;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8014097C);
 

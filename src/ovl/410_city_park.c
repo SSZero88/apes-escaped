@@ -29,7 +29,6 @@ M2C_UNK func_80056128(void *, M2C_UNK);
 s32 func_800572CC(void *);
 M2C_UNK func_80058134(void *, s16);
 M2C_UNK func_8013FA08(void *);
-s32 func_8013FBD4();
 M2C_UNK func_8013FDE0(void *);
 M2C_UNK Object_SeekHeight(void *, M2C_UNK);
 s32 func_80055718(void *, s16, s16, s16, s32);
@@ -369,7 +368,15 @@ INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FA08);
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FB38);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FBD4);
+/* called without all its arguments (old-style declaration), so defined old-style */
+s32 func_8013FBD4(arg0)
+    void *arg0;
+{
+    if (M2C_FIELD(arg0, u8 *, 0x7E) == 0x68) {
+        return func_8013FB38(arg0, 0x67, 1);
+    }
+    return 0;
+}
 
 void func_8013FC08(void *arg0, s16 arg1, s16 arg2) {
     M2C_FIELD(arg0, s16 *, 0x96) = -0x2D;
