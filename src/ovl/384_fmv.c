@@ -528,7 +528,20 @@ void func_8013AAC8(s32 *arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013AAF0);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013AC98);
+typedef struct { u16 lo, hi; u8 pad4[4]; } Range_384;
+extern s32 D_8013C714;
+extern Range_384 *D_8013C758;
+
+s32 func_8013AC98(u32 x) {
+    s32 i;
+
+    for (i = 0; i < D_8013C714; i++) {
+        if (x >= D_8013C758[i].lo && D_8013C758[i].hi >= x) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 s32 func_8013AD04(u8 *arg0) {
     s32 var_v1;

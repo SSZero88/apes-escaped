@@ -158,7 +158,24 @@ void func_8013DC3C(void) {
     } while (var_v1 >= 0);
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013DC60);
+typedef struct { u8 pad0[0x14]; s32 b; u8 f_18; u8 pad19[7]; s32 a; SVECTOR v; s32 c; } Ev_423;
+extern Ev_423 D_8013FB90_8013DC60[4] asm("D_8013FB90");
+
+void func_8013DC60(s32 a, SVECTOR *v, s32 b, s32 c) {
+    s32 i;
+    Ev_423 *e;
+
+    for (i = 3, e = D_8013FB90_8013DC60; i >= 0; i--, e++) {
+        if (e->f_18 == 0) {
+            e->f_18 = 1;
+            e->a = a;
+            e->v = *v;
+            e->b = b;
+            e->c = c;
+            return;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013DCC8);
 

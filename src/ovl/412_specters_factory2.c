@@ -320,7 +320,11 @@ INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013EBF4);
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013EC78);
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013ED10);
+void func_8013EC78(void *, s16, s16, s32, s32);
+
+void func_8013ED10(void *arg0, s16 n) {
+    func_8013EC78(arg0, n * 50 + 0x104, 500 - n * 10, -0x14, 5);
+}
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013ED7C);
 

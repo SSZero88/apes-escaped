@@ -7,7 +7,20 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013C7C4);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013C7F0);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013C8E8);
+extern struct S_g_Game { u8 pad_0[0x813C]; u16 f_813C; u8 pad_813E[0x16]; u16 f_8154; u16 f_8156; } g_Game;
+extern struct { u8 pad0[0xA1]; u8 f_A1; u8 f_A2; } g_GadgetState;
+extern struct { s16 f_0, f_2, f_4, f_6, f_8, f_A; } D_8013F5E4;
+s32 Save_SumStageMonkeys(s32);
+
+s32 func_8013C8E8(void) {
+    D_8013F5E4.f_0 = Save_SumStageMonkeys(0);
+    D_8013F5E4.f_2 = g_Game.f_813C;
+    D_8013F5E4.f_4 = g_Game.f_8154;
+    D_8013F5E4.f_6 = g_Game.f_8156;
+    D_8013F5E4.f_8 = g_GadgetState.f_A1;
+    D_8013F5E4.f_A = g_GadgetState.f_A2;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013C954);
 

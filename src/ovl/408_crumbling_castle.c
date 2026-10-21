@@ -209,7 +209,25 @@ void func_8013E654(void *arg0, s32 f1, s32 f2) {
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013E6A4);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013E7A8);
+void func_8013E7A8(void *arg0) {
+    u32 f;
+
+    if (M2C_FIELD(arg0, u8 *, 0x7F) == 0xB) {
+        f = M2C_FIELD(arg0, u32 *, 0xE0) & 1;
+        M2C_FIELD(arg0, u8 *, 0x80) = 0xC;
+        if (f == 1) {
+            M2C_FIELD(arg0, u8 *, 0x7F) = 0xC;
+            M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, u8 **, 0x88), u16 *, 0x30);
+        } else {
+            M2C_FIELD(arg0, u8 *, 0x7F) = 0xD;
+            M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, u8 **, 0x88), u16 *, 0x34);
+        }
+    } else {
+        M2C_FIELD(arg0, u8 *, 0x80) = 3;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 0;
+        M2C_FIELD(arg0, u16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+    }
+}
 
 void func_8013E814(void *arg0) {
     Object_HeadTowardSpike(arg0, func_8013E308());
@@ -709,7 +727,18 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80143A64);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80143B14);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80143B8C);
+extern struct S_g_Game_80143B8C { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80143B8C asm("g_Game");
+extern s16 D_800EC238;
+
+s32 func_80143B8C(s16 *p) {
+    u8 *e = g_Game_80143B8C.f_820C + p[2] * 0x38;
+
+    if (p[1] == 0 && D_800EC238 == p[2]) {
+        M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+        p[1] = 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80143BF8);
 

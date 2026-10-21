@@ -297,10 +297,18 @@ INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013FE94);
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013FF1C);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_80140044);
+s32 func_80140044(void *arg0) {
+    s16 *p = M2C_FIELD(arg0, s16 **, 0x90);
+    s32 d1;
+    s32 d2;
+
+    d1 = (p[0] - M2C_FIELD(arg0, s32 *, 0x24)) * (p[0] - M2C_FIELD(arg0, s32 *, 0x24)) +
+         (p[2] - M2C_FIELD(arg0, s32 *, 0x2C)) * (p[2] - M2C_FIELD(arg0, s32 *, 0x2C));
+    d2 = (p[0] - p[4]) * (p[0] - p[4]) + (p[2] - p[6]) * (p[2] - p[6]);
+    return d2 < d1;
+}
 
 M2C_UNK Object_ApplyVelocity_801400B0(void *, s32) asm("Object_ApplyVelocity");
-s32 func_80140044(void *);
 s32 Object_StepGrowShrink(void *, s16, s16, s16);
 
 void func_801400B0(void *arg0)
