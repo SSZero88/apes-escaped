@@ -162,7 +162,6 @@ void func_80137A64(void) {
     VSync(0);
 }
 
-
 __asm__(".section .text\n.balign 16");
 
 INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C484);
