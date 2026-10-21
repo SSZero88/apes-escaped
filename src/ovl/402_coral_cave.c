@@ -472,7 +472,16 @@ void func_8013FF44(void *arg0, void *arg1) {
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013FF9C);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_80140168);
+s16 Object_FloorAt(void *, s32, s32, s32);
+s32 Spike_WithinRadiusXZ(s32, s32, s32);
+s32 Spike_WithinRadiusXZ(s32, s32, s32);
+
+s32 func_80140168(void *arg0)
+{
+  s16 new_var;
+  new_var = Object_FloorAt(arg0, 0, 0, 0);
+  return ((D_800EC208 <= new_var) && ((*((s32 *) (((s8 *) arg0) + 0x28))) < D_800EC208)) && Spike_WithinRadiusXZ(*((s16 *) (((s8 *) arg0) + 0x9A)), *((s16 *) (((s8 *) arg0) + 0x9E)), 0x600);
+}
 
 M2C_UNK Object_SetVelocityToward(void *, void *, M2C_UNK, M2C_UNK);
 M2C_UNK Object_StepOnGround(void *, M2C_UNK);

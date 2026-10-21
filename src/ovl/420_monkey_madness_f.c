@@ -818,7 +818,25 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142C9C);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142D9C);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142EA0);
+extern struct S_g_Game_80142EA0 { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x11C]; u8 *f_8220; } g_Game_80142EA0 asm("g_Game");
+extern s32 D_800EC204;
+void CamFlyby_StartSegment(s32);
+
+s32 func_80142EA0(s16 *p) {
+    u8 *e;
+
+    if (p[1] == 0 && D_800EC204 > 0) {
+        p[1] = 2;
+        p[3] = 0;
+        if (p[5] > 0) {
+            CamFlyby_StartSegment(p[5] - 1);
+            g_Game_80142EA0.f_8100 = 5;
+        }
+        e = g_Game_80142EA0.f_8220 + p[6] * 0x18;
+        M2C_FIELD(e, s16 *, 2) = 0;
+    }
+    return 0;
+}
 
 s32 func_80142F40(void *arg0) {
     void *temp_v1;

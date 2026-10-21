@@ -641,7 +641,25 @@ s32 func_801406A0(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_80140714);
+void func_80094B6C(s32, void *, s16 *);
+
+s32 func_80140714(s16 *p) {
+    u8 *e = g_Game.f_820C + p[2] * 0x38;
+    s16 f;
+
+    switch (p[1]) {
+    case 0:
+        break;
+    case 1:
+        f = M2C_FIELD(e, s16 *, 0x32);
+        if (f == 0x55 || f == 0xBD) {
+            Sound_PlayAt(0x9C, e);
+        }
+        func_80094B6C(p[5], e, p + 7);
+        break;
+    }
+    return 0;
+}
 
 extern u8 *D_800B4DC4;
 

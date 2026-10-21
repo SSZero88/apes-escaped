@@ -144,7 +144,22 @@ void func_8013DA84(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013DAC8);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013DCC4);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mtx_417;
+extern Mtx_417 D_800F4810;
+extern u32 D_801409FC_8013DCC4[] asm("D_801409FC");
+void *ApplyMatrixSV(void *, void *, void *);
+void Effect_Spawn_8013DCC4(s32, s16 *, u32 *, s16 **) asm("Effect_Spawn");
+
+void func_8013DCC4(void *arg0) {
+    SVECTOR v;
+
+    ApplyMatrixSV(&D_800F4810, M2C_FIELD(arg0, u8 **, 0x10) + 0x2F0, &v);
+    v.vx += D_800F4810.t[0];
+    v.vy += D_800F4810.t[1];
+    v.vz += D_800F4810.t[2];
+    Effect_Spawn_8013DCC4(0xCA, &v.vx, D_801409FC_8013DCC4, 0);
+    Effect_Spawn_8013DCC4(0xCB, &v.vx, D_801409FC_8013DCC4, 0);
+}
 
 void func_8013DD64(void *arg0) {
     u16 temp_v1;

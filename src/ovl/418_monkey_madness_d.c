@@ -161,7 +161,15 @@ void func_8013E7A4(void) {
     func_8013E214();
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013E7F4);
+s16 Object_FloorAt(void *, s32, s32, s32);
+extern s32 D_800EC208;
+
+s32 func_8013E7F4(void *arg0)
+{
+  s16 new_var;
+  new_var = Object_FloorAt(arg0, 0, 0, 0);
+  return ((D_800EC208 <= new_var) && ((*((s32 *) (((s8 *) arg0) + 0x28))) < D_800EC208)) && Spike_WithinRadiusXZ(*((s16 *) (((s8 *) arg0) + 0x9A)), *((s16 *) (((s8 *) arg0) + 0x9E)), 0x600);
+}
 
 void func_8013E86C(void *arg0) {
     s16 temp_a0;

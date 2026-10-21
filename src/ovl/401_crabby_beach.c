@@ -78,7 +78,16 @@ INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013D5FC);
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013D67C);
 
-INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013D8C0);
+s16 Object_FloorAt(void *, s32, s32, s32);
+s32 Spike_WithinRadiusXZ(s32, s32, s32);
+extern s32 D_800EC208;
+
+s32 func_8013D8C0(void *arg0)
+{
+  s16 new_var;
+  new_var = Object_FloorAt(arg0, 0, 0, 0);
+  return ((D_800EC208 <= new_var) && ((*((s32 *) (((s8 *) arg0) + 0x28))) < D_800EC208)) && Spike_WithinRadiusXZ(*((s16 *) (((s8 *) arg0) + 0x9A)), *((s16 *) (((s8 *) arg0) + 0x9E)), 0x600);
+}
 
 void func_8013D938(void *arg0) {
     s16 temp_a0;

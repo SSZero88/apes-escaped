@@ -554,7 +554,14 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80141AE0);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80141C90);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80141D64);
+s16 Object_FloorAt(void *, s32, s32, s32);
+
+s32 func_80141D64(void *arg0)
+{
+  s16 new_var;
+  new_var = Object_FloorAt(arg0, 0, 0, 0);
+  return ((D_800EC208 <= new_var) && ((*((s32 *) (((s8 *) arg0) + 0x28))) < D_800EC208)) && Spike_WithinRadiusXZ(*((s16 *) (((s8 *) arg0) + 0x9A)), *((s16 *) (((s8 *) arg0) + 0x9E)), 0x600);
+}
 
 void func_80141DDC(void *arg0) {
     s16 temp_a0;
