@@ -17,7 +17,19 @@ INCLUDE_RODATA("asm/ovl/390/nonmatchings/390c", D_8013EEE0);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013CD1C);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013D19C);
+extern s16 D_8013AF56;
+extern struct { s16 f_0; u8 pad2[6]; s16 f_8; u8 padA[2]; void *f_C; } D_800E3880;
+void MemCard_Request(s32, s32);
+
+s32 func_8013D19C(void) {
+    D_8013AF56 = 0x13;
+    MemCard_Request(8, 0);
+    D_800E3880.f_C = (void *)0x80158000;
+    D_800E3880.f_0 = 1;
+    D_800E3880.f_8 = 0;
+    MemCard_Request(10, 0);
+    return 0;
+}
 
 s32 func_8013D238(void);
 

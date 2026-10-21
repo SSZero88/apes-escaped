@@ -204,7 +204,16 @@ void func_8013E9C8(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013EA6C);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013ECA8);
+void Effect_SpawnAt(s32, SVECTOR *);
+
+void func_8013ECA8(void *arg0, s32 n) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28) - n * 11 - 0xC8;
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    Effect_SpawnAt(0x2D, &v);
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013ED00);
 

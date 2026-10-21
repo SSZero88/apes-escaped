@@ -100,7 +100,15 @@ INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DDA8);
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DE0C);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DEA8);
+void func_8013DEA8(void *arg0) {
+    s32 d = M2C_FIELD(arg0, u16 *, 0x5C) - *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));
+
+    if (d == 0x14) {
+        Object_PlaySound(arg0, 0xB4);
+    } else if (d == 0x19) {
+        Object_PlaySound(arg0, 0x69);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DF04);
 

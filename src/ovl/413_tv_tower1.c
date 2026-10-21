@@ -24,7 +24,6 @@ s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 s32 Object_DetachLink(void *, M2C_UNK);
 M2C_UNK func_800525E0();
 M2C_UNK func_80052864(void *);
-M2C_UNK func_80141A40(void *, M2C_UNK);
 s16 rcos(s16);
 s16 rsin(s16);
 extern struct S_D_80144858 { u8 pad_0[0xA]; s8 f_A; u8 pad_B[0x1]; } D_80144858[];
@@ -399,7 +398,19 @@ s32 func_80141A20(s32 x) {
     return -1;
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141A40);
+void func_80141A40(s16 *p, s32 lim) {
+    if (*p > 0) {
+        *p -= 5;
+        if (*p > lim) {
+            *p = lim;
+        }
+    } else if (*p < 0) {
+        *p += 5;
+        if (*p < -lim) {
+            *p = -lim;
+        }
+    }
+}
 
 void func_80141A98(void *arg0) {
     M2C_FIELD(arg0, u16 *, 0xD4) = (u16) (M2C_FIELD(arg0, u16 *, 0xD4) + (func_80141A20(M2C_FIELD(arg0, s16 *, 0xA8) - M2C_FIELD(arg0, s16 *, 0xC2)) * 0x14));
