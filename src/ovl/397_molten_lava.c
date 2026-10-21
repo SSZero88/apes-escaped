@@ -197,7 +197,11 @@ void func_8013EE80(void *arg0, void *arg1) {
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013EED0);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013F100);
+void func_8013F100(void *arg0) {
+    if (M2C_FIELD(arg0, u16 *, 0x5C) == *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88)) + 5) {
+        Object_PlaySound(arg0, 0xB2);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013F144);
 

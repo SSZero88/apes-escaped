@@ -14,7 +14,6 @@ extern s8 D_801452D8;
 extern M2C_UNK D_801452E0;
 extern M2C_UNK D_80145390;
 extern s16 D_80144C0C;
-M2C_UNK func_801406F8(M2C_UNK);
 extern u16 g_RandSeed;
 extern struct S_D_80144BE8 { u8 pad_0[0xC]; s8 f_C; u8 pad_D[0x3]; s16 f_10; } D_80144BE8;
 M2C_UNK Camera_StartShake(M2C_UNK);
@@ -245,7 +244,16 @@ void func_80140630(s16 arg0) {
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8014063C);
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801406F8);
+extern struct { u16 cur; u8 pad2[2]; u16 f_4; u8 f_6; u8 f_7; u8 *tbl; } D_80144BE8_801406F8 asm("D_80144BE8");
+
+void func_801406F8(s32 anim) {
+    if (D_80144BE8_801406F8.cur != anim) {
+        D_80144BE8_801406F8.cur = anim;
+        D_80144BE8_801406F8.f_4 = *(u16 *)(anim * 4 + D_80144BE8_801406F8.tbl);
+        D_80144BE8_801406F8.f_6 = 1;
+        D_80144BE8_801406F8.f_7 = 0;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_80140738);
 

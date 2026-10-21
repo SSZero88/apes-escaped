@@ -192,7 +192,17 @@ void func_8013E018(s32 arg0, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E0E0);
+typedef struct { u8 pad0[0xC]; s16 active; u8 padE[6]; } Drip_404;
+extern Drip_404 D_801421D0_s[8] asm("D_801421D0");
+
+void func_8013E0E0(void *arg0) {
+    s32 i;
+
+    func_8013DF78(arg0, D_80142270, 0x83);
+    for (i = 7; i >= 0; i--) {
+        D_801421D0_s[i].active = 0;
+    }
+}
 
 typedef struct { s16 x, y, z, vx, vy, vz, active, unkE; s32 unk10; } Drip_396;
 extern Drip_396 D_8013F2A0_s[8] asm("D_801421D0");
@@ -275,7 +285,6 @@ void func_8013E674(void *obj) {
     func_8013E164(obj, 0x46, 0xA0);
 }
 
-void func_8013E0E0(void *);
 void Object_DisableCollision(void *);
 
 void func_8013E698(void *arg0) {

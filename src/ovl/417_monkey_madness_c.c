@@ -256,7 +256,14 @@ INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013EE4C);
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013F37C);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013F450);
+void func_8013F450(void *arg0) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28);
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    Effect_SpawnAt(5, &v);
+}
 
 void func_8013F490(void *arg0) {
     s8 temp_a0;
@@ -318,7 +325,14 @@ s32 func_8013FE5C(void *arg0, s32 arg1) {
     return ((temp_v0 * temp_v0) + (temp_v0_2 * temp_v0_2)) < (temp_a1 * temp_a1);
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013FEB0);
+void func_8013FEB0(void *arg0) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28);
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    Effect_SpawnAt(4, &v);
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013FEF0);
 

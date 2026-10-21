@@ -246,7 +246,17 @@ void func_8013F38C(s32 arg0, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013F454);
+typedef struct { u8 pad0[0xC]; s16 active; u8 padE[6]; } Drip_405;
+extern Drip_405 D_801412E0_s[8] asm("D_801412E0");
+
+void func_8013F454(void *arg0) {
+    s32 i;
+
+    func_8013F2EC(arg0, D_80141380, 0x83);
+    for (i = 7; i >= 0; i--) {
+        D_801412E0_s[i].active = 0;
+    }
+}
 
 typedef struct { s16 x, y, z, vx, vy, vz, active, unkE; s32 unk10; } Drip_396;
 extern Drip_396 D_8013F2A0_s[8] asm("D_801412E0");
@@ -329,7 +339,6 @@ void func_8013F9E8(void *obj) {
     func_8013F4D8(obj, 0x46, 0xA0);
 }
 
-void func_8013F454(void *);
 void Object_DisableCollision(void *);
 
 void func_8013FA0C(void *arg0) {
@@ -415,7 +424,13 @@ s32 func_801406E0(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_80140730);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_80140968);
+s32 func_80140968(s16 *p) {
+    p[1] = 0;
+    p[3] = 0;
+    p[9] = -1;
+    p[10] = ((RAND() >> 8) & 7) * 30;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_801409B0);
 

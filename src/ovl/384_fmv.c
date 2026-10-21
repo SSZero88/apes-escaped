@@ -230,7 +230,14 @@ void func_80138254(void *arg0, s32 arg1) {
     func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0, &D_8013C558);
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801382FC);
+typedef struct { u8 r, g, b, pad; } Col_384;
+extern struct { u8 pad0[0x20]; Col_384 back; } D_800EBFA0;
+void SetBackColor(s32, s32, s32);
+
+void func_801382FC(void *arg0, Col_384 *c) {
+    D_800EBFA0.back = *c;
+    SetBackColor(D_800EBFA0.back.r, D_800EBFA0.back.g, D_800EBFA0.back.b);
+}
 
 void func_80138344(void) {
 }
@@ -361,7 +368,16 @@ u8 func_80139DE4(s32 i) {
     return D_8013C574_80139DE4[i];
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139E00);
+extern u32 D_8013C568;
+extern u8 *D_8013C574_80139E00 asm("D_8013C574");
+
+void func_80139E00(void) {
+    u32 i;
+
+    for (i = 0; i < D_8013C568; i++) {
+        D_8013C574_80139E00[i] = 0;
+    }
+}
 
 void func_80139E44(void *arg0) {
     void *temp_v1;
@@ -381,7 +397,18 @@ void func_80139E88(void *arg0, s32 arg1) {
     M2C_FIELD(arg0, s32 *, 0x18) = temp_s0;
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139EC4);
+typedef struct { s16 i; u8 v; u8 pad; } Set_384;
+extern u8 *D_8013C574_80139EC4 asm("D_8013C574");
+
+void func_80139EC4(u16 *len, Set_384 *e) {
+    s32 i;
+    s32 n;
+
+    n = (u32)(*len - 2) >> 1;
+    for (i = 0; i < n; i++) {
+        D_8013C574_80139EC4[e[i].i] = e[i].v;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139F0C);
 
