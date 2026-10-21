@@ -141,7 +141,13 @@ void func_8013D9A8(void *arg0) {
     Object_PlaySound(arg0, 0x4D);
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013DAC8);
+extern u32 g_Game_8013DAC8 asm("g_Game");
+
+void func_8013DAC8(void *arg0) {
+    if (g_Game_8013DAC8 % 5 == 0 || g_Game_8013DAC8 % 17 == 0) {
+        func_8013D9A8(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013DB34);
 

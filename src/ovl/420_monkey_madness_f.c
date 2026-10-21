@@ -160,7 +160,13 @@ void func_8013D9A8(void *arg0) {
     Object_PlaySound(arg0, 0x4D);
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DAC8);
+extern u32 g_Game_8013DAC8 asm("g_Game");
+
+void func_8013DAC8(void *arg0) {
+    if (g_Game_8013DAC8 % 5 == 0 || g_Game_8013DAC8 % 17 == 0) {
+        func_8013D9A8(arg0);
+    }
+}
 
 extern u8 D_801440C4[];
 void func_80070284(void *, void *, s32, s32, void *);
@@ -824,6 +830,17 @@ s32 func_80143D94(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80143DE8);
+s32 func_80143DE8(s16 *p) {
+    u16 *e = (u16 *)(g_Game.f_820C + p[2] * 0x38);
+
+    p[1] = 0;
+    p[3] = 0;
+    p[8] = e[0];
+    p[9] = e[1];
+    p[10] = e[2];
+    p[11] = -1;
+    e[0x13] = e[1];
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80143E54);

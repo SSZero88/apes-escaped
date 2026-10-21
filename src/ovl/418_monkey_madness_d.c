@@ -128,7 +128,18 @@ void func_8013DF40(void *arg0) {
     Object_PlaySound(arg0, 0xB6);
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013DFEC);
+s32 func_8013DFEC(void *arg0) {
+    if ((M2C_FIELD(arg0, u32 *, 0x50) >> 28) == 0xB) {
+        func_8013DF40(arg0);
+        return 1;
+    }
+    if (Object_DetachLink(arg0, 0) == 6) {
+        func_8013DF40(arg0);
+        M2C_FIELD(arg0, u8 *, 0xDC) = 0x63;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013E05C);
 
