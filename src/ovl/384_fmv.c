@@ -418,7 +418,15 @@ u32 func_80139F6C(void *arg0, u32 arg1) {
 /* an original object file starts at 0x80139FA0 (16-byte aligned) */
 __asm__(".section .text\n.balign 16");
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139FA0);
+extern s16 D_8013C582;
+extern u8 D_8013C580;
+
+void func_80139FA0(u8 *a) {
+    u8 v = a[4];
+
+    D_8013C582 = 0;
+    D_8013C580 = v;
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139FB8);
 

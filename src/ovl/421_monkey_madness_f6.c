@@ -57,19 +57,51 @@ INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D810);
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D860);
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013DE14);
+typedef struct { u8 pad0[0x54]; u8 f_54; u8 pad55[7]; } Slot_421;
+extern Slot_421 D_80140948[4];
+
+void func_8013DE14(void) {
+    s32 i;
+    Slot_421 *p;
+
+    for (i = 3, p = D_80140948; i >= 0; i--, p++) {
+        p->f_54 = 0;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013DE38);
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013DEEC);
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013E4D8);
+typedef struct { u8 pad0[0x1C]; u8 f_1C; u8 pad1D[7]; } Slot_421b;
+extern Slot_421b D_80140AB8[16];
+extern u8 D_80140CF8;
+
+void func_8013E4D8(void) {
+    s32 i;
+    Slot_421b *p;
+
+    for (i = 15, p = D_80140AB8; i >= 0; i--, p++) {
+        p->f_1C = 0;
+    }
+    D_80140CF8 = 0;
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013E500);
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013E650);
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013E8C0);
+typedef struct { u8 pad0[6]; u8 f_6; u8 pad7[5]; } Slot_421c;
+extern Slot_421c D_80140D00[4];
+
+void func_8013E8C0(void) {
+    s32 i;
+    Slot_421c *p;
+
+    for (i = 3, p = D_80140D00; i >= 0; i--, p++) {
+        p->f_6 = 0;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013E8E4);
 

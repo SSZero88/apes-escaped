@@ -96,7 +96,25 @@ void func_8013D93C(void *arg0) {
     Object_ApplyVelocity(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013D9C4);
+void func_80055F1C(void *, s32);
+
+void func_8013D9C4(void *arg0) {
+    M2C_FIELD(arg0, s16 *, 0xA0) = 0x32;
+    M2C_FIELD(arg0, s16 *, 0xB0) = 0x7D;
+    M2C_FIELD(arg0, s16 *, 0x48) = 1;
+    M2C_FIELD(arg0, s16 *, 0x4A) = 0x103;
+    M2C_FIELD(arg0, u8 *, 0xC8) = 4;
+    M2C_FIELD(arg0, s16 *, 0x44) = 0x1E;
+    M2C_FIELD(arg0, u8 *, 0x7D) = 0xA;
+    M2C_FIELD(arg0, s16 *, 0x46) = 0x32;
+    M2C_FIELD(arg0, s16 *, 0xAA) = 0;
+    M2C_FIELD(arg0, u8 *, 0xDC) = 0;
+    M2C_FIELD(arg0, u32 *, 0xE0) &= ~0x1000;
+    func_8013D7B0();
+    func_80055F1C(arg0, 0x32);
+    M2C_FIELD(arg0, u8 *, 0x7F) = 0;
+    M2C_FIELD(arg0, u16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013DA5C);
 

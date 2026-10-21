@@ -20,7 +20,6 @@ M2C_UNK func_8005588C(void *, M2C_UNK);
 M2C_UNK func_800563E0(void *, M2C_UNK);
 s32 rcos(s16);
 s32 rsin(s16);
-s32 func_8013FA40(s32);
 M2C_UNK func_8013FA60(void *, M2C_UNK);
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013D000);
@@ -410,7 +409,15 @@ void func_8013FA20(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0xE0) = (s32) (M2C_FIELD(arg0, s32 *, 0xE0) | 0x10000);
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013FA40);
+s32 func_8013FA40(s32 x) {
+    if (x == 0) {
+        return 0;
+    }
+    if (x > 0) {
+        return 1;
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013FA60);
 

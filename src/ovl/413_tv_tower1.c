@@ -24,7 +24,6 @@ s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 s32 Object_DetachLink(void *, M2C_UNK);
 M2C_UNK func_800525E0();
 M2C_UNK func_80052864(void *);
-s32 func_80141A20(s32);
 M2C_UNK func_80141A40(void *, M2C_UNK);
 s16 rcos(s16);
 s16 rsin(s16);
@@ -345,7 +344,15 @@ INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141998);
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801419F0);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141A20);
+s32 func_80141A20(s32 x) {
+    if (x == 0) {
+        return 0;
+    }
+    if (x > 0) {
+        return 1;
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141A40);
 

@@ -209,7 +209,12 @@ void func_8013E7C8(void *arg0) {
     M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0x10);
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E7F0);
+void func_8013E7F0(void *arg0) {
+    M2C_FIELD(arg0, u8 *, 0x80) = 6;
+    M2C_FIELD(arg0, u8 *, 0x7F) = 0;
+    M2C_FIELD(arg0, u16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+    M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E814);
 
