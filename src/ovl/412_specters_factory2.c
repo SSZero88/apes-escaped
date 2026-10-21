@@ -308,7 +308,13 @@ void func_8013E908(void *arg0) {
     func_80070284(&v, D_80141B10 + 0x54, 1, 0, 0);
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013E97C);
+extern u8 D_80141BB8[];
+
+void func_8013E97C(void *pos) {
+    SVECTOR d = { 0, -0x1000, 0 };
+
+    func_80070284(pos, D_80141BB8, 1, 0, &d);
+}
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013E9D8);
 

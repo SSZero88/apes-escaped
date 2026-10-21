@@ -1,7 +1,21 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_80136000);
+typedef struct { s16 x, y, w, h; } Rect_393;
+void Gfx_InitDisplay(void);
+void ResetGraph(s32);
+void ClearImage(Rect_393 *, s32, s32, s32);
+void DrawSync(s32);
+
+s32 func_80136000(void) {
+    Rect_393 r = { 0, 0, 0x180, 0x200 };
+
+    Gfx_InitDisplay();
+    ResetGraph(1);
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_8013606C);
 
