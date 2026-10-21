@@ -49,7 +49,19 @@ INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D2FC);
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D3B4);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D4B8);
+void func_8013D2FC(void *, s32, s32);
+void Object_ApplyVelocity(void *);
+
+void func_8013D4B8(void *arg0) {
+    if (!(M2C_FIELD(arg0, u16 *, 0xE2) & 1)) {
+        if (M2C_FIELD(arg0, u8 *, 0x7F) == 0x10) {
+            func_8013D2FC(arg0, -5, 0);
+        } else {
+            func_8013D2FC(arg0, -10, 1);
+        }
+        Object_ApplyVelocity(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D520);
 

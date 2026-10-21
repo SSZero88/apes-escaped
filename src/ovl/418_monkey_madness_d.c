@@ -244,7 +244,19 @@ void func_8013EEF4(void *arg0, s32 arg1, s32 arg2)
   Object_ApplyVelocity(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013EF94);
+void func_80052038(void *, s32);
+
+void func_8013EF94(void *arg0) {
+    u16 end = *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88) + 2);
+
+    if (M2C_FIELD(arg0, u16 *, 0x5C) == end - 10) {
+        func_80052038(arg0, 0xB1);
+    } else if (M2C_FIELD(arg0, u16 *, 0x5C) == end - 8) {
+        func_80052038(arg0, 0x18);
+    } else if (M2C_FIELD(arg0, u16 *, 0x5C) == end - 2) {
+        func_80052038(arg0, 0xB3);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013EFF8);
 

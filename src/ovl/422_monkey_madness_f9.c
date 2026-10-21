@@ -257,7 +257,17 @@ void func_801406F8(s32 anim) {
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_80140738);
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801407B4);
+typedef struct { u8 pad0[0x8C]; u8 f_8C; u8 pad8D[0xB]; } Ent_422c;
+extern Ent_422c D_80144460[];
+extern struct { u8 pad0[0x17]; u8 f_17; Ent_422c *f_18; } D_80144BE8_801407B4 asm("D_80144BE8");
+
+void func_801407B4(s32 n) {
+    if (D_80144460[n + 3].f_8C != 1) {
+        n ^= 1;
+    }
+    D_80144BE8_801407B4.f_17 = n;
+    D_80144BE8_801407B4.f_18 = &D_80144460[n + 3];
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8014081C);
 

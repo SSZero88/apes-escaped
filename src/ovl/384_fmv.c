@@ -131,7 +131,18 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801369E0);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136BD4);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136E00);
+s32 StGetNext(void *, void *);
+
+s32 func_80136E00(void *a, void *b) {
+    u32 i = 0;
+
+    while (StGetNext(a, b) != 0) {
+        if (i++ > 0x16E360) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136E68);
 

@@ -373,7 +373,24 @@ void func_80140530(void *arg0) {
     M2C_FIELD(&D_80145D30, u16 *, 4) = (u16) M2C_FIELD(arg0, u16 *, 0x2C);
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140554);
+extern u32 g_Game_80140554 asm("g_Game");
+
+void func_80140554(void *arg0) {
+    switch (g_Game_80140554 & 3) {
+    case 0:
+        func_80052038(arg0, 0x1E);
+        break;
+    case 1:
+        func_80052038(arg0, 0x89);
+        break;
+    case 2:
+        func_80052038(arg0, 0x8B);
+        break;
+    case 3:
+        func_80052038(arg0, 0x8C);
+        break;
+    }
+}
 
 extern u16 g_RandSeed;
 #define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
@@ -386,7 +403,6 @@ void func_801405BC(void *arg0, u8 mask) {
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140610);
 
-M2C_UNK func_80140554(void *);
 M2C_UNK func_80140610(void *, s32);
 
 void func_80140778(void *arg0) {
