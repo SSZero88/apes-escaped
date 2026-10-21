@@ -365,7 +365,11 @@ INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_80140338);
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_801403C0);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8014059C);
+void Object_SpawnEffect(void *, s32, s32, s32, s32);
+
+void func_8014059C(void *arg0) {
+    Object_SpawnEffect(arg0, 0x106, 0, 0, 0);
+}
 
 void func_800525E0(void *);
 void func_80052864(void *);
@@ -383,7 +387,6 @@ void func_801405C8(void *arg0) {
 }
 
 void Object_TurnToward(void *, s16, s16, s32, s32);
-void func_8014059C(void *);
 extern struct { u8 pad0[0x24]; u16 x; u8 pad26[6]; u16 z; } g_Spike_80140658 asm("g_Spike");
 
 void func_80140658(void *arg0) {

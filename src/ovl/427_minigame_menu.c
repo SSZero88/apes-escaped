@@ -373,7 +373,11 @@ void func_8013C7F0(void) {
     D_8013FD2C = 0;
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013C7FC);
+extern u8 D_8013FD2C_8013C7FC[] asm("D_8013FD2C");
+
+void func_8013C7FC(s32 i, u8 v) {
+    D_8013FD2C_8013C7FC[i] = v;
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013C810);
 

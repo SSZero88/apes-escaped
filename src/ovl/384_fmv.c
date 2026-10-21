@@ -2,7 +2,6 @@
 #include "m2c_macros.h"
 
 M2C_UNK func_8013973C(s32, s32, M2C_UNK);
-s32 func_801398D0(u8);
 M2C_UNK func_8013B9B0(void *, M2C_UNK *, s32, M2C_UNK *);
 extern M2C_UNK D_800E7D00;
 extern struct S_D_8013C550 { u8 pad_0[0x4]; s32 f_4; } D_8013C550;
@@ -339,7 +338,11 @@ void func_801398B0(s32 *arg0, s32 *arg1) {
     *arg1 = D_8013C570;
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801398D0);
+extern s32 *D_8013C564_801398D0 asm("D_8013C564");
+
+s32 func_801398D0(s16 i) {
+    return D_8013C564_801398D0[i];
+}
 
 u8 func_801398F0(s32 arg0) {
     return M2C_FIELD(((arg0 * 4) + D_8013C560), u8 *, 3);
@@ -352,7 +355,11 @@ void func_80139DAC(void) {
     func_8008C064(D_8013C564);
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139DE4);
+extern u8 *D_8013C574_80139DE4 asm("D_8013C574");
+
+u8 func_80139DE4(s32 i) {
+    return D_8013C574_80139DE4[i];
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139E00);
 

@@ -74,7 +74,11 @@ void func_8013D0A0(s32 ot, s32 arg1, Mdl_422 *m, s32 add) {
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013D1FC);
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013D310);
+void func_8013D1FC(void *, s32, s32, s32, s32);
+
+void func_8013D310(void *arg0, s32 arg1, s32 arg2, s16 arg3) {
+    func_8013D1FC(arg0, arg1, arg2, 0, arg3);
+}
 
 void func_8013D33C(void) {
     s32 i;

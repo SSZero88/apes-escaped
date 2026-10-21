@@ -244,7 +244,11 @@ INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013EFE4);
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013F044);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013F220);
+void Object_SpawnEffect(void *, s32, s32, s32, s32);
+
+void func_8013F220(void *arg0) {
+    Object_SpawnEffect(arg0, 0x106, 0, 0, 0);
+}
 
 void func_800525E0(void *);
 void func_80052864(void *);
@@ -262,7 +266,6 @@ void func_8013F24C(void *arg0) {
 }
 
 void Object_TurnToward(void *, s16, s16, s32, s32);
-void func_8013F220(void *);
 extern struct { u8 pad0[0x24]; u16 x; u8 pad26[6]; u16 z; } g_Spike;
 
 void func_8013F2DC(void *arg0) {

@@ -110,7 +110,13 @@ INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80137C88);
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801380DC);
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80138118);
+extern u32 *D_8013B9C8;
+
+void func_80138118(void) {
+    u32 *b = (u32 *)0x80154000;
+
+    D_8013B9C8 = b + M2C_FIELD(b, u16 *, 0x34);
+}
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80138138);
 

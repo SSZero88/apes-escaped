@@ -284,7 +284,11 @@ void func_8013F694(SVECTOR *arg0) {
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013F6D4);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013F89C);
+void Object_SpawnEffect(void *, s32, s32, s32, s32);
+
+void func_8013F89C(void *arg0) {
+    Object_SpawnEffect(arg0, 0x106, 0, 0, 0);
+}
 
 void func_800573A0(void *, s32, s32, s32);
 
@@ -300,7 +304,6 @@ void func_8013F8C8(void *arg0) {
 }
 
 void Object_TurnToward(void *, s16, s16, s32, s32);
-void func_8013F89C(void *);
 extern struct { u8 pad0[0x24]; u16 x; u8 pad26[6]; u16 z; } g_Spike;
 
 void func_8013F958(void *arg0) {

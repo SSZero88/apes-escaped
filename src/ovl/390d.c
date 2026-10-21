@@ -1,4 +1,5 @@
 #include "common.h"
+#include "m2c_macros.h"
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013F630);
 
@@ -10,11 +11,19 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FB14);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FB30);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FC20);
+extern u8 D_80141554[];
+
+u8 *func_8013FC20(void) {
+    return D_80141554;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FC2C);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FD44);
+extern u8 D_80141800[];
+
+u8 *func_8013FD44(void) {
+    return D_80141800;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FD50);
 

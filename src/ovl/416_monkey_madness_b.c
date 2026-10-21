@@ -53,7 +53,11 @@ INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013D63C);
 
 INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013D77C);
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013D890);
+void func_8013D77C(void *, s32, s32, s32, s32);
+
+void func_8013D890(void *arg0, s32 arg1, s32 arg2, s16 arg3) {
+    func_8013D77C(arg0, arg1, arg2, 0, arg3);
+}
 
 void func_8013D8BC(void) {
     s32 i;

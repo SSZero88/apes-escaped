@@ -43,7 +43,11 @@ INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013D290);
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013D3EC);
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013D500);
+void func_8013D3EC(void *, s32, s32, s32, s32);
+
+void func_8013D500(void *arg0, s32 arg1, s32 arg2, s16 arg3) {
+    func_8013D3EC(arg0, arg1, arg2, 0, arg3);
+}
 
 void func_8013D52C(void) {
     s32 i;

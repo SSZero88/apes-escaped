@@ -402,7 +402,9 @@ INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80140C4C);
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80140CAC);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80140E88);
+void func_80140E88(void *arg0) {
+    Object_SpawnEffect(arg0, 0x106, 0, 0, 0);
+}
 
 void func_80140EB4(void *arg0) {
     if ((M2C_FIELD(arg0, u32 *, 0x50) >> 28) == 0xB && !((M2C_FIELD(arg0, u32 *, 0xE0) >> 1) & 1)) {
@@ -415,7 +417,6 @@ void func_80140EB4(void *arg0) {
     }
 }
 
-void func_80140E88(void *);
 extern struct { u8 pad0[0x24]; u16 x; u8 pad26[6]; u16 z; } g_Spike;
 
 void func_80140F44(void *arg0) {
