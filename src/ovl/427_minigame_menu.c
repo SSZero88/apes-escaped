@@ -2,7 +2,7 @@
 #include "m2c_macros.h"
 
 extern void *D_8013FD60;
-extern struct S_D_8013F3E0 { u8 pad_0[0x2C]; s32 f_2C; s32 f_30; } D_8013F3E0;
+extern struct S_D_8013F3E0 { u8 *f_0; s16 f_4; s16 f_6; s16 f_8; u8 padA[2]; s32 f_C; s32 f_10; u8 *f_14; u8 pad18[4]; s32 f_1C; u8 pad20[0xC]; s32 f_2C; s32 f_30; } D_8013F3E0;
 M2C_UNK Seq_Tick();
 M2C_UNK func_80088578();
 extern struct S_D_8013FC80 { u16 f_0; u8 pad_2[0x6]; s32 f_8; s16 f_C; s16 f_E; s16 f_10; s16 f_12; s16 f_14; u16 f_16; } D_8013FC80;
@@ -321,7 +321,18 @@ INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013B14C);
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013B444);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013B4B4);
+extern u8 D_8013F184[];
+
+void func_8013B4B4(void) {
+    D_8013F3E0.f_0 = D_8013F184;
+    D_8013F3E0.f_6 = 0x1000;
+    D_8013F3E0.f_14 = "LEVEL 000";
+    D_8013F3E0.f_C = 0;
+    D_8013F3E0.f_4 = 0;
+    D_8013F3E0.f_8 = 0;
+    D_8013F3E0.f_10 = 0;
+    D_8013F3E0.f_1C = 0x12C;
+}
 
 s32 func_8013B4F8(void) {
     s32 *var_a0;
