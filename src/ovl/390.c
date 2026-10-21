@@ -8,8 +8,6 @@ M2C_UNK func_80141B34();
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 M2C_UNK func_80139A68();
 M2C_UNK func_80139CF0();
-s32 func_8013A400();
-s32 func_8013A43C();
 M2C_UNK func_8013FB30(s16);
 extern s32 D_800E5488;
 extern s16 D_8013AF52;
@@ -285,9 +283,23 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80139F08);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80139FC8);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013A400);
+extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_8013A400 asm("g_Pad");
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013A43C);
+s32 func_8013A400(void) {
+    if (D_8013AF66 != 1) {
+        return 0;
+    }
+    return (g_Pad_8013A400.f_160 & g_Pad_8013A400.f_158 & 0x60) != 0;
+}
+
+extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_8013A43C asm("g_Pad");
+
+s32 func_8013A43C(void) {
+    if (D_8013AF66 != 1) {
+        return 0;
+    }
+    return (g_Pad_8013A43C.f_160 & g_Pad_8013A43C.f_158 & 0x90) != 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013A478);
 

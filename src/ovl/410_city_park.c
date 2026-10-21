@@ -502,7 +502,14 @@ block_4:
     func_8013FDE0(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_801400D4);
+extern u8 D_80141278[];
+void func_80070284(void *, void *, s32, s32, void *);
+
+void func_801400D4(void *arg0) {
+    void *m = M2C_FIELD(arg0, void **, 0x78);
+
+    func_80070284(m, D_80141278, 1, 0, (u8 *)arg0 + 0x60);
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_80140110);
 

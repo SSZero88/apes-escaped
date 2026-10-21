@@ -26,7 +26,6 @@ M2C_UNK func_800525E0();
 M2C_UNK Object_ApplyVelocity(void *);
 M2C_UNK Object_HeadTowardSpike(void *, s32);
 s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s32);
-M2C_UNK func_8013E4C4(void *, M2C_UNK);
 M2C_UNK func_8013E654(void *, M2C_UNK, M2C_UNK);
 s32 func_8013E888();
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
@@ -160,7 +159,13 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013E334);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013E384);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013E4C4);
+void func_8013E4C4(void *arg0, s32 n) {
+    M2C_FIELD(arg0, u8 *, 0x7F) = n;
+    M2C_FIELD(arg0, u8 *, 0x80) = 4;
+    M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));
+    M2C_FIELD(arg0, u32 *, 0xE0) &= ~1;
+    M2C_FIELD(arg0, u8 *, 0x8F) = 0;
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013E500);
 

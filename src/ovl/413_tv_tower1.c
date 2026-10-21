@@ -141,7 +141,19 @@ void func_8013F550(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013F5F4);
+typedef struct { u8 pad0[0xC]; s16 f; u8 pad[0x6]; } Slot_411;
+extern Slot_411 D_80141738_s[4] asm("D_80144640");
+
+s32 func_8013F5F4(void) {
+    s32 i;
+
+    for (i = 3; i >= 0; i--) {
+        if (D_80141738_s[i].f == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013F630);
 

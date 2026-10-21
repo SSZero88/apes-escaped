@@ -65,7 +65,19 @@ void func_8013D41C(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013D4C0);
+typedef struct { u8 pad0[0xC]; s16 f; u8 pad[0x6]; } Slot_411;
+extern Slot_411 D_80141738_s[4] asm("D_80141738");
+
+s32 func_8013D4C0(void) {
+    s32 i;
+
+    for (i = 3; i >= 0; i--) {
+        if (D_80141738_s[i].f == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013D4FC);
 
@@ -104,7 +116,13 @@ void func_8013DC14(void) {
     Hook_Add(&func_8013DA0C);
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013DC58);
+extern u8 D_801413F0[];
+
+void func_8013DC58(void *arg0) {
+    void *m = M2C_FIELD(arg0, void **, 0x78);
+
+    func_80070284(m, D_801413F0, 1, 0, (u8 *)arg0 + 0x60);
+}
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013DC94);
 

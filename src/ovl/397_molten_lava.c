@@ -19,7 +19,6 @@ M2C_UNK Sound_PlayFixed(M2C_UNK);
 M2C_UNK func_8005240C(void *, s32);
 M2C_UNK func_8005588C(void *, M2C_UNK);
 s32 func_8013D000(void);
-M2C_UNK func_8013F368(void *);
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
 s32 Spike_WithinRadiusXZ(s32, s32, M2C_UNK);
 M2C_UNK func_80052038(void *, M2C_UNK);
@@ -222,7 +221,14 @@ void func_8013F300(void *arg0, void *arg1) {
     M2C_FIELD(arg1, s16 *, 4) = (s16) ((M2C_FIELD(arg0, s32 *, 0x2C) + (M2C_FIELD(temp_a2, s16 *, 4) * 2)) / 3);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013F368);
+s32 Object_AddAttackSphereAt(void *, SVECTOR *, s32);
+
+void func_8013F368(void *arg0) {
+    SVECTOR v;
+
+    func_8013F300(arg0, &v);
+    M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereAt(arg0, &v, 0xC8);
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013F3A4);
 

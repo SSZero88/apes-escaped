@@ -236,7 +236,19 @@ void func_8013DBF8(void) {
     Hook_Add(&func_8013DDD8);
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013DC3C);
+typedef struct { u8 pad0[0x10]; s8 f; u8 pad[0x3]; } Slot_399;
+extern Slot_399 D_80141418_s[32] asm("D_80141418");
+
+s32 func_8013DC3C(void) {
+    s32 i;
+
+    for (i = 31; i >= 0; i--) {
+        if (D_80141418_s[i].f == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013DC78);
 

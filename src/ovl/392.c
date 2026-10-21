@@ -108,7 +108,14 @@ INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801375B4);
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80137C88);
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801380DC);
+extern u8 *D_800B4D64;
+void Model_BindMesh(void *, void *);
+
+void func_801380DC(void) {
+    u32 *b = (u32 *)0x80154000;
+
+    Model_BindMesh(D_800B4D64 + 0x80, b + M2C_FIELD(b, u16 *, 0x38));
+}
 
 extern u32 *D_8013B9C8;
 

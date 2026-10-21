@@ -95,7 +95,10 @@ INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D684);
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D738);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D8F0);
+void func_8013D8F0(void *arg0, s32 a) {
+    M2C_FIELD(arg0, u8 *, 0x71) = a;
+    M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(arg0, u8 *, 0x71) * 4 + M2C_FIELD(arg0, u8 **, 0x74));
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D910);
 
@@ -137,7 +140,6 @@ INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013DF10);
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013DF60);
 
-M2C_UNK func_8013D8F0(void *, M2C_UNK);
 
 void func_8013DFF4(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x72) = 2;

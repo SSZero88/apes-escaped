@@ -163,7 +163,14 @@ void func_8013D9A8(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DAC8);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DB34);
+extern u8 D_801440C4[];
+void func_80070284(void *, void *, s32, s32, void *);
+
+void func_8013DB34(void *arg0) {
+    void *m = M2C_FIELD(arg0, void **, 0x78);
+
+    func_80070284(m, D_801440C4, 1, 0, (u8 *)arg0 + 0x60);
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DB70);
 
