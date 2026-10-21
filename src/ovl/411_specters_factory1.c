@@ -597,7 +597,24 @@ s32 func_80140404(s16 i, s16 m, s16 c, s16 d) {
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_80140454);
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_80140538);
+extern struct S_g_Game_80140538 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80140538 asm("g_Game");
+
+s32 func_80140538(s16 *p)
+{
+  s16 *new_var;
+  u8 *e;
+  e = g_Game_80140538.f_8220 + (6 * (4 * p[4]));
+  new_var = p;
+  if ((*((s16 *) (((s8 *) e) + 0x16))) > new_var[5])
+  {
+    p[1] = 2;
+  }
+  else
+  {
+    p[1] = 0;
+  }
+  return 0;
+}
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_80140590);
 

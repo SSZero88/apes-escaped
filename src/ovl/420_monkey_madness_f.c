@@ -678,7 +678,21 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80141A6C);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80141B4C);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80141C3C);
+s32 func_80141C3C(s16 *p) {
+    u8 *e = g_Game.f_820C + p[2] * 0x38;
+
+    M2C_FIELD(e, u16 *, 0x26) = M2C_FIELD(e, u16 *, 0x8);
+    if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+        M2C_FIELD(D_800B4D64 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+    }
+    p[7] = -1;
+    p[1] = 0;
+    p[3] = 0;
+    p[9] = 0;
+    p[10] = 0;
+    p[11] = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80141CB4);
 
@@ -808,7 +822,24 @@ s32 func_80143CB8(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80143D08);
+extern struct S_g_Game_80143D08 { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x11C]; u8 *f_8220; } g_Game_80143D08 asm("g_Game");
+void CamFlyby_StartSegment(s32);
+
+s32 func_80143D08(s16 *p) {
+    u8 *e;
+    s32 v;
+
+    if (p[1] == 0) {
+        e = g_Game_80143D08.f_8220 + p[4] * 0x18;
+        v = M2C_FIELD(e, s16 *, 2);
+        if (v == 1) {
+            p[1] = v;
+            CamFlyby_StartSegment(0);
+            g_Game_80143D08.f_8100 = 7;
+        }
+    }
+    return 0;
+}
 
 s32 func_80143D80(void *arg0) {
     M2C_FIELD(arg0, s16 *, 6) = 0;

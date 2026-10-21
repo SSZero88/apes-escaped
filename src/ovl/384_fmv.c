@@ -438,7 +438,14 @@ void func_80139EC4(u16 *len, Set_384 *e) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139F0C);
+s32 func_8008C09C_80139F0C(void) asm("func_8008C09C");
+
+void func_80139F0C(void)
+{
+  s32 new_var;
+  D_8013C574 = (new_var = func_8008C09C_80139F0C());
+  func_80139E00();
+}
 
 s32 func_80139F38(void *arg0, s32 arg1) {
     s32 var_a2;

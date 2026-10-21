@@ -346,7 +346,16 @@ void func_801401D4(void *arg0) {
     func_800525E0();
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_801401F8);
+unsigned long func_801401F8(void *arg0)
+{
+  if (((*((u32 *) (((s8 *) arg0) + 0x50))) >> 28) == 6)
+  {
+    *((u8 *) (((s8 *) arg0) + 0x80)) = 8;
+    *((u8 *) (((s8 *) arg0) + 0x7F)) = 0xA;
+    *((u16 *) (((s8 *) arg0) + 0x5C)) = *((u16 *) (((s8 *) (*((u8 **) (((s8 *) arg0) + 0x88)))) + 0x28));
+    Object_PlaySound(arg0, 0xB5);
+  }
+}
 
 s32 func_80140244(void *arg0) {
     if ((D_80145D24 != 0) || (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) != 0xB)) {

@@ -233,7 +233,16 @@ void func_8013E7F0(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E814);
+void func_8013E814(void *arg0)
+{
+  s8 *new_var;
+  u16 new_var2;
+  *((u8 *) (((s8 *) arg0) + 0x80)) = 3;
+  *((u8 *) (((s8 *) arg0) + 0x7F)) = 5;
+  new_var2 = *((u16 *) ((new_var = (s8 *) (*((u8 **) (((s8 *) arg0) + 0x88)))) + 0x14));
+  D_80140D40 = 0;
+  *((u16 *) (((s8 *) arg0) + 0x5C)) = new_var2;
+}
 
 void func_8013E83C(void *arg0) {
     func_80056BC4(0x39, 0, M2C_FIELD(arg0, s8 *, 0xCB));
@@ -390,7 +399,24 @@ void func_8013FF58(void *arg0) {
     func_8005588C(arg0, 0x14);
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8014001C);
+extern s32 D_80140D50;
+
+void func_8014001C(void *arg0)
+{
+  u16 new_var;
+  int new_var2;
+  s8 *new_var3;
+  if (D_80140D50 != 0)
+  {
+    func_8013FF58(arg0);
+    *((u8 *) (((s8 *) arg0) + 0x7F)) = 1;
+    new_var = *((u16 *) (((s8 *) (*((u8 **) (((s8 *) arg0) + 0x88)))) + 4));
+    D_80140D50 = 0;
+    new_var2 = 0x5C;
+    new_var3 = ((s8 *) arg0) + new_var2;
+    *((u16 *) new_var3) = new_var;
+  }
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_80140070);
 

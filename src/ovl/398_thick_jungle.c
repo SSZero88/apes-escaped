@@ -63,7 +63,19 @@ void func_8013D430(void *arg0, s32 arg1, s16 arg2, s16 arg3) {
     M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0xC8, (s16) (M2C_FIELD(arg0, u16 *, 0x24) - ((s32) (M2C_FIELD(arg0, s16 *, 0x60) * arg1) >> 0xC)), M2C_FIELD(arg0, s16 *, 0x28), (s32) (s16) (M2C_FIELD(arg0, u16 *, 0x2C) - ((s32) (M2C_FIELD(arg0, s16 *, 0x64) * arg1) >> 0xC)), (s32) arg2, (s32) arg3);
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013D4C8);
+s32 Object_DetachLink(void *, s32);
+
+volatile unsigned short func_8013D4C8(void *arg0)
+{
+  if (Object_DetachLink(arg0, 0) == 6)
+  {
+    *((u8 *) (((s8 *) arg0) + 0x80)) = 2;
+    *((u8 *) (((s8 *) arg0) + 0x7F)) = 1;
+    *((u16 *) (((s8 *) arg0) + 0x5C)) = *((u16 *) (((s8 *) (*((u8 **) (((s8 *) arg0) + 0x88)))) + 4));
+    Object_DisableCollision(arg0);
+    *((s16 *) (((s8 *) arg0) + 0xAE)) = 0;
+  }
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013D520);
 
