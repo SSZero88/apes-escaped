@@ -298,7 +298,12 @@ s32 func_80140244(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_801402D8);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140358);
+s16 func_80140358(void *obj) {
+    if (D_80145D24 != 0) {
+        return func_80056010(obj, 0x28, 4, 0);
+    }
+    return func_80056010(obj, 0x14, 4, 0);
+}
 
 void func_80140398(s32 arg0, s32 arg1) {
     Puff_Spawn(arg0, 0, 0, arg1 + 0xFA);
@@ -623,7 +628,14 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80143E94);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80143FA8);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80144240);
+extern struct S_g_Game_80144240 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; } g_Game_80144240 asm("g_Game");
+
+s32 func_80144240(s16 *p) {
+    u8 *e = g_Game_80144240.f_820C + p[2] * 0x38;
+
+    M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80144280);
 

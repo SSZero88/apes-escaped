@@ -19,7 +19,6 @@ extern struct S_D_800E3880 { s16 f_0; u8 pad_2[0x4]; s16 f_6; s16 f_8; } D_800E3
 M2C_UNK func_80136160(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK);
 
 extern u8 g_Game[];
-s32 func_80136120(u8 *);
 extern u8 D_8013B024[];
 
 void func_80136000(u8 *s, s32 x, s32 y, s32 c) {
@@ -51,7 +50,15 @@ void func_80136000(u8 *s, s32 x, s32 y, s32 c) {
     G_DRAW.prim = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80136120);
+s32 func_80136120(u8 *s) {
+    s32 w;
+
+    w = 0;
+    for (; *s != 0; s++) {
+        w += D_8013B024[*s];
+    }
+    return w;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80136160);
 

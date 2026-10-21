@@ -90,7 +90,17 @@ u8 *func_801387FC(u8 *arg0, s32 arg1)
   return var_a0;
 }
 
-INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_8013882C);
+extern u8 D_80139BF0[];
+
+s32 func_8013882C(u8 *s) {
+    s32 w;
+
+    w = 0;
+    for (; *s != 0; s++) {
+        w += D_80139BF0[*s];
+    }
+    return w;
+}
 
 INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_8013886C);
 

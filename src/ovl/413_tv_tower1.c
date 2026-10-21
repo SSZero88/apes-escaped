@@ -349,7 +349,14 @@ void func_80141290(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x8F) = 0;
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801412BC);
+s32 func_801412BC(void *arg0) {
+    if (func_80140FA0(arg0) == 0) {
+        func_80141290(arg0);
+        M2C_FIELD(arg0, u8 *, 0x80) = 1;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801412FC);
 

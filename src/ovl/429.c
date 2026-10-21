@@ -2,7 +2,6 @@
 #include "m2c_macros.h"
 
 extern u8 g_Game[];
-s32 func_80136120(u8 *);
 extern u8 D_80139230[];
 
 void func_80136000(u8 *s, s32 x, s32 y, s32 c) {
@@ -34,7 +33,15 @@ void func_80136000(u8 *s, s32 x, s32 y, s32 c) {
     G_DRAW.prim = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80136120);
+s32 func_80136120(u8 *s) {
+    s32 w;
+
+    w = 0;
+    for (; *s != 0; s++) {
+        w += D_80139230[*s];
+    }
+    return w;
+}
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80136160);
 

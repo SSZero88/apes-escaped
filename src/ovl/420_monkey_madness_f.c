@@ -33,7 +33,6 @@ s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 s32 Object_DetachLink(void *, M2C_UNK);
 extern M2C_UNK func_80140310;
 extern struct S_D_80144AD0 { u8 pad_0[0x10]; s32 f_10; } D_80144AD0[];
-s32 func_80140238();
 void *Collision_GetShape(s32);
 M2C_UNK func_800525E0(void *);
 M2C_UNK func_80052864(void *);
@@ -325,7 +324,19 @@ void func_8013EEDC(void) {
     Hook_Add(&func_8013F0CC);
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013EF20);
+typedef struct { u8 pad0[0x10]; s8 f; u8 pad[0x3]; } Slot_8013EF20;
+extern Slot_8013EF20 D_80144A28_s[8] asm("D_80144A28");
+
+s32 func_8013EF20(void) {
+    s32 i;
+
+    for (i = 7; i >= 0; i--) {
+        if (D_80144A28_s[i].f == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013EF5C);
 
@@ -441,7 +452,19 @@ void func_801401F4(void) {
     Hook_Add(&func_80140310);
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80140238);
+typedef struct { u8 pad0[0x10]; s32 f; } Slot_80140238;
+extern Slot_80140238 D_80144AD0_s[6] asm("D_80144AD0");
+
+s32 func_80140238(void) {
+    s32 i;
+
+    for (i = 5; i >= 0; i--) {
+        if (D_80144AD0_s[i].f == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 void func_80140274(void *arg0, void *arg1) {
     s32 temp_v0;
