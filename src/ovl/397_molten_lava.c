@@ -169,7 +169,20 @@ void func_8013EB8C(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013EBE8);
+typedef struct { u8 pad0[0x80]; u8 f_80; u8 f_81; u8 pad82[0x62]; } Obj_397;
+extern Obj_397 g_Objects_397[] asm("g_Objects");
+void func_80051E98(void *, s32);
+
+s32 func_8013EBE8(void *arg0, void *arg1) {
+    Obj_397 *o;
+
+    o = &g_Objects_397[M2C_FIELD(arg1, s8 *, 0xCA)];
+    if (o->f_80 != 1 || o->f_81 == 0) {
+        func_80051E98(arg0, 0);
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013EC54);
 

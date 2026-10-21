@@ -476,6 +476,16 @@ def fix_unsigned_consts(body):
     return HALF_CONST_RE.sub(r', u16 *, \1) = \2;', body)
 
 
+ABS_RE = re.compile(r'^(\s*)(\w+) = ([^;\n]+);\n\s*if \(\3 < 0\) \{\n\s*\2 = -\2;\n\s*\}$', re.M)
+ABS2_RE = re.compile(r'^(\s*)if \((\w+) < 0\) \{\n\s*\2 = -\2;\n\s*\}$', re.M)
+
+
+def fix_abs(body):
+    """m2c's copy-and-negate for GCC's abs insn (bgez x; move v,x; negu v,v) as __builtin_abs."""
+    body = ABS_RE.sub(lambda m: f'{m.group(1)}{m.group(2)} = __builtin_abs({m.group(3)});', body)
+    return ABS2_RE.sub(lambda m: f'{m.group(1)}{m.group(2)} = __builtin_abs({m.group(2)});', body)
+
+
 FROM_WIP = False
 
 
@@ -568,6 +578,10 @@ def try_func(job):
                 cands.append((d, fb))
         for d, b in list(cands):
             fb = fix_scratchpad(b)
+            if fb != b:
+                cands.append((d, fb))
+        for d, b in list(cands):
+            fb = fix_abs(b)
             if fb != b:
                 cands.append((d, fb))
         for d, b in list(cands):

@@ -1,6 +1,9 @@
 #include "common.h"
 #include "m2c_macros.h"
 
+s32 Spike_WithinRadiusXZ(s16, s16, M2C_UNK);
+extern s32 D_800EC208;
+
 s32 rsin(s16, s32);
 extern struct S_D_800E77A0 { u8 pad_0[0x8]; s16 f_8; s16 f_A; s16 f_C; } D_800E77A0;
 s32 Object_AddAttackSphere(void *, M2C_UNK, s16, s16, s32, s32, s32);
@@ -31,9 +34,30 @@ s16 func_8013D0B0(void *arg0, s16 arg1, s16 arg2) {
     return (s16) (((s32) (rsin((s16) (temp_v0 - ((var_a0 >> 0xC) << 0xC)), temp_a1) * (arg1 - arg2)) >> 0xD) + ((s32) (arg1 + arg2) / 2));
 }
 
-INCLUDE_ASM("asm/ovl/396/nonmatchings/396_primordial_ooze", func_8013D1C4);
+s32 func_8013D1C4(void) {
+    s32 var_a0;
+    s32 var_v0;
 
-INCLUDE_ASM("asm/ovl/396/nonmatchings/396_primordial_ooze", func_8013D224);
+    var_v0 = D_800E77A0.f_A - D_800EC208;
+    var_v0 = __builtin_abs(var_v0);
+    var_a0 = 0;
+    if (var_v0 < 0x32) {
+        var_a0 = Spike_WithinRadiusXZ(D_800E77A0.f_8, D_800E77A0.f_C, 0xC8) != 0;
+    }
+    return var_a0;
+}
+
+s32 func_8013D224(void) {
+    s32 var_v0;
+    s32 var_v0_2;
+
+    var_v0_2 = D_800E77A0.f_A - D_800EC208;
+    var_v0_2 = __builtin_abs(var_v0_2);
+    if ((var_v0_2 >= 0x33) || (var_v0 = 0, (Spike_WithinRadiusXZ(D_800E77A0.f_8, D_800E77A0.f_C, 0xFA) == 0))) {
+        var_v0 = 1;
+    }
+    return var_v0;
+}
 
 INCLUDE_ASM("asm/ovl/396/nonmatchings/396_primordial_ooze", func_8013D294);
 

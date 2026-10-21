@@ -314,7 +314,21 @@ void func_8013EF34(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F010);
+void func_8013F010(void *arg0) {
+    s32 a;
+
+    if (M2C_FIELD(arg0, u8 *, 0x8F) <= 0x3C) {
+        M2C_FIELD(arg0, u8 *, 0x8F)++;
+        if (M2C_FIELD(arg0, u8 *, 0x8F) & 1) {
+            a = 0x3F;
+        } else {
+            a = 0x8E;
+        }
+    } else {
+        a = 0x3F;
+    }
+    func_80052038(arg0, a);
+}
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F058);
 
@@ -337,7 +351,25 @@ INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F3A4);
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F4B4);
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F660);
+M2C_UNK Object_TurnToward(void *, s16, s16, M2C_UNK, s32);
+
+void func_8013F660(void *arg0) {
+    if (M2C_FIELD(arg0, u8 *, 0x80) != 0xF) {
+        M2C_FIELD(arg0, u8 *, 0x80) = 0xFU;
+        M2C_FIELD(arg0, s8 *, 0x7F) = 3;
+        M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0xC);
+        M2C_FIELD(arg0, s16 *, 0x98) = 0;
+        M2C_FIELD(arg0, s16 *, 0x96) = 0;
+        M2C_FIELD(arg0, s16 *, 0x94) = 0;
+        func_80052038(arg0, 0x3F);
+        M2C_FIELD(arg0, s8 *, 0x82) = 0;
+        M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(arg0, s32 *, 0x28) = (s32) (M2C_FIELD(arg0, s16 *, 0x9C) + 0x538);
+        func_8013EB94(arg0, 5);
+        Object_TurnToward(arg0, (s16) (M2C_FIELD(arg0, u16 *, 0x9A) - M2C_FIELD(arg0, u16 *, 0x24)), (s16) (M2C_FIELD(arg0, u16 *, 0x9E) - M2C_FIELD(arg0, u16 *, 0x2C)), 0, (s32) M2C_FIELD(arg0, s16 *, 0xB0));
+        func_8005588C(arg0, 0x14);
+    }
+}
 
 void func_8013F724(void *arg0, s32 arg1) {
     M2C_FIELD(arg0, s16 *, 0xA8) = (s16) (arg1 * 8);

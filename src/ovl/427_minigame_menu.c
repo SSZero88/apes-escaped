@@ -266,7 +266,20 @@ INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013A794);
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013A8C0);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013AE1C);
+typedef struct { u8 pad0[0xD]; u8 f_D; u8 padE[0x1A]; s32 f_28; u8 pad2C[4]; s16 f_30; u8 pad32[6]; } A_427;
+typedef struct { u8 pad0[0x54]; s32 f_54; u8 pad58[0x1C]; } B_427;
+extern A_427 D_8013FC08_8013AE1C[] asm("D_8013FC08");
+extern B_427 D_8013FD70_8013AE1C[] asm("D_8013FD70");
+
+void func_8013AE1C(s32 i) {
+    A_427 *a = &D_8013FC08_8013AE1C[i];
+    B_427 *b = &D_8013FD70_8013AE1C[i];
+
+    a->f_D = 0;
+    b->f_54 = 0;
+    a->f_30 = 3;
+    a->f_28 = 0;
+}
 
 void func_8013AE64(s32 arg0) {
     s32 var_v0;

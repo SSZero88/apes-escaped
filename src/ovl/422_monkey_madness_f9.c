@@ -20,7 +20,6 @@ extern struct S_D_80144BE8 { u8 pad_0[0xC]; s8 f_C; u8 pad_D[0x3]; s16 f_10; } D
 M2C_UNK Camera_StartShake(M2C_UNK);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 M2C_UNK func_80070284(s16 *, M2C_UNK *, M2C_UNK, M2C_UNK, s32);
-M2C_UNK func_80142508(s32, M2C_UNK);
 extern M2C_UNK D_801441B8;
 extern struct S_D_80145430 { u8 pad_0[0x9]; s8 f_9; u8 pad_A[0x2]; } D_80145430[];
 
@@ -248,7 +247,16 @@ INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8014092C);
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801409AC);
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_80140A20);
+extern struct { u8 pad0[0xC]; u8 f_C; u8 padD; u8 f_E; u8 padF; s16 f_10; } D_80144BE8_80140A20 asm("D_80144BE8");
+void func_8014092C(void);
+
+void func_80140A20(void) {
+    func_8014092C();
+    D_80144BE8_80140A20.f_C = 1;
+    D_80144BE8_80140A20.f_10 = 0;
+    D_80144BE8_80140A20.f_E = 0;
+    func_80140630(0x32);
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_80140A60);
 
@@ -286,7 +294,13 @@ INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801423E8);
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801424A0);
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_80142508);
+typedef struct { u8 pad0[8]; u8 f_8; u8 pad9[3]; } Ent_422;
+
+void func_80142508(s32 i, u8 v) {
+    Ent_422 *e = &D_80145430[i];
+
+    e->f_8 = v;
+}
 
 void func_80142528(s16 *arg0) {
     s16 temp_v1;

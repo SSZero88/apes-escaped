@@ -5,7 +5,6 @@ extern struct S_g_Pad { u8 pad_0[0x1BC]; s16 f_1BC; s16 f_1BE; } g_Pad;
 
 M2C_UNK Object_ApplyVelocity(void *);
 M2C_UNK Object_SetForwardVelocity(void *, M2C_UNK);
-M2C_UNK func_801405F8(void *, s32, M2C_UNK);
 
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 M2C_UNK Object_DisableCollision();
@@ -85,7 +84,16 @@ INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013D790);
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013D914);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013DE24);
+void func_8013DE24(void *arg0, s32 y, s16 lim) {
+    s16 d;
+
+    d = y - M2C_FIELD(arg0, u16 *, 0x28);
+    if (__builtin_abs(d) > lim) {
+        M2C_FIELD(arg0, s16 *, 0x96) = d > 0 ? lim : -lim;
+    } else {
+        M2C_FIELD(arg0, s16 *, 0x96) = d;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013DE78);
 
@@ -329,7 +337,16 @@ void func_801405AC(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801405F8);
+s32 rsin_801405F8(s16) asm("rsin");
+void Object_StepOrbitAngle(void *, s16);
+
+void func_801405F8(void *arg0, s32 v, s32 lim) {
+    Object_StepOrbitAngle(arg0, 0x3C);
+    if (__builtin_abs(v) > lim) {
+        v = v > 0 ? lim : -lim;
+    }
+    M2C_FIELD(arg0, s16 *, 0x96) = v + ((rsin_801405F8(M2C_FIELD(arg0, s16 *, 0xAA)) * 0x1E) >> 12);
+}
 
 extern s32 D_800EC208;
 void Object_ChaseSpike(void *, s16);

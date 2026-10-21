@@ -315,7 +315,45 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_801405BC);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140610);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140778);
+M2C_UNK func_80140554(void *);
+M2C_UNK func_801405BC(void *, M2C_UNK);
+M2C_UNK func_80140610(void *, s32);
+
+void func_80140778(void *arg0) {
+    u8 temp_v1;
+    u8 *a;
+
+    if (D_80145D24 != 0) {
+        func_801405BC(arg0, 0xF);
+        func_80140610(arg0, D_80145D24 < 0x1E);
+        D_80145D24 -= 1;
+        if (M2C_FIELD(arg0, u8 *, 0x80) != 8) {
+            if (Object_DetachLink(arg0, 0) == 6) {
+                if (M2C_FIELD(arg0, u8 *, 0x80) != 3) {
+                    a = M2C_FIELD(arg0, u8 **, 0x88);
+                    D_80145D24 = 0x1F;
+                    M2C_FIELD(arg0, u8 *, 0x80) = 8U;
+                    M2C_FIELD(arg0, s8 *, 0x7F) = 0xA;
+                    M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(a, u16 *, 0x28);
+                    Object_PlaySound(arg0, 0xB5);
+                }
+            } else {
+                M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0xFA, M2C_FIELD(arg0, s16 *, 0x24), (s16) (M2C_FIELD(arg0, u16 *, 0x28) - 0x15E), (s32) M2C_FIELD(arg0, s16 *, 0x2C), 0x401, 0x203);
+            }
+        }
+        if (D_80145D24 != 0) {
+            temp_v1 = M2C_FIELD(arg0, u8 *, 0x80);
+            if ((temp_v1 == 3) || (temp_v1 == 8)) {
+                func_80140554(arg0);
+                return;
+            }
+            goto block_12;
+        }
+block_12:
+        func_80052038(arg0, 0x1E);
+        func_8005588C(arg0, 0x78);
+    }
+}
 
 void func_801408C8(void *arg0, s32 arg1) {
     Object_SpawnEffect(arg0, 5, (s16) (-((s32) (M2C_FIELD(arg0, s16 *, 0x64) * 0x41) >> 0xB) * arg1), 0, (s32) (s16) (((s32) (M2C_FIELD(arg0, s16 *, 0x60) * 0x41) >> 0xB) * arg1));
