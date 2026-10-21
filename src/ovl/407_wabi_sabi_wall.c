@@ -15,7 +15,23 @@ INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D000);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D20C);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D358);
+extern u8 D_80141B54[];
+void func_80070284(SVECTOR *, void *, s32, s32, SVECTOR *);
+void Effect_SpawnAt(s32, SVECTOR *);
+
+void func_8013D358(s16 x, s16 y, s16 z) {
+    SVECTOR v;
+    SVECTOR d;
+
+    v.vx = x;
+    v.vy = y - 0x80;
+    v.vz = z;
+    d.vz = -0x1000;
+    d.vx = 0;
+    d.vy = 0;
+    func_80070284(&v, D_80141B54, 1, 4, &d);
+    Effect_SpawnAt(0x112, &v);
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D3BC);
 

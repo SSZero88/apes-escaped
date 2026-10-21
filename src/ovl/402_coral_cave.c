@@ -96,7 +96,15 @@ INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DC34);
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DCF8);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DDA8);
+void Object_SetForwardVelocity(void *, s16);
+void func_8013DCF8(void *, s16);
+
+void func_8013DDA8(void *arg0, s16 speed) {
+    Object_SetForwardVelocity(arg0, speed);
+    M2C_FIELD(arg0, s32 *, 0x24) += M2C_FIELD(arg0, s16 *, 0x94);
+    M2C_FIELD(arg0, s32 *, 0x2C) += M2C_FIELD(arg0, s16 *, 0x98);
+    func_8013DCF8(arg0, speed);
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DE0C);
 
@@ -313,7 +321,14 @@ void func_8013F2DC(void *arg0) {
     Object_TurnToward(arg0, g_Spike.x - M2C_FIELD(arg0, u16 *, 0x24), g_Spike.z - M2C_FIELD(arg0, u16 *, 0x2C), 0, 0x1000);
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013F36C);
+void func_8013F36C(void *arg0) {
+    if (++M2C_FIELD(arg0, u8 *, 0x8F) < 2) {
+        func_8013EE30(arg0, 0x46, 0xA0);
+        Object_PlaySound(arg0, 0x4B);
+    } else {
+        Object_PlaySound(arg0, 0x48);
+    }
+}
 
 void func_8013F3D0(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0x44) = 0xC8;

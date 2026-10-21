@@ -227,7 +227,16 @@ void func_8013DD2C(void *arg0) {
     Object_TurnToward(arg0, g_Spike.x - M2C_FIELD(arg0, u16 *, 0x24), g_Spike.z - M2C_FIELD(arg0, u16 *, 0x2C), 0, 0x1000);
 }
 
-INCLUDE_ASM("asm/ovl/396/nonmatchings/396_primordial_ooze", func_8013DDBC);
+void Object_PlaySound(void *, s32);
+
+void func_8013DDBC(void *arg0) {
+    if (++M2C_FIELD(arg0, u8 *, 0x8F) < 2) {
+        func_8013D858(arg0, 0x46, 0xA0);
+        Object_PlaySound(arg0, 0x4B);
+    } else {
+        Object_PlaySound(arg0, 0x48);
+    }
+}
 
 void Object_DisableCollision(void *);
 s32 func_8005588C(void *, s32);

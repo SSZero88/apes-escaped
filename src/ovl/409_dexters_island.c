@@ -450,7 +450,14 @@ void func_80140F44(void *arg0) {
     Object_TurnToward(arg0, g_Spike.x - M2C_FIELD(arg0, u16 *, 0x24), g_Spike.z - M2C_FIELD(arg0, u16 *, 0x2C), 0, 0x1000);
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80140FD4);
+void func_80140FD4(void *arg0) {
+    if (++M2C_FIELD(arg0, u8 *, 0x8F) < 2) {
+        func_80140A90(arg0, 0x46, 0xA0);
+        Object_PlaySound(arg0, 0x4B);
+    } else {
+        Object_PlaySound(arg0, 0x48);
+    }
+}
 
 void func_80141038(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0x44) = 0xC8;

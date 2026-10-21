@@ -26,7 +26,6 @@ M2C_UNK func_800525E0();
 M2C_UNK Object_ApplyVelocity(void *);
 M2C_UNK Object_HeadTowardSpike(void *, s32);
 s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s32);
-s32 func_8013E888();
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
@@ -221,7 +220,19 @@ void func_8013E814(void *arg0) {
     func_8013E654(arg0, 0, 0x12);
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013E888);
+extern s32 D_800EC208;
+
+/* called without all its arguments (old-style declaration), so defined old-style */
+s32 func_8013E888(arg0)
+    void *arg0;
+{
+    if (Object_SpikeOutOfRange(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x28),
+                               M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA4)) == 0 &&
+        M2C_FIELD(arg0, s32 *, 0x28) - 0x12C < D_800EC208) {
+        return 1;
+    }
+    return 0;
+}
 
 void func_8013E8EC(void *arg0) {
     if (func_8013E888() != 0) {

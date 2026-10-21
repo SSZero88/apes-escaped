@@ -474,7 +474,14 @@ void func_80140658(void *arg0) {
     Object_TurnToward(arg0, g_Spike_80140658.x - M2C_FIELD(arg0, u16 *, 0x24), g_Spike_80140658.z - M2C_FIELD(arg0, u16 *, 0x2C), 0, 0x1000);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_801406E8);
+void func_801406E8(void *arg0) {
+    if (++M2C_FIELD(arg0, u8 *, 0x8F) < 2) {
+        func_8014017C(arg0, 0x46, 0xA0);
+        Object_PlaySound(arg0, 0x4B);
+    } else {
+        Object_PlaySound(arg0, 0x48);
+    }
+}
 
 void Object_DisableCollision(void *);
 

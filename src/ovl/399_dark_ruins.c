@@ -223,7 +223,21 @@ void func_8013D834(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D868);
+extern u8 D_80141248[];
+void func_800702B0(SVECTOR *, void *);
+void Object_DropPickups(void *);
+
+void func_8013D868(void *arg0) {
+    SVECTOR v;
+
+    Object_PlaySound(arg0, 0x4D);
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28);
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    func_800702B0(&v, D_80141248);
+    Object_DropPickups(arg0);
+    func_80051E98(arg0, 1);
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013D8CC);
 
