@@ -139,7 +139,23 @@ s32 func_8013ED9C(void *arg0, s32 arg1, s32 arg2) {
     return arg2 == arg1;
 }
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013EE80);
+void func_8013EE80(void *arg0)
+{
+  *((s16 *) (((s8 *) arg0) + 0xA0)) = 0x32;
+  *((s16 *) (((s8 *) arg0) + 0xB0)) = 0x88;
+  *((s16 *) (((s8 *) arg0) + 0x44)) = 0x3C;
+  *((u8 *) (((s8 *) arg0) + 0xC8)) = 6;
+  *((s16 *) (((s8 *) arg0) + 0x48)) = 0x201;
+  *((s16 *) (((s8 *) arg0) + 0x4A)) = -0x7DFD;
+  *((u8 *) (((s8 *) arg0) + 0xCD)) = 1;
+  *((u8 *) (((s8 *) arg0) + 0xDC)) = 2;
+  *((u8 *) (((s8 *) arg0) + 0x80)) = 1;
+  *((s16 *) (((s8 *) arg0) + 0x46)) = 0;
+  *((s16 *) (((s8 *) arg0) + 0xA8)) = 0;
+  *((u8 *) (((s8 *) arg0) + 0x7F)) = 0;
+  *((u32 *) (((s8 *) arg0) + 0xE0)) |= 0x200000;
+  *((u16 *) (((s8 *) arg0) + 0x5C)) = *(*((u16 **) (((s8 *) arg0) + 0x88)));
+}
 
 M2C_UNK Object_TurnToward(void *, s16, s16, M2C_UNK, s32);
 void Fx_SpawnFadeRing(SVECTOR *, s32, s32, s32);
@@ -168,7 +184,26 @@ void func_8013EEF0(void *arg0)
   func_80070284(&v, &D_800B1C28, 1, 0xC, 0);
 }
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013EFE4);
+s32 Vec_Length(s32, s32, s32);
+void Object_OrbitAround(void *, s16, s16, s16, s16);
+extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013EFE4 asm("g_Spike");
+
+void func_8013EFE4(void *arg0) {
+    s32 d;
+    s32 r;
+    s16 speed;
+
+    d = Vec_Length(g_Spike_8013EFE4.x - M2C_FIELD(arg0, s16 *, 0x9A), 0, g_Spike_8013EFE4.z - M2C_FIELD(arg0, s16 *, 0x9E));
+    r = M2C_FIELD(arg0, s16 *, 0xA6);
+    if (r + 0x600 < d) {
+        speed = 8;
+    } else if (d < r) {
+        speed = 0x20;
+    } else {
+        speed = (0x600 - d) / 64 + 8;
+    }
+    Object_OrbitAround(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6), speed);
+}
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013F08C);
 

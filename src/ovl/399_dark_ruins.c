@@ -337,7 +337,23 @@ s32 func_8013EC28(void *arg0, s32 arg1, s32 arg2) {
     return arg2 == arg1;
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013ED0C);
+void func_8013ED0C(void *arg0)
+{
+  *((s16 *) (((s8 *) arg0) + 0xA0)) = 0x32;
+  *((s16 *) (((s8 *) arg0) + 0xB0)) = 0x88;
+  *((s16 *) (((s8 *) arg0) + 0x44)) = 0x3C;
+  *((u8 *) (((s8 *) arg0) + 0xC8)) = 6;
+  *((s16 *) (((s8 *) arg0) + 0x48)) = 0x201;
+  *((s16 *) (((s8 *) arg0) + 0x4A)) = -0x7DFD;
+  *((u8 *) (((s8 *) arg0) + 0xCD)) = 1;
+  *((u8 *) (((s8 *) arg0) + 0xDC)) = 2;
+  *((u8 *) (((s8 *) arg0) + 0x80)) = 1;
+  *((s16 *) (((s8 *) arg0) + 0x46)) = 0;
+  *((s16 *) (((s8 *) arg0) + 0xA8)) = 0;
+  *((u8 *) (((s8 *) arg0) + 0x7F)) = 0;
+  *((u32 *) (((s8 *) arg0) + 0xE0)) |= 0x200000;
+  *((u16 *) (((s8 *) arg0) + 0x5C)) = *(*((u16 **) (((s8 *) arg0) + 0x88)));
+}
 
 void Fx_SpawnFadeRing(SVECTOR *, s32, s32, s32);
 void func_80070284(SVECTOR *, void *, s32, s32, s32);

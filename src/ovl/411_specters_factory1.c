@@ -336,7 +336,23 @@ s32 func_8013F4F0(void *arg0, s32 arg1, s32 arg2) {
     return arg2 == arg1;
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013F5D4);
+void func_8013F5D4(void *arg0)
+{
+  *((s16 *) (((s8 *) arg0) + 0xA0)) = 0x32;
+  *((s16 *) (((s8 *) arg0) + 0xB0)) = 0x88;
+  *((s16 *) (((s8 *) arg0) + 0x44)) = 0x3C;
+  *((u8 *) (((s8 *) arg0) + 0xC8)) = 6;
+  *((s16 *) (((s8 *) arg0) + 0x48)) = 0x201;
+  *((s16 *) (((s8 *) arg0) + 0x4A)) = -0x7DFD;
+  *((u8 *) (((s8 *) arg0) + 0xCD)) = 1;
+  *((u8 *) (((s8 *) arg0) + 0xDC)) = 2;
+  *((u8 *) (((s8 *) arg0) + 0x80)) = 1;
+  *((s16 *) (((s8 *) arg0) + 0x46)) = 0;
+  *((s16 *) (((s8 *) arg0) + 0xA8)) = 0;
+  *((u8 *) (((s8 *) arg0) + 0x7F)) = 0;
+  *((u32 *) (((s8 *) arg0) + 0xE0)) |= 0x200000;
+  *((u16 *) (((s8 *) arg0) + 0x5C)) = *(*((u16 **) (((s8 *) arg0) + 0x88)));
+}
 
 M2C_UNK Object_TurnToward(void *, s16, s16, M2C_UNK, s32);
 void Fx_SpawnFadeRing(SVECTOR *, s32, s32, s32);
@@ -364,7 +380,26 @@ void func_8013F644(void *arg0)
   func_80070284(&v, &D_800B1C28, 1, 0xC, 0);
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013F738);
+s32 Vec_Length(s32, s32, s32);
+void Object_OrbitAround(void *, s16, s16, s16, s16);
+extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013EFE4 asm("g_Spike");
+
+void func_8013F738(void *arg0) {
+    s32 d;
+    s32 r;
+    s16 speed;
+
+    d = Vec_Length(g_Spike_8013EFE4.x - M2C_FIELD(arg0, s16 *, 0x9A), 0, g_Spike_8013EFE4.z - M2C_FIELD(arg0, s16 *, 0x9E));
+    r = M2C_FIELD(arg0, s16 *, 0xA6);
+    if (r + 0x600 < d) {
+        speed = 8;
+    } else if (d < r) {
+        speed = 0x20;
+    } else {
+        speed = (0x600 - d) / 64 + 8;
+    }
+    Object_OrbitAround(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6), speed);
+}
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013F7E0);
 
@@ -465,7 +500,22 @@ s32 func_801406A0(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_80140714);
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_801407B4);
+extern u8 *D_800B4DC4;
+
+void func_801407B4(void) {
+    u8 *o;
+
+    o = D_800B4DC4;
+    M2C_FIELD(o, s32 *, 0x24) = M2C_FIELD(M2C_FIELD(o, s16 **, 0x70), s16 *, 0) = M2C_FIELD(o, s16 *, 0x78);
+    M2C_FIELD(o, s32 *, 0x28) = M2C_FIELD(M2C_FIELD(o, s16 **, 0x70), s16 *, 2) = M2C_FIELD(o, s16 *, 0x7A);
+    M2C_FIELD(o, s32 *, 0x2C) = M2C_FIELD(M2C_FIELD(o, s16 **, 0x70), s16 *, 4) = M2C_FIELD(o, s16 *, 0x7C);
+    M2C_FIELD(M2C_FIELD(o, u8 **, 0x70), u16 *, 0x18) &= 0x7FFF;
+    M2C_FIELD(o, SVECTOR *, 0x60) = M2C_FIELD(o, SVECTOR *, 0x80);
+    M2C_FIELD(o, s16 *, 0x6A) = 0x1000;
+    M2C_FIELD(o, s16 *, 0x68) = 0;
+    M2C_FIELD(o, s16 *, 0x6C) = 0;
+    M2C_FIELD(o, u8 *, 0x8E) = 6;
+}
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8014085C);
 

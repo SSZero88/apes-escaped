@@ -414,7 +414,22 @@ void func_8014263C(s32 arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801426B0);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8014283C);
+extern u8 *D_800B4DC4;
+
+void func_8014283C(void) {
+    u8 *o;
+
+    o = D_800B4DC4;
+    M2C_FIELD(o, s32 *, 0x24) = M2C_FIELD(M2C_FIELD(o, s16 **, 0x70), s16 *, 0) = M2C_FIELD(o, s16 *, 0x78);
+    M2C_FIELD(o, s32 *, 0x28) = M2C_FIELD(M2C_FIELD(o, s16 **, 0x70), s16 *, 2) = M2C_FIELD(o, s16 *, 0x7A);
+    M2C_FIELD(o, s32 *, 0x2C) = M2C_FIELD(M2C_FIELD(o, s16 **, 0x70), s16 *, 4) = M2C_FIELD(o, s16 *, 0x7C);
+    M2C_FIELD(M2C_FIELD(o, u8 **, 0x70), u16 *, 0x18) &= 0x7FFF;
+    M2C_FIELD(o, SVECTOR *, 0x60) = M2C_FIELD(o, SVECTOR *, 0x80);
+    M2C_FIELD(o, s16 *, 0x6A) = 0x1000;
+    M2C_FIELD(o, s16 *, 0x68) = 0;
+    M2C_FIELD(o, s16 *, 0x6C) = 0;
+    M2C_FIELD(o, u8 *, 0x8E) = 6;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801428E4);
 

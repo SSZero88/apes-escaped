@@ -102,7 +102,29 @@ void func_8013D7FC(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013D884);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013DA9C);
+typedef struct { u8 pad0[0x5C]; s16 f5C; u8 pad5E[2]; s16 f60, f62, f64, f66; u8 pad68[0x20]; } Mdl_408;
+void func_8013DE2C(void);
+extern Mdl_408 D_80145280_s[] asm("D_80142CE0");
+
+void func_8013DA9C(void) {
+    s32 i;
+    Mdl_408 *m;
+    s32 k;
+
+    if (Hook_Add(func_8013DE2C) == 1) {
+        for (i = 0; i < 20; i++) {
+            m = &D_80145280_s[i];
+            k = (i & 1) + 0xA1;
+            func_80052038(m, k);
+            func_800520A8(m, k);
+            m->f5C = 0;
+            m->f62 = 0;
+            m->f60 = 0;
+            m->f64 = 0x1000;
+            m->f66 = 3;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013DB44);
 
