@@ -388,7 +388,23 @@ INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013F4F4);
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FA08);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FB38);
+extern s16 D_800E77E0;
+extern u8 g_Objects_8013D130[] asm("g_Objects");
+extern s16 D_800E77E0;
+
+u8 *func_8013FB38(u8 *arg0, s32 type, s32 flag) {
+    s32 i;
+    u8 *o;
+
+    for (i = 0; i < D_800E77E0; i++) {
+        o = g_Objects_8013D130 + i * 0xE4;
+        if (M2C_FIELD(arg0, s8 *, 0xCB) != i && o[0x7E] == type && ((M2C_FIELD(o, u32 *, 0xE0) >> 4) & 1) == flag &&
+            M2C_FIELD(o, s16 *, 0x9A) == M2C_FIELD(arg0, s16 *, 0x9A) && M2C_FIELD(o, s32 *, 0x9C) == M2C_FIELD(arg0, s32 *, 0x9C)) {
+            return o;
+        }
+    }
+    return 0;
+}
 
 /* called without all its arguments (old-style declaration), so defined old-style */
 s32 func_8013FBD4(arg0)
@@ -408,7 +424,6 @@ void func_8013FC08(void *arg0, s16 arg1, s16 arg2) {
 }
 
 M2C_UNK func_80056AE4(void *, void *, s8);
-void *func_8013FB38(void *, s32, s32);
 
 void func_8013FC30(void *arg0, s32 arg1) {
     s32 temp_s2;

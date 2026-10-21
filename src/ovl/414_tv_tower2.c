@@ -19,7 +19,6 @@ M2C_UNK func_8013D1F0(M2C_UNK, M2C_UNK *, void *);
 extern M2C_UNK D_80144598;
 extern M2C_UNK D_80143AF0;
 M2C_UNK Camera_StartShake(M2C_UNK);
-M2C_UNK func_8014097C(M2C_UNK *);
 extern M2C_UNK D_80143D70;
 extern s8 D_80143F04;
 
@@ -344,7 +343,26 @@ void func_80140948(void *arg0, s32 anim) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8014097C);
+extern u8 D_80143F05;
+void Sound_PlayFixed(s32);
+
+void func_8014097C(u8 *a) {
+    a[0x71] = 8;
+    M2C_FIELD(a, s16 *, 0x8A) = -0x1480;
+    M2C_FIELD(a, s16 *, 0x8C) = 0x978;
+    M2C_FIELD(a, s16 *, 0x88) = 0;
+    *(SVECTOR *)(a + 0x90) = *(SVECTOR *)(a + 0x88);
+    M2C_FIELD(a, s32 *, 0x7C) = 0x400;
+    M2C_FIELD(a, s32 *, 0x84) = 0x578;
+    M2C_FIELD(a, s16 *, 0xB2) = 0x28;
+    M2C_FIELD(a, s32 *, 0xBC) = 0;
+    M2C_FIELD(a, s16 *, 0xB6) = -0x3C;
+    M2C_FIELD(a, u16 *, 0x92) = M2C_FIELD(a, u16 *, 0x28);
+    func_80140948(a, 5);
+    Sound_PlayFixed(0x8C);
+    func_8013DC10(0xBB);
+    D_80143F05 = 0;
+}
 
 void Sound_PlayFixed(s32);
 
