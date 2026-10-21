@@ -184,7 +184,30 @@ s32 func_8013E114(void) {
     return info[0];
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013E188);
+extern u8 *D_800E388C;
+extern s16 D_8013F5E4_8013E188 asm("D_8013F5E4");
+void func_80143F54(s32, s32, s32);
+
+s32 func_8013E188(s32 clear) {
+    s32 cmd;
+    s32 result;
+    s32 i;
+    s32 *q;
+
+    if (clear) {
+        M2C_FIELD(D_800E388C, s32 *, 0x128) = D_8013F5E4_8013E188;
+        for (i = 4, q = (s32 *)(D_800E388C + 0x120); i >= 0; i--) {
+            *q-- = 0;
+        }
+    }
+    if (D_8013F284 != 0) {
+        return 0;
+    }
+    MemCardSync(0, &cmd, &result);
+    func_80143F54(0, 1, 0x3C);
+    func_8014236C(0, &cmd, &result);
+    return 0;
+}
 
 extern s16 D_8013F284;
 void MemCardSync(s32, s32 *, s32 *);
