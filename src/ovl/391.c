@@ -151,7 +151,36 @@ INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_801386B8);
 
 INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80138A9C);
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80138B0C);
+typedef struct { s16 x, y; s32 z; } Pt_391;
+void *func_8008C09C(s32);
+s32 rcos(s32);
+s32 rsin(s32);
+extern Pt_391 *D_80139E28_80138B0C asm("D_80139E28");
+
+void func_80138B0C(void)
+{
+  Pt_391 *p;
+  s32 r;
+  s32 k;
+  s32 a;
+  s32 a0;
+  s32 rad;
+  p = (D_80139E28_80138B0C = func_8008C09C(0x600));
+  for (a0 = 0, r = 0; r < 12; r++, a0 += 0x80)
+  {
+    rad = ((r * r) * 300) / 144;
+    for (k = 0, a = a0; k < 16; k++)
+    {
+      p->x = ((rcos(a) * rad) >> 12) + 0xC0;
+      p->y = ((rsin(a) * rad) >> 12) + 0x78;
+      p->z = 0;
+      a += 0x100;
+      p++;
+    }
+
+  }
+
+}
 
 INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80138C24);
 

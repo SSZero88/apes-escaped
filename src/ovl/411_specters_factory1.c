@@ -463,12 +463,38 @@ s32 func_8013FC48(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013FC70);
+typedef struct { s16 x, y, z, vy; s8 vx, vz; u8 life; u8 pad; } Spark_411;
+
+void func_8013FC70(SVECTOR *pos, s32 n) {
+    s32 i;
+    Spark_411 *p;
+    s16 x;
+    s16 y;
+    s16 z;
+
+    x = pos->vx;
+    y = pos->vy;
+    z = pos->vz;
+    for (i = 63; i >= 0; i--) {
+        p = &D_80141948[i];
+        if (p->life == 0) {
+            p->life = ((RAND() >> 8) & 0x1F) + 0x28;
+            p->x = x + ((RAND() >> 8) - 0x80);
+            p->y = y - ((RAND() >> 8) - 0x80);
+            p->z = z + ((RAND() >> 8) - 0x80);
+            p->vx = ((RAND() >> 8) - 0x80) / 4;
+            p->vy = -((RAND() >> 8) & 0x3F) - 8;
+            p->vz = ((RAND() >> 8) - 0x80) / 4;
+            if (--n == 0) {
+                return;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013FDF0);
 
 M2C_UNK func_80070284(s32, M2C_UNK *, M2C_UNK, M2C_UNK, s32);
-M2C_UNK func_8013FC70(s32, M2C_UNK);
 extern M2C_UNK D_800B1C7C;
 
 void func_8014022C(s32 arg0, s32 arg1) {

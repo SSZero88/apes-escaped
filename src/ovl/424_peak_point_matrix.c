@@ -32,7 +32,45 @@ M2C_UNK func_8013EEC0(void *, M2C_UNK);
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013D000);
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013D0A0);
+#include "gte.h"
+typedef struct { u8 pad0[0x8]; u16 n; u8 padA[2]; s32 rgb[1]; } MdlHdr_422;
+typedef struct { MdlHdr_422 *hdr; s32 *f_4; u8 *prims; } Mdl_422;
+typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } Scr_422;
+extern struct { u8 pad0[0x24]; u16 f_24; u8 pad26[2]; u16 f_28; } D_800EBFA0;
+void Model_DrawPrims(s32, u8 *, s32);
+
+void func_8013D0A0(s32 ot, s32 arg1, Mdl_422 *m, s32 add) {
+    s32 i;
+    u8 *c;
+    s32 *src;
+    Scr_422 *sc = (Scr_422 *)0x1F800000;
+
+    c = m->prims;
+    if (add == 0) {
+        src = m->hdr->rgb;
+        for (i = 0; i < m->hdr->n; i++) {
+            gte_ldIR(0x1000, 0, 0);
+            gte_ldRGB(&src[i]);
+            gte_cc();
+            gte_stRGB2_mem(&sc->rgb[i]);
+        }
+    } else {
+        src = m->hdr->rgb;
+        for (i = 0; i < m->hdr->n; i++) {
+            gte_ldIR(0x800, 0, 0);
+            gte_ldRGB(&src[i]);
+            gte_cc();
+            gte_stRGB2(&sc->rgb[i]);
+            sc->rgb[i] += add;
+        }
+    }
+    sc->f_3C6 = 0;
+    sc->f_3C4 = 0;
+    sc->f_3F4 = 6;
+    sc->f_3C0 = D_800EBFA0.f_24;
+    sc->f_3C2 = D_800EBFA0.f_28;
+    Model_DrawPrims(ot, c, arg1);
+}
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013D1FC);
 
