@@ -257,7 +257,13 @@ void func_8013FA90(void *arg0, void *arg1) {
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013FAF4);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013FD9C);
+void func_8013FD9C(void *arg0, s32 n) {
+    if (M2C_FIELD(arg0, u8 *, 0x7F) != n &&
+        M2C_FIELD(arg0, u16 *, 0x5C) == *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88) + 2)) {
+        M2C_FIELD(arg0, u8 *, 0x7F) = n;
+        M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));
+    }
+}
 
 void func_8013FDF0(void *arg0) {
     if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA4)) != 0) {

@@ -212,7 +212,24 @@ s16 func_80137454(void) {
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013758C);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_801377F8);
+s32 func_801377F8(u8 *p, s32 flags) {
+    s32 n;
+    s32 i;
+
+    for (i = n = 0; i < 0x80; i++, p += 2) {
+        if (*p == 0xFF) {
+            break;
+        }
+        n++;
+    }
+    if (flags & 0x10) {
+        n += 5;
+    }
+    if (flags & 0x1000) {
+        n += 5;
+    }
+    return n;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013784C);
 

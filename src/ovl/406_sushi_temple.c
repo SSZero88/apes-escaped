@@ -53,7 +53,20 @@ INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D368);
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D77C);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D8A4);
+typedef struct { u8 pad0[0x10]; s8 f; u8 pad11[3]; } Slot_406;
+extern s32 D_8013F8B0;
+extern Slot_406 *D_8013F8B4;
+
+s32 func_8013D8A4(void) {
+    s32 i;
+
+    for (i = 0; i < D_8013F8B0; i++) {
+        if (D_8013F8B4[i].f == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D8F8);
 

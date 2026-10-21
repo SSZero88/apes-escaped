@@ -86,7 +86,20 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D13C);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D230);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D4F8);
+typedef struct { u8 pad0[0x10]; s8 f; u8 pad11[3]; } Slot_406;
+extern s32 D_80144F30;
+extern Slot_406 *D_80144F34;
+
+s32 func_8013D4F8(void) {
+    s32 i;
+
+    for (i = 0; i < D_80144F30; i++) {
+        if (D_80144F34[i].f == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D54C);
 

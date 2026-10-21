@@ -128,7 +128,16 @@ void func_8013E004(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013E068);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013E3A0);
+void func_8013E3A0(void *arg0) {
+    M2C_FIELD(arg0, u8 *, 0x80) = 3;
+    M2C_FIELD(arg0, u8 *, 0x7F) = 1;
+    M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, u8 **, 0x88), u16 *, 4);
+    M2C_FIELD(arg0, s16 *, 0xA8) = 0x14;
+    M2C_FIELD(arg0, s16 *, 0x98) = 0;
+    M2C_FIELD(arg0, s16 *, 0x96) = 0;
+    M2C_FIELD(arg0, s16 *, 0x94) = 0;
+    M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88)) + 10;
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013E3F4);
 

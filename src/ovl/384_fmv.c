@@ -145,7 +145,25 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80137878);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801378F0);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80137A64);
+typedef struct { s16 x, y, w, h; } Rect_384;
+void ClearImage(Rect_384 *, s32, s32, s32);
+void DrawSync(s32);
+void VSync(s32);
+
+void func_80137A64(void) {
+    Rect_384 r;
+
+    r.w = 0x180;
+    r.x = 0;
+    r.y = 0;
+    r.h = 0x200;
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    VSync(0);
+}
+
+
+__asm__(".section .text\n.balign 16");
 
 INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C484);
 

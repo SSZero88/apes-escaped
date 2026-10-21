@@ -237,9 +237,17 @@ INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8014039C);
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_80140484);
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_801408E4);
-
 extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; } g_Game;
+
+s32 func_801408E4(s16 *p) {
+    u16 *e = (u16 *)(g_Game.f_820C + p[2] * 0x38);
+
+    p[7] = e[0];
+    p[8] = e[1];
+    p[9] = e[2];
+    return 0;
+}
+
 void func_80094B6C(s32, void *, void *);
 
 s32 func_80140938(s16 *p) {

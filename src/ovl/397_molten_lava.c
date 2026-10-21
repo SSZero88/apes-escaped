@@ -169,7 +169,16 @@ INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E320);
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E40C);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E7D8);
+void func_8013E7D8(void *arg0) {
+    SVECTOR v;
+
+    if (M2C_FIELD(arg0, u8 *, 0xC8) != 0) {
+        v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+        v.vy = M2C_FIELD(arg0, u16 *, 0x28) - 0xAA;
+        v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+        Effect_SpawnAt(0x10B, &v);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E82C);
 
