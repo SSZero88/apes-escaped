@@ -109,7 +109,13 @@ void func_8013DF60(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0x28) -= 0x1F4;
 }
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013E004);
+void func_8013E004(void *arg0) {
+    s32 d = M2C_FIELD(arg0, u16 *, 0x5C) - *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));
+
+    if (d == 2 || d == 8) {
+        Object_PlaySound(arg0, 0xB4);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013E058);
 

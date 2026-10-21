@@ -105,7 +105,12 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D54C);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D628);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D740);
+void func_8013D740(s16 *p) {
+    p[0] += p[4];
+    p[1] += p[5];
+    p[2] += p[6];
+    Effect_SpawnAt(0x2B, p);
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D794);
 
@@ -359,12 +364,18 @@ void func_80140530(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140554);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_801405BC);
+extern u16 g_RandSeed;
+#define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
+
+void func_801405BC(void *arg0, u8 mask) {
+    if (!((RAND() >> 8) & mask)) {
+        Object_PlaySound(arg0, 0x5B);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140610);
 
 M2C_UNK func_80140554(void *);
-M2C_UNK func_801405BC(void *, M2C_UNK);
 M2C_UNK func_80140610(void *, s32);
 
 void func_80140778(void *arg0) {
@@ -690,4 +701,13 @@ s32 func_8014483C(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80144870);
+extern struct S_g_Game_80144870 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80144870 asm("g_Game");
+void Sound_UpdateVoice3D(s32, s32, s32, void *);
+
+s32 func_80144870(s16 *p) {
+    Sound_UpdateVoice3D(0xB1, p[4], 0x1000, g_Game_80144870.f_820C + p[2] * 0x38);
+    return 0;
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop\n\tnop\n\tnop");
