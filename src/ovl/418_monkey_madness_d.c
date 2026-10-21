@@ -418,7 +418,14 @@ s32 func_80141C68(void) {
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80141C70);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80141CD4);
+s32 func_80141CD4(s16 *p) {
+    u8 *e = g_Game.f_820C + p[2] * 0x38;
+
+    if (M2C_FIELD(e, s16 *, 0x32) == p[4]) {
+        Sound_PlayFixed(0x78);
+    }
+    return 0;
+}
 
 s32 func_80141D30(void *arg0) {
     s16 temp_a0;

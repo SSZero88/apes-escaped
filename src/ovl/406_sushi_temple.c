@@ -269,6 +269,21 @@ INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013F330);
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013F400);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013F574);
+extern struct S_g_Game_8013F574 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013F574 asm("g_Game");
+
+s32 func_8013F574(s16 *p) {
+    u8 *e;
+
+    if (p[10] == 0) {
+        p[1] = 0;
+        p[10] = 0;
+    } else {
+        p[1] = 1;
+        e = g_Game_8013F574.f_8220 + p[4] * 0x18;
+        M2C_FIELD(e, s16 *, 2) = 5;
+    }
+    p[3] = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013F5D4);

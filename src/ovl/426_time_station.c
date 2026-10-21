@@ -108,7 +108,14 @@ s32 func_8013E0E8(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013E178);
 
-INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013E280);
+s32 func_8013E280(s16 *p) {
+    s32 n = p[4];
+
+    if (func_8013E2DC() >= n) {
+        Model_BindStageMesh(D_800B4D64 + p[6] * 32, p[7]);
+    }
+    return 0;
+}
 
 s32 func_8013E2DC(void) {
     s32 var_s0;

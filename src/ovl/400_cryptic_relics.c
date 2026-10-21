@@ -137,7 +137,18 @@ void func_8013D670(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013D714);
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013D950);
+s32 func_8013D950(s16 *p) {
+    u8 *e;
+
+    p[3] = 0;
+    e = g_Game.f_8220 + p[4] * 0x18;
+    if (M2C_FIELD(e, s16 *, 2) == 1) {
+        p[1] = 1;
+    } else {
+        p[1] = 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013D9A4);
 

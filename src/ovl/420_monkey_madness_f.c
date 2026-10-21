@@ -702,9 +702,40 @@ s32 func_80142154(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_801421E4);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_801423C8);
+extern struct S_g_Game_801423C8 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_801423C8 asm("g_Game");
+extern s16 D_800AFA22;
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142424);
+s32 func_801423C8(s16 *p) {
+    u8 *e = g_Game_801423C8.f_8220 + p[4] * 0x18;
+    s32 v = M2C_FIELD(e, s16 *, 2);
+
+    if (v == 1) {
+        p[1] = v;
+        D_800AFA22 = v;
+    } else {
+        p[1] = 0;
+        D_800AFA22 = 0;
+    }
+    p[3] = 0;
+    return 0;
+}
+
+extern struct S_g_Game_80142424 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80142424 asm("g_Game");
+
+s32 func_80142424(s16 *p) {
+    u8 *e;
+    s32 v;
+
+    if (p[1] == 0) {
+        e = g_Game_80142424.f_8220 + p[4] * 0x18;
+        v = M2C_FIELD(e, s16 *, 2);
+        if (v == 1) {
+            p[1] = v;
+            D_800AFA22 = v;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8014247C);
 
@@ -757,7 +788,19 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80143AEC);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80143BE4);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80143CB8);
+extern struct S_g_Game_80143CB8 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80143CB8 asm("g_Game");
+
+s32 func_80143CB8(s16 *p) {
+    u8 *e;
+
+    e = g_Game_80143CB8.f_8220 + p[4] * 0x18;
+    if (M2C_FIELD(e, s16 *, 2) == 1) {
+        p[1] = 1;
+    } else {
+        p[1] = 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80143D08);
 
@@ -767,7 +810,19 @@ s32 func_80143D80(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80143D94);
+extern struct S_g_Game_80143D94 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80143D94 asm("g_Game");
+
+s32 func_80143D94(s16 *p) {
+    u8 *e;
+
+    if (p[1] == 0) {
+        e = g_Game_80143D94.f_8220 + p[6] * 0x18;
+        if (M2C_FIELD(e, s16 *, 2) == 1) {
+            p[1] = 5;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80143DE8);
 

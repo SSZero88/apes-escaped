@@ -264,7 +264,17 @@ void func_8013EFA4(SVECTOR *arg0) {
     Effect_SpawnAt(4, &v);
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013EFE4);
+void func_8013EFE4(SVECTOR *p) {
+    s32 i;
+    SVECTOR v;
+
+    for (i = 0; i < 32; i++) {
+        v.vx = p->vx;
+        v.vy = p->vy;
+        v.vz = p->vz;
+        Effect_SpawnAt(10, &v);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013F044);
 

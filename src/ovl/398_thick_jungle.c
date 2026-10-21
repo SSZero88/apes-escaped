@@ -16,7 +16,6 @@ s16 rcos(s16);
 s16 rsin(s16);
 extern struct S_D_800E77A0 { u8 pad_0[0x1]; u8 f_1; } D_800E77A0;
 M2C_UNK Collision_Set(M2C_UNK, M2C_UNK *, s32);
-M2C_UNK func_8013F844();
 extern struct S_D_80143170 { u8 pad_0[0x20]; s16 f_20; s16 f_22; s16 f_24; s16 f_26; } D_80143170;
 M2C_UNK Hook_Add(M2C_UNK *);
 extern M2C_UNK func_8013FA20;
@@ -204,7 +203,19 @@ void func_8013F608(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013F71C);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013F844);
+extern struct { s32 x, y, z; } D_80143170_8013F844 asm("D_80143170");
+
+/* called without all its arguments (old-style declaration), so defined old-style */
+void func_8013F844(arg0)
+    void *arg0;
+{
+    s32 dx = M2C_FIELD(arg0, s16 *, 0x60);
+    s32 dz = M2C_FIELD(arg0, s16 *, 0x64);
+
+    D_80143170_8013F844.x = M2C_FIELD(arg0, s32 *, 0x24) + ((dx * 75) >> 9);
+    D_80143170_8013F844.y = M2C_FIELD(arg0, s32 *, 0x28) + 0x212;
+    D_80143170_8013F844.z = M2C_FIELD(arg0, s32 *, 0x2C) + ((dz * 75) >> 9);
+}
 
 void func_8013F8A4(s32 arg0) {
     D_80143170.f_26 = -0x4000;
