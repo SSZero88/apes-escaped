@@ -297,7 +297,21 @@ void func_8013F68C(void) {
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013F6EC);
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013F838);
+extern u8 D_80143718_8013F838[] asm("D_80143718");
+extern u8 D_801438A4[];
+void Effect_SpawnAt(s32, SVECTOR *);
+void Effect_Spawn_8013F838(s32, SVECTOR *, void *, s32) asm("Effect_Spawn");
+void Fx_SpawnFadeRing(SVECTOR *, s32, s32, s32);
+void func_80070284(SVECTOR *, void *, s32, s32, s32);
+
+void func_8013F838(SVECTOR *v) {
+    func_8013DE24(v);
+    func_8013DE24(v);
+    Effect_SpawnAt(0x112, v);
+    Effect_Spawn_8013F838(0xD4, v, D_80143718_8013F838, 0);
+    Fx_SpawnFadeRing(v, 1, 0x200, 0);
+    func_80070284(v, D_801438A4, 1, 0, 0);
+}
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013F8B8);
 

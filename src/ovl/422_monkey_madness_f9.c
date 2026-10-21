@@ -281,12 +281,28 @@ void func_801408AC(s32 arg0, s32 arg1) {
     g_RandSeed = temp_v1;
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8014092C);
+extern u8 D_80144BF4;
+extern u8 D_80143F18[];
+void func_8014081C(void);
+
+void func_8014092C(void) {
+    SVECTOR v;
+    u8 *m = D_80144460;
+
+    D_80144BF4 = 2;
+    func_801406F8(1);
+    func_8014081C();
+    v.vy = -0x3300;
+    v.vx = 0;
+    v.vz = 0xEB8;
+    func_80070284(&v, D_80143F18, 1, 0, m + 0x60);
+    Sound_PlayFixed(0x81);
+    Sound_PlayFixed(0x82);
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801409AC);
 
 extern struct { u8 pad0[0xC]; u8 f_C; u8 padD; u8 f_E; u8 padF; s16 f_10; } D_80144BE8_80140A20 asm("D_80144BE8");
-void func_8014092C(void);
 
 void func_80140A20(void) {
     func_8014092C();

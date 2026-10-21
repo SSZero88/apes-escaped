@@ -14,4 +14,21 @@ INCLUDE_ASM("asm/ovl/388/nonmatchings/388_stage_demo", func_80136038);
 
 INCLUDE_ASM("asm/ovl/388/nonmatchings/388_stage_demo", func_801361D0);
 
-INCLUDE_ASM("asm/ovl/388/nonmatchings/388_stage_demo", func_80136350);
+extern u8 D_801363E8[];
+extern u8 D_801363FC[];
+extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_80136350 asm("g_Pad");
+void func_8008C3C0(s32, s32);
+void DebugFont_Printf(u8 *, ...);
+void Sound_PlayFixed(s32);
+
+s32 func_80136350(s32 n) {
+    func_8008C3C0(0x82, 0x46);
+    DebugFont_Printf(D_801363E8, n);
+    func_8008C3C0(0x82, 0xD2);
+    DebugFont_Printf(D_801363FC);
+    if (g_Pad_80136350.f_158 & g_Pad_80136350.f_160 & 0x800) {
+        Sound_PlayFixed(2);
+        return -1;
+    }
+    return 0;
+}

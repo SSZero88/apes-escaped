@@ -324,7 +324,21 @@ void func_8013E5BC(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x7C) = -1;
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013E600);
+typedef struct { u8 pad0[0x28]; u16 y; u8 pad2A[0x54]; u8 kind; u8 pad7F[0x1D]; u16 f_9C; u8 pad9E[0x42]; u32 flags; u8 padE4[0]; } Obj_399;
+extern Obj_399 g_Objects_399[] asm("g_Objects");
+extern s16 D_800E77E0;
+
+void func_8013E600(void) {
+    s32 i;
+    Obj_399 *o;
+
+    for (i = D_800E77E0 - 1; i >= 0; i--) {
+        o = &g_Objects_399[i];
+        if (o->kind == 0x1A && (o->flags >> 4) & 1) {
+            o->f_9C = o->y;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013E680);
 

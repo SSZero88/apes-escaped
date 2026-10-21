@@ -22,7 +22,21 @@ s32 func_8013D300(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/415/nonmatchings/415_monkey_madness_a", func_8013D308);
+extern struct S_g_Game_8013D308 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013D308 asm("g_Game");
+s16 Sound_Play(s32, s32);
+
+s32 func_8013D308(s16 *p) {
+    u8 *e = g_Game_8013D308.f_8220 + p[4] * 0x18;
+
+    p[3] = 0;
+    if (M2C_FIELD(e, s16 *, 2) >= 2) {
+        p[1] = 1;
+    } else {
+        p[1] = 0;
+        p[11] = Sound_Play(1, 0x66);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/415/nonmatchings/415_monkey_madness_a", func_8013D388);
 

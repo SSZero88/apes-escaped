@@ -232,7 +232,21 @@ s32 func_8013EFA0(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013EFB0);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013F1C0);
+extern struct S_g_Game_8013F1C0 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013F1C0 asm("g_Game");
+s16 Sound_Play(s32, s32);
+
+s32 func_8013F1C0(s16 *p) {
+    u8 *t = g_Game_8013F1C0.f_820C;
+    u16 *e = (u16 *)(t + p[5] * 0x38);
+
+    p[1] = 0;
+    p[3] = 0;
+    p[6] = e[0];
+    p[7] = e[1];
+    p[8] = e[2];
+    p[10] = Sound_Play(1, 0xB2);
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013F240);
 
