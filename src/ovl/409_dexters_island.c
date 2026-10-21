@@ -252,7 +252,17 @@ INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013FE88);
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013FFA8);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801401E8);
+void Monkey_DrawHelmetLight(SVECTOR *, s32, s32);
+
+void func_801401E8(void *arg0) {
+    SVECTOR v;
+    u16 *p = M2C_FIELD(arg0, u16 **, 0x74);
+
+    v.vx = p[0];
+    v.vy = p[1] + 0xDC;
+    v.vz = p[2];
+    Monkey_DrawHelmetLight(&v, 2, 0);
+}
 
 void func_80140234(void *arg0, void *arg1) {
     void *temp_v1;
@@ -564,6 +574,18 @@ s32 func_8014277C(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801427C4);
+s32 func_801427C4(s16 *p) {
+    switch (p[1]) {
+    case 0:
+        break;
+    case 1:
+        if (++p[3] > p[5]) {
+            p[1] = 0;
+            p[3] = 0;
+        }
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80142810);

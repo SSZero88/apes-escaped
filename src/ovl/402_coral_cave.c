@@ -367,7 +367,17 @@ void func_8013FB40(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013FB7C);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013FEF8);
+void Monkey_DrawHelmetLight(SVECTOR *, s32, s32);
+
+void func_8013FEF8(void *arg0) {
+    SVECTOR v;
+    u16 *p = M2C_FIELD(arg0, u16 **, 0x74);
+
+    v.vx = p[0];
+    v.vy = p[1] + 0xDC;
+    v.vz = p[2];
+    Monkey_DrawHelmetLight(&v, 2, 0);
+}
 
 void func_8013FF44(void *arg0, void *arg1) {
     void *temp_v1;

@@ -88,7 +88,10 @@ void func_8013D744(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D7AC);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D98C);
+void func_8013D98C(void *arg0) {
+    Object_AddAttackSphereNear(arg0, 0x12C, M2C_FIELD(arg0, s16 *, 0x24), M2C_FIELD(arg0, u16 *, 0x28) - 0x12C,
+                               M2C_FIELD(arg0, s16 *, 0x2C), 0xA01, 0x200);
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D9D8);
 

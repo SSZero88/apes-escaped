@@ -171,7 +171,16 @@ void func_8013DB34(void *arg0) {
     func_80070284(m, D_801440C4, 1, 0, (u8 *)arg0 + 0x60);
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DB70);
+extern u32 g_Game_80140110 asm("g_Game");
+extern u8 D_80144070[];
+
+void func_8013DB70(void *arg0) {
+    void *m = M2C_FIELD(arg0, void **, 0x78);
+
+    if (g_Game_80140110 & 1) {
+        func_80070284(m, D_80144070, 1, 0, (u8 *)arg0 + 0x60);
+    }
+}
 
 void func_8013DBBC(void *arg0) {
     u16 temp_v0;
@@ -186,7 +195,17 @@ void func_8013DBBC(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013DC3C);
+void Monkey_DrawHelmetLight(SVECTOR *, s32, s32);
+
+void func_8013DC3C(void *arg0) {
+    SVECTOR v;
+    u16 *p = M2C_FIELD(arg0, u16 **, 0x74);
+
+    v.vx = p[0];
+    v.vy = p[1] + 0xDC;
+    v.vz = p[2];
+    Monkey_DrawHelmetLight(&v, 2, 1);
+}
 
 s32 Math_Atan2(s32, s32);
 
