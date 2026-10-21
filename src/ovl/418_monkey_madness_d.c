@@ -243,7 +243,57 @@ INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013F380);
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013F418);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013F618);
+typedef struct { s16 x, y, z; } Rot_404;
+typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 wx, wy, wz; Rot_404 r; u8 pad82; u8 life; s16 scale; s16 floor; } Debris_404;
+extern Debris_404 D_80142C40[16];
+extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013F618 asm("g_Game");
+extern u8 D_800E7D00_8013DB40[] asm("D_800E7D00");
+s32 func_80051410(void *, s32, s32);
+void RotMatrixYXZ(void *, void *);
+void ScaleMatrix_8013DB40(void *, void *) asm("ScaleMatrix");
+void func_80015780(void *, s32);
+void Model_ProjectBonedVerts(void *);
+void func_80016EBC(void *, void *, void *);
+void Model_ProjectBonedVerts(void *);
+void func_80015780(void *, s32);
+void func_80016EBC(void *, void *, void *);
+s32 func_80051410(void *, s32, s32);
+
+void func_8013F618(void) {
+    s32 i;
+    Debris_404 *d;
+    s32 s[3];
+    SVECTOR v;
+
+    for (i = 0; i < 16; i++) {
+        d = &D_80142C40[i];
+        if (d->life != 0) {
+            d->life--;
+            d->x += d->vx;
+            d->y += d->vy;
+            d->z += d->vz;
+            d->vy += 7;
+            if (d->floor < d->y) {
+                d->y = d->floor;
+                d->vy = -(d->vy / 2);
+                v.vx = d->x;
+                v.vy = d->y;
+                v.vz = d->z;
+            }
+            d->r.x = (d->r.x + d->wx) % 4096;
+            d->r.y = (d->r.y + d->wy) % 4096;
+            d->r.z = (d->r.z + d->wz) % 4096;
+            if (func_80051410(&d->x, 0, 0) == 0) {
+                RotMatrixYXZ(&d->r, d->mat);
+                s[0] = s[1] = s[2] = d->scale;
+                ScaleMatrix_8013DB40(d->mat, s);
+                func_80015780(d, 3);
+                Model_ProjectBonedVerts(d);
+                func_80016EBC(g_Game_8013F618.f_80 + g_Game_8013F618.f_C * 0x4078, D_800E7D00_8013DB40, d);
+            }
+        }
+    }
+}
 
 void func_8013F818(void *arg0) {
     if ((((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 0xB) && ((M2C_FIELD(Collision_GetShape((u16) M2C_FIELD(arg0, u32 *, 0x50) & 0xFFF), s16 *, 0x24) & 0xFF00) != 0xD00)) {
