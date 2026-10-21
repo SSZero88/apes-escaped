@@ -37,7 +37,19 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FFEC);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_80140074);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_801400F4);
+typedef struct { s16 x, y; u8 text[0x20]; } Line_390b;
+extern Line_390b D_801416B8[2];
+void func_80136000(u8 *, s32, s32, s32);
+
+s32 func_801400F4(s32 n) {
+    s32 off;
+
+    D_801416B8[0].text[4] = n + 0x6B;
+    off = n * 48;
+    func_80136000(D_801416B8[0].text, D_801416B8[0].x, D_801416B8[0].y + off, 1);
+    func_80136000(D_801416B8[1].text, D_801416B8[1].x, D_801416B8[1].y + off, 0);
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8014016C);
 

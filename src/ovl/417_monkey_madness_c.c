@@ -17,7 +17,6 @@ s32 Collision_GetShape(s32);
 s32 Spike_WithinRadiusXZ(s16, s16, s16);
 M2C_UNK func_800525A0(void *, s32);
 M2C_UNK func_80052864(void *);
-M2C_UNK func_8013F5F8(void *);
 extern s32 D_80140D40;
 extern void *D_80140D4C;
 
@@ -300,7 +299,20 @@ void func_8013F4D4(void *arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013F528);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013F5F8);
+void func_80052038(void *, s32);
+
+void func_8013F5F8(void *arg0)
+{
+  u8 *a = *((u8 **) (((s8 *) arg0) + 0x88));
+  u16 new_var;
+  *((u8 *) (((s8 *) arg0) + 0x80)) = 3;
+  *((u8 *) (((s8 *) arg0) + 0x7F)) = 4;
+  new_var = *((u16 *) (((s8 *) a) + 0x10));
+  D_80140D40 = 0;
+  *((u16 *) (((s8 *) arg0) + 0x5C)) = new_var;
+  func_80052038(arg0, 0x56);
+  func_8013F490(arg0);
+}
 
 void func_8013F64C(void *arg0) {
     if ((D_80140D40 != 0) && (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 0xB) && (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6)) != 0)) {

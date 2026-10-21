@@ -78,7 +78,19 @@ s32 func_8013D620(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D6D0);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D8D8);
+extern struct S_g_Game_8013D8D8 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013D8D8 asm("g_Game");
+
+s32 func_8013D8D8(s16 *p) {
+    u8 *e = g_Game_8013D8D8.f_820C + p[2] * 0x38;
+    u8 *f;
+
+    M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+    f = g_Game_8013D8D8.f_8220 + p[7] * 0x18;
+    M2C_FIELD(f, s16 *, 2) = 5;
+    p[1] = 1;
+    p[3] = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D94C);
 

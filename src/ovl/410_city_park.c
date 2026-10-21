@@ -237,14 +237,27 @@ void func_8013E99C(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013EA38);
+void func_8013EA38(void *arg0)
+{
+  u16 temp_v0;
+  void *temp_a0;
+  if ((*((s16 *) (((s8 *) arg0) + 0xAE))) == 0)
+  {
+    Object_StepOnGroundFixed(arg0);
+  }
+  temp_a0 = (unsigned long long) (((*((u8 *) (((s8 *) arg0) + 0x7F))) * 4) + (*((s32 *) (((s8 *) arg0) + 0x88))));
+  ;
+  if (((*((u16 *) (((s8 *) arg0) + 0x5C))) == (*((u16 *) (((s8 *) temp_a0) + 0)))) || ((*((u16 *) (((s8 *) arg0) + 0x5C))) == (((s32) ((*((u16 *) (((s8 *) temp_a0) + 0))) + (*((u16 *) (((s8 *) temp_a0) + 2))))) >> 1)))
+  {
+    Object_PlaySound(arg0, 0x4B);
+  }
+}
 
 s32 func_8013EABC(void *arg0) {
     return Math_WithinSquare(M2C_FIELD(arg0, s32 *, 0x24) - M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x2C) - M2C_FIELD(arg0, s16 *, 0x9E), 0x32);
 }
 
 M2C_UNK func_80055AA0(void *, s16, s16, s16);
-M2C_UNK func_8013EA38(void *);
 s16 func_80056010(void *, s16, s16, s32);
 
 void func_8013EAF4(void *arg0) {
