@@ -28,7 +28,21 @@ s16 rcos(s16);
 s16 rsin(s16);
 extern struct S_D_80144858 { u8 pad_0[0xA]; s8 f_A; u8 pad_B[0x1]; } D_80144858[];
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D000);
+extern struct S_g_Game_8013D000 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013D000 asm("g_Game");
+void func_8008FC30(s32, s16 *);
+
+s32 func_8013D000(s16 *p) {
+    u8 *e = g_Game_8013D000.f_8220 + p[4] * 0x18;
+
+    if (M2C_FIELD(e, s16 *, 0x16) > p[5]) {
+        func_8008FC30(p[7], p);
+        func_8008FC30(p[8], p);
+        p[1] = 2;
+    } else {
+        p[1] = 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D08C);
 
@@ -173,7 +187,20 @@ INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013EB94);
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013ED24);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013EDA0);
+extern struct S_g_Game_8013EDA0 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013EDA0 asm("g_Game");
+
+s32 func_8013EDA0(s16 *p) {
+    u8 *e = g_Game_8013EDA0.f_8220 + p[4] * 0x18;
+
+    if (M2C_FIELD(e, s16 *, 0x16) > p[5]) {
+        func_8008FC30(p[7], p);
+        func_8008FC30(p[8], p);
+        p[1] = 2;
+    } else {
+        p[1] = 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013EE2C);
 
@@ -390,7 +417,17 @@ void func_801404A4(void *arg0, s32 on) {
     Monkey_DrawHelmetLight(&v, 2, on != 0);
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801404EC);
+extern struct { u8 pad0[0x24]; s32 x, y, z; } g_Spike_801404EC asm("g_Spike");
+s32 Vec_Length(s32, s32, s32);
+
+s32 func_801404EC(void *arg0) {
+    s32 d = Vec_Length(g_Spike_801404EC.x - M2C_FIELD(arg0, s32 *, 0x24), 0, g_Spike_801404EC.z - M2C_FIELD(arg0, s32 *, 0x2C));
+
+    if (d < 0x400) {
+        return 0x1E;
+    }
+    return d * 50 / 3584;
+}
 
 void func_80140578(void *arg0) {
     u8 temp_v0;

@@ -302,7 +302,29 @@ INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013DF40);
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013E020);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013E1A0);
+extern s32 D_801413F0_8013E1A0 asm("D_801413F0");
+
+void func_8013E1A0(void *arg0) {
+    switch (D_801413F0_8013E1A0) {
+    case 0:
+        M2C_FIELD(arg0, u8 *, 0x80) = 3;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 2;
+        M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, u8 **, 0x88), u16 *, 8);
+        break;
+    case 1:
+        M2C_FIELD(arg0, u8 *, 0x80) = 4;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 3;
+        M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, u8 **, 0x88), u16 *, 0xC);
+        M2C_FIELD(arg0, u16 *, 0x5C) += M2C_FIELD(arg0, u8 *, 0x8F);
+        break;
+    case 2:
+        M2C_FIELD(arg0, u8 *, 0x80) = 5;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 3;
+        M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, u8 **, 0x88), u16 *, 0xC);
+        M2C_FIELD(arg0, u16 *, 0x5C) += M2C_FIELD(arg0, u8 *, 0x8F);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013E22C);
 

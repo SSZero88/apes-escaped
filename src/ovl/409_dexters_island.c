@@ -595,7 +595,22 @@ INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80141C38);
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80141D38);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80141DB8);
+extern u8 *D_800B4D64;
+
+s32 func_80141DB8(s16 *p) {
+    u16 *e = (u16 *)(g_Game.f_820C + p[2] * 0x38);
+
+    e[0x12] = e[0];
+    e[0x13] = e[1];
+    e[0x14] = e[2];
+    p[1] = 4;
+    p[3] = 0;
+    p[5] = 0;
+    if ((s16)e[7] >= 0) {
+        **(u32 **)(D_800B4D64 + (s16)e[7] * 32) |= 0x2000;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80141E44);
 

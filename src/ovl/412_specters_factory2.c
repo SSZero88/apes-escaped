@@ -345,7 +345,23 @@ void func_8013EE38(void *arg0, s16 n) {
     func_8013D2E8(arg0, -0xC8, n, 0xC8, 1, 0);
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013EEA8);
+s32 func_8005836C(void *, SVECTOR *, s32, s32);
+
+void func_8013EEA8(void *arg0) {
+    SVECTOR v;
+
+    if (M2C_FIELD(arg0, u32 *, 0xE0) & 1) {
+        return;
+    }
+    if (Object_DetachLink(arg0, 0) == 6) {
+        M2C_FIELD(arg0, u32 *, 0xE0) |= 1;
+        return;
+    }
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28) - 0x190;
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    M2C_FIELD(arg0, s32 *, 0xB4) = func_8005836C(arg0, &v, 0x104, 0x201);
+}
 
 void func_8013EF34(void *arg0) {
     s32 var_t0;

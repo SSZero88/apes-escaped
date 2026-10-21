@@ -343,7 +343,17 @@ void func_8013EB7C(void *arg0, s32 on) {
     Monkey_DrawHelmetLight(&v, 2, on != 0);
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013EBC4);
+extern struct { u8 pad0[0x24]; s32 x, y, z; } g_Spike_8013EBC4 asm("g_Spike");
+s32 Vec_Length(s32, s32, s32);
+
+s32 func_8013EBC4(void *arg0) {
+    s32 d = Vec_Length(g_Spike_8013EBC4.x - M2C_FIELD(arg0, s32 *, 0x24), 0, g_Spike_8013EBC4.z - M2C_FIELD(arg0, s32 *, 0x2C));
+
+    if (d < 0x400) {
+        return 0x1E;
+    }
+    return d * 50 / 3584;
+}
 
 void func_8013EC50(void *arg0) {
     u8 temp_v0;
