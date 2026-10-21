@@ -86,7 +86,22 @@ void func_8013D3E4(s32 arg0) {
     func_8013D3B4(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D43C);
+s32 Object_AddAttackSphere(void *, s32, s16, s16, s32, s32, s32);
+void func_80051E98(void *, s32);
+
+void func_8013D43C(void *arg0) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28);
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    Effect_SpawnAt(0x102, &v);
+    Object_PlaySound(arg0, 0x6E);
+    Object_AddAttackSphere(arg0, 0x12C, M2C_FIELD(arg0, s16 *, 0x1C), M2C_FIELD(arg0, u16 *, 0x1E) - 0x64,
+                           M2C_FIELD(arg0, s16 *, 0x20), 0x201, 0x201);
+    func_80051E98(arg0, 1);
+    func_8013D3B4(arg0);
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D4D8);
 
@@ -499,6 +514,35 @@ s32 func_80140564(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_80140574);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_80140710);
+extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game;
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_801407AC);
+s32 func_80140710(s16 a, s16 b) {
+    u8 *e;
+
+    if (b >= 0) {
+        e = g_Game.f_820C + b * 0x38;
+        M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+    }
+    if (a < 0) {
+        return 0;
+    }
+    func_80140710(M2C_FIELD(g_Game.f_8220 + a * 0x18, s16 *, 8), M2C_FIELD(g_Game.f_8220 + a * 0x18, s16 *, 0xA));
+    return 0;
+}
+
+s32 func_801407AC(s16 a, s16 b) {
+    u8 *e;
+
+    if (b >= 0) {
+        e = g_Game.f_820C + b * 0x38;
+        M2C_FIELD(e, u16 *, 0x18) &= 0x7FFF;
+    }
+    if (a < 0) {
+        return 0;
+    }
+    func_801407AC(M2C_FIELD(g_Game.f_8220 + a * 0x18, s16 *, 8), M2C_FIELD(g_Game.f_8220 + a * 0x18, s16 *, 0xA));
+    return 0;
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop\n\tnop");

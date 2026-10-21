@@ -839,7 +839,22 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_801430B0);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80143158);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80143600);
+extern struct S_g_Game_80143600 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80143600 asm("g_Game");
+extern u8 *D_800B4D64_80143600 asm("D_800B4D64");
+s32 SaveByte_Get_80143600(s32) asm("SaveByte_Get");
+void Model_BindStageMesh(void *, s32);
+
+s32 func_80143600(s16 *p) {
+    u8 *e = g_Game_80143600.f_8220 + p[4] * 0x18;
+
+    if (M2C_FIELD(e, s16 *, 2) == 1 || SaveByte_Get_80143600(0xD) == 5) {
+        p[1] = 2;
+        Model_BindStageMesh(D_800B4D64_80143600 + p[6] * 32, p[7]);
+    } else {
+        p[1] = 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8014369C);
 
