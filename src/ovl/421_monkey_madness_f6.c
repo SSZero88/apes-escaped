@@ -115,7 +115,27 @@ void func_8013E8C0(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013E8E4);
+typedef struct { s16 x, y, z; u8 f6, f7, f8; u8 pad9[3]; } Puff_421;
+extern struct S_g_Spike { u8 pad_0[0x24]; u16 f_24; u8 pad_26[0x2]; u16 f_28; u8 pad_2A[0x2]; u16 f_2C; } g_Spike;
+void Sound_PlayFixed(s32);
+
+void func_8013E8E4(void) {
+    s32 i;
+    Puff_421 *e;
+
+    for (i = 3, e = D_80140D00; i >= 0; i--, e++) {
+        if (e->f6 == 0) {
+            e->f6 = 1;
+            e->f7 = 0x1B;
+            e->x = g_Spike.f_24;
+            e->y = g_Spike.f_28 - 0x40;
+            e->z = g_Spike.f_2C;
+            e->f8 = 0x40;
+            Sound_PlayFixed(0x18);
+            return;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013E97C);
 

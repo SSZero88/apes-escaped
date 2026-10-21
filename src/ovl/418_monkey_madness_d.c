@@ -271,7 +271,29 @@ void func_8013EF94(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013EFF8);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013F380);
+typedef struct { u8 pad0[0x5C]; s16 f5C; u8 pad5E[2]; s16 f60, f62, f64, f66; u8 pad68[0x20]; } Mdl_418;
+s32 Hook_Add(void *);
+void func_8013F618(void);
+void func_800520A8(void *, s32);
+extern Mdl_418 D_80142C40_s[] asm("D_80142C40");
+
+void func_8013F380(void) {
+    s32 i;
+    Mdl_418 *m;
+
+    if (Hook_Add(func_8013F618) == 1) {
+        for (i = 0; i < 16; i++) {
+            m = &D_80142C40_s[i];
+            func_80052038(m, 0xB5);
+            func_800520A8(m, 0xB5);
+            m->f5C = 0;
+            m->f62 = 0;
+            m->f60 = 0;
+            m->f64 = 0x1000;
+            m->f66 = 3;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013F418);
 

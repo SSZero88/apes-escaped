@@ -218,7 +218,17 @@ INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013EF98);
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013F010);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013F138);
+extern u8 g_Objects[];
+
+void func_8013F138(u8 *arg0) {
+    u8 *o = g_Objects + M2C_FIELD(arg0, s8 *, 0xCA) * 0xE4;
+    u8 t = arg0[0x7E];
+
+    if ((t == 0x70 && o[0x81] == 0) || (t == 0x2C && arg0[0x81] == 0)) {
+        Collision_Remove(M2C_FIELD(arg0, void **, 0xB4));
+        func_8007CDC4(M2C_FIELD(arg0, void **, 0x74));
+    }
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013F1D0);
 

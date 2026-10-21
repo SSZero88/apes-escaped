@@ -334,9 +334,23 @@ void func_8013EB94(void *arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013EBF4);
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013EC78);
+void func_8013EBF4(void *, SVECTOR *);
 
-void func_8013EC78(void *, s16, s16, s32, s32);
+void func_8013EC78(void *arg0, s16 x, s16 y, s32 z, s32 fx) {
+    SVECTOR v;
+
+    v.vx = x;
+    v.vy = y;
+    v.vz = z;
+    func_8013EBF4(arg0, &v);
+    Effect_SpawnAt(fx, &v);
+    v.vx = -x;
+    v.vy = y;
+    v.vz = z;
+    func_8013EBF4(arg0, &v);
+    Effect_SpawnAt(fx, &v);
+}
+
 
 void func_8013ED10(void *arg0, s16 n) {
     func_8013EC78(arg0, n * 50 + 0x104, 500 - n * 10, -0x14, 5);
