@@ -159,7 +159,24 @@ INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013E3F4);
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013E518);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013E67C);
+s32 Object_SpikeWithin(void *, s32);
+
+void func_8013E67C(void *arg0)
+{
+  int new_var;
+  s32 new_var2;
+  new_var2 = Object_SpikeWithin(arg0, 0x96);
+  new_var = 0x46;
+  *((s16 *) (((s8 *) arg0) + new_var)) = (new_var2) ? (-0x3C) : (0x3C);
+  if (Object_SpikeWithin(arg0, 0x64))
+  {
+    *((u32 *) (((s8 *) arg0) + 0xE0)) |= 0x80;
+  }
+  else
+  {
+    *((u32 *) (((s8 *) arg0) + 0xE0)) &= ~0x80;
+  }
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013E6E4);
 

@@ -379,7 +379,24 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138B40);
 void func_80138CDC(void) {
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138CE4);
+extern u16 g_RandSeed;
+#define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
+void func_8006F274(SVECTOR *, SVECTOR *, s32);
+
+void func_80138CE4(void *arg0, s16 *src)
+{
+  s16 *new_var;
+  SVECTOR v;
+  SVECTOR w;
+  v.vx = src[0];
+  v.vy = src[1];
+  v.vz = src[2];
+  w.vx = src[3];
+  w.vy = src[4];
+  new_var = &src[5];
+  w.vz = *new_var;
+  func_8006F274(&v, &w, ((g_RandSeed = (g_RandSeed * 5) + 1) >> 4) & 0xFF0);
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138D60);
 

@@ -53,7 +53,24 @@ INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013D1BC);
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013D2E0);
 
-INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013D444);
+s32 Object_SpikeWithin(void *, s32);
+
+void func_8013D444(void *arg0)
+{
+  int new_var;
+  s32 new_var2;
+  new_var2 = Object_SpikeWithin(arg0, 0x96);
+  new_var = 0x46;
+  *((s16 *) (((s8 *) arg0) + new_var)) = (new_var2) ? (-0x3C) : (0x3C);
+  if (Object_SpikeWithin(arg0, 0x64))
+  {
+    *((u32 *) (((s8 *) arg0) + 0xE0)) |= 0x80;
+  }
+  else
+  {
+    *((u32 *) (((s8 *) arg0) + 0xE0)) &= ~0x80;
+  }
+}
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013D4AC);
 

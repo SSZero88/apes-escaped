@@ -200,7 +200,20 @@ void func_80141418(s16 x, s16 y, s16 z) {
     Fx_SpawnFadeRing(&v, 5, 0x80, 0);
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8014149C);
+s32 SaveByte_Get(s32);
+
+s32 func_8014149C(s16 *p)
+{
+  s32 v;
+  p[1] = p[4];
+  p[3] = 0;
+  v = p[1];
+  if ((v == 5) && (SaveByte_Get(3) != v))
+  {
+    p[1] = 2;
+  }
+  return 0;
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_801414F8);
 
