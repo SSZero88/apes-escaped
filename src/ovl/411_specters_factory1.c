@@ -35,7 +35,16 @@ s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, void *);
 M2C_UNK func_80088120(s8);
 extern struct S_D_80141948 { u8 pad_0[0xA]; s8 f_A; u8 pad_B[0x1]; } D_80141948[];
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013D000);
+extern SVECTOR D_80141730;
+extern struct { u8 pad0[0x60]; SVECTOR f_60; } g_Spike_8013D000 asm("g_Spike");
+void Camera_ExitLook(void);
+void func_80048748(void);
+
+void func_8013D000(void) {
+    D_80141730 = g_Spike_8013D000.f_60;
+    Camera_ExitLook();
+    func_80048748();
+}
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013D058);
 

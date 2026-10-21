@@ -487,7 +487,16 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013A684);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013A8A0);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013AA70);
+extern Rect_384 D_8013C700;
+extern u8 D_8013C718[];
+void LoadImage(Rect_384 *, void *);
+
+void func_8013AA70(void) {
+    Rect_384 r = D_8013C700;
+
+    LoadImage(&r, D_8013C718);
+    DrawSync(0);
+}
 
 void func_8013AAC8(s32 *arg0, s32 arg1) {
     s32 *var_a0;

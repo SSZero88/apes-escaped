@@ -44,7 +44,15 @@ void func_8013D1B8(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphere(arg0, 0x12C, M2C_FIELD(temp_v0, s16 *, 0), M2C_FIELD(temp_v0, s16 *, 2), (s32) M2C_FIELD(temp_v0, s16 *, 4), 1, 0x202);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D208);
+void func_8013D208(void *arg0, s16 r) {
+    SVECTOR v;
+    u16 *p = M2C_FIELD(arg0, u16 **, 0x78);
+
+    v.vx = p[0];
+    v.vy = p[1] + 0x64;
+    v.vz = p[2];
+    M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereAt(arg0, &v, r);
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D260);
 

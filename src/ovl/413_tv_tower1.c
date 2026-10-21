@@ -110,7 +110,16 @@ INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013EF2C);
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013EF7C);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013F000);
+extern SVECTOR D_80144638;
+extern struct { u8 pad0[0x60]; SVECTOR f_60; } g_Spike_8013D000 asm("g_Spike");
+void Camera_ExitLook(void);
+void func_80048748(void);
+
+void func_8013F000(void) {
+    D_80144638 = g_Spike_8013D000.f_60;
+    Camera_ExitLook();
+    func_80048748();
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013F058);
 

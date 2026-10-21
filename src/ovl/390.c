@@ -292,7 +292,20 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013946C);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80139570);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_801399E4);
+extern u8 D_800E1880[];
+
+s32 func_801399E4(s32 n) {
+    s32 last;
+    s32 i;
+
+    last = 1;
+    for (i = 0; i < 25; i++) {
+        if (D_800E1880[i + n * 0x7A0 + 0x1A8] != 0) {
+            last = i;
+        }
+    }
+    return last;
+}
 
 s32 func_80139A3C(void) {
     func_80136160(0xC, 0x14, 0x160, 0xC4);

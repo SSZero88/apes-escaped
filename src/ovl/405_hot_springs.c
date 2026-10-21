@@ -88,7 +88,16 @@ s32 func_8013DA9C(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013DB2C);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013DD04);
+void Camera_StartShake(s32);
+
+void func_8013DD04(void *arg0, s32 f1, s32 f2) {
+    s32 d = M2C_FIELD(arg0, u16 *, 0x5C) - *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));
+
+    if (d == f1 || d == f2) {
+        Object_PlaySound(arg0, 0x43);
+        Camera_StartShake(0);
+    }
+}
 
 M2C_UNK Object_PlaceAtPathPoint(void *, M2C_UNK);
 s32 func_80057140(void *, M2C_UNK, M2C_UNK);
@@ -128,7 +137,13 @@ INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013DE5C);
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013E7B8);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013E8A4);
+s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
+
+void func_8013E8A4(void *arg0) {
+    M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0xAA, M2C_FIELD(arg0, s16 *, 0x24),
+                                                               M2C_FIELD(arg0, u16 *, 0x1E) - 0x78,
+                                                               M2C_FIELD(arg0, s16 *, 0x2C), 1, 0x202);
+}
 
 s16 Object_FloorAt(void *, s16, s16, s16);
 void func_80070284(SVECTOR *, void *, s32, s32, s32);

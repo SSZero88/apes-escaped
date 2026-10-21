@@ -76,7 +76,13 @@ INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013E38C);
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013E4FC);
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013E5E8);
+s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
+
+void func_8013E5E8(void *arg0) {
+    M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0xAA, M2C_FIELD(arg0, s16 *, 0x24),
+                                                               M2C_FIELD(arg0, u16 *, 0x1E) - 0x78,
+                                                               M2C_FIELD(arg0, s16 *, 0x2C), 1, 0x202);
+}
 
 s16 Object_FloorAt(void *, s16, s16, s16);
 void func_80070284(SVECTOR *, void *, s32, s32, s32);

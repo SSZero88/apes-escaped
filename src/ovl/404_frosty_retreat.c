@@ -19,11 +19,16 @@ M2C_UNK func_8005588C(void *, M2C_UNK);
 M2C_UNK func_800563E0(void *, M2C_UNK);
 s32 rcos(s16);
 s32 rsin(s16);
-M2C_UNK func_8013FA60(void *, M2C_UNK);
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013D000);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013D0EC);
+s32 Object_AddAttackSphereNear_8013D0EC(void *, s16, s16, s16, s32, s32, s32) asm("Object_AddAttackSphereNear");
+
+void func_8013D0EC(void *arg0) {
+    M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear_8013D0EC(arg0, 0xAA, M2C_FIELD(arg0, s16 *, 0x24),
+                                                               M2C_FIELD(arg0, u16 *, 0x1E) - 0x78,
+                                                               M2C_FIELD(arg0, s16 *, 0x2C), 1, 0x202);
+}
 
 s16 Object_FloorAt(void *, s16, s16, s16);
 void func_80070284(SVECTOR *, void *, s32, s32, s32);
@@ -447,7 +452,19 @@ s32 func_8013FA40(s32 x) {
     return -1;
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013FA60);
+void func_8013FA60(s16 *p, s32 lim) {
+    if (*p > 0) {
+        *p -= 5;
+        if (*p > lim) {
+            *p = lim;
+        }
+    } else if (*p < 0) {
+        *p += 5;
+        if (*p < -lim) {
+            *p = -lim;
+        }
+    }
+}
 
 void func_8013FAB8(void *arg0) {
     M2C_FIELD(arg0, u16 *, 0xD4) = (u16) (M2C_FIELD(arg0, u16 *, 0xD4) + (func_8013FA40(M2C_FIELD(arg0, s32 *, 0x24) - M2C_FIELD(arg0, s16 *, 0xBC)) * 0xA));
