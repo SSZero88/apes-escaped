@@ -5,7 +5,6 @@ s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, void *);
 M2C_UNK func_80088120(s8);
 M2C_UNK Effect_Spawn(M2C_UNK, s32, M2C_UNK *, M2C_UNK);
 extern M2C_UNK D_801409FC;
-s32 func_8013DF60();
 extern s32 D_80140CF8;
 M2C_UNK Collision_Remove(void *);
 M2C_UNK func_8007CDC4(void *);
@@ -153,7 +152,23 @@ void func_8013DF10(void *arg0, void *arg1) {
     M2C_FIELD(arg0, SVECTOR *, 0x60) = M2C_FIELD(arg1, SVECTOR *, 0x60);
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013DF60);
+void VectorNormalSS(SVECTOR *, SVECTOR *);
+
+/* called without all its arguments (old-style declaration), so defined old-style */
+s32 func_8013DF60(a, b)
+    void *a;
+    void *b;
+{
+    SVECTOR d;
+    s32 dx = M2C_FIELD(a, s32 *, 0x24) - M2C_FIELD(b, s32 *, 0x24);
+    s32 dz = M2C_FIELD(a, s32 *, 0x2C) - M2C_FIELD(b, s32 *, 0x2C);
+
+    d.vy = 0;
+    d.vx = dx;
+    d.vz = dz;
+    VectorNormalSS(&d, &d);
+    return (d.vx * M2C_FIELD(b, s16 *, 0xC2) + d.vz * M2C_FIELD(b, s16 *, 0xC6)) / 4096 >= 0xF77;
+}
 
 
 void func_8013DFF4(void *arg0) {
@@ -205,9 +220,41 @@ void func_8013E2C4(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E310);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E3B8);
+s32 Object_AddAttackSphere(void *, s32, s16, s16, s32, s32, s32);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E44C);
+void func_8013E3B8(void *arg0) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28);
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    Effect_SpawnAt(0x102, &v);
+    Sound_PlayFixed(0x6E);
+    Object_AddAttackSphere(arg0, 0x12C, M2C_FIELD(arg0, s16 *, 0x1C), M2C_FIELD(arg0, u16 *, 0x1E) - 0x64,
+                           M2C_FIELD(arg0, s16 *, 0x20), 0x201, 0x201);
+    func_8013E27C(arg0);
+    func_8013DA84(arg0);
+}
+
+void func_800573A0(void *, s32, s32, s32);
+void func_8013E310(s32);
+void func_8013D2D0(void *);
+
+void func_8013E44C(void *arg0) {
+    u32 s = M2C_FIELD(arg0, u32 *, 0x50) >> 28;
+
+    if (s == 0xB) {
+        func_800573A0(arg0, 0, 0, 0);
+        Sound_PlayFixed(0x5F);
+        Sound_PlayFixed(0x15);
+        func_8013E27C(arg0);
+        func_8013E310(M2C_FIELD(arg0, u8 *, 0x70));
+        func_8013D2D0((u8 *)arg0 + 0x24);
+        func_8013DA84(arg0);
+    } else if (s == 1) {
+        func_8013E3B8(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E4E0);
 

@@ -9,7 +9,29 @@ INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_8013626C);
 
 INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_80136494);
 
-INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_80136590);
+typedef struct { s16 x, y, w, h; } Rect_430;
+extern Rect_430 D_80137838;
+extern struct { u8 f_0; u8 pad1; s16 f_2; s32 f_4, f_8, f_C, f_10, f_14, f_18, f_1C, f_20; } D_80138310;
+void ClearImage(Rect_430 *, s32, s32, s32);
+void DrawSync(s32);
+
+void func_80136590(void) {
+    Rect_430 r;
+
+    D_80138310.f_0 = 2;
+    D_80138310.f_4 = 0;
+    D_80138310.f_8 = 0x3C;
+    D_80138310.f_C = 0;
+    D_80138310.f_2 = 0;
+    D_80138310.f_10 = 0;
+    D_80138310.f_14 = 0;
+    D_80138310.f_18 = 0;
+    D_80138310.f_1C = 0;
+    D_80138310.f_20 = 0;
+    r = D_80137838;
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+}
 
 INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_80136624);
 

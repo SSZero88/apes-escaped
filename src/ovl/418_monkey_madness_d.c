@@ -482,7 +482,23 @@ s32 func_80141F08(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80141F6C);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80142054);
+void RotMatrixZYX(SVECTOR *, void *);
+
+s32 func_80142054(s16 *p) {
+    SVECTOR r;
+
+    if (p[6] >= 0) {
+        p[1] = 0;
+        p[3] = 0;
+        r.vy = 0;
+        r.vx = 0;
+        r.vz = (-p[7] << 12) / 360;
+        RotMatrixZYX(&r, M2C_FIELD(D_800B4D64 + p[6] * 32, void **, 0x1C));
+    } else {
+        p[1] = 4;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_801420E8);
 

@@ -299,7 +299,23 @@ block_4:
     M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0x190, M2C_FIELD(arg0, s16 *, 0x24), (s16) (M2C_FIELD(arg0, u16 *, 0x28) - 0x190), (s32) M2C_FIELD(arg0, s16 *, 0x2C), 0xA01, 0x200);
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801404FC);
+extern u8 D_80142A64[];
+void *memset(void *, s32, s32);
+void func_800702B0(SVECTOR *, void *);
+
+void func_801404FC(void *arg0) {
+    SVECTOR w;
+    SVECTOR v;
+
+    memset(&v, 0, 8);
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28);
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    w = v;
+    func_800702B0(&w, D_80142A64);
+    func_80088120(M2C_FIELD(arg0, s8 *, 0x7C));
+    Object_PlaySound(arg0, 0x4D);
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80140590);
 

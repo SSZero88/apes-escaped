@@ -164,7 +164,20 @@ void func_8013E4A8(void) {
     D_801452D8 = 0;
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013E4D0);
+typedef struct { SVECTOR pos; s32 f_8; u8 f_C, f_D; s16 f_E; } Chip_422;
+extern Chip_422 D_801451D8_8013E4D0[16] asm("D_801451D8");
+extern u8 D_801452D8_8013E4D0 asm("D_801452D8");
+
+void func_8013E4D0(SVECTOR *pos, s32 b) {
+    Chip_422 *e = &D_801451D8_8013E4D0[D_801452D8_8013E4D0];
+
+    e->f_C = 7;
+    e->f_D = 1;
+    e->pos = *pos;
+    e->f_8 = b;
+    e->f_E = (RAND() >> 4) & 0xFF0;
+    D_801452D8_8013E4D0 = (D_801452D8_8013E4D0 + 1) % 16;
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013E564);
 

@@ -108,7 +108,28 @@ void func_8013D4B4(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013D51C);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013D804);
+typedef struct { u8 pad0[0x5C]; s16 f5C; u8 pad5E[2]; s16 f60, f62, f64, f66; u8 pad68[0x20]; } Mdl_404;
+s32 Hook_Add(void *);
+void func_8013DB40(void);
+extern Mdl_404 D_80141950_s[] asm("D_80141950");
+
+void func_8013D804(void) {
+    s32 i;
+    Mdl_404 *m;
+
+    if (Hook_Add(func_8013DB40) == 1) {
+        for (i = 0; i < 16; i++) {
+            m = &D_80141950_s[i];
+            func_80052038(m, 0x40);
+            func_800520A8(m, 0x40);
+            m->f5C = 0;
+            m->f62 = 0;
+            m->f60 = 0;
+            m->f64 = 0x1000;
+            m->f66 = 3;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013D89C);
 
