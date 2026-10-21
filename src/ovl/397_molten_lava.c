@@ -119,7 +119,23 @@ INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D95C);
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013DA44);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013DDF8);
+extern s32 D_80141160;
+
+void func_8013DDF8(u8 *a) {
+    if (D_80141158 != 0 && a[0x80] != 2) {
+        a[0x80] = 2;
+        a[0x7F] = 2;
+        M2C_FIELD(a, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(a, u8 **, 0x88), u16 *, 8);
+        M2C_FIELD(a, s16 *, 0x5E) = 2;
+        if (a[0x81] != 0) {
+            if (--a[0x81] == 0) {
+                D_80141160 = (M2C_FIELD(a, s16 *, 0xAA) + 0x800) % 0x1000;
+                Object_PlaySound(a, 0x4E);
+            }
+        }
+    }
+    D_80141158 = 0;
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013DE98);
 

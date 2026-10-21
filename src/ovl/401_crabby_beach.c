@@ -197,4 +197,27 @@ INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013E424);
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013E52C);
 
-INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013E76C);
+extern struct { u8 pad0[0x24]; s32 x, y, z; } g_Spike_8013E76C asm("g_Spike");
+void Sound_PlayAt(s32, void *);
+
+s32 func_8013E76C(s16 *p) {
+    u8 *e;
+    s16 f;
+
+    if (g_Spike_8013E76C.x >= 0) {
+        return 0;
+    }
+    if (g_Spike_8013E76C.z < -0x7FF) {
+        return 0;
+    }
+    e = g_Game.f_820C + p[2] * 0x38;
+    f = M2C_FIELD(e, s16 *, 0x32);
+    if (f != 2 && f != 0x3C && f != 0x66 && f != 0xA0) {
+        return 0;
+    }
+    Sound_PlayAt(0x9C, e);
+    return 0;
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop");
