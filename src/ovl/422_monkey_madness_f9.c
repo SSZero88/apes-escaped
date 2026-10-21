@@ -269,7 +269,20 @@ void func_801407B4(s32 n) {
     D_80144BE8_801407B4.f_18 = &D_80144460[n + 3];
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8014081C);
+extern u8 D_80143F00[];
+void Effect_Spawn(s32, SVECTOR *, void *, s32);
+
+void func_8014081C(void) {
+    SVECTOR v = { 0x80, -0x3300, 0xFB8 };
+    s32 i;
+
+    for (i = 0; i < 20; i++) {
+        Effect_Spawn(0xCA, &v, D_80143F00, 0);
+    }
+    Camera_StartShake(1);
+    Sound_PlayFixed(0x28);
+    Sound_PlayFixed(0x80);
+}
 
 void func_801408AC(s32 arg0, s32 arg1) {
     u16 temp_v1;
@@ -283,7 +296,6 @@ void func_801408AC(s32 arg0, s32 arg1) {
 
 extern u8 D_80144BF4;
 extern u8 D_80143F18[];
-void func_8014081C(void);
 
 void func_8014092C(void) {
     SVECTOR v;
@@ -346,7 +358,19 @@ void func_80142310(s32 c)
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801423E8);
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801424A0);
+s32 func_801424A0(s16 x, s32 a)
+{
+  s16 y = a - 0x1000;
+  if ((x > 0) && (y > (-x)))
+  {
+    return 2;
+  }
+  if ((x < 0) && (x < y))
+  {
+    return 1;
+  }
+  return 0;
+}
 
 typedef struct { u8 pad0[8]; u8 f_8; u8 pad9[3]; } Ent_422;
 

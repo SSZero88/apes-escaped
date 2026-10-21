@@ -185,7 +185,26 @@ void func_8013DC60(s32 a, SVECTOR *v, s32 b, s32 c) {
 
 INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013DCC8);
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E134);
+typedef struct { u8 pad0[8]; s16 f_8, f_A; } Pt_423;
+extern Pt_423 D_8013FC50[5];
+void func_80014804(void *, void *);
+void func_80015780(void *, s32);
+void func_80051620(void *, s32, s32, Pt_423 *);
+
+void func_8013E134(void *arg0) {
+    s32 i;
+    Pt_423 *e;
+
+    if ((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1) {
+        return;
+    }
+    func_80014804((u8 *)arg0 + 0x60, M2C_FIELD(arg0, void **, 0x14));
+    func_80015780(arg0, 3);
+    for (i = 4; i >= 0; i--) {
+        e = &D_8013FC50[i];
+        func_80051620(arg0, e->f_8, e->f_A, e);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E1C4);
 

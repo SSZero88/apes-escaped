@@ -24,7 +24,7 @@ extern u16 g_RandSeed;
 M2C_UNK Object_ApplyVelocity();
 void func_8013D6EC(s32 arg0);
 M2C_UNK Hook_Add(M2C_UNK *);
-extern M2C_UNK func_8013DDD8;
+void func_8013DDD8(void);
 extern struct S_D_80141418 { u8 pad_0[0x10]; s8 f_10; u8 pad_11[0x3]; } D_80141418[];
 M2C_UNK Link_SendEvent(M2C_UNK, M2C_UNK, M2C_UNK);
 s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, void *);
@@ -289,7 +289,24 @@ void func_8013DD24(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013DDD8);
+typedef struct { s16 x, y, z, pad; s16 vx, vy, vz, pad2; s8 life; u8 pad11[3]; } Drop_399;
+
+void func_8013DDD8(void) {
+    s32 i;
+    Drop_399 *e;
+
+    for (i = 31; i >= 0; i--) {
+        e = &D_80141418[i];
+        if (e->life != 0) {
+            e->life--;
+            e->x += e->vx;
+            e->y += e->vy;
+            e->z += e->vz;
+            func_8006D548(e);
+            func_8013DD24(e);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013DE6C);
 
@@ -556,7 +573,23 @@ s32 func_8014060C(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8014061C);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_801406D4);
+s16 func_80092324(s16 *, u16 *);
+
+s32 func_801406D4(s16 *p) {
+    u16 *e = (u16 *)(g_Game.f_820C + p[2] * 0x38);
+
+    e[0x12] = e[0];
+    e[0x13] = e[1];
+    e[0x14] = e[2];
+    e[0x19] = e[3];
+    e[0x1A] = e[4];
+    e[0x1B] = e[5];
+    p[11] = p[5];
+    p[1] = 0;
+    p[3] = 0;
+    e[8] = func_80092324(p, e);
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_80140768);
 

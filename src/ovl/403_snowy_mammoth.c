@@ -12,7 +12,6 @@ extern s32 D_80140BC0;
 M2C_UNK Object_StepOnGroundFixed(s32);
 M2C_UNK func_800585D0(s32, M2C_UNK, M2C_UNK, M2C_UNK);
 M2C_UNK func_8013D780();
-M2C_UNK func_8013DBC4(s32);
 M2C_UNK Spike_WithinRadiusXZ(s16, s16, s16);
 M2C_UNK func_80056128(s32, M2C_UNK);
 M2C_UNK func_800525E0();
@@ -49,7 +48,27 @@ INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D918);
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013DA40);
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013DBC4);
+void func_8013DBC4(void *arg0) {
+    s32 d = M2C_FIELD(arg0, s32 *, 0x28) - M2C_FIELD(arg0, s16 *, 0xBE);
+
+    if ((u8)(M2C_FIELD(arg0, u8 *, 0x8E) - 5) < 2) {
+        d = 0;
+    }
+    if (d == 0) {
+        if (M2C_FIELD(arg0, s16 *, 0xD4) > 0) {
+            M2C_FIELD(arg0, s16 *, 0xD4) -= 10;
+        } else if (M2C_FIELD(arg0, s16 *, 0xD4) < 0) {
+            M2C_FIELD(arg0, s16 *, 0xD4) += 10;
+        }
+    } else if (__builtin_abs(M2C_FIELD(arg0, s16 *, 0xD4)) <= 0x70) {
+        if (d > 0) {
+            M2C_FIELD(arg0, s16 *, 0xD4) += 10;
+        } else {
+            M2C_FIELD(arg0, s16 *, 0xD4) -= 10;
+        }
+    }
+    M2C_FIELD(arg0, s16 *, 0xBE) = M2C_FIELD(arg0, u16 *, 0x28);
+}
 
 void func_8013DC58(s32 arg0) {
     func_8013D780();
