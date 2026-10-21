@@ -125,7 +125,16 @@ void func_8013D9C4(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013DA5C);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013DCD4);
+extern u8 D_801411D0[];
+
+void func_8013DCD4(void *arg0) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28) - 0x1E;
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    func_80070284(&v, D_801411D0, 1, 0, 0);
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013DD24);
 

@@ -47,7 +47,18 @@ void func_8013D180(void *arg0, s32 dx, s32 dy, s32 dz) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D280);
+s32 SaveByte_Get(s32);
+s32 func_8005BB5C(s32);
+
+s32 func_8013D280(void) {
+    s32 r;
+
+    r = 0;
+    if (SaveByte_Get(4) >= 4 || func_8005BB5C(0) >= 4) {
+        r = 1;
+    }
+    return r;
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D2D0);
 
@@ -136,7 +147,12 @@ void func_8013DD64(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013DDAC);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013DF10);
+void func_8013DDAC(void *, void *);
+
+void func_8013DF10(void *arg0, void *arg1) {
+    func_8013DDAC(arg0, arg1);
+    M2C_FIELD(arg0, SVECTOR *, 0x60) = M2C_FIELD(arg1, SVECTOR *, 0x60);
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013DF60);
 

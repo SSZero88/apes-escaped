@@ -57,7 +57,15 @@ void func_8013D804(void) {
     D_80140944 = 0;
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D810);
+extern struct { SVECTOR v; u8 pad8[0x3C]; u8 f_44; u8 pad45; s16 f_46; } D_80140900;
+
+void func_8013D810(SVECTOR *v) {
+    if (D_80140900.f_44 == 0) {
+        D_80140900.f_44 = 1;
+        D_80140900.f_46 = 0x32;
+        D_80140900.v = *v;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D860);
 

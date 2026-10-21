@@ -11,7 +11,6 @@ extern M2C_UNK D_80141788;
 extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; s32 f_820C; } g_Game;
 M2C_UNK Sound_PlayAt(M2C_UNK, void *);
 M2C_UNK func_8008FC30(s16, void *);
-M2C_UNK func_80140404(s16, s16, s16, s16);
 M2C_UNK func_80140454(void *, void *, M2C_UNK);
 
 M2C_UNK func_80052038(void *, M2C_UNK);
@@ -568,7 +567,15 @@ s32 func_80140350(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_80140404);
+extern u8 *D_800B4D64;
+void Model_BindStageMesh(void *, s32);
+
+s32 func_80140404(s16 i, s16 m, s16 c, s16 d) {
+    if (c >= 0 && d >= 0 && i >= 0) {
+        Model_BindStageMesh(D_800B4D64 + i * 32, m);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_80140454);
 
