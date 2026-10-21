@@ -175,7 +175,15 @@ void func_8013EC5C(void) {
     M2C_FIELD(&D_801421C0, s8 *, 0x78) = 0;
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013EC94);
+extern struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x48]; u8 f_78; u8 pad79; s16 f_7A; } D_801421C0_8013EC94 asm("D_801421C0");
+
+void func_8013EC94(s16 x, s16 y, s16 z) {
+    D_801421C0_8013EC94.f_78 = 0x14;
+    D_801421C0_8013EC94.x = x;
+    D_801421C0_8013EC94.y = y;
+    D_801421C0_8013EC94.z = z;
+    D_801421C0_8013EC94.f_7A = -0x5A;
+}
 
 INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013ECD4);
 

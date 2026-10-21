@@ -102,7 +102,18 @@ INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013DE98);
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013DF3C);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013DFC4);
+void func_8013DF3C(void *, SVECTOR *);
+void Effect_SpawnAt(s32, SVECTOR *);
+
+void func_8013DFC4(void *arg0, s32 n, s16 x, s32 z) {
+    SVECTOR v;
+
+    v.vx = x;
+    v.vy = n * 20 - 0x32;
+    v.vz = z - n * 20;
+    func_8013DF3C(arg0, &v);
+    Effect_SpawnAt(5, &v);
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E010);
 
@@ -126,7 +137,16 @@ void func_8013E284(void *arg0) {
     Object_OrbitAround(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), D_8014115C, (s32) func_80056010(arg0, 5, 2, 6));
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E2D8);
+void func_8013E2D8(void *arg0) {
+    if (M2C_FIELD(arg0, u8 *, 0xCF) == 4) {
+        M2C_FIELD(arg0, u8 *, 0x80) = 5;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 5;
+        M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, u8 **, 0x88), u16 *, 0x14);
+        M2C_FIELD(arg0, u8 *, 0x81) = 0;
+        M2C_FIELD(arg0, u8 *, 0xCF) = 0;
+        func_8013E284(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E320);
 
@@ -185,7 +205,17 @@ s32 func_8013EBE8(void *arg0, void *arg1) {
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013EC54);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013EE34);
+void Monkey_DrawHelmetLight(SVECTOR *, s32, s32);
+
+void func_8013EE34(void *arg0) {
+    SVECTOR v;
+    u16 *p = M2C_FIELD(arg0, u16 **, 0x78);
+
+    v.vx = p[0];
+    v.vy = p[1] + 0xDC;
+    v.vz = p[2];
+    Monkey_DrawHelmetLight(&v, 2, 0);
+}
 
 void func_8013EE80(void *arg0, void *arg1) {
     M2C_FIELD(arg0, s32 *, 0x24) = (s32) M2C_FIELD(arg1, s32 *, 0x24);

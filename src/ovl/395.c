@@ -120,7 +120,27 @@ void func_80137CD4(void) {
     G_DRAW.prim = p + 0xC;
 }
 
-INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_80137D4C);
+typedef struct { s16 x, y, w, h; } Rect_391;
+void SetDrawMove(void *p, void *rect, s32 x, s32 y);
+
+void func_80137D4C(s32 row)
+{
+  u8 *p;
+  u32 *ot;
+  Rect_391 r;
+  u8 *new_var;
+  p = (*((GameDraw *) (&g_Game))).prim;
+  r.w = 0x10;
+  r.h = 0x40;
+  r.x = 0x230;
+  r.y = (row * 64) + 0x40;
+  SetDrawMove(p, &r, 0x230, 0);
+  ot = &(*((GameDraw *) (&g_Game))).db[(*((GameDraw *) (&g_Game))).cur].ot[0xFFF];
+  __asm__ volatile("lwl " "$4" ", 2(%0)\n\tsll " "$3" ", %2, 8\n\tswl " "$3" ", 2(%0)\n\tswl " "$4" ", %1" : : "r"(ot), "m"(*((u8 *)(p) + 2)), "r"(p) : "$4", "$3");
+  p = p + 0x18;
+  new_var = p;
+  (*((GameDraw *) (&g_Game))).prim = new_var;
+}
 
 INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_80137DF0);
 

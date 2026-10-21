@@ -259,7 +259,17 @@ void func_8014020C(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80140298);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801404A4);
+void Monkey_DrawHelmetLight(SVECTOR *, s32, s32);
+
+void func_801404A4(void *arg0, s32 on) {
+    SVECTOR v;
+    u16 *p = M2C_FIELD(arg0, u16 **, 0x74);
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+    v.vy = p[1] + 0xF0;
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+    Monkey_DrawHelmetLight(&v, 2, on != 0);
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801404EC);
 
