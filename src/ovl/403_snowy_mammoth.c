@@ -66,7 +66,24 @@ void func_8013DED0(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0x2C) = (s32) M2C_FIELD(&D_80140B80, s32 *, 8);
 }
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013DEFC);
+void Monkey_DrawHelmetLight(SVECTOR *, s32, s32);
+
+void func_8013DEFC(void *arg0, s32 on) {
+    u16 *p = M2C_FIELD(arg0, u16 **, 0x74);
+    SVECTOR v;
+
+    if ((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1) {
+        M2C_FIELD(arg0, u32 *, 0xE0) &= ~0x2000;
+        p[0] = M2C_FIELD(arg0, u16 *, 0x24);
+        p[2] = M2C_FIELD(arg0, u16 *, 0x2C);
+    } else {
+        M2C_FIELD(arg0, u32 *, 0xE0) |= 0x2000;
+    }
+    v.vx = p[0];
+    v.vy = p[1] + 0xDC;
+    v.vz = p[2];
+    Monkey_DrawHelmetLight(&v, 2, on != 0);
+}
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013DF80);
 

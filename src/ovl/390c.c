@@ -86,7 +86,32 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DA7C);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DB48);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DBF0);
+extern s16 D_800E3880_8013DBF0 asm("D_800E3880");
+
+s32 func_8013DBF0(void) {
+    switch (D_800E3880_8013DBF0) {
+    case 0:
+        func_8013E22C(0);
+        func_8013CD1C(0x26, 0);
+        break;
+    case -4:
+        func_8013E22C(-4);
+        func_8013CD1C(0x17, 0);
+        break;
+    case -7:
+        func_8013CD1C(0x12, 0);
+        break;
+    case -2:
+    case -1:
+        func_8013CD1C(0x2E, 0);
+        break;
+    case -8:
+        break;
+    case 1:
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DC78);
 

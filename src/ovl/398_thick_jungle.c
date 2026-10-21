@@ -131,7 +131,29 @@ INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E560);
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E688);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E768);
+extern s32 D_80143160;
+
+s32 func_8013E768(void *arg0) {
+    s32 r = 0;
+
+    switch (D_80143160) {
+    case 1:
+        M2C_FIELD(arg0, u8 *, 0x80) = 5;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 2;
+        M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, u8 **, 0x88), u16 *, 8);
+        Object_PlaySound(arg0, 0xB6);
+        r = 1;
+        break;
+    case 2:
+        M2C_FIELD(arg0, u8 *, 0x80) = 5;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 3;
+        M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, u8 **, 0x88), u16 *, 0xC);
+        Object_PlaySound(arg0, 0xB6);
+        r = 1;
+        break;
+    }
+    return r;
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E7EC);
 

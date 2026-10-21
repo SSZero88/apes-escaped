@@ -191,7 +191,25 @@ s32 func_8013EF2C(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013EF7C);
+extern struct S_g_Game_8013EF7C { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x11C]; u8 *f_8220; } g_Game_8013EF7C asm("g_Game");
+void CamFlyby_StartSegment(s32);
+
+s32 func_8013EF7C(s16 *p) {
+    u8 *e;
+    s32 v;
+
+    if (p[1] == 0) {
+        e = g_Game_8013EF7C.f_8220 + p[4] * 0x18;
+        v = M2C_FIELD(e, s16 *, 2);
+        if (v == 1) {
+            p[1] = v;
+            CamFlyby_StartSegment(3);
+            p[3] = 0;
+            g_Game_8013EF7C.f_8100 = 7;
+        }
+    }
+    return 0;
+}
 
 extern SVECTOR D_80144638;
 extern struct { u8 pad0[0x60]; SVECTOR f_60; } g_Spike_8013D000 asm("g_Spike");

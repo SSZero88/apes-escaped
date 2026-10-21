@@ -11,7 +11,6 @@ M2C_UNK Object_OrbitAround(void *, s16, s16, s32, s32);
 extern s32 D_8014115C;
 s16 func_80056010(void *, s16, s16, s32);
 
-M2C_UNK func_8013D730();
 M2C_UNK func_8013E994();
 extern s32 D_80141158;
 s32 Collision_GetShape(s32);
@@ -83,7 +82,23 @@ s16 func_8013D6C4(void *arg0, s16 arg1, s16 arg2, s8 arg3) {
     return Object_PathPointNear(arg0, arg0 + 0x24, arg2, M2C_FIELD(arg0, u8 *, 0x8E));
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D730);
+void Object_TurnToward(void *, s16, s16, s32, s32);
+
+/* called without all its arguments (old-style declaration), so defined old-style */
+void func_8013D730(arg0, away)
+    void *arg0;
+    s32 away;
+{
+    u16 *t = (u16 *)(M2C_FIELD(arg0, u8 **, 0x90) + M2C_FIELD(arg0, u8 *, 0x8E) * 8);
+
+    if (away) {
+        Object_TurnToward(arg0, M2C_FIELD(arg0, u16 *, 0x24) - t[0], M2C_FIELD(arg0, u16 *, 0x2C) - t[2], 0,
+                          M2C_FIELD(arg0, s16 *, 0xB0));
+    } else {
+        Object_TurnToward(arg0, t[0] - M2C_FIELD(arg0, u16 *, 0x24), t[2] - M2C_FIELD(arg0, u16 *, 0x2C), 0,
+                          M2C_FIELD(arg0, s16 *, 0xB0));
+    }
+}
 
 void func_8013D7B4(void) {
     func_8013D730();

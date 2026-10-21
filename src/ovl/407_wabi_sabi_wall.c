@@ -369,7 +369,22 @@ INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_80140B58);
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_80140EB0);
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_80141240);
+extern struct S_g_Game_80141240 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80141240 asm("g_Game");
+
+s32 func_80141240(s16 *p) {
+    u8 *e = g_Game_80141240.f_820C + p[2] * 0x38;
+
+    if (p[5] == 0) {
+        p[1] = 0;
+    } else {
+        p[1] = 1;
+        if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+            M2C_FIELD(D_800B4D64 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+        }
+        M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_801412C4);
 
