@@ -164,7 +164,21 @@ void func_80138934(void) {
     } while (var_v1 >= 0);
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80138958);
+extern u8 D_8013FB98_80138958[] asm("D_8013FB98");
+
+s32 func_80138958(s32 x, s32 z) {
+    u32 cx = (x + 0x600) / 328;
+    u32 cz = (z + 0x3C0) / 328;
+
+    if (cx >= 8 || cz >= 8) {
+        return -1;
+    }
+    if (D_8013FB98_80138958[cz + cx * 8] != 0) {
+        return 0;
+    }
+    D_8013FB98_80138958[cz + cx * 8] = 1;
+    return 1;
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801389E4);
 

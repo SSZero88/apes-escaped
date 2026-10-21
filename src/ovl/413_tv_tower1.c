@@ -534,7 +534,16 @@ INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801418D8);
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141998);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801419F0);
+void func_801419F0(void *arg0)
+{
+  u16 new_var;
+  *((u8 *) (((s8 *) arg0) + 0x80)) = 3;
+  *((u8 *) (((s8 *) arg0) + 0x7F)) = 0;
+  new_var = *(*((u16 **) (((s8 *) arg0) + 0x88)));
+  *((s16 *) (((s8 *) arg0) + 0xA8)) = 0;
+  *((u16 *) (((s8 *) arg0) + 0x5C)) = new_var;
+  *((u32 *) (((s8 *) arg0) + 0xE0)) |= 0x10000;
+}
 
 s32 func_80141A20(s32 x) {
     if (x == 0) {

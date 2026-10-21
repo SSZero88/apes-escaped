@@ -144,7 +144,33 @@ s32 func_80136E00(void *a, void *b) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136E68);
+s32 CdControlB(s32, void *, void *);
+
+void func_80136E68(u8 chan)
+{
+  struct 
+  {
+    u8 file;
+    u8 chan;
+    u16 pad;
+  } f;
+  if (chan)
+  {
+    f.file = 1;
+    f.chan = chan;
+    f.pad = 0;
+  }
+  else
+  {
+    f.file = 1;
+    f.chan = chan;
+    f.pad = 0;
+  }
+  while (CdControlB(0xD, &f, 0) == 0)
+  {
+  }
+
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136EA8);
 
@@ -312,7 +338,24 @@ void func_801388E0(void) {
 void func_801388E8(void) {
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801388F0);
+extern u8 D_800F5AA3;
+void *memset(void *, s32, s32);
+void func_80138980(void);
+
+void func_801388F0(void *arg0, SVECTOR *p) {
+    s32 unused[16]; /* stack space the original reserves but this code never touches */
+    SVECTOR w;
+    SVECTOR v;
+
+    memset(&v, 0, 8);
+    v.vx = p->vx;
+    v.vy = p->vy;
+    v.vz = p->vz;
+    w = v;
+    if (D_800F5AA3 == 7) {
+        func_80138980();
+    }
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138980);
 

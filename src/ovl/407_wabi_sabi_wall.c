@@ -135,7 +135,18 @@ void func_8013E358(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E3AC);
+void func_80059304(SVECTOR *, void *, s32, s32);
+
+void func_8013E3AC(void *arg0) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24) + ((M2C_FIELD(arg0, s16 *, 0x60) * 65) >> 10);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28) + 0x64;
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C) + ((M2C_FIELD(arg0, s16 *, 0x64) * 65) >> 10);
+    func_80059304(&v, arg0, 10, 1);
+    Object_PlaySound(arg0, 0x64);
+    Effect_SpawnAt(7, &v);
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E43C);
 

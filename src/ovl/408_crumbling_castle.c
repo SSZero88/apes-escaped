@@ -699,7 +699,22 @@ INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80142CCC);
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80142DB0);
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80142FD8);
+extern struct S_g_Game_80142FD8 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80142FD8 asm("g_Game");
+
+s32 func_80142FD8(s16 *p) {
+    u16 *e = (u16 *)(g_Game_80142FD8.f_820C + p[2] * 0x38);
+    u8 *f = g_Game_80142FD8.f_8220 + p[4] * 0x18;
+
+    if (M2C_FIELD(f, s16 *, 2) == 1) {
+        p[1] = 2;
+        e[2] += p[6];
+    } else {
+        p[1] = 0;
+        p[3] = 0;
+        e[0x14] = e[2];
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80143068);
 

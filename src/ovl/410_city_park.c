@@ -682,6 +682,23 @@ s32 func_80140E68(s16 *p) {
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_80140ED4);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_80140FF4);
+extern struct S_g_Game_80140FF4 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80140FF4 asm("g_Game");
+s16 func_80092324(s16 *, u16 *);
+
+s32 func_80140FF4(s16 *p) {
+    u16 *e = (u16 *)(g_Game_80140FF4.f_820C + p[2] * 0x38);
+
+    e[0x12] = e[0];
+    e[0x13] = e[1];
+    e[0x14] = e[2];
+    e[0x19] = e[3];
+    e[0x1A] = e[4];
+    e[0x1B] = e[5];
+    p[1] = 0;
+    p[3] = 0;
+    p[11] = 0;
+    e[8] = func_80092324(p, e);
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_80141084);
