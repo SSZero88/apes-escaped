@@ -17,14 +17,35 @@ s32 Collision_GetShape(s32);
 s32 Spike_WithinRadiusXZ(s16, s16, s16);
 M2C_UNK func_800525A0(void *, s32);
 M2C_UNK func_80052864(void *);
-M2C_UNK func_8013D180(void *, M2C_UNK, M2C_UNK, M2C_UNK);
 M2C_UNK func_8013F5F8(void *);
 extern s32 D_80140D40;
 extern void *D_80140D4C;
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D000);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D180);
+extern u16 g_RandSeed;
+void Effect_SpawnAt(s32, SVECTOR *);
+extern u8 D_800B1C28[];
+void func_80070284(SVECTOR *, void *, s32, s32, s32);
+void Effect_SpawnAt(s32, SVECTOR *);
+#define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
+
+void func_8013D180(void *arg0, s32 dx, s32 dy, s32 dz) {
+    SVECTOR v;
+    SVECTOR r;
+    s32 i;
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24) + dx;
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28) + dy;
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C) + dz;
+    Effect_SpawnAt(0x113, &v);
+    for (i = 0; i < 3; i++) {
+        r.vx = (RAND() >> 4) & 0xFF0;
+        r.vy = (RAND() >> 4) & 0xFF0;
+        r.vz = (RAND() >> 4) & 0xFF0;
+        func_80070284(&v, D_800B1C28, 1, i * 2, &r);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D280);
 

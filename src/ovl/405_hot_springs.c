@@ -20,7 +20,27 @@ M2C_UNK func_800563E0(void *, M2C_UNK);
 s32 rcos(s16);
 s32 rsin(s16);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D000);
+extern u16 g_RandSeed;
+#define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
+void Effect_SpawnAt(s32, SVECTOR *);
+extern u8 D_800B1C28[];
+
+void func_8013D000(void *arg0, s32 dx, s32 dy, s32 dz) {
+    SVECTOR v;
+    SVECTOR r;
+    s32 i;
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24) + dx;
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28) + dy;
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C) + dz;
+    Effect_SpawnAt(0x113, &v);
+    for (i = 0; i < 3; i++) {
+        r.vx = (RAND() >> 4) & 0xFF0;
+        r.vy = (RAND() >> 4) & 0xFF0;
+        r.vz = (RAND() >> 4) & 0xFF0;
+        func_80070284(&v, D_800B1C28, 1, i * 2, &r);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D100);
 
@@ -300,7 +320,26 @@ void func_8013F9E8(void *obj) {
     func_8013F4D8(obj, 0x46, 0xA0);
 }
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013FA0C);
+void func_8013F454(void *);
+void Object_DisableCollision(void *);
+
+void func_8013FA0C(void *arg0) {
+    M2C_FIELD(arg0, s16 *, 0x44) = 0xC8;
+    M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
+    M2C_FIELD(arg0, s16 *, 0x4A) = -0x7EFD;
+    M2C_FIELD(arg0, u8 *, 0x7D) = 8;
+    M2C_FIELD(arg0, u8 *, 0xC8) = 0xE;
+    M2C_FIELD(arg0, u8 *, 0xCD) = 5;
+    M2C_FIELD(arg0, u8 *, 0x7F) = 1;
+    M2C_FIELD(arg0, u8 *, 0xDC) = 5;
+    M2C_FIELD(arg0, s16 *, 0xA0) = 0;
+    M2C_FIELD(arg0, s16 *, 0x48) = 0;
+    M2C_FIELD(arg0, u32 *, 0xE0) &= ~0x1000;
+    M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, u8 **, 0x88), u16 *, 4);
+    func_8005588C(arg0, (s16)(M2C_FIELD(arg0, s16 *, 0x9A) % 60) + 0x3C);
+    func_8013F454(arg0);
+    Object_DisableCollision(arg0);
+}
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013FAEC);
 

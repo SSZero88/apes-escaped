@@ -361,6 +361,36 @@ def fix_struct_copies(body):
     return '\n'.join(out)
 
 
+ADDPRIM_RE = re.compile(r'^(\s*)M2C_FIELD\(([^;]+?), M2C_UNK \*, -1\) = M2C_UNALIGNED32\(\(?([^;]+?) << 8\)?\);\n'
+                        r'\s*M2C_FIELD\(\3, M2C_UNK \*, -1\) = M2C_UNALIGNED32\(M2C_LWL\(M2C_FIELD\(\2, M2C_UNK \*, 2\)\)\);$',
+                        re.M)
+
+
+REG_NUM = {n: i for i, n in enumerate('zero at v0 v1 a0 a1 a2 a3 t0 t1 t2 t3 t4 t5 t6 t7 s0 s1 s2 s3 s4 s5 s6 s7 '
+                                       't8 t9 k0 k1 gp sp fp ra'.split())}
+
+
+def fix_add_prim(asm, body):
+    """m2c's two unaligned stores for the original's inline-asm addPrim (lwl/sll/swl/swl, see
+    common.h) as each ADD_PRIM_* form; ADD_PRIM_R gets the temp registers the asm uses."""
+    if not ADDPRIM_RE.search(body):
+        return []
+    regs = [(f'"${REG_NUM[a]}"', f'"${REG_NUM[b]}"') for a, b in
+            re.findall(r'lwl\s+\$(\w+), 0x2\(\$\w+\)\n(?:[^\n]*\n){0,3}?[^\n]*sll\s+\$(\w+), \$\w+, 8\n',
+                       re.sub(r'/\*[^*]*\*/', '', asm))]
+    forms = ['ADD_PRIM_ASM({ot}, {p})', 'ADD_PRIM_ASM2({ot}, {p})', 'ADD_PRIM_ASM_DW({ot}, {p})']
+    out = []
+    for f in forms:
+        out.append(ADDPRIM_RE.sub(lambda m: m.group(1) + f.format(ot=m.group(2), p=m.group(3)) + ';', body))
+    if regs:
+        it = iter(regs * 64)
+        def r(m):
+            a, b = next(it)
+            return f'{m.group(1)}ADD_PRIM_R({m.group(2)}, {m.group(3)}, {a}, {b});'
+        out.append(ADDPRIM_RE.sub(r, body))
+    return out
+
+
 SCRATCH_RE = re.compile(r'\(([\w ]+?\*+)\)\s*0x1F80([0-9A-Fa-f]{4})\b')
 
 
@@ -539,6 +569,9 @@ def try_func(job):
         for d, b in list(cands):
             fb = fix_scratchpad(b)
             if fb != b:
+                cands.append((d, fb))
+        for d, b in list(cands):
+            for fb in fix_add_prim(open(asm_path).read(), b):
                 cands.append((d, fb))
         for d, b in list(cands):
             pt = fix_passthrough(d, b)

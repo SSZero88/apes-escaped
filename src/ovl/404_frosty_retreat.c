@@ -222,7 +222,26 @@ void func_8013E674(void *obj) {
     func_8013E164(obj, 0x46, 0xA0);
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E698);
+void func_8013E0E0(void *);
+void Object_DisableCollision(void *);
+
+void func_8013E698(void *arg0) {
+    M2C_FIELD(arg0, s16 *, 0x44) = 0xC8;
+    M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
+    M2C_FIELD(arg0, s16 *, 0x4A) = -0x7EFD;
+    M2C_FIELD(arg0, u8 *, 0x7D) = 8;
+    M2C_FIELD(arg0, u8 *, 0xC8) = 0xE;
+    M2C_FIELD(arg0, u8 *, 0xCD) = 5;
+    M2C_FIELD(arg0, u8 *, 0x7F) = 1;
+    M2C_FIELD(arg0, u8 *, 0xDC) = 5;
+    M2C_FIELD(arg0, s16 *, 0xA0) = 0;
+    M2C_FIELD(arg0, s16 *, 0x48) = 0;
+    M2C_FIELD(arg0, u32 *, 0xE0) &= ~0x1000;
+    M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, u8 **, 0x88), u16 *, 4);
+    func_8005588C(arg0, (s16)(M2C_FIELD(arg0, s16 *, 0x9A) % 60) + 0x3C);
+    func_8013E0E0(arg0);
+    Object_DisableCollision(arg0);
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E778);
 

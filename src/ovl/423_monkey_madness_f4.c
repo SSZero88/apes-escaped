@@ -123,7 +123,23 @@ void func_8013D8A8(void *arg0) {
     func_8006D548(&v);
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013D9A8);
+s32 rcos_8013D9A8(s32) asm("rcos");
+s32 rsin_8013D9A8(s32) asm("rsin");
+
+void func_8013D9A8(void *arg0) {
+    SVECTOR v;
+    s32 a;
+
+
+
+    a = (M2C_FIELD(arg0, s16 *, 0xAC) + ((RAND() >> 8) << 12) / 510 + 0xC00) % 0x1000;
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24) + ((rcos_8013D9A8(a) << 8) >> 12);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28) - ((RAND() >> 9) + 0xFA);
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C) + ((rsin_8013D9A8(a) << 8) >> 12);
+    Effect_SpawnAt(0x102, &v);
+    Object_PlaySound(arg0, 0x6C);
+    Object_PlaySound(arg0, 0x4D);
+}
 
 INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013DAC8);
 

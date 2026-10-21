@@ -166,6 +166,47 @@ INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_8013A7A8);
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_8013A8C0);
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_8013AABC);
+typedef struct { u32 xy; u32 c; } GridPt_391;
+typedef struct { u32 tag; u32 c0; u32 xy0; u32 c1; u32 xy1; u32 c2; u32 xy2; u32 c3; u32 xy3; } PolyG4_391;
+extern struct S_g_Game { u8 pad_0[0x8126]; u16 f_8126; } g_Game;
+extern GridPt_391 *D_8013B9F8;
+void func_8013A8C0(void);
+
+void func_8013AABC(void) {
+    PolyG4_391 *p;
+    u32 *ot;
+    GridPt_391 *g;
+    GridPt_391 *n;
+    s32 i;
+    s32 j;
+
+    p = (PolyG4_391 *)G_DRAW.prim;
+    ot = G_DRAW.ot + 0xFFF;
+    g = D_8013B9F8;
+    func_8013A8C0();
+    for (i = 0; i < 11; i++) {
+        for (j = 0; j < 16; j++) {
+            if (j == 15) {
+                n = g - 15;
+            } else {
+                n = g + 1;
+            }
+            p->c0 = g[0].c;
+            p->c1 = n[0].c;
+            p->c2 = g[16].c;
+            p->c3 = n[16].c;
+            ((u8 *)p)[3] = 8;
+            ((u8 *)p)[7] = 0x38;
+            p->xy0 = g[0].xy;
+            p->xy1 = n[0].xy;
+            p->xy2 = g[16].xy;
+            p->xy3 = n[16].xy;
+            ADD_PRIM_R(ot, p, "$3", "$2");
+            p++;
+            g++;
+        }
+    }
+    G_DRAW.prim = (u8 *)p;
+}
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_8013ABD4);

@@ -183,7 +183,27 @@ void func_8013FD48(void) {
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013FD8C);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013FE00);
+typedef struct { u8 b[0x54]; } FxDef_411;
+extern u32 g_Game_8013E4D8 asm("g_Game");
+extern FxDef_411 D_80144418[][2];
+void *memset(void *, s32, s32);
+void *memset(void *, s32, s32);
+M2C_UNK func_80070284(s32, M2C_UNK *, M2C_UNK, M2C_UNK, s32);
+
+void func_8013FE00(void *arg0, s32 n) {
+    SVECTOR w;
+    SVECTOR v;
+
+    if ((g_Game_8013E4D8 & 3) == 0) {
+        memset(&v, 0, 8);
+        v.vx = M2C_FIELD(arg0, u16 *, 0x9A);
+        v.vy = M2C_FIELD(arg0, u16 *, 0x9C);
+        v.vz = M2C_FIELD(arg0, u16 *, 0x9E);
+        w = v;
+        func_80070284(&w, &D_80144418[n][0], 1, 0, 0);
+        func_80070284(&w, &D_80144418[n][1], 1, 0, 0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013FEE8);
 
