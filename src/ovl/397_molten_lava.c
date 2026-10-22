@@ -120,6 +120,10 @@ INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013DA44);
 
 extern s32 D_80141160;
 
+/* Probably the T-rex (walks a square path, charges Spike, needs a few hits before the riding
+ * monkey falls off). When the hit flag D_80141158 is set and it is not already in hit state 2,
+ * plays the hit animation and counts down a[0x81]; on the last hit it stores its heading
+ * turned 180 degrees in D_80141160 and plays sound 0x4E. Clears the hit flag every call. */
 void func_8013DDF8(u8 *a) {
     if (D_80141158 != 0 && a[0x80] != 2) {
         a[0x80] = 2;
@@ -242,7 +246,9 @@ void func_8013E934(void *arg0, void *arg1) {
 
 void func_80051E98(void *, s32);
 
-/* called without all its arguments (old-style declaration), so defined old-style */
+/* T-rex slams its head into a platform: impact effect 0x102 at its position, clears a[0x82]
+ * and flag 0x100000, sound 0x6E, and a short-lived attack sphere around the impact.
+ * called without all its arguments (old-style declaration), so defined old-style */
 void func_8013E994(a)
     u8 *a;
 {
@@ -260,6 +266,8 @@ void func_8013E994(a)
                                0x201, 0x202);
 }
 
+/* T-rex collision: touching object type 5 (presumably the platform it gets lured into) sets
+ * the hit flag D_80141158 (see func_8013DDF8) and runs the head slam func_8013E994. */
 void func_8013EA38(void *arg0) {
     if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 5) {
         D_80141158 = 1;
