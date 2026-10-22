@@ -11,7 +11,7 @@ M2C_UNK Object_OrbitAround(void *, s16, s16, s32, s32);
 extern s32 D_8014115C;
 s16 func_80056010(void *, s16, s16, s32);
 
-extern s32 D_80141158;
+extern s32 g_TRexHitFlag;
 s32 Collision_GetShape(s32);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 M2C_UNK func_8005240C(void *, s32);
@@ -118,33 +118,33 @@ INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D95C);
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013DA44);
 
-extern s32 D_80141160;
+extern s32 g_TRexTurnHeading;
 
 /* Probably the T-rex (walks a square path, charges Spike, needs a few hits before the riding
- * monkey falls off). When the hit flag D_80141158 is set and it is not already in hit state 2,
+ * monkey falls off). When the hit flag g_TRexHitFlag is set and it is not already in hit state 2,
  * plays the hit animation and counts down a[0x81]; on the last hit it stores its heading
- * turned 180 degrees in D_80141160 and plays sound 0x4E. Clears the hit flag every call. */
-void func_8013DDF8(u8 *a) {
-    if (D_80141158 != 0 && a[0x80] != 2) {
+ * turned 180 degrees in g_TRexTurnHeading and plays sound 0x4E. Clears the hit flag every call. */
+void TRex_CountHit(u8 *a) {
+    if (g_TRexHitFlag != 0 && a[0x80] != 2) {
         a[0x80] = 2;
         a[0x7F] = 2;
         M2C_FIELD(a, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(a, u8 **, 0x88), u16 *, 8);
         M2C_FIELD(a, s16 *, 0x5E) = 2;
         if (a[0x81] != 0) {
             if (--a[0x81] == 0) {
-                D_80141160 = (M2C_FIELD(a, s16 *, 0xAA) + 0x800) % 0x1000;
+                g_TRexTurnHeading = (M2C_FIELD(a, s16 *, 0xAA) + 0x800) % 0x1000;
                 Object_PlaySound(a, 0x4E);
             }
         }
     }
-    D_80141158 = 0;
+    g_TRexHitFlag = 0;
 }
 
-extern struct { s32 x, y, z; u8 padC[0x14]; s16 w, h; } D_80141168_8013DE98 asm("D_80141168");
+extern struct { s32 x, y, z; u8 padC[0x14]; s16 w, h; } D_80141168_8013DE98 asm("g_TRexHeadBox");
 extern u8 D_800E77E5;
 void Debug_DrawWorldQuad(void *, s32, s32);
 
-void func_8013DE98(u8 *a) {
+void TRex_UpdateHeadBox(u8 *a) {
     D_80141168_8013DE98.x = M2C_FIELD(a, s32 *, 0x24) + ((M2C_FIELD(a, s16 *, 0x60) * 115) >> 10);
     D_80141168_8013DE98.y = M2C_FIELD(a, s32 *, 0x28) - 0x104;
     D_80141168_8013DE98.z = M2C_FIELD(a, s32 *, 0x2C) + ((M2C_FIELD(a, s16 *, 0x64) * 115) >> 10);
@@ -192,7 +192,7 @@ void func_8013E1C4(void *arg0) {
 }
 
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
-extern M2C_UNK D_80141168;
+extern M2C_UNK g_TRexHeadBox;
 u32 Object_DetachLink(void *, s32);
 
 void func_8013E214(void *arg0) {
@@ -200,7 +200,7 @@ void func_8013E214(void *arg0) {
         M2C_FIELD(arg0, s8 *, 0xC9) = 0;
         return;
     }
-    M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0x12C, M2C_FIELD(&D_80141168, s16 *, 0), M2C_FIELD(&D_80141168, s16 *, 4), (s32) M2C_FIELD(&D_80141168, s16 *, 8), 1, 0x203);
+    M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0x12C, M2C_FIELD(&g_TRexHeadBox, s16 *, 0), M2C_FIELD(&g_TRexHeadBox, s16 *, 4), (s32) M2C_FIELD(&g_TRexHeadBox, s16 *, 8), 1, 0x203);
 }
 
 void func_8013E284(void *arg0) {
@@ -249,7 +249,7 @@ void func_80051E98(void *, s32);
 /* T-rex slams its head into a platform: impact effect 0x102 at its position, clears a[0x82]
  * and flag 0x100000, sound 0x6E, and a short-lived attack sphere around the impact.
  * called without all its arguments (old-style declaration), so defined old-style */
-void func_8013E994(a)
+void TRex_HeadSlam(a)
     u8 *a;
 {
     SVECTOR v;
@@ -267,11 +267,11 @@ void func_8013E994(a)
 }
 
 /* T-rex collision: touching object type 5 (presumably the platform it gets lured into) sets
- * the hit flag D_80141158 (see func_8013DDF8) and runs the head slam func_8013E994. */
-void func_8013EA38(void *arg0) {
+ * the hit flag g_TRexHitFlag (see TRex_CountHit) and runs the head slam TRex_HeadSlam. */
+void TRex_OnCollide(void *arg0) {
     if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 5) {
-        D_80141158 = 1;
-        func_8013E994();
+        g_TRexHitFlag = 1;
+        TRex_HeadSlam();
         return;
     }
     if (M2C_FIELD(arg0, u8 *, 0x80) == 1) {
