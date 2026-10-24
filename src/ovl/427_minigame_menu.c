@@ -327,7 +327,29 @@ void func_8013AE64(s32 arg0) {
     M2C_FIELD(temp_a0, s8 *, 0xE) = 0;
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013AF14);
+extern struct { s32 f_0; s32 f_4; s32 f_8; } g_Game_8013AF14 asm("g_Game");
+extern SVECTOR D_800F4B30[3];
+extern s32 D_800E7D00;
+void Matrix_LookAt(void *, void *, void *, s32);
+void Model_CalcJointMatrices(void *, s32);
+void Model_ProjectBonedVerts(void *);
+void func_80017CD4(s32, s32, void *);
+
+void func_8013AF14(u8 *m) {
+    Matrix_LookAt(m + 0x60, m + 0x68, M2C_FIELD(m, void **, 0x14), 0);
+    D_800F4B30[0].vx = 0;
+    D_800F4B30[0].vy = g_Game_8013AF14.f_0 * 8;
+    D_800F4B30[0].vz = 0;
+    D_800F4B30[1].vx = 0;
+    D_800F4B30[1].vy = g_Game_8013AF14.f_0 * 32;
+    D_800F4B30[1].vz = 0;
+    D_800F4B30[2].vx = 0;
+    D_800F4B30[2].vy = -g_Game_8013AF14.f_0 * 64;
+    D_800F4B30[2].vz = 0;
+    Model_CalcJointMatrices(m, 1);
+    Model_ProjectBonedVerts(m);
+    func_80017CD4(g_Game_8013AF14.f_8, (s32)&D_800E7D00, m);
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013AFC0);
 

@@ -425,7 +425,21 @@ void func_8013F64C(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013F6FC);
+extern s32 g_Game_8013F6FC asm("g_Game");
+extern u32 D_801409FC_8013F6FC asm("D_801409FC");
+
+void func_8013F6FC(u8 *a) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(a, u16 *, 0x24) - ((M2C_FIELD(a, s16 *, 0x60) * 125) >> 11);
+    v.vy = M2C_FIELD(a, u16 *, 0x28) - 200;
+    v.vz = M2C_FIELD(a, u16 *, 0x2C) - ((M2C_FIELD(a, s16 *, 0x64) * 125) >> 11);
+    if ((g_Game_8013F6FC & 3) == 0) {
+        Effect_Spawn(0xC8, &v.vx, &D_801409FC_8013F6FC, 0);
+    } else if ((g_Game_8013F6FC & 3) == 2) {
+        Effect_Spawn(0xC9, &v.vx, &D_801409FC_8013F6FC, 0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013F7A8);
 

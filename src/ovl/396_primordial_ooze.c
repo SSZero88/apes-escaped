@@ -12,7 +12,20 @@ M2C_UNK func_80052038(void *, M2C_UNK);
 M2C_UNK func_800520A8(void *, M2C_UNK);
 s32 Floor_GetHeight(s16, s16, s16);
 
-INCLUDE_ASM("asm/ovl/396/nonmatchings/396_primordial_ooze", func_8013D000);
+extern u16 g_RandSeed;
+extern s32 D_8013F1C0;
+void func_80070284(void *, s32 *, s32, s32, s32);
+
+void func_8013D000(u8 *a) {
+    SVECTOR v;
+
+    if (((g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 0x3F) == 0) {
+        v.vx = M2C_FIELD(a, u16 *, 0x24) - ((M2C_FIELD(a, s16 *, 0x60) * 25) >> 9);
+        v.vy = M2C_FIELD(a, u16 *, 0x28);
+        v.vz = M2C_FIELD(a, u16 *, 0x2C) - ((M2C_FIELD(a, s16 *, 0x64) * 25) >> 9);
+        func_80070284(&v, &D_8013F1C0, 1, 0, 0);
+    }
+}
 
 s16 func_8013D0B0(void *arg0, s16 arg1, s16 arg2) {
     s32 temp_a1;

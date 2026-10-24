@@ -94,10 +94,28 @@ s32 func_8013DBAC(void *arg0, s16 arg1) {
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DC34);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DCF8);
+s32 func_8013DCF8(u8 *a, s32 r) {
+    s32 ret = 0;
+    s32 c;
+    s32 dx;
+    s32 dz;
+
+    if (M2C_FIELD(a, u16 *, 0x8C) != 0) {
+        dx = M2C_FIELD(a, s16 *, 0xBC) - M2C_FIELD(a, s32 *, 0x24);
+        dz = M2C_FIELD(a, s16 *, 0xC0) - M2C_FIELD(a, s32 *, 0x2C);
+        c = dx * dx + dz * dz < r * r;
+    } else {
+        func_8013DAD8(a);
+        c = Object_WouldLeaveHome(a, 0);
+    }
+    if (c) {
+        func_8013DB6C(a);
+        ret = 1;
+    }
+    return ret;
+}
 
 void Object_SetForwardVelocity(void *, s16);
-void func_8013DCF8(void *, s16);
 
 void func_8013DDA8(void *arg0, s16 speed) {
     Object_SetForwardVelocity(arg0, speed);
