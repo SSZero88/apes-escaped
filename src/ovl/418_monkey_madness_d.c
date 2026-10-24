@@ -437,7 +437,27 @@ INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80140AC4);
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80140D18);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80140F30);
+extern struct { u8 pad_0[0x812A]; u16 f_812A; u8 pad_812C[0xE0]; u8 *f_820C; } g_Game_80140F30 asm("g_Game");
+extern u8 *D_800B4D64_80140F30 asm("D_800B4D64");
+s32 func_801402F8(void);
+
+s32 func_80140F30(s16 *p) {
+    u8 *e = g_Game_80140F30.f_820C + p[2] * 0x38;
+
+    if (g_Game_80140F30.f_812A == 0) {
+        p[1] = 0;
+        M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+    } else {
+        p[1] = 5;
+        if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+            M2C_FIELD(D_800B4D64_80140F30 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+        }
+        func_801402D8(e);
+        func_801402F8();
+    }
+    p[3] = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80140FE0);
 

@@ -215,7 +215,28 @@ INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013E2A8);
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013E3A4);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013E59C);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[8]; u8 *f_8218; u8 pad_821C[4]; u8 *f_8220; } g_Game_8013E59C asm("g_Game");
+
+s32 func_8013E59C(s16 *p) {
+    u8 *t = g_Game_8013E59C.f_8220 + p[4] * 0x18;
+    u8 *e;
+    s16 *q;
+
+    if (M2C_FIELD(t, s16 *, 2) != 0) {
+        p[1] = 1;
+        e = g_Game_8013E59C.f_820C + p[2] * 0x38;
+        if (M2C_FIELD(e, s16 *, 0x30) >= 0) {
+            q = (s16 *)(g_Game_8013E59C.f_8218 + M2C_FIELD(e, s16 *, 0x30) * 16);
+            if (q[0] == 3 && q[1] == 0x5A) {
+                q[2] = p[5];
+            }
+        }
+    } else {
+        p[1] = 0;
+    }
+    p[3] = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013E64C);
 

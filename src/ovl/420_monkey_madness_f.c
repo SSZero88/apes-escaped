@@ -436,7 +436,35 @@ void func_8013F1B0(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x7C) = -1;
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013F1F4);
+void func_8013F1F4(u8 *a, s32 n) {
+    u8 *l;
+    u8 *r;
+
+    a[0x7F] = n;
+    M2C_FIELD(a, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(a, u8 **, 0x88) + a[0x7F] * 4);
+    l = M2C_FIELD(a, u8 **, 0x74);
+    r = M2C_FIELD(a, u8 **, 0x78);
+    switch (n) {
+    case 9:
+        M2C_FIELD(r, s16 *, 8) = 7;
+        M2C_FIELD(l, s16 *, 8) = 7;
+        M2C_FIELD(l, s16 *, 0xA) = 0x5D;
+        M2C_FIELD(r, s16 *, 0xA) = 0x5E;
+        break;
+    case 8:
+        M2C_FIELD(r, s16 *, 8) = 0x11;
+        M2C_FIELD(l, s16 *, 8) = 0x11;
+        M2C_FIELD(l, s16 *, 0xA) = 0xE5;
+        M2C_FIELD(r, s16 *, 0xA) = -1;
+        break;
+    case 5:
+        M2C_FIELD(r, s16 *, 8) = 0x10;
+        M2C_FIELD(l, s16 *, 8) = 0x10;
+        M2C_FIELD(l, s16 *, 0xA) = 0xCB;
+        M2C_FIELD(r, s16 *, 0xA) = 0xC5;
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013F2A4);
 

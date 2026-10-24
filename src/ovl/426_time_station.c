@@ -54,7 +54,24 @@ s32 func_8013D0B4(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013D158);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013D158 asm("g_Game");
+extern u8 *D_800B4D64_8013D158 asm("D_800B4D64");
+
+s32 func_8013D158(s16 *p) {
+    u8 *e = g_Game_8013D158.f_820C + p[2] * 0x38;
+
+    p[1] = 0;
+    p[3] = 0;
+    if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+        if (p[4] == 0) {
+            Model_BindStageMesh(D_800B4D64_8013D158 + M2C_FIELD(e, s16 *, 0xE) * 32, p[7]);
+        } else {
+            Model_BindStageMesh(D_800B4D64_8013D158 + M2C_FIELD(e, s16 *, 0xE) * 32, p[8]);
+        }
+        M2C_FIELD(D_800B4D64_8013D158 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013D208);
 

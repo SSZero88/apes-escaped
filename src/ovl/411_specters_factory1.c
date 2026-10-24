@@ -577,7 +577,24 @@ void func_8014022C(s32 arg0, s32 arg1) {
     func_80070284(arg0, (u8 *)&D_800B1C7C + 0x2A0, 1, 0, arg1);
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_801402A0);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_801402A0 asm("g_Game");
+
+s32 func_801402A0(s16 *p) {
+    u8 *e = g_Game_801402A0.f_820C + p[2] * 0x38;
+    s32 m;
+
+    if (p[5] == 0) {
+        m = p[7];
+        p[1] = 0;
+    } else {
+        m = p[8];
+        func_8008FC30(p[6], p);
+        p[1] = 1;
+    }
+    func_80140404(M2C_FIELD(e, s16 *, 0xE), m, p[7], p[8]);
+    func_80140454(p, e, 0x80);
+    return 0;
+}
 
 s32 func_80140350(void *arg0) {
     s16 temp_a1;
