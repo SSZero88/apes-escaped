@@ -58,7 +58,29 @@ void func_8013D81C(void *arg0) {
     D_80140BC0 = 0;
 }
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D870);
+extern u8 D_80140B80_8013D870[] asm("D_80140B80");
+s32 Collision_GetShape(s32);
+s32 func_800525A0(void *, s32);
+void func_8013D16C(void *);
+
+void func_8013D870(u8 *a) {
+    u8 *c;
+
+    if (a[0x81] != 0) {
+        c = D_80140B80_8013D870;
+        if ((M2C_FIELD(c, u32 *, 0x2C) >> 28) == 0xB) {
+            if (func_800525A0(a, Collision_GetShape(M2C_FIELD(c, u16 *, 0x2C) & 0xFFF))) {
+                func_8013D16C(a);
+                Object_PlaySound(a, 0x4D);
+                func_8013D81C(a);
+            } else {
+                a[0x80] = 4;
+                func_8005588C(a, 0x1E);
+                Object_PlaySound(a, 0x6A);
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D918);
 

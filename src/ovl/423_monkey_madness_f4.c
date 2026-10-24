@@ -313,7 +313,25 @@ void func_8013EB3C(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013EC44);
+extern u32 g_Game_8013EC44 asm("g_Game");
+
+void func_8013EC44(u8 *a) {
+    if (g_Game_8013EC44 & 1) {
+        if (a[0x81] < 5) {
+            func_8013D73C(a);
+            func_8013D73C(a);
+            func_8013D8A8(a);
+            func_8013D8A8(a);
+            func_8013D840((s32)a);
+        } else if (a[0x81] < 10) {
+            func_8013D73C(a);
+            func_8013D73C(a);
+            func_8013D840((s32)a);
+        } else if (a[0x81] < 15) {
+            func_8013D73C(a);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013ECE8);
 

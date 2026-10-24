@@ -151,7 +151,22 @@ void func_80136604(void)
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013668C);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801367DC);
+typedef struct { s16 x, y, w, h; } Rect_801367DC;
+typedef struct { u8 pad0[0x6E]; u16 y; u8 pad70[0x4078 - 0x70]; } Db_801367DC;
+extern struct { u8 pad0[0xC]; s32 f_C; } g_Game_801367DC asm("g_Game");
+void MoveImage(Rect_801367DC *, s32, s32);
+
+void func_801367DC(void) {
+    Rect_801367DC r;
+    Rect_801367DC c;
+
+    c.x = 0;
+    c.y = ((Db_801367DC *)&g_Game_801367DC)[g_Game_801367DC.f_C].y;
+    c.w = 0x180;
+    c.h = 0xF0;
+    r = c;
+    MoveImage(&r, 0, (s16)((Db_801367DC *)&g_Game_801367DC)[g_Game_801367DC.f_C ^ 1].y);
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136884);
 

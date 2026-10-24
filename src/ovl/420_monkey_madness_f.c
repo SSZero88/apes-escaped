@@ -20,7 +20,7 @@ s32 rsin(s16);
 s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, void *);
 M2C_UNK func_80088120(s8);
 M2C_UNK Hook_Add(M2C_UNK *);
-extern M2C_UNK func_8013F0CC;
+void func_8013F0CC(void);
 extern struct S_D_80144A28 { u8 pad_0[0x10]; s8 f_10; u8 pad_11[0x3]; } D_80144A28[];
 M2C_UNK Link_SendEvent(M2C_UNK, M2C_UNK, M2C_UNK);
 M2C_UNK func_80051E98(s32, M2C_UNK);
@@ -397,7 +397,28 @@ void func_8013F018(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013F0CC);
+typedef struct { s16 x, y, z, pad6; s16 vx, vy, vz, padE; s8 t; u8 pad11[2]; s8 f13; } Spark_8013F0CC;
+extern Spark_8013F0CC D_80144A28_8013F0CC[8] asm("D_80144A28");
+void func_8006D568(void *);
+
+void func_8013F0CC(void) {
+    Spark_8013F0CC *p;
+    s32 i;
+
+    for (i = 7; i >= 0; i--) {
+        p = &D_80144A28_8013F0CC[i];
+        if (p->t != 0) {
+            p->t--;
+            p->x += p->vx;
+            p->y += p->vy;
+            p->z += p->vz;
+            func_8006D568(p);
+            if (p->f13 != 0) {
+                func_8013F018(p);
+            }
+        }
+    }
+}
 
 void func_8013F170(void *arg0, s32 arg1) {
     if (M2C_FIELD(arg0, s8 *, 0x7C) == -1) {

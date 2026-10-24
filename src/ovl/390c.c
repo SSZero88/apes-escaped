@@ -84,7 +84,29 @@ s32 func_8013DA00(void) {
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DA7C);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DB48);
+extern s16 D_800E3880_8013DB48 asm("D_800E3880");
+extern s16 D_8013F284;
+
+s32 func_8013DB48(void) {
+    switch (D_800E3880_8013DB48) {
+    case 0:
+        func_8013E098();
+        func_8013CD1C(D_8013F284 == 0 ? 0x1D : 0x24, 0);
+        break;
+    case -8:
+    case -5:
+        func_8013E098();
+        func_8013CD1C(D_8013F284 == 0 ? 0x1E : 0x24, 0);
+        break;
+    case -2:
+    case -1:
+        func_8013CD1C(0x29, 0);
+        break;
+    case 1:
+        break;
+    }
+    return 0;
+}
 
 extern s16 D_800E3880_8013DBF0 asm("D_800E3880");
 

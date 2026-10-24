@@ -32,7 +32,27 @@ s32 func_8013D000(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013D0B4);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013D0B4 asm("g_Game");
+extern u8 *D_800B4D64_8013D0B4 asm("D_800B4D64");
+
+s32 func_8013D0B4(s16 *p) {
+    u8 *e;
+    u8 *t;
+
+    if (p[4] < 0) {
+        return 0;
+    }
+    e = g_Game_8013D0B4.f_820C + p[2] * 0x38;
+    t = g_Game_8013D0B4.f_8220 + p[4] * 0x18;
+    if (p[1] == 0 && M2C_FIELD(t, s16 *, 2) == 1) {
+        p[1] = 1;
+        M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+        if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+            M2C_FIELD(D_800B4D64_8013D0B4 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013D158);
 
