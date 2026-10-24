@@ -731,7 +731,26 @@ s32 func_80143240(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80143248);
+extern struct S_g_Game_80143248 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80143248 asm("g_Game");
+extern s16 D_800AFA20;
+
+s32 func_80143248(s16 *p)
+{
+  u8 *e = g_Game_80143248.f_820C + (p[2] * 0x38);
+  s16 new_var2;
+  int new_var;
+  if (D_800AFA20 != 0)
+  {
+    new_var2 = p[4];
+    *((s16 *) (((s8 *) e) + 0x1C)) = 2;
+    *((s16 *) (((s8 *) e) + 0x36)) = 0;
+    *((u16 *) (((s8 *) e) + 0x2C)) = new_var2;
+    *((u16 *) (((s8 *) e) + 0x12)) |= 0x103;
+    *((u16 *) (((s8 *) e) + 0x18)) = (new_var = ((*((u16 *) (((s8 *) e) + 0x18))) & 0xFFF0) | 2);
+    *((s16 *) (((s8 *) e) + 0xC)) = ((*((s16 *) (((s8 *) e) + 0xC))) << 1) / 360;
+  }
+  return 0;
+}
 
 s32 func_801432E8(void) {
     return 0;

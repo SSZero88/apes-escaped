@@ -125,7 +125,17 @@ void func_8013DEA8(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DF04);
+void Effect_SpawnAt(s32, SVECTOR *);
+
+void func_8013DF04(void *arg0)
+{
+  SVECTOR v;
+  v.vx = (*((u16 *) (((s8 *) arg0) + 0x24))) + (((*((s16 *) (((s8 *) arg0) + 0x60))) * 25) >> 9);
+  v.vy = -0x8E4;
+  v.vz = (*((u16 *) (((s8 *) arg0) + 0x2C))) + (((*((s16 *) (((s8 *) arg0) + 0x64))) * 25) >> 9);
+  Effect_SpawnAt(0x100, &v);
+  Object_PlaySound(arg0, 0xA3);
+}
 
 s32 Object_StepGrowShrink(void *, s16, s16, s16);
 

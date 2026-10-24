@@ -56,7 +56,28 @@ INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D260);
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D468);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D5A4);
+void Object_CameraShake(void *, s32);
+
+void TRex_Footsteps(u8 *a)
+{
+  u16 *anim;
+  s32 f;
+  if (a[0x7F] < 2)
+  {
+    Object_CameraShake(a, 0);
+    anim = (u16 *) ((*((u8 **) (((s8 *) a) + 0x88))) + (a[0x7F] * ((long long) 4)));
+    f = (*((u16 *) (((s8 *) a) + 0x5C))) - anim[0];
+    if (f == 5)
+    {
+      Object_PlaySound(a, 0xAC);
+    }
+    else
+      if (f == (((anim[1] - anim[0]) / 2) + 5))
+    {
+      Object_PlaySound(a, 0xAD);
+    }
+  }
+}
 
 s32 Object_SpikeBehind(s32, M2C_UNK, M2C_UNK, s16);
 s32 Object_SpikeInFront(void *, s32, s32, s16);
@@ -110,7 +131,23 @@ void func_8013D7D4(void *arg0) {
     Object_PlaySound(arg0, 0xAE);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D80C);
+void TRex_HeavyImpact(u8 *a)
+{
+  u8 *new_var;
+  a[0x80] = 4;
+  a[0x7F] = 8;
+  *((u16 *) (((s8 *) a) + 0x5C)) = *((u16 *) (((s8 *) (*((u8 **) (((s8 *) a) + 0x88)))) + 0x20));
+  *((s16 *) (((s8 *) a) + 0x94)) /= 2;
+  if (1)
+  {
+    *((s16 *) (((s8 *) a) + 0x98)) /= 2;
+    Object_CameraShake(a, 1);
+  }
+  new_var = a;
+  Object_PlaySound(new_var, 0x98);
+  Object_PlaySound(new_var, 0xB4);
+  func_8005588C(a, 0x1F);
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D8AC);
 

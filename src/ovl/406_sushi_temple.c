@@ -299,4 +299,26 @@ s32 func_8013F574(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013F5D4);
+extern struct S_g_Game_8013F5D4 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013F5D4 asm("g_Game");
+
+s32 func_8013F5D4(s16 *p)
+{
+  u8 *b;
+  u8 *c;
+  if (p[1] == 0)
+  {
+    c = g_Game_8013F5D4.f_8220 + (p[5] * 0x18);
+    if ((*((s16 *) (((s8 *) c) + 2))) == 1)
+    {
+      c = g_Game_8013F5D4.f_8220 + (p[6] * 0x18);
+      b = c;
+      if ((*((s16 *) (((s8 *) b) + 2))) == 1)
+      {
+        c = g_Game_8013F5D4.f_8220 + (p[4] * 0x18);
+        *((s16 *) (((s8 *) c) + 2)) = 5;
+        p[1] = 1;
+      }
+    }
+  }
+  return 0;
+}

@@ -119,7 +119,35 @@ loop_1:
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801364B0);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136604);
+typedef struct { u8 r, g, b, cd; } Col_384b;
+extern s32 D_8013C488;
+extern s32 D_8013C48C;
+extern s32 D_8013C490;
+extern s32 D_8013C494;
+extern Col_384b D_8013C498;
+extern Col_384b D_8013C49C;
+extern struct { u8 pad0[0x1C]; Col_384b f_1C; Col_384b f_20; s32 f_24; s32 f_28; } D_800EBFA0_80136604 asm("D_800EBFA0");
+s32 VSyncCallback(void *);
+s32 func_800315D0(void);
+
+void func_80136604(void)
+{
+  struct 
+  {
+    u8 pad0[0x1C];
+    Col_384b f_1C;
+    Col_384b f_20;
+    s32 f_24;
+    s32 f_28;
+  } *new_var;
+  D_8013C488 = VSyncCallback(0);
+  D_8013C48C = func_800315D0();
+  new_var = &D_800EBFA0_80136604;
+  D_8013C498 = (*new_var).f_20;
+  D_8013C49C = (*new_var).f_1C;
+  D_8013C490 = (*new_var).f_24;
+  D_8013C494 = D_800EBFA0_80136604.f_28;
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013668C);
 
