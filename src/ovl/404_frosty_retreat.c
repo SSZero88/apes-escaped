@@ -537,7 +537,27 @@ INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_80140124);
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_80140738);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_80140864);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80140864 asm("g_Game");
+extern u8 *D_800B4D64_80140864 asm("D_800B4D64");
+
+s32 func_80140864(s16 *p) {
+    u8 *e = g_Game_80140864.f_820C + p[2] * 0x38;
+
+    if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+        **(u32 **)(D_800B4D64_80140864 + M2C_FIELD(e, s16 *, 0xE) * 32) |= 0x2000;
+    }
+    M2C_FIELD(e, u16 *, 0x32) = M2C_FIELD(e, u16 *, 6);
+    M2C_FIELD(e, u16 *, 0x34) = M2C_FIELD(e, u16 *, 8);
+    M2C_FIELD(e, u16 *, 0x36) = M2C_FIELD(e, u16 *, 0xA);
+    if (p[4] == 0) {
+        p[1] = 0;
+        p[3] = 0;
+    } else {
+        p[1] = 2;
+        p[3] = 0x1000;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8014090C);
 

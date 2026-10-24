@@ -648,7 +648,21 @@ INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801422FC);
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801423F8);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801426D4);
+extern s32 D_800EC204;
+extern s32 D_800EC208;
+extern s32 D_800EC20C;
+
+s32 func_801426D4(u8 *a, s16 *b) {
+    if (ABS(D_800EC20C - M2C_FIELD(a, s16 *, 0x28)) < b[1]) {
+        if (ABS(D_800EC204 - M2C_FIELD(a, s16 *, 0x24)) < b[0]) {
+            if (D_800EC208 < M2C_FIELD(a, s16 *, 0x26) + M2C_FIELD(a, s16 *, 8) &&
+                M2C_FIELD(a, s16 *, 0x26) - M2C_FIELD(a, s16 *, 8) < D_800EC208) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 s32 func_8014277C(void *arg0) {
     void *temp_v1;

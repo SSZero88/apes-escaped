@@ -67,7 +67,29 @@ s32 func_8013D19C(s16 *p) {
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D210);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D31C);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013D31C asm("g_Game");
+extern u8 *D_800B4D64_8013D31C asm("D_800B4D64");
+void Model_BindStageMesh(void *, s32);
+
+s32 func_8013D31C(s16 *p) {
+    u8 *t;
+
+    p[3] = 0;
+    t = g_Game_8013D31C.f_8220 + p[4] * 0x18;
+    if (M2C_FIELD(t, s16 *, 2) == 0) {
+        p[1] = 0;
+    } else {
+        p[1] = 1;
+        if (p[6] >= 0) {
+            if (p[7] >= 0) {
+                Model_BindStageMesh(D_800B4D64_8013D31C + p[6] * 32, p[7]);
+            } else {
+                M2C_FIELD(D_800B4D64_8013D31C + p[6] * 32, s16 *, 0x16) = 0;
+            }
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D3C4);
 
