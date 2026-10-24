@@ -29,7 +29,6 @@ M2C_UNK func_80056128(void *, M2C_UNK);
 s32 func_800572CC(void *);
 M2C_UNK func_80058134(void *, s16);
 M2C_UNK func_8013FA08(void *);
-M2C_UNK func_8013FDE0(void *);
 M2C_UNK Object_SeekHeight(void *, M2C_UNK);
 s32 func_80055718(void *, s16, s16, s16, s32);
 s32 rcos(s16);
@@ -477,7 +476,18 @@ void func_8013FD80(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0x46) = ((M2C_FIELD(arg0, s32 *, 0x28) - M2C_FIELD(arg0, s16 *, 0x1E)) * 2) + var_a1;
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FDE0);
+void func_8013FDE0(u8 *a) {
+    s32 f;
+
+    if (a[0x80] != 2) {
+        f = M2C_FIELD(a, u16 *, 0x5C) - *(u16 *)(M2C_FIELD(a, u8 **, 0x88) + a[0x7F] * 4);
+        if (f == 6 && Spike_WithinRadiusXZ(M2C_FIELD(a, s32 *, 0x24), M2C_FIELD(a, s32 *, 0x2C), 0x800)) {
+            Object_PlaySound(a, 0x68);
+        } else if (f == 0x15) {
+            Object_SpawnEffect(a, 5, 0, 0, 0);
+        }
+    }
+}
 
 void func_8013FE8C(void *arg0) {
     u8 temp_v1;

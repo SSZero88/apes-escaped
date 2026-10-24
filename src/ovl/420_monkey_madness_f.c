@@ -874,7 +874,24 @@ s32 func_80142F40(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142FB8);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_801430B0);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_801430B0 asm("g_Game");
+extern u8 *D_800B4D64_801430B0 asm("D_800B4D64");
+
+s32 func_801430B0(s16 *p) {
+    u8 *e = g_Game_801430B0.f_820C + p[2] * 0x38;
+    u8 *t;
+
+    M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+    t = g_Game_801430B0.f_8220 + p[4] * 0x18;
+    if (M2C_FIELD(t, s16 *, 2) == 1) {
+        p[1] = 2;
+    } else {
+        p[1] = 0;
+        p[11] = Sound_Play(1, 0x66);
+    }
+    p[3] = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80143158);
 

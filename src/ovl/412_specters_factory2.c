@@ -470,7 +470,20 @@ void func_8013F724(void *arg0, s32 arg1) {
     Object_PlaySound(arg0, 0xA8);
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F760);
+s32 func_8013F760(u8 *a, s16 n) {
+    s32 s;
+
+    if (Object_StepGrowShrink(a, 0, 0, n)) {
+        return 1;
+    }
+    s = M2C_FIELD(a, s16 *, 0xA8) >> 3;
+    M2C_FIELD(a, s32 *, 0x24) += (M2C_FIELD(a, s16 *, 0x60) * s) >> 12;
+    M2C_FIELD(a, s32 *, 0x2C) += (M2C_FIELD(a, s16 *, 0x64) * s) >> 12;
+    if (s >= 11) {
+        func_8013EC78(a, 0xB4, 0x32, 0, 5);
+    }
+    return 0;
+}
 
 void func_8013F80C(void *arg0) {
     s32 temp_s0;
