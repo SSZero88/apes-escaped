@@ -626,9 +626,74 @@ void func_8013C7FC(s32 i, u8 v) {
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013C810);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013CA94);
+extern GameDraw g_Game_8013CA94 asm("g_Game");
+extern u8 *D_800EC354_8013CA94 asm("D_800EC354");
+extern u32 D_8013F37C[];
+typedef struct { u8 v[8]; } Seg_8013CA94;
+extern Seg_8013CA94 D_8013F32C[];
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013CBF0);
+void func_8013CA94(s32 digit, s32 x, s32 y, s32 sh) {
+    s32 i;
+    u8 *p = g_Game_8013CA94.prim;
+    u32 *ot = g_Game_8013CA94.ot;
+
+    for (i = 0; i < 10; i++) {
+        if (D_8013F37C[digit] & (1 << i)) {
+            M2C_FIELD(p, u32 *, 4) = 0xFF00;
+            p[3] = 5;
+            p[7] = 0x28;
+            M2C_FIELD(p, s16 *, 0x8) = x + (D_8013F32C[i].v[0] >> sh);
+            M2C_FIELD(p, s16 *, 0xA) = y + (D_8013F32C[i].v[1] >> sh);
+            M2C_FIELD(p, s16 *, 0xC) = x + (D_8013F32C[i].v[2] >> sh);
+            M2C_FIELD(p, s16 *, 0xE) = y + (D_8013F32C[i].v[3] >> sh);
+            M2C_FIELD(p, s16 *, 0x10) = x + (D_8013F32C[i].v[4] >> sh);
+            M2C_FIELD(p, s16 *, 0x12) = y + (D_8013F32C[i].v[5] >> sh);
+            M2C_FIELD(p, s16 *, 0x14) = x + (D_8013F32C[i].v[6] >> sh);
+            M2C_FIELD(p, s16 *, 0x16) = y + (D_8013F32C[i].v[7] >> sh);
+            ADD_PRIM_ASM(ot, p);
+            p += 0x18;
+        }
+    }
+    p[3] = 1;
+    M2C_FIELD(p, u32 *, 4) = 0xE1000220;
+    ADD_PRIM_ASM(ot, p);
+    p += 8;
+    D_800EC354_8013CA94 = p;
+}
+
+extern struct { u8 pad0[0x18]; s32 f_18; s32 f_1C; } D_8013F3E0_8013CBF0 asm("D_8013F3E0");
+extern u8 D_8013FBF8_8013CBF0[] asm("D_8013FBF8");
+
+void func_8013CBF0(void) {
+    s32 t = D_8013F3E0_8013CBF0.f_18;
+    s32 m;
+    u8 *p;
+
+    if (t < 0 || D_8013F3E0_8013CBF0.f_1C > 0) {
+        return;
+    }
+    m = t / 3600;
+    func_8013CA94(m / 10, 0xF8, 0xB4, 2);
+    func_8013CA94(m % 10, 0x10A, 0xB4, 2);
+    func_8013CA94(10, 0x11C, 0xB4, 2);
+    m = t / 60 - m * 60;
+    func_8013CA94(m / 10, 0x12E, 0xB4, 2);
+    func_8013CA94(m % 10, 0x140, 0xB4, 2);
+    if (t > 0) {
+        D_8013F3E0_8013CBF0.f_18 = t - 1;
+        return;
+    }
+    p = D_8013FBF8_8013CBF0;
+    D_8013F3E0_8013CBF0.f_18 = -1;
+    if (p[0x1D] != 0) {
+        M2C_FIELD(p, u16 *, 0x40)++;
+    }
+    if (p[0x55] != 0) {
+        M2C_FIELD(p, u16 *, 0x78)++;
+    }
+    p[0x1D] = 0;
+    p[0x55] = 0;
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013CDB0);
 

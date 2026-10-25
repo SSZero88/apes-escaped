@@ -45,7 +45,33 @@ void func_8013D000(void) {
     func_80048748();
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013D058);
+typedef struct { u32 tag; u32 tpage; u32 rgbc; u32 xy; u32 uvclut; u32 wh; } Spr_8013F058;
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_8013F058 asm("g_Game");
+
+void func_8013D058(void) {
+    Spr_8013F058 *p;
+    u32 *ot;
+    s32 t;
+    s32 b;
+
+    t = g_Game_8013F058.frame & 0x1F;
+    b = g_Game_8013F058.frame & 8;
+    if (t >= 16) {
+        t = 31 - t;
+    }
+    t = t * 8 + 0x60;
+    p = (Spr_8013F058 *)g_Game_8013F058.prim;
+    ot = &g_Game_8013F058.db[g_Game_8013F058.cur].ot[1];
+    ((u8 *)p)[3] = 5;
+    p->tpage = 0xE100021B;
+    p->rgbc = (t << 16) | (t << 8) | t | 0x66000000;
+    p->xy = 0x6800A4;
+    p->wh = 0x200038;
+    p->uvclut = (b << 10) | 0x7CED00A0;
+    p->tag = (p->tag & 0xFF000000) | (*ot & 0xFFFFFF);
+    *ot = (*ot & 0xFF000000) | ((u32)p & 0xFFFFFF);
+    g_Game_8013F058.prim = (u8 *)(p + 1);
+}
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013D148);
 

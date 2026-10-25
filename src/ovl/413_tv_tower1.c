@@ -356,7 +356,40 @@ s32 func_8013DF6C(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013E004);
+typedef struct { s16 f_0; s16 f_2; s16 f_4; u8 pad[0x12]; } S18_8013E004;
+extern struct { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x108]; u8 *f_820C; u8 pad_8210[0x10]; S18_8013E004 *f_8220; } g_Game_8013E004 asm("g_Game");
+s32 Sound_Play(s32, s32);
+void Sound_Stop(s32, s32);
+
+s32 func_8013E004(s16 *p) {
+    u8 *e = g_Game_8013E004.f_820C + p[2] * 0x38;
+    S18_8013E004 *t;
+
+    switch (p[1]) {
+    case 0:
+        t = &g_Game_8013E004.f_8220[p[4]];
+        if (t->f_2 == 2) {
+            p[1] = 1;
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+            CamFlyby_StartSegment(2);
+            p[3] = 0;
+            g_Game_8013E004.f_8100 = 7;
+            p[11] = Sound_Play(0, 0xB1);
+        }
+        break;
+    case 1:
+        if (M2C_FIELD(e, s16 *, 0x32) >= p[6] * 2) {
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+            p[1] = 2;
+            Sound_Stop(0xB1, p[11]);
+            g_Game_8013E004.f_8100 = 0;
+        }
+        break;
+    case 2:
+        break;
+    }
+    return 0;
+}
 
 typedef struct { s16 f_0; s16 f_2; s16 f_4; u8 pad[0x12]; } S18_8013E120;
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; S18_8013E120 *f_8220; } g_Game_8013E120 asm("g_Game");
@@ -1136,7 +1169,29 @@ void func_8014263C(s32 arg0, s32 arg1) {
     func_80070284(arg0, (u8 *)&D_800B1C7C + 0x2A0, 1, 0, arg1);
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801426B0);
+extern u32 D_80144608[];
+void Effect_Spawn_801426B0(s32, s16 *, u32 *, s16 **) asm("Effect_Spawn");
+
+void func_801426B0(void) {
+    s16 v[3];
+    s32 i;
+
+    if (D_800EC208 < -0x794) {
+        for (i = 0; i < 3; i++) {
+            v[0] = -0x1000;
+            v[1] = (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 6 - 0xD5B;
+            v[2] = (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 6 + 0x12C;
+            Effect_Spawn_801426B0(0xC8, v, D_80144608, 0);
+        }
+    } else {
+        for (i = 0; i < 3; i++) {
+            v[0] = -0x1000;
+            v[1] = (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 6 - 0x17F;
+            v[2] = (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 6 + 0x12C;
+            Effect_Spawn_801426B0(0xC8, v, D_80144608, 0);
+        }
+    }
+}
 
 extern u8 *D_800B4DC4;
 

@@ -419,7 +419,46 @@ void func_8013EFE4(void *arg0) {
     Object_OrbitAround(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6), speed);
 }
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013F08C);
+M2C_UNK func_80051E98(void *, M2C_UNK);
+M2C_UNK func_80058134(void *, s16);
+void Object_DropPickups(void *);
+void func_8013ED30(void *arg0, s16 x, s16 y, s16 z);
+s32 func_8013ED9C(void *arg0, s32 arg1, s32 arg2);
+
+void func_8013F08C(void *arg0) {
+    u16 t;
+
+    if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 3) & 1)) {
+        func_8013EE80(arg0);
+        M2C_FIELD(arg0, u32 *, 0xE0) |= 8;
+    }
+    func_80058134(arg0, M2C_FIELD(arg0, s16 *, 0x44));
+    if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1)) {
+        func_8013ED30(arg0, M2C_FIELD(arg0, s16 *, 0x1C), M2C_FIELD(arg0, s16 *, 0x1E), M2C_FIELD(arg0, s16 *, 0x20));
+    }
+    if (M2C_FIELD(arg0, u8 *, 0x82) != 0) {
+        if (M2C_FIELD(arg0, s16 *, 0x96) > 0) {
+            func_8013EEF0(arg0);
+        }
+    } else {
+        switch (M2C_FIELD(arg0, u8 *, 0x80)) {
+        case 1:
+            func_8013EFE4(arg0);
+            break;
+        case 2:
+            t = *(u16 *)(M2C_FIELD(arg0, u8 **, 0x88) + M2C_FIELD(arg0, u8 *, 0x7F) * 4 + 2);
+            if (M2C_FIELD(arg0, u16 *, 0x5C) == t) {
+                M2C_FIELD(arg0, u8 *, 0x8F)++;
+                M2C_FIELD(arg0, u16 *, 0x5C) = t - 1;
+                if (func_8013ED9C(arg0, 8, M2C_FIELD(arg0, u8 *, 0x8F))) {
+                    func_80051E98(arg0, 1);
+                    Object_DropPickups(arg0);
+                }
+            }
+            break;
+        }
+    }
+}
 
 s32 func_8013F1D8(void *arg0) {
     s16 temp_a0;

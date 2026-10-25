@@ -301,7 +301,27 @@ void func_8013ED00(u8 *a, void *b) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013EE30);
+extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013EE30 asm("g_Spike");
+
+void func_8013EE30(u8 *arg0, u8 *arg1) {
+    s32 dx = g_Spike_8013EE30.x - M2C_FIELD(arg0, s32 *, 0x24);
+    s32 dz = g_Spike_8013EE30.z - M2C_FIELD(arg0, s32 *, 0x2C);
+    s32 d = dx * dx + dz * dz;
+    s32 near = 0x40000;
+
+    if (d > 0x240000 || M2C_FIELD(arg1, u8 *, 0x81) == 0) {
+        M2C_FIELD(arg0, u8 *, 0x80) = 5;
+        M2C_FIELD(arg0, u8 *, 0x8F) = 0;
+        return;
+    }
+    if (M2C_FIELD(arg0, u8 *, 0x80) != 6 && d < near) {
+        M2C_FIELD(arg0, u8 *, 0x80) = 6;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 2;
+        M2C_FIELD(arg0, s16 *, 0x5C) = M2C_FIELD(M2C_FIELD(arg0, u8 **, 0x88), u16 *, 8);
+        M2C_FIELD(arg0, s32 *, 0xE0) &= ~1;
+        M2C_FIELD(arg0, s32 *, 0xE0) &= ~0x10000;
+    }
+}
 
 M2C_UNK Object_ApplyVelocity(void *);
 M2C_UNK func_80055AA0(void *, s16, s16, s32);

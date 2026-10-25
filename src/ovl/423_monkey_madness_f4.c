@@ -223,11 +223,92 @@ void func_8013E26C(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x7C) = -1;
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E2B0);
+typedef struct { s16 x, y, z; u8 pad6[6]; } Pt_8013E2B0;
+extern Pt_8013E2B0 D_8013FC68[3];
+extern u8 D_8013F998[];
+void VectorNormalSS(void *, void *);
+void func_80070284(void *, void *, s32, s32, void *);
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E494);
+void func_8013E2B0(u8 *e, s32 n) {
+    SVECTOR v;
+    SVECTOR s;
+    Pt_8013E2B0 *p1;
+    Pt_8013E2B0 *p2;
+    u8 *k;
+    s32 dz, dx;
 
-s32 func_8013E494(u8 *);
+    if ((M2C_FIELD(e, u32 *, 0xE0) >> 2) & 1) {
+        return;
+    }
+    v.vx = D_8013FC68[2].x - D_8013FC68[1].x;
+    p1 = &D_8013FC68[1];
+    p2 = &D_8013FC68[2];
+    v.vy = p2->y - p1->y;
+    v.vz = p2->z - p1->z;
+    VectorNormalSS(&v, &v);
+    k = D_8013F998 + n * 0x54;
+    dz = -((M2C_FIELD(e, s16 *, 0x64) * 75) >> 11);
+    dx = (M2C_FIELD(e, s16 *, 0x60) * 75) >> 11;
+    s.vx = (D_8013FC68[0].x + p1->x) / 2 + dz;
+    s.vy = (D_8013FC68[0].y + p1->y) / 2;
+    s.vz = (D_8013FC68[0].z + p1->z) / 2 + dx;
+    func_80070284(&s, k, 1, 0, &v);
+    s.vx = (D_8013FC68[0].x + p1->x) / 2 - dz;
+    s.vz = (D_8013FC68[0].z + p1->z) / 2 - dx;
+    func_80070284(&s, k, 1, 0, &v);
+}
+
+extern struct { u8 pad_0[0x24]; u16 x; u8 pad_26[2]; u16 y; u8 pad_2A[2]; u16 z; } g_Spike_8013E494 asm("g_Spike");
+typedef struct { u16 x, y, z, pad; } Pt_8013E494;
+
+/* called without its flag argument (old-style declaration), so defined old-style */
+s32 func_8013E494(e, flag)
+    u8 *e;
+    s32 flag;
+{
+    SVECTOR a, b, c;
+    Pt_8013E494 *pts;
+    s32 n;
+    Pt_8013E494 *p1, *p0;
+    s32 d1, d2;
+
+    if (e[0x8E] == 0) {
+        return 1;
+    }
+    if (e[0x8E] == M2C_FIELD(e, u16 *, 0x8C) - 1) {
+        return M2C_FIELD(e, u16 *, 0x8C) - 2;
+    }
+    n = e[0x8E];
+    pts = M2C_FIELD(e, Pt_8013E494 **, 0x90);
+    p1 = &pts[n + 1];
+    p0 = &pts[n - 1];
+    a.vx = g_Spike_8013E494.x - M2C_FIELD(e, u16 *, 0x24);
+    a.vy = g_Spike_8013E494.y - M2C_FIELD(e, u16 *, 0x28);
+    a.vz = g_Spike_8013E494.z - M2C_FIELD(e, u16 *, 0x2C);
+    b.vx = p1->x - M2C_FIELD(e, u16 *, 0x24);
+    b.vy = p1->y - M2C_FIELD(e, u16 *, 0x28);
+    b.vz = p1->z - M2C_FIELD(e, u16 *, 0x2C);
+    c.vx = p0->x - M2C_FIELD(e, u16 *, 0x24);
+    c.vy = p0->y - M2C_FIELD(e, u16 *, 0x28);
+    c.vz = p0->z - M2C_FIELD(e, u16 *, 0x2C);
+    VectorNormalSS(&a, &a);
+    VectorNormalSS(&b, &b);
+    VectorNormalSS(&c, &c);
+    d1 = (a.vx * b.vx + a.vz * b.vz) / 4096;
+    d2 = (a.vx * c.vx + a.vz * c.vz) / 4096;
+    if (flag != 0) {
+        if (d2 < d1) {
+            return e[0x8E] - 1;
+        }
+    } else {
+        if (d2 >= d1) {
+            return e[0x8E] - 1;
+        }
+    }
+    return e[0x8E] + 1;
+}
+
+s32 func_8013E494();
 void VectorNormalSS(void *, void *);
 void Object_TurnToward(void *, s16, s16, s16, s16);
 

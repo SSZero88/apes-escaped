@@ -803,7 +803,46 @@ s32 func_801417C8(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_801417DC);
+extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Spike_801417DC asm("g_Spike");
+s32 Sound_Play(s32, s32);
+s32 Sound_Stop(s32, s32);
+s32 func_80087BA4_801417DC(s32, s32, s32, s32) asm("func_80087BA4");
+
+s32 func_801417DC(s16 *o) {
+    s32 h;
+
+    h = o[11];
+    if (h >= 0) {
+        if (o[5] < g_Spike_801417DC.y || g_Spike_801417DC.z > 0xE00) {
+            Sound_Stop(0xB0, h);
+            o[11] = -1;
+        } else {
+            if (g_Spike_801417DC.z < 0x600) {
+                func_80087BA4_801417DC(0xB0, h, 0x800, 0x800);
+            } else {
+                func_80087BA4_801417DC(0xB0, h, 0xE00 - g_Spike_801417DC.z, 0x800);
+            }
+        }
+    } else if (g_Spike_801417DC.y < o[5] && g_Spike_801417DC.z < 0xE00) {
+        o[11] = Sound_Play(1, 0xB0);
+    }
+    h = o[10];
+    if (h >= 0) {
+        if (g_Spike_801417DC.z >= 0xE00 || g_Spike_801417DC.y < -0xB00) {
+            Sound_Stop(0x7C, h);
+            o[10] = -1;
+        } else {
+            if (g_Spike_801417DC.z < 0x600) {
+                func_80087BA4_801417DC(0x7C, h, 0x800, 0x800);
+            } else {
+                func_80087BA4_801417DC(0x7C, h, 0xE00 - g_Spike_801417DC.z, 0x800);
+            }
+        }
+    } else if (g_Spike_801417DC.y > -0xB00 || g_Spike_801417DC.z < 0xE00) {
+        o[10] = Sound_Play(1, 0x7C);
+    }
+    return 0;
+}
 
 extern u32 g_Game_80141960 asm("g_Game");
 #define RAND() (g_RandSeed = g_RandSeed * 5 + 1)

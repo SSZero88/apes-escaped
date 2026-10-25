@@ -12,7 +12,43 @@ s32 Floor_GetHeight(s16, s16, s16);
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 s32 Object_DetachLink(void *, M2C_UNK);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013D000);
+typedef struct { s16 f0; s16 x, y, z; s16 f8; u16 fA; u8 padC[4]; } Src_8013E1E0;
+typedef struct { s16 x, y, z, floor; s16 x8, yA, zC; u8 fE; u8 padF[9]; s16 f18; s16 f1A; u8 pad1C[4]; } Pt_8013E1E0;
+extern struct { u8 pad0[0x824C]; u8 *f_824C; } g_Game_8013E1E0 asm("g_Game");
+extern u8 D_80141750;
+extern Pt_8013E1E0 D_80141350[];
+s32 Floor_GetHeight_8013E1E0(s32, s32, s32) asm("Floor_GetHeight");
+
+s32 func_8013D000(void) {
+    u8 *h;
+    Src_8013E1E0 *src;
+    s32 i;
+
+    h = g_Game_8013E1E0.f_824C;
+    D_80141750 = 0;
+    src = (Src_8013E1E0 *)(h + 8);
+    if (*(u16 *)h == 0x452E && h[2] == 0x46) {
+    } else {
+        return 1;
+    }
+    D_80141750 = h[4];
+    if (D_80141750 > 32) {
+        D_80141750 = 32;
+    }
+    for (i = 0; i < D_80141750; i++) {
+        D_80141350[i].fE = 0;
+        D_80141350[i].x8 = D_80141350[i].x = src[i].x;
+        D_80141350[i].yA = D_80141350[i].y = src[i].y;
+        D_80141350[i].zC = D_80141350[i].z = src[i].z;
+        D_80141350[i].floor = Floor_GetHeight_8013E1E0(src[i].x, src[i].y + 0x200, src[i].z);
+        if (D_80141350[i].floor < src[i].y) {
+            D_80141350[i].floor = Floor_GetHeight_8013E1E0(src[i].x, src[i].y + 0x1000, src[i].z);
+        }
+        D_80141350[i].f18 = 1;
+        D_80141350[i].f1A = src[i].fA;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013D15C);
 

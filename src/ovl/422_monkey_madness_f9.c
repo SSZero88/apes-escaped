@@ -301,7 +301,62 @@ INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F0A4);
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F198);
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F598);
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013F598 asm("g_Spike");
+extern struct { u8 pad0[0xF]; u8 f_F; u8 pad10[0x16]; u16 f_26; s16 f_28; s16 f_2A; s16 f_2C; } D_80144BE8_8013F598 asm("D_80144BE8");
+extern s32 D_8014420C;
+extern struct { u8 pad_0[0x24]; u16 x; u8 pad_26[6]; u16 z; } g_Spike_8013F598h asm("g_Spike");
+extern u8 D_800B4D88[];
+s32 VectorNormalSS_8013F598(void *, void *) asm("VectorNormalSS");
+void Effect_SpawnAt(s32, void *);
+
+void func_8013F598(u8 *obj) {
+    SVECTOR v;
+    SVECTOR s;
+    s32 vx, vz;
+    s32 f;
+    s32 t;
+
+    if (D_80144BE8_8013F598.f_26 != 0) {
+        vx = D_80144BE8_8013F598.f_28;
+        vz = D_80144BE8_8013F598.f_2C;
+        D_80144BE8_8013F598.f_26--;
+        g_Spike_8013F598.x += vx;
+        g_Spike_8013F598.z += vz;
+        D_80144BE8_8013F598.f_28 = vx * 7 / 8;
+        D_80144BE8_8013F598.f_2C = vz * 7 / 8;
+        if (g_Spike_8013F598.z < 0x73A) {
+            g_Spike_8013F598.z = 0x73A;
+        }
+    }
+    v.vx = g_Spike_8013F598h.x - M2C_FIELD(obj, u16 *, 0x24);
+    v.vy = 0;
+    v.vz = g_Spike_8013F598h.z - M2C_FIELD(obj, u16 *, 0x2C);
+    if (D_80144BE8_8013F598.f_26 != 0) {
+        return;
+    }
+    if (VectorNormalSS_8013F598(&v, &v) > 0x70E3F) {
+        return;
+    }
+    f = D_80144BE8_8013F598.f_F;
+    if (f == 1) {
+        t = 4;
+    } else {
+        t = 0x14;
+    }
+    D_80144BE8_8013F598.f_26 = t;
+    D_80144BE8_8013F598.f_2A = 0;
+    D_80144BE8_8013F598.f_28 = v.vx / 20;
+    D_80144BE8_8013F598.f_2C = v.vz / 20;
+    if (f == 0) {
+        s.vx = 0;
+        s.vy = -0x3000;
+        s.vz = 0x10B8;
+        func_80070284(&s.vx, &D_8014420C, 1, 0, 0);
+        Effect_SpawnAt(0x112, D_800B4D88);
+        Sound_PlayFixed(0x82);
+        Sound_PlayFixed(0x4B);
+    }
+}
 
 void func_8013F75C(void *arg0, s32 anim) {
     if (M2C_FIELD(arg0, u16 *, 0x90) != anim) {

@@ -357,7 +357,46 @@ void func_8013F520(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013F694);
+extern struct { u8 pad_0[0x24]; u16 x; u8 pad_26[2]; u16 y; u8 pad_2A[2]; u16 z; } g_Spike_8013F694 asm("g_Spike");
+extern struct { u8 pad0[0x1A]; s16 f_1A; s16 f_1C; s16 f_1E; s16 f_20; } D_801408C0_8013F694 asm("D_801408C0");
+extern s32 D_801403F4;
+void VectorNormalSS(void *, void *);
+void Effect_SpawnAt(s32, SVECTOR *);
+void func_80070284(void *, s32 *, s32, s32, s32);
+void Camera_StartShake(s32);
+void func_8013D000(void);
+
+void func_8013F694(u8 *obj, s32 div) {
+    SVECTOR v;
+    s32 a, b, c;
+
+    if (D_801408C0_8013F694.f_1A != 0) {
+        return;
+    }
+    v.vx = g_Spike_8013F694.x - M2C_FIELD(obj, u16 *, 0x24);
+    v.vy = 0;
+    v.vz = g_Spike_8013F694.z - M2C_FIELD(obj, u16 *, 0x2C);
+    VectorNormalSS(&v, &v);
+    a = v.vx / div;
+    b = v.vy / div;
+    c = v.vz / div;
+    D_801408C0_8013F694.f_1A = 0x14;
+    v.vx = g_Spike_8013F694.x;
+    v.vy = g_Spike_8013F694.y - 0x80;
+    v.vz = g_Spike_8013F694.z;
+    D_801408C0_8013F694.f_1C = a;
+    D_801408C0_8013F694.f_1E = b;
+    D_801408C0_8013F694.f_20 = c;
+    Effect_SpawnAt(0x112, &v);
+    v.vx = M2C_FIELD(obj, u16 *, 0x24);
+    v.vy = g_Spike_8013F694.y;
+    v.vz = M2C_FIELD(obj, u16 *, 0x2C);
+    func_80070284(&v, &D_801403F4, 1, 0, 0);
+    Camera_StartShake(0);
+    Sound_PlayFixed(0x82);
+    Sound_PlayFixed(0x4B);
+    func_8013D000();
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013F848);
 
@@ -372,7 +411,6 @@ typedef struct { u8 pad0[0x24]; u16 f_24; u8 pad26[6]; u16 f_2C; u8 pad2E[0x2E];
 extern Obj_8013FC8C D_801407F0[];
 extern u8 D_80140458[];
 s32 func_8013D43C(u8 *a, void *scale, s32 c);
-void func_8013F694(void *, s32);
 void func_8013F520(void);
 void func_8013E650(void);
 

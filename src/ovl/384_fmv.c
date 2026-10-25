@@ -719,7 +719,41 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138E1C);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138ED8);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138F90);
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_80138F90;
+extern Mat_80138F90 D_800E78C0_80138F90 asm("D_800E78C0");
+extern struct { void (*f_0)(u8 *, s16 *); s16 *f_4; } D_8013C550_80138F90 asm("D_8013C550");
+extern struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } D_8013C558_80138F90 asm("D_8013C558");
+extern s32 D_800E7D00_80138F90 asm("D_800E7D00");
+extern struct { u8 pad0[0x20]; u8 r, g, b; } D_800EBFA0_80138F90 asm("D_800EBFA0");
+extern struct { u8 pad0[0xC]; s32 cur; } g_Game_80138F90 asm("g_Game");
+s32 func_801398D0(s16 i);
+u8 func_80139DE4(s32 i);
+void Model_ProjectVertsAlt(void *, void *, void *);
+
+void func_80138F90(u8 *arg0, s16 *arg1) {
+    Mat_80138F90 m;
+    s32 model;
+
+    model = func_801398D0(arg0[3]);
+    D_8013C550_80138F90.f_0 = func_80138F90;
+    D_8013C550_80138F90.f_4 = arg1;
+    func_80139668(&m, arg1, 0);
+    CompMatrix(&D_800E78C0_80138F90, &m, &m);
+    Model_ProjectVertsAlt((void *)model, &m, &D_800E7D00_80138F90);
+    D_8013C558_80138F90.f_0 = 0;
+    D_8013C558_80138F90.f_2 = 0;
+    D_8013C558_80138F90.f_4 = 0;
+    D_8013C558_80138F90.f_6 = 0;
+    if (func_80139DE4(arg0[3]) & 1) {
+        SetBackColor(0xFF, 0xFF, 0xFF);
+        func_8013B9B0((u8 *)(g_Game_80138F90.cur * 0x4078 + (u8 *)&g_Game_80138F90 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
+                      &D_800E7D00_80138F90, model, (M2C_UNK *)&D_8013C558_80138F90);
+        SetBackColor(D_800EBFA0_80138F90.r, D_800EBFA0_80138F90.g, D_800EBFA0_80138F90.b);
+    } else {
+        func_8013B9B0((u8 *)(g_Game_80138F90.cur * 0x4078 + (u8 *)&g_Game_80138F90 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
+                      &D_800E7D00_80138F90, model, (M2C_UNK *)&D_8013C558_80138F90);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139124);
 
