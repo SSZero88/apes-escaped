@@ -3,7 +3,75 @@
 
 extern M2C_UNK D_80138338;
 
-INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_80136000);
+typedef struct { s16 x, y, w, h; } Rect_80136000;
+extern Rect_80136000 D_80137830;
+extern u8 D_80137840[];
+extern u8 D_80137860[];
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; u16 f_8120; u8 pad8122[0x38]; s16 f_815A; u8 pad815C[0x15E]; u16 f_82BA; } g_Game_80136000 asm("g_Game");
+void func_80011194(void *);
+s32 func_800116C0();
+void Cd_Update(void);
+s32 Gfx_InitDisplay(void);
+s32 ResetGraph(s32 mode);
+void DrawSync(s32);
+s32 VSync(s32 mode);
+void Sound_ResumeStreams(void);
+void Sound_UnloadBanks(s32);
+void func_8001325C(s32);
+void Gfx_BeginFrame(void);
+void func_8008C390(void);
+void func_80136590(void);
+void func_80136E58(void);
+s32 func_80136730();
+void *PutDrawEnv(void *env);
+void *PutDispEnv(void *env);
+void DrawOTag(u32 *p);
+
+s32 func_80136000(void) {
+    Rect_80136000 r;
+
+    r = D_80137830;
+    Gfx_InitDisplay();
+    ResetGraph(1);
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    if (g_Game_80136000.f_8120 == 0x1D) {
+        func_80011194(D_80137840);
+    } else {
+        func_80011194(D_80137860);
+    }
+    while (func_800116C0() == 0) {
+        Cd_Update();
+        VSync(2);
+    }
+    Sound_ResumeStreams();
+    g_Game_80136000.db[1].env[0x18] = 1;
+    g_Game_80136000.db[0].env[0x18] = 1;
+    { u8 *e = g_Game_80136000.db[0].env; e[0x19] = 0; e[0x1A] = 0; e[0x1B] = 0; }
+    { u8 *e = g_Game_80136000.db[1].env; e[0x19] = 0; e[0x1A] = 0; e[0x1B] = 0; }
+    g_Game_80136000.cur = 0;
+    g_Game_80136000.f_82BA |= 2;
+    func_80136590();
+    func_80136E58();
+    func_80137374();
+    while (func_8001325C(0), Gfx_BeginFrame(), func_8008C390(), func_80136730() == 0) {
+        DrawSync(0);
+        VSync(2);
+        g_Game_80136000.frame++;
+        PutDispEnv(&g_Game_80136000.db[g_Game_80136000.cur].env[0x5C]);
+        PutDrawEnv(g_Game_80136000.db[g_Game_80136000.cur].env);
+        DrawOTag(&g_Game_80136000.db[g_Game_80136000.cur].ot[0xFFF]);
+    }
+    Sound_UnloadBanks(1);
+    if (g_Game_80136000.f_8120 == 0x1D) {
+        g_Game_80136000.f_8120 = 0x1A;
+        g_Game_80136000.f_815A = 5;
+    } else {
+        g_Game_80136000.f_8120 = 0x1A;
+        g_Game_80136000.f_815A = 6;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_8013626C);
 

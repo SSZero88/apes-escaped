@@ -10,7 +10,56 @@ s32 func_8013D000(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/425/nonmatchings/425_races", func_8013D010);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x4A]; u8 f_7A; u8 pad7B[0x1D5]; } Monkey_8013D010;
+extern Monkey_8013D010 g_Monkeys_8013D010[] asm("g_Monkeys");
+extern struct { u8 pad_0[0x8126]; u16 f_8126; u8 pad_8128[2]; u16 f_812A; } g_Game_8013D010 asm("g_Game");
+extern s32 D_800EC204;
+extern s32 D_800EC20C;
+s32 func_8013D290(s32 type, s32 idx);
+void Game_SetMode(s32, s32, s32);
+
+s32 func_8013D010(s16 *p) {
+    s32 i;
+    Monkey_8013D010 *m;
+
+    switch (p[1]) {
+    case 0:
+        if (ABS(D_800EC20C - p[6]) < p[8] && ABS(D_800EC204 - p[4]) < p[7]) {
+            p[1] = 1;
+            g_Game_8013D010.f_812A = 2;
+            Game_SetMode(0x12, g_Game_8013D010.f_8126, 2);
+            func_8013D290(0xF, -1);
+            break;
+        }
+        i = 0;
+        m = g_Monkeys_8013D010;
+    loop:
+        if (m->f_7A == 4 && ABS(m->z - p[6]) < p[8] && ABS(m->x - p[4]) < p[7]) {
+            p[1] = 2;
+            p[10] = i;
+            func_8013D290(0xE, (s16)i);
+            break;
+        }
+        m++;
+        i++;
+        if (i < 8) {
+            goto loop;
+        }
+        break;
+    case 1:
+        func_8013D290(0xF, -1);
+        break;
+    case 2:
+        if (ABS(D_800EC20C - p[6]) < p[8] && ABS(D_800EC204 - p[4]) < p[7]) {
+            p[1] = 3;
+            Game_SetMode(0x1A, g_Game_8013D010.f_8126, g_Game_8013D010.f_812A);
+        }
+    case 3:
+        func_8013D290(0xE, p[10]);
+        break;
+    }
+    return 0;
+}
 
 typedef struct { s32 x, y, z; u8 padC[0xC]; SVECTOR rot; s16 f_20; s16 pad22; s16 f_24; s16 f_26; } Shape_8013D290;
 typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x4A]; u8 f_7A; u8 pad7B[0x1D5]; } Monkey_8013D290;

@@ -5,7 +5,71 @@ INCLUDE_ASM("asm/ovl/431/nonmatchings/431", func_80136000);
 
 INCLUDE_ASM("asm/ovl/431/nonmatchings/431", func_801362B8);
 
-INCLUDE_ASM("asm/ovl/431/nonmatchings/431", func_8013668C);
+typedef struct { s16 x, y, w, h; } Rect_8013668C;
+extern Rect_8013668C D_80136CE0;
+extern u8 D_80136D08[];
+extern s16 D_80136CF2;
+extern s16 D_80136CF4;
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; s16 f_8120; u8 pad8122[0x198]; u16 f_82BA; } g_Game_8013668C asm("g_Game");
+extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_8013668C asm("g_Pad");
+void func_80011194(void *);
+s32 func_800116C0();
+void Cd_Update(void);
+s32 Gfx_InitDisplay(void);
+s32 ResetGraph(s32 mode);
+void ClearImage();
+void DrawSync(s32);
+s32 VSync(s32 mode);
+void func_8001325C(s32);
+void Gfx_BeginFrame(void);
+s32 func_80136A24(void);
+void func_8013690C();
+M2C_UNK Sound_PlayFixed(M2C_UNK);
+void *PutDrawEnv(void *env);
+void *PutDispEnv(void *env);
+void DrawOTag(u32 *p);
+
+s32 func_8013668C(void) {
+    Rect_8013668C r;
+
+    r = D_80136CE0;
+    func_80011194(D_80136D08);
+    while (func_800116C0() >= 0) {
+        Cd_Update();
+        VSync(2);
+    }
+    DrawSync(0);
+    Gfx_InitDisplay();
+    ResetGraph(1);
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    g_Game_8013668C.db[1].env[0x18] = 1;
+    g_Game_8013668C.db[0].env[0x18] = 1;
+    { u8 *e = g_Game_8013668C.db[0].env; e[0x19] = 0; e[0x1A] = 0; e[0x1B] = 0; }
+    { u8 *e = g_Game_8013668C.db[1].env; e[0x19] = 0; e[0x1A] = 0; e[0x1B] = 0; }
+    g_Game_8013668C.cur = 0;
+    D_80136CF2 = 0;
+    g_Game_8013668C.f_82BA |= 2;
+    D_80136CF4 = 0x1E;
+    while (func_8001325C(0), Gfx_BeginFrame(), func_80136A24() >= 0) {
+        if (D_80136CF2 == 1 && (g_Pad_8013668C.f_160 & g_Pad_8013668C.f_158 & 0x860)) {
+            Sound_PlayFixed(2);
+            D_80136CF2 = 2;
+            D_80136CF4 = 0;
+        }
+        func_8013690C();
+        DrawSync(0);
+        VSync(2);
+        g_Game_8013668C.frame++;
+        PutDispEnv(&g_Game_8013668C.db[g_Game_8013668C.cur].env[0x5C]);
+        PutDrawEnv(g_Game_8013668C.db[g_Game_8013668C.cur].env);
+        DrawOTag(&g_Game_8013668C.db[g_Game_8013668C.cur].ot[0xFFF]);
+    }
+    g_Game_8013668C.f_8120 = 3;
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/431/nonmatchings/431", func_8013690C);
 

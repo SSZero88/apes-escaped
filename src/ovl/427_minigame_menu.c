@@ -786,9 +786,134 @@ void func_8013BC28(Mdl_8013BC28 *m) {
     Model_ProjectBonedVerts(m);
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013BE5C);
+typedef struct { s16 next; s16 last; } Anim_8013BE5C;
+typedef struct { u8 pad0[0x14]; void *f_14; u8 pad18[0xC]; s32 x; s32 y; s32 z; s32 vx; s32 vy; u8 pad38[0xC]; s16 f_44; s16 f_46; s16 f_48; u8 pad4A[4]; u16 f_4E; u8 pad50[0xC]; u16 f_5C; u16 f_5E; SVECTOR f_60; SVECTOR f_68; Anim_8013BE5C *f_70; } Mdl_8013BE5C;
+extern u16 g_RandSeed_8013BE5C asm("g_RandSeed");
+void func_801394C8();
+extern s32 *D_8013FBD8_8013BE5C[] asm("D_8013FBD8");
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013C0E4);
+void func_8013BE5C(Mdl_8013BE5C *m) {
+    SVECTOR d;
+    s32 sc[3];
+    u32 s;
+    s32 *t;
+    s32 *g;
+    s32 v;
+    s32 vy;
+    u16 n;
+
+    n = ++m->f_5C;
+    if (m->f_70[m->f_5E].last < n) {
+        m->f_5C = m->f_70[m->f_5E].next;
+    }
+    m->f_60.vy = 0x1000;
+    m->f_68.vz = -0x1000;
+    M2C_FIELD(m, s16 *, 0x60) = 0;
+    M2C_FIELD(m, s16 *, 0x64) = 0;
+    M2C_FIELD(m, s16 *, 0x68) = 0;
+    M2C_FIELD(m, s16 *, 0x6A) = 0;
+    if (D_8013F402 != 1) {
+        if ((u16)(g_RandSeed_8013BE5C = g_RandSeed_8013BE5C * 5 + 1) >> 8 < 8) {
+            g = D_8013FBD8_8013BE5C[m->f_4E];
+            d.vx = g[0] - m->x;
+            d.vy = g[1] - m->y;
+            d.vz = 0;
+            VectorNormalSS(&d, &d);
+            func_801394C8(&m->x, &d, 1);
+        }
+        if (func_80138958(m->x + m->vx, m->y + m->vy)) {
+            t = D_8013FBD8_8013BE5C[m->f_4E];
+            m->x += m->vx;
+            m->y += m->vy;
+            v = m->vx;
+            m->vx = (m->x < t[0]) ? v + 1 : v - 1;
+            vy = m->vy;
+            m->vy = (m->y < t[1]) ? vy + 1 : vy - 1;
+            m->vx = (m->vx < -0x10) ? -0x10 : (m->vx > 0x10) ? 0x10 : m->vx;
+            m->vy = (m->vy < -0x10) ? -0x10 : (m->vy > 0x10) ? 0x10 : m->vy;
+        } else {
+            m->vx = 0;
+            m->vy = 0;
+        }
+    }
+    m->z = 0xA40;
+    Matrix_LookAt(&m->f_60, &m->f_68, m->f_14, 0);
+    s = 0x1000;
+    if (D_8013F402 != 1) {
+        s = 0x2000;
+    }
+    sc[0] = s;
+    sc[1] = s;
+    sc[2] = s;
+    ScaleMatrixL(m->f_14, sc);
+    m->f_44 = (s * 3) >> 7;
+    func_80015780(m, 1);
+    Model_ProjectBonedVerts(m);
+}
+
+typedef struct { s16 next; s16 last; } Anim_8013C0E4;
+typedef struct { u8 pad0[0x14]; void *f_14; u8 pad18[0xC]; s32 x; s32 y; s32 z; s32 vx; s32 vy; u8 pad38[0xC]; s16 f_44; s16 f_46; s16 f_48; u8 pad4A[4]; u16 f_4E; u8 pad50[0xC]; u16 f_5C; u16 f_5E; SVECTOR f_60; SVECTOR f_68; Anim_8013C0E4 *f_70; } Mdl_8013C0E4;
+extern u16 g_RandSeed_8013C0E4 asm("g_RandSeed");
+extern s32 *D_8013FBD8_8013C0E4[] asm("D_8013FBD8");
+
+void func_8013C0E4(Mdl_8013C0E4 *m) {
+    SVECTOR d;
+    s32 sc[3];
+    u32 s;
+    s32 *t;
+    s32 *g;
+    s32 v;
+    s32 vy;
+    u16 n;
+
+    n = ++m->f_5C;
+    if (m->f_70[m->f_5E].last < n) {
+        m->f_5C = m->f_70[m->f_5E].next;
+    }
+    m->f_60.vy = 0x1000;
+    m->f_68.vz = 0x1000;
+    M2C_FIELD(m, s16 *, 0x60) = 0;
+    M2C_FIELD(m, s16 *, 0x64) = 0;
+    M2C_FIELD(m, s16 *, 0x68) = 0;
+    M2C_FIELD(m, s16 *, 0x6A) = 0;
+    if (D_8013F402 != 1) {
+        if ((u16)(g_RandSeed_8013C0E4 = g_RandSeed_8013C0E4 * 5 + 1) >> 8 < 8) {
+            g = D_8013FBD8_8013C0E4[m->f_4E];
+            d.vx = g[0] - m->x;
+            d.vy = g[1] - m->y;
+            d.vz = 0;
+            VectorNormalSS(&d, &d);
+            func_801394C8(&m->x, &d, 1);
+        }
+        if (func_80138958(m->x + m->vx, m->y + m->vy)) {
+            t = D_8013FBD8_8013C0E4[m->f_4E];
+            m->x += m->vx;
+            m->y += m->vy;
+            v = m->vx;
+            m->vx = (m->x < t[0]) ? v + 1 : v - 1;
+            vy = m->vy;
+            m->vy = (m->y < t[1]) ? vy + 1 : vy - 1;
+            m->vx = (m->vx < -0x10) ? -0x10 : (m->vx > 0x10) ? 0x10 : m->vx;
+            m->vy = (m->vy < -0x10) ? -0x10 : (m->vy > 0x10) ? 0x10 : m->vy;
+        } else {
+            m->vx = 0;
+            m->vy = 0;
+        }
+    }
+    m->z = 0xA40;
+    Matrix_LookAt(&m->f_60, &m->f_68, m->f_14, 0);
+    s = 0x1800;
+    if (D_8013F402 != 1) {
+        s = 0x3000;
+    }
+    sc[0] = s;
+    sc[1] = s;
+    sc[2] = s;
+    ScaleMatrixL(m->f_14, sc);
+    m->f_44 = (s * 3) >> 7;
+    func_80015780(m, 1);
+    Model_ProjectBonedVerts(m);
+}
 
 typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; u8 pad30[0x30]; s16 f_60; s16 f_62; } Mdl_8013C368;
 typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_8013C368;
@@ -1019,7 +1144,68 @@ void func_8013D8B8(void) {
     D_8013FE60.f_1F8 = 0x300;
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013D910);
+typedef struct { u8 pad0[0x24]; s32 f_24; u8 pad28[0x28]; s32 f_50; u8 pad54[0x20]; } Mdl_8013D910;
+extern Mdl_8013D910 D_8013FE60_8013D910[] asm("D_8013FE60");
+extern struct { u32 f_0; s32 f_4; s32 f_8; } g_Game_8013D910 asm("g_Game");
+void func_8013BC28();
+void func_8013BE5C();
+void func_8013C0E4();
+void func_8013C368();
+void func_8013C5F0();
+void func_80017EFC(s32, s32, void *, s32);
+
+void func_8013D910(void) {
+    s32 i;
+    Mdl_8013D910 *m;
+    s32 v;
+    s32 w;
+
+    for (i = 0; i < 5; i++) {
+        m = &D_8013FE60_8013D910[i];
+        v = m->f_24 -= 0x20;
+        if (g_Game_8013D910.f_0 < 0x980) {
+            w = (v < -0x300) ? -0x300 : (v > 0x1000) ? 0x1000 : v;
+        } else {
+            w = (v < -0x1000) ? -0x1000 : (v > 0x1000) ? 0x1000 : v;
+        }
+        m->f_24 = w;
+        switch (i) {
+        case 0:
+            func_8013BC28((u8 *)m);
+            func_80138350(0);
+            func_80138368((m->f_24 >> 3) + 0xF0, 0x34, (M2C_UNK *)"... 200 POINTS", 0x808080);
+            break;
+        case 1:
+            func_8013BE5C((u8 *)m);
+            func_80138350(1);
+            func_80138368((m->f_24 >> 3) + 0xF0, 0x56, (M2C_UNK *)"... 400 POINTS", 0x808080);
+            break;
+        case 2:
+            func_8013C0E4((u8 *)m);
+            func_80138350(0);
+            func_80138368((m->f_24 >> 3) + 0xF0, 0x78, (M2C_UNK *)"... 800 POINTS", 0x808080);
+            break;
+        case 3:
+            func_8013C368((u8 *)m);
+            func_80138350(1);
+            func_80138368((m->f_24 >> 3) + 0xF0, 0x9A, (M2C_UNK *)"... ??? POINTS", 0x808080);
+            break;
+        case 4:
+            func_8013C5F0((u8 *)m);
+            func_80138350(0);
+            func_80138368((m->f_24 >> 3) + 0xF0, 0xBC, (M2C_UNK *)"... 100 POINTS", 0x808080);
+            break;
+        }
+        switch (m->f_50) {
+        case 0:
+            func_80017CD4(g_Game_8013D910.f_8, (s32)&D_800E7D00, m);
+            break;
+        case 1:
+            func_80017EFC(g_Game_8013D910.f_8, (s32)&D_800E7D00, m, 6);
+            break;
+        }
+    }
+}
 
 void func_8013DAF0(s32 arg0, s32 arg1) {
     func_80138350(2);
