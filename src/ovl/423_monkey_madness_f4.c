@@ -308,7 +308,41 @@ void func_8013E948(void *arg0)
   *((s32 *) (((s8 *) arg0) + 0x28)) = (s32) ((*((s16 *) (((s8 *) arg0) + 0x9C))) - ((((s32) (rsin(*((s16 *) (((s8 *) arg0) + 0xAA))) << 7)) >> 0xC) + new_var));
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E994);
+typedef struct { s16 x, y, z; u8 pad6[6]; } Pt_8013E994;
+extern Pt_8013E994 D_8013FC50_8013E994[2] asm("D_8013FC50");
+void func_8013DC60(s32 a, SVECTOR *v, s32 b, s32 c);
+
+void func_8013E994(u8 *e) {
+    SVECTOR v;
+    s32 dx;
+    s32 dz;
+    Pt_8013E994 *p;
+
+    if (M2C_FIELD(e, u16 *, 0x5C) != *(u16 *)(M2C_FIELD(e, u8 **, 0x88) + M2C_FIELD(e, u8 *, 0x7F) * 4) + 0xD) {
+        return;
+    }
+    if ((M2C_FIELD(e, u32 *, 0xE0) >> 2) & 1) {
+        return;
+    }
+    dx = (M2C_FIELD(e, s16 *, 0x64) * 55) >> 11;
+    M2C_FIELD(e, s16 *, 0xBC) = D_8013FC50_8013E994[0].x + dx;
+    M2C_FIELD(e, s16 *, 0xBE) = D_8013FC50_8013E994[0].y;
+    dz = -((M2C_FIELD(e, s16 *, 0x60) * 55) >> 11);
+    M2C_FIELD(e, s16 *, 0xC0) = D_8013FC50_8013E994[0].z + dz;
+    p = &D_8013FC50_8013E994[1];
+    M2C_FIELD(e, s16 *, 0xC2) = p->x - dx;
+    M2C_FIELD(e, s16 *, 0xC4) = p->y;
+    M2C_FIELD(e, s16 *, 0xC6) = p->z - dz;
+    v.vx = M2C_FIELD(e, s16 *, 0x60);
+    v.vy = 0x578;
+    v.vz = M2C_FIELD(e, s16 *, 0x64);
+    VectorNormalSS(&v, &v);
+    v.vx /= 16;
+    v.vy /= 16;
+    v.vz /= 16;
+    func_8013DC60((s32)(e + 0xBC), &v, (s32)e, 0x8F);
+    func_8013DC60((s32)(e + 0xC2), &v, (s32)e, 0x8F);
+}
 
 void func_8013EB00(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x80) = 4;

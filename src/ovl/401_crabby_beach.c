@@ -87,7 +87,38 @@ void func_8013D1BC(u8 *a) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013D2E0);
+extern u16 g_RandSeed;
+s16 func_80055DC0_8013D2E0(void *, s16, s16) asm("func_80055DC0");
+void Object_StepOnGroundFixed(void *);
+
+void func_8013D2E0(void *arg0) {
+    if (func_80055DC0_8013D2E0(arg0, M2C_FIELD(arg0, s16 *, 0xA8), 0x400)) {
+        M2C_FIELD(arg0, u8 *, 0x80) = 2;
+    }
+    if (!(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x1F)) {
+        M2C_FIELD(arg0, s16 *, 0x94) = M2C_FIELD(arg0, s16 *, 0x94) * -1;
+        M2C_FIELD(arg0, s16 *, 0x98) = M2C_FIELD(arg0, s16 *, 0x98) * -1;
+    }
+    if (!(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x1F)) {
+        M2C_FIELD(arg0, s16 *, 0x98) = 0;
+        M2C_FIELD(arg0, s16 *, 0x96) = 0;
+        M2C_FIELD(arg0, s16 *, 0x94) = 0;
+    }
+    if (!(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x1F)) {
+        if (M2C_FIELD(arg0, s16 *, 0xA8) == 20) {
+            M2C_FIELD(arg0, s16 *, 0xA8) = 35;
+            M2C_FIELD(arg0, u16 *, 0x94) *= 2;
+            M2C_FIELD(arg0, u16 *, 0x98) *= 2;
+        } else {
+            M2C_FIELD(arg0, s16 *, 0xA8) = 20;
+            if (M2C_FIELD(arg0, s16 *, 0x94) * M2C_FIELD(arg0, s16 *, 0x94) + M2C_FIELD(arg0, s16 *, 0x98) * M2C_FIELD(arg0, s16 *, 0x98) >= 26) {
+                M2C_FIELD(arg0, s16 *, 0x94) >>= 1;
+                M2C_FIELD(arg0, s16 *, 0x98) >>= 1;
+            }
+        }
+    }
+    Object_StepOnGroundFixed(arg0);
+}
 
 s32 Object_SpikeWithin(void *, s32);
 
@@ -108,7 +139,37 @@ void func_8013D444(void *arg0)
   }
 }
 
-INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013D4AC);
+s32 Object_WouldLeaveHome(void *, s16);
+s16 Object_FloorAt(void *, s32, s32, s32);
+
+void func_8013D4AC(void *arg0) {
+    SVECTOR v;
+    s16 sp;
+    s32 f;
+
+    f = M2C_FIELD(arg0, s16 *, 0xAE);
+    if (f != 0) {
+        if (f >= 11) {
+            sp = M2C_FIELD(arg0, s16 *, 0xA8) * 2;
+        } else {
+            sp = M2C_FIELD(arg0, s16 *, 0xA8) * f / 10 * 2;
+        }
+        if (M2C_FIELD(arg0, s16 *, 0xB2) > 0) {
+            v.vx = (M2C_FIELD(arg0, s16 *, 0x64) * sp) >> 12;
+            v.vz = -(M2C_FIELD(arg0, s16 *, 0x60) * sp) >> 12;
+        } else {
+            v.vx = -(M2C_FIELD(arg0, s16 *, 0x64) * sp) >> 12;
+            v.vz = (M2C_FIELD(arg0, s16 *, 0x60) * sp) >> 12;
+        }
+        if (Object_WouldLeaveHome(arg0, 0) == 0) {
+            M2C_FIELD(arg0, s32 *, 0x24) += v.vx;
+            M2C_FIELD(arg0, s32 *, 0x2C) += v.vz;
+            M2C_FIELD(arg0, s32 *, 0x28) = Object_FloorAt(arg0, 0, 0, 0);
+        }
+    } else {
+        M2C_FIELD(arg0, u8 *, 0x80) = 1;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013D5FC);
 

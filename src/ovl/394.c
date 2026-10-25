@@ -126,7 +126,54 @@ s32 func_80136780(void) {
 
 INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_801368CC);
 
-INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136AA0);
+typedef struct { u8 pad0[0x14]; s16 *f_14; u8 pad18[0xC]; s32 f_24, f_28, f_2C; u8 pad30[0x2C]; u16 f_5C; u16 f_5E; SVECTOR f_60; u8 pad68[8]; s16 f_70, f_72; s16 *f_74; } Obj_80136AA0;
+extern Obj_80136AA0 D_80136F88;
+extern struct { u8 pad0[0x54]; u32 f_54; u8 pad58[4]; u32 f_5C; } D_80137010_80136AA0 asm("D_80137010");
+extern s32 D_80137060;
+extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_80136AA0 asm("g_Game");
+extern u8 D_800E7D00_80136AA0[] asm("D_800E7D00");
+void VectorNormalSS(void *, void *);
+void func_80014804(s16 *, s16 *);
+s32 func_800463A4(s32, s32, s32);
+void func_80015780(void *, s32);
+void Model_ProjectBonedVerts(void *);
+void func_80017CD4_80136AA0(void *, void *, void *) asm("func_80017CD4");
+
+void func_80136AA0(void) {
+    SVECTOR v;
+    Obj_80136AA0 *o;
+    s32 stop;
+    u16 t;
+
+    stop = 0;
+    o = &D_80136F88;
+    if (D_80137010_80136AA0.f_5C >= D_80137010_80136AA0.f_54) {
+        o->f_5C++;
+        if (o->f_74[o->f_5E * 2 + 1] < o->f_5C) {
+            if (o->f_70 < 0) {
+                o->f_5C--;
+                stop = 1;
+            } else {
+                t = o->f_74[o->f_70 * 2];
+                o->f_5E = o->f_70;
+                o->f_5C = t;
+            }
+        }
+        VectorNormalSS(&o->f_60, &v);
+        func_80014804((s16 *)&v, o->f_14);
+        if (stop) {
+            o->f_24 = func_800463A4(o->f_24, 0x13C, 0x10);
+            o->f_2C = -300;
+        } else {
+            o->f_24 = 0x40;
+            o->f_2C = -300;
+            o->f_28 = (o->f_28 + D_80137060 + 0x30) >> 1;
+        }
+        func_80015780(o, 1);
+        Model_ProjectBonedVerts(o);
+        func_80017CD4_80136AA0(g_Game_80136AA0.f_80 + g_Game_80136AA0.f_C * 0x4078, D_800E7D00_80136AA0, o);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136C04);
 
@@ -134,4 +181,53 @@ void func_80136C6C(void) {
     Cd_PlayXaTrack(D_8013705C);
 }
 
-INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136C94);
+typedef struct { s16 f0; u16 f2; s16 f4; s16 f6; u16 f8; s16 fA; } Ent_80136C94;
+extern struct { u32 f0; } g_Game_80136C94 asm("g_Game");
+extern Ent_80136C94 D_80136E4C_80136C94[] asm("D_80136E4C");
+extern struct { u8 pad0[0x48]; s32 f48, f4C, f50, f54; } D_80137010_80136C94 asm("D_80137010");
+extern u16 D_80136E3C_80136C94 asm("D_80136E3C");
+s32 SaveByte_Get(s32);
+s32 func_80096580(s32);
+
+void func_80136C94(void) {
+    u32 i;
+
+    i = g_Game_80136C94.f0 % 14;
+    switch (i) {
+    case 0:
+    case 1:
+    case 2:
+        if (func_80096580(0x11) > 0 && SaveByte_Get(4) != 5) {
+            i += 6;
+        }
+        break;
+    case 3:
+    case 4:
+    case 5:
+        if (func_80096580(0x11) > 0 && SaveByte_Get(5) != 5) {
+            i += 3;
+        }
+        break;
+    case 9:
+    case 10:
+        if (SaveByte_Get(8) == 5) {
+            i -= 2;
+        }
+        break;
+    case 11:
+    case 12:
+    case 13:
+        if (SaveByte_Get(0xC) == 5) {
+            i -= 5;
+        }
+        break;
+    }
+    D_80137010_80136C94.f48 = i;
+    D_80137010_80136C94.f4C = D_80136E4C_80136C94[i].f2;
+    D_80137010_80136C94.f50 = D_80136E4C_80136C94[i].f6;
+    D_80137010_80136C94.f54 = D_80136E4C_80136C94[i].f4;
+    D_80136E3C_80136C94 = D_80136E4C_80136C94[i].f8;
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop\n\tnop");

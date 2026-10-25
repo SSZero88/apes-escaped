@@ -23,7 +23,42 @@ s32 rcos(s16);
 s32 rsin(s16);
 extern M2C_UNK D_80141B38;
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D000);
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_8013D000;
+typedef struct { SVECTOR at; SVECTOR eye; SVECTOR spike; } Scr_8013D000;
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; } g_Spike_8013D000 asm("g_Spike");
+void func_80047464(void *, s32, s32, s32);
+void func_80047558(void *, s32, s32, s32);
+void func_8004B8F4(void *, s32, void *);
+void VectorNormalSS(void *, void *);
+void func_8004637C(void *);
+void *RotMatrixY(s32 r, void *m);
+void *ApplyMatrixSV(void *m, void *v0, void *v1);
+
+void func_8013D000(void *arg0) {
+    SVECTOR v;
+    SVECTOR d;
+    Mat_8013D000 m;
+
+    ((Scr_8013D000 *)0x1F800000)->spike.vx = g_Spike_8013D000.x;
+    ((Scr_8013D000 *)0x1F800000)->spike.vy = g_Spike_8013D000.y;
+    ((Scr_8013D000 *)0x1F800000)->spike.vz = g_Spike_8013D000.z;
+    func_8004B8F4(arg0, 2, &v);
+    ((Scr_8013D000 *)0x1F800000)->eye.vx = ((Scr_8013D000 *)0x1F800000)->spike.vx;
+    ((Scr_8013D000 *)0x1F800000)->eye.vy = ((Scr_8013D000 *)0x1F800000)->spike.vy - 0x190;
+    ((Scr_8013D000 *)0x1F800000)->eye.vz = ((Scr_8013D000 *)0x1F800000)->spike.vz;
+    func_80047558(arg0, 0x10, 8, 0x10);
+    d.vx = v.vx - ((Scr_8013D000 *)0x1F800000)->spike.vx;
+    d.vy = 0;
+    d.vz = v.vz - ((Scr_8013D000 *)0x1F800000)->spike.vz;
+    VectorNormalSS(&d, &d);
+    func_8004637C(&m);
+    RotMatrixY(0x111, &m);
+    ApplyMatrixSV(&m, &d, &d);
+    ((Scr_8013D000 *)0x1F800000)->at.vx = v.vx - ((d.vx * 925) >> 11);
+    ((Scr_8013D000 *)0x1F800000)->at.vz = v.vz - ((d.vz * 925) >> 11);
+    ((Scr_8013D000 *)0x1F800000)->at.vy = ((Scr_8013D000 *)0x1F800000)->spike.vy - 0x400;
+    func_80047464(arg0, 0x10, 0x10, 0x10);
+}
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D16C);
 
@@ -130,7 +165,44 @@ void func_8013D918(u8 *a) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013DA40);
+extern struct { s32 x; s32 y; s32 z; u8 pad_C[0x14]; s16 w; s16 h; s16 f24; s16 f26; } D_80140B80_8013DA40 asm("D_80140B80");
+extern struct { s16 x; s16 y; s16 z; } D_80140BB8_8013DA40 asm("D_80140BB8");
+void Object_PlaceAtPathPoint(void *, s32);
+void func_8005866C(void *, s32);
+void *func_80057140(void *, s16, s16);
+s32 Collision_Set(s32, void *, void *);
+s32 func_8007CD88_8013DA40(void *) asm("func_8007CD88");
+void *func_80056BC4(s16, s32, s16);
+
+void func_8013DA40(void *arg0) {
+    M2C_FIELD(arg0, s16 *, 0xA0) = 600;
+    M2C_FIELD(arg0, s16 *, 0x44) = 500;
+    M2C_FIELD(arg0, s16 *, 0x46) = 0x44C;
+    M2C_FIELD(arg0, s16 *, 0xB0) = 11;
+    M2C_FIELD(arg0, u8 *, 0x81) = 10;
+    M2C_FIELD(arg0, u32 *, 0xE0) = (M2C_FIELD(arg0, u32 *, 0xE0) & ~0x1000) | 0x200;
+    Object_PlaceAtPathPoint(arg0, 0);
+    func_8005866C(arg0, 1);
+    M2C_FIELD(arg0, u8 *, 0x80) = 1;
+    M2C_FIELD(arg0, u8 *, 0x7F) = 0;
+    M2C_FIELD(arg0, u16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+    M2C_FIELD(arg0, u32 *, 0xE0) |= 0x2000;
+    M2C_FIELD(arg0, void **, 0x74) = func_80057140(arg0, 3, 0x2A);
+    M2C_FIELD(arg0, void **, 0x78) = func_80057140(arg0, 3, 0x2D);
+    M2C_FIELD(arg0, u32 *, 0xE0) = (M2C_FIELD(arg0, u32 *, 0xE0) & 0xFF3FFFFF) | 0x400000;
+    M2C_FIELD(arg0, u16 *, 0xBE) = M2C_FIELD(arg0, u16 *, 0x28);
+    D_80140B80_8013DA40.w = 150;
+    D_80140B80_8013DA40.h = 300;
+    D_80140B80_8013DA40.f24 = 0;
+    D_80140B80_8013DA40.f26 = -0x7EFD;
+    D_80140B80_8013DA40.x = D_80140BB8_8013DA40.x = M2C_FIELD(arg0, u16 *, 0x24);
+    D_80140B80_8013DA40.y = D_80140BB8_8013DA40.y = M2C_FIELD(arg0, u16 *, 0x28) - 0x4B0;
+    D_80140B80_8013DA40.z = D_80140BB8_8013DA40.z = M2C_FIELD(arg0, u16 *, 0x2C);
+    Collision_Set(4, &D_80140B80_8013DA40, arg0);
+    func_8007CD88_8013DA40(&D_80140BB8_8013DA40);
+    func_80056BC4(0x1B, 0, M2C_FIELD(arg0, s8 *, 0xCB));
+    D_80140BC0 = 1;
+}
 
 void func_8013DBC4(void *arg0) {
     s32 d = M2C_FIELD(arg0, s32 *, 0x28) - M2C_FIELD(arg0, s16 *, 0xBE);
@@ -252,7 +324,49 @@ void func_8013E778(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013E7CC);
+s32 func_8013E70C(void *arg0);
+s32 func_8013E73C(void *arg0);
+void func_8013E778(void *arg0);
+void func_8013E4FC(void *);
+void func_8013E5E8(void *arg0);
+void Object_TurnTowardSpike_8013E7CC(void *) asm("Object_TurnTowardSpike");
+void Object_TurnToward_8013E7CC(void *, s16, s16, s32, s32) asm("Object_TurnToward");
+s32 func_800572CC_8013E7CC(void *) asm("func_800572CC");
+s32 Object_DetachLink_8013E7CC(void *, s32) asm("Object_DetachLink");
+
+void func_8013E7CC(void *arg0) {
+    if (func_8013E6DC(arg0)) {
+        if (func_8013E70C(arg0)) {
+            Object_TurnTowardSpike_8013E7CC(arg0);
+            M2C_FIELD(arg0, s16 *, 0xA8) = 1;
+        } else {
+            Object_TurnToward_8013E7CC(arg0, M2C_FIELD(arg0, u16 *, 0x9A) - M2C_FIELD(arg0, u16 *, 0x24),
+                                       M2C_FIELD(arg0, u16 *, 0x9E) - M2C_FIELD(arg0, u16 *, 0x2C), 0,
+                                       M2C_FIELD(arg0, s16 *, 0xB0));
+            M2C_FIELD(arg0, s16 *, 0xA8) = 0;
+            if (func_8013E73C(arg0)) {
+                M2C_FIELD(arg0, u8 *, 0x80) = 5;
+                M2C_FIELD(arg0, u8 *, 0x7F) = 4;
+                M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(arg0, u8 **, 0x88) + 0x10);
+            }
+        }
+        if (M2C_FIELD(arg0, u16 *, 0x5C) == *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88)) + 8) {
+            func_8013E4FC(arg0);
+        }
+    } else {
+        M2C_FIELD(arg0, u16 *, 0x96) += M2C_FIELD(arg0, u16 *, 0xA8);
+        func_8013E778(arg0);
+        if (M2C_FIELD(arg0, u8 *, 0xDD) == 0 && func_800572CC_8013E7CC(arg0)) {
+            M2C_FIELD(arg0, u8 *, 0xDD) = 1;
+        }
+    }
+    if (Object_DetachLink_8013E7CC(arg0, 0) == 6) {
+        M2C_FIELD(arg0, u8 *, 0x80) = 4;
+        func_8005588C(arg0, 0x1E);
+    } else {
+        func_8013E5E8(arg0);
+    }
+}
 
 void func_8013E92C(s32 arg0) {
     if (func_8013E6DC() != 0) {

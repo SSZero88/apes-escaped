@@ -119,7 +119,24 @@ void func_8013D43C(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D4D8);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D538);
+extern s32 D_800EC208;
+extern struct { u8 pad0[0x24]; s16 x; u8 pad26[6]; s16 z; } g_Spike_8013D538 asm("g_Spike");
+void Object_TurnToward(void *, s16, s16, s16, s16);
+
+void func_8013D538(u8 *arg0) {
+    s32 d = D_800EC208 - M2C_FIELD(arg0, s32 *, 0x28) - 0x32;
+
+    if (ABS(d) >= 13) {
+        if (d > 0) {
+            M2C_FIELD(arg0, s32 *, 0x28) += 12;
+        } else if (d < 0) {
+            M2C_FIELD(arg0, s32 *, 0x28) -= 12;
+        }
+    }
+    Object_TurnToward(arg0, g_Spike_8013D538.x - M2C_FIELD(arg0, u16 *, 0x24), g_Spike_8013D538.z - M2C_FIELD(arg0, u16 *, 0x2C), 0, M2C_FIELD(arg0, s16 *, 0xB0));
+    M2C_FIELD(arg0, s32 *, 0x24) += (M2C_FIELD(arg0, s16 *, 0x60) * 35) >> 12;
+    M2C_FIELD(arg0, s32 *, 0x2C) += (M2C_FIELD(arg0, s16 *, 0x64) * 35) >> 12;
+}
 
 void func_8013D62C(void *arg0) {
     s32 temp_s1;
@@ -129,7 +146,26 @@ void func_8013D62C(void *arg0) {
     Effect_Spawn(0xCB, temp_s1, &D_801409FC, 0);
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D684);
+void *func_80057140(void *, s16, s16);
+void func_80055F1C(void *, s32);
+
+void func_8013D684(u8 *arg0) {
+    M2C_FIELD(arg0, s16 *, 0xA0) = 0x32;
+    M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
+    M2C_FIELD(arg0, u8 *, 0xC8) = 5;
+    M2C_FIELD(arg0, s16 *, 0x44) = 0x50;
+    M2C_FIELD(arg0, s16 *, 0x46) = 0x82;
+    M2C_FIELD(arg0, s16 *, 0x96) = 0;
+    M2C_FIELD(arg0, s32 *, 0xE0) &= ~0x1000;
+    M2C_FIELD(arg0, s32 *, 0x28) = M2C_FIELD(arg0, s16 *, 0x9C) - 0x12C;
+    M2C_FIELD(arg0, s32 *, 0xE0) &= ~0x2000;
+    M2C_FIELD(arg0, void **, 0x74) = func_80057140(arg0, 7, 0x5E);
+    M2C_FIELD(arg0, s8 *, 0x7C) = -1;
+    func_80055F1C(arg0, 6);
+    M2C_FIELD(arg0, u8 *, 0x80) = 1;
+    M2C_FIELD(arg0, u8 *, 0x7F) = 0;
+    M2C_FIELD(arg0, s16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D738);
 
@@ -353,7 +389,29 @@ void func_8013E44C(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E4E0);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E650);
+void func_8013D8F0(void *arg0, s32 a);
+void func_8013E2C4(void *arg0);
+
+void func_8013E650(s32 arg0, s32 arg1) {
+    SVECTOR v;
+    s32 q;
+    u8 *o;
+
+    q = arg1 / 5;
+    arg1 = 5 - arg1 % 5;
+    o = D_80140A60[q].b;
+    M2C_FIELD(o, u8 *, 0x73) = arg1;
+    M2C_FIELD(o, u8 *, 0x72) = 1;
+    func_8013D8F0(o, 0);
+    if (arg1 == 5) {
+        v.vx = M2C_FIELD(o, u16 *, 0x24);
+        v.vy = M2C_FIELD(o, u16 *, 0x28);
+        v.vz = M2C_FIELD(o, u16 *, 0x2C);
+        Effect_SpawnAt(5, &v);
+        func_8013E2C4(o);
+        M2C_FIELD(o, u8 *, 0x7D) = q * 51;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E730);
 
@@ -414,7 +472,40 @@ INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013EBC0);
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013EC24);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013EC70);
+s32 func_8013D280(void);
+void func_8013EC24(void *);
+void func_8013EBC0(void *);
+void func_8013E4E0(void *);
+void func_8013E864(void);
+void Object_StepOrbitAngle(void *, s16);
+s32 Object_WouldLeaveHome(void *, s16);
+
+s32 func_8013EC70(u8 *arg0) {
+    s32 d;
+
+    if (func_8013D280()) {
+        func_8013E88C(arg0);
+        return 1;
+    }
+    if (M2C_FIELD(arg0, u8 *, 0x82) != 0) {
+        d = M2C_FIELD(arg0, u16 *, 0x5C) - *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));
+        if (Object_WouldLeaveHome(arg0, 0)) {
+            M2C_FIELD(arg0, s16 *, 0x94) = 0;
+            M2C_FIELD(arg0, s16 *, 0x98) = 0;
+        }
+        func_8013EC24(arg0);
+        Object_StepOrbitAngle(arg0, 0x1C);
+        func_8013EBC0(arg0);
+        func_8013E4E0(arg0);
+        if (M2C_FIELD(arg0, u8 *, 0x81) == 0 && d == 0x20) {
+            func_8013E864();
+            M2C_FIELD(arg0, u8 *, 0xC8) = 0;
+            return 1;
+        }
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013ED4C);
 

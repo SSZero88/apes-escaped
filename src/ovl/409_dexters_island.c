@@ -204,13 +204,67 @@ void func_8013E670(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013E6BC);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013EB6C);
+extern u16 g_RandSeed;
+s32 rcos_8013EB6C(s32) asm("rcos");
+s32 rsin_8013EB6C(s32) asm("rsin");
+void Effect_SpawnAt_8013EB6C(s32, SVECTOR *) asm("Effect_SpawnAt");
+
+void func_8013EB6C(u8 *arg0) {
+    s16 *p = M2C_FIELD(arg0, s16 **, 0x74);
+    SVECTOR v;
+    s32 i;
+    s32 a;
+    s32 r;
+    s32 c;
+    s32 t;
+
+    for (i = 8; i > 0; i--) {
+        a = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) << 12) / 255;
+        r = ((g_RandSeed = g_RandSeed * 5 + 1) >> 10) + 0xB4;
+        c = rcos_8013EB6C(a) * r >> 12;
+        t = (g_RandSeed = g_RandSeed * 5 + 1) >> 8;
+        v.vx = p[0] + c;
+        v.vy = p[1] - t * 7;
+        v.vz = p[2] + (rsin_8013EB6C(a) * r >> 12);
+        Effect_SpawnAt_8013EB6C(0x2B, &v);
+    }
+}
 
 void func_8013EC9C(void *arg0, M2C_UNK arg1) {
     Shadow_Draw(arg0, Floor_GetHeight(M2C_FIELD(arg0, s32 *, 0), M2C_FIELD(arg0, s32 *, 4), M2C_FIELD(arg0, s32 *, 8)), arg1, *(s32 *)0x1F8003FC);
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013ECF8);
+s32 Object_AddAttackSphere_8013ECF8(void *, s16, s16, s16, s32, s32, s32) asm("Object_AddAttackSphere");
+void func_8013EC9C(void *arg0, M2C_UNK arg1);
+extern u8 D_800E77E5;
+void Debug_DrawWorldQuad(void *, s32, s32);
+typedef struct { u16 start; u16 end; } Rng_8013ECF8;
+
+void func_8013ECF8(u8 *arg0) {
+    s16 *a = M2C_FIELD(arg0, s16 **, 0x74);
+    s32 *s = M2C_FIELD(arg0, s32 **, 0xB4);
+    s32 v[3];
+    Rng_8013ECF8 *f;
+    s32 t;
+
+    s[0] = a[0];
+    s[1] = a[1] + 0x19;
+    s[2] = a[2];
+    if (arg0[0x80] == 2 && !((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1)) {
+        f = (Rng_8013ECF8 *)(arg0[0x7F] * 4 + M2C_FIELD(arg0, s32 *, 0x88));
+        t = M2C_FIELD(arg0, u16 *, 0x5C);
+        if (f->start + 0x10 < t && t < f->start + 0x16) {
+            Object_AddAttackSphere_8013ECF8(arg0, 0xC8, a[0], a[1], a[2], 1, 0x203);
+        }
+    }
+    func_8013EC9C(s, 0xB4);
+    if (D_800E77E5 >= 2) {
+        v[0] = s[0];
+        v[1] = s[1];
+        v[2] = s[2];
+        Debug_DrawWorldQuad(v, ((s16 *)s)[0x10], ((s16 *)s)[0x11]);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013EE1C);
 
@@ -639,7 +693,35 @@ void func_801414F4(void *arg0) {
     func_801414D4(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_801415B8);
+void Object_StepGrowShrink_801415B8(void *, s32, s32, s32) asm("Object_StepGrowShrink");
+M2C_UNK Object_PlaySound_801415B8(void *, M2C_UNK) asm("Object_PlaySound");
+void func_801413F8(void *arg0);
+void Object_ApplyVelocity(void *);
+s32 Object_AddAttackSphereNear_801415B8(void *, s16, s16, s16, s32, s32, s32) asm("Object_AddAttackSphereNear");
+
+void func_801415B8(u8 *arg0) {
+    s16 *v;
+
+    if (Object_DetachLink(arg0, 0) == 6) {
+        Object_PlaySound_801415B8(arg0, 0x5F);
+        func_801413F8(arg0);
+        return;
+    }
+    if (M2C_FIELD(arg0, u16 *, 0xE2) & 1) {
+        Object_StepGrowShrink_801415B8(arg0, 0x53, 0x37, 0);
+    }
+    if (func_80055718(arg0, M2C_FIELD(arg0, s16 *, 0xBC), M2C_FIELD(arg0, s16 *, 0xBE), M2C_FIELD(arg0, s16 *, 0xC0), M2C_FIELD(arg0, s16 *, 0xA8) >> 3) != 0) {
+        func_801413F8(arg0);
+        return;
+    }
+    v = (s16 *)(arg0 + 0x60);
+    v[0] = M2C_FIELD(arg0, s16 *, 0x94);
+    v[1] = M2C_FIELD(arg0, s16 *, 0x96);
+    v[2] = M2C_FIELD(arg0, s16 *, 0x98);
+    M2C_FIELD(arg0, u32 *, 0xE0) = (M2C_FIELD(arg0, u32 *, 0xE0) & 0xFF3FFFFF) | 0x800000;
+    Object_ApplyVelocity(arg0);
+    M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear_801415B8(arg0, M2C_FIELD(arg0, s16 *, 0x44) + 0x32, M2C_FIELD(arg0, s16 *, 0x24), M2C_FIELD(arg0, s16 *, 0x28) - 0x1E, M2C_FIELD(arg0, s16 *, 0x2C), 1, 0x103);
+}
 
 s32 func_801416DC(void *arg0) {
     u8 old;

@@ -101,7 +101,26 @@ INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013D630);
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013D810);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013DC1C);
+extern struct { u8 pad_0[0x8126]; u16 f_8126; } g_Game_8013DC1C asm("g_Game");
+s32 func_8005BB5C(s32);
+void func_80051E98(void *, s32);
+void Object_TurnTowardSpike(void *);
+
+void func_8013DC1C(u8 *arg0) {
+    if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 3) & 1)) {
+        M2C_FIELD(arg0, s16 *, 0xA0) = 100;
+        M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 0;
+        M2C_FIELD(arg0, s32 *, 0xE0) &= ~0x1000;
+        M2C_FIELD(arg0, s16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+        M2C_FIELD(arg0, s32 *, 0xE0) |= 8;
+    }
+    if (SaveByte_Get(5) >= 5 || (func_8005BB5C(6) >= 5 && g_Game_8013DC1C.f_8126 == 0x4C)) {
+        func_80051E98(arg0, 0);
+    } else {
+        Object_TurnTowardSpike(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013DCE4);
 
@@ -460,7 +479,32 @@ s32 func_801402F8(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80140374);
+typedef struct { s16 id; s16 on; } Snd_80140374;
+extern Snd_80140374 D_801434C0_80140374 asm("D_801434C0");
+extern Snd_80140374 D_801434C4_80140374 asm("D_801434C4");
+extern struct { s16 a; s16 b; } D_800B4DB0_80140374 asm("D_800B4DB0");
+extern struct { s32 f_0; s32 f_4; s32 f_8; s32 f_C; s32 f_10; s32 f_14; s32 f_18; u8 pad_1C[0x18]; s32 f_34; } D_800E7880_80140374 asm("D_800E7880");
+s32 Sound_PlayTracked(s32, s32);
+
+s32 func_80140374(u8 *e) {
+    M2C_FIELD(e, s16 *, 0x36) = 4;
+    M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+    D_801434C0_80140374.id = Sound_PlayTracked(0, 0x50AD);
+    D_801434C0_80140374.on = 1;
+    D_801434C4_80140374.id = Sound_PlayTracked(0, 0x50AE);
+    D_801434C4_80140374.on = 1;
+    D_800E7880_80140374.f_0 = 0;
+    D_800E7880_80140374.f_8 = 0;
+    D_800E7880_80140374.f_4 = 0;
+    D_800E7880_80140374.f_C = 0;
+    D_800E7880_80140374.f_14 = 0;
+    D_800E7880_80140374.f_10 = 0;
+    D_800E7880_80140374.f_18 = 0;
+    D_800E7880_80140374.f_34 = 0;
+    D_800B4DB0_80140374.a = 0x1000;
+    D_800B4DB0_80140374.b = 0x1000;
+    return D_801434C0_80140374.id;
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80140430);
 
@@ -477,7 +521,39 @@ s32 func_80140988(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_801409E8);
+typedef struct { s16 type; s16 sub; s16 v[5]; s16 next; } Node_801409E8;
+extern struct { u8 pad_0[0x218]; Node_801409E8 *f_218; } D_800F4350_801409E8 asm("D_800F4350");
+
+s32 func_801409E8(u8 *arg0, s32 *out) {
+    Node_801409E8 *n;
+    s16 i;
+
+    out[0] = -1;
+    out[1] = -1;
+    out[2] = -1;
+    out[3] = -1;
+    out[4] = 0xFFFF;
+    i = M2C_FIELD(arg0, s16 *, 0x30);
+    if (i < 0) {
+        return 0;
+    }
+    do {
+        n = &D_800F4350_801409E8.f_218[i];
+        if (n->type == 7) {
+            if (n->sub == 0x50) {
+                out[0] = n->v[1];
+                out[1] = n->v[2];
+                out[2] = n->v[3];
+            } else if (n->sub == 0x53) {
+                out[3] = n->v[0];
+            } else if (n->sub == 0x45) {
+                out[4] = n->v[0];
+            }
+        }
+        i = n->next;
+    } while (i >= 0);
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80140AC4);
 
@@ -700,7 +776,47 @@ s32 func_80141F08(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80141F6C);
+extern struct { u8 pad_0[0x8120]; u16 f_8120; } g_Game_80141F6C asm("g_Game");
+extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Spike_80141F6C asm("g_Spike");
+s32 Overlay_GetState_80141F6C(void) asm("Overlay_GetState");
+void Overlay_Request(s8);
+s32 func_800863B0(s32, s32);
+
+s32 func_80141F6C(s16 *p) {
+    if (g_Game_80141F6C.f_8120 == 0x13) {
+        return 0;
+    }
+    switch (p[1]) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+        if (g_Spike_80141F6C.x < -0xEFF) {
+            return 0;
+        }
+        if (g_Spike_80141F6C.y >= -0x5DC) {
+            return 0;
+        }
+        if (g_Spike_80141F6C.z < -0x13FF) {
+            return 0;
+        }
+        p[1] = 4;
+        p[3] = 0;
+        func_800863B0(2, 0x28);
+        Overlay_Request(4);
+        return 0;
+    case 4:
+        if (Overlay_GetState_80141F6C() != 0) {
+            return 0;
+        }
+        p[1] = 5;
+        func_800863B0(0, 0);
+        break;
+    case 5:
+        break;
+    }
+    return 0;
+}
 
 void RotMatrixZYX(SVECTOR *, void *);
 

@@ -261,7 +261,69 @@ s32 func_8013DBF0(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DC78);
+extern s16 D_800E3880_8013DC78 asm("D_800E3880");
+extern s32 D_8013F290;
+s32 func_8013E098(void);
+s32 func_8013E114(void);
+s32 func_8013E188(s32 clear);
+
+s32 func_8013DC78(void) {
+    switch (D_800E3880_8013DC78) {
+    case 0:
+        if (D_8013F290 == 0) {
+            break;
+        }
+        if (D_8013AF56 == 0x27) {
+            func_8013CD1C(0x1A, 0);
+        } else {
+            func_8013E098();
+            if (D_8013F284 != 0) {
+                func_8013CD1C(0x24, 0);
+            } else if (func_8013E114() != 0) {
+                func_8013CD1C(0x14, 0);
+            } else {
+                func_8013E188(1);
+                if (D_8013AF56 == 0x25) {
+                    func_8013CD1C(0x30, 0);
+                    MemCard_Request(0xD, 0);
+                    if (D_800E3880_8013DC78 == 0) {
+                        D_800E3880_8013DC78 = 1;
+                    } else {
+                        if (D_800E3880_8013DC78 == -4) {
+                            func_8013E22C(-4);
+                            func_8013CD1C(0x17, 0);
+                        } else if (D_800E3880_8013DC78 == -7) {
+                            func_8013E22C(-7);
+                            func_8013CD1C(0x12, 0);
+                        } else if (D_800E3880_8013DC78 == -2 || D_800E3880_8013DC78 == -1) {
+                            func_8013E22C(-1);
+                            func_8013CD1C(0x2E, 0);
+                        } else {
+                            func_8013CD1C(0x15, 0);
+                        }
+                        break;
+                    }
+                } else {
+                    MemCard_Request(0xE, 0);
+                }
+                func_8013CD1C(0x15, 0);
+            }
+        }
+        break;
+    case -7:
+        func_8013CD1C(0x12, 0);
+        break;
+    case -2:
+    case -1:
+        func_8013CD1C(0x2E, 0);
+        break;
+    case -8:
+        break;
+    case 1:
+        break;
+    }
+    return 0;
+}
 
 extern s16 D_800E3880_8013DDF0 asm("D_800E3880");
 extern s32 D_8013F288;
@@ -327,7 +389,50 @@ s32 func_8013DEB4(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DF40);
+extern s16 D_800E3880_8013DF40 asm("D_800E3880");
+extern s16 D_8013F28C;
+void func_8013784C(s32, s32);
+
+s32 func_8013DF40(void) {
+    if (++D_8013F28C < 3) {
+        return 0;
+    }
+    MemCard_Request(3, 0);
+    if (D_800E3880_8013DF40 == -2 || D_800E3880_8013DF40 == -1) {
+        func_8013784C(0x2A, 0);
+        return 0;
+    }
+    if (D_800E3880_8013DF40 != 0) {
+        func_8013CD1C(0x12, 0);
+    } else {
+        func_8013E098();
+        if (D_8013F284 != 0) {
+            func_8013CD1C(0x24, 0);
+        } else if (func_8013E114() != 0) {
+            func_8013CD1C(0x14, 0);
+        } else {
+            func_8013E188(1);
+            func_8013CD1C(0x30, 0);
+            MemCard_Request(0xD, 0);
+            if (D_800E3880_8013DF40 == 0) {
+                D_800E3880_8013DF40 = 1;
+                func_8013CD1C(0x15, 0);
+            } else if (D_800E3880_8013DF40 == -4) {
+                func_8013E22C(-4);
+                func_8013CD1C(0x17, 0);
+            } else if (D_800E3880_8013DF40 == -7) {
+                func_8013E22C(-7);
+                func_8013CD1C(0x12, 0);
+            } else if (D_800E3880_8013DF40 == -2 || D_800E3880_8013DF40 == -1) {
+                func_8013E22C(-1);
+                func_8013CD1C(0x2E, 0);
+            } else {
+                func_8013CD1C(0x15, 0);
+            }
+        }
+    }
+    return 0;
+}
 
 extern s16 D_8013F284;
 void MemCardSync(s32, s32 *, s32 *);

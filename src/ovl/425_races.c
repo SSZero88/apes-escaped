@@ -12,7 +12,54 @@ s32 func_8013D000(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/425/nonmatchings/425_races", func_8013D010);
 
-INCLUDE_ASM("asm/ovl/425/nonmatchings/425_races", func_8013D290);
+typedef struct { s32 x, y, z; u8 padC[0xC]; SVECTOR rot; s16 f_20; s16 pad22; s16 f_24; s16 f_26; } Shape_8013D290;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x4A]; u8 f_7A; u8 pad7B[0x1D5]; } Monkey_8013D290;
+extern Monkey_8013D290 g_Monkeys_8013D290[] asm("g_Monkeys");
+extern u8 g_Spike_8013D290[] asm("g_Spike");
+void *CollShape_Alloc(void);
+s32 Collision_Set(s32, void *, void *);
+
+s32 func_8013D290(s32 type, s32 idx) {
+    SVECTOR v;
+    s32 i;
+    Monkey_8013D290 *m;
+    Shape_8013D290 *s;
+
+    v.vx = 0x1000;
+    v.vz = 0;
+    v.vy = 0;
+    if (idx < 0) {
+        for (i = 0; i < 8; i++) {
+            m = &g_Monkeys_8013D290[i];
+            if (m->f_7A == 4) {
+                s = CollShape_Alloc();
+                if (s != NULL) {
+                    s->rot = v;
+                    s->x = m->x;
+                    s->y = m->y;
+                    s->z = m->z;
+                    s->f_20 = 0x200;
+                    s->f_24 = 0;
+                    s->f_26 = 0;
+                    Collision_Set(type, s, g_Spike_8013D290);
+                }
+            }
+        }
+    } else {
+        s = CollShape_Alloc();
+        if (s != NULL) {
+            s->rot = v;
+            s->x = g_Monkeys_8013D290[idx].x;
+            s->y = g_Monkeys_8013D290[idx].y;
+            s->z = g_Monkeys_8013D290[idx].z;
+            s->f_20 = 0x200;
+            s->f_24 = 0;
+            s->f_26 = 0;
+            Collision_Set(type, s, g_Spike_8013D290);
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/425/nonmatchings/425_races", func_8013D424);
 

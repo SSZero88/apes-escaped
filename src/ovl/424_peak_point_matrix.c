@@ -179,7 +179,60 @@ void func_8013D9E0(void *obj) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013DA10);
+extern s16 D_800E69BE;
+extern u8 D_800AF840;
+extern struct { u8 pad0[8]; s16 x; s16 y; s16 z; } D_80141CC0_8013DA10 asm("D_80141CC0");
+extern struct { u8 f_0; u8 pad1[2]; u8 f_3; u8 pad4[4]; u8 f_8; u8 pad9[5]; s16 f_E; } D_80142320_8013DA10 asm("D_80142320");
+s32 SaveByte_Get(s32);
+void func_8013F3A4(void *arg0, s32 anim);
+void func_8013F398(s8 arg0);
+void func_8013E020(void);
+void func_8013D33C(void);
+void func_801407BC(void);
+void func_8013D9A8(void);
+void func_8013EE9C(void);
+
+void func_8013DA10(void) {
+    s32 i;
+    u8 *e;
+
+    D_800E69BE = 0;
+    if (SaveByte_Get(0xC) == 5) {
+        D_800AF840 = 1;
+        return;
+    }
+    for (i = 0, e = (u8 *)&D_80142338; i < 1; i++, e += 0xA0) {
+        func_8013D000(i, (M2C_UNK *)e, e + 0x74);
+        M2C_FIELD(e, s32 *, 0x24) = D_80141CC0_8013DA10.x;
+        M2C_FIELD(e, s32 *, 0x28) = D_80141CC0_8013DA10.y;
+        M2C_FIELD(e, s32 *, 0x2C) = D_80141CC0_8013DA10.z;
+        M2C_FIELD(e, u8 *, 0x88) = 1;
+        M2C_FIELD(e, s16 *, 0x86) = 0;
+        M2C_FIELD(e, u8 *, 0x7E) = 4;
+        M2C_FIELD(e, u8 *, 0x7C) = 1;
+        M2C_FIELD(e, u8 *, 0x89) = 2;
+        M2C_FIELD(e, s16 *, 0x8A) = 0x5A;
+        M2C_FIELD(e, s16 *, 0x60) = 0;
+        M2C_FIELD(e, s16 *, 0x62) = 0;
+        M2C_FIELD(e, s16 *, 0x64) = 0x1000;
+        func_8013F3A4(e, 0);
+        Collision_Set(5, e + 0x24, e);
+        M2C_FIELD(e, s16 *, 0x48) = 1;
+        M2C_FIELD(e, s16 *, 0x4A) = -0x3E00;
+        M2C_FIELD(e, s16 *, 0x44) = 0xB4;
+        M2C_FIELD(e, s16 *, 0x46) = 0x320;
+    }
+    func_8013F398(1);
+    func_8013E020();
+    func_8013D33C();
+    func_801407BC();
+    func_8013D9A8();
+    func_8013EE9C();
+    D_80142320_8013DA10.f_0 = 1;
+    D_80142320_8013DA10.f_8 = 0;
+    D_80142320_8013DA10.f_3 = 1;
+    D_80142320_8013DA10.f_E = 0x64;
+}
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013DB94);
 

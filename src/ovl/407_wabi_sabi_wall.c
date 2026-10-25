@@ -33,7 +33,27 @@ void func_8013D358(s16 x, s16 y, s16 z) {
     Effect_SpawnAt(0x112, &v);
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D3BC);
+extern u8 D_80141B00[];
+s32 Floor_GetHeight_8013D3BC(s16, s16, s16) asm("Floor_GetHeight");
+extern u16 g_RandSeed;
+
+void func_8013D3BC(s16 x, s16 y, s16 z) {
+    SVECTOR v;
+    s16 h;
+    s32 i;
+
+    h = Floor_GetHeight_8013D3BC(x, y, z) - 0x10;
+    v.vx = x;
+    v.vy = h;
+    v.vz = z;
+    func_80070284(&v, D_80141B00, 1, 4, 0);
+    for (i = 24; i >= 0; i--) {
+        v.vx = x + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 2;
+        v.vy = h + ((g_RandSeed = g_RandSeed * 5 + 1) >> 11);
+        v.vz = z + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 2;
+        Effect_SpawnAt(0x16, &v);
+    }
+}
 
 void func_8006D568(void *);
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);

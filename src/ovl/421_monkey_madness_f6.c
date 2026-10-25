@@ -41,7 +41,61 @@ void func_8013D078(s32 arg0) {
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D10C);
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D1AC);
+extern struct { u8 pad_0[0x8244]; u8 *f_8244; } g_Game_8013D1AC asm("g_Game");
+extern s16 D_800E69BE;
+extern u8 D_80140470[];
+extern struct { s32 f_0; s32 f_4; u8 f_8; u8 pad9[3]; s32 f_C; s32 f_10; u8 pad14[4]; s16 f_18; s16 f_1A; u8 pad1C[0x1E]; u8 f_3A; u8 f_3B; u8 f_3C; } D_801408C0_8013D1AC asm("D_801408C0");
+s32 Collision_Set(s32, void *, void *);
+void func_8013D10C(s32, void *, void *);
+void func_8013F4F0(void);
+void func_8013E8C0(void);
+void func_8013DE14(void);
+void func_8013E4D8(void);
+void func_8013D804(void);
+
+void func_8013D1AC(void) {
+    s32 i;
+    u8 *e;
+    u8 *m;
+    u8 *h;
+
+    h = g_Game_8013D1AC.f_8244;
+    D_800E69BE = 0;
+    m = h + M2C_FIELD(h, s32 *, 8);
+    for (i = 0, e = D_80140470; i < 8; i++, e += 0x80) {
+        func_8013D10C(i, e, e + 0x70);
+        M2C_FIELD(e, s32 *, 0x28) = -0x3600;
+        M2C_FIELD(e, s32 *, 0x74) = 0;
+        M2C_FIELD(e, s32 *, 0x24) = 0;
+        M2C_FIELD(e, s32 *, 0x2C) = 0x12B8;
+        M2C_FIELD(e, s16 *, 0x60) = 0;
+        M2C_FIELD(e, s16 *, 0x62) = 0;
+        M2C_FIELD(e, s16 *, 0x64) = -0x1000;
+        if (*(u16 *)m == 0xD4) {
+            Collision_Set(5, e + 0x24, e);
+            M2C_FIELD(e, s16 *, 0x48) = 0;
+            M2C_FIELD(e, s16 *, 0x4A) = -0x4000;
+            M2C_FIELD(e, s16 *, 0x44) = 0x230;
+            M2C_FIELD(e, s16 *, 0x46) = 0x384;
+        }
+        m += 0x20;
+    }
+    D_801408C0_8013D1AC.f_8 = 1;
+    D_801408C0_8013D1AC.f_0 = 0;
+    D_801408C0_8013D1AC.f_4 = 0;
+    D_801408C0_8013D1AC.f_C = 0;
+    D_801408C0_8013D1AC.f_10 = 0;
+    D_801408C0_8013D1AC.f_18 = 0;
+    D_801408C0_8013D1AC.f_1A = 0;
+    D_801408C0_8013D1AC.f_3A = 1;
+    D_801408C0_8013D1AC.f_3B = 6;
+    D_801408C0_8013D1AC.f_3C = 0;
+    func_8013F4F0();
+    func_8013E8C0();
+    func_8013DE14();
+    func_8013E4D8();
+    func_8013D804();
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D324);
 
@@ -269,7 +323,39 @@ void func_8013F4F0(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013F520);
+extern struct { u8 pad_0[0x24]; u16 x; u8 pad_26[2]; u16 y; u8 pad_2A[2]; u16 z; u8 pad_2E[2]; s32 f_30; u8 pad_34[4]; s32 f_38; } g_Spike_8013F520 asm("g_Spike");
+typedef struct { u8 pad0[0x1A]; s16 f_1A; s16 f_1C; s16 f_1E; s16 f_20; u8 pad22[0xA]; SVECTOR v; } St_8013F520;
+extern SVECTOR D_801408EC;
+void func_8013E500(SVECTOR *pos, s32 a1, s32 rnd, u8 a3, u8 a4);
+
+void func_8013F520(void) {
+    SVECTOR sv;
+    u16 x, y, z;
+    u16 t;
+    s32 a;
+    SVECTOR *v = &D_801408EC;
+    St_8013F520 *d = (St_8013F520 *)((u8 *)v - 0x2C);
+
+    v->vx = x = g_Spike_8013F520.x;
+    y = g_Spike_8013F520.y;
+    z = g_Spike_8013F520.z;
+    v->vy = y - 0x80;
+    v->vz = z;
+    if (d->f_1A != 0) {
+        t = --d->f_1A;
+        g_Spike_8013F520.f_30 = d->f_1C / 2;
+        g_Spike_8013F520.f_38 = a = d->f_20;
+        d->f_1C = d->f_1C * 7 / 8;
+        d->f_1E = d->f_1E * 7 / 8;
+        d->f_20 = a * 7 / 8;
+        if ((t & 3) == 0) {
+            sv.vx = x + ((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 2);
+            sv.vy = y - ((g_RandSeed = g_RandSeed * 5 + 1) >> 8);
+            sv.vz = z + ((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 2);
+            func_8013E500(&sv, (s32)v, 1, 8, 0x20);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013F694);
 

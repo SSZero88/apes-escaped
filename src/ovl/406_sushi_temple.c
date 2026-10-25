@@ -79,7 +79,40 @@ void func_8013D2B0(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D368);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D77C);
+typedef struct { u8 pad[0xE4]; } Obj_8013D77C;
+typedef struct { u8 pad0[0x10]; s8 a; s8 b; s8 c; u8 pad13; } Slot_8013D77C;
+extern Obj_8013D77C g_Objects_8013D77C[] asm("g_Objects");
+extern Slot_8013D77C *D_8013F8B4_8013D77C asm("D_8013F8B4");
+extern s32 D_8013F8B0;
+extern s16 D_800E77E0;
+extern u8 D_8013F8B8_8013D77C[] asm("D_8013F8B8");
+M2C_UNK func_80052038(void *, M2C_UNK);
+M2C_UNK func_800520A8(void *, M2C_UNK);
+void func_8013DAFC(void);
+void Hook_Add(void *);
+
+void func_8013D77C(void) {
+    s32 i;
+    u8 *m;
+
+    D_8013F8B4_8013D77C = (Slot_8013D77C *)&g_Objects_8013D77C[D_800E77E0];
+    D_8013F8B0 = (16 - D_800E77E0) * sizeof(Obj_8013D77C) / sizeof(Slot_8013D77C);
+    if (D_8013F8B0 > 32) {
+        D_8013F8B0 = 32;
+    }
+    for (i = D_8013F8B0 - 1; i >= 0; i--) {
+        D_8013F8B4_8013D77C[i].a = 0;
+        D_8013F8B4_8013D77C[i].b = 0;
+        D_8013F8B4_8013D77C[i].c = -1;
+    }
+    m = D_8013F8B8_8013D77C;
+    func_80052038(m, 0x6D);
+    func_800520A8(m, 0x6D);
+    M2C_FIELD(m, s16 *, 0x5C) = 0;
+    M2C_FIELD(m, s16 *, 0x66) = 3;
+    M2C_FIELD(m, s16 *, 0x62) = 0;
+    Hook_Add(func_8013DAFC);
+}
 
 typedef struct { u8 pad0[0x10]; s8 f; u8 pad11[3]; } Slot_406;
 extern s32 D_8013F8B0;
@@ -183,7 +216,24 @@ s32 func_8013DBF4(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013DC70);
+void Effect_SpawnAt(s32, SVECTOR *);
+extern u16 g_RandSeed;
+
+M2C_UNK func_8013DC70(s16 x, s16 y, s16 z) {
+    SVECTOR v;
+    s32 i;
+
+    v.vx = x;
+    v.vy = y;
+    v.vz = z;
+    Effect_SpawnAt(6, &v);
+    for (i = 3; i > 0; i--) {
+        v.vx = x + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 2;
+        v.vy = y + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 2;
+        v.vz = z + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 2;
+        Effect_SpawnAt(6, &v);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013DD94);
 
@@ -217,7 +267,6 @@ void func_8013DE84(u8 *o) {
 M2C_UNK func_80052038(void *, M2C_UNK);
 M2C_UNK func_80052134(void *, M2C_UNK);
 M2C_UNK func_8005588C(void *, M2C_UNK);
-M2C_UNK func_8013DC70(s16, s16, s16);
 
 void func_8013DF60(void *arg0) {
     func_8013DC70(M2C_FIELD(arg0, s16 *, 0x24), M2C_FIELD(arg0, s16 *, 0x28), M2C_FIELD(arg0, s16 *, 0x2C));

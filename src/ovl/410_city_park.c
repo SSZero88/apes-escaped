@@ -12,7 +12,6 @@ M2C_UNK func_80088120(s8);
 s32 Object_DetachLink(void *, M2C_UNK);
 M2C_UNK func_8006F274(M2C_UNK, M2C_UNK *, u16);
 M2C_UNK func_8013E310(void *, M2C_UNK *, M2C_UNK, M2C_UNK);
-M2C_UNK func_8013E3B4(void *);
 extern M2C_UNK D_801418F8;
 extern u16 g_Game;
 M2C_UNK Math_WithinSquare(s32, s32, M2C_UNK);
@@ -218,7 +217,27 @@ void func_8013E2A4(void *arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013E310);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013E3B4);
+typedef struct { s16 x, y, z; s16 dx, dy, dz; } V_8013E3B4;
+extern V_8013E3B4 D_801418F8_8013E3B4 asm("D_801418F8");
+extern struct { u8 pad_0[0x24]; u16 x; u16 p26; u16 y; u16 p2A; u16 z; } g_Spike_8013E3B4 asm("g_Spike");
+
+void func_8013E3B4(u8 *arg0) {
+    s16 *a = M2C_FIELD(arg0, s16 **, 0x74);
+    s16 *b = M2C_FIELD(arg0, s16 **, 0x78);
+    s16 y;
+
+    D_801418F8_8013E3B4.x = (a[0] + b[0]) / 2;
+    D_801418F8_8013E3B4.y = y = (a[1] + b[1]) / 2;
+    y += 0x7D;
+    D_801418F8_8013E3B4.z = (a[2] + b[2]) / 2;
+    D_801418F8_8013E3B4.dx = g_Spike_8013E3B4.x - D_801418F8_8013E3B4.x;
+    D_801418F8_8013E3B4.dy = g_Spike_8013E3B4.y - y;
+    D_801418F8_8013E3B4.dz = g_Spike_8013E3B4.z - D_801418F8_8013E3B4.z;
+    VectorNormalSS(&D_801418F8_8013E3B4.dx, &D_801418F8_8013E3B4.dx);
+    D_801418F8_8013E3B4.dx = D_801418F8_8013E3B4.dx * 15 >> 10;
+    D_801418F8_8013E3B4.dy = D_801418F8_8013E3B4.dx * 15 >> 10;
+    D_801418F8_8013E3B4.dz = D_801418F8_8013E3B4.dx * 15 >> 10;
+}
 
 void func_8013E49C(void *arg0, M2C_UNK arg1) {
     u16 temp_v0;
@@ -490,7 +509,30 @@ void func_8013F084(void *arg0) {
     func_8006D548(&v);
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013F184);
+extern u32 g_Game_8013F184 asm("g_Game");
+
+void func_8013F184(u8 *arg0) {
+    if (arg0[0x80] != 0xD && (g_Game_8013F184 & 1)) {
+        if (arg0[0x81] < 5) {
+            func_8013EF18(arg0);
+            func_8013EF18(arg0);
+            func_8013EF18(arg0);
+            func_8013F084(arg0);
+            func_8013F084(arg0);
+            func_8013F01C(arg0);
+        } else if (arg0[0x81] < 10) {
+            func_8013EF18(arg0);
+            func_8013EF18(arg0);
+            func_8013F084(arg0);
+            func_8013F01C(arg0);
+        } else if (arg0[0x81] < 15) {
+            func_8013EF18(arg0);
+            func_8013F01C(arg0);
+        } else if (arg0[0x81] < 20) {
+            func_8013EF18(arg0);
+        }
+    }
+}
 
 void Object_PlaySound_8013F264(void *, s32) asm("Object_PlaySound");
 s32 rcos_8013F264(s32) asm("rcos");

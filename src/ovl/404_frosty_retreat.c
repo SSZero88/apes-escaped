@@ -78,7 +78,49 @@ void func_8013D27C(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013D2D0);
+s32 func_8013D210(void *arg0);
+s32 func_8013D240(void *arg0);
+void func_8013D27C(void *arg0);
+void func_8013D000(void *);
+void func_8013D0EC(void *arg0);
+void Object_TurnTowardSpike_8013D2D0(void *) asm("Object_TurnTowardSpike");
+void Object_TurnToward_8013D2D0(void *, s16, s16, s32, s32) asm("Object_TurnToward");
+s32 func_800572CC_8013D2D0(void *) asm("func_800572CC");
+s32 Object_DetachLink_8013D2D0(void *, s32) asm("Object_DetachLink");
+
+void func_8013D2D0(void *arg0) {
+    if (func_8013D1E0(arg0)) {
+        if (func_8013D210(arg0)) {
+            Object_TurnTowardSpike_8013D2D0(arg0);
+            M2C_FIELD(arg0, s16 *, 0xA8) = 1;
+        } else {
+            Object_TurnToward_8013D2D0(arg0, M2C_FIELD(arg0, u16 *, 0x9A) - M2C_FIELD(arg0, u16 *, 0x24),
+                                       M2C_FIELD(arg0, u16 *, 0x9E) - M2C_FIELD(arg0, u16 *, 0x2C), 0,
+                                       M2C_FIELD(arg0, s16 *, 0xB0));
+            M2C_FIELD(arg0, s16 *, 0xA8) = 0;
+            if (func_8013D240(arg0)) {
+                M2C_FIELD(arg0, u8 *, 0x80) = 5;
+                M2C_FIELD(arg0, u8 *, 0x7F) = 4;
+                M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(arg0, u8 **, 0x88) + 0x10);
+            }
+        }
+        if (M2C_FIELD(arg0, u16 *, 0x5C) == *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88)) + 8) {
+            func_8013D000(arg0);
+        }
+    } else {
+        M2C_FIELD(arg0, u16 *, 0x96) += M2C_FIELD(arg0, u16 *, 0xA8);
+        func_8013D27C(arg0);
+        if (M2C_FIELD(arg0, u8 *, 0xDD) == 0 && func_800572CC_8013D2D0(arg0)) {
+            M2C_FIELD(arg0, u8 *, 0xDD) = 1;
+        }
+    }
+    if (Object_DetachLink_8013D2D0(arg0, 0) == 6) {
+        M2C_FIELD(arg0, u8 *, 0x80) = 4;
+        func_8005588C(arg0, 0x1E);
+    } else {
+        func_8013D0EC(arg0);
+    }
+}
 
 void func_8013D430(s32 arg0) {
     if (func_8013D1E0() != 0) {
@@ -244,7 +286,32 @@ s32 func_8013E128(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E164);
+typedef struct { s16 x, y, z, vx, vy, vz, active, unkE; s32 unk10; } Drip_8013E164;
+extern Drip_8013E164 D_801421D0_8013E164[8] asm("D_801421D0");
+s32 func_8013E128(void);
+
+M2C_UNK func_8013E164(void *arg0, M2C_UNK arg1, M2C_UNK arg2) {
+    s32 i;
+    Drip_8013E164 *p;
+    s16 c;
+    s16 s;
+
+    i = func_8013E128();
+    if (i != -1) {
+        p = &D_801421D0_8013E164[i];
+        c = rcos(M2C_FIELD(arg0, s16 *, 0xAC));
+        s = rsin(M2C_FIELD(arg0, s16 *, 0xAC));
+        p->x = M2C_FIELD(arg0, s16 *, 0x24) + ((c * (s16)arg2) >> 12);
+        p->y = M2C_FIELD(arg0, s16 *, 0x28) - arg1;
+        p->z = M2C_FIELD(arg0, s16 *, 0x2C) + ((s * (s16)arg2) >> 12);
+        p->vx = c / 48;
+        p->vz = s / 48;
+        p->vy = -40;
+        p->active++;
+        p->unkE = M2C_FIELD(arg0, s8 *, 0xCB);
+        Object_PlaySound(arg0, 0x77);
+    }
+}
 
 s32 func_8013E2A4(void *arg0) {
     return Floor_GetHeight(M2C_FIELD(arg0, s16 *, 0), M2C_FIELD(arg0, s16 *, 2), M2C_FIELD(arg0, s16 *, 4)) < M2C_FIELD(arg0, s16 *, 2);
@@ -305,7 +372,6 @@ void func_8013E5E4(void *arg0) {
     Object_TurnToward(arg0, g_Spike.x - M2C_FIELD(arg0, u16 *, 0x24), g_Spike.z - M2C_FIELD(arg0, u16 *, 0x2C), 0, 0x1000);
 }
 
-M2C_UNK func_8013E164(void *, M2C_UNK, M2C_UNK);
 
 void func_8013E674(void *obj) {
     func_8013E164(obj, 0x46, 0xA0);
@@ -591,7 +657,43 @@ void func_8013FC4C(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013FCE0);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013FFC8);
+typedef struct { s16 f0; s16 x, y, z; s16 f8; u16 fA; u8 padC[4]; } Src_8013FFC8;
+typedef struct { s16 x, y, z, floor; s16 x8, yA, zC; u8 fE; u8 padF[9]; s16 f18; s16 f1A; u8 pad1C[4]; } Pt_8013FFC8;
+extern struct { u8 pad0[0x824C]; u8 *f_824C; } g_Game_8013FFC8 asm("g_Game");
+extern u8 D_801426E8;
+extern Pt_8013FFC8 D_801422E8[];
+s32 Floor_GetHeight_8013FFC8(s32, s32, s32) asm("Floor_GetHeight");
+
+s32 func_8013FFC8(void) {
+    u8 *h;
+    Src_8013FFC8 *src;
+    s32 i;
+
+    h = g_Game_8013FFC8.f_824C;
+    D_801426E8 = 0;
+    src = (Src_8013FFC8 *)(h + 8);
+    if (*(u16 *)h == 0x452E && h[2] == 0x46) {
+    } else {
+        return 1;
+    }
+    D_801426E8 = h[4];
+    if (D_801426E8 > 32) {
+        D_801426E8 = 32;
+    }
+    for (i = 0; i < D_801426E8; i++) {
+        D_801422E8[i].fE = 0;
+        D_801422E8[i].x8 = D_801422E8[i].x = src[i].x;
+        D_801422E8[i].yA = D_801422E8[i].y = src[i].y;
+        D_801422E8[i].zC = D_801422E8[i].z = src[i].z;
+        D_801422E8[i].floor = Floor_GetHeight_8013FFC8(src[i].x, src[i].y + 0x200, src[i].z);
+        if (D_801422E8[i].floor < src[i].y) {
+            D_801422E8[i].floor = Floor_GetHeight_8013FFC8(src[i].x, src[i].y + 0x1000, src[i].z);
+        }
+        D_801422E8[i].f18 = 1;
+        D_801422E8[i].f1A = src[i].fA;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_80140124);
 
@@ -654,4 +756,58 @@ INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8014090C);
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_80140AFC);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8014163C);
+typedef struct { u8 pad0[0xA]; s16 fA; u8 padC[4]; s16 f10; } Scr_8014163C;
+extern u8 *D_800B4DC4;
+extern SVECTOR D_800F4B30[3];
+extern struct { s32 f0; u8 pad4[4]; s32 f8; } g_Game_8014163C asm("g_Game");
+extern u8 D_800E7D00_8014163C[] asm("D_800E7D00");
+s32 Floor_GetHeight_8014163C(s32, s32, s32) asm("Floor_GetHeight");
+s32 Water_Query(s32, s32, s32);
+s32 rsin_8014163C(s32) asm("rsin");
+void func_80014804(s16 *, s16 *);
+void Model_CalcJointMatrices(void *, s32);
+void func_80017CD4_8014163C(s32, void *, void *) asm("func_80017CD4");
+
+void func_8014163C(void) {
+    u8 *o;
+    s32 fl;
+    s32 lvl;
+    s32 y;
+
+    o = D_800B4DC4;
+    fl = Floor_GetHeight_8014163C(M2C_FIELD(o, s32 *, 0x24), M2C_FIELD(o, s32 *, 0x28), M2C_FIELD(o, s32 *, 0x2C));
+    if (((Water_Query(M2C_FIELD(o, s32 *, 0x24), M2C_FIELD(o, s32 *, 0x28), M2C_FIELD(o, s32 *, 0x2C)) & 0xFFFF) >> 12) == 1) {
+        lvl = ((Scr_8014163C *)0x1F8003D4)->fA - ((Scr_8014163C *)0x1F8003D4)->f10;
+        if (M2C_FIELD(o, s32 *, 0x28) - lvl > 0x20) {
+            M2C_FIELD(o, s32 *, 0x28) = M2C_FIELD(o, s32 *, 0x28) - 12;
+        } else {
+            M2C_FIELD(o, s32 *, 0x28) = lvl + 0x20;
+        }
+        M2C_FIELD(o, u16 *, 0x78) = M2C_FIELD(o, u16 *, 0x24);
+        M2C_FIELD(o, u16 *, 0x7A) = M2C_FIELD(o, u16 *, 0x28);
+        M2C_FIELD(o, u16 *, 0x7C) = M2C_FIELD(o, u16 *, 0x2C);
+    } else if (M2C_FIELD(o, s32 *, 0x28) >= fl) {
+        M2C_FIELD(o, s32 *, 0x24) = M2C_FIELD(o, s16 *, 0x78);
+        M2C_FIELD(o, s32 *, 0x28) = M2C_FIELD(o, s16 *, 0x7A);
+        M2C_FIELD(o, s32 *, 0x2C) = M2C_FIELD(o, s16 *, 0x7C);
+    }
+    func_80014804((s16 *)(o + 0x60), M2C_FIELD(o, s16 **, 0x14));
+    y = M2C_FIELD(o, s32 *, 0x28);
+    M2C_FIELD(o, s32 *, 0x28) += rsin_8014163C(g_Game_8014163C.f0 << 6) >> 9;
+    D_800F4B30[0].vx = 0;
+    D_800F4B30[0].vy = 0x800;
+    D_800F4B30[0].vz = 0;
+    D_800F4B30[1].vx = 0x400;
+    D_800F4B30[1].vy = 0;
+    D_800F4B30[1].vz = -0x480;
+    D_800F4B30[2].vx = 0x400;
+    D_800F4B30[2].vy = 0;
+    D_800F4B30[2].vz = -0x380;
+    Model_CalcJointMatrices(o, 1);
+    Model_ProjectBonedVerts(o);
+    func_80017CD4_8014163C(g_Game_8014163C.f8, D_800E7D00_8014163C, o);
+    M2C_FIELD(o, s32 *, 0x28) = y;
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop\n\tnop\n\tnop");

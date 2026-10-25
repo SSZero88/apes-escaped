@@ -154,10 +154,8 @@ extern Fmv_8013668C *D_8013C484_8013668C asm("D_8013C484");
 extern Fmv_8013668C D_8013C090[];
 extern s32 D_8013C4B0;
 extern s32 D_8013C4B4;
-void func_8013BA80(s32);
 void func_8008C01C(void);
 void func_800A3750(s32);
-s32 func_80136884(s32);
 void func_8013990C(void *);
 void func_80137D20(void);
 void func_80136000(s32 arg0, s32 arg1);
@@ -212,7 +210,52 @@ void func_801367DC(void) {
     MoveImage(&r, 0, (s16)((Db_801367DC *)&g_Game_801367DC)[g_Game_801367DC.f_C ^ 1].y);
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136884);
+typedef struct { u8 b[4]; } Loc_80136884;
+typedef struct { Loc_80136884 pos; u32 size; char name[16]; } File_80136884;
+typedef struct { s32 a, b, c; } Tri_80136884;
+typedef struct { u8 pad0[4]; char *f_4; char *f_8; Tri_80136884 f_C; Loc_80136884 f_18; } Fmv_80136884;
+typedef struct { s32 f_0; s32 f_4; u8 pad8[8]; s32 f_10; s32 f_14; Tri_80136884 f_18; } Hdr_80136884;
+extern Fmv_80136884 *D_8013C484_80136884 asm("D_8013C484");
+void *CdSearchFile(void *fp, char *name);
+s32 CdPosToInt(void *p);
+void *CdIntToPos(s32 i, void *p);
+s32 func_8013AE80(void);
+void func_80068D10(s32);
+
+s32 func_80136884(void) {
+    File_80136884 fp;
+    Hdr_80136884 *h;
+    s32 base;
+    s32 tex;
+
+    tex = 0x80148024;
+    h = (Hdr_80136884 *)0x80148000;
+    while (CdSearchFile(&fp, D_8013C484_80136884->f_4) == 0) {
+    }
+    fp.size = 0x800;
+    func_8013ADA0((s32)h, &fp);
+    while (func_8013AE80() != 0) {
+    }
+    D_8013C484_80136884->f_C = h->f_18;
+    base = CdPosToInt(&fp);
+    if (h->f_4 != 0) {
+        CdIntToPos(base + h->f_0, &fp);
+        fp.size = h->f_4;
+        func_8013ADA0(tex, &fp);
+        while (func_8013AE80() != 0) {
+        }
+        func_80068D10(tex);
+    }
+    CdIntToPos(base + h->f_10, &fp);
+    fp.size = h->f_14;
+    func_8013ADA0(0x80148000, &fp);
+    while (func_8013AE80() != 0) {
+    }
+    while (CdSearchFile(&fp, D_8013C484_80136884->f_8) == 0) {
+    }
+    D_8013C484_80136884->f_18 = fp.pos;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801369E0);
 
@@ -300,7 +343,48 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80137248);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80137878);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801378F0);
+typedef struct { u32 *f_0; u8 pad4[0x1C]; } Ent_801378F0;
+extern Ent_801378F0 *D_800B4D64_801378F0 asm("D_800B4D64");
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x180]; s32 f_8280; } g_Game_801378F0 asm("g_Game");
+extern struct { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } D_800EBFA0_801378F0 asm("D_800EBFA0");
+extern s32 D_8013C4A0;
+extern s32 D_8013C4A4;
+s32 func_8002FAF0(s32);
+void StUnSetRing(void);
+void func_80139DAC(void);
+s32 Stage_SpecialSetup(void);
+s32 Gfx_InitDisplay(void);
+
+void func_801378F0(s32 arg0, u8 *tbl) {
+    s32 i;
+    Ent_801378F0 *e;
+
+    if (tbl != NULL) {
+        i = g_Game_801378F0.f_8280 - 1;
+        if (i >= 0) {
+        e = D_800B4D64_801378F0;
+        do {
+            *e[i].f_0 = (*e[i].f_0 & 0xFFF0FFFF) | (tbl[i] << 16);
+        } while (--i >= 0);
+        }
+        func_8008C064((s32)tbl);
+    }
+    func_8002FAF0(D_8013C48C);
+    StUnSetRing();
+    while (CdControl(9, 0, 0) == 0) {
+    }
+    func_80139DAC();
+    func_8008C064(D_8013C1A8);
+    Stage_SpecialSetup();
+    Gfx_InitDisplay();
+    DrawSync(0);
+    VSync(D_8013C4B4);
+    PutDispEnv(&g_Game_801378F0.db[g_Game_801378F0.cur].env[0x5C]);
+    PutDrawEnv(g_Game_801378F0.db[g_Game_801378F0.cur].env);
+    D_800EBFA0_801378F0.f_24 = D_8013C4A0;
+    D_800EBFA0_801378F0.f_28 = D_8013C4A4;
+    D_800EBFA0_801378F0.f_2C = D_8013C4A4 * 4 + 0x400;
+}
 
 typedef struct { s16 x, y, w, h; } Rect_384;
 void ClearImage(Rect_384 *, s32, s32, s32);
@@ -973,7 +1057,33 @@ s32 func_8013B8D0(void *arg0, s32 arg1, void *arg2) {
 __asm__(".section .text\n.balign 16");
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013B9B0);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013BA80);
+typedef struct { s16 x, y, w, h; } Rect_8013BA80;
+extern Rect_8013BA80 D_8013C7B0_8013BA80[] asm("D_8013C7B0");
+extern s32 D_8013C7E0;
+s32 StoreImage(void *rect, u32 *p);
+
+void func_8013BA80(s32 load) {
+    u32 *buf;
+    s32 i;
+
+    buf = (u32 *)0x80196000;
+    D_8013C7E0 = 6;
+    if (load == 0) {
+        i = 0;
+        do {
+            StoreImage(&D_8013C7B0_8013BA80[i], buf);
+            buf += D_8013C7B0_8013BA80[i].w * D_8013C7B0_8013BA80[i].h / 2;
+            i++;
+        } while (i < D_8013C7E0);
+    } else {
+        i = 0;
+        do {
+            LoadImage(&D_8013C7B0_8013BA80[i], buf);
+            buf += D_8013C7B0_8013BA80[i].w * D_8013C7B0_8013BA80[i].h / 2;
+            i++;
+        } while (i < D_8013C7E0);
+    }
+}
 
 s32 func_8013BB8C(void) {
     return 6;
@@ -983,6 +1093,29 @@ void *func_8013BB94(s32 arg0) {
     return (void *)((u8 *)&D_8013C7B0 + (arg0 * 8));
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013BBA8);
+typedef struct { s16 x, y, w, h; } Rect_8013BBA8;
+extern Rect_8013BBA8 D_8013C7B0_8013BBA8[] asm("D_8013C7B0");
+extern Rect_8013BBA8 D_8013C7A0;
+extern GameDraw g_Game_8013BBA8 asm("g_Game");
+
+void func_8013BBA8(void) {
+    u8 *p;
+    s32 i;
+    Rect_8013BBA8 r;
+
+    GameDraw *g = &g_Game_8013BBA8;
+    p = g->prim;
+    r = D_8013C7A0;
+    r.y = M2C_FIELD(g->db[g->cur].env, s16 *, 0xA);
+    for (i = 0; i < D_8013C7E0; i++) {
+        r.x = i << 6;
+        SetDrawMove(p, &r, D_8013C7B0_8013BBA8[i].x, D_8013C7B0_8013BBA8[i].y);
+        ADD_PRIM_R(g_Game_8013BBA8.db[g_Game_8013BBA8.cur].ot, p, "$4", "$3");
+        p += 0x18;
+    }
+    SetDrawStp(p, 1);
+    ADD_PRIM_R(g_Game_8013BBA8.db[g_Game_8013BBA8.cur].ot, p, "$5", "$3");
+    g_Game_8013BBA8.prim = p + 0xC;
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013BD1C);

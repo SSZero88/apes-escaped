@@ -3,7 +3,65 @@
 
 INCLUDE_ASM("asm/ovl/385/nonmatchings/385", func_80136000);
 
-INCLUDE_ASM("asm/ovl/385/nonmatchings/385", func_801362A4);
+typedef struct { s16 x, y, w, h; } Rect_801362A4;
+extern struct { u8 pad0[0x20]; s32 f_20; } D_800E3890;
+extern GameDraw g_Game_801362A4 asm("g_Game");
+s32 ClearImage2(void *rect, u8 r, u8 g, u8 b);
+void DrawSync(s32);
+s32 VSync(s32 mode);
+s32 Cd_StartFileLoad(s32, s32);
+void *PutDrawEnv(void *env);
+void *PutDispEnv(void *env);
+void func_8001325C(s32);
+void Gfx_BeginFrame(void);
+s32 func_800116C0(void);
+void Cd_Update(void);
+
+s32 func_801362A4(void) {
+    Rect_801362A4 r;
+    s32 loading;
+    s32 t;
+
+    r.x = 0;
+    r.y = 0;
+    r.w = 0x280;
+    r.h = 0x100;
+    ClearImage2(&r, 0, 0, 0);
+    DrawSync(0);
+    r.x = 0;
+    r.y = 0x100;
+    r.w = 0x280;
+    r.h = 0x100;
+    ClearImage2(&r, 0, 0, 0);
+    DrawSync(0);
+    VSync(0);
+    Cd_StartFileLoad(0, 0);
+    g_Game_801362A4.cur = 1;
+    g_Game_801362A4.prim = (u8 *)g_Game_801362A4.db[g_Game_801362A4.cur].hud[1];
+    PutDispEnv(&g_Game_801362A4.db[g_Game_801362A4.cur].env[0x5C]);
+    t = -1;
+    loading = 1;
+    PutDrawEnv(g_Game_801362A4.db[g_Game_801362A4.cur].env);
+    while (1) {
+        func_8001325C(0);
+        Gfx_BeginFrame();
+        if (loading && func_800116C0() < 0) {
+            loading = 0;
+        }
+        if (D_800E3890.f_20 != 0 && t < 0) {
+            t = 0;
+        }
+        if (t >= 0) {
+            t++;
+            if (t >= 0xD3 && loading == 0) {
+                return 0;
+            }
+        }
+        Cd_Update();
+        DrawSync(0);
+        VSync(0);
+    }
+}
 
 extern u8 D_800EC360[];
 void SetGeomOffset(s32 ofx, s32 ofy);

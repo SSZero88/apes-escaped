@@ -11,7 +11,6 @@ extern M2C_UNK D_80141788;
 extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; s32 f_820C; } g_Game;
 M2C_UNK Sound_PlayAt(M2C_UNK, void *);
 M2C_UNK func_8008FC30(s16, void *);
-M2C_UNK func_80140454(void *, void *, M2C_UNK);
 
 M2C_UNK func_80052038(void *, M2C_UNK);
 M2C_UNK func_800520A8(void *, M2C_UNK);
@@ -290,7 +289,39 @@ void func_8013E4D8(void *arg0, s32 n) {
 
 INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013E5C0);
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013E77C);
+typedef struct { s16 a[4]; } Q_8013E77C;
+typedef struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; u8 pad_30[0x2C]; u16 f_5C; u16 f_5E; Q_8013E77C rot; u8 pad_68[0x18]; u8 f_80; u8 pad_81[0x47]; u8 f_C8; u8 pad_C9[0x17]; s32 f_E0; } O_8013E77C;
+extern O_8013E77C D_80141868_8013E77C asm("D_80141868");
+void func_8013D41C(s32 arg0);
+
+void func_8013E77C(O_8013E77C *arg0) {
+    O_8013E77C *d = &D_80141868_8013E77C;
+    u16 t;
+
+    if (arg0->f_C8 == 0) {
+        return;
+    }
+    if (!(arg0->f_E0 & 1)) {
+        return;
+    }
+    if (arg0->f_5E == 1) {
+        return;
+    }
+    d->x = arg0->x;
+    d->y = arg0->y;
+    d->z = arg0->z;
+    d->rot = arg0->rot;
+    t = d->f_5C;
+    d->f_5C = t + 1;
+    if (arg0->f_80 == 5) {
+        if ((u16)(t - 2) >= 0x10) {
+            d->f_5C = 4;
+        }
+    } else if ((u16)(t + 1) >= 4) {
+        d->f_5C = 0;
+    }
+    func_8013D41C(2);
+}
 
 s32 func_8013E864(void *arg0) {
     if ((((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 0xB) && (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s32 *, 0x2C), 0x1200) != 0)) {
@@ -663,7 +694,34 @@ s32 func_80140404(s16 i, s16 m, s16 c, s16 d) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_80140454);
+s32 func_80140454(s16 *p, s16 *v, s32 d) {
+    switch (p[4]) {
+    case 0x28:
+        if (p[1] == 0) {
+            v[2] -= d;
+        } else {
+            v[2] += d;
+        }
+        break;
+    case 0x29:
+        if (p[1] == 0) {
+            v[0] -= d;
+        } else {
+            v[0] += d;
+        }
+        break;
+    default:
+        return 0;
+    case 0x33:
+        if (p[1] == 0) {
+            v[1] -= d;
+        } else {
+            v[1] += d;
+        }
+        break;
+    }
+    return 0;
+}
 
 extern struct S_g_Game_80140538 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80140538 asm("g_Game");
 

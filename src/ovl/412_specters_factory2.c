@@ -128,7 +128,33 @@ void func_8013D850(SVECTOR *arg0) {
     Effect_SpawnAt(0x102, &v);
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013D890);
+typedef struct { s16 x; s16 y; s16 z; } V3_8013D890;
+void func_8013D850(SVECTOR *arg0);
+void Sound_PlayAt(s32, void *);
+void Pickup_Drop(s32, SVECTOR *, s32, s32);
+
+void func_8013D890(SVECTOR *arg0, s32 drop) {
+    V3_8013D890 s;
+    V3_8013D890 v;
+    SVECTOR c;
+
+    v.x = arg0->vx;
+    v.y = arg0->vy;
+    v.z = arg0->vz;
+    s = v;
+    arg0[1].vz = 0;
+    func_8013D850(arg0);
+    Sound_PlayAt(0x4D, &s);
+    if (drop && arg0[2].vy != 0) {
+        g_RandSeed = g_RandSeed * 5 + 1;
+        if (g_RandSeed >> 8 < 0x80) {
+            c.vx = arg0->vx;
+            c.vy = arg0->vy;
+            c.vz = arg0->vz;
+            Pickup_Drop(1, &c, 3, 0);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013D974);
 

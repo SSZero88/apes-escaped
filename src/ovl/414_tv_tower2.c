@@ -211,7 +211,26 @@ void func_8013DE24(s32 arg0) {
     } while (var_s0 > 0);
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013DE7C);
+typedef struct { s32 f_0; s16 x; s16 y; s16 z; u8 active; u8 f_B; s16 f_C; s16 f_E; s16 f_10; u8 f_12; u8 pad13; } P_8013DE7C;
+extern P_8013DE7C D_801442D0_8013DE7C[] asm("D_801442D0");
+
+void func_8013DE7C(SVECTOR *pos) {
+    s32 i;
+
+    for (i = 7; i >= 0; i--) {
+        if (D_801442D0_8013DE7C[i].active == 0) {
+            *(SVECTOR *)&D_801442D0_8013DE7C[i].x = *pos;
+            D_801442D0_8013DE7C[i].active = 1;
+            D_801442D0_8013DE7C[i].f_B = 0x10;
+            D_801442D0_8013DE7C[i].f_12 = 0;
+            D_801442D0_8013DE7C[i].f_0 = 0;
+            D_801442D0_8013DE7C[i].f_C = (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 2;
+            D_801442D0_8013DE7C[i].f_10 = (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 2;
+            D_801442D0_8013DE7C[i].f_E = ((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 9) + 0x60;
+            return;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013DF68);
 

@@ -498,7 +498,63 @@ void func_80140A20(void) {
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_80140A60);
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_80141F70);
+extern u8 D_80144A10[];
+extern u8 D_80144978[];
+extern u8 D_80144BE8_80141F70[] asm("D_80144BE8");
+void func_801423E8(void);
+void func_801428A4(void);
+
+void func_80141F70(void) {
+    u8 *a = D_80144A10;
+    u8 *c;
+
+    M2C_FIELD(a, s32 *, 0x88) = 0;
+    M2C_FIELD(a, s32 *, 0x24) = 0;
+    M2C_FIELD(a, s32 *, 0x28) = -0x3200;
+    M2C_FIELD(a, s32 *, 0x2C) = 0xF28;
+    M2C_FIELD(a, s16 *, 0x60) = 0;
+    M2C_FIELD(a, s16 *, 0x62) = 0;
+    M2C_FIELD(a, s16 *, 0x64) = -0x1000;
+    Collision_Set(5, a + 0x24, a);
+    M2C_FIELD(a, s16 *, 0x4A) = -0x4000;
+    M2C_FIELD(a, s16 *, 0x44) = 0x100;
+    M2C_FIELD(a, s16 *, 0x46) = 0x100;
+    M2C_FIELD(a, s16 *, 0x48) = 0;
+    a = D_80144978;
+    func_8013D000(7, a, a + 0x84);
+    M2C_FIELD(a, u8 *, 0x8F) = 3;
+    M2C_FIELD(a, u8 *, 0x8E) = 3;
+    M2C_FIELD(a, u8 *, 0x8C) = 1;
+    M2C_FIELD(a, u8 *, 0x8D) = 0;
+    M2C_FIELD(a, s32 *, 0x28) = -0x3000;
+    M2C_FIELD(a, s32 *, 0x2C) = 0x10B8;
+    M2C_FIELD(a, s16 *, 0x44) = 0x200;
+    M2C_FIELD(a, s16 *, 0x64) = -0x1000;
+    M2C_FIELD(a, s32 *, 0x88) = 0;
+    M2C_FIELD(a, s32 *, 0x24) = 0;
+    M2C_FIELD(a, s16 *, 0x60) = 0;
+    M2C_FIELD(a, s16 *, 0x62) = 0;
+    M2C_FIELD(a, s16 *, 0x74) = 0;
+    M2C_FIELD(a, s16 *, 0x76) = -0x3200;
+    M2C_FIELD(a, s16 *, 0x78) = 0xEB8;
+    M2C_FIELD(a, s16 *, 0x7C) = 0;
+    M2C_FIELD(a, s16 *, 0x7E) = -0x3100;
+    M2C_FIELD(a, s16 *, 0x80) = 0xEB8;
+    c = D_80144BE8_80141F70;
+    M2C_FIELD(c, u8 *, 0xF) = 1;
+    M2C_FIELD(c, s32 *, 0x8) = M2C_FIELD(a, s32 *, 0x84);
+    M2C_FIELD(c, u8 *, 0xC) = 0;
+    func_801406F8(0);
+    M2C_FIELD(c, u8 *, 0x14) = 0;
+    M2C_FIELD(c, u8 *, 0xD) = 0;
+    M2C_FIELD(c, s16 *, 0x10) = 0x5A;
+    M2C_FIELD(c, u8 *, 0x1C) = 0;
+    M2C_FIELD(c, s16 *, 0x12) = 0;
+    M2C_FIELD(c, u8 *, 0x1F) = 0;
+    M2C_FIELD(c, u8 *, 0x20) = 0;
+    func_801423E8();
+    func_801428A4();
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801420BC);
 

@@ -411,7 +411,52 @@ void func_8013DF40(u8 *o) {
     func_8013DC78(&p, &v, M2C_FIELD(o, s8 *, 0xCB));
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013E020);
+extern struct { s32 f0, f4, f8, fC, f10, f14; } D_801413F0_8013E020 asm("D_801413F0");
+extern u8 D_800E77A0_8013E020[] asm("D_800E77A0");
+u8 *Collision_GetShape_8013E020(s16) asm("Collision_GetShape");
+s32 func_800525A0_8013E020(void *, void *) asm("func_800525A0");
+void func_8005240C_8013E020(void *, void *) asm("func_8005240C");
+void Object_PlaySound_8013E020(void *, s32) asm("Object_PlaySound");
+
+void func_8013E020(void *arg0) {
+    u8 *sh;
+
+    if ((u8)(M2C_FIELD(arg0, u8 *, 0x80) - 1) < 2) {
+        return;
+    }
+    if (D_801413F0_8013E020.f4 != 0) {
+        return;
+    }
+    if (D_801413F0_8013E020.f0 == 2) {
+        return;
+    }
+    if ((M2C_FIELD(arg0, u32 *, 0x50) >> 28) != 11) {
+        return;
+    }
+    sh = Collision_GetShape_8013E020(M2C_FIELD(arg0, u16 *, 0x50) & 0xFFF);
+    if ((M2C_FIELD(sh, s16 *, 0x24) & 0xFF00) == 0xD00) {
+        return;
+    }
+    func_800525A0_8013E020(arg0, sh);
+    if (M2C_FIELD(arg0, u8 *, 0x81) == 0) {
+        func_8005240C_8013E020(arg0, sh);
+        D_801413F0_8013E020.f0 = 2;
+        D_801413F0_8013E020.f8 = 0;
+        D_801413F0_8013E020.fC = 0;
+        D_800E77A0_8013E020[1]--;
+    } else {
+        D_801413F0_8013E020.f0 = 1;
+    }
+    D_801413F0_8013E020.f10 = M2C_FIELD(arg0, u8 *, 0x8F);
+    D_801413F0_8013E020.f4 = 20;
+    D_801413F0_8013E020.f14 = 1;
+    M2C_FIELD(arg0, u8 *, 0x84) = 20;
+    func_800573A0(arg0, (s16)(M2C_FIELD(sh, u16 *, 0) - M2C_FIELD(arg0, u16 *, 0x24)),
+                  (s16)(M2C_FIELD(sh, u16 *, 4) - M2C_FIELD(arg0, u16 *, 0x28)),
+                  (s16)(M2C_FIELD(sh, u16 *, 8) - M2C_FIELD(arg0, u16 *, 0x2C)));
+    Object_PlaySound_8013E020(arg0, 0x15);
+    Object_PlaySound_8013E020(arg0, 0xB1);
+}
 
 extern s32 D_801413F0_8013E1A0 asm("D_801413F0");
 
@@ -578,7 +623,44 @@ void func_8013ED7C(void *arg0)
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013EE70);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013EF54);
+void func_8013EBBC(void *arg0, s16 x, s16 y, s16 z);
+s32 func_8013EC28(void *arg0, s32 arg1, s32 arg2);
+void func_8013EE70(void *);
+
+void func_8013EF54(void *arg0) {
+    u16 t;
+
+    if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 3) & 1)) {
+        func_8013ED0C(arg0);
+        M2C_FIELD(arg0, u32 *, 0xE0) |= 8;
+    }
+    func_80058134(arg0, M2C_FIELD(arg0, s16 *, 0x44));
+    if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1)) {
+        func_8013EBBC(arg0, M2C_FIELD(arg0, s16 *, 0x1C), M2C_FIELD(arg0, s16 *, 0x1E), M2C_FIELD(arg0, s16 *, 0x20));
+    }
+    if (M2C_FIELD(arg0, u8 *, 0x82) != 0) {
+        if (M2C_FIELD(arg0, s16 *, 0x96) > 0) {
+            func_8013ED7C(arg0);
+        }
+    } else {
+        switch (M2C_FIELD(arg0, u8 *, 0x80)) {
+        case 1:
+            func_8013EE70(arg0);
+            break;
+        case 2:
+            t = *(u16 *)(M2C_FIELD(arg0, u8 **, 0x88) + M2C_FIELD(arg0, u8 *, 0x7F) * 4 + 2);
+            if (M2C_FIELD(arg0, u16 *, 0x5C) == t) {
+                M2C_FIELD(arg0, u8 *, 0x8F)++;
+                M2C_FIELD(arg0, u16 *, 0x5C) = t - 1;
+                if (func_8013EC28(arg0, 8, M2C_FIELD(arg0, u8 *, 0x8F))) {
+                    func_80051E98(arg0, 1);
+                    Object_DropPickups(arg0);
+                }
+            }
+            break;
+        }
+    }
+}
 
 s32 Math_Atan2(s32, s32);
 
@@ -799,7 +881,46 @@ s32 func_8014090C(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_801409D8);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_801409D8 asm("g_Game");
+
+s32 func_801409D8(s16 *p) {
+    u8 *e = g_Game_801409D8.f_820C + p[2] * 0x38;
+
+    switch (p[1]) {
+    case 0:
+        break;
+    case 1:
+        if (p[11] == p[7]) {
+            Sound_PlayAt(0xAF, e);
+        }
+        p[11] += p[7];
+        if (p[5] < p[11]) {
+            p[11] = p[5];
+            p[1] = 3;
+        }
+        break;
+    case 3:
+        p[11] -= p[10];
+        if (p[11] < 0) {
+            p[11] = 0;
+            p[1] = 0;
+            p[3] = 0;
+        }
+        break;
+    }
+    M2C_FIELD(e, s16 *, 0x10) = func_80092324(p, (u16 *)e);
+    if (p[5] / 2 < p[11]) {
+        M2C_FIELD(e, s16 *, 0x14) = 14;
+    } else {
+        M2C_FIELD(e, s16 *, 0x14) = 6;
+    }
+    if (p[4] == 1) {
+        Model_SetTurnAngle(3, p[6], p[11]);
+    } else {
+        Model_SetTurnAngle(2, p[6], p[11]);
+    }
+    return 0;
+}
 
 extern u8 *D_800B4D64;
 

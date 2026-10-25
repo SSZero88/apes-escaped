@@ -30,7 +30,34 @@ s32 func_8013D000(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D040);
+extern u16 g_RandSeed;
+extern u8 D_80141064[];
+extern s32 D_800B1CD0[];
+void func_800702B0(SVECTOR *, void *);
+void Camera_StartShake(s32);
+void Effect_SpawnAt(s32, SVECTOR *);
+void func_80070284(void *, s32 *, s32, s32, s32);
+
+void func_8013D040(void *arg0) {
+    SVECTOR v;
+    SVECTOR w;
+    s32 i;
+
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24) + ((M2C_FIELD(arg0, s16 *, 0x60) * 5) >> 5);
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28);
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C) + ((M2C_FIELD(arg0, s16 *, 0x64) * 5) >> 5);
+    Object_PlaySound(arg0, 0x4D);
+    func_800702B0(&v, D_80141064);
+    Camera_StartShake(2);
+    for (i = 0; i < 32; i++) {
+        w.vx = v.vx + ((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 4);
+        w.vy = v.vy + ((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 4);
+        w.vz = v.vz + ((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 4);
+        Effect_SpawnAt(6, &w);
+    }
+    Effect_SpawnAt(0x113, &v);
+    func_80070284(&v, D_800B1CD0, 2, 0, (s32)((u8 *)arg0 + 0x60));
+}
 
 void func_8013D1B0(void) {
 }
@@ -254,7 +281,42 @@ void func_8013DFC4(void *arg0, s32 n, s16 x, s32 z) {
     Effect_SpawnAt(5, &v);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E010);
+void func_8013DFC4(void *arg0, s32 n, s16 x, s32 z);
+
+void func_8013E010(void *arg0) {
+    s32 d;
+    u32 n;
+
+    d = M2C_FIELD(arg0, u16 *, 0x5C) - *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));
+    switch (M2C_FIELD(arg0, u8 *, 0x7F)) {
+    case 1:
+        n = d - 4;
+        if (n < 5) {
+            func_8013DFC4(arg0, n, 0xBE, -0x6E);
+            func_8013DFC4(arg0, n, -0xBE, 0xE6);
+        } else {
+            n = d - 0x11;
+            if (n < 5) {
+                func_8013DFC4(arg0, n, -0xBE, -0x6E);
+                func_8013DFC4(arg0, n, 0xBE, 0xE6);
+            }
+        }
+        break;
+    case 2:
+        n = d - 0x46;
+        if (n < 5) {
+            func_8013DFC4(arg0, n, -0xBE, 0xE6);
+            func_8013DFC4(arg0, n, 0xBE, 0xE6);
+        }
+        break;
+    case 4:
+        func_8013DFC4(arg0, 0, -0xBE, 0xE6);
+        func_8013DFC4(arg0, 0, 0xBE, 0xE6);
+        func_8013DFC4(arg0, 0, -0xBE, -0x6E);
+        func_8013DFC4(arg0, 0, 0xBE, -0x6E);
+        break;
+    }
+}
 
 void func_8013E174(void *arg0, s32 f1, s32 f2) {
     s32 d = M2C_FIELD(arg0, u16 *, 0x5C) - *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88));
@@ -513,7 +575,47 @@ s32 func_8013F3A4(u8 *o) {
     return r;
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013F484);
+void func_8013F300(void *arg0, void *arg1);
+s32 func_8013F3A4(u8 *o);
+void func_8013F100(void *arg0);
+s16 Object_FloorAt(void *, s16, s16, s16);
+void VectorNormalSS(void *, void *);
+
+void func_8013F484(void *arg0) {
+    SVECTOR v;
+    SVECTOR p;
+    s32 fl;
+    s32 d;
+
+    func_8013F300(arg0, &p);
+    fl = Object_FloorAt(arg0, 0, 0, 0);
+    d = (fl - (M2C_FIELD(arg0, s32 *, 0x28) - 500)) >> 2;
+    if (d > 50) {
+        d = 50;
+    }
+    M2C_FIELD(arg0, s16 *, 0x96) = d;
+    v.vx = M2C_FIELD(arg0, u16 *, 0xC2) - p.vx;
+    v.vy = 0;
+    v.vz = M2C_FIELD(arg0, u16 *, 0xC6) - p.vz;
+    if (v.vx * v.vx + v.vz * v.vz >= 0xE11) {
+        VectorNormalSS(&v, &v);
+        M2C_FIELD(arg0, s16 *, 0x94) = (v.vx * 15) >> 10;
+        M2C_FIELD(arg0, s16 *, 0x98) = (v.vz * 15) >> 10;
+    } else {
+        M2C_FIELD(arg0, s16 *, 0x94) = v.vx;
+        M2C_FIELD(arg0, s16 *, 0x98) = v.vz;
+    }
+    Object_ApplyVelocity(arg0);
+    if (func_8013F3A4(arg0)) {
+        M2C_FIELD(arg0, u8 *, 0x80) = 4;
+        M2C_FIELD(arg0, s16 *, 0xAA) = 0;
+        M2C_FIELD(arg0, u32 *, 0xE0) |= 1;
+    } else if (fl < M2C_FIELD(arg0, s32 *, 0x28) - 0x1B4) {
+        M2C_FIELD(arg0, u8 *, 0x80) = 4;
+        M2C_FIELD(arg0, u32 *, 0xE0) &= ~1;
+    }
+    func_8013F100(arg0);
+}
 
 void func_8013F5FC(void *arg0) {
     if (M2C_FIELD(arg0, s32 *, 0xE0) & 1) {

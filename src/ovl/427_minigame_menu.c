@@ -468,7 +468,48 @@ void func_8013AF14(u8 *m) {
     func_80017CD4(g_Game_8013AF14.f_8, (s32)&D_800E7D00, m);
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013AFC0);
+typedef struct { u8 pad0[0xD]; u8 f_D; u8 f_E; u8 padF[0x29]; } Slot_8013AFC0;
+typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; u8 pad30[0x1C]; s16 f_4C; u8 pad4E[0x12]; s16 r[3]; s16 pad66; s16 t[3]; u8 pad6E[6]; } Mdl_8013AFC0;
+extern Slot_8013AFC0 D_8013FC08_8013AFC0[] asm("D_8013FC08");
+extern Mdl_8013AFC0 D_8013FD70_8013AFC0[] asm("D_8013FD70");
+s32 func_800463A4(s32, s32, s32);
+void func_8013AF14(u8 *m);
+
+void func_8013AFC0(s32 i) {
+    Slot_8013AFC0 *s = &D_8013FC08_8013AFC0[i];
+    Mdl_8013AFC0 *m = &D_8013FD70_8013AFC0[i];
+    s32 old;
+    s32 v;
+
+    switch (s->f_E) {
+    case 0:
+        old = m->x;
+        v = func_800463A4(old, 0, 0x10);
+        if (old == v) {
+            s->f_E = 1;
+        }
+        m->x = v;
+        break;
+    case 1:
+        m->x = func_800463A4(m->x, i == 0 ? -0x200 : 0x200, 0x10);
+        m->y = func_800463A4(m->y, 0x3D8, 0x10);
+        m->z = func_800463A4(m->z, 0xA40, 0x10);
+        m->r[0] = func_800463A4(m->r[0], 0, 0x3F);
+        m->r[1] = func_800463A4(m->r[1], -0x1000, 0x3F);
+        m->r[2] = func_800463A4(m->r[2], 0, 0x3F);
+        m->t[0] = func_800463A4(m->t[0], 0, 0x3F);
+        m->t[1] = func_800463A4(m->t[1], 0, 0x3F);
+        m->t[2] = func_800463A4(m->t[2], 0x1000, 0x3F);
+        if (m->z == 0xA40) {
+            s->f_D = 3;
+            m->f_4C = 0xB4;
+        }
+        break;
+    default:
+        return;
+    }
+    func_8013AF14((u8 *)m);
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013B14C);
 
