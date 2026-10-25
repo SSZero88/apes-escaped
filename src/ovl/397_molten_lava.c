@@ -120,8 +120,11 @@ void func_8013D730(arg0, away)
     }
 }
 
-void func_8013D7B4(void) {
-    func_8013D730();
+void func_8013D7B4(arg0, away)
+    void *arg0;
+    s32 away;
+{
+    func_8013D730(arg0, away);
 }
 
 void func_8013D7D4(void *arg0) {
@@ -149,7 +152,33 @@ void TRex_HeavyImpact(u8 *a)
   func_8005588C(a, 0x1F);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D8AC);
+void func_800584C8(void *, s8);
+
+void func_8013D8AC(u8 *a)
+{
+  s32 r = func_8013D648((s32) a, 0x600, 1);
+  struct 
+  {
+    u32 pad : 6;
+    u32 b6 : 1;
+  } *fl = (void *) (a + 0xE0);
+  if (r & 1)
+  {
+    func_8013D7D4(a);
+    func_8013D7B4(a, 0);
+  }
+  else
+    if (r & 2)
+  {
+    a[0x80] = 6;
+    a[0x7F] = 4;
+    *((u16 *) (((s8 *) a) + 0x5C)) = *((u16 *) (((s8 *) (*((u8 **) (((s8 *) a) + 0x88)))) + 0x10));
+    fl->b6 ^= 1;
+    func_800584C8(a, 0);
+    func_8013D7B4(a, 1);
+    return;
+  }
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D95C);
 

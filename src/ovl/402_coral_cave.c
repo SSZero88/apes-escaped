@@ -37,7 +37,39 @@ void func_8013D850(void *arg0) {
     func_8013D770(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013D8BC);
+extern s32 D_800EC208;
+
+s32 func_8013D8BC(u8 *a)
+{
+  if (!Object_SpikeInFront(a, 0x5A, 0xB50, 0x400))
+  {
+    return 0;
+  }
+  if (Object_SpikeInFront(a, 0x5A, 0xB50, 0x100))
+  {
+    return 0;
+  }
+  if ((((D_800EC208 - (*((s32 *) (((s8 *) a) + 0x28)))) >= 0) ? (D_800EC208 - (*((s32 *) (((s8 *) a) + 0x28)))) : (-(D_800EC208 - (*((s32 *) (((s8 *) a) + 0x28)))))) > 0x400)
+  {
+    return 0;
+  }
+  if ((*((u16 *) (((s8 *) a) + 0x8C))) != 0)
+  {
+    return 1;
+  }
+  if (Object_WouldLeaveHome(a, 0))
+  {
+    return 0;
+  }
+  if (D_800EC208)
+  {
+    return 1;
+  }
+  else
+  {
+    return 1;
+  }
+}
 
 s32 func_8013D968(s32 *arg0, s32 arg1, s32 arg2) {
     s32 temp_v1;
