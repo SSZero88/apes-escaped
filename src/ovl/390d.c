@@ -17,7 +17,26 @@ u8 *func_8013FC20(void) {
     return D_80141554;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FC2C);
+typedef struct { s16 x, y; u8 body[0x20]; } Item_8013FC2C;
+extern u8 D_80141578[];
+#define D_80141574 ((Item_8013FC2C *)(D_80141578 - 4))
+void func_80136000(u8 *, s32, s32, s32);
+
+s32 func_8013FC2C(s32 sel, s16 *flags) {
+    s32 i;
+
+    for (i = 0; i < 5; i++) {
+        if (flags[i] == 1) {
+            if (i == sel) {
+                func_80136000(D_80141574[sel].body, D_80141574[sel].x, D_80141574[sel].y, 1);
+            } else {
+                func_80136000(D_80141574[i].body, D_80141574[i].x, D_80141574[i].y, 0);
+            }
+        }
+    }
+    Menu_DrawCaps(D_80141574[sel].x + 0x1C, D_80141574[sel].y, 0x50);
+    return 0;
+}
 
 extern u8 D_80141800[];
 

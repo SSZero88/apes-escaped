@@ -471,7 +471,37 @@ void func_8013F1C0(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F240);
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F3A4);
+extern u32 g_Game_8013F3A4 asm("g_Game");
+void func_8013F058(void *, s32);
+void func_8013F240(void *, s32);
+void func_8013F1C0(void *arg0);
+
+void func_8013F3A4(u8 *arg0) {
+    u8 v;
+
+    if (arg0[0x80] != 0x15 && (g_Game_8013F3A4 & 1)) {
+        v = arg0[0x81];
+        if (v < 5) {
+            func_8013F058(arg0, 1);
+            func_8013F058(arg0, 1);
+            func_8013F058(arg0, 0);
+            func_8013F240(arg0, 1);
+            func_8013F240(arg0, 0);
+            func_8013F1C0(arg0);
+            func_8013F1C0(arg0);
+        } else if (v < 10) {
+            func_8013F058(arg0, 1);
+            func_8013F058(arg0, 0);
+            func_8013F240(arg0, 1);
+            func_8013F1C0(arg0);
+        } else if (v < 15) {
+            func_8013F058(arg0, 1);
+            func_8013F240(arg0, 1);
+        } else if (v < 20) {
+            func_8013F058(arg0, 1);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F4B4);
 
@@ -541,7 +571,34 @@ INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013FA24);
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013FB34);
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_80140BD0);
+extern struct S_g_Game_80140BD0 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80140BD0 asm("g_Game");
+s32 ShockBox_Update(s32, void *, s32);
+
+s32 func_80140BD0(s16 *p) {
+    s16 v[6];
+    s16 *e = (s16 *)(g_Game_80140BD0.f_820C + p[2] * 0x38);
+
+    e[0xC] |= 0x8000;
+    if (p[4] >= 0) {
+        if (p[4] < 2) {
+            if (e[3] < 0x40) {
+                return 0;
+            }
+        } else if (p[4] < 4) {
+            if (e[5] < 0x40) {
+                return 0;
+            }
+        }
+    }
+    v[0] = e[0];
+    v[1] = e[1] + 0x20;
+    v[2] = e[2];
+    v[3] = e[3] + 0x60;
+    v[4] = e[4] + 0x40;
+    v[5] = e[5] + 0x60;
+    ShockBox_Update(p[4], v, 0x80);
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_80140CDC);
 

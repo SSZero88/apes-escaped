@@ -49,7 +49,43 @@ void func_8013D168(void *arg0) {
     M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88)) + 10;
 }
 
-INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013D1BC);
+s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
+M2C_UNK Object_PlaySound(void *, M2C_UNK);
+u32 Object_DetachLink(void *, s32);
+void func_8013D168(void *arg0);
+void func_8005744C(void *, s32, s32, s32);
+void func_800525E0(void *);
+void func_80052864(void *);
+
+void func_8013D1BC(u8 *a) {
+
+    if (M2C_FIELD(a, u8 *, 0x80) == 6) {
+        return;
+    }
+    if (Object_DetachLink(a, 0) == 6) {
+        func_8013D168(a);
+    }
+    switch (M2C_FIELD(a, u8 *, 0x80)) {
+    case 1:
+    case 2:
+        M2C_FIELD(a, s32 *, 0xB4) = Object_AddAttackSphereNear(a, 100, M2C_FIELD(a, s16 *, 0x24), M2C_FIELD(a, s16 *, 0x28), M2C_FIELD(a, s16 *, 0x2C), M2C_FIELD(a, s16 *, 0x48), M2C_FIELD(a, s16 *, 0x4A));
+    default:
+        if ((M2C_FIELD(a, u32 *, 0x50) >> 28) == 0xB) {
+            Object_PlaySound(a, 0x67);
+            func_8005744C(a, 0, 0, 0);
+            func_8013D168(a);
+        }
+        break;
+    case 3:
+    case 4:
+    case 5:
+        if ((M2C_FIELD(a, u32 *, 0x50) >> 28) == 0xB && !(M2C_FIELD(a, u8 *, 0xE0) >> 7)) {
+            func_800525E0(a);
+            func_80052864(a);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013D2E0);
 
@@ -202,7 +238,35 @@ s32 func_8013E1E4(s16 *p) {
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013E278);
 
-INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013E424);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013E424 asm("g_Game");
+extern u8 *D_800B4D64_8013E424 asm("D_800B4D64");
+
+s32 func_8013E424(s16 *p) {
+    u8 *e = g_Game_8013E424.f_820C + p[2] * 0x38;
+    u8 *e2;
+
+    M2C_FIELD(e, u16 *, 0x26) = M2C_FIELD(e, u16 *, 0x8);
+    e2 = g_Game_8013E424.f_820C + p[5] * 0x38;
+    M2C_FIELD(e2, u16 *, 0x26) = M2C_FIELD(e2, u16 *, 0x8);
+    if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+        *M2C_FIELD(D_800B4D64_8013E424 + M2C_FIELD(e, s16 *, 0xE) * 32, u32 **, 0) |= 0x2000;
+    }
+    if (p[10] == 0) {
+        p[1] = 0;
+        p[3] = 0;
+    } else {
+        p[1] = 4;
+        p[3] = 0;
+        if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+            M2C_FIELD(D_800B4D64_8013E424 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x18) = 0x2000;
+        }
+        M2C_FIELD(e, s16 *, 0x8) = 0;
+        M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+        M2C_FIELD(e2, s16 *, 0x8) = 0;
+        M2C_FIELD(e2, u16 *, 0x18) |= 0x8000;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013E52C);
 

@@ -86,7 +86,31 @@ s32 func_8013D43C(u8 *a, void *scale, s32 c) {
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D57C);
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D708);
+extern struct { u8 pad_0[0x24]; s32 x; u8 pad_28[4]; s32 z; } g_Spike_8013D708 asm("g_Spike");
+typedef struct { s32 x, y, z; u8 padC[0x14]; s16 f_20; u8 pad22[2]; s16 f_24; s16 f_26; } Shape_8013D708;
+typedef struct { Shape_8013D708 *shape; s16 x, y, z; } Coll_8013D708;
+
+void func_8013D708(Coll_8013D708 *c, void *owner, s32 arg2) {
+    s32 dx = g_Spike_8013D708.x - c->x;
+    s32 dz = g_Spike_8013D708.z - c->z;
+    Shape_8013D708 *s;
+
+    if (dx * dx + dz * dz > 0x24000) {
+        c->shape = 0;
+        return;
+    }
+    s = CollShape_Alloc();
+    c->shape = s;
+    if (s != 0) {
+        c->shape->x = c->x;
+        c->shape->y = c->y;
+        c->shape->z = c->z;
+        c->shape->f_20 = arg2;
+        c->shape->f_24 = 1;
+        c->shape->f_26 = 0x200;
+        Collision_Set(7, c->shape, owner);
+    }
+}
 
 extern u8 D_80140944;
 
@@ -118,7 +142,27 @@ void func_8013DE14(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013DE38);
+typedef struct { s32 f_0; SVECTOR v[8]; SVECTOR pos; u8 pad4C[8]; u8 f_54; u8 pad55[3]; s16 f_58; u8 pad5A[2]; } Slot_8013DE38;
+extern Slot_8013DE38 D_80140948_8013DE38[4] asm("D_80140948");
+extern struct { u8 pad0[0x24]; SVECTOR v; } D_801408C0_8013DE38 asm("D_801408C0");
+
+void func_8013DE38(s32 unused, SVECTOR *pos) {
+    s32 i;
+    Slot_8013DE38 *p;
+
+    for (i = 3, p = D_80140948_8013DE38; i >= 0; i--, p++) {
+        if (p->f_54 == 0) {
+            p->f_54 = 1;
+            p->f_58 = 1;
+            p->pos = *pos;
+            p->pos.vy += 0xC0;
+            for (i = 0; i < 8; i++) {
+                p->v[i] = D_801408C0_8013DE38.v;
+            }
+            return;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013DEEC);
 
@@ -238,7 +282,37 @@ void func_8013FC74(void) {
     D_801408C0.f_4 = 0x1E;
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013FC8C);
+typedef struct { u8 pad0[0x24]; u16 f_24; u8 pad26[6]; u16 f_2C; u8 pad2E[0x2E]; s16 f_5C; u8 pad5E[0x22]; } Obj_8013FC8C;
+extern Obj_8013FC8C D_801407F0[];
+extern u8 D_80140458[];
+s32 func_8013D43C(u8 *a, void *scale, s32 c);
+void func_8013F694(void *, s32);
+void func_8013F520(void);
+void func_8013E650(void);
+
+void func_8013FC8C(void) {
+    SVECTOR v;
+    s32 i;
+    Obj_8013FC8C *o;
+    s16 dx;
+    s16 dz;
+
+    for (i = 0; i < 1; i++) {
+        D_801407F0[i].f_5C = 0;
+        func_8013D43C((u8 *)&D_801407F0[i], D_80140458, 0);
+    }
+    o = D_801407F0;
+    dx = g_Spike.f_24 - o->f_24;
+    dz = g_Spike.f_2C - o->f_2C;
+    v.vy = 0;
+    v.vx = dx;
+    v.vz = dz;
+    if (dx * dx + dz * dz <= 0x19C98F) {
+        func_8013F694(o, 0x14);
+    }
+    func_8013F520();
+    func_8013E650();
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013FD74);
 
@@ -309,6 +383,38 @@ s32 func_8014149C(s16 *p)
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_801414F8);
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_801416D8);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_801416D8 asm("g_Game");
+extern s16 D_800EC238;
+
+s32 func_801416D8(s16 *p) {
+    u8 *e = g_Game_801416D8.f_820C + p[2] * 0x38;
+
+    switch (p[1]) {
+    case 0:
+        if (D_800EC238 == p[2]) {
+            if (p[3] == 0) {
+                M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+                p[3] = 1;
+                p[1] = 3;
+                Sound_PlayAt(0x9C, (s32)e);
+            }
+        } else {
+            p[3] = 0;
+        }
+        break;
+    case 3:
+        if (M2C_FIELD(e, s16 *, 0x32) == p[8] * 2 + 1 || M2C_FIELD(e, s16 *, 0x32) == p[9] * 2 + 1) {
+            Sound_PlayAt(0x9C, (s32)e);
+        }
+        if (M2C_FIELD(e, s16 *, 0x32) >= p[7] * 2 + 1) {
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+            p[1] = 0;
+            Sound_PlayAt(0x9C, (s32)e);
+            p[3] = D_800EC238 == p[2];
+        }
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_RODATA("asm/ovl/421/nonmatchings/421_monkey_madness_f6", D_80141850);

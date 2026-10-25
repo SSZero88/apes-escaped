@@ -321,7 +321,26 @@ void func_8013800C(void *arg0, CamKey_384 *k)
   CompMatrix(new_var, &D_800E78C0, &D_800E78C0);
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138094);
+void ScaleMatrix(void *, void *);
+void func_8004637C(void *);
+typedef struct { s32 vx, vy, vz, pad; } Vec_80138094;
+
+void func_80138094(void *arg0, CamKey_384 *k) {
+    Mat_384 m;
+    Vec_80138094 v;
+    s32 s;
+
+    func_8002FAF0(0x148);
+    s = 0x148000 / k->f_0;
+    v.vx = s;
+    v.vy = s;
+    v.vz = s;
+    func_8004637C(&m);
+    ScaleMatrix(&m, &v);
+    D_800E78C0 = k->m;
+    CompMatrix(&m, &D_800E78C0, &D_800E78C0);
+    CompMatrix(&D_800AF0A0, &D_800E78C0, &D_800E78C0);
+}
 
 typedef struct { s16 x, y; u16 w, h; } Rect_8013818C;
 typedef struct { Rect_8013818C r; u16 n; } Src_8013818C;
@@ -458,7 +477,41 @@ void func_801388F0(void *arg0, SVECTOR *p) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138980);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad1; s16 x3, y3; u8 u3, v3; u16 pad2; } PolyFT4_80138980;
+
+void func_80138980(void) {
+    PolyFT4_80138980 *p;
+    u32 *ot;
+
+    p = (PolyFT4_80138980 *)G_DRAW.prim;
+    ((u8 *)p)[3] = 9;
+    p->code = 0x2C;
+    p->r0 = 0x80;
+    p->g0 = 0x80;
+    p->b0 = 0x80;
+    p->x0 = 0xDC;
+    p->y0 = 0xAA;
+    p->x1 = 0x16C;
+    p->y1 = 0xAA;
+    p->x2 = 0xDC;
+    p->y2 = 0xCE;
+    p->x3 = 0x16C;
+    p->y3 = 0xCE;
+    p->u0 = 0x40;
+    p->v0 = 0xC0;
+    p->u1 = 0xFF;
+    p->v1 = 0xC0;
+    p->u2 = 0x40;
+    p->v2 = 0xEF;
+    p->u3 = 0xFF;
+    p->v3 = 0xEF;
+    p->tpage = 0x2C;
+    p->clut = 0x3830;
+    p->code = (p->code & 0xFE) | 2;
+    ot = &G_DRAW.db[G_DRAW.cur].ot[1];
+    ADD_PRIM_R(ot, p, "$5", "$4");
+    G_DRAW.prim = (u8 *)(p + 1);
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138A6C);
 

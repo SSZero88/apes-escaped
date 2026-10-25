@@ -172,7 +172,52 @@ void func_801380E0(s16 arg0, s16 arg1, s32 arg2, s16 arg3) {
     D_8013FC80.f_16 = (u16) D_8013FC80.f_0;
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80138110);
+extern u32 g_Game_80138110 asm("g_Game");
+
+void func_80138110(void) {
+    s32 more;
+    u8 *dst = (u8 *)0x1F800000;
+    u8 *src;
+    s32 n;
+    s32 i;
+    u8 c;
+
+    if (D_8013FC80.f_14 == 0) {
+        return;
+    }
+    more = 1;
+    src = (u8 *)D_8013FC80.f_8;
+    D_8013FC80.f_0 = D_8013FC80.f_16;
+    n = D_8013FC80.f_12 >> 3;
+    for (i = 0; i < n; i++) {
+        c = *src++;
+        if (c == 0) {
+            more = 0;
+            break;
+        }
+        *dst++ = c;
+    }
+    if (g_Game_80138110 & 4) {
+        *dst++ = 0x63;
+    }
+    *dst = 0;
+    if (D_8013FC80.f_12 & 7) {
+        more = 0;
+    }
+    if (more) {
+        Sound_PlayFixed(0xA4);
+    }
+    func_80138368(D_8013FC80.f_C, D_8013FC80.f_E, (M2C_UNK *)0x1F800000, 0x808080);
+    if (D_8013FC80.f_14 > 0) {
+        if (D_8013FC80.f_10 < ++D_8013FC80.f_12) {
+            D_8013FC80.f_14 = -1;
+        }
+    } else if (D_8013FC80.f_12 <= 0) {
+        D_8013FC80.f_14 = 0;
+    } else {
+        D_8013FC80.f_12 -= 4;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013825C);
 
@@ -317,7 +362,38 @@ void func_8013A760(s32 *arg0, s32 *arg1, s32 arg2) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013A794);
+typedef struct { s32 f_0; u8 pad4[0x24]; s32 f_28; s32 f_2C; s32 f_30; s32 f_34; s32 f_38; u8 pad3C[0x16]; s16 f_52; u8 pad54[0x10]; s32 f_64; u8 pad68[0x10]; } Pop_8013A794;
+extern Pop_8013A794 D_8013F418_8013A794[] asm("D_8013F418");
+extern u8 D_8013FE60_8013A794[] asm("D_8013FE60");
+extern s32 D_8013F3F0;
+extern s32 D_8013F3E4;
+void func_8013A760(s32 *arg0, s32 *arg1, s32 arg2);
+
+s32 func_8013A794(s32 kind, s16 *pos) {
+    s32 n;
+    s32 i;
+    Pop_8013A794 *e = D_8013F418_8013A794;
+
+    n = D_8013F3F0 / 10 + 2;
+    if (n > 16) {
+        n = 16;
+    }
+    for (i = 0; i < n; i++, e++) {
+        if (e->f_0 == 0) {
+            func_8013A760((s32 *)&e->pad4, (s32 *)(D_8013FE60_8013A794 + kind * 0x74), 0x74);
+            e->f_28 = pos[0];
+            e->f_2C = pos[1];
+            e->f_30 = 0xA40;
+            e->f_34 = 0;
+            e->f_38 = 0;
+            e->f_64 = D_8013F3E4;
+            e->f_0 = kind + 1;
+            e->f_52 = i & 1;
+            return 0;
+        }
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013A8C0);
 
@@ -471,7 +547,29 @@ INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013C0E4);
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013C368);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013C4D4);
+s32 rcos(s32);
+void func_8004637C(void *);
+void RotMatrixZ(s32, void *);
+void ApplyMatrixSV(void *, SVECTOR *, SVECTOR *);
+M2C_UNK VectorNormalSS(void *, void *);
+
+void func_8013C4D4(SVECTOR *a, SVECTOR *b, s32 ang) {
+    s32 c;
+
+    if ((a->vx * b->vx + a->vy * b->vy) >> 12 < rcos(ang)) {
+        func_8004637C((void *)0x1F800000);
+        c = (a->vx * b->vy - a->vy * b->vx) / 4096;
+        if (c > 0) {
+            RotMatrixZ(-ang, (void *)0x1F800000);
+        } else {
+            RotMatrixZ(ang, (void *)0x1F800000);
+        }
+        ApplyMatrixSV((void *)0x1F800000, b, b);
+    } else {
+        *b = *a;
+    }
+    VectorNormalSS(b, b);
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013C5F0);
 
@@ -540,7 +638,62 @@ void func_8013E700(void) {
     M2C_FIELD(&D_8013FD58, s16 *, 2) = 0;
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013E71C);
+extern struct { s16 f_0; s16 f_2; s32 f_4; } D_8013FD58_8013E71C asm("D_8013FD58");
+extern struct { u8 pad0[0x18]; s32 f_18; } D_8013F3E0_8013E71C asm("D_8013F3E0");
+extern struct { s32 f_0; s32 f_4; } D_8013FBF8_8013E71C asm("D_8013FBF8");
+extern s16 D_8013F402;
+extern u8 D_8013EFBC[];
+s32 Sound_Play_8013E71C(s32, s32) asm("Sound_Play");
+void func_80136000(void);
+void func_8013DF7C(void);
+s32 func_8013DF88(void);
+
+s32 func_8013E71C(void) {
+    s32 t = D_8013FD58_8013E71C.f_0;
+    s32 x;
+
+    if (D_8013F3E0_8013E71C.f_18 > 0) {
+        D_8013F3E0_8013E71C.f_18 = 0;
+    }
+    if (t == 0) {
+        D_8013FD58_8013E71C.f_4 = Sound_Play_8013E71C(0, 0x50);
+        func_80136000();
+    }
+    t++;
+    if (t < 0x1A4) {
+        func_80138350(3);
+        x = t - 6;
+        if (x > 0x72) {
+            x = 0x72;
+        }
+        func_80138368(0x8A, x, (M2C_UNK *)D_8013EFBC, 0x808080);
+        if (t == 0x77) {
+            if (D_8013FD58_8013E71C.f_4 != -1) {
+                Sound_Stop(0x50, D_8013FD58_8013E71C.f_4);
+            }
+            Sound_PlayFixed(0x6C);
+        }
+    }
+    if (D_8013F402 == 3) {
+        if (t < 0x1E0) {
+            func_8013DF7C();
+        } else {
+            if (func_8013DF88() != 0) {
+                return 1;
+            }
+            t--;
+        }
+    } else if (t >= 0x97) {
+        if (t >= 0x1A5) {
+            return 1;
+        }
+        if (D_8013FBF8_8013E71C.f_0 & D_8013FBF8_8013E71C.f_4 & 0x860) {
+            return 1;
+        }
+    }
+    D_8013FD58_8013E71C.f_0 = t;
+    return 0;
+}
 
 void func_8013E874(s32 arg0, s32 arg1, s8 arg2, s16 arg3) {
     void *temp_v1;

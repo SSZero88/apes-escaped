@@ -258,7 +258,34 @@ s32 func_8013DDD8(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013DE90);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013DE90 asm("g_Game");
+extern u8 *D_800B4D64_8013DE90 asm("D_800B4D64");
+s32 func_8008FC30(s16, void *);
+
+s32 func_8013DE90(s16 *p) {
+    u8 *e = g_Game_8013DE90.f_820C + p[2] * 0x38;
+
+    M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+    if (p[4] == 0) {
+        p[1] = 0;
+        p[3] = 0;
+        M2C_FIELD(e, s16 *, 0x14) = 1;
+        M2C_FIELD(e, u16 *, 0x12) = (M2C_FIELD(e, u16 *, 0x12) & 0xF0FF) | 0x500;
+    } else {
+        p[1] = 2;
+        func_8008FC30(p[6], p);
+        if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+            M2C_FIELD(D_800B4D64_8013DE90 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+        }
+        M2C_FIELD(e, u16 *, 0x12) &= 0xF0FF;
+        M2C_FIELD(e, u16 *, 0x2) += p[8];
+        if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+            M2C_FIELD(D_800B4D64_8013DE90 + M2C_FIELD(e, s16 *, 0xE) * 32, u16 *, 0x12) += p[8];
+        }
+        p[3] = 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013DFAC);
 
@@ -285,7 +312,32 @@ s32 func_8013E170(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013E208);
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013E3A4);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013E3A4 asm("g_Game");
+extern u8 *D_800B4D64_8013E3A4 asm("D_800B4D64");
+void func_8013E54C(u8 *);
+
+s32 func_8013E3A4(s16 *p) {
+    u8 *e = g_Game_8013E3A4.f_820C + p[2] * 0x38;
+
+    M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+    p[3] = 0;
+    p[1] = p[10];
+    if (p[4] == 0) {
+        if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+            M2C_FIELD(D_800B4D64_8013E3A4 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+        }
+    }
+    if (p[10] == 1) {
+        if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+            M2C_FIELD(D_800B4D64_8013E3A4 + M2C_FIELD(e, s16 *, 0xE) * 32, u16 *, 0x16) = 0xFFFF;
+        }
+        p[1] = 2;
+        while (M2C_FIELD(e, s16 *, 0x32) < p[6] * 2 + 1) {
+            func_8013E54C(e);
+        }
+    }
+    return 0;
+}
 
 s32 func_8013E4A8(void *arg0) {
     void *temp_a0;

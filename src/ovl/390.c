@@ -451,7 +451,27 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80138DC0);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_801391B0);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013946C);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8013946C;
+typedef struct { u16 x, y, w, h; u8 u, pad9, v, padB; } Img_8013946C;
+extern Img_8013946C D_8013B124[];
+#define P_8013946C ((Sprt_8013946C *)G_DRAW.prim)
+
+s32 func_8013946C(s32 i, s32 x, s32 y) {
+    u32 *ot;
+
+    ((u8 *)P_8013946C)[3] = 4;
+    P_8013946C->code = 0x65;
+    P_8013946C->x0 = x;
+    P_8013946C->y0 = y;
+    P_8013946C->clut = (D_8013B124[i].y << 6) | ((D_8013B124[i].x >> 4) & 0x3F);
+    P_8013946C->w = D_8013B124[i].w;
+    P_8013946C->h = D_8013B124[i].h;
+    P_8013946C->u0 = D_8013B124[i].u;
+    P_8013946C->v0 = D_8013B124[i].v;
+    ot = &G_DRAW.db[G_DRAW.cur].ot[0];
+    __asm__ volatile("lwl $4, 2(%0)\n\tlw $2, %1\n\tsll $2, $2, 8\n\tswl $2, 2(%0)\n\tlw $2, %1\n\tswl $4, 2($2)\n\tlw $2, %1\n\tnop\n\taddiu $2, $2, 0x14\n\tsw $2, %1" : : "r"(ot), "m"(G_DRAW.prim) : "$2", "$4", "memory");
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80139570);
 

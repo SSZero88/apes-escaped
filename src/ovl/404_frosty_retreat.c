@@ -397,7 +397,37 @@ void func_8013F1B0(void *arg0) {
     func_800563E0(arg0, 0x14);
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013F278);
+s32 Object_AddAttackSphereNear_8013F278(void *, s16, s16, s16, s32, s32, s32) asm("Object_AddAttackSphereNear");
+s32 Object_DetachLink_8013F278(void *, s32) asm("Object_DetachLink");
+void Object_PlaySound_8013F278(void *, s32) asm("Object_PlaySound");
+void Object_ApplyVelocity_8013F278(void *) asm("Object_ApplyVelocity");
+s32 func_80055718_8013F278(void *, s16, s16, s16, s32) asm("func_80055718");
+s32 Object_StepGrowShrink_8013F278(void *, s16, s16, s16) asm("Object_StepGrowShrink");
+void func_8013F0EC(void *arg0);
+
+void func_8013F278(u8 *a) {
+    s16 *v;
+
+    if (Object_DetachLink_8013F278(a, 0) == 6) {
+        Object_PlaySound_8013F278(a, 0x5F);
+        func_8013F0EC(a);
+        return;
+    }
+    if (M2C_FIELD(a, u16 *, 0xE2) & 1) {
+        Object_StepGrowShrink_8013F278(a, 0x53, 0x37, 0);
+    }
+    if (func_80055718_8013F278(a, M2C_FIELD(a, s16 *, 0xBC), M2C_FIELD(a, s16 *, 0xBE), M2C_FIELD(a, s16 *, 0xC0), M2C_FIELD(a, s16 *, 0xA8) >> 3)) {
+        func_8013F0EC(a);
+        return;
+    }
+    v = (s16 *)(a + 0x60);
+    v[0] = M2C_FIELD(a, u16 *, 0x94);
+    v[1] = M2C_FIELD(a, u16 *, 0x96);
+    v[2] = M2C_FIELD(a, u16 *, 0x98);
+    M2C_FIELD(a, u32 *, 0xE0) = (M2C_FIELD(a, u32 *, 0xE0) & 0xFF3FFFFF) | 0x800000;
+    Object_ApplyVelocity_8013F278(a);
+    M2C_FIELD(a, s32 *, 0xB4) = Object_AddAttackSphereNear_8013F278(a, M2C_FIELD(a, u16 *, 0x44) + 50, M2C_FIELD(a, s16 *, 0x24), M2C_FIELD(a, u16 *, 0x28) - 30, M2C_FIELD(a, s16 *, 0x2C), 1, 0x103);
+}
 
 extern struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; } g_Spike_8013F39C asm("g_Spike");
 
@@ -565,7 +595,38 @@ INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013FFC8);
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_80140124);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_80140738);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_80140738 asm("g_Game");
+void Sound_PlayAt_80140738(s32, void *) asm("Sound_PlayAt");
+s32 ShockBox_Update(s32, void *, s32);
+
+s32 func_80140738(s16 *p) {
+    s16 *e = (s16 *)(g_Game_80140738.f_820C + p[2] * 0x38);
+    s16 b[6];
+
+    e[0xC] |= 0x8000;
+    if (e[0x11] == 100) {
+        Sound_PlayAt_80140738(0xB7, e);
+    }
+    if (p[4] >= 0) {
+        if (p[4] < 2) {
+            if (e[3] < 0x40) {
+                return 0;
+            }
+        } else if (p[4] < 4) {
+            if (e[5] < 0x40) {
+                return 0;
+            }
+        }
+    }
+    b[0] = e[0];
+    b[1] = e[1] + 0x20;
+    b[2] = e[2];
+    b[3] = e[3] + 0x60;
+    b[4] = e[4] + 0x40;
+    b[5] = e[5] + 0x60;
+    ShockBox_Update(p[4], b, 0x80);
+    return 0;
+}
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80140864 asm("g_Game");
 extern u8 *D_800B4D64_80140864 asm("D_800B4D64");

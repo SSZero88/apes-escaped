@@ -54,7 +54,27 @@ void func_8013D208(void *arg0, s16 r) {
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D260);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D468);
+s32 Math_Atan2(s32, s32);
+s32 rcos_8013D468(s32) asm("rcos");
+s32 rsin_8013D468(s32) asm("rsin");
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2a[2]; u16 z; } g_Spike_8013D468 asm("g_Spike");
+void func_8013D208(void *arg0, s16 r);
+
+void func_8013D468(u8 *a) {
+    u16 base;
+    s32 ang;
+    s32 x;
+
+    base = *(u16 *)(M2C_FIELD(a, u8 *, 0x7F) * 4 + M2C_FIELD(a, u8 **, 0x88));
+    if (M2C_FIELD(a, u16 *, 0x5C) < base + 0x2C) {
+        func_8013D208(a, 300);
+    } else if (M2C_FIELD(a, u16 *, 0x5C) == base + 0x2D) {
+        ang = Math_Atan2(M2C_FIELD(a, s16 *, 0x60), M2C_FIELD(a, s16 *, 0x64));
+        ang = (ang + 0x1638) % 4096;
+        x = (s16)(g_Spike_8013D468.x - ((rcos_8013D468(ang) * 100) >> 12));
+        Object_AddAttackSphere(a, 300, x, g_Spike_8013D468.y + 100, g_Spike_8013D468.z - ((rsin_8013D468(ang) * 100) >> 12), 0, 0x100);
+    }
+}
 
 void Object_CameraShake(void *, s32);
 
@@ -345,7 +365,33 @@ void TRex_OnCollide(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013EA8C);
+typedef struct { u8 pad0[0x80]; u8 f_80; u8 f_81; u8 pad82[0x62]; } Obj_EA8C;
+extern Obj_EA8C g_Objects_EA8C[] asm("g_Objects");
+void func_8013E934(void *arg0, void *arg1);
+
+void func_8013EA8C(u8 *a) {
+    Obj_EA8C *o;
+
+    M2C_FIELD(a, s16 *, 0xA0) = 100;
+    M2C_FIELD(a, s16 *, 0x48) = 0x800;
+    M2C_FIELD(a, s16 *, 0x4A) = -0x3EFF;
+    M2C_FIELD(a, u8 *, 0xDB) = 4;
+    M2C_FIELD(a, u8 *, 0x83) = 2;
+    M2C_FIELD(a, s16 *, 0x44) = 0x50;
+    M2C_FIELD(a, s16 *, 0x46) = 0xC8;
+    M2C_FIELD(a, u8 *, 0x81) = 10;
+    M2C_FIELD(a, u8 *, 0x8F) = 0;
+    M2C_FIELD(a, u32 *, 0xE0) &= ~0x1000;
+    o = &g_Objects_EA8C[M2C_FIELD(a, s8 *, 0xCA)];
+    M2C_FIELD(a, u32 *, 0xE0) |= 0x200000;
+    func_8013E934(a, o);
+    *(SVECTOR *)(a + 0x60) = *(SVECTOR *)((u8 *)o + 0x60);
+    M2C_FIELD(a, u8 *, 0xC8) = 0;
+    func_8005588C(a, 0x23);
+    M2C_FIELD(a, u8 *, 0x80) = 1;
+    M2C_FIELD(a, u8 *, 0x7F) = 0;
+    M2C_FIELD(a, u16 *, 0x5C) = *M2C_FIELD(a, u16 **, 0x88);
+}
 
 void func_8013EB8C(void *arg0) {
     if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 0xB) {
@@ -400,7 +446,25 @@ void func_8013F100(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013F144);
+s32 rcos_8013F144(s32) asm("rcos");
+s32 rsin_8013F144(s32) asm("rsin");
+s32 Math_ISqrt(s32);
+void Object_SetVelocityToward(void *, void *, s32, s16);
+
+void func_8013F144(u8 *a) {
+    s32 d;
+
+    M2C_FIELD(a, s16 *, 0xAA) = (M2C_FIELD(a, s16 *, 0xAA) + 11) % 4096;
+    M2C_FIELD(a, s16 *, 0x94) = M2C_FIELD(a, u16 *, 0x9A) + ((rcos_8013F144(M2C_FIELD(a, s16 *, 0xAA)) * M2C_FIELD(a, s16 *, 0xA6)) >> 12) - M2C_FIELD(a, u16 *, 0x24);
+    M2C_FIELD(a, s16 *, 0x98) = M2C_FIELD(a, u16 *, 0x9E) + ((rsin_8013F144(M2C_FIELD(a, s16 *, 0xAA)) * M2C_FIELD(a, s16 *, 0xA6)) >> 12) - M2C_FIELD(a, u16 *, 0x2C);
+    M2C_FIELD(a, s16 *, 0x96) = M2C_FIELD(a, u16 *, 0x9C) + 500 - M2C_FIELD(a, u16 *, 0x28);
+    d = Math_ISqrt(M2C_FIELD(a, s16 *, 0x94) * M2C_FIELD(a, s16 *, 0x94) + M2C_FIELD(a, s16 *, 0x98) * M2C_FIELD(a, s16 *, 0x98) + M2C_FIELD(a, s16 *, 0x96) * M2C_FIELD(a, s16 *, 0x96));
+    if (d > 20) {
+        d = 20;
+    }
+    Object_SetVelocityToward(a, a + 0x94, d, 0);
+    Object_ApplyVelocity(a);
+}
 
 void func_8013F26C(void *arg0) {
     if (((u32) (M2C_FIELD(arg0, u8 *, 0x80) - 2) >= 2U) && (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6)) != 0)) {

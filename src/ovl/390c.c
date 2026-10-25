@@ -5,7 +5,45 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013C5E0);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013C7C4);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013C7F0);
+extern struct { u8 pad0[0x8120]; s16 f_8120; } g_Game_8013C7F0 asm("g_Game");
+extern s16 D_8013AF56;
+extern s32 D_8013F280;
+extern s16 D_8013F284;
+extern s32 D_8013F288;
+void Gfx_InitDisplay(void);
+s32 ResetGraph(s32);
+s32 func_8013C8E8(void);
+s32 func_8013F630(void);
+s32 func_8013C954(void);
+s32 func_8013CB30(void);
+
+s32 func_8013C7F0(void) {
+    Gfx_InitDisplay();
+    ResetGraph(1);
+    D_8013AF56 = 0xE;
+    D_8013F280 = 0;
+    D_8013F284 = 1;
+    D_8013F288 = 0;
+    func_8013C8E8();
+    while (1) {
+        switch (D_8013F280) {
+        case 0:
+            if (func_8013F630() < 0) {
+                goto end;
+            }
+            break;
+        case 1:
+            func_8013C954();
+            break;
+        case 2:
+            func_8013CB30();
+            break;
+        }
+    }
+end:
+    g_Game_8013C7F0.f_8120 = 0x15;
+    return 0;
+}
 
 extern struct S_g_Game { u8 pad_0[0x813C]; u16 f_813C; u8 pad_813E[0x16]; u16 f_8154; u16 f_8156; } g_Game;
 extern struct { u8 pad0[0xA1]; u8 f_A1; u8 f_A2; } g_GadgetState;
@@ -56,7 +94,40 @@ s32 func_8013D218(void) {
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013D238);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013D834);
+extern s16 D_800E3880_8013D834 asm("D_800E3880");
+extern s16 D_800E3884;
+void func_8013CD1C(s32, s32);
+
+s32 func_8013D834(void) {
+    switch (D_800E3880_8013D834) {
+    case -5:
+        func_8013E098();
+        func_8013CD1C(D_8013F284 == 0 ? 0x25 : 0x24, 0);
+        break;
+    case 0:
+        if (D_800E3884 == 10) {
+            MemCard_Request(0xC, 0);
+        } else {
+            func_8013E098();
+            func_8013CD1C(D_8013F284 == 0 ? 0x27 : 0x24, 0);
+        }
+        break;
+    case -7:
+        func_8013CD1C(0x12, 0);
+        break;
+    case -8:
+        func_8013E098();
+        func_8013CD1C(D_8013F284 == 0 ? 0x18 : 0x24, 0);
+        break;
+    case -2:
+    case -1:
+        func_8013CD1C(0x29, 0);
+        break;
+    case 1:
+        break;
+    }
+    return 0;
+}
 
 extern s16 D_800E3880_8013D92C asm("D_800E3880");
 extern s16 D_800E3884;

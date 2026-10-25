@@ -147,7 +147,51 @@ INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80137DC4);
 
 INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80137F4C);
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80138258);
+extern u8 *D_800EC354;
+typedef struct { u32 tag; u32 rgbc; s16 x0, y0; u8 u0, v0; u16 clut; } Sprt8_80138258;
+
+void func_80138258(s32 x0, s32 y0, s32 w, s32 h) {
+    Sprt8_80138258 *p;
+    u32 *ot;
+    s32 x, y;
+    s32 u, v;
+
+    p = (Sprt8_80138258 *)G_DRAW.prim;
+    ot = G_DRAW.ot;
+    for (y = 0; y < h; y += 8) {
+        for (x = 0; x < w; x += 8) {
+            p->rgbc = 0x606060;
+            ((u8 *)p)[3] = 3;
+            ((u8 *)p)[7] = 0x76;
+            p->x0 = x0 + x;
+            p->y0 = y0 + y;
+            p->clut = 0x77AB;
+            if (x == 0) {
+                u = 0x80;
+            } else if (x + 8 >= w) {
+                u = 0x90;
+            } else {
+                u = 0x88;
+            }
+            p->u0 = u;
+            if (y == 0) {
+                v = 0xA0;
+            } else if (y + 8 >= h) {
+                v = 0xB0;
+            } else {
+                v = 0xA8;
+            }
+            p->v0 = v;
+            ADD_PRIM_ASM2(ot, p);
+            p++;
+        }
+    }
+    ((u8 *)p)[3] = 1;
+    p->rgbc = 0xE100025A;
+    ADD_PRIM_ASM(ot, p);
+    p = (Sprt8_80138258 *)((u8 *)p + 8);
+    D_800EC354 = (u8 *)p;
+}
 
 INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_8013836C);
 

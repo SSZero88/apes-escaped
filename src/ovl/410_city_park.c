@@ -28,13 +28,60 @@ M2C_UNK func_80055DC0(void *, M2C_UNK, M2C_UNK);
 M2C_UNK func_80056128(void *, M2C_UNK);
 s32 func_800572CC(void *);
 M2C_UNK func_80058134(void *, s16);
-M2C_UNK func_8013FA08(void *);
 M2C_UNK Object_SeekHeight(void *, M2C_UNK);
 s32 func_80055718(void *, s16, s16, s16, s32);
 s32 rcos(s16);
 s32 rsin(s16);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013D000);
+extern struct { u8 pad_0[0x824C]; u8 *f_824C; } g_Game_8013D000 asm("g_Game");
+typedef struct { s16 pos[3]; s16 y; s16 home[3]; u8 f_E; u8 pad_F[9]; s16 f_18; s16 f_1A; u8 pad_1C[4]; } Pt_8013D000;
+extern u8 D_801418F0;
+extern Pt_8013D000 D_801414F0[];
+s16 Floor_GetHeight(s32, s32, s32);
+
+s32 func_8013D000(void) {
+    u8 *hdr = g_Game_8013D000.f_824C;
+    s16 *s;
+    u8 *data;
+    Pt_8013D000 *o;
+    s32 i;
+
+    D_801418F0 = 0;
+    data = hdr + 8;
+    if (M2C_FIELD(hdr, u16 *, 0) != 0x452E || hdr[2] != 0x46) {
+        return 1;
+    }
+    D_801418F0 = hdr[4];
+    if (D_801418F0 > 32) {
+        D_801418F0 = 32;
+    }
+    i = 0;
+    if (D_801418F0 == 0) {
+        return 0;
+    }
+    o = D_801414F0;
+    s = (s16 *)data;
+loop:
+    {
+        o->f_E = 0;
+        o->home[0] = o->pos[0] = s[1];
+        o->home[1] = o->pos[1] = s[2];
+        o->home[2] = o->pos[2] = s[3];
+        o->y = Floor_GetHeight(s[1], s[2] + 0x200, s[3]);
+        if (o->y < s[2]) {
+            o->y = Floor_GetHeight(s[1], s[2] + 0x1000, s[3]);
+        }
+        o->f_18 = 1;
+        o->f_1A = s[5];
+        s += 8;
+        i++;
+        o++;
+    }
+    if (i < D_801418F0) {
+        goto loop;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013D15C);
 
@@ -196,7 +243,34 @@ void func_8013E49C(void *arg0, M2C_UNK arg1) {
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013E580);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013E6F4);
+void Effect_SpawnAt(s32, SVECTOR *);
+void Object_TurnTowardSpike(void *);
+s32 Sound_PlayFixed(s32);
+typedef struct { u16 start; u16 end; } Rng_8013E6F4;
+
+void func_8013E6F4(u8 *arg0) {
+    SVECTOR v;
+    s32 t;
+    Rng_8013E6F4 *f;
+
+    t = M2C_FIELD(arg0, u16 *, 0x5C);
+    f = (Rng_8013E6F4 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, s32 *, 0x88));
+
+    if (t < f->start + 0x3F) {
+        Object_TurnTowardSpike(arg0);
+    } else if (t < f->end - 0x14) {
+        M2C_FIELD(arg0, s32 *, 0xE0) &= ~1;
+        v.vx = M2C_FIELD(arg0, u16 *, 0x24);
+        v.vy = M2C_FIELD(arg0, u16 *, 0x28);
+        v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+        Object_AddAttackSphereNear(arg0, 0x258, v.vx, v.vy, v.vz, 1, 0x203);
+        if (M2C_FIELD(arg0, u16 *, 0x5C) == M2C_FIELD(arg0, Rng_8013E6F4 **, 0x88)[M2C_FIELD(arg0, u8 *, 0x7F)].end - 0x16) {
+            v.vy += 0x50;
+            Effect_SpawnAt(0x117, &v);
+            Sound_PlayFixed(0x67);
+        }
+    }
+}
 
 void func_8013E804(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x80) = 4;
@@ -212,7 +286,45 @@ void func_8013E824(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0xCE) = 9;
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013E848);
+void func_8013E804(void *arg0);
+void *Collision_GetShape(s32);
+s32 Collision_GetId(s32);
+typedef struct { u16 start; u16 end; } Rng_8013E848;
+
+s32 func_8013E848(u8 *arg0) {
+    u8 *s;
+    s32 id;
+
+    if (M2C_FIELD(arg0, u32 *, 0xE0) >> 20 & 1) {
+        M2C_FIELD(arg0, u32 *, 0xE0) &= ~0x100000;
+        if (arg0[0x81] == 0) {
+            arg0[0x80] = 12;
+            arg0[0x7F] = 4;
+            M2C_FIELD(arg0, s16 *, 0x5C) = M2C_FIELD(arg0, Rng_8013E848 **, 0x88)[4].start;
+            func_8005588C(arg0, 0x1E);
+        } else {
+            func_8013E804(arg0);
+        }
+        return 0;
+    }
+    if (arg0[0xDD] != 0) {
+        if (M2C_FIELD(arg0, u32 *, 0x50) >> 28 != 11) {
+            return 0;
+        }
+        s = Collision_GetShape(M2C_FIELD(arg0, u16 *, 0x50) & 0xFFF);
+        id = Collision_GetId(M2C_FIELD(arg0, u16 *, 0x50) & 0xFFF);
+        if ((M2C_FIELD(s, s16 *, 0x24) & 0xFF00) != 0xD00 && id != 2) {
+            arg0[0xCE] = arg0[0x7F];
+            arg0[0x7F] = arg0[0xCD];
+            M2C_FIELD(arg0, s16 *, 0x5C) = M2C_FIELD(arg0, Rng_8013E848 **, 0x88)[arg0[0x7F]].start;
+            func_800525E0(arg0);
+            func_80052864(arg0);
+            arg0[0xDD] = 0;
+            return 1;
+        }
+    }
+    return 0;
+}
 
 void func_8013E980(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x80) = 1;
@@ -406,7 +518,50 @@ INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013F3D0);
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013F4F4);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013FA08);
+M2C_UNK func_80052038(void *, M2C_UNK);
+M2C_UNK func_80052134(void *, M2C_UNK);
+typedef struct { u16 start; u16 end; } Rng_8013FA08;
+
+void func_8013FA08(u8 *arg0) {
+    func_80052038(arg0, 0x69);
+    func_80052134(arg0, 0x69);
+    M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
+    arg0[0xCD] = 2;
+    M2C_FIELD(arg0, s16 *, 0x48) = 1;
+    switch (arg0[0x7E]) {
+    case 0x67:
+        arg0[0xC8] = 16;
+        M2C_FIELD(arg0, s16 *, 0x44) = 0x6E;
+        M2C_FIELD(arg0, s16 *, 0xA0) = 0x50;
+        M2C_FIELD(arg0, s16 *, 0x4A) = -0x7DFD;
+        arg0[0x81] = 30;
+        arg0[0x80] = 1;
+        arg0[0x7F] = 0;
+        M2C_FIELD(arg0, s16 *, 0x5C) = M2C_FIELD(arg0, Rng_8013FA08 **, 0x88)[0].start;
+        break;
+    case 0x68:
+        arg0[0xC8] = 12;
+        M2C_FIELD(arg0, s16 *, 0x44) = 0x37;
+        M2C_FIELD(arg0, s16 *, 0xA0) = 0x28;
+        M2C_FIELD(arg0, s16 *, 0x4A) = -0x7DFE;
+        arg0[0x81] = 20;
+        arg0[0x80] = 2;
+        arg0[0x7F] = 2;
+        M2C_FIELD(arg0, s16 *, 0x5C) = M2C_FIELD(arg0, Rng_8013FA08 **, 0x88)[2].start;
+        break;
+    case 0x69:
+        arg0[0xC8] = 7;
+        M2C_FIELD(arg0, s16 *, 0x44) = 0x1B;
+        M2C_FIELD(arg0, s16 *, 0xA0) = 0x14;
+        M2C_FIELD(arg0, s16 *, 0x4A) = -0x7EFD;
+        arg0[0x81] = 2;
+        arg0[0xDC] = 0;
+        arg0[0x80] = 2;
+        arg0[0x7F] = 2;
+        M2C_FIELD(arg0, s16 *, 0x5C) = M2C_FIELD(arg0, Rng_8013FA08 **, 0x88)[2].start;
+        break;
+    }
+}
 
 extern s16 D_800E77E0;
 extern u8 g_Objects_8013D130[] asm("g_Objects");
@@ -700,7 +855,37 @@ s32 func_80140548(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_801405CC);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_801408E0);
+extern struct S_g_Game_801408E0 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_801408E0 asm("g_Game");
+extern u8 *D_800B4D64;
+void RotMatrixZYX(SVECTOR *, void *);
+
+s32 func_801408E0(s16 *p) {
+    SVECTOR v;
+    u8 *s;
+    u16 *e = (u16 *)(g_Game_801408E0.f_820C + p[2] * 0x38);
+
+    e[0x12] = e[0];
+    e[0x13] = e[1];
+    e[0x14] = e[2];
+    s = g_Game_801408E0.f_8220 + p[9] * 0x18;
+    if (M2C_FIELD(s, s16 *, 6) != 0) {
+        p[3] = 0x400;
+        p[1] = 1;
+        e[0] = e[0x12] - e[3] + 0x40;
+        e[4] += (s16)e[3] * 2;
+        e[3] = 0x40;
+        v.vy = 0;
+        v.vx = 0;
+        v.vz = -p[3];
+        if (p[6] >= 0) {
+            RotMatrixZYX(&v, M2C_FIELD(D_800B4D64 + p[6] * 32, void **, 0x1C));
+        }
+    } else {
+        p[1] = 4;
+        p[3] = 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_801409F8);
 
@@ -726,7 +911,34 @@ s32 func_80140E68(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_80140ED4);
+extern struct S_g_Game_80140ED4 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80140ED4 asm("g_Game");
+extern u8 D_801414C8[];
+void func_800702B0(void *, void *);
+void Sound_PlayAt(s32, void *);
+
+s32 func_80140ED4(s16 *p) {
+    u8 *e = g_Game_80140ED4.f_820C + p[2] * 0x38;
+
+    switch (p[1]) {
+    case 0:
+        if (p[4] < ++p[3]) {
+            p[1] = 1;
+            if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+                M2C_FIELD(D_800B4D64 + M2C_FIELD(e, s16 *, 0xE) * 32, u16 *, 0x16) = 0xFFFF;
+            }
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+        }
+        break;
+    case 1:
+        if (M2C_FIELD(e, s16 *, 0x32) == p[6] * 2 + 1) {
+            func_800702B0(e, D_801414C8 + p[5] * 12);
+            Sound_PlayAt(0x4D, e);
+            Sound_PlayAt(0x5F, e);
+        }
+        break;
+    }
+    return 0;
+}
 
 extern struct S_g_Game_80140FF4 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80140FF4 asm("g_Game");
 s16 func_80092324(s16 *, u16 *);
@@ -747,4 +959,31 @@ s32 func_80140FF4(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_80141084);
+extern struct S_g_Game_80141084 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80141084 asm("g_Game");
+s32 Model_SetTurnAngle(s16, s16, s32);
+
+s32 func_80141084(s16 *p) {
+    u16 *e = (u16 *)(g_Game_80141084.f_820C + p[2] * 0x38);
+
+    if (p[1] == 1) {
+        if (p[11] == 0) {
+            Sound_PlayFixed(0xB8);
+        }
+        p[11] += p[7];
+        if (p[5] < p[11]) {
+            p[11] = p[5];
+            p[1] = 2;
+        }
+    }
+    e[8] = func_80092324(p, e);
+    if (p[5] / 2 < p[11]) {
+        e[10] = 0xE;
+    } else {
+        e[10] = 6;
+    }
+    Model_SetTurnAngle(7, p[6], p[11]);
+    return 0;
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop");

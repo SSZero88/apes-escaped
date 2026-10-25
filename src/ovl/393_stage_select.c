@@ -66,7 +66,24 @@ void func_801383EC(s32 world, s32 stage) {
     func_80096580(Stage_GetWorld(D_80138A20[world].world[D_80139914[stage * 2 + world * 9 + 1]]));
 }
 
-INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_80138468);
+typedef struct { u8 pad0[0xE]; u16 f_E; } Info_80138468;
+
+s32 func_80138468(s32 world, s32 stage) {
+    s32 w;
+
+    w = Stage_GetWorld(D_80138A20[world].world[D_80139914[stage * 2 + world * 9 + 1]]);
+    Stage_GetInfo(w, (void *)0x1F800000);
+    switch (w) {
+    case 14:
+        return func_800964B0(0x24) & 0x10;
+    case 7:
+        return func_800964B0(0x13) & 0x10;
+    case 30:
+        return 0;
+    default:
+        return func_80097FB0(w) == (s16)((volatile Info_80138468 *)0x1F800000)->f_E;
+    }
+}
 
 typedef struct { s32 vx, vy, vz, pad; } VEC_391;
 typedef struct { s16 m[3][3]; s32 t[3]; } MAT_391;

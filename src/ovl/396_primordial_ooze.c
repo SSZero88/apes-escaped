@@ -311,4 +311,18 @@ INCLUDE_ASM("asm/ovl/396/nonmatchings/396_primordial_ooze", func_8013E33C);
 
 INCLUDE_ASM("asm/ovl/396/nonmatchings/396_primordial_ooze", func_8013E950);
 
-INCLUDE_ASM("asm/ovl/396/nonmatchings/396_primordial_ooze", func_8013F0C0);
+extern u16 D_800AE8F2;
+extern struct { u8 pad0[0x24]; u16 x; u8 p26[2]; u16 y; u8 p2a[2]; u16 z; } g_Spike_F0C0 asm("g_Spike");
+extern u32 D_8013F248;
+
+void func_8013F0C0(void) {
+    SVECTOR v;
+    s32 i;
+
+    for (i = 0; i < ((g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 7) + 3; i++) {
+        v.vx = g_Spike_F0C0.x + ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8 & 0x7F) - 0x40;
+        v.vy = g_Spike_F0C0.y;
+        v.vz = g_Spike_F0C0.z + ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8 & 0x7F) - 0x40;
+    }
+    Effect_Spawn(0xC8, (s16 *)&v, &D_8013F248, 0);
+}

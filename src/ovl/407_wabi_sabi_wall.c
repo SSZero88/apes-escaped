@@ -225,7 +225,27 @@ void func_8013E6A8(s16 *arg0, s32 arg1, s32 arg2) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E6F8);
+extern struct { u8 pad_0[0x24]; s32 x; u8 pad_28[4]; s32 z; } g_Spike_8013E6F8 asm("g_Spike");
+void func_8013E6A8(s16 *arg0, s32 arg1, s32 arg2);
+void Object_TurnToward(void *, s16, s16, s16, s16);
+void Object_SetForwardVelocity(void *, s16);
+
+void func_8013E6F8(u8 *o) {
+    s32 dx = g_Spike_8013E6F8.x - M2C_FIELD(o, s32 *, 0x24);
+    s32 dz = g_Spike_8013E6F8.z - M2C_FIELD(o, s32 *, 0x2C);
+
+    if (dx * dx + dz * dz < 0x9C40) {
+        func_8013E6A8((s16 *)(o + 0xC6), 20, 0);
+        if (M2C_FIELD(o, u8 *, 0x80) != 5) {
+            M2C_FIELD(o, u8 *, 0x80) = 5;
+            func_8005588C(o, 0x3C);
+        }
+    } else {
+        func_8013E6A8((s16 *)(o + 0xC6), 20, 1);
+        Object_TurnToward(o, dx, dz, 0, M2C_FIELD(o, s16 *, 0xB0));
+    }
+    Object_SetForwardVelocity(o, M2C_FIELD(o, s16 *, 0xC6) >> 3);
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E7E8);
 
@@ -370,7 +390,37 @@ s32 func_801400A4(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_801400B8);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_801400B8 asm("g_Game");
+s32 Sound_PlayAt_801400B8(s32, void *) asm("Sound_PlayAt");
+s32 func_8014019C(s16 *p);
+
+s32 func_801400B8(s16 *p) {
+    u8 *e = g_Game_801400B8.f_820C + p[2] * 0x38;
+
+    switch (p[1]) {
+    case 1:
+    case 4:
+        break;
+    case 5:
+        p[3] += p[5];
+        if (p[3] > 0x4AA) {
+            p[3] = 0x4AA;
+            p[1] = 2;
+            Sound_PlayAt_801400B8(0xB1, e);
+        }
+        func_8014019C(p);
+        break;
+    case 2:
+        p[3] -= p[7];
+        if (p[3] < 0) {
+            p[3] = 0;
+            p[1] = 4;
+        }
+        func_8014019C(p);
+        break;
+    }
+    return 0;
+}
 
 extern u8 *D_800B4D64;
 void RotMatrixZYX(SVECTOR *, void *);
@@ -531,7 +581,32 @@ s32 func_80141240(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_801412C4);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_801412C4 asm("g_Game");
+extern u8 *D_800B4D64_801412C4 asm("D_800B4D64");
+void Camera_StartShake(s32);
+void Fx_Explosion_801412C4(void *, s32, s32) asm("Fx_Explosion");
+
+s32 func_801412C4(s16 *p) {
+    u8 *e = g_Game_801412C4.f_820C + p[2] * 0x38;
+    s32 s;
+    u8 *t;
+
+    if (p[1] == 0) {
+        t = g_Game_801412C4.f_8220 + p[4] * 0x18;
+        s = M2C_FIELD(t, s16 *, 2);
+        if (s == 1) {
+            Camera_StartShake(0);
+            Pad_Vibrate(0, 1, 3);
+            p[1] = s;
+            M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+            if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+                M2C_FIELD(D_800B4D64_801412C4 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+                Fx_Explosion_801412C4(e, M2C_FIELD(e, s16 *, 0xE), 1);
+            }
+        }
+    }
+    return 0;
+}
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_801413AC asm("g_Game");
 

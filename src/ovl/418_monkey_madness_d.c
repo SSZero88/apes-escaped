@@ -141,7 +141,34 @@ s32 func_8013DFEC(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013E05C);
+extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013E05C asm("g_Spike");
+s32 rcos_8013E05C(s32) asm("rcos");
+s32 rsin_8013E05C(s32) asm("rsin");
+s32 Math_Atan2(s32, s32);
+M2C_UNK Object_ApplyVelocity(void *);
+M2C_UNK func_80055AA0(void *, s16, s16, s32);
+s32 Object_StepGrowShrink(void *, s16, s16, s16);
+void Object_StepOrbitAngle(void *, s32);
+
+void func_8013E05C(u8 *arg0) {
+    s32 ang;
+    s32 bob;
+    s32 r;
+    s32 h;
+
+    ang = Math_Atan2(M2C_FIELD(arg0, s32 *, 0x24) - g_Spike_8013E05C.x, M2C_FIELD(arg0, s32 *, 0x2C) - g_Spike_8013E05C.z);
+    bob = rsin_8013E05C(M2C_FIELD(arg0, s16 *, 0xAA)) / 32;
+    if (M2C_FIELD(arg0, u16 *, 0xE2) & 1) {
+        Object_StepGrowShrink(arg0, 40, 20, 0);
+    }
+    ang = (ang + 0x200) % 0x1000;
+    r = bob + 300;
+    func_80055AA0(arg0, (u16)g_Spike_8013E05C.x + ((rcos_8013E05C(ang) * r) >> 12), (u16)g_Spike_8013E05C.z + ((rsin_8013E05C(ang) * r) >> 12), M2C_FIELD(arg0, s16 *, 0xA8) >> 3);
+    Object_StepOrbitAngle(arg0, 16);
+    h = M2C_FIELD(arg0, s32 *, 0x28) + 0xB4;
+    M2C_FIELD(arg0, s16 *, 0x96) = (g_Spike_8013E05C.y - h - bob) >> 3;
+    Object_ApplyVelocity(arg0);
+}
 
 void func_8013E1B4(void *arg0) {
     if ((M2C_FIELD(arg0, s32 *, 0xE0) & 1) && (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA4)) == 0)) {
@@ -491,7 +518,47 @@ s32 func_8014119C(s16 *p) {
 
 INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_801411E8);
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8014134C);
+extern struct S_g_Game_8014134C { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8014134C asm("g_Game");
+typedef struct { u8 pad_0[0x20C]; u8 *f_820C; u8 pad_210[0x10]; u8 *f_8220; } G_8014134C;
+extern G_8014134C D_800F4350_8014134C asm("D_800F4350");
+extern u8 *D_800B4D64_8014134C asm("D_800B4D64");
+
+s32 func_8014134C(s16 *p) {
+    G_8014134C *g;
+    u8 *d;
+    u8 *t;
+    s32 i;
+    u8 *e = g_Game_8014134C.f_820C + p[2] * 0x38;
+
+    M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+    p[1] = p[10];
+    p[3] = 0;
+    if (p[4] == 0 && M2C_FIELD(e, s16 *, 0xE) >= 0) {
+        M2C_FIELD(D_800B4D64_8014134C + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+    }
+    if (p[10] == 1) {
+        if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+            M2C_FIELD(D_800B4D64_8014134C + M2C_FIELD(e, s16 *, 0xE) * 32, u16 *, 0x16) = 0xFFFF;
+        }
+        M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+        i = p[5];
+        p[7] = M2C_FIELD(e, u16 *, 0);
+        p[8] = M2C_FIELD(e, u16 *, 2);
+        p[9] = M2C_FIELD(e, u16 *, 4);
+        if (i >= 0) {
+            g = &D_800F4350_8014134C;
+            d = D_800B4D64_8014134C;
+            do {
+                t = g->f_8220 + i * 0x18;
+                e = g->f_820C + M2C_FIELD(t, s16 *, 4) * 0x38;
+                if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+                    M2C_FIELD(d + M2C_FIELD(e, s16 *, 0xE) * 32, u16 *, 0x16) = 0xFFFF;
+                }
+            } while ((i = M2C_FIELD(t, s16 *, 0xA)) >= 0);
+        }
+    }
+    return 0;
+}
 
 typedef struct { s16 f[12]; } S18_801414A0;
 extern struct { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x108]; u8 *f_820C; u8 pad_8210[0x10]; S18_801414A0 *f_8220; } g_Game_801414A0 asm("g_Game");

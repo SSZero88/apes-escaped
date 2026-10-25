@@ -147,7 +147,38 @@ INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_801374DC);
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_801378C4);
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80137C04);
+s32 func_80137C04(void) {
+    u8 *p = G_DRAW.prim;
+
+    p[3] = 4;
+    p[7] = 0x65;
+    M2C_FIELD(p, u16 *, 0xE) = 0x7C5D;
+    M2C_FIELD(p, s16 *, 0x8) = 0x64;
+    M2C_FIELD(p, s16 *, 0xA) = 0xD0;
+    M2C_FIELD(p, s16 *, 0x10) = 0x13;
+    M2C_FIELD(p, s16 *, 0x12) = 0x11;
+    p[0xC] = 0;
+    p[0xD] = 0x98;
+    ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$5", "$4");
+    p += 0x14;
+    M2C_FIELD(p, u16 *, 0xE) = 0x7C1D;
+    M2C_FIELD(p, s16 *, 0x8) = 0xDC;
+    p[3] = 4;
+    p[7] = 0x65;
+    M2C_FIELD(p, s16 *, 0xA) = 0xD0;
+    M2C_FIELD(p, s16 *, 0x10) = 0x13;
+    M2C_FIELD(p, s16 *, 0x12) = 0x11;
+    p[0xC] = 0;
+    p[0xD] = 0x80;
+    ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$5", "$4");
+    p += 0x14;
+    p[3] = 1;
+    M2C_FIELD(p, u32 *, 4) = 0xE1000217;
+    ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$5", "$4");
+    p += 8;
+    G_DRAW.prim = p;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80137D40);
 
@@ -177,7 +208,37 @@ s32 func_801388A4(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138978);
+typedef struct { s16 m[3][3]; s32 t[3]; } MATRIX_801368E8;
+extern s32 D_801391C0;
+extern s32 D_801391C4;
+extern void *D_8013947C;
+extern u8 D_800E7D00[];
+void func_801368E8(SVECTOR *eye, SVECTOR *at);
+void func_8002FAF0(s32);
+
+s32 func_80138978(void) {
+    MATRIX_801368E8 m;
+    SVECTOR eye;
+    SVECTOR at;
+
+    at.vy = 0;
+    at.vx = 0;
+    at.vz = 0xA40;
+    eye.vy = 0;
+    eye.vz = 0;
+    eye.vx = 0;
+    func_801368E8(&eye, &at);
+    func_8002FAF0(0xA4);
+    func_8004637C(&m);
+    RotMatrixZ(D_801391C0 / 8, &m);
+    RotMatrixY(D_801391C0 / 8, &m);
+    RotMatrixX(D_801391C0 / 8, &m);
+    Model_ProjectVertsAlt(D_8013947C, &m, D_800E7D00);
+    Model_DrawLit((s32)&G_DRAW.db[G_DRAW.cur].ot[0xFFF], (s32)D_800E7D00, D_8013947C);
+    D_801391C4 = func_800463A4(D_801391C4, 0x10, 0x20);
+    D_801391C0 += D_801391C4;
+    return 0;
+}
 
 typedef struct { u8 f_0; u8 f_1; u8 pad2[14]; } Ent_390;
 
@@ -191,7 +252,52 @@ s32 func_80138ABC(void) {
     return s;
 }
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138AEC);
+extern s16 D_801391B8;
+extern s16 D_801391A8;
+extern s16 D_801391B0;
+extern s16 D_801391B2;
+s32 func_80138C44(void);
+s32 func_80138D7C(void);
+void Cd_WaitIdle_80138AEC(s32) asm("Cd_WaitIdle");
+
+s32 func_80138AEC(void) {
+    switch (D_801391B6) {
+    case 0:
+    case 3:
+        func_80138C44();
+        if (--D_801391B8 < 0) {
+            D_801391B6 = 1;
+            D_801391B8 = 0;
+        }
+        break;
+    case 1:
+        break;
+    case 2:
+        func_80138C44();
+        if (++D_801391B8 >= 0x1F) {
+            D_801391B6 = 1;
+            D_801391B8 = 0;
+            return -1;
+        }
+        break;
+    case 4:
+        Cd_Update();
+        func_80138C44();
+        if (++D_801391B8 >= 0x10) {
+            if (D_801391A8 == 2) {
+                D_801391B0 = D_801391B2;
+            }
+            D_801391A8 = 2;
+            Cd_WaitIdle_80138AEC(0);
+            func_80138D7C();
+            D_801391B6 = 3;
+            D_801391B8 = 15;
+            return 0;
+        }
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138C44);
 

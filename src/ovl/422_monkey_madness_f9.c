@@ -577,7 +577,26 @@ INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801425EC);
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801428A4);
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_80142924);
+typedef struct { u8 pad0[4]; s16 x, y, z; u8 f_A; u8 padB; s16 vx, vy, vz; s16 f_12; s16 f_14, f_16, f_18; s16 f_1A; s16 f_1C, f_1E, f_20; u8 pad22[2]; s16 f_24, f_26, f_28; u8 pad2A[2]; } Deb_80142924;
+extern Deb_80142924 D_80145458[];
+
+void func_80142924(s32 i) {
+    Deb_80142924 *e = &D_80145458[i];
+
+    e->f_A = 1;
+    e->f_14 = 0;
+    e->f_16 = 0;
+    e->f_18 = 0;
+    e->vx = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 0x3F) - 0x20;
+    e->vy = -((g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 0x3F) - 0x1A;
+    e->vz = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 0x3F) - 0x20;
+    e->x = e->f_24;
+    e->y = e->f_26;
+    e->z = e->f_28;
+    e->f_1C = (g_RandSeed = g_RandSeed * 5 + 1) >> 9;
+    e->f_1E = (g_RandSeed = g_RandSeed * 5 + 1) >> 9;
+    e->f_20 = (g_RandSeed = g_RandSeed * 5 + 1) >> 9;
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_80142A48);
 

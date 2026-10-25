@@ -130,7 +130,42 @@ s32 func_8013D8F8(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013D9D4);
+extern struct { u8 pad_0[0x24]; s32 f_24; s32 f_28; s32 f_2C; u8 pad_30[0x20]; u32 f_50; } D_8013DCE0_8013D9D4 asm("D_8013DCE0");
+extern struct { u8 pad_0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } D_800F50B0;
+extern u8 *D_800B4D64_8013D9D4 asm("D_800B4D64");
+
+s32 func_8013D9D4(s16 *p) {
+    D_800F50B0.f_24 = D_8013DCE0_8013D9D4.f_24;
+    D_800F50B0.f_28 = D_8013DCE0_8013D9D4.f_28;
+    D_800F50B0.f_2C = D_8013DCE0_8013D9D4.f_2C;
+    if (p[1] == 0) {
+        if ((D_8013DCE0_8013D9D4.f_50 >> 28) == 8) {
+            func_8008FC30(p[4], p);
+            Collision_Remove((s32)&D_8013DCE0_8013D9D4.f_24);
+            M2C_FIELD(D_800B4D64_8013D9D4 + p[6] * 32, s16 *, 0x16) = 0;
+            p[1] = 1;
+        } else {
+            if (p[5] == 0) {
+                p[3] += 4;
+                if (p[3] > 0x100) {
+                    p[3] = 0x100;
+                    p[5] = 1;
+                }
+            } else {
+                p[3] -= 4;
+                if (p[3] < -0x100) {
+                    p[3] = -0x100;
+                    p[5] = 0;
+                }
+            }
+            D_8013DCE0_8013D9D4.f_28 = p[7] + p[3];
+            M2C_FIELD(D_800B4D64_8013D9D4 + p[6] * 32, u16 *, 0x12) = M2C_FIELD(&D_8013DCE0_8013D9D4, u16 *, 0x28);
+        }
+    }
+    return 0;
+}
+
+__asm__(".section .text\n.balign 16");
 
 INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013DB30);
 

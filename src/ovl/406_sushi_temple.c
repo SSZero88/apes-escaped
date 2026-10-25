@@ -23,7 +23,35 @@ void func_8013D000(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D04C);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D1BC);
+typedef struct { u8 pad[0xE4]; } Obj_8013D1BC;
+extern Obj_8013D1BC g_Objects_8013D1BC[] asm("g_Objects");
+
+void func_8013D1BC(u8 *o) {
+    u8 *t = (u8 *)&g_Objects_8013D1BC[M2C_FIELD(o, s8 *, 0xCA)];
+
+    if (((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1) == 0) {
+        M2C_FIELD(o, s16 *, 0xB0) = 0x44;
+        M2C_FIELD(o, s16 *, 0xA0) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) |= 0x42000;
+        M2C_FIELD(o, u8 *, 0xC8) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) &= ~1;
+        M2C_FIELD(o, u8 *, 0x7F) = 3;
+        M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    if (M2C_FIELD(o, u8 *, 0xCF) == 1) {
+        if (M2C_FIELD(o, u32 *, 0xE0) & 1) {
+            M2C_FIELD(o, u8 *, 0xC8) = 0;
+        } else {
+            M2C_FIELD(o, u8 *, 0xC8) = 10;
+        }
+        M2C_FIELD(o, u8 *, 0xCF) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) = (M2C_FIELD(o, u32 *, 0xE0) & ~1) | ((M2C_FIELD(o, u32 *, 0xE0) & 1) ^ 1);
+    }
+    if (M2C_FIELD(t, u8 *, 0x80) == 2) {
+        M2C_FIELD(o, u8 *, 0xC8) = 0;
+    }
+}
 
 void func_8013D2B0(void *arg0) {
     s32 temp_v0;
@@ -86,9 +114,59 @@ s32 func_8013D8F8(s32 g, B8_8013D8F8 *a, B8_8013D8F8 *b) {
     return i;
 }
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D9C4);
+typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x; s32 y; s32 z; u8 pad30[0x30]; s16 rx; s16 ry; s16 rz; } Mdl_8013D9C4;
+typedef struct { s16 x, y, z; } Pos_8013D9C4;
+extern Mdl_8013D9C4 D_8013F8B8;
+extern u8 D_800E7D00[];
+s32 func_80051410(void *, s32, s32);
+s32 rcos_8013D9C4(s32) asm("rcos");
+s32 rsin_8013D9C4(s32) asm("rsin");
+void func_80014804_8013D9C4(void *, void *) asm("func_80014804");
+void func_80015780_8013D9C4(void *, s32) asm("func_80015780");
+void Model_ProjectBonedVerts_8013D9C4(void *) asm("Model_ProjectBonedVerts");
+void func_80016EBC_8013D9C4(void *, void *, void *) asm("func_80016EBC");
+s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013DAFC);
+void func_8013D9C4(void *o, Pos_8013D9C4 *s, s16 f) {
+    Mdl_8013D9C4 *m = &D_8013F8B8;
+    s32 a;
+
+    m->x = s->x;
+    m->y = s->y;
+    m->z = s->z;
+    if (func_80051410(&m->x, 0, 0) == 0) {
+        a = (s16)(f % 8) << 9;
+        m->rx = rcos_8013D9C4(a);
+        m->rz = rsin_8013D9C4(a);
+        func_80014804_8013D9C4(&m->rx, m->mat);
+        func_80015780_8013D9C4(m, 3);
+        Model_ProjectBonedVerts_8013D9C4(m);
+        func_80016EBC_8013D9C4(G_DRAW.db[G_DRAW.cur].ot, D_800E7D00, m);
+        Object_AddAttackSphereNear(o, 0x32, s->x, s->y, s->z, 1, 0x202);
+    }
+}
+
+typedef struct { s16 x, y, z, pad6; s16 vx, vy, vz, padE; s8 f; s8 g; s8 h; s8 k; } Slot_8013DAFC;
+typedef struct { u8 pad[0xE4]; } Obj_8013DAFC;
+extern Obj_8013DAFC g_Objects_8013DAFC[] asm("g_Objects");
+extern Slot_8013DAFC *D_8013F8B4_8013DAFC asm("D_8013F8B4");
+
+void func_8013DAFC(void) {
+    s32 i;
+    Slot_8013DAFC *s;
+
+    for (i = 0; i < D_8013F8B0; i++) {
+        s = &D_8013F8B4_8013DAFC[i];
+        if (s->f != 0) {
+            if (--s->f != 0) {
+                s->x += s->vx;
+                s->y += s->vy;
+                s->z += s->vz;
+                func_8013D9C4(&g_Objects_8013DAFC[s->h], s, s->f);
+            }
+        }
+    }
+}
 
 s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s32);
 s32 Object_SpikeInFront(void *, s32, s32, s32);

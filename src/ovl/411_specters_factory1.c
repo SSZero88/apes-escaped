@@ -493,7 +493,48 @@ void func_8013F738(void *arg0) {
     Object_OrbitAround(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6), speed);
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013F7E0);
+void func_8013F484(void *arg0, s16 x, s16 y, s16 z);
+s32 func_8013F4F0(void *arg0, s32 arg1, s32 arg2);
+void func_8013F738(void *arg0);
+void func_80058134(void *, s32);
+void func_80051E98(void *, s32);
+void Object_DropPickups(void *);
+typedef struct { u16 start; u16 end; } Rng_8013F7E0;
+
+void func_8013F7E0(u8 *arg0) {
+    u16 end;
+
+    if (!(M2C_FIELD(arg0, u32 *, 0xE0) >> 3 & 1)) {
+        func_8013F5D4(arg0);
+        M2C_FIELD(arg0, u32 *, 0xE0) |= 8;
+    }
+    func_80058134(arg0, M2C_FIELD(arg0, s16 *, 0x44));
+    if (!(M2C_FIELD(arg0, u32 *, 0xE0) >> 2 & 1)) {
+        func_8013F484(arg0, M2C_FIELD(arg0, s16 *, 0x1C), M2C_FIELD(arg0, s16 *, 0x1E), M2C_FIELD(arg0, s16 *, 0x20));
+    }
+    if (arg0[0x82] != 0) {
+        if (M2C_FIELD(arg0, s16 *, 0x96) > 0) {
+            func_8013F644(arg0);
+        }
+    } else {
+        switch (arg0[0x80]) {
+        case 1:
+            func_8013F738(arg0);
+            break;
+        case 2:
+            end = M2C_FIELD(arg0, Rng_8013F7E0 **, 0x88)[arg0[0x7F]].end;
+            if (M2C_FIELD(arg0, u16 *, 0x5C) == end) {
+                arg0[0x8F]++;
+                M2C_FIELD(arg0, u16 *, 0x5C) = end - 1;
+                if (func_8013F4F0(arg0, 8, arg0[0x8F])) {
+                    func_80051E98(arg0, 1);
+                    Object_DropPickups(arg0);
+                }
+            }
+            break;
+        }
+    }
+}
 
 void func_8013F92C(void *arg0) {
     if (M2C_FIELD(arg0, s8 *, 0x7C) == -1) {
@@ -643,7 +684,37 @@ s32 func_80140538(s16 *p)
   return 0;
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_80140590);
+extern struct { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x1C]; u16 f_8120; u8 pad_8122[0x2E]; u16 f_8150; u8 pad_8152[0xCE]; u8 *f_8220; } g_Game_80140590 asm("g_Game");
+void CamFlyby_StartSegment(s32);
+
+s32 func_80140590(s16 *p) {
+    u8 *e;
+
+    switch (p[1]) {
+    case 0:
+        e = g_Game_80140590.f_8220 + p[4] * 0x18;
+        if (M2C_FIELD(e, s16 *, 0x16) > p[5] && g_Game_80140590.f_8150 == 8) {
+            p[1] = 1;
+        }
+        break;
+    case 1:
+        if (g_Game_80140590.f_8150 == 0) {
+            func_8008FC30(p[7], p);
+            func_8008FC30(p[8], p);
+            p[1] = 2;
+            if (g_Game_80140590.f_8120 != 0x13) {
+                if (p[6] > 0) {
+                    CamFlyby_StartSegment(p[6] - 1);
+                }
+                g_Game_80140590.f_8100 = 7;
+            }
+        }
+        break;
+    case 2:
+        break;
+    }
+    return 0;
+}
 
 s32 func_801406A0(void *arg0) {
     void *temp_v1;

@@ -60,7 +60,37 @@ s32 func_8013D230(u8 *o) {
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D2FC);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D3B4);
+s32 func_8013D2FC_8013D3B4(void *, s32, s32) asm("func_8013D2FC");
+s32 Object_WouldLeaveHome_8013D3B4(void *, s32) asm("Object_WouldLeaveHome");
+void Object_ApplyVelocity(void *);
+
+s32 func_8013D3B4(u8 *o) {
+    s32 r;
+    s32 a;
+    s32 h;
+
+    if (!(M2C_FIELD(o, u16 *, 0xE2) & 1)) {
+        r = (func_8013D2FC_8013D3B4(o, -1, 0) != 0) << 1;
+    } else {
+        r = 1;
+        M2C_FIELD(o, s16 *, 0x94) = 0;
+        M2C_FIELD(o, s16 *, 0x98) = 0;
+    }
+    if (Object_WouldLeaveHome_8013D3B4(o, 0)) {
+        r = 1;
+    }
+    if (!r) {
+        Object_ApplyVelocity(o);
+    }
+    a = (M2C_FIELD(o, s16 *, 0xAC) + 0x16) % 0x1000;
+    h = M2C_FIELD(o, s16 *, 0xAA) - 0x1000;
+    if ((u32)((a - h + 0x800) % 0x1000 - 0x2AA) >= 0xAAC) {
+        M2C_FIELD(o, s16 *, 0xAC) = a;
+        M2C_FIELD(o, s16 *, 0x60) = rcos(a);
+        M2C_FIELD(o, s16 *, 0x64) = rsin(M2C_FIELD(o, s16 *, 0xAC));
+    }
+    return r;
+}
 
 void func_8013D2FC(void *, s32, s32);
 void Object_ApplyVelocity(void *);
