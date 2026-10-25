@@ -12,8 +12,9 @@ name, cfile = args[0], args[1]
 compiler = args[2] if len(args) > 2 else '2.8.1-psx'
 asm_path = glob.glob(f'{ad["ASM_DIR"]}/**/{name}.s', recursive=True)[0]  # OVL=<file>: an overlay's
 asm = open(asm_path).read()
-size = int(re.search(r'^nonmatching \w+, (0x[0-9A-F]+)', asm, re.M).group(1), 16)
-addr = int(re.search(r'/\* [0-9A-F]+ ([0-9A-F]{8}) ', asm).group(1), 16)
+size = int(re.search(r'^nonmatching ' + name + r', (0x[0-9A-F]+)', asm, re.M).group(1), 16)
+# (a function with a switch has its jump table first, in .rodata)
+addr = int(re.search(r'/\* [0-9A-F]+ ([0-9A-F]{8}) ', asm[max(0, asm.find('.section .text')):]).group(1), 16)
 tu = '#include "game.h"\n#include "m2c_macros.h"\n\n' + open(cfile).read()
 ok, err = ad['compile_c'](tu, compiler, '/tmp/check.o')
 if not ok:  # drafts from auto_decomp are written against common.h only
