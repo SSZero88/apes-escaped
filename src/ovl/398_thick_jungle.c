@@ -146,7 +146,31 @@ void func_8013D608(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0xAE) = 0;
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013D660);
+extern u16 g_RandSeed;
+extern u32 g_Game_8013D660 asm("g_Game");
+extern u32 D_801426C0;
+extern u32 D_801426CC;
+void Effect_Spawn(s32, s16 *, u32 *, s16 **);
+void func_800702B0(void *, void *);
+typedef struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; } Obj_8013D660;
+
+s32 func_8013D660(Obj_8013D660 *a, s32 flag) {
+    SVECTOR v;
+    s32 i;
+
+    for (i = 4; i != 0; i--) {
+        v.vx = a->x + (s32)(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 2;
+        v.vy = a->y;
+        v.vz = a->z + (s32)(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 2;
+        Effect_Spawn(0xCA, (s16 *)&v, &D_801426C0, 0);
+    }
+    if (flag && !(g_Game_8013D660 & 1)) {
+        v.vx = a->x;
+        v.vy = a->y;
+        v.vz = a->z;
+        func_800702B0(&v, &D_801426CC);
+    }
+}
 
 extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013D790 asm("g_Spike");
 extern u16 g_RandSeed;
@@ -675,7 +699,45 @@ void func_8013FA90(void *arg0, void *arg1) {
     M2C_FIELD(arg1, s16 *, 4) = (s16) (M2C_FIELD(arg0, u16 *, 0x2C) + ((s32) (M2C_FIELD(arg0, s16 *, 0x64) * 0xC3) >> 9));
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013FAF4);
+void func_8013F984(void *arg0, void *arg1);
+extern u32 g_Game_8013FAF4 asm("g_Game");
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; } g_Spike_8013FAF4 asm("g_Spike");
+void VectorNormalSS(SVECTOR *, SVECTOR *);
+
+void func_8013FAF4(void *o, SVECTOR *pos) {
+    SVECTOR v;
+    s32 i;
+    s32 s;
+
+    if (g_Game_8013FAF4 % 5 == 0 || !(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 3)) {
+        Object_PlaySound(o, 0x5B);
+    }
+    if (!(M2C_FIELD(o, u32 *, 0xE0) & 1) && g_Game_8013FAF4 % 3 == 0) {
+        v.vx = g_Spike_8013FAF4.x;
+        v.vy = g_Spike_8013FAF4.y;
+        v.vz = g_Spike_8013FAF4.z;
+        func_8013F984(pos, &v);
+    }
+    for (i = 8; i > 0; i--) {
+        v.vx = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80;
+        v.vy = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80;
+        v.vz = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80;
+        VectorNormalSS(&v, &v);
+        s = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) << 10) / 255;
+        v.vx = pos->vx + ((v.vx * s) >> 12);
+        v.vy = pos->vy + ((v.vy * s) >> 12);
+        v.vz = pos->vz + ((v.vz * s) >> 12);
+        func_8013F984(pos, &v);
+    }
+    if (!(M2C_FIELD(o, u32 *, 0xE0) & 1)) {
+        if (Object_DetachLink(o, 0) == 6) {
+            M2C_FIELD(o, u32 *, 0xE0) |= 1;
+            func_8005588C(o, 30);
+        } else {
+            M2C_FIELD(o, s32 *, 0xB4) = Object_AddAttackSphereNear(o, 0x400, pos->vx, pos->vy, pos->vz, 0x401, 0x103);
+        }
+    }
+}
 
 void func_8013FD9C(void *arg0, s32 n) {
     if (M2C_FIELD(arg0, u8 *, 0x7F) != n &&
@@ -703,7 +765,6 @@ void func_8013FE4C(void *arg0) {
 }
 
 extern u32 g_Game_8013FE94 asm("g_Game");
-void func_8013FAF4(void *, SVECTOR *);
 
 void func_8013FE94(void *arg0) {
     SVECTOR v;

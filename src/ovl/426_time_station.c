@@ -73,7 +73,95 @@ s32 func_8013D158(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013D208);
+typedef struct { s16 x, y, z; u8 pad6[8]; s16 f_E; u8 pad10[8]; u16 flags; u8 pad1A[0x1E]; } Ent_8013D208;
+typedef struct { u8 pad0[2]; s16 f_2; u8 pad4[0x14]; } Coll_8013D208;
+typedef struct { u8 pad0[0x16]; u16 f_16; u8 pad18[8]; } Mesh_8013D208;
+extern struct { u32 frame; u8 pad_4[0x8208]; Ent_8013D208 *f_820C; u8 pad_8210[0x10]; Coll_8013D208 *f_8220; } g_Game_8013D208 asm("g_Game");
+extern Mesh_8013D208 *D_800B4D64_8013D208 asm("D_800B4D64");
+extern u16 g_RandSeed;
+void Camera_StartShake(s32);
+s32 Cd_PlayXaTrack(s32);
+void Effect_SpawnAt(s32, void *);
+void Spike_SetState(s32);
+void Pad_Vibrate(s32, s32, s32);
+s32 Sound_PlayFixed(s32);
+
+s32 func_8013D208(s16 *a) {
+    SVECTOR v;
+    Ent_8013D208 *e;
+    Coll_8013D208 *c;
+    s32 hit;
+
+    if (a[6] < 0) {
+        return 0;
+    }
+    e = &g_Game_8013D208.f_820C[a[2]];
+    c = &g_Game_8013D208.f_8220[a[6]];
+    switch (a[1]) {
+    case 0:
+        hit = c->f_2;
+        if (hit != 1) {
+            break;
+        }
+        if (e->f_E >= 0) {
+            D_800B4D64_8013D208[e->f_E].f_16 = 0xFFFF;
+        }
+        Camera_StartShake(0);
+        Pad_Vibrate(0, 1, 3);
+        v.vx = e->x;
+        v.vy = e->y - 0x80;
+        v.vz = e->z;
+        if (a[4] == 0) {
+            a[1] = 2;
+            a[3] = 0x28;
+            e->flags |= 0x8000;
+            break;
+        }
+        a[1] = hit;
+        a[3] = 0x14;
+        Sound_PlayFixed(0x7A);
+        Effect_SpawnAt(0x103, &v);
+        break;
+    case 1:
+        if (--a[3] < 0) {
+            a[1] = 3;
+            break;
+        }
+        if ((s16)(a[3] % 5) != 0) {
+            break;
+        }
+        v.vx = e->x - (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 7 & 0xFE) - 0x80);
+        v.vy = e->y - (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 7 & 0xFE) + 0x80);
+        v.vz = e->z - (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 7 & 0xFE) - 0x80);
+        Sound_PlayFixed(0x7A);
+        Effect_SpawnAt(0x103, &v);
+        break;
+    case 2:
+        if (--a[3] < 0) {
+            a[1] = 3;
+            break;
+        }
+        if ((s16)(a[3] % 5) != 0) {
+            break;
+        }
+        if (a[3] > 20) {
+            break;
+        }
+        if (a[3] == 20) {
+            D_800B4D64_8013D208[e->f_E].f_16 = 0;
+            Spike_SetState(0x22);
+            Cd_PlayXaTrack(g_Game_8013D208.frame & 1 ? 0xD : 0xF);
+        }
+        v.vx = e->x - (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 7 & 0xFE) - 0x80);
+        v.vy = e->y - (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 7 & 0xFE) + 0x80);
+        v.vz = e->z - (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 7 & 0xFE) - 0x80);
+        Effect_SpawnAt(0x102, &v);
+        Sound_PlayFixed(0x4D);
+        Sound_PlayFixed(0x5F);
+        break;
+    }
+    return 0;
+}
 
 typedef struct { u8 pad0[4]; s16 f_4; u8 pad6[2]; s16 f_8; u8 padA[0xE]; } Trig_8013D5C0;
 typedef struct { s16 x, y, z; u8 pad6[0x32]; } Ent_8013D5C0;

@@ -490,6 +490,62 @@ s32 func_8013F360(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013F370);
+typedef struct { s16 x, y, z; u8 pad6[0x12]; u16 flags; u8 pad1A[0x1E]; } Ent_8013F370;
+extern struct { u8 frame; u8 pad1[0x812B]; u8 f_812C; u8 pad812D[0xDF]; Ent_8013F370 *f_820C; u8 pad8210[0x48]; SVECTOR f_8258; } g_Game_8013F370 asm("g_Game");
+extern struct { u8 pad_0[0x24]; u16 x; u8 pad_26[2]; u16 y; u8 pad_2A[2]; u16 z; } g_Spike_8013F370 asm("g_Spike");
+extern u8 D_800E6908;
+void func_8006F274(void *, void *, s32);
+s32 func_8013F6BC();
+s32 Vec_Length(s32, s32, s32);
+s16 Sound_Play(s32, s32);
+s32 Sound_Stop(s32, s32);
+s32 Sound_UpdateVoice3D(s32, s32, s16, s32);
+
+s32 func_8013F370(s16 *a) {
+    s16 box[6];
+    SVECTOR p0;
+    SVECTOR p1;
+    Ent_8013F370 *e;
+    s16 i;
+
+    e = &g_Game_8013F370.f_820C[a[2]];
+    e->flags |= 0x8000;
+    box[0] = e->x;
+    box[1] = e->y + 0x100;
+    box[2] = e->z;
+    box[3] = a[5];
+    box[4] = a[6];
+    box[5] = a[7];
+    func_8013F6BC(a[4], box, 0x80);
+    for (i = 0; i < 6; i++) {
+        p0.vx = e->x - a[5];
+        p0.vy = e->y - (a[6] - 0x100) * i / 6;
+        p0.vz = e->z;
+        p1.vx = e->x + a[5];
+        p1.vy = e->y - (a[6] - 0x100) * i / 6;
+        p1.vz = e->z;
+        func_8006F274(&p0, &p1, g_Game_8013F370.frame * ((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8));
+        func_8006F274(&p0, &p1, g_Game_8013F370.frame * ((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8));
+    }
+    if (g_Game_8013F370.f_812C == 0x18 || D_800E6908 == 1) {
+        p0 = g_Game_8013F370.f_8258;
+    } else {
+        p0.vx = g_Spike_8013F370.x;
+        p0.vy = g_Spike_8013F370.y;
+        p0.vz = g_Spike_8013F370.z;
+    }
+    box[1] = e->y - a[6] / 2;
+    if (Vec_Length(p0.vx - box[0], p0.vy - box[1], p0.vz - box[2]) < 0x1000) {
+        if (a[0xB] < 0) {
+            a[0xB] = Sound_Play(1, 0x66);
+        } else {
+            Sound_UpdateVoice3D(0x66, a[0xB], 0x1000, (s32)box);
+        }
+    } else if (a[0xB] >= 0) {
+        Sound_Stop(0x66, a[0xB]);
+        a[0xB] = -1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013F6BC);

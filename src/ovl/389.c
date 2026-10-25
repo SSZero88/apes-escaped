@@ -60,7 +60,71 @@ s32 func_8014607C(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/389/nonmatchings/389", func_80146230);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, p1; s16 x1, y1; u8 r2, g2, b2, p2; s16 x2, y2; u8 r3, g3, b3, p3; s16 x3, y3; } PolyG4_80146230;
+extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_80146230 asm("g_Pad");
+extern struct { s32 frame; PolyG4_80146230 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_80146230 asm("g_Game");
+extern s32 D_80146770;
+extern u8 D_80146908[];
+extern u8 D_80146910[];
+s32 Sound_PlayFixed(s32);
+void func_8014666C(u8 *s, s32 x, s32 y, s32 pal);
+
+s32 func_80146230(void) {
+    s32 i;
+    u32 *ot;
+
+    if ((g_Pad_80146230.f_160 & g_Pad_80146230.f_158) & 0x860) {
+        Sound_PlayFixed(2);
+        D_80146770 = 1;
+        return 1;
+    }
+    if ((g_Pad_80146230.f_160 & g_Pad_80146230.f_158) & 0x100) {
+        return -1;
+    }
+    if ((g_Pad_80146230.f_160 & g_Pad_80146230.f_158) & 0x1000) {
+        Sound_PlayFixed(0);
+        if (--D_80146774 < 0) {
+            D_80146774 = 0xB;
+        }
+    }
+    if ((g_Pad_80146230.f_160 & g_Pad_80146230.f_158) & 0x4000) {
+        Sound_PlayFixed(0);
+        if (++D_80146774 >= 0xC) {
+            D_80146774 = 0;
+        }
+    }
+    func_8014666C(D_80146908, 0xA0, 0x28, 0);
+    for (i = 0; i < 12; i++) {
+        func_8014666C(D_80146910 + i * 16, 0x6E, 0x46 + i * 20, 1);
+    }
+    ((u8 *)g_Game_80146230.prim)[3] = 8;
+    g_Game_80146230.prim->code = 0x38;
+    g_Game_80146230.prim->code |= 2;
+    g_Game_80146230.prim->x0 = 0x6E;
+    g_Game_80146230.prim->y0 = D_80146774 * 20 + 0x46;
+    g_Game_80146230.prim->x1 = 0x104;
+    g_Game_80146230.prim->y1 = D_80146774 * 20 + 0x46;
+    g_Game_80146230.prim->x2 = 0x6E;
+    g_Game_80146230.prim->y2 = D_80146774 * 20 + 0x56;
+    g_Game_80146230.prim->x3 = 0x104;
+    g_Game_80146230.prim->y3 = D_80146774 * 20 + 0x56;
+    g_Game_80146230.prim->r0 = 0xF5;
+    g_Game_80146230.prim->g0 = 0xDC;
+    g_Game_80146230.prim->b0 = 0xC8;
+    g_Game_80146230.prim->r1 = 0xE6;
+    g_Game_80146230.prim->g1 = 0x46;
+    g_Game_80146230.prim->b1 = 0x28;
+    g_Game_80146230.prim->r2 = 0xC4;
+    g_Game_80146230.prim->g2 = 0x46;
+    g_Game_80146230.prim->b2 = 0x3C;
+    g_Game_80146230.prim->r3 = 0x5F;
+    g_Game_80146230.prim->g3 = 0xA;
+    g_Game_80146230.prim->b3 = 8;
+    ot = g_Game_80146230.db[g_Game_80146230.cur].ot;
+    __asm__ volatile("lwl $5, 2(%0)\n\tlw $2, %1\n\tsll $2, $2, 8\n\tswl $2, 2(%0)\n\tlw $2, %1\n\tswl $5, 2($2)" : : "r"(ot), "m"(g_Game_80146230.prim) : "$2", "$5", "memory");
+    g_Game_80146230.prim++;
+    return 0;
+}
 
 typedef struct { s32 a; s32 b; void *c; } Entry_80146500;
 extern Entry_80146500 D_80146878[];

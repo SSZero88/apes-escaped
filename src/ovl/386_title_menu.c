@@ -92,7 +92,86 @@ s32 func_80136C5C(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/386/nonmatchings/386_title_menu", func_80136D00);
+extern struct { u32 frame; SprtTp *prim; u32 *ot; } g_Game_80136D00 asm("g_Game");
+extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_80136D00 asm("g_Pad");
+extern s32 D_8013784C;
+extern s16 D_80137818;
+extern s16 D_8013781C;
+s32 Sound_PlayFixed(s32);
+
+s32 func_80136D00(void) {
+    SprtTp *p;
+    u32 *ot;
+    u32 btn;
+    u32 bob;
+
+    p = g_Game_80136D00.prim;
+    bob = g_Game_80136D00.frame / 4 % 3;
+    ot = g_Game_80136D00.ot;
+    ((u8 *)p)[3] = 5;
+    p->tpage = 0xE100023A;
+    p->code = 0x65;
+    p->y0 = D_8013784C * 24 + (bob + 0x80);
+    p->x0 = 0x7C;
+    *(u32 *)&p->u0 = 0x7DEBA0A0;
+    p->w = 0x20;
+    p->h = 0x20;
+    ADD_PRIM_R(ot, p, "$3", "$2");
+    p++;
+    ((u8 *)p)[3] = 5;
+    p->code = 0x65;
+    p->tpage = 0xE100022B;
+    p->x0 = 0x90;
+    p->w = 0x60;
+    *(u16 *)&p->u0 = 0x20A0;
+    p->h = 0x20;
+    p->y0 = 0x98;
+    p->clut = D_8013784C == 0 ? 0x3E2F : 0x3E6F;
+    ADD_PRIM_R(ot, p, "$3", "$2");
+    p++;
+    ((u8 *)p)[3] = 5;
+    p->code = 0x65;
+    *(u16 *)&p->u0 = 0xA0;
+    p->tpage = 0xE100022B;
+    p->x0 = 0x90;
+    p->y0 = 0xA8;
+    p->w = 0x60;
+    p->h = 0x20;
+    p->clut = D_8013784C == 0 ? 0x3E6F : 0x3E2F;
+    ADD_PRIM_R(ot, p, "$3", "$2");
+    p++;
+    g_Game_80136D00.prim = p;
+    if (D_80137818 == 1) {
+        btn = g_Pad_80136D00.f_160 & g_Pad_80136D00.f_158;
+        if (btn & 0x860) {
+            Sound_PlayFixed(2);
+            if (D_8013784C == 0) {
+                D_80137810 = 2;
+            } else {
+                if (D_8013784C != 1) {
+                    return 0;
+                }
+                D_80137810 = 1;
+            }
+        } else if (btn & 0x1000) {
+            Sound_PlayFixed(0);
+            if (--D_8013784C < 0) {
+                D_8013784C = 1;
+            }
+            D_8013781C = 0;
+        } else {
+            if (!(btn & 0x4000)) {
+                return 0;
+            }
+            Sound_PlayFixed(0);
+            if (++D_8013784C >= 2) {
+                D_8013784C = 0;
+            }
+            D_8013781C = 0;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/386/nonmatchings/386_title_menu", func_80136F54);
 

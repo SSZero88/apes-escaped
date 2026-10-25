@@ -1006,7 +1006,75 @@ s32 func_8014143C(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8014153C);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; struct S18_8014153C { s16 f[12]; } *f_8220; } g_Game_8014153C asm("g_Game");
+extern u8 *D_800B4D64_8014153C asm("D_800B4D64");
+s32 Sound_Stop(s32, s32);
+s32 Sound_UpdateVoice3D();
+
+s32 func_8014153C(s16 *p) {
+    u8 *e = g_Game_8014153C.f_820C + p[2] * 0x38;
+    s16 v[3];
+    s32 lvl = 0;
+    struct S18_8014153C *t;
+
+    if (p[4] >= 0) {
+        t = g_Game_8014153C.f_8220 + p[4];
+        lvl = t->f[11];
+    }
+    switch (p[1]) {
+    case 0:
+        if (lvl < p[9]) {
+            p[1] = 2;
+        } else {
+            p[9] = lvl;
+            if (lvl >= p[5]) {
+                p[9] = p[5];
+                p[1] = 1;
+                p[3] = p[8];
+            }
+        }
+        break;
+    case 1:
+        if (--p[3] < 0) {
+            p[1] = 2;
+        }
+        break;
+    case 2:
+        p[9] -= p[7];
+        if (p[9] < lvl) {
+            p[9] = lvl;
+            if (lvl >= p[5]) {
+                p[9] = p[5];
+                p[1] = 1;
+                p[3] = p[6];
+            } else {
+                p[1] = 0;
+            }
+        } else if (p[9] < p[6]) {
+            p[9] = p[6];
+            p[1] = 0;
+        }
+        break;
+    }
+    if (p[9] > p[6]) {
+        if (p[11] < 0) {
+            p[11] = Sound_Play(1, 0x7F);
+        } else {
+            Sound_UpdateVoice3D(0x7F, p[11], 0x1800, (s32)e);
+        }
+    } else if (p[11] >= 0) {
+        Sound_Stop(0x7F, p[11]);
+        p[11] = -1;
+    }
+    if (M2C_FIELD(e, s16 *, 0xE) > 0) {
+        v[1] = 0x1000;
+        v[0] = 0x1000;
+        v[2] = p[9];
+        func_800147D0(v, M2C_FIELD(D_800B4D64_8014153C + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
+        M2C_FIELD(e, s16 *, 0xA) = (p[10] * p[9]) / 4096;
+    }
+    return 0;
+}
 
 extern struct { u8 pad0[0x20C]; u8 *f_20C; } D_800F4350;
 

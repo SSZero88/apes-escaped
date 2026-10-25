@@ -189,7 +189,52 @@ void func_80138118(void) {
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80138138);
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80138370);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_80138370;
+extern s16 D_8013B48C;
+extern s16 D_8013B48A;
+extern s16 D_8013B484[];
+extern u16 g_RandSeed;
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_80138370 asm("g_Game");
+
+s32 func_80138370(void) {
+    Sprt_80138370 *p;
+    u32 *ot;
+    s32 k;
+
+    if (D_8013B48C > 0) {
+        D_8013B48C--;
+        if (D_8013B48C % 10 >= 6) {
+            return 0;
+        }
+    } else {
+        D_8013B48A = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 3;
+        D_8013B48C = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 11 + 1) * 20;
+    }
+    k = D_8013B48A + 2;
+    if (k >= 3) {
+        k = D_8013B48A - 1;
+    }
+    p = (Sprt_80138370 *)g_Game_80138370.prim;
+    *(u32 *)&p->r0 = 0x808080;
+    ((u8 *)p)[3] = 4;
+    p->code = 0x64;
+    p->x0 = D_8013B484[D_8013B48A];
+    p->y0 = D_8013B48A * 40 + 0x3C;
+    p->u0 = 0;
+    p->v0 = k * 13 - 0x50;
+    p->w = 0x38;
+    p->h = 0xD;
+    p->clut = 0x5B;
+    ot = g_Game_80138370.db[g_Game_80138370.cur].ot;
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    p++;
+    ((u8 *)p)[3] = 1;
+    ((u32 *)p)[1] = 0xE100020D;
+    ot = g_Game_80138370.db[g_Game_80138370.cur].ot;
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    g_Game_80138370.prim = (u8 *)p + 8;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801385B0);
 
@@ -213,7 +258,88 @@ void func_8013912C(void *arg0, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80139248);
+extern struct { u8 pad0[0x8120]; u16 f_8120; u8 pad8122[4]; u16 f_8126; u8 pad8128[0x20]; s32 f_8148; } g_Game_80139248 asm("g_Game");
+extern s16 D_8013B53C[];
+extern s16 D_8013B54E[];
+extern s16 D_8013B560[];
+extern s16 D_8013B572[];
+extern s16 D_8013B584[];
+extern s16 D_8013B596[];
+extern s16 D_8013B5CC[];
+extern s16 D_8013B7EA;
+s32 Stage_GetTargetTimes(u32);
+void Hud_DrawTime(s32, s32, u32);
+void Hud_DrawTimeMedal(s32, s32, u32, s16 *);
+void func_8013912C(void *arg0, s32 arg1);
+void func_801397F4(s32 x, s32 y, s32 val);
+void func_80138E04(void);
+
+void func_80139248(void) {
+    s32 w;
+    s32 n;
+    s32 times;
+    s32 t;
+    s32 s;
+    u16 *info;
+
+    s = g_Game_80139248.f_8126;
+    if (s == 0x13 || s == 0x24) {
+        func_8013912C(D_8013B5CC, 3);
+    } else {
+        info = (u16 *)0x1F800000;
+        w = Stage_GetWorld(s);
+        Stage_GetInfo(w, info);
+        switch (g_Game_80139248.f_8120) {
+        case 0xA:
+            switch ((s16)info[8]) {
+            case 0:
+                if (w == 0x11 || (u32)(w - 0x16) < 9) {
+                    func_8013912C(D_8013B596, 2);
+                } else if ((s16)info[2] > 0) {
+                    n = (s16)info[3] - (s16)info[2];
+                    func_8013912C(D_8013B54E, 3);
+                    func_801397F4(0x30, 0x58, n);
+                } else {
+                    n = (s16)info[3];
+                    func_8013912C(D_8013B53C, 3);
+                    func_801397F4(0x80, 0x58, n);
+                }
+                break;
+            case 1:
+                Stage_GetInfo(0x18, info + 0xA);
+                if ((s16)info[0x12] > 0) {
+                    n = (s16)info[4] - (s16)info[2];
+                    func_8013912C(D_8013B572, 3);
+                    func_801397F4(0x90, 0x58, n);
+                } else {
+                    func_8013912C(D_8013B560, 2);
+                    D_8013B7EA = 0;
+                }
+                break;
+            case 2:
+                func_8013912C(D_8013B584, 2);
+                D_8013B7EA = 0;
+                break;
+            }
+            func_80138E04();
+            break;
+        case 0x12:
+            n = (s16)info[5];
+            func_8013912C(D_8013B53C, 3);
+            func_801397F4(0x80, 0x58, n);
+            times = Stage_GetTargetTimes(w);
+            t = g_Game_80139248.f_8148;
+            if (t != -1) {
+                Hud_DrawTime(0x104, 0xC0, t);
+                Hud_DrawTimeMedal(0xEC, 0xB8, t, (s16 *)times);
+                func_8013912C((u8 *)D_8013B53C + 0x7E, 1);
+            }
+            break;
+        case 0x13:
+            break;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801394D0);
 

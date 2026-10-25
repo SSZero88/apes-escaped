@@ -271,7 +271,43 @@ void func_8013E500(SVECTOR *pos, s32 a1, s32 rnd, u8 a3, u8 a4) {
     D_80140CF8 = (D_80140CF8 + 1) % 16;
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013E650);
+typedef struct { SVECTOR start; SVECTOR *end; u8 padC[0x10]; u8 n; u8 pad1D; u16 seed; u8 pad20[4]; } Bolt_8013E650;
+extern Bolt_8013E650 D_80140AB8_8013E650[] asm("D_80140AB8");
+extern u8 D_800B1B90[];
+void func_8006F3D0(SVECTOR *, s32, void *, s32);
+
+void func_8013E650(void) {
+    SVECTOR pts[9];
+    SVECTOR b;
+    SVECTOR a;
+    Bolt_8013E650 *e;
+    SVECTOR *p;
+    s32 i;
+    s32 k;
+    s32 t;
+    u16 seed;
+
+    for (i = 15, e = D_80140AB8_8013E650; i >= 0; i--, e++) {
+        if (e->n == 0) {
+            continue;
+        }
+        seed = e->seed;
+        a = *e->end;
+        b = e->start;
+        p = pts;
+        for (k = e->n; k > 0; p++, k--) {
+            t = k - 1;
+            p->vx = (b.vx * t + a.vx * (7 - t)) / 7;
+            p->vy = (b.vy * t + a.vy * (7 - t)) / 7;
+            p->vz = (b.vz * t + a.vz * (7 - t)) / 7;
+            p->vx += (((s16)(seed = seed * 5 + 1) >> 8) - 0x80) / 2;
+            p->vy += (((s16)(seed = seed * 5 + 1) >> 8) - 0x80) / 2;
+            p->vz += (((s16)(seed = seed * 5 + 1) >> 8) - 0x80) / 2;
+        }
+        func_8006F3D0(pts, e->n, D_800B1B90, 8);
+        e->n--;
+    }
+}
 
 typedef struct { u8 pad0[6]; u8 f_6; u8 pad7[5]; } Slot_421c;
 extern Slot_421c D_80140D00[4];

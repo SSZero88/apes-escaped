@@ -281,7 +281,82 @@ void func_8013DAE8(void) {
     func_8013F080();
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013DD44);
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_8013DD44;
+typedef struct { u8 pad0[0x10]; u8 *verts; u8 pad14[0x14]; s32 y; s32 z; u8 pad30[0x44]; SVECTOR a; SVECTOR b; u8 pad84[0xA]; u8 f_8E; u8 f_8F; u8 pad90[8]; } Part_8013DD44;
+extern struct { u8 pad0[0x12]; u16 f_12; s8 f_14; u8 f_15; u8 f_16; u8 pad17[5]; u8 f_1C; u8 f_1D; } D_80144BE8_8013DD44 asm("D_80144BE8");
+extern Part_8013DD44 D_801444F8_8013DD44[] asm("D_801444F8");
+extern Mat_8013DD44 D_800F4750_8013DD44[] asm("D_800F4750");
+extern u8 D_80143D00_8013DD44[] asm("D_80143D00");
+s32 func_8013D1FC(u8 *a, void *scale, s32 c);
+
+void func_8013DD44(Part_8013DD44 *e) {
+    s32 a;
+    s32 c;
+    u8 *v;
+    Mat_8013DD44 *m;
+
+    if (D_80144BE8_8013DD44.f_14 != 0) {
+        if (D_80144BE8_8013DD44.f_16 == 0) {
+            e->z -= D_80144BE8_8013DD44.f_14;
+        } else {
+            e->y -= D_80144BE8_8013DD44.f_14;
+        }
+        D_80144BE8_8013DD44.f_14 += D_80144BE8_8013DD44.f_15;
+        D_80144BE8_8013DD44.f_15 += 8;
+        if (D_80144BE8_8013DD44.f_14 > 0) {
+            D_80144BE8_8013DD44.f_14 = 0;
+        }
+    }
+    c = 0;
+    if (D_80144BE8_8013DD44.f_1C != 0) {
+        a = D_80144BE8_8013DD44.f_12 & 0xF;
+        if (a >= 8) {
+            a = 0xF - a;
+        }
+        switch (D_80144BE8_8013DD44.f_1D) {
+        case 0:
+            c = ((a * 12 + 1) << 16) | ((a * 12) << 8) | (a * 16);
+            break;
+        case 1:
+            c = ((a * 16) << 16) | ((a * 12) << 8) | (a * 8 + 1);
+            break;
+        }
+    } else if (e->f_8E == 2 && e->f_8F != 2) {
+        a = D_80144BE8_8013DD44.f_12 & 0xF;
+        if (a >= 8) {
+            a = 0xF - a;
+        }
+        c = 0x10000 | (a * 16);
+    } else if (e->f_8E < 2) {
+        a = D_80144BE8_8013DD44.f_12 & 7;
+        if (a >= 4) {
+            a = 7 - a;
+        }
+        c = 0x10000 | (a * 32);
+    }
+    if (func_8013D1FC((u8 *)e, D_80143D00_8013DD44, c) != 0) {
+        return;
+    }
+    if (e == &D_801444F8_8013DD44[0] || e == &D_801444F8_8013DD44[1] || e == &D_801444F8_8013DD44[4] || e == &D_801444F8_8013DD44[5]) {
+        ApplyMatrixSV(&D_800F4750_8013DD44[0], e->verts + 0x50, &e->a);
+        e->a.vx += D_800F4750_8013DD44[0].t[0];
+        e->a.vy += D_800F4750_8013DD44[0].t[1];
+        e->a.vz += D_800F4750_8013DD44[0].t[2];
+        e->b = e->a;
+    } else if (e == &D_801444F8_8013DD44[2] || e == &D_801444F8_8013DD44[3]) {
+        v = e->verts;
+        m = &D_800F4750_8013DD44[5];
+        ApplyMatrixSV(m, v + 0x340, &e->a);
+        e->a.vx += m->t[0];
+        e->a.vy += m->t[1];
+        e->a.vz += m->t[2];
+        m += 3;
+        ApplyMatrixSV(m, v + 0x480, &e->b);
+        e->b.vx += m->t[0];
+        e->b.vy += m->t[1];
+        e->b.vz += m->t[2];
+    }
+}
 
 void func_8013E070(void) {
     s32 i;
@@ -346,7 +421,45 @@ void func_8013E4D0(SVECTOR *pos, s32 b) {
     D_801452D8_8013E4D0 = (D_801452D8_8013E4D0 + 1) % 16;
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013E564);
+typedef struct { SVECTOR start; SVECTOR *end; u8 n; u8 pad; u16 seed; } Bolt_8013E564;
+extern Bolt_8013E564 D_801451D8_8013E564[] asm("D_801451D8");
+extern u8 D_800B1B90[];
+void func_8006F3D0(SVECTOR *, s32, void *, s32);
+
+void func_8013E564(void) {
+    SVECTOR pts[9];
+    SVECTOR b;
+    SVECTOR a;
+    Bolt_8013E564 *e;
+    SVECTOR *p;
+    s32 i;
+    s32 k;
+    s32 t;
+    u16 seed;
+
+    for (i = 15, e = D_801451D8_8013E564; i >= 0; i--, e++) {
+        if (e->n == 0) {
+            continue;
+        }
+        seed = e->seed;
+        a = *e->end;
+        b = e->start;
+        p = pts;
+        for (k = e->n; k > 0; p++, k--) {
+            t = k - 1;
+            p->vx = (b.vx * t + a.vx * (7 - t)) / 7;
+            p->vy = (b.vy * t + a.vy * (7 - t)) / 7;
+            p->vz = (b.vz * t + a.vz * (7 - t)) / 7;
+            if (k >= 2 && k < e->n) {
+                p->vx += (((s16)(seed = seed * 5 + 1) >> 8) - 0x80) / 2;
+                p->vy += (((s16)(seed = seed * 5 + 1) >> 8) - 0x80) / 2;
+                p->vz += (((s16)(seed = seed * 5 + 1) >> 8) - 0x80) / 2;
+            }
+        }
+        func_8006F3D0(pts, e->n, D_800B1B90, 10);
+        e->n--;
+    }
+}
 
 void func_8013E7F8(void) {
     M2C_UNK *var_v0;
@@ -855,7 +968,71 @@ void func_80142528(s16 *arg0) {
     Sound_PlayFixed(0x60);
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801425EC);
+typedef struct { s16 x, y, z; u8 pad6[2]; u8 state; u8 count; u8 timer; u8 padB; } Gate_801425EC;
+extern Gate_801425EC D_80145430_801425EC[] asm("D_80145430");
+s32 Link_SendEvent(s32, s32, s32);
+void func_80142924(s32 i);
+
+void func_801425EC(void) {
+    SVECTOR pos;
+    Gate_801425EC *e;
+    s32 i;
+    s32 j;
+
+    for (i = 0, e = D_80145430_801425EC; i < 3; i++, e++) {
+        switch (e->state) {
+        case 0:
+            if (--e->timer == 0) {
+                e->state = 3;
+                e->count = 0x1E;
+            }
+            break;
+        case 1:
+            break;
+        case 2:
+            if (--e->count == 0) {
+                Link_SendEvent(9, i + 1, 3);
+                e->state = 0;
+                e->timer = 0xB4;
+                switch (i) {
+                case 0:
+                    for (j = 6; j < 12; j++) {
+                        func_80142924(j);
+                    }
+                    break;
+                case 1:
+                    for (j = 0; j < 3; j++) {
+                        func_80142924(j);
+                    }
+                    break;
+                case 2:
+                    for (j = 3; j < 6; j++) {
+                        func_80142924(j);
+                    }
+                    break;
+                }
+                Sound_PlayFixed(0x6C);
+            } else {
+                Link_SendEvent(9, i + 1, e->count & 1);
+                for (j = 0; j < 4; j++) {
+                    pos.vx = e->x + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 12;
+                    pos.vy = e->y;
+                    pos.vz = e->z + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 12;
+                    Effect_SpawnAt(6, &pos);
+                }
+            }
+            break;
+        case 3:
+            if (--e->count == 0) {
+                Link_SendEvent(9, i + 1, 0);
+                e->state = 1;
+            } else {
+                Link_SendEvent(9, i + 1, (e->count & 1) | 2);
+            }
+            break;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801428A4);
 

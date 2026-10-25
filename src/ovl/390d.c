@@ -120,7 +120,36 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013F9F8);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FB14);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FB30);
+typedef struct { s16 x, y; u8 body[0x20]; } Item_8013FB30;
+extern u8 D_8014147C[];
+extern u8 D_801414E8[];
+void func_80136000(u8 *, s32, s32, s32);
+
+s32 func_8013FB30(s32 n) {
+    func_80136000(D_8014147C + n * 0x24, ((Item_8013FB30 *)(D_8014147C - 4))[n].x, ((Item_8013FB30 *)(D_8014147C - 4))[n].y, 1);
+    switch (n) {
+    case 0: {
+        u8 *b = D_801414E8;
+        Item_8013FB30 *p = (Item_8013FB30 *)(b - 4);
+        func_80136000(b, p[0].x, p[0].y, 0);
+        func_80136000(b + 0x24, p[1].x, p[1].y, 0);
+        break;
+    }
+    case 1: {
+        u8 *b = D_801414E8 + 0x48;
+        Item_8013FB30 *p = (Item_8013FB30 *)(b - 0x4C);
+        func_80136000(b, p[2].x, p[2].y, 0);
+        break;
+    }
+    case 2: {
+        u8 *b = D_801414E8 + 0x6C;
+        Item_8013FB30 *p = (Item_8013FB30 *)(b - 0x70);
+        func_80136000(b, p[3].x, p[3].y, 0);
+        break;
+    }
+    }
+    return 0;
+}
 
 extern u8 D_80141554[];
 
@@ -155,7 +184,20 @@ u8 *func_8013FD44(void) {
     return D_80141800;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FD50);
+typedef struct { s16 x, y; u8 body[0x20]; } Item_8013FD50;
+extern u8 D_80141704[];
+#define D_80141700 ((Item_8013FD50 *)(D_80141704 - 4))
+
+s32 func_8013FD50(s16 *flags) {
+    s32 i;
+
+    for (i = 0; i < 7; i++) {
+        if (flags[i] == 1) {
+            func_80136000(D_80141700[i].body, D_80141700[i].x, D_80141700[i].y, 0);
+        }
+    }
+    return 0;
+}
 
 typedef struct { s16 x, y; u8 body[0x20]; } Item_8013FDE4;
 extern u8 D_80141824[];
@@ -176,13 +218,64 @@ s32 func_8013FDE4(s32 sel, s16 *flags) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FEA0);
+typedef struct { s16 x, y; u8 body[0x20]; } Item_8013FEA0;
+extern u8 D_801418FC[];
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FEFC);
+s32 func_8013FEA0(void) {
+    u8 *b = D_801418FC;
+    Item_8013FEA0 *p = (Item_8013FEA0 *)(b - 4);
+    func_80136000(b, p[0].x, p[0].y, 0);
+    func_80136000(b + 0x24, p[1].x, p[1].y, 0);
+    return 0;
+}
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FFEC);
+typedef struct { s16 x, y; u8 body[0x20]; } Item_8013FEFC;
+extern Item_8013FEFC D_80140470[];
+extern struct { u32 frame; } g_Game_8013FEFC asm("g_Game");
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_80140074);
+s32 func_8013FEFC(s32 n) {
+    s32 base;
+    s32 i;
+
+    base = 0x2A;
+    if (n == 1) {
+        base = 0;
+    }
+    for (i = 0; i < 3; i++) {
+        if (D_80140470[base + i].x != -2 || g_Game_8013FEFC.frame % 20 < 11) {
+            func_80136000(D_80140470[base + i].body, D_80140470[base + i].x, D_80140470[base + i].y, 0);
+        }
+    }
+    return 0;
+}
+
+typedef struct { s16 x, y; u8 body[0x20]; } Item_8013FFEC;
+extern u8 D_80141434[];
+void Menu_DrawCaps(s32, s32, s32);
+
+s32 func_8013FFEC(s32 sel) {
+    u8 *b = D_80141434;
+    Item_8013FFEC *p = (Item_8013FFEC *)(b - 4);
+    func_80136000(b, p[0].x, p[0].y, sel == 0);
+    func_80136000(b + 0x24, p[1].x, p[1].y, sel);
+    Menu_DrawCaps(0xC0, p[0].y + sel * 20, 0x4C);
+    return 0;
+}
+
+typedef struct { s16 x, y; u8 body[0x20]; } Item_80140074;
+extern u8 D_80141650[];
+
+s32 func_80140074(s32 n) {
+    u8 *b = D_80141650;
+    Item_80140074 *p = (Item_80140074 *)(b - 4);
+    func_80136000(b, p[0].x, p[0].y, 0);
+    if (n == 1) {
+        func_80136000(b + 0x48, p[2].x, p[2].y, 0);
+    } else {
+        func_80136000(b + 0x24, p[1].x, p[1].y, 0);
+    }
+    return 0;
+}
 
 typedef struct { s16 x, y; u8 text[0x20]; } Line_390b;
 extern Line_390b D_801416B8[2];

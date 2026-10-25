@@ -134,7 +134,6 @@ s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
 s32 VSync(s32 mode);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-void func_80136CC4();
 s32 func_80137470();
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
@@ -175,7 +174,107 @@ s32 func_80136AB8(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80136CC4);
+extern struct { u8 pad0[0x2CC]; s8 world; s8 stage; } D_800F4350_80136CC4 asm("D_800F4350");
+extern struct { u8 pad0[0x1C]; s32 f_1C; u8 pad20[4]; s32 f_24; s32 f_28; s32 f_2C; } D_800EBFA0_80136CC4 asm("D_800EBFA0");
+typedef struct { u16 off; u8 type; u8 pad; } Ent_80136CC4;
+extern s16 D_801391AA;
+extern s16 D_801391AC;
+extern s16 D_801391AE;
+extern s16 D_801391B0;
+extern s16 D_801391B2;
+extern s16 D_801391B8;
+extern s16 D_801391BC;
+extern s16 D_801391BE;
+extern s32 D_801391C0;
+extern s32 D_801391C4;
+extern u8 D_80139200[];
+extern u8 D_80139214[];
+extern u8 D_80139340[];
+extern u8 D_80139468[];
+extern u8 D_80139470[];
+extern s32 D_80139478;
+extern void *D_8013947C;
+extern u8 D_800E78C0_80136CC4[] asm("D_800E78C0");
+s32 func_80096580(s32);
+s32 func_80138ABC(void);
+s32 Save_SumStageMonkeys(u8 *);
+void func_8013734C(s16, u8 *);
+void func_80136FF0(void);
+void func_8008C01C(void);
+u8 *func_8008C09C(s32);
+void Model_BindMesh(void *, u32 *);
+void func_8002FAF0(s32);
+void Light_SetColorMode(s32, s32, s32, s32);
+void Stage_ApplyFog(void);
+void func_8004637C(void *);
+
+s32 func_80136CC4(void) {
+    s32 i;
+    u8 n;
+    u8 *p;
+    u8 *base = (u8 *)0x80154000;
+
+    D_801391AA = 0;
+    if (func_80096580(0x18) > 0) {
+        D_801391AA = 1;
+    }
+    D_801391AC = func_80138ABC();
+    D_801391AE = Save_SumStageMonkeys(0);
+    func_8013734C(D_801391AE, D_80139468);
+    if (D_801391AA != 0) {
+        func_8013734C(D_801391AC, D_80139470);
+    } else {
+        D_80139470[0] = 0x7F;
+        D_80139470[1] = 0x7F;
+        D_80139470[2] = 0;
+    }
+    D_801391BC = 1;
+    for (i = 1; i < 25; i++) {
+        D_80139340[i] = 0;
+        if (func_80096580(i) >= 2) {
+            D_80139340[i] = 1;
+        }
+        if (func_80096580(i) > 0) {
+            D_801391BC = i;
+        }
+    }
+    D_801391B0 = 0;
+    D_801391B2 = 0;
+    D_801391BE = 0;
+    D_801391BA = 0;
+    for (i = 0; D_80139200[i] < 25; i++) {
+        if (D_80139214[D_800F4350_80136CC4.stage + D_800F4350_80136CC4.world * 3] == D_80139200[i]) {
+            D_801391BA = i;
+            break;
+        }
+    }
+    while (D_80139200[D_801391BA] > D_801391BC) {
+        D_801391BA--;
+    }
+    D_801391B6 = 0;
+    D_801391B8 = 0x1E;
+    func_80136FF0();
+    func_8008C01C();
+    n = *base;
+    D_8013947C = func_8008C09C(n << 5);
+    for (i = 1; i <= n; i++) {
+        if (((Ent_80136CC4 *)base)[i].type == 2) {
+            Model_BindMesh((u8 *)D_8013947C + (i - 1) * 0x20, (u32 *)base + ((Ent_80136CC4 *)base)[i].off);
+        }
+    }
+    func_8002FAF0(0xA4);
+    Light_SetColorMode(0, 0, 0, 0);
+    D_800EBFA0_80136CC4.f_24 = 0;
+    D_800EBFA0_80136CC4.f_28 = 0x1000;
+    D_800EBFA0_80136CC4.f_2C = 0x1000;
+    D_800EBFA0_80136CC4.f_1C = 0;
+    Stage_ApplyFog();
+    func_8004637C(D_800E78C0_80136CC4);
+    D_801391C0 = 0;
+    D_801391C4 = 0x10;
+    D_80139478 = (s32)func_8008C09C(0x4800);
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80136FF0);
 

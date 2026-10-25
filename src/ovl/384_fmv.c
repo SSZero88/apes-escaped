@@ -1057,7 +1057,55 @@ void func_80139FA0(u8 *a) {
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139FB8);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013A460);
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_8013A460;
+typedef struct { s32 vx, vy, vz, pad; } Vec_8013A460;
+typedef struct { s16 x, y; } Pt_8013A460;
+extern Mat_8013A460 D_800AF0A0_8013A460 asm("D_800AF0A0");
+extern Mat_8013A460 D_800AE840;
+extern s16 D_800AF0C8;
+extern SVECTOR D_8013C590[];
+extern s32 D_8013C6FC;
+s32 SquareRoot0(s32);
+void *RotMatrixZ(s32 r, void *m);
+void SetTransMatrix(void *);
+void *MulMatrix0(void *, void *, void *);
+void SetRotMatrix(void *);
+s32 RotTrans(void *, void *, void *);
+
+void func_8013A460(Pt_8013A460 *pos, s16 a, s16 b) {
+    SVECTOR v0;
+    SVECTOR v1;
+    Vec_8013A460 out;
+    Mat_8013A460 m;
+    Mat_8013A460 r;
+    s32 flag;
+    s32 i;
+    s16 (*p)[4];
+
+    memset(&v0, 0, 8);
+    memset(&v1, 0, 8);
+    m = D_800AF0A0_8013A460;
+    r = D_800AE840;
+    p = (s16 (*)[4])D_8013C590;
+    *(Pt_8013A460 *)&p[45] = *pos;
+    v0.vx = (b * D_800AF0C8) >> 13;
+    v1.vx = b + (SquareRoot0(a * a + b * b) >> 1);
+    RotMatrixZ(0x111, &r);
+    SetTransMatrix(&r);
+    for (i = 0; i < 15; i++) {
+        MulMatrix0(&m, &r, &m);
+        SetRotMatrix(&m);
+        RotTrans(&v0, &out, &flag);
+        p[i + 15][0] = out.vx;
+        p[i + 15][1] = out.vy;
+        p[i + 15][2] = 0;
+        RotTrans(&v1, &out, &flag);
+        p[i + 30][0] = out.vx;
+        p[i + 30][1] = out.vy;
+        p[i + 30][2] = 0;
+    }
+    D_8013C6FC = 1;
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013A684);
 

@@ -369,7 +369,40 @@ void func_8013EC94(s16 x, s16 y, s16 z) {
     D_801421C0_8013EC94.f_7A = -0x5A;
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013ECD4);
+extern struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x2C]; u16 f_5C; u8 pad5E[2]; s16 f_60, f_62, f_64; u8 pad66[0xA]; u16 *f_70; u8 pad74[4]; u8 f_78; u8 pad79; s16 f_7A; } D_801421C0_8013ECD4 asm("D_801421C0");
+s32 func_8013D63C(u8 *a, void *scale, s32 c);
+void Effect_SpawnAt(s32, void *);
+void *memset(void *, s32, s32);
+
+void func_8013ECD4(void) {
+    s32 sc[4] = { 0x1000, 0x1000, 0x1000, 0 };
+    SVECTOR pos;
+    SVECTOR tmp;
+    s32 ang;
+
+    if (D_801421C0_8013ECD4.f_78 != 0) {
+        if (D_801421C0_8013ECD4.f_70[1] < ++D_801421C0_8013ECD4.f_5C) {
+            D_801421C0_8013ECD4.f_5C = D_801421C0_8013ECD4.f_70[0];
+        }
+        ang = (D_801421C0_8013ECD4.f_78 * 512) % 4096;
+        D_801421C0_8013ECD4.f_60 = rcos(ang);
+        D_801421C0_8013ECD4.f_62 = 0;
+        D_801421C0_8013ECD4.f_64 = rsin(ang);
+        func_8013D63C((u8 *)&D_801421C0_8013ECD4, sc, 0);
+        memset(&tmp, 0, 8);
+        tmp.vx = D_801421C0_8013ECD4.x;
+        tmp.vy = D_801421C0_8013ECD4.y - 0x40;
+        tmp.vz = D_801421C0_8013ECD4.z;
+        pos = tmp;
+        Effect_SpawnAt(5, &pos);
+        Effect_SpawnAt(5, &pos);
+        Effect_SpawnAt(0x28, &pos);
+        Effect_SpawnAt(0x30, &pos);
+        D_801421C0_8013ECD4.y += D_801421C0_8013ECD4.f_7A;
+        D_801421C0_8013ECD4.f_7A += 2;
+        D_801421C0_8013ECD4.f_78--;
+    }
+}
 
 void func_8013EE74(void) {
     func_8013EF00(1);
@@ -500,7 +533,55 @@ void func_8013F544(void) {
 
 INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013F5A8);
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013F6F8);
+typedef struct { u8 pad_0[0x24]; s32 x, y, z; u8 pad_30[0x2C]; s16 f_5C; u8 pad_5E[2]; SVECTOR dir; u8 pad_68[8]; u8 f_70[4]; s16 f_74, f_76, f_78; u8 pad_7A[0xA]; u8 active; u8 pad_85[3]; s16 vx, vy, vz; u8 pad_8E[2]; } Rock_8013F6F8;
+extern Rock_8013F6F8 D_801418A0_8013F6F8[8] asm("D_801418A0");
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013F6F8 asm("g_Spike");
+#define RAND_8013F6F8() (g_RandSeed = g_RandSeed * 5 + 1)
+void Camera_StartShake(s32);
+void VectorNormalSS(void *, void *);
+void func_8013D890(void *arg0, s32 arg1, s32 arg2, s16 arg3);
+
+void func_8013F6F8(void) {
+    s32 sc[4] = { 0x2000, 0x2000, 0x2000, 0 };
+    SVECTOR v;
+    SVECTOR w;
+    Rock_8013F6F8 *b;
+    s32 i;
+
+    for (i = 0, b = D_801418A0_8013F6F8; i < 8; i++, b++) {
+        if (b->active != 0) {
+            if (b->z >= -0x1917 || g_Spike_8013F6F8.z - 0x400 < b->z) {
+                b->vy += ((RAND_8013F6F8() >> 8) & 3) + 5;
+                b->vz += ((RAND_8013F6F8() >> 8) & 1) + 1;
+            }
+            b->x += b->vx + (g_Spike_8013F6F8.x - b->x) / 64;
+            b->y += b->vy;
+            b->z += b->vz;
+            b->vy++;
+            b->vz += 3;
+            if (b->y >= -0xA20) {
+                v.vx = b->x;
+                v.vy = -0xA40;
+                v.vz = b->z;
+                Effect_SpawnAt(0x102, &v);
+                Sound_PlayFixed(0x4D);
+                Camera_StartShake(0);
+                b->active = 0;
+            }
+            w.vx = b->x;
+            w.vy = b->y;
+            w.vz = b->z + 0x20;
+            Effect_Spawn(0xCC, (M2C_UNK *)&w, &D_80141640, 0);
+            b->f_74 = b->x;
+            b->f_76 = b->y;
+            b->f_78 = b->z;
+            func_8013D890(b->f_70, (s32)&D_80142260, 0x50, 0x200);
+            VectorNormalSS(&b->vx, &b->dir);
+            b->f_5C = 0;
+            func_8013D63C((u8 *)b, sc, 0);
+        }
+    }
+}
 
 typedef struct { u32 addr : 24; u32 len : 8; } P_TAG_414;
 typedef struct { P_TAG_414 tag; u32 rgbc; u32 xy; u32 wh; } TILE_414;

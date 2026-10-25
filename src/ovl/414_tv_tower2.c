@@ -360,7 +360,63 @@ void func_8013E53C(SVECTOR *pos, s32 c) {
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013E6E4);
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013E9C8);
+extern struct { s32 frame; u8 pad_4[0x8]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013E9C8 asm("g_Game");
+extern u8 D_80143D70_8013E9C8[] asm("D_80143D70");
+extern u8 D_800E78C0[];
+extern u8 D_800E7D00[];
+extern u8 D_800E9EC0[];
+void SetRotMatrix(void *m);
+void SetTransMatrix(void *m);
+s32 RotTransPers(void *v0, s32 *sxy, s32 *p, s32 *flag);
+void *ScaleMatrix(void *m, void *v);
+void *RotMatrixZ(s32 r, void *m);
+void *CompMatrix(void *m0, void *m1, void *m2);
+void Matrix_FromDirection(void *, void *);
+void Matrix_RotateY(s32, void *);
+void func_8004637C(void *);
+void func_80015780(void *, s32);
+void Model_ProjectBonedVerts(void *);
+void func_8013D290_8013E9C8(s32, s32, void *, s32) asm("func_8013D290");
+
+s32 func_8013E9C8(u8 *a, void *scale, s32 c, s32 spin) {
+    SVECTOR v;
+    s32 sxy;
+    s16 x;
+    s16 y;
+    s32 p;
+    s32 z;
+
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    v.vx = M2C_FIELD(a, s32 *, 0x24);
+    v.vy = M2C_FIELD(a, s32 *, 0x28);
+    v.vz = M2C_FIELD(a, s32 *, 0x2C);
+    z = RotTransPers(&v, &sxy, &p, &p);
+    x = sxy;
+    y = sxy >> 16;
+    if (x < -0x80 || x > 0x200 || y < -0x80 || y > 0x170 || z > 0x1000 || z <= 0) {
+        return 0;
+    }
+    if (spin == 0) {
+        Matrix_FromDirection(a + 0x60, M2C_FIELD(a, void **, 0x14));
+        ScaleMatrix(M2C_FIELD(a, void **, 0x14), scale);
+        func_80015780(a, 3);
+    } else {
+        u8 *o = D_80143D70_8013E9C8;
+
+        func_8004637C((void *)0x1F800018);
+        RotMatrixZ(M2C_FIELD(o, s32 *, 0xA4), (void *)0x1F800018);
+        Matrix_FromDirection(a + 0x60, M2C_FIELD(a, void **, 0x14));
+        CompMatrix(M2C_FIELD(a, void **, 0x14), (void *)0x1F800018, M2C_FIELD(a, void **, 0x14));
+        ScaleMatrix(M2C_FIELD(a, void **, 0x14), scale);
+        func_80015780(o, 3);
+        Matrix_RotateY(g_Game_8013E9C8.frame * 773, D_800E9EC0);
+        Matrix_RotateY(g_Game_8013E9C8.frame * 773, D_800E9EC0 + 0x20);
+    }
+    Model_ProjectBonedVerts(a);
+    func_8013D290_8013E9C8((s32)(g_Game_8013E9C8.f_80 + g_Game_8013E9C8.f_C * 0x4078), (s32)D_800E7D00, a, c);
+    return 0;
+}
 
 typedef struct { s16 x, y, z, w; } SV_8013EBC8;
 typedef struct {
@@ -377,7 +433,6 @@ typedef struct {
     u8 pad_C0[4];
 } Obj_8013EBC8;
 extern Obj_8013EBC8 D_80143D70_EBC8[] asm("D_80143D70");
-void func_8013E9C8(Obj_8013EBC8 *, s32 *, s32, s32);
 
 void func_8013EBC8(void) {
     Obj_8013EBC8 *o = D_80143D70_EBC8;

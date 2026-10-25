@@ -262,7 +262,56 @@ M2C_UNK func_8013DD64(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013DF2C);
+typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[4]; SVECTOR pos; s32 x, y, z; u8 pad30[0x30]; SVECTOR rot; u8 pad68[8]; s16 vx, vy, vz, state; } Chunk_8013DF2C;
+extern Chunk_8013DF2C D_80144F38_8013DF2C[] asm("D_80144F38");
+extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013DF2C asm("g_Game");
+extern u8 D_800E7D00_8013DF2C[] asm("D_800E7D00");
+void func_80014804_8013DF2C(void *, void *) asm("func_80014804");
+void func_80015780(void *, s32);
+void Model_ProjectBonedVerts(void *);
+void func_80016EBC(void *, void *, void *);
+s32 func_80051410(void *, s32, s32);
+void func_8013DC04(SVECTOR *p);
+void func_8013DD40(s32 arg0);
+
+void func_8013DF2C(u8 *o) {
+    s32 i;
+    Chunk_8013DF2C *m;
+    Chunk_8013DF2C *p;
+    SVECTOR v;
+
+    for (i = 0; i < 7; i++) {
+        p = &D_80144F38_8013DF2C[i];
+        if (p->state != 2) {
+            p->x += p->vx;
+            p->y += p->vy;
+            p->z += p->vz;
+            p->vy += 4;
+            m = p;
+            if (M2C_FIELD(o, s32 *, 0x28) < p->y) {
+                p->y = M2C_FIELD(o, s32 *, 0x28);
+                p->state++;
+                func_8013DC04(&p->pos);
+                if (i % 3 == 0) {
+                    Object_PlaySound(o, 0x60);
+                }
+                p->vx = p->vx / 2;
+                p->vy = p->vy / -3;
+                p->vz = p->vz / 2;
+                v.vx = p->x;
+                v.vy = p->y;
+                v.vz = p->z;
+            }
+            if (func_80051410(&m->x, 0, 0) == 0) {
+                func_80014804_8013DF2C(&m->rot, m->mat);
+                func_80015780(m, 3);
+                Model_ProjectBonedVerts(m);
+                func_80016EBC(g_Game_8013DF2C.f_80 + g_Game_8013DF2C.f_C * 0x4078, D_800E7D00_8013DF2C, m);
+                func_8013DD40((s32)&m->pos);
+            }
+        }
+    }
+}
 
 void func_8013E134(void) {
     Link_SendEvent(8, 6, 0);
@@ -1115,7 +1164,65 @@ void func_8014246C(void *arg0) {
     VectorNormalSS(temp_a0, temp_a0);
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_801424D4);
+typedef struct { u32 b0 : 3; u32 init : 1; u32 b4 : 18; u32 mode : 2; u32 b24 : 8; } Flags_8013D630;
+void func_80058134();
+void func_80054220(void *);
+void func_80142218(void *arg0);
+void func_801422E8(void *arg0);
+void func_80142418(void *arg0);
+void func_8014246C(void *arg0);
+
+void func_801424D4(u8 *e) {
+    u8 state;
+
+    if (!M2C_FIELD(e, Flags_8013D630 *, 0xE0).init) {
+        M2C_FIELD(e, s16 *, 0xA0) = 0x32;
+        M2C_FIELD(e, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(e, s16 *, 0x44) = 0x3C;
+        M2C_FIELD(e, s16 *, 0x48) = 0x201;
+        M2C_FIELD(e, s16 *, 0x4A) = 0x8202;
+        M2C_FIELD(e, s16 *, 0x46) = 0x64;
+        e[0xCD] = 3;
+        e[0xDC] = 5;
+        e[0xC9] = 0;
+        e[0x7F] = 0;
+        M2C_FIELD(e, s16 *, 0x9C) -= 200;
+        M2C_FIELD(e, s32 *, 0x28) = M2C_FIELD(e, s16 *, 0x9C);
+        M2C_FIELD(e, Flags_8013D630 *, 0xE0).mode = 2;
+        M2C_FIELD(e, u16 *, 0x5C) = *M2C_FIELD(e, u16 **, 0x88);
+        M2C_FIELD(e, Flags_8013D630 *, 0xE0).init = 1;
+    }
+    func_80058134(e, M2C_FIELD(e, s16 *, 0x44));
+    func_8014246C(e);
+    switch (e[0x80]) {
+    case 1:
+        if (e[0xC9] == 0) {
+            func_80142418(e);
+        }
+        if (M2C_FIELD(e, u16 *, 0x5C) >= M2C_FIELD(e, u16 **, 0x88)[e[0x7F] * 2 + 1]) {
+            if (e[0xC9] != 0) {
+                e[0xC9]--;
+            }
+        }
+        break;
+    case 2:
+        func_801422E8(e);
+        if (M2C_FIELD(e, u16 *, 0x5C) >= M2C_FIELD(e, u16 **, 0x88)[e[0x7F] * 2 + 1]) {
+            if (e[0x7F] == 2) {
+                e[0x80] = 1;
+                e[0x7F] = 0;
+                M2C_FIELD(e, u16 *, 0x5C) = *M2C_FIELD(e, u16 **, 0x88);
+                e[0xC9] = 5;
+            } else {
+                e[0x7F] = 2;
+                M2C_FIELD(e, u16 *, 0x5C) = M2C_FIELD(e, u16 **, 0x88)[4];
+            }
+        }
+        break;
+    }
+    func_80142218(e);
+    func_80054220(e);
+}
 
 extern struct S_g_Game_801426B4 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_801426B4 asm("g_Game");
 void func_8008FC30(s32, s16 *);
@@ -1223,7 +1330,54 @@ s32 func_80142CCC(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80142DB0);
+typedef struct { s16 f0; s16 f2; u8 pad4[0x14]; } Sw_80142DB0;
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; Sw_80142DB0 *f_8220; } g_Game_80142DB0 asm("g_Game");
+int abs(int);
+
+s32 func_80142DB0(s16 *p) {
+    u8 *e = g_Game_80142DB0.f_820C + p[2] * 0x38;
+    s32 t;
+    Sw_80142DB0 *w;
+
+    switch (p[1]) {
+    case 0:
+        w = &g_Game_80142DB0.f_8220[p[4]];
+        if (w->f2 == 2) {
+            p[1] = 1;
+            p[3] = 0;
+            if (p[5] == 2) {
+                M2C_FIELD(e, s16 *, 0x1C) = 2;
+                M2C_FIELD(e, s16 *, 0x36) = 0;
+                M2C_FIELD(e, u16 *, 0x12) |= 0x103;
+                M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+                t = M2C_FIELD(e, s16 *, 0xC) * 2;
+                M2C_FIELD(e, s16 *, 0xC) = t / 360;
+            }
+        }
+        break;
+    case 1:
+        p[3]++;
+        if (p[7] < p[3]) {
+            p[1] = 2;
+            p[3] = p[7];
+        }
+        if (p[5] == 1) {
+            M2C_FIELD(e, s16 *, 0x2E) = 360 - p[3] * (360 - abs(p[6])) / p[7];
+            if (p[6] < 0) {
+                M2C_FIELD(e, s16 *, 0x2E) *= -1;
+            }
+        } else if (p[5] == 2) {
+            M2C_FIELD(e, s16 *, 0x2C) = 360 - p[3] * (360 - abs(p[6])) / p[7];
+            if (p[6] < 0) {
+                M2C_FIELD(e, s16 *, 0x2C) *= -1;
+            }
+        }
+        break;
+    case 2:
+        break;
+    }
+    return 0;
+}
 
 extern struct S_g_Game_80142FD8 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80142FD8 asm("g_Game");
 
@@ -1640,7 +1794,58 @@ s32 func_80144240(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80144280);
+typedef struct { s32 x, y, z; u8 pad_C[0xC]; SVECTOR rot; s16 f_20; s16 pad_22; s16 f_24; s16 f_26; } Shape_80144280;
+typedef struct { SVECTOR rot; s32 x, y, z, pad; } Loc_80144280;
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; u8 pad_30[0x16]; s16 h; } g_Spike_80144280 asm("g_Spike");
+typedef struct { s16 x, y, z, w, h, d; } Ent_80144280;
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_80144280 asm("g_Game");
+Shape_80144280 *CollShape_Alloc_80144280(void) asm("CollShape_Alloc");
+s32 Collision_Set(s32, void *, void *);
+
+s32 func_80144280(s16 *p) {
+    Ent_80144280 *e = (Ent_80144280 *)(g_Game_80144280.f_820C + p[2] * 0x38);
+    s32 a;
+    s32 b;
+    s32 hs;
+    s32 he;
+    s32 unused[4];
+    Loc_80144280 l;
+    Shape_80144280 *s;
+
+    if (!(e->w < abs(g_Spike_80144280.x - e->x))) {
+        if (!(e->d < abs(g_Spike_80144280.z - e->z))) {
+            hs = g_Spike_80144280.h / 2;
+            a = g_Spike_80144280.y - hs;
+            he = e->h / 2;
+            b = e->y - he;
+            if (!(abs(a - b) > he + hs)) {
+                l.rot.vy = 0;
+                l.rot.vz = 0;
+                if (g_Spike_80144280.x < e->x) {
+                    l.rot.vx = -0x1000;
+                    l.x = g_Spike_80144280.x + 0x40;
+                } else {
+                    l.rot.vx = 0x1000;
+                    l.x = g_Spike_80144280.x - 0x40;
+                }
+                l.y = g_Spike_80144280.y;
+                l.z = g_Spike_80144280.z;
+                s = CollShape_Alloc_80144280();
+                if (s != NULL) {
+                    s->rot = l.rot;
+                    s->x = l.x;
+                    s->y = l.y;
+                    s->z = l.z;
+                    s->f_20 = 0x80;
+                    s->f_24 = 1;
+                    s->f_26 = 0x202;
+                    Collision_Set(6, s, 0);
+                }
+            }
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80144438);
 

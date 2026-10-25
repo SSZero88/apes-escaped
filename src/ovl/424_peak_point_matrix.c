@@ -356,7 +356,77 @@ void func_8013E044(SVECTOR *pos) {
     } while (i >= 0);
 }
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013E120);
+extern u8 D_80141FB0_8013E120[] asm("D_80141FB0");
+extern u8 D_80142004_8013E120[] asm("D_80142004");
+extern u8 D_80142338_8013E120[] asm("D_80142338");
+extern u32 D_80141F88_8013E120[] asm("D_80141F88");
+void func_80070284(void *, s32 *, s32, s32, s32);
+void Fx_SpawnFadeRing(void *, s32, s32, s32);
+void Fx_DrawFadeRing(void *, s32, s32, s32);
+
+void func_8013E120(void) {
+    SVECTOR v;
+    Ent_8013E044 *e;
+    s32 i;
+    s32 j;
+    s32 r;
+
+    for (i = 0, e = D_801427A0_8013E044; i >= 0; i--, e++) {
+        if (e->f_A == 0) {
+            continue;
+        }
+        switch (e->f_A) {
+        case 1:
+            e->x += e->dx / 32;
+            e->y += e->dy / 32;
+            e->z += e->dz / 32;
+            v.vx = e->x + e->dx / 16;
+            v.vy = e->y + e->dy / 16;
+            v.vz = e->z + e->dz / 16;
+            for (j = 3; j >= 0; j--) {
+                Effect_Spawn(0xC8, (s32)&v, (M2C_UNK *)D_80141F88_8013E120, 0);
+            }
+            e->f_B++;
+            if (e->y >= -0xA00) {
+                e->y = -0xA80;
+                e->f_A = 2;
+                e->f_B = 0x41;
+                Fx_SpawnFadeRing(&e->x, 1, 0x400, 0);
+                Camera_StartShake(2);
+                func_80070284(&e->x, (s32 *)D_80141FB0_8013E120, 1, 0, 0);
+                func_8013D364((SVECTOR *)&e->x);
+                func_8013DFB0((s32)&e->x);
+                Sound_PlayFixed(0xB1);
+                func_8013D89C();
+            }
+            break;
+        case 2:
+            r = 400;
+            if (e->f_B < 20) {
+                r = e->f_B * 20;
+            }
+            Fx_DrawFadeRing(&e->x, r + 0x70, 5, 0x808080);
+            Fx_DrawFadeRing(&e->x, r + ((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 9), 1, 0x808080);
+            func_8013D1FC((Coll_8013D3EC *)e, D_80142338_8013E120, r, 0x400, 0x200);
+            if (--e->f_B == 0) {
+                e->f_A = 0;
+                Effect_SpawnAt(0x112, (s32)&e->x);
+            } else if (e->f_B % 16 == 0) {
+                for (j = 16; j > 0; j--) {
+                    Effect_Spawn(0xCA, (s32)&e->x, (M2C_UNK *)D_80141F88_8013E120, 0);
+                }
+                func_80070284(&e->x, (s32 *)(D_80142004_8013E120 + e->f_1A * 0x54), 1, 0, 0);
+                e->f_1A = 1;
+                Sound_PlayFixed(0xB1);
+            }
+            if ((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 3) == 0) {
+                Puff_Spawn(&e->x, 0, 0x101, 0x1000);
+            }
+            func_8013D8C4();
+            break;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013E4B4);
 

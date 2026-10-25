@@ -79,7 +79,65 @@ void func_8013D254(void *arg0) {
     VectorNormalSS(temp_a0, temp_a0);
 }
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013D2BC);
+typedef struct { u32 b0 : 3; u32 init : 1; u32 b4 : 18; u32 mode : 2; u32 b24 : 8; } Flags_8013D630;
+void func_80058134();
+void func_80054220(void *);
+void func_8013D000(void *arg0);
+void func_8013D0D0(void *arg0);
+void func_8013D200(void *arg0);
+void func_8013D254(void *arg0);
+
+void func_8013D2BC(u8 *e) {
+    u8 state;
+
+    if (!M2C_FIELD(e, Flags_8013D630 *, 0xE0).init) {
+        M2C_FIELD(e, s16 *, 0xA0) = 0x32;
+        M2C_FIELD(e, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(e, s16 *, 0x44) = 0x3C;
+        M2C_FIELD(e, s16 *, 0x48) = 0x201;
+        M2C_FIELD(e, s16 *, 0x4A) = 0x8202;
+        M2C_FIELD(e, s16 *, 0x46) = 0x64;
+        e[0xCD] = 3;
+        e[0xDC] = 5;
+        e[0xC9] = 0;
+        e[0x7F] = 0;
+        M2C_FIELD(e, s16 *, 0x9C) -= 200;
+        M2C_FIELD(e, s32 *, 0x28) = M2C_FIELD(e, s16 *, 0x9C);
+        M2C_FIELD(e, Flags_8013D630 *, 0xE0).mode = 2;
+        M2C_FIELD(e, u16 *, 0x5C) = *M2C_FIELD(e, u16 **, 0x88);
+        M2C_FIELD(e, Flags_8013D630 *, 0xE0).init = 1;
+    }
+    func_80058134(e, M2C_FIELD(e, s16 *, 0x44));
+    func_8013D254(e);
+    switch (e[0x80]) {
+    case 1:
+        if (e[0xC9] == 0) {
+            func_8013D200(e);
+        }
+        if (M2C_FIELD(e, u16 *, 0x5C) >= M2C_FIELD(e, u16 **, 0x88)[e[0x7F] * 2 + 1]) {
+            if (e[0xC9] != 0) {
+                e[0xC9]--;
+            }
+        }
+        break;
+    case 2:
+        func_8013D0D0(e);
+        if (M2C_FIELD(e, u16 *, 0x5C) >= M2C_FIELD(e, u16 **, 0x88)[e[0x7F] * 2 + 1]) {
+            if (e[0x7F] == 2) {
+                e[0x80] = 1;
+                e[0x7F] = 0;
+                M2C_FIELD(e, u16 *, 0x5C) = *M2C_FIELD(e, u16 **, 0x88);
+                e[0xC9] = 5;
+            } else {
+                e[0x7F] = 2;
+                M2C_FIELD(e, u16 *, 0x5C) = M2C_FIELD(e, u16 **, 0x88)[4];
+            }
+        }
+        break;
+    }
+    func_8013D000(e);
+    func_80054220(e);
+}
 
 s16 Object_FloorAt(void *, s32, s32, s32);
 s32 Spike_WithinRadiusXZ(s32, s32, s32);
@@ -314,7 +372,6 @@ INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013E208);
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013E3A4 asm("g_Game");
 extern u8 *D_800B4D64_8013E3A4 asm("D_800B4D64");
-void func_8013E54C(u8 *);
 
 s32 func_8013E3A4(s16 *p) {
     u8 *e = g_Game_8013E3A4.f_820C + p[2] * 0x38;
@@ -355,4 +412,47 @@ s32 func_8013E4A8(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013E54C);
+typedef struct { s16 x, y, z; u8 pad6[6]; s16 n; s16 next; } Node_8013E54C;
+extern struct { u8 pad_0[0x8214]; Node_8013E54C *f_8214; } g_Game_8013E54C asm("g_Game");
+extern u8 *D_800B4D64_8013E54C asm("D_800B4D64");
+s16 func_800889EC(s16 *);
+
+s32 func_8013E54C(s16 *e) {
+    Node_8013E54C *n;
+    s32 x, y, z;
+
+    if (e[0x11] < 0) {
+        return 0;
+    }
+    n = &g_Game_8013E54C.f_8214[e[0x11]];
+    x = ((u16 *)e)[0x12] + e[6] * (n->x - e[0x12]) / (n->n * 2);
+    y = ((u16 *)e)[0x13] + e[6] * (n->y - e[0x13]) / (n->n * 2);
+    z = ((u16 *)e)[0x14] + e[6] * (n->z - e[0x14]) / (n->n * 2);
+    if (e[7] >= 0) {
+        M2C_FIELD(D_800B4D64_8013E54C + e[7] * 32, s16 *, 0x10) = x;
+        M2C_FIELD(D_800B4D64_8013E54C + e[7] * 32, s16 *, 0x12) = y;
+        M2C_FIELD(D_800B4D64_8013E54C + e[7] * 32, s16 *, 0x14) = z;
+    }
+    e[2] = z;
+    e[0] = x;
+    e[1] = y;
+    e[0x10] = func_800889EC(e);
+    e[6]++;
+    e[0x19]++;
+    if (e[6] >= n->n * 2) {
+        e[6] = 0;
+        e[0x11] = n->next;
+        if (g_Game_8013E54C.f_8214[e[0x11]].n <= 0) {
+            e[0x12] = g_Game_8013E54C.f_8214[e[0x11]].x;
+            e[0x13] = g_Game_8013E54C.f_8214[e[0x11]].y;
+            e[0x14] = g_Game_8013E54C.f_8214[e[0x11]].z;
+            e[0x11] = g_Game_8013E54C.f_8214[e[0x11]].next;
+            e[0x19] = 0;
+        } else {
+            e[0x12] = n->x;
+            e[0x13] = n->y;
+            e[0x14] = n->z;
+        }
+    }
+    return 0;
+}

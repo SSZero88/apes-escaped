@@ -1015,7 +1015,83 @@ s32 func_80140824(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_80140880);
+void func_8014074C(void *arg0);
+void func_801400EC(void *arg0);
+void func_8014059C(void *arg0);
+void func_801405C8(void *arg0);
+void func_80140658(void *arg0);
+void func_801406E8(void *arg0);
+s32 func_80140824(void *arg0);
+void Object_EnableCollision(void *);
+void func_80058134(void *, s32);
+void Shadow_Draw(void *, s32, s32, s32);
+s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s16);
+#define ANIM_80140880(o, i) ((u16 *)(M2C_FIELD(o, u8 **, 0x88) + (i) * 4))
+
+void func_80140880(u8 *o) {
+    s32 st;
+
+    if (!((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1)) {
+        func_8014074C(o);
+        M2C_FIELD(o, s16 *, 0xA0) = 100;
+        M2C_FIELD(o, u8 *, 0xC8) = 0;
+        M2C_FIELD(o, u8 *, 0xC9) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) &= ~1;
+        func_801400EC(o);
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    func_80058134(o, M2C_FIELD(o, s16 *, 0x44));
+    switch (st = M2C_FIELD(o, u8 *, 0x80)) {
+    case 1:
+        M2C_FIELD(o, u8 *, 0xC8) = 0;
+        Shadow_Draw(o + 0x24, Object_FloorAt(o, 0, 0, 0), M2C_FIELD(o, s16 *, 0xA0), M2C_FIELD(o, s32 *, 0xD0));
+        if (func_8005588C(o, -1) == 0
+            && Object_SpikeOutOfRange(o, M2C_FIELD(o, s16 *, 0x9A), M2C_FIELD(o, s32 *, 0x28), M2C_FIELD(o, s16 *, 0x9E), 1500) == 0) {
+            func_80140658(o);
+            M2C_FIELD(o, u8 *, 0xC8) = 14;
+            Object_EnableCollision(o);
+        }
+        break;
+    case 3:
+        Object_TurnTowardSpike(o);
+        if (M2C_FIELD(o, u16 *, 0x5C) >= ANIM_80140880(o, M2C_FIELD(o, u8 *, 0x7F))[1]) {
+            if (M2C_FIELD(o, u8 *, 0x7F) == 1) {
+                M2C_FIELD(o, u8 *, 0x7F) = 4;
+                M2C_FIELD(o, u16 *, 0x5C) = ANIM_80140880(o, 4)[0];
+            } else {
+                M2C_FIELD(o, u8 *, 0x80) = 4;
+                M2C_FIELD(o, u8 *, 0x7F) = st;
+                M2C_FIELD(o, u16 *, 0x5C) = ANIM_80140880(o, 3)[0];
+                M2C_FIELD(o, u8 *, 0x8F) = 0;
+            }
+        }
+        break;
+    case 4:
+        if (func_80140824(o) == 0) {
+            if (M2C_FIELD(o, u16 *, 0x5C) == ANIM_80140880(o, M2C_FIELD(o, u8 *, 0x7F))[0] + 20) {
+                func_801406E8(o);
+            }
+            if (M2C_FIELD(o, u8 *, 0x8F) >= 3) {
+                M2C_FIELD(o, u8 *, 0x80) = 6;
+                M2C_FIELD(o, u8 *, 0x7F) = 0;
+                M2C_FIELD(o, u16 *, 0x5C) = ANIM_80140880(o, 0)[0];
+                func_8014059C(o);
+            }
+        }
+        break;
+    case 6:
+        Object_DisableCollision(o);
+        if (M2C_FIELD(o, u16 *, 0x5C) >= ANIM_80140880(o, M2C_FIELD(o, u8 *, 0x7F))[1]) {
+            M2C_FIELD(o, u8 *, 0x80) = 1;
+            M2C_FIELD(o, u8 *, 0x7F) = 1;
+            M2C_FIELD(o, u16 *, 0x5C) = ANIM_80140880(o, 1)[0];
+            func_8014059C(o);
+            func_8005588C(o, 60);
+        }
+        break;
+    }
+    func_801405C8(o);
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_80140B0C);
 
