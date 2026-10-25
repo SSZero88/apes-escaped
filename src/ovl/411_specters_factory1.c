@@ -313,7 +313,54 @@ void func_8013E4D8(void *arg0, s32 n) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013E5C0);
+typedef struct { u8 pad0[0x5C]; u16 frame; } Anim_8013E5C0;
+extern Anim_8013E5C0 D_80141788_8013E5C0 asm("D_80141788");
+void Object_EnableCollision(void *);
+void func_8013E4D8(void *arg0, s32 n);
+
+s32 func_8013E5C0(u8 *o) {
+    Anim_8013E5C0 *a = &D_80141788_8013E5C0;
+
+    switch (o[0x8F]) {
+    case 0:
+        if (++a->frame == 1) {
+            o[0x7C] = Sound_ReserveSlot(0x70AE, 0x1000, o + 0x24);
+        } else if (a->frame == 0x18) {
+            func_80088120(o[0x7C]);
+            Object_PlaySound(o, 0x5C);
+        }
+        if (a->frame < 0x14) {
+            func_8013E4D8(o, 0);
+        } else {
+            func_8013E4D8(o, 1);
+        }
+        if (a->frame >= 0x27) {
+            o[0xC8] = 10;
+            o[0x8F] = 1;
+            o[0x7C] = Sound_ReserveSlot(0x70AE, 0x1000, o + 0x24);
+            Object_EnableCollision(o);
+            func_8005588C(o, 0xD);
+        }
+        return 0;
+    case 1:
+        func_8013E4D8(o, 1);
+        M2C_FIELD(o, s32 *, 0x28) -= 8;
+        if (func_8005588C(o, -1) == 0) {
+            func_80088120(o[0x7C]);
+            o[0x8F] = 2;
+        }
+        return 0;
+    case 2:
+        if (a->frame >= 0x37) {
+            return 1;
+        }
+        if (++a->frame == 0x18) {
+            Object_PlaySound(o, 0x5E);
+        }
+        return 0;
+    }
+    return 0;
+}
 
 typedef struct { s16 a[4]; } Q_8013E77C;
 typedef struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; u8 pad_30[0x2C]; u16 f_5C; u16 f_5E; Q_8013E77C rot; u8 pad_68[0x18]; u8 f_80; u8 pad_81[0x47]; u8 f_C8; u8 pad_C9[0x17]; s32 f_E0; } O_8013E77C;
@@ -624,7 +671,72 @@ void func_8013F9B0(void *arg0) {
     Fx_BigExplosion(&q);
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013FA2C);
+M2C_UNK Object_DisableCollision();
+void func_80052038_80140F9C(void *, s32) asm("func_80052038");
+void func_8013F92C(void *arg0);
+void func_8013F96C(void *arg0);
+void func_8013F9B0(void *arg0);
+
+void func_8013FA2C(u8 *o) {
+    if (((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1) == 0) {
+        M2C_FIELD(o, s16 *, 0x44) = 0xFA;
+        M2C_FIELD(o, s16 *, 0x46) = 0x200;
+        M2C_FIELD(o, s8 *, 0x7C) = -1;
+        M2C_FIELD(o, u8 *, 0x80) = 1;
+        M2C_FIELD(o, s16 *, 0xA0) = 0;
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x1000;
+        M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
+        Object_DisableCollision(o);
+        func_80052038_80140F9C(o, 0x84);
+        M2C_FIELD(o, s16 *, 0xC2) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    if (M2C_FIELD(o, u8 *, 0xCF) == 1) {
+        M2C_FIELD(o, u8 *, 0x80) = 2;
+        M2C_FIELD(o, u8 *, 0x7F) = 1;
+        M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+        Object_EnableCollision(o);
+        func_80052038_80140F9C(o, 0x84);
+        Object_PlaySound(o, 0x5C);
+    }
+    M2C_FIELD(o, u8 *, 0xCF) = 0;
+    func_80058134(o, M2C_FIELD(o, s16 *, 0x44));
+    switch (M2C_FIELD(o, u8 *, 0x80)) {
+    case 1:
+        break;
+    case 2:
+        if (M2C_FIELD(o, u16 *, 0x5C) >= *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) {
+            M2C_FIELD(o, u8 *, 0x80) = 3;
+            M2C_FIELD(o, u8 *, 0x7F) = 2;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+            M2C_FIELD(o, s16 *, 0xC2) = 0x12C;
+            func_8013F92C(o);
+            func_8013F9B0(o);
+        }
+        break;
+    case 3:
+        if (M2C_FIELD(o, s16 *, 0xC2) != 0) {
+            M2C_FIELD(o, s16 *, 0xC2)--;
+        } else {
+            M2C_FIELD(o, u8 *, 0x80) = 4;
+            M2C_FIELD(o, u8 *, 0x7F) = 3;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+            func_8013F96C(o);
+            Object_PlaySound(o, 0x5E);
+        }
+        break;
+    case 4:
+        if (M2C_FIELD(o, u16 *, 0x5C) >= *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) {
+            M2C_FIELD(o, u8 *, 0x80) = 1;
+            M2C_FIELD(o, u8 *, 0x7F) = 0;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+            func_80052038_80140F9C(o, 0x19);
+            Object_DisableCollision(o);
+        }
+        break;
+    }
+}
 
 s32 func_8013FC48(void) {
     s32 i;

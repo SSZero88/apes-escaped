@@ -430,7 +430,71 @@ void func_8013E6E4(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013E834);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013E8B4);
+void func_80058134_8013E8B4(void *, s32) asm("func_80058134");
+void Object_PlaySound_8013E8B4(void *, s32) asm("Object_PlaySound");
+void Object_Destroy_8013E8B4(void *) asm("Object_Destroy");
+s32 Object_SpikeNear_8013E8B4(void *, s32) asm("Object_SpikeNear");
+void Object_HeadHome_8013E8B4(void *, s32, s32) asm("Object_HeadHome");
+void func_8013E834(void *);
+void func_8013E3F4(u8 *a);
+void func_8013E518(void *arg0);
+void func_8013E6E4(void *arg0);
+
+void func_8013E8B4(u8 *o) {
+    if (((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1) == 0) {
+        func_8013E834(o);
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    func_80058134_8013E8B4(o, M2C_FIELD(o, s16 *, 0x44));
+    if (M2C_FIELD(o, u8 *, 0x82) != 0) {
+        if (((M2C_FIELD(o, u32 *, 0xE0) >> 10) & 1) == 0) {
+            M2C_FIELD(o, u32 *, 0xE0) = (M2C_FIELD(o, u32 *, 0xE0) & 0xFF3FFFFF) | 0x400000;
+            M2C_FIELD(o, s16 *, 0xD4) = (M2C_FIELD(o, s16 *, 0xD4) + 0x1B8) % 4096;
+        } else {
+            M2C_FIELD(o, u32 *, 0xE0) &= 0xFF3FFFFF;
+        }
+        return;
+    }
+    if ((M2C_FIELD(o, u32 *, 0xE0) >> 20) & 1) {
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x100000;
+        Object_PlaySound_8013E8B4(o, 0x15);
+        Object_Destroy_8013E8B4(o);
+    }
+    func_8013E3F4(o);
+    switch (M2C_FIELD(o, u8 *, 0x80)) {
+    case 1:
+        func_8013E518(o);
+        break;
+    case 2:
+        func_8013E6E4(o);
+        break;
+    case 3:
+        if (M2C_FIELD(o, u16 *, 0x5C) >= *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) {
+            M2C_FIELD(o, u8 *, 0x80) = 4;
+            M2C_FIELD(o, u8 *, 0x7F) = 2;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+        }
+        break;
+    case 4:
+        func_8013E67C(o);
+        if (Object_SpikeNear_8013E8B4(o, 0x200) == 0) {
+            M2C_FIELD(o, u8 *, 0x80) = 5;
+            M2C_FIELD(o, u8 *, 0x7F) = 3;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+            M2C_FIELD(o, u32 *, 0xE0) &= ~0x80;
+            M2C_FIELD(o, s16 *, 0x46) = 0x3C;
+        }
+        break;
+    case 5:
+        if (M2C_FIELD(o, u16 *, 0x5C) >= *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) {
+            M2C_FIELD(o, u8 *, 0x80) = 1;
+            M2C_FIELD(o, u8 *, 0x7F) = 0;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+            Object_HeadHome_8013E8B4(o, M2C_FIELD(o, s16 *, 0xA8), 0x400);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013EAF8);
 
@@ -754,7 +818,59 @@ void func_8013FF44(void *arg0, void *arg1) {
     M2C_FIELD(arg0, u16 *, 0xAC) = (u16) M2C_FIELD(arg1, u16 *, 0xAC);
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013FF9C);
+typedef struct { u8 pad[0xE4]; } Obj_8013FF9C;
+extern Obj_8013FF9C g_Objects_8013FF9C[] asm("g_Objects");
+extern s32 D_80141868;
+typedef struct { u8 pad[0x88]; u16 *f_88; } Anim_8013FF9C;
+s32 func_80057140(void *, s32, s32);
+void func_80051E98(void *, s32);
+void func_8013FEF8(void *arg0);
+void func_8013FF44(void *arg0, void *arg1);
+
+void func_8013FF9C(u8 *o) {
+    u8 *t = (u8 *)&g_Objects_8013FF9C[M2C_FIELD(o, s8 *, 0xCA)];
+
+    if (((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1) == 0) {
+        M2C_FIELD(o, s16 *, 0xB0) = 0x44;
+        M2C_FIELD(o, s16 *, 0xA0) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) |= 0x42000;
+        M2C_FIELD(o, s32 *, 0x74) = func_80057140(o, 6, 0x45);
+        M2C_FIELD(o, u8 *, 0x80) = 1;
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    if (M2C_FIELD(t, u8 *, 0x80) == 3) {
+        func_80051E98(o, 0);
+    }
+    func_8013FF44(o, t);
+    func_8013FEF8(o);
+    switch (M2C_FIELD(o, u8 *, 0x80)) {
+    case 1:
+        if (M2C_FIELD(t, u8 *, 0x80) == 4) {
+            M2C_FIELD(o, u8 *, 0x80) = 2;
+            M2C_FIELD(o, u8 *, 0x7F) = 2;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+            Object_PlaySound(o, 0x52);
+        }
+        break;
+    case 2:
+        if (M2C_FIELD(o, u16 *, 0x5C) >= *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) {
+            D_80141868 = 1;
+            M2C_FIELD(o, u8 *, 0x80) = 3;
+            M2C_FIELD(o, u8 *, 0x7F) = 1;
+            M2C_FIELD(o, u16 *, 0x5C) = ((Anim_8013FF9C *)o)->f_88[M2C_FIELD(o, u8 *, 0x7F) * 2];
+        }
+        break;
+    case 3:
+        if (M2C_FIELD(t, u8 *, 0x80) != 2) {
+            M2C_FIELD(o, u8 *, 0x80) = 1;
+            M2C_FIELD(o, u8 *, 0x7F) = 0;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+        }
+        break;
+    }
+}
 
 s16 Object_FloorAt(void *, s32, s32, s32);
 s32 Spike_WithinRadiusXZ(s32, s32, s32);
@@ -913,6 +1029,54 @@ s32 func_80140900(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_80140984);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_80140C78);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_80140C78 asm("g_Game");
+s32 Model_SetTurnAngle_80140C78(s16, s16, s32) asm("Model_SetTurnAngle");
+
+s32 func_80140C78(s16 *p) {
+    u8 *e;
+
+    if (p[5] == 0) {
+        p[1] = 0;
+        if (p[6] >= 0) {
+            e = g_Game_80140C78.f_820C + p[6] * 0x38;
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+        }
+        if (p[7] >= 0) {
+            e = g_Game_80140C78.f_820C + p[7] * 0x38;
+            M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+        }
+        if (p[8] >= 0) {
+            e = g_Game_80140C78.f_820C + p[8] * 0x38;
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+        }
+        if (p[9] >= 0) {
+            e = g_Game_80140C78.f_820C + p[9] * 0x38;
+            M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+        }
+        p[3] = 0;
+    } else {
+        p[1] = 2;
+        if (p[6] >= 0) {
+            e = g_Game_80140C78.f_820C + p[6] * 0x38;
+            M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+        }
+        if (p[7] >= 0) {
+            e = g_Game_80140C78.f_820C + p[7] * 0x38;
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+        }
+        if (p[8] >= 0) {
+            e = g_Game_80140C78.f_820C + p[8] * 0x38;
+            M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+        }
+        if (p[9] >= 0) {
+            e = g_Game_80140C78.f_820C + p[9] * 0x38;
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+        }
+        p[3] = 0x400;
+        Model_SetTurnAngle_80140C78(p[4], p[10], p[3]);
+        Model_SetTurnAngle_80140C78(p[4], p[11], p[3]);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_80140EF8);

@@ -304,7 +304,49 @@ INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013E074);
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013E388);
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013E674);
+typedef struct { s16 x, y, z; } Rot_8013E674;
+typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 wx, wy, wz; Rot_8013E674 r; s16 life; } Debris_8013E674;
+extern Debris_8013E674 D_80142008[6];
+extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013E674 asm("g_Game");
+void RotMatrixYXZ(void *, void *);
+void func_8006D548(SVECTOR *);
+
+void func_8013E674(u8 *arg0) {
+    s32 i;
+    Debris_8013E674 *d;
+    SVECTOR v;
+
+    for (i = 0; i < 6; i++) {
+        d = &D_80142008[i];
+        if (d->life != 0) {
+            d->x += d->vx;
+            d->y += d->vy;
+            d->z += d->vz;
+            d->vy += 7;
+            v.vx = d->x;
+            v.vy = d->y;
+            v.vz = d->z;
+            if (M2C_FIELD(arg0, s16 *, 0x9C) < d->y) {
+                d->life = 0;
+                v.vy = M2C_FIELD(arg0, s16 *, 0x9C) - 0x32;
+                Effect_SpawnAt(0x102, &v);
+                Object_PlaySound(arg0, 0x6E);
+                continue;
+            }
+            d->r.x = (d->r.x + d->wx) % 4096;
+            d->r.y = (d->r.y + d->wy) % 4096;
+            d->r.z = (d->r.z + d->wz) % 4096;
+            if (func_80051410(&d->x, 0, 0) == 0) {
+                RotMatrixYXZ(&d->r, d->mat);
+                func_80015780(d, 3);
+                Model_ProjectBonedVerts(d);
+                func_80016EBC(g_Game_8013E674.f_80 + g_Game_8013E674.f_C * 0x4078, &D_800E7D00, d);
+                Effect_SpawnAt(7, &v);
+                func_8006D548(&v);
+            }
+        }
+    }
+}
 
 void func_8013E884(void *arg0) {
     if (M2C_FIELD(arg0, s8 *, 0x7C) == -1) {
@@ -574,7 +616,48 @@ void func_8013F3A4(u8 *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F4B4);
+extern struct { u8 pad0[0x24]; s16 x; u8 pad26[2]; s16 y; u8 pad2A[2]; s16 z; } g_Spike_8013F4B4 asm("g_Spike");
+typedef struct { u16 start; u16 end; } Rng_8013F4B4;
+s16 *Collision_GetShape_8013F4B4(s32) asm("Collision_GetShape");
+s32 Collision_GetId(s32);
+s32 Object_SpikeBehind(void *, s32, s32, s16);
+void func_8013E8C4(void *arg0);
+M2C_UNK Object_TurnToward(void *, s16, s16, M2C_UNK, s32);
+s32 Sound_PlayFixed(s32);
+void func_8005744C(void *, s32, s32, s32);
+
+void func_8013F4B4(u8 *o) {
+    s16 *s;
+
+    if (M2C_FIELD(o, u32 *, 0x50) >> 28 != 0xB) {
+        return;
+    }
+    if (o[0x81] == 0 || o[0x80] == 6) {
+        return;
+    }
+    s = Collision_GetShape_8013F4B4(M2C_FIELD(o, u16 *, 0x50) & 0xFFF);
+    if (Collision_GetId(M2C_FIELD(o, u16 *, 0x50) & 0xFFF) != 2 && Object_SpikeBehind(o, 0xB4, 0, 0)) {
+        o[0x8F] = 0;
+        M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
+        func_800525E0(o);
+        func_80052864(o);
+        func_8013E8C4(o);
+        if (o[0x81] != 0) {
+            o[0x80] = 0x14;
+            o[0x7F] = o[0xCD];
+            M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, Rng_8013F4B4 **, 0x88)[o[0x7F]].start;
+            o[0xCE] = o[0x7F];
+        } else {
+            o[0x80] = 5;
+            func_8005588C(o, 0x1E);
+            o[0x82] = 0;
+        }
+        Object_TurnToward(o, M2C_FIELD(o, u16 *, 0x24) - g_Spike_8013F4B4.x, M2C_FIELD(o, u16 *, 0x2C) - g_Spike_8013F4B4.z, 0, 0x1000);
+        return;
+    }
+    Sound_PlayFixed(0x67);
+    func_8005744C(o, (s16)(s[0] - M2C_FIELD(o, u16 *, 0x24)), (s16)(M2C_FIELD(o, u16 *, 0x28) - s[2]), (s16)(s[4] - M2C_FIELD(o, u16 *, 0x2C)));
+}
 
 M2C_UNK Object_TurnToward(void *, s16, s16, M2C_UNK, s32);
 

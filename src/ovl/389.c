@@ -3,7 +3,62 @@
 
 INCLUDE_ASM("asm/ovl/389/nonmatchings/389", func_80146000);
 
-INCLUDE_ASM("asm/ovl/389/nonmatchings/389", func_8014607C);
+typedef struct { s16 x, y, w, h; } Rect_8014607C;
+typedef struct { u8 pad0[0x19]; u8 r0, g0, b0; } DrawEnv_8014607C;
+extern Rect_8014607C D_80146760;
+extern s32 D_80146774;
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_8014607C asm("g_Game");
+s32 Gfx_InitDisplay(void);
+s32 ResetGraph(s32 mode);
+s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
+s32 VSync(s32 mode);
+void func_8001325C(s32);
+void Gfx_BeginFrame(void);
+s32 func_80146230(void);
+void *PutDrawEnv(void *env);
+void *PutDispEnv(void *env);
+void DrawOTag(u32 *p);
+void Cd_Update(void);
+
+s32 func_8014607C(void) {
+    Rect_8014607C r;
+    s32 v;
+
+    r = D_80146760;
+    Gfx_InitDisplay();
+    ResetGraph(1);
+    ClearImage(&r, 0, 0, 0x7F);
+    DrawSync(0);
+    g_Game_8014607C.db[1].env[0x18] = 1;
+    g_Game_8014607C.db[0].env[0x18] = 1;
+    ((DrawEnv_8014607C *)&g_Game_8014607C.db[0])->r0 = 0;
+    ((DrawEnv_8014607C *)&g_Game_8014607C.db[0])->g0 = 0;
+    ((DrawEnv_8014607C *)&g_Game_8014607C.db[0])->b0 = 0x7F;
+    ((DrawEnv_8014607C *)&g_Game_8014607C.db[1])->r0 = 0;
+    ((DrawEnv_8014607C *)&g_Game_8014607C.db[1])->g0 = 0;
+    ((DrawEnv_8014607C *)&g_Game_8014607C.db[1])->b0 = 0x7F;
+    g_Game_8014607C.cur = 0;
+    D_80146774 = 0;
+    while (1) {
+        func_8001325C(0);
+        Gfx_BeginFrame();
+        v = func_80146230();
+        if (v != 0) {
+            break;
+        }
+        DrawSync(0);
+        VSync(0);
+        g_Game_8014607C.frame++;
+        PutDispEnv(&g_Game_8014607C.db[g_Game_8014607C.cur].env[0x5C]);
+        PutDrawEnv(g_Game_8014607C.db[g_Game_8014607C.cur].env);
+        DrawOTag(&g_Game_8014607C.db[g_Game_8014607C.cur].ot[0xFFF]);
+        Cd_Update();
+    }
+    if (v < 0) {
+        return -1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/389/nonmatchings/389", func_80146230);
 

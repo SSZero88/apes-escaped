@@ -323,7 +323,44 @@ INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013F2CC);
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013F78C);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013FAB8);
+typedef struct { u8 pad0[0x14]; s32 mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 rvx, rvy, rvz; s16 rx, ry, rz; u8 pad82; u8 timer; } Deb_8013FAB8;
+void Model_ProjectBonedVerts(void *);
+void RotMatrixYXZ(void *, void *);
+void func_80015780(void *, s32);
+void func_80016EBC(void *, void *, void *);
+s32 func_80051410(void *, s32, s32);
+extern M2C_UNK D_800E7D00;
+extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013FAB8 asm("g_Game");
+extern Deb_8013FAB8 D_801438B0_8013FAB8[] asm("D_801438B0");
+
+void func_8013FAB8(void) {
+    s32 i;
+    Deb_8013FAB8 *m;
+
+    for (i = 0; i < 16; i++) {
+        m = &D_801438B0_8013FAB8[i];
+        if (m->timer != 0) {
+            m->timer--;
+            m->x += m->vx;
+            m->y += m->vy;
+            m->z += m->vz;
+            m->vy += 7;
+            if (m->y >= -0xA00) {
+                m->y = -0xA00;
+                m->vy = -(m->vy / 2);
+            }
+            m->rx = (m->rx + m->rvx) % 4096;
+            m->ry = (m->ry + m->rvy) % 4096;
+            m->rz = (m->rz + m->rvz) % 4096;
+            if (func_80051410(&m->x, 0, 0) == 0) {
+                RotMatrixYXZ(&m->rx, (void *)m->mat);
+                func_80015780(m, 3);
+                Model_ProjectBonedVerts(m);
+                func_80016EBC(g_Game_8013FAB8.f_80 + g_Game_8013FAB8.f_C * 0x4078, &D_800E7D00, m);
+            }
+        }
+    }
+}
 
 void func_8013FC78(s32 arg0) {
     func_8013F78C();
@@ -889,7 +926,45 @@ s32 func_80142088(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80142164);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_80142164 asm("g_Game");
+extern u8 *D_800B4D64_80142164 asm("D_800B4D64");
+s32 Sound_PlayFixed_80142164(s32, void *) asm("Sound_PlayFixed");
+
+s32 func_80142164(s16 *p) {
+    u8 *e = g_Game_80142164.f_820C + p[2] * 0x38;
+
+    switch (p[1]) {
+    case 1:
+        break;
+    case 4:
+        break;
+    case 5:
+        if (p[3] == 0) {
+            Sound_PlayFixed_80142164(0xAD, e);
+        }
+        p[3] += 0x20;
+        if (p[3] > M2C_FIELD(e, s16 *, 8)) {
+            p[3] = M2C_FIELD(e, s16 *, 8);
+            p[1] = 1;
+            p[5] = 0x2000;
+            if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+                M2C_FIELD(D_800B4D64_80142164 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+            }
+            M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+        } else {
+            M2C_FIELD(e, s16 *, 2) -= 0x20;
+            p[5] += 0x2000 / (M2C_FIELD(e, s16 *, 8) / 32);
+            if (p[5] > 0x2000) {
+                p[5] = 0x2000;
+            }
+        }
+        if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+            M2C_FIELD(D_800B4D64_80142164 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x18) = p[5];
+        }
+        break;
+    }
+    return 0;
+}
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_801422FC asm("g_Game");
 extern u8 *D_800B4D64_801422FC asm("D_800B4D64");

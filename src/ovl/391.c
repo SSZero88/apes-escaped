@@ -243,7 +243,48 @@ void func_8013836C(void) {
     func_80138258(0x18, 0x16, 0x110, 0x30);
 }
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_801384A0);
+extern struct { s16 x, y; u8 pad4[8]; s32 f_C; } D_80139B20_801384A0 asm("D_80139B20");
+extern u8 D_80139AB4[];
+extern struct { u8 pad0[0x8124]; u16 stage; u8 pad8126[0x1A]; s32 time; u32 best; } g_Game_801384A0 asm("g_Game");
+s16 *Stage_GetTargetTimes(u32);
+void func_801372D0();
+void Hud_DrawTime(s32, s32, u32);
+void Hud_DrawTimeMedal(s32, s32, u32, s16 *);
+
+void func_801384A0(void) {
+    s32 t = g_Game_801384A0.time;
+    s16 *times = Stage_GetTargetTimes(g_Game_801384A0.stage);
+
+    D_80139B20_801384A0.f_C = 0x10;
+    D_80139B20_801384A0.x = 0x20;
+    D_80139B20_801384A0.y = 0x50;
+    func_801372D0(func_801361D8(D_80139AB4, 0));
+    Hud_DrawTime(0x88, 0x50, t);
+    D_80139B20_801384A0.x = 0x20;
+    D_80139B20_801384A0.y = 0x68;
+    func_801372D0(func_801361D8(D_80139AB4, 1));
+    Hud_DrawTime(0x88, 0x68, g_Game_801384A0.best);
+    if (t < g_Game_801384A0.best) {
+        D_80139B20_801384A0.x = 0x40;
+        D_80139B20_801384A0.y = 0xD0;
+        func_801372D0(func_801361D8(D_80139AB4, 6));
+    }
+    if (times[0] >= t) {
+        D_80139B20_801384A0.x = 0x20;
+        D_80139B20_801384A0.y = 0x90;
+        func_801372D0(func_801361D8(D_80139AB4, 2));
+        D_80139B20_801384A0.x = 0x78;
+        D_80139B20_801384A0.y = 0xB0;
+        if (times[2] >= t) {
+            func_801372D0(func_801361D8(D_80139AB4, 3));
+        } else if (times[1] >= t) {
+            func_801372D0(func_801361D8(D_80139AB4, 4));
+        } else {
+            func_801372D0(func_801361D8(D_80139AB4, 5));
+        }
+        Hud_DrawTimeMedal(0x68, 0xA8, t, times);
+    }
+}
 
 void func_80138660(void) {
     s32 var_a0;

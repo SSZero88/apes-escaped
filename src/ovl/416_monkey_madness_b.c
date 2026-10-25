@@ -254,7 +254,71 @@ void func_8013DF60(void *obj) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013DF90);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x14]; s16 f44, f46, f48, f4A; u8 pad4C[0x14]; s16 f60, f62, f64; u8 pad66[0x16]; s32 f7C; u8 pad80[4]; u8 f84; u8 pad85; u8 f86, f87; u8 pad88[8]; u8 f90; u8 pad91; u8 f92, f93; } Obj_8013DF90;
+extern Obj_8013DF90 D_80142260_8013DF90[] asm("D_80142260");
+extern struct { u8 f0; u8 pad1[0xF]; s32 f10; u8 pad14[8]; u8 f1C, f1D, pad1E, f1F; } D_80141880_8013DF90 asm("D_80141880");
+extern Obj_8013DF90 D_801422F8;
+extern u8 D_800AF840;
+extern s16 D_800E69BE;
+s32 SaveByte_Get(s32);
+void func_8013EF0C(void *arg0, s32 anim);
+void func_8013EF00(s8 arg0);
+void func_8013F544(void);
+void func_8013E14C(void);
+void func_8013EC5C(void);
+void func_8013D8BC(void);
+void func_8013DF28(void);
+
+void func_8013DF90(void) {
+    Obj_8013DF90 *o;
+    s32 i;
+
+    if (SaveByte_Get(8) == 5) {
+        D_800AF840 = 1;
+        return;
+    }
+    D_800E69BE = 0;
+    i = 0;
+    o = D_80142260_8013DF90;
+    for (; i < 1; i++, o++) {
+        func_8013D440(i, (M2C_UNK *)o, (u8 *)o + 0x74);
+        o->f87 = 5;
+        o->f86 = 5;
+        o->f84 = 1;
+        o->x = 0x600;
+        o->y = -0xA00;
+        o->z = -0x1B40;
+        o->f60 = 0;
+        o->f62 = 0;
+        o->f64 = 0x1000;
+        func_8013EF0C(o, 0);
+        o->f7C = 0;
+        o->f90 = 0;
+        o->f93 = 0;
+        o->f92 = 0;
+        Collision_Set(5, &o->x, o);
+        o->f48 = 1;
+        o->f4A = -0x3E00;
+        o->f44 = 0x1C2;
+        o->f46 = 0x168;
+    }
+    D_80141880_8013DF90.f0 = 1;
+    func_8013EF00(0);
+    D_80141880_8013DF90.f10 = 0;
+    D_80141880_8013DF90.f1C = 0;
+    D_80141880_8013DF90.f1D = 0;
+    D_80141880_8013DF90.f1F = 0;
+    Collision_Set(5, &D_801422F8.x, &D_801422F8);
+    D_801422F8.f4A = 0x4000;
+    D_801422F8.f44 = 0x50;
+    D_801422F8.f48 = 0;
+    D_801422F8.f46 = 0x80;
+    func_8013F544();
+    func_8013E14C();
+    func_8013EC5C();
+    func_8013D8BC();
+    func_8013DF28();
+}
 
 void func_8013E14C(void) {
     M2C_UNK *var_s1;

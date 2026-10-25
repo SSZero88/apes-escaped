@@ -79,7 +79,67 @@ void func_8013D208(void *arg0, s16 r) {
     M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereAt(arg0, &v, r);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D260);
+extern s32 D_80141154;
+typedef struct { u8 pad0[0x5C]; u16 f_5C; u8 pad5E[0x21]; u8 f_7F; u8 f_80; u8 pad81[7]; u16 *f_88; } Obj_8013D260;
+u32 Object_DetachLink(void *, s32);
+s16 Object_PathPointNear(void *, void *, s16, u8);
+void *memset(void *, s32, s32);
+void func_8013D040(void *arg0);
+void func_8013D1B8(void *arg0);
+void func_8013D208(void *arg0, s16 r);
+
+void func_8013D260(u8 *o) {
+    SVECTOR w;
+    SVECTOR v;
+    u32 r;
+
+    r = Object_DetachLink(o, 0);
+    switch (r) {
+    case 10:
+        M2C_FIELD(o, s16 *, 0x98) = 0;
+        M2C_FIELD(o, s16 *, 0x96) = 0;
+        M2C_FIELD(o, s16 *, 0x94) = 0;
+        if (M2C_FIELD(o, u8 *, 0x81) != 0) {
+            if (--M2C_FIELD(o, u8 *, 0x81) == 0) {
+                Object_PlaySound(o, 0x4E);
+            }
+        }
+        M2C_FIELD(o, u8 *, 0x80) = 5;
+        M2C_FIELD(o, u8 *, 0x7F) = 6;
+        M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+        func_8013D040(o);
+        D_80141154 = 1;
+        break;
+    case 6:
+        if (Object_PathPointNear(o, o + 0x24, 0x2BC, M2C_FIELD(o, u8 *, 0x8E))) {
+            ((Obj_8013D260 *)o)->f_80 = 5;
+            ((Obj_8013D260 *)o)->f_7F = 5;
+            ((Obj_8013D260 *)o)->f_5C = ((Obj_8013D260 *)o)->f_88[((Obj_8013D260 *)o)->f_7F * 2];
+            D_80141154 = 1;
+            func_8013D040(o);
+        } else if (M2C_FIELD(o, u8 *, 0x80) == 3) {
+            M2C_FIELD(o, u8 *, 0x80) = 8;
+            M2C_FIELD(o, u8 *, 0x7F) = 7;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+            func_8013D208(o, 0x78);
+            memset(&v, 0, 8);
+            v.vx = M2C_FIELD(o, u16 *, 0x24) + M2C_FIELD(o, s16 *, 0x60) / 6;
+            v.vy = M2C_FIELD(o, u16 *, 0x28) - 0x100;
+            v.vz = M2C_FIELD(o, u16 *, 0x2C) + M2C_FIELD(o, s16 *, 0x64) / 6;
+            w = v;
+            Effect_SpawnAt(0x114, &w);
+            Sound_PlayFixed(0x5F);
+        }
+        break;
+    default:
+        if (M2C_FIELD(o, u8 *, 0x80) == 3) {
+        func_8013D208(o, 0x78);
+        } else {
+        func_8013D1B8(o);
+        }
+        break;
+    }
+}
 
 s32 Math_Atan2(s32, s32);
 s32 rcos_8013D468(s32) asm("rcos");
@@ -500,7 +560,60 @@ void func_8013EE80(void *arg0, void *arg1) {
     M2C_FIELD(arg0, u16 *, 0xAC) = (u16) M2C_FIELD(arg1, u16 *, 0xAC);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013EED0);
+typedef struct { u8 pad[0xE4]; } Obj_8013EED0;
+extern Obj_8013EED0 g_Objects_8013EED0[] asm("g_Objects");
+void *func_80057140_8013EED0(void *, s32, s32) asm("func_80057140");
+void *func_80056BC4_8013EED0(s32, s32, s32) asm("func_80056BC4");
+void func_8013EE34(void *arg0);
+void func_8013EE80(void *arg0, void *arg1);
+
+void func_8013EED0(u8 *o) {
+    u8 *t = (u8 *)&g_Objects_8013EED0[M2C_FIELD(o, s8 *, 0xCA)];
+
+    if (((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1) == 0) {
+        M2C_FIELD(o, s16 *, 0xA0) = 0x32;
+        M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
+        func_8013EE80(o, t);
+        M2C_FIELD(o, u32 *, 0xE0) |= 0x2000;
+        M2C_FIELD(o, void **, 0x74) = func_80057140_8013EED0(o, 0x12, -1);
+        M2C_FIELD(o, void **, 0x78) = func_80057140_8013EED0(o, 6, 0x45);
+        M2C_FIELD(o, u8 *, 0x80) = 1;
+        M2C_FIELD(o, u8 *, 0x7F) = 4;
+        M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    func_8013EE80(o, t);
+    func_8013EE34(o);
+    if (M2C_FIELD(t, u8 *, 0x81) == 0) {
+        func_80051E98(o, 0);
+    }
+    switch (M2C_FIELD(o, u8 *, 0x80)) {
+    case 1:
+        if (M2C_FIELD(o, u8 *, 0x7F) != M2C_FIELD(t, u8 *, 0x7F) + 4) {
+            M2C_FIELD(o, u8 *, 0x7F) = M2C_FIELD(t, u8 *, 0x7F) + 4;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+        }
+        if (M2C_FIELD(t, u16 *, 0x5C) == 0 && Object_SpikeInFront(o, 0x5A, 0xB50, 0x600)) {
+            func_8013E934(func_80056BC4_8013EED0(0x4F, 0, M2C_FIELD(o, s8 *, 0xCB)), o);
+            M2C_FIELD(o, u8 *, 0x80) = 2;
+            M2C_FIELD(o, u8 *, 0x7F) = 9;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+            Object_PlaySound(o, 0x53);
+        }
+        break;
+    case 2:
+        if (M2C_FIELD(t, u8 *, 0x80) != 1) {
+            M2C_FIELD(o, u8 *, 0x80) = 1;
+            M2C_FIELD(o, u8 *, 0x7F) = M2C_FIELD(t, u8 *, 0x7F) + 4;
+            M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(t, u16 *, 0x5C) + M2C_FIELD(o, u16 **, 0x88)[8];
+        } else if (M2C_FIELD(o, u16 *, 0x5C) >= *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) {
+            M2C_FIELD(o, u8 *, 0x80) = 1;
+            M2C_FIELD(o, u8 *, 0x7F) = M2C_FIELD(t, u8 *, 0x7F) + 4;
+            M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(t, u16 *, 0x5C) + M2C_FIELD(o, u16 **, 0x88)[8];
+        }
+        break;
+    }
+}
 
 void func_8013F100(void *arg0) {
     if (M2C_FIELD(arg0, u16 *, 0x5C) == *(u16 *)(M2C_FIELD(arg0, u8 *, 0x7F) * 4 + M2C_FIELD(arg0, u8 **, 0x88)) + 5) {
@@ -633,7 +746,60 @@ void func_8013F5FC(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013F694);
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013FA24);
+extern u16 D_800AE8F2;
+void func_80058134_8013FA24(void *, s32) asm("func_80058134");
+void Object_SetAnim_8013FA24(void *, s32, s32) asm("Object_SetAnim");
+
+void func_8013FA24(u8 *o) {
+    if (((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1) == 0) {
+        M2C_FIELD(o, s16 *, 0x4A) = -0x3EFF;
+        M2C_FIELD(o, s16 *, 0x46) = 0xDC;
+        M2C_FIELD(o, s16 *, 0x44) = 0x78;
+        M2C_FIELD(o, s16 *, 0xA0) = 0x96;
+        M2C_FIELD(o, u8 *, 0xC8) = 0x10;
+        M2C_FIELD(o, s16 *, 0x48) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) &= ~1;
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x1000;
+        M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    func_80058134_8013FA24(o, M2C_FIELD(o, s16 *, 0x44));
+    if ((M2C_FIELD(o, u32 *, 0x50) >> 28) == 11 && M2C_FIELD(o, u8 *, 0x7F) != 4) {
+        M2C_FIELD(o, u32 *, 0xE0) &= ~1;
+        Object_SetAnim_8013FA24(o, 2, 4);
+        Object_PlaySound(o, 0x15);
+    }
+    if (M2C_FIELD(o, u8 *, 0x80) == 1) {
+        switch (M2C_FIELD(o, u8 *, 0xCF)) {
+        case 1:
+            if (!(M2C_FIELD(o, u32 *, 0xE0) & 1)) {
+                M2C_FIELD(o, u32 *, 0xE0) |= 1;
+                Object_SetAnim_8013FA24(o, 2, 6);
+            } else {
+                M2C_FIELD(o, u32 *, 0xE0) &= ~1;
+                Object_SetAnim_8013FA24(o, 2, 4);
+            }
+            break;
+        case 3:
+            Object_SetAnim_8013FA24(o, 2, (s32)(((u32)((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) * 5) >> 7) < 5 ? 1 : 3);
+            break;
+        }
+    }
+    M2C_FIELD(o, u8 *, 0xCF) = 0;
+    if (M2C_FIELD(o, u8 *, 0x80) == 2) {
+        if (M2C_FIELD(o, u16 *, 0x5C) >= *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) {
+            M2C_FIELD(o, u8 *, 0x80) = 1;
+            if (M2C_FIELD(o, u8 *, 0x7F) == 4) {
+                M2C_FIELD(o, u8 *, 0x7F) = 5;
+                M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+            } else {
+                M2C_FIELD(o, u8 *, 0x7F) = 0;
+                M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+            }
+        }
+    }
+}
 
 void func_8013FC44(void *arg0, M2C_UNK arg1) {
     if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s32 *, 0x2C), 0xA00) != 0) {

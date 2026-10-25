@@ -714,7 +714,47 @@ s32 func_8013A43C(void) {
     return (g_Pad_8013A43C.f_160 & g_Pad_8013A43C.f_158 & 0x90) != 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013A478);
+typedef struct { s16 x, y, w, h; } Rect_8013A478;
+typedef struct { Rect_8013A478 r[4]; } Rects_8013A478;
+typedef struct { u32 id; u32 flag; u8 pad8[0xA18]; } Tim_8013A478;
+extern Rects_8013A478 D_8013ADA8;
+extern u8 D_8013AFF4[];
+extern u8 D_8013ADC8[];
+s32 func_801399E4(s32 n);
+void LoadImage2(void *rect, void *p);
+void bios_printf(u8 *, ...);
+
+s32 func_8013A478(s16 n) {
+    Rects_8013A478 rects;
+    Rect_8013A478 clut;
+    u32 *p;
+
+    rects = D_8013ADA8;
+    p = (u32 *)&((Tim_8013A478 *)0x80170000)[D_8013AFF4[func_801399E4(n)]];
+    clut.x = 0x1C0;
+    clut.y = n + 0xFC;
+    clut.w = 0x100;
+    clut.h = 1;
+    if (*p == 0x10) {
+        p++;
+        switch (*p & 0xF) {
+        case 2:
+            LoadImage2(&rects.r[n], (u8 *)p + 0x10);
+            break;
+        case 8:
+        case 9:
+            p++;
+            LoadImage2(&clut, (u8 *)p + 0xC);
+            p = (u32 *)((u8 *)p + ((*p >> 2) << 2));
+            LoadImage2(&rects.r[n], (u8 *)p + 0xC);
+            break;
+        default:
+            bios_printf(D_8013ADC8, *p);
+            break;
+        }
+    }
+    return 0;
+}
 
 extern s16 D_8013AF68;
 

@@ -478,7 +478,53 @@ void func_8013F694(SVECTOR *arg0) {
     Effect_SpawnAt(0x102, &v);
 }
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013F6D4);
+typedef struct { s16 x, y, z, vx, vy, vz, active, unkE; s32 unk10; } Drip_8013F6D4;
+extern Drip_8013F6D4 D_801412E0_8013F6D4[8] asm("D_801412E0");
+typedef struct { u8 pad[0x24]; s32 x, y, z; u8 pad30[0x30]; s16 vx, vy, vz; } M_8013F6D4;
+extern M_8013F6D4 D_80141380_8013F6D4 asm("D_80141380");
+s32 Object_DetachLink_8013F6D4(void *, s32) asm("Object_DetachLink");
+s32 Object_AddAttackSphere_8013F6D4(void *, s32, s16, s16, s32, s32, s32) asm("Object_AddAttackSphere");
+void VectorNormalSS(void* v0, void* v1);
+void func_8013F38C(s32 arg0, s32 arg1);
+s32 func_8013F618(void *arg0);
+void func_8013F654(SVECTOR *arg0);
+void func_8013F694(SVECTOR *arg0);
+
+void func_8013F6D4(void *arg0) {
+    Drip_8013F6D4 *p;
+    M_8013F6D4 *m;
+    s32 i;
+    s32 r;
+
+    m = &D_80141380_8013F6D4;
+    for (i = 7; i >= 0; i--) {
+        p = &D_801412E0_8013F6D4[i];
+        if (p->active != 0 && p->unkE == M2C_FIELD(arg0, s8 *, 0xCB)) {
+            p->active++;
+            p->vy += 4;
+            func_8013F654((SVECTOR *)p);
+            p->x += p->vx;
+            p->y += p->vy;
+            p->z += p->vz;
+            r = Object_DetachLink_8013F6D4(arg0, 0);
+            if (func_8013F618(p) || M2C_FIELD(arg0, s32 *, 0x28) + 0x600 < p->y || r == 6) {
+                p->active = 0;
+                func_8013F694((SVECTOR *)p);
+                Object_PlaySound(arg0, 0x4D);
+            } else {
+                m->x = p->x;
+                m->y = p->y;
+                m->z = p->z;
+                m->vx = p->vx;
+                m->vy = p->vy;
+                m->vz = p->vz;
+                VectorNormalSS(&m->vx, &m->vx);
+                func_8013F38C(0, 3);
+                M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphere_8013F6D4(arg0, 0x1E, p->x, p->y, p->z, 1, 0x203);
+            }
+        }
+    }
+}
 
 void Object_SpawnEffect(void *, s32, s32, s32, s32);
 

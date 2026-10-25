@@ -257,7 +257,62 @@ s32 func_80136884(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801369E0);
+typedef struct { u8 r, g, b, cd; } Col_801369E0;
+extern struct { u8 pad0[0x10]; DrawBuf db[2]; u8 pad8100[0x5A]; u16 f_815A; } g_Game_801369E0 asm("g_Game");
+extern struct { u8 pad0[0x1C]; Col_801369E0 f_1C; Col_801369E0 f_20; s32 f_24; s32 f_28; } D_800EBFA0_801369E0 asm("D_800EBFA0");
+extern Col_801369E0 D_8013C498_801369E0 asm("D_8013C498");
+extern Col_801369E0 D_8013C49C_801369E0 asm("D_8013C49C");
+extern u8 D_8013C150[];
+void StUnSetRing(void);
+void func_801364B0(u8 *pos, u8 *end, u8 mode, s32 seek);
+void func_80136FF0();
+void func_80139DAC(void);
+s32 func_8002FAF0(s32);
+void func_8013AA70(void);
+void func_8013BA80(s32 load);
+void DrawSync(s32);
+
+void func_801369E0(s32 arg0) {
+    u8 loc0[4];
+    u8 loc1[4];
+    s32 base;
+
+    StUnSetRing();
+    if (g_Game_801369E0.f_815A == 6 && arg0 == 0) {
+        base = CdPosToInt(D_8013C150);
+        loc0[0] = 0;
+        loc0[1] = 0x25;
+        loc0[2] = 0x33;
+        CdIntToPos(base + CdPosToInt(loc0), loc0);
+        loc1[0] = 2;
+        loc1[1] = 0x42;
+        loc1[2] = 0x33;
+        CdIntToPos(base + CdPosToInt(loc1), loc1);
+        func_801364B0(loc0, loc1, 1, 0);
+    }
+    func_80086248(2);
+    func_80136E68(0);
+    while (CdControl(9, 0, 0) == 0) {
+    }
+    func_80136E68(0);
+    while (CdControl(9, 0, 0) == 0) {
+    }
+    func_80136FF0(arg0);
+    func_80139DAC();
+    func_8008C064(D_8013C1A8);
+    D_8013C1A8 = 0;
+    VSyncCallback((void *)D_8013C488);
+    func_8002FAF0(D_8013C48C);
+    g_Game_801369E0.db[0].hud[1] = 0x801A8000;
+    g_Game_801369E0.db[1].hud[1] = 0x801C1000;
+    D_800EBFA0_801369E0.f_24 = D_8013C490;
+    D_800EBFA0_801369E0.f_28 = D_8013C494;
+    D_800EBFA0_801369E0.f_20 = D_8013C498_801369E0;
+    D_800EBFA0_801369E0.f_1C = D_8013C49C_801369E0;
+    func_8013AA70();
+    func_8013BA80(1);
+    DrawSync(0);
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136BD4);
 
@@ -448,7 +503,47 @@ void func_80137D74(void) {
 void func_80137DAC(void) {
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80137DB4);
+/* func_8013B9B0 prototype is the one at the top of src/ovl/384_fmv.c */
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_80137DB4;
+extern Mat_80137DB4 D_800E78C0_80137DB4 asm("D_800E78C0");
+extern struct { void (*f_0)(u8 *, s16 *); s16 *f_4; } D_8013C550_80137DB4 asm("D_8013C550");
+extern struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } D_8013C558_80137DB4 asm("D_8013C558");
+extern s32 D_800E7D00_80137DB4 asm("D_800E7D00");
+extern struct { u8 pad0[0x20]; u8 r, g, b; } D_800EBFA0_80137DB4 asm("D_800EBFA0");
+extern struct { u8 pad0[0xC]; s32 cur; } g_Game_80137DB4 asm("g_Game");
+s32 func_801398D0(s16 i);
+u8 func_80139DE4(s32 i);
+void CompMatrix(void *, void *, void *);
+void Model_ProjectVertsAlt(void *, void *, void *);
+
+void func_80137DB4(u8 *arg0, s16 *arg1) {
+    Mat_80137DB4 m;
+    s32 model;
+
+    model = func_801398D0(arg0[3]);
+    D_8013C550_80137DB4.f_0 = func_80137DB4;
+    D_8013C550_80137DB4.f_4 = arg1;
+    func_80139668(&m, arg1, 1);
+    CompMatrix(&D_800E78C0_80137DB4, &m, &m);
+    Model_ProjectVertsAlt((void *)model, &m, &D_800E7D00_80137DB4);
+    D_8013C558_80137DB4.f_0 = 4;
+    D_8013C558_80137DB4.f_2 = 0;
+    D_8013C558_80137DB4.f_4 = 1;
+    D_8013C558_80137DB4.f_6 = 2;
+    D_8013C558_80137DB4.f_0 = 0;
+    D_8013C558_80137DB4.f_2 = 0;
+    D_8013C558_80137DB4.f_4 = 0;
+    D_8013C558_80137DB4.f_6 = 0;
+    if (func_80139DE4(arg0[3]) & 1) {
+        SetBackColor(0xFF, 0xFF, 0xFF);
+        func_8013B9B0((u8 *)(g_Game_80137DB4.cur * 0x4078 + (u8 *)&g_Game_80137DB4 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
+                      &D_800E7D00_80137DB4, model, (M2C_UNK *)&D_8013C558_80137DB4);
+        SetBackColor(D_800EBFA0_80137DB4.r, D_800EBFA0_80137DB4.g, D_800EBFA0_80137DB4.b);
+    } else {
+        func_8013B9B0((u8 *)(g_Game_80137DB4.cur * 0x4078 + (u8 *)&g_Game_80137DB4 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
+                      &D_800E7D00_80137DB4, model, (M2C_UNK *)&D_8013C558_80137DB4);
+    }
+}
 
 void func_80137F64(void *arg0, s32 arg1) {
     s32 temp_a1;
@@ -561,7 +656,38 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138354);
 void func_801383FC(void) {
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138404);
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_80138404;
+extern Mat_80138404 D_800E78C0_80138404 asm("D_800E78C0");
+extern struct { void (*f_0)(u8 *, Mat_80138404 *); Mat_80138404 *f_4; } D_8013C550_80138404 asm("D_8013C550");
+extern struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } D_8013C558_80138404 asm("D_8013C558");
+extern s32 D_800E7D00_80138404 asm("D_800E7D00");
+extern struct { u8 pad0[0x20]; u8 r, g, b; } D_800EBFA0_80138404 asm("D_800EBFA0");
+extern struct { u8 pad0[0xC]; s32 cur; } g_Game_80138404 asm("g_Game");
+
+void func_80138404(u8 *arg0, Mat_80138404 *arg1) {
+    Mat_80138404 m;
+    s32 model;
+
+    model = func_801398D0(arg0[3]);
+    m = *arg1;
+    D_8013C550_80138404.f_0 = func_80138404;
+    D_8013C550_80138404.f_4 = arg1;
+    CompMatrix(&D_800E78C0_80138404, &m, &m);
+    Model_ProjectVertsAlt((void *)model, &m, &D_800E7D00_80138404);
+    D_8013C558_80138404.f_0 = 0;
+    D_8013C558_80138404.f_2 = 0;
+    D_8013C558_80138404.f_4 = 0;
+    D_8013C558_80138404.f_6 = 0;
+    if (func_80139DE4(arg0[3]) & 1) {
+        SetBackColor(0xFF, 0xFF, 0xFF);
+        func_8013B9B0((u8 *)(g_Game_80138404.cur * 0x4078 + (u8 *)&g_Game_80138404 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
+                      &D_800E7D00_80138404, model, (M2C_UNK *)&D_8013C558_80138404);
+        SetBackColor(D_800EBFA0_80138404.r, D_800EBFA0_80138404.g, D_800EBFA0_80138404.b);
+    } else {
+        func_8013B9B0((u8 *)(g_Game_80138404.cur * 0x4078 + (u8 *)&g_Game_80138404 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
+                      &D_800E7D00_80138404, model, (M2C_UNK *)&D_8013C558_80138404);
+    }
+}
 
 void func_801385CC(void *arg0, s32 arg1) {
     s32 temp_a1;
@@ -935,7 +1061,48 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013A460);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013A684);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013A8A0);
+typedef struct { u16 lo, hi, off, n; } Sub_8013A8A0;
+typedef struct { s16 x, y, w, h; } Rect_8013A8A0;
+extern Sub_8013A8A0 *D_8013C758_A8A0 asm("D_8013C758");
+extern s32 D_8013C710;
+extern s32 D_8013C714;
+extern Rect_8013A8A0 D_8013C700_A8A0 asm("D_8013C700");
+extern u8 D_8013C718[];
+
+void func_8013A8A0(s32 *data) {
+    Rect_8013A8A0 r;
+    u16 clut[32];
+    u8 *text;
+    s32 i, j, n;
+    u8 lines;
+
+    n = *data;
+    D_8013C758_A8A0 = (Sub_8013A8A0 *)(data + 1);
+    D_8013C710 = 0;
+    D_8013C714 = n;
+    for (i = 0; i < D_8013C714; i++) {
+        lines = 1;
+        text = (u8 *)data + D_8013C758_A8A0[i].off;
+        for (j = 0; j < D_8013C758_A8A0[i].n; j++) {
+            if (text[j] == 0xD && j > 0 && text[j - 1] >= 0x10) {
+                text[j] = 0;
+                lines++;
+            }
+        }
+        D_8013C758_A8A0[i].n = lines;
+    }
+    r = D_8013C700_A8A0;
+    StoreImage(&r, D_8013C718);
+    for (i = 0; i < 32; i++) {
+        if (i == 0 || i == 4 || i == 8 || i == 12 || i == 16 || i == 17 || i == 18 || i == 19) {
+            clut[i] = 0;
+        } else {
+            clut[i] = 0x421;
+        }
+    }
+    LoadImage(&r, clut);
+    DrawSync(0);
+}
 
 extern Rect_384 D_8013C700;
 extern u8 D_8013C718[];
@@ -965,7 +1132,55 @@ void func_8013AAC8(s32 *arg0, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013AAF0);
+typedef struct { u16 lo, hi, off, n; } Sub_8013AAF0;
+extern Sub_8013AAF0 *D_8013C758_AAF0 asm("D_8013C758");
+s32 func_8013AC98(u32 x);
+s32 func_8008DE68(u8 *, u16);
+void func_8008DDB0(s16, s16);
+void func_8013AD40(u8 *, s32);
+void Msg_PutChar(u16, s32, s32);
+
+void func_8013AAF0(u32 frame) {
+    s32 idx = D_8013C710;
+    Sub_8013AAF0 *e = (Sub_8013AAF0 *)((idx << 3) + (s32)D_8013C758_AAF0);
+    u8 *text = (u8 *)D_8013C758_AAF0 + (e->off - 4);
+    s32 n = e->n;
+    u8 *p;
+    s32 i, k, w, maxw, pos, y;
+
+    D_8013C710 = func_8013AC98(frame);
+    if (D_8013C710 < 0) {
+        return;
+    }
+    i = 0;
+    maxw = 0;
+    pos = 0;
+    for (; i < n; i++) {
+        w = func_8008DE68(text + pos, 0);
+        while (text[pos]) {
+            pos++;
+        }
+        pos++;
+        if (maxw < w) {
+            maxw = w;
+        }
+    }
+    maxw = (0x180 - maxw) >> 1;
+    for (k = 0; k < 2; k++) {
+        pos = 0;
+        y = 0xAE;
+        for (i = 0; i < n; i++) {
+            func_8008DDB0(maxw + k, y + k);
+            func_8013AD40(text + pos, k ? 0x1F6 : 0x1F0);
+            while (text[pos]) {
+                pos++;
+            }
+            pos++;
+            Msg_PutChar(0xD, 0, 0);
+            y += 0x12;
+        }
+    }
+}
 
 typedef struct { u16 lo, hi; u8 pad4[4]; } Range_384;
 extern s32 D_8013C714;

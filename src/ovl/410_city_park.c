@@ -183,7 +183,55 @@ void func_8013DCD4(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013DD24);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013E010);
+typedef struct { s16 x, y, z; } Rot_8013E010;
+typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 wx, wy, wz; Rot_8013E010 r; s16 life; } Debris_8013E010;
+extern Debris_8013E010 D_80141908[7];
+extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013E010 asm("g_Game");
+extern u8 D_800E7D00[];
+s32 func_80051410(void *, s32, s32);
+void RotMatrixYXZ(void *, void *);
+void func_80015780(void *, s32);
+M2C_UNK Model_ProjectBonedVerts(void *);
+void func_80016EBC(void *, void *, void *);
+void Effect_SpawnAt(s32, SVECTOR *);
+void func_8006D548(SVECTOR *);
+
+void func_8013E010(u8 *arg0) {
+    s32 i;
+    Debris_8013E010 *d;
+    SVECTOR v;
+
+    for (i = 0; i < 7; i++) {
+        d = &D_80141908[i];
+        if (d->life != 0) {
+            d->x += d->vx;
+            d->y += d->vy;
+            d->z += d->vz;
+            d->vy += 7;
+            v.vx = d->x;
+            v.vy = d->y;
+            v.vz = d->z;
+            if (M2C_FIELD(arg0, s16 *, 0x9C) < d->y) {
+                d->life = 0;
+                v.vy = M2C_FIELD(arg0, s16 *, 0x9C) - 0x32;
+                Effect_SpawnAt(0x102, &v);
+                Object_PlaySound((s32)arg0, 0x6E);
+                continue;
+            }
+            d->r.x = (d->r.x + d->wx) % 4096;
+            d->r.y = (d->r.y + d->wy) % 4096;
+            d->r.z = (d->r.z + d->wz) % 4096;
+            if (func_80051410(&d->x, 0, 0) == 0) {
+                RotMatrixYXZ(&d->r, d->mat);
+                func_80015780(d, 3);
+                Model_ProjectBonedVerts(d);
+                func_80016EBC(g_Game_8013E010.f_80 + g_Game_8013E010.f_C * 0x4078, D_800E7D00, d);
+                Effect_SpawnAt(7, &v);
+                func_8006D548(&v);
+            }
+        }
+    }
+}
 
 void func_8013E220(void *arg0) {
     if (M2C_FIELD(arg0, s8 *, 0x7C) == -1) {
@@ -436,7 +484,37 @@ void func_8013EBD4(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013EC88);
+typedef struct { u16 start; u16 end; } Rng_8013EC88;
+
+void func_8013EC88(u8 *o) {
+    s16 *a;
+    s16 *b;
+    SVECTOR m1;
+    SVECTOR m2;
+
+    if (o[0x7F] == 9) {
+        M2C_FIELD(o, u16 *, 0x5C)++;
+        return;
+    }
+    if (o[0x7F] == 7) {
+        return;
+    }
+    a = M2C_FIELD(o, s16 **, 0x74);
+    b = M2C_FIELD(o, s16 **, 0x78);
+    m1.vx = (M2C_FIELD(o, s32 *, 0x24) + a[0]) / 2;
+    m1.vy = a[1];
+    m1.vz = (M2C_FIELD(o, s32 *, 0x2C) + a[2]) / 2;
+    m2.vx = (M2C_FIELD(o, s32 *, 0x24) + b[0]) / 2;
+    m2.vy = b[1];
+    m2.vz = (M2C_FIELD(o, s32 *, 0x2C) + b[2]) / 2;
+    Object_AddAttackSphereNear(o, 0xC8, a[0], a[1], a[2], 1, 0x203);
+    Object_AddAttackSphereNear(o, 0xC8, b[0], b[1], b[2], 1, 0x203);
+    Object_AddAttackSphereNear(o, 0xC8, m1.vx, m1.vy, m1.vz, 1, 0x203);
+    Object_AddAttackSphereNear(o, 0xC8, m2.vx, m2.vy, m2.vz, 1, 0x203);
+    if (M2C_FIELD(o, u16 *, 0x5C) == (M2C_FIELD(o, Rng_8013EC88 **, 0x88)[o[0x7F]].start + M2C_FIELD(o, Rng_8013EC88 **, 0x88)[o[0x7F]].end) >> 1) {
+        Object_PlaySound((s32)o, 0x14);
+    }
+}
 
 void func_8013EE4C(u8 *o) {
     switch (M2C_FIELD(o, u8 *, 0x7F)) {
@@ -929,7 +1007,45 @@ s32 func_801408E0(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_801409F8);
+extern struct { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_801409F8 asm("g_Game");
+
+s32 func_801409F8(s16 *p) {
+    SVECTOR v;
+    u16 *e = (u16 *)(g_Game_801409F8.f_820C + p[2] * 0x38);
+    u8 *s;
+
+    switch (p[1]) {
+    case 4:
+        s = g_Game_801409F8.f_8220 + p[9] * 0x18;
+        if (M2C_FIELD(s, s16 *, 6) != 0) {
+            p[1] = 5;
+        }
+        break;
+    case 5:
+        p[3] += p[4];
+        if (p[3] == p[4] * 3) {
+            Sound_PlayFixed(0xB7);
+        }
+        if (p[3] > 0x400) {
+            p[3] = 0x400;
+            p[1] = 1;
+            e[0] = e[0x12] - e[3] + 0x40;
+            e[4] += (s16)e[3] * 2;
+            e[3] = 0x40;
+            e[0xC] &= 0x7FFF;
+        }
+        v.vy = 0;
+        v.vx = 0;
+        v.vz = -p[3];
+        if (p[6] >= 0) {
+            RotMatrixZYX(&v, M2C_FIELD(D_800B4D64 + p[6] * 32, void **, 0x1C));
+        }
+        break;
+    case 0: case 1: case 2: case 3:
+        break;
+    }
+    return 0;
+}
 
 s32 func_80140B78(void *arg0) {
     M2C_FIELD(arg0, s16 *, 6) = 0;

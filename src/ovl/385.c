@@ -101,9 +101,99 @@ s32 func_80136424(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/385/nonmatchings/385", func_80136528);
+/* uses Rect_801362A4, g_Game_801362A4, D_800E3890 and the decls above func_801362A4 in src/ovl/385.c */
+void DrawOTag(u32 *p);
 
-INCLUDE_ASM("asm/ovl/385/nonmatchings/385", func_801366EC);
+s32 func_80136528(void) {
+    Rect_801362A4 r;
+    s32 loading;
+    s32 t;
+
+    r.x = 0;
+    r.y = 0;
+    r.w = 0x280;
+    r.h = 0x100;
+    ClearImage2(&r, 0, 0, 0);
+    DrawSync(0);
+    r.x = 0;
+    r.y = 0x100;
+    r.w = 0x280;
+    r.h = 0x100;
+    ClearImage2(&r, 0, 0, 0);
+    DrawSync(0);
+    VSync(0);
+    Cd_StartFileLoad(0, 6);
+    t = -1;
+    loading = 1;
+    while (1) {
+        func_8001325C(0);
+        Gfx_BeginFrame();
+        if (loading && func_800116C0() < 0) {
+            loading = 0;
+        }
+        if (D_800E3890.f_20 != 6 && t < 0) {
+            t = 0;
+        }
+        if (t >= 0) {
+            t++;
+            if (t >= 0x169) {
+                return 0;
+            }
+        }
+        Cd_Update();
+        DrawSync(0);
+        VSync(0);
+        PutDispEnv(&g_Game_801362A4.db[g_Game_801362A4.cur].env[0x5C]);
+        PutDrawEnv(g_Game_801362A4.db[g_Game_801362A4.cur].env);
+        DrawOTag(&g_Game_801362A4.db[g_Game_801362A4.cur].ot[0xFFF]);
+    }
+}
+
+/* uses Rect_801362A4, g_Game_801362A4 and the decls above func_801362A4 in src/ovl/385.c */
+s32 Cd_ReadFile(s32, s32);
+void Cd_WaitIdle(s32);
+void func_80068D10(s32);
+
+s32 func_801366EC(void) {
+    Rect_801362A4 r;
+    s32 t;
+
+    r.x = 0;
+    r.y = 0;
+    r.w = 0x280;
+    r.h = 0x100;
+    ClearImage2(&r, 0, 0, 0);
+    DrawSync(0);
+    r.x = 0;
+    r.y = 0x100;
+    r.w = 0x280;
+    r.h = 0x100;
+    ClearImage2(&r, 0, 0, 0);
+    DrawSync(0);
+    VSync(0);
+    Cd_ReadFile(0x22, 0x80154000);
+    Cd_WaitIdle(0);
+    func_80068D10(0x80154000);
+    DrawSync(0);
+    VSync(2);
+    t = 0;
+    while (1) {
+        func_8001325C(0);
+        Gfx_BeginFrame();
+        if (t >= 0) {
+            t++;
+            if (t >= 0x2D1) {
+                return 0;
+            }
+        }
+        Cd_Update();
+        DrawSync(0);
+        VSync(0);
+        PutDispEnv(&g_Game_801362A4.db[g_Game_801362A4.cur].env[0x5C]);
+        PutDrawEnv(g_Game_801362A4.db[g_Game_801362A4.cur].env);
+        DrawOTag(&g_Game_801362A4.db[g_Game_801362A4.cur].ot[0xFFF]);
+    }
+}
 
 typedef struct { s16 x, y, w, h; } Rect_385;
 extern Rect_385 D_80136918;

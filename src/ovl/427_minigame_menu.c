@@ -124,7 +124,97 @@ INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EB9C);
 
 INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", jtbl_8013EBA8);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80137654);
+typedef struct { s16 x, y, w, h; } Rect_80137654;
+extern struct { u8 pad0[0x22]; s16 f_22; u8 pad24[4]; s32 f_28; s32 f_2C; s32 f_30; } D_8013F3E0_80137654 asm("D_8013F3E0");
+extern struct { u8 pad0[0x24]; s32 f_24; s32 f_28; } D_800EBFA0_80137654 asm("D_800EBFA0");
+extern struct { s32 frame; u8 pad4[0x811C]; s16 f_8120; } g_Game_80137654 asm("g_Game");
+extern u8 D_8013EFE4[];
+void VSyncCallback(void *);
+void func_801365A8(void);
+void Game_VSyncCallback();
+s32 Gfx_InitDisplay(void);
+void func_8008C01C(void);
+void func_80137874(void);
+void func_80139444(void);
+void func_80139480(void);
+void func_801394A4(void);
+void func_8013A29C(void);
+void func_80069500(void);
+void Fx_ClearAll(void);
+s32 VSync(s32 mode);
+void func_80011194(void *);
+s32 func_800116C0();
+void Cd_Update(void);
+void func_8002FAF0(s32);
+void func_801385F4(void);
+void Sound_ResumeStreams(void);
+s32 func_80136F30(void);
+void func_8013DB7C(void);
+void func_80136704(void);
+void func_80138C30(void);
+void DrawSync(s32);
+s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
+void Sound_UnloadBanks(s32);
+void func_80012CA0(s32);
+void Boot_LoadingScreen(void);
+
+void func_80137654(void) {
+    s32 v;
+
+    VSyncCallback(func_801365A8);
+    Gfx_InitDisplay();
+    func_8008C01C();
+    func_80137874();
+    func_80139444();
+    func_80139480();
+    func_801394A4();
+    func_8013A29C();
+    func_80069500();
+    Fx_ClearAll();
+    func_8013626C(0, 0, 0);
+    func_8013626C(0, 1, 0x10);
+    D_800EBFA0_80137654.f_24 = 0;
+    D_800EBFA0_80137654.f_28 = 0x1000;
+    VSync(0);
+    func_80011194(D_8013EFE4);
+    while (func_800116C0() >= 0) {
+        Cd_Update();
+        VSync(2);
+    }
+    func_8002FAF0(0x148);
+    func_801385F4();
+    g_Game_80137654.frame = 0;
+    Sound_ResumeStreams();
+    while ((v = func_80136F30()) >= 0) {
+        if (v == 1) {
+            func_8013DB7C();
+            continue;
+        }
+        func_80136704();
+        func_80138C30();
+        switch (D_8013F3E0_80137654.f_22) {
+        case 2:
+            D_8013F3E0_80137654.f_2C = D_8013F3E0_80137654.f_28;
+            break;
+        case 3:
+            D_8013F3E0_80137654.f_30 = D_8013F3E0_80137654.f_28;
+            break;
+        }
+    }
+    DrawSync(0);
+    {
+        Rect_80137654 r = { 0, 0, 0x280, 0x1E0 };
+
+        VSync(0);
+        ClearImage(&r, 0, 0, 0);
+    }
+    DrawSync(0);
+    Sound_UnloadBanks(0);
+    VSyncCallback(Game_VSyncCallback);
+    func_80012CA0(0);
+    g_Game_80137654.f_8120 = 0xD;
+    Boot_LoadingScreen();
+}
 
 typedef struct { s16 x, y, z; s16 pad; u32 col; } Star_80137874;
 extern Star_80137874 *D_8013FC78_80137874 asm("D_8013FC78");
@@ -266,7 +356,65 @@ s32 func_80138958(s32 x, s32 z) {
     return 1;
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801389E4);
+typedef struct { u8 *pad; u8 pad4[0xC]; s8 f_10; s8 f_11; s8 f_12; s8 f_13; SVECTOR f_14; SVECTOR f_1C; s16 f_24; s16 f_26; u8 pad28[0x10]; } Stick_801389E4;
+extern Stick_801389E4 D_8013FC08_801389E4[] asm("D_8013FC08");
+M2C_UNK VectorNormalSS(void *, void *);
+
+void func_801389E4(void) {
+    SVECTOR v;
+    Stick_801389E4 *s;
+    s32 i;
+    s32 n;
+    s32 m;
+    u8 *pad;
+
+    for (i = 0; i < 2; i++) {
+        s = &D_8013FC08_801389E4[i];
+        pad = s->pad;
+        if (pad[0] != 0xFF) {
+            s->f_10 = pad[4] + 0x80;
+            s->f_11 = pad[5] + 0x80;
+            s->f_12 = pad[6] + 0x80;
+            s->f_13 = pad[7] + 0x80;
+        } else {
+            pad[4] = 0x80;
+            pad[5] = 0x80;
+            pad[6] = 0x80;
+            pad[7] = 0x80;
+            *(s32 *)&s->f_10 = 0;
+        }
+        v.vx = s->f_12;
+        v.vz = 0;
+        v.vy = s->f_13;
+        n = VectorNormalSS(&v, &s->f_14) / 128;
+        n = (n < 21) ? 0 : n - 21;
+        n = n * 127 / 106;
+        if (n < 0x80) {
+            m = n;
+        } else {
+            m = 0x7F;
+        }
+        n = m;
+        s->f_24 = n;
+        s->f_12 = s->f_14.vx * n / 4096;
+        s->f_13 = s->f_14.vy * n / 4096;
+        v.vx = s->f_10;
+        v.vz = 0;
+        v.vy = s->f_11;
+        n = VectorNormalSS(&v, &s->f_1C) / 128;
+        n = (n < 21) ? 0 : n - 21;
+        n = n * 127 / 106;
+        if (n < 0x80) {
+            m = n;
+        } else {
+            m = 0x7F;
+        }
+        n = m;
+        s->f_26 = n;
+        s->f_10 = s->f_1C.vx * n / 4096;
+        s->f_11 = s->f_1C.vy * n / 4096;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80138C30);
 
@@ -580,13 +728,116 @@ INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013B92C);
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013BAC0);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013BC28);
+typedef struct { s16 next; s16 last; } Anim_8013BC28;
+typedef struct { u8 pad0[0x14]; void *f_14; u8 pad18[0xC]; s32 x; s32 y; s32 z; s32 vx; s32 vy; u8 pad38[0xC]; s16 f_44; s16 f_46; s16 f_48; u8 pad4A[4]; u16 f_4E; u8 pad50[0xC]; u16 f_5C; u16 f_5E; SVECTOR f_60; SVECTOR f_68; Anim_8013BC28 *f_70; } Mdl_8013BC28;
+extern s16 D_8013F402;
+extern s32 *D_8013FBD8_8013BC28[] asm("D_8013FBD8");
+s32 func_80138958(s32 x, s32 z);
+void *ScaleMatrixL(void *m, void *v);
+void func_80015780(void *, s32);
+
+void func_8013BC28(Mdl_8013BC28 *m) {
+    s32 sc[3];
+    u32 s;
+    s32 *t;
+    s32 v;
+    s32 vy;
+    u16 n;
+
+    n = ++m->f_5C;
+    if (m->f_70[m->f_5E].last < n) {
+        m->f_5C = m->f_70[m->f_5E].next;
+    }
+    m->f_60.vz = -0x1000;
+    m->f_68.vy = 0x1000;
+    M2C_FIELD(m, s16 *, 0x60) = 0;
+    M2C_FIELD(m, s16 *, 0x62) = 0;
+    M2C_FIELD(m, s16 *, 0x68) = 0;
+    M2C_FIELD(m, s16 *, 0x6C) = 0;
+    if (D_8013F402 != 1) {
+        if (func_80138958(m->x + m->vx, m->y + m->vy)) {
+            t = D_8013FBD8_8013BC28[m->f_4E];
+            m->x += m->vx;
+            m->y += m->vy;
+            v = m->vx;
+            m->vx = (m->x < t[0]) ? v + 1 : v - 1;
+            vy = m->vy;
+            m->vy = (m->y < t[1]) ? vy + 1 : vy - 1;
+            m->vx = (m->vx < -0x10) ? -0x10 : (m->vx > 0x10) ? 0x10 : m->vx;
+            m->vy = (m->vy < -0x10) ? -0x10 : (m->vy > 0x10) ? 0x10 : m->vy;
+        } else {
+            m->vx = 0;
+            m->vy = 0;
+        }
+    }
+    m->z = 0xA40;
+    Matrix_LookAt(&m->f_60, &m->f_68, m->f_14, 0);
+    if (D_8013F402 != 1) {
+        s = ((0x10 - m->f_48) << 12) / 3 + 0x1000;
+    } else {
+        s = 0x1800;
+    }
+    sc[0] = s;
+    sc[1] = s;
+    sc[2] = s;
+    ScaleMatrixL(m->f_14, sc);
+    m->f_44 = (s * 3) >> 7;
+    func_80015780(m, 1);
+    Model_ProjectBonedVerts(m);
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013BE5C);
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013C0E4);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013C368);
+typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; u8 pad30[0x30]; s16 f_60; s16 f_62; } Mdl_8013C368;
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_8013C368;
+typedef struct { Mat_8013C368 rot; SVECTOR dir; SVECTOR up; u8 pad30[0x10]; s32 scale[3]; } Scr_8013C368;
+extern s32 g_Game_8013C368 asm("g_Game");
+extern Mat_8013C368 D_800E9C60_8013C368 asm("D_800E9C60");
+extern u8 D_800E78C0[];
+void func_8004637C(void *);
+void *RotMatrixX(s32 r, void *m);
+void *MulMatrix(void *m0, void *m1);
+void *CompMatrix(void *m0, void *m1, void *m2);
+void Model_ProjectVertsAlt(void *, void *, void *);
+
+void func_8013C368(Mdl_8013C368 *m) {
+    Scr_8013C368 *s = (Scr_8013C368 *)0x1F800000;
+    Mat_8013C368 *mat;
+
+    m->z = 0xA40;
+    if (D_8013F402 != 1) {
+        m->x += m->f_60 >> 8;
+        m->y += m->f_62 >> 8;
+        s->dir.vx = m->f_60;
+        s->dir.vy = m->f_62;
+        s->dir.vz = 0;
+    } else {
+        s->dir.vx = -0x1000;
+        s->dir.vy = 0;
+        s->dir.vz = 0;
+    }
+    mat = &D_800E9C60_8013C368;
+    s->up.vx = 0;
+    s->up.vy = 0;
+    s->up.vz = 0x1000;
+    Matrix_LookAt(&s->dir, &s->up, mat, 0);
+    func_8004637C(s);
+    RotMatrixX(g_Game_8013C368 * 32, s);
+    MulMatrix(mat, s);
+    mat->t[0] = m->x;
+    mat->t[1] = m->y;
+    mat->t[2] = 0xA40;
+    if (D_8013F402 == 1) {
+        s->scale[0] = 0x800;
+        s->scale[1] = 0x800;
+        s->scale[2] = 0x800;
+        ScaleMatrixL(mat, s->scale);
+    }
+    CompMatrix(D_800E78C0, mat, mat);
+    Model_ProjectVertsAlt(m, mat, &D_800E7D00);
+}
 
 s32 rcos(s32);
 void func_8004637C(void *);
@@ -612,7 +863,57 @@ void func_8013C4D4(SVECTOR *a, SVECTOR *b, s32 ang) {
     VectorNormalSS(b, b);
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013C5F0);
+typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; s32 f_30; s32 f_34; u8 pad38[0x16]; u16 f_4E; u8 pad50[0x10]; s16 f_60; s16 f_62; } Mdl_8013C5F0;
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_8013C5F0;
+typedef struct { Mat_8013C5F0 rot; SVECTOR dir; SVECTOR up; SVECTOR tgt; } Scr_8013C5F0;
+extern u16 g_RandSeed_8013C5F0 asm("g_RandSeed");
+extern s16 *D_8013FBD8[];
+extern Mat_8013C5F0 D_800E9C60_8013C5F0 asm("D_800E9C60");
+void func_801395B8();
+void func_8013C4D4(SVECTOR *a, SVECTOR *b, s32 ang);
+
+void func_8013C5F0(Mdl_8013C5F0 *m) {
+    Scr_8013C5F0 *s = (Scr_8013C5F0 *)0x1F800000;
+    Mat_8013C5F0 *mat;
+
+    m->z = 0xA40;
+    if (D_8013F402 != 1) {
+        if ((u16)(g_RandSeed_8013C5F0 = g_RandSeed_8013C5F0 * 5 + 1) >> 8 < 2) {
+            func_801395B8(&m->x, &m->f_60, 1);
+        }
+        if (func_80138958(m->x + m->f_30, m->y + m->f_34)) {
+            m->x += m->f_60 >> 8;
+            m->y += m->f_62 >> 8;
+        }
+        s->dir.vx = m->f_60;
+        s->dir.vy = m->f_62;
+        s->dir.vz = 0;
+        s->up.vx = 0;
+        s->up.vy = 0;
+        s->up.vz = 0x1000;
+        s->tgt.vx = D_8013FBD8[m->f_4E][0] - m->x;
+        s->tgt.vy = D_8013FBD8[m->f_4E][2] - m->y;
+        s->tgt.vz = 0;
+        VectorNormalSS(&s->tgt, &s->tgt);
+        func_8013C4D4(&s->tgt, &s->dir, 0xB);
+        m->f_60 = s->dir.vx;
+        m->f_62 = s->dir.vy;
+    } else {
+        s->dir.vx = -0x1000;
+        s->dir.vy = 0;
+        s->dir.vz = 0;
+        s->up.vx = 0;
+        s->up.vy = 0;
+        s->up.vz = 0x1000;
+    }
+    mat = &D_800E9C60_8013C5F0;
+    Matrix_LookAt(&s->dir, &s->up, mat, 0);
+    mat->t[0] = m->x;
+    mat->t[1] = m->y;
+    mat->t[2] = 0xA40;
+    CompMatrix(D_800E78C0, mat, mat);
+    Model_ProjectVertsAlt(m, mat, &D_800E7D00);
+}
 
 void func_8013C7F0(void) {
     D_8013FD2C = 0;

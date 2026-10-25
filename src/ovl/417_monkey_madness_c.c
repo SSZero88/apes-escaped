@@ -710,7 +710,77 @@ void func_8014001C(void *arg0)
   }
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_80140070);
+typedef struct { u16 start; u16 end; } Rng_80140070;
+typedef struct { u8 pad0[0x28]; s32 y; u8 pad2C[0x18]; s16 f44; u8 pad46[0x16]; u16 f5C; u8 pad5E[0x21]; u8 f7F; u8 f80; u8 pad81[7]; Rng_80140070 *rng; u8 pad8C[0x14]; s16 fA0; u8 padA2[0xE]; s16 fB0; u8 padB2[0x16]; u8 fC8; u8 padC9[0x17]; u32 fE0; } O_80140070;
+extern s32 D_80140D48;
+M2C_UNK func_80058134(void *, s16);
+void Object_TurnTowardSpike(void *);
+s32 func_8013FE5C(void *arg0, s32 arg1);
+M2C_UNK func_80055E6C(void *, M2C_UNK);
+M2C_UNK Object_StepOnGroundFixed(void *);
+void func_8013FEB0(void *arg0);
+void func_8013FF58(void *arg0);
+
+void func_80140070(O_80140070 *o) {
+    s32 d;
+    s32 s;
+
+    if (!(o->fE0 >> 3 & 1)) {
+        o->fA0 = 100;
+        o->fB0 = 0xB6;
+        o->f80 = 1;
+        o->f7F = 0;
+        o->fE0 &= ~0x1000;
+        o->f5C = o->rng[0].start;
+        D_80140D50 = 0;
+        o->fE0 |= 8;
+    }
+    d = D_800EC208 - o->y;
+    if (d >= 0) {
+        if (d < 0x600) {
+            o->fC8 = 10;
+        } else {
+            o->fC8 = 0;
+        }
+    } else if (o->y - D_800EC208 < 0x600) {
+        o->fC8 = 10;
+    } else {
+        o->fC8 = 0;
+    }
+    if (func_8013D280()) {
+        func_80051E98(o, 0);
+        return;
+    }
+    func_80058134(o, o->f44);
+    func_8014001C(o);
+    switch (s = o->f80) {
+    case 1:
+        Object_TurnTowardSpike(o);
+        if (D_80140D48 != 0) {
+            goto f58;
+        }
+        break;
+    case 2:
+        Object_TurnTowardSpike(o);
+        if (func_8005588C(o, -1) == 0 && func_8013FE5C(o, 0)) {
+            o->f80 = 3;
+            o->f7F = s;
+            o->f5C = o->rng[2].start;
+        }
+        break;
+    case 3:
+        if (func_8013FE5C(o, 300)) {
+            func_8013FEF0(o);
+            func_80055E6C(o, 0x28);
+            Object_StepOnGroundFixed(o);
+            func_8013FEB0(o);
+        } else {
+        f58:
+            func_8013FF58(o);
+        }
+        break;
+    }
+}
 
 s32 func_80140264(void *arg0) {
     M2C_FIELD(arg0, s16 *, 6) = 0;
@@ -842,7 +912,40 @@ s32 func_80140564(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_80140574);
+s32 SquareRoot0(s32 a);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_80140574 asm("g_Game");
+extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; u8 pad30[0x16]; s16 f46; } g_Spike_80140574 asm("g_Spike");
+s32 func_80140710(s16 a, s16 b);
+s32 func_801407AC(s16 a, s16 b);
+
+s32 func_80140574(s16 *p) {
+    s16 *e;
+    s32 dx, dz;
+
+    switch (p[1]) {
+    case 0:
+        e = (s16 *)(g_Game_80140574.f_820C + p[2] * 0x38);
+        dx = g_Spike_80140574.x - e[0];
+        dz = g_Spike_80140574.z - e[2];
+        if ((u32)SquareRoot0(dx * dx + dz * dz) < e[3]) {
+            if (g_Spike_80140574.y - g_Spike_80140574.f46 > e[1] - e[4]) {
+                func_80140710(p[4], p[5]);
+                p[1] = 1;
+            }
+        }
+        break;
+    case 1:
+        e = (s16 *)(g_Game_80140574.f_820C + p[2] * 0x38);
+        dx = g_Spike_80140574.x - e[0];
+        dz = g_Spike_80140574.z - e[2];
+        if ((u32)SquareRoot0(dx * dx + dz * dz) > e[3]) {
+            func_801407AC(p[4], p[5]);
+            p[1] = 0;
+        }
+        break;
+    }
+    return 0;
+}
 
 extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game;
 

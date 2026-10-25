@@ -337,7 +337,53 @@ void func_8013E320(SVECTOR *arg0) {
     Effect_SpawnAt(0x102, &v);
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E360);
+typedef struct { s16 x, y, z, vx, vy, vz, active, unkE; s32 unk10; } Drip_8013E360;
+extern Drip_8013E360 D_801421D0_8013E360[8] asm("D_801421D0");
+typedef struct { u8 pad[0x24]; s32 x, y, z; u8 pad30[0x30]; s16 vx, vy, vz; } M_8013E360;
+extern M_8013E360 D_80142270_8013E360 asm("D_80142270");
+s32 Object_DetachLink_8013E360(void *, s32) asm("Object_DetachLink");
+s32 Object_AddAttackSphere_8013E360(void *, s32, s16, s16, s32, s32, s32) asm("Object_AddAttackSphere");
+void VectorNormalSS(void* v0, void* v1);
+void func_8013E018(s32 arg0, s32 arg1);
+s32 func_8013E2A4(void *arg0);
+void func_8013E2E0(SVECTOR *arg0);
+void func_8013E320(SVECTOR *arg0);
+
+void func_8013E360(void *arg0) {
+    Drip_8013E360 *p;
+    M_8013E360 *m;
+    s32 i;
+    s32 r;
+
+    m = &D_80142270_8013E360;
+    for (i = 7; i >= 0; i--) {
+        p = &D_801421D0_8013E360[i];
+        if (p->active != 0 && p->unkE == M2C_FIELD(arg0, s8 *, 0xCB)) {
+            p->active++;
+            p->vy += 4;
+            func_8013E2E0((SVECTOR *)p);
+            p->x += p->vx;
+            p->y += p->vy;
+            p->z += p->vz;
+            r = Object_DetachLink_8013E360(arg0, 0);
+            if (func_8013E2A4(p) || M2C_FIELD(arg0, s32 *, 0x28) + 0x600 < p->y || r == 6) {
+                p->active = 0;
+                func_8013E320((SVECTOR *)p);
+                Object_PlaySound(arg0, 0x4D);
+            } else {
+                m->x = p->x;
+                m->y = p->y;
+                m->z = p->z;
+                m->vx = p->vx;
+                m->vy = p->vy;
+                m->vz = p->vz;
+                VectorNormalSS(&m->vx, &m->vx);
+                func_8013E018(0, 3);
+                M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphere_8013E360(arg0, 0x1E, p->x, p->y, p->z, 1, 0x203);
+            }
+        }
+    }
+}
 
 void Object_SpawnEffect(void *, s32, s32, s32, s32);
 
@@ -430,7 +476,75 @@ void func_8013ECE4(void *arg0) {
     Fx_BigExplosion(&q);
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013ED60);
+void func_80058134_8013ED60(void *, s32) asm("func_80058134");
+void func_80052038_8013ED60(void *, s32) asm("func_80052038");
+void Object_DisableCollision_8013ED60(void *) asm("Object_DisableCollision");
+void Object_EnableCollision_8013ED60(void *) asm("Object_EnableCollision");
+void Object_PlaySound_8013ED60(void *, s32) asm("Object_PlaySound");
+void func_8013EC60(void *arg0);
+void func_8013ECA0(void *arg0);
+void func_8013ECE4(void *arg0);
+
+void func_8013ED60(u8 *o) {
+    if (((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1) == 0) {
+        M2C_FIELD(o, s16 *, 0x44) = 0xFA;
+        M2C_FIELD(o, s16 *, 0x46) = 0x200;
+        M2C_FIELD(o, s8 *, 0x7C) = -1;
+        M2C_FIELD(o, u8 *, 0x80) = 1;
+        M2C_FIELD(o, s16 *, 0xA0) = 0;
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x1000;
+        M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
+        Object_DisableCollision_8013ED60(o);
+        func_80052038_8013ED60(o, 0x84);
+        M2C_FIELD(o, s16 *, 0xC2) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    if (M2C_FIELD(o, u8 *, 0xCF) == 1) {
+        M2C_FIELD(o, u8 *, 0x80) = 2;
+        M2C_FIELD(o, u8 *, 0x7F) = 1;
+        M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+        Object_EnableCollision_8013ED60(o);
+        func_80052038_8013ED60(o, 0x84);
+        Object_PlaySound_8013ED60(o, 0x5C);
+    }
+    M2C_FIELD(o, u8 *, 0xCF) = 0;
+    func_80058134_8013ED60(o, M2C_FIELD(o, s16 *, 0x44));
+    switch (M2C_FIELD(o, u8 *, 0x80)) {
+    case 1:
+        break;
+    case 2:
+        if (M2C_FIELD(o, u16 *, 0x5C) >= *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) {
+            M2C_FIELD(o, u8 *, 0x80) = 3;
+            M2C_FIELD(o, u8 *, 0x7F) = 2;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+            M2C_FIELD(o, s16 *, 0xC2) = 0x12C;
+            func_8013EC60(o);
+            func_8013ECE4(o);
+        }
+        break;
+    case 3:
+        if (M2C_FIELD(o, s16 *, 0xC2) != 0) {
+            M2C_FIELD(o, s16 *, 0xC2)--;
+        } else {
+            M2C_FIELD(o, u8 *, 0x80) = 4;
+            M2C_FIELD(o, u8 *, 0x7F) = 3;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+            func_8013ECA0(o);
+            Object_PlaySound_8013ED60(o, 0x5E);
+        }
+        break;
+    case 4:
+        if (M2C_FIELD(o, u16 *, 0x5C) >= *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) {
+            M2C_FIELD(o, u8 *, 0x80) = 1;
+            M2C_FIELD(o, u8 *, 0x7F) = 0;
+            M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
+            func_80052038_8013ED60(o, 0x19);
+            Object_DisableCollision_8013ED60(o);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013EF7C);
 
@@ -752,7 +866,70 @@ s32 func_80140864(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8014090C);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8014090C asm("g_Game");
+extern u8 *D_800B4D64_8014090C asm("D_800B4D64");
+void Sound_PlayAt_8014090C(s32, void *) asm("Sound_PlayAt");
+
+s32 func_8014090C(s16 *p) {
+    s16 *e = (s16 *)(g_Game_8014090C.f_820C + p[2] * 0x38);
+
+    switch (p[1]) {
+    case 0:
+        p[3] += p[5];
+        if (p[3] > 0x1000) {
+            p[3] = 0;
+            p[1] = 1;
+            break;
+        }
+        e[4] = e[0x1A] - e[0x1A] * p[3] / 4096;
+        if (e[7] >= 0) {
+            M2C_FIELD(D_800B4D64_8014090C + e[7] * 32, s16 *, 0x18) = p[3];
+        }
+        break;
+    case 1:
+        p[3]++;
+        if (p[6] < p[3]) {
+            p[3] = 0x1000;
+            p[1] = 2;
+            Sound_PlayAt_8014090C(0xB4, e);
+        }
+        e[4] = 0;
+        if (e[7] >= 0) {
+            M2C_FIELD(D_800B4D64_8014090C + e[7] * 32, s16 *, 0x18) = 0x1000;
+        }
+        break;
+    case 2:
+        p[3] -= p[7];
+        if (p[3] < 0) {
+            p[3] = 0;
+            p[1] = 3;
+            break;
+        }
+        e[4] = e[0x1A] - e[0x1A] * p[3] / 4096;
+        if (e[7] >= 0) {
+            M2C_FIELD(D_800B4D64_8014090C + e[7] * 32, s16 *, 0x18) = p[3];
+        }
+        break;
+    case 3:
+        p[3]++;
+        if (p[8] < p[3]) {
+            p[3] = 0;
+            p[1] = 0;
+            Sound_PlayAt_8014090C(0xB5, e);
+        }
+        e[4] = e[0x1A];
+        if (e[7] >= 0) {
+            M2C_FIELD(D_800B4D64_8014090C + e[7] * 32, s16 *, 0x18) = 0;
+        }
+        break;
+    case 4:
+        break;
+    }
+    return 0;
+}
+
+/* the original pads the read-only data after this jump table to 8 bytes */
+__asm__(".section .rodata\n\t.align 3\n\t.section .text");
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_80140AFC);
 

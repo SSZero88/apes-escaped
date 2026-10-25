@@ -776,7 +776,46 @@ s32 func_8013F9C0(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013FA8C);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013FA8C asm("g_Game");
+extern u8 *D_800B4D64_8013FA8C asm("D_800B4D64");
+int abs(int);
+void Camera_StartShake(s32);
+void Pad_Vibrate(s32, s32, s32);
+void Fx_Explosion(s16 *, s32, s32);
+
+s32 func_8013FA8C(s16 *p) {
+    s16 *e;
+    s16 *e2;
+
+    if (p[5] >= 0) {
+        e = (s16 *)(g_Game_8013FA8C.f_820C + p[2] * 0x38);
+        e2 = (s16 *)(g_Game_8013FA8C.f_820C + p[5] * 0x38);
+        if (p[1] == 0) {
+                        if (abs(e2[0] - e[0]) >= e[3]) {
+                return 0;
+            }
+                        if (abs(e2[2] - e[2]) >= e[5]) {
+                return 0;
+            }
+                        if (abs(e2[1] - e[1]) < e[4] + 0x80) {
+                p[1] = 1;
+                Camera_StartShake(0);
+                Pad_Vibrate(0, 1, 3);
+                M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+                if (e[7] >= 0) {
+                    M2C_FIELD(D_800B4D64_8013FA8C + e[7] * 32, s16 *, 0x16) = 0;
+                }
+                Fx_Explosion(e, e[7], 1);
+                M2C_FIELD(e2, u16 *, 0x18) |= 0x8000;
+                if (e2[7] >= 0) {
+                    M2C_FIELD(D_800B4D64_8013FA8C + e2[7] * 32, s16 *, 0x16) = 0;
+                }
+                Fx_Explosion(e2, e2[7], 1);
+            }
+        }
+    }
+    return 0;
+}
 
 extern s32 D_801413E8;
 
@@ -855,7 +894,49 @@ s32 func_801406D4(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_80140768);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_80140768 asm("g_Game");
+s32 Model_SetTurnAngle(s16, s16, s32);
+
+s32 func_80140768(s16 *p) {
+    u8 *e = g_Game_80140768.f_820C + p[2] * 0x38;
+
+    switch (p[1]) {
+    case 0:
+        p[11] -= p[10];
+        if (p[11] < 0) {
+            p[11] = 0;
+            p[1] = 1;
+            p[3] = 0;
+        }
+        break;
+    case 1:
+        p[3]++;
+        if (p[9] < p[3]) {
+            p[1] = 2;
+            Sound_PlayAt(0xAF, e);
+        }
+        break;
+    case 2:
+        p[11] += p[7];
+        if (p[5] < p[11]) {
+            p[11] = p[5];
+            p[1] = 0;
+        }
+        break;
+    }
+    M2C_FIELD(e, s16 *, 0x10) = func_80092324(p, (u16 *)e);
+    if (p[5] / 2 < p[11]) {
+        M2C_FIELD(e, s16 *, 0x14) = 14;
+    } else {
+        M2C_FIELD(e, s16 *, 0x14) = 6;
+    }
+    if (p[4] == 1) {
+        Model_SetTurnAngle(3, p[6], p[11]);
+    } else {
+        Model_SetTurnAngle(2, p[6], p[11]);
+    }
+    return 0;
+}
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8014090C asm("g_Game");
 s32 Model_SetTurnAngle(s16, s16, s32);

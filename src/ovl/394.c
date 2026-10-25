@@ -124,7 +124,60 @@ s32 func_80136780(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_801368CC);
+extern struct { s32 f_0; u8 pad4[4]; void *f_8; } g_Game_801368CC asm("g_Game");
+extern u8 D_80136F00_801368CC[] asm("D_80136F00");
+extern u8 D_800E7D00_801368CC[] asm("D_800E7D00");
+typedef struct { s16 m[3][3]; s32 t[3]; } MAT_801368CC;
+typedef struct { s32 vx, vy, vz, pad; } VEC_801368CC;
+void* RotMatrixZYX(void* r, void* m);
+void* ScaleMatrix(void* m, void* v);
+s32 rsin(s32 a);
+void func_80015780(void *, s32);
+void Model_ProjectBonedVerts(void *);
+void func_80017CD4_801368CC(void *, void *, void *) asm("func_80017CD4");
+void Model_ProjectVertsAlt(void *, void *, void *);
+void func_80017EFC(void *, void *, void *, s32);
+
+void func_801368CC(void) {
+    MAT_801368CC mat;
+    SVECTOR r;
+    VEC_801368CC s;
+    u8 *m = D_80136F00_801368CC;
+    s32 v;
+
+    r.vx = 0;
+    r.vz = 0;
+    r.vy = g_Game_801368CC.f_0 * 12;
+    RotMatrixZYX(&r, M2C_FIELD(m, void **, 0x14));
+    M2C_FIELD(m, s32 *, 0x24) = 0;
+    M2C_FIELD(m, s32 *, 0x28) = 0;
+    M2C_FIELD(m, s32 *, 0x2C) = 0;
+    M2C_FIELD(m, u16 *, 0x5C)++;
+    if (*(s16 *)(M2C_FIELD(m, u8 **, 0x74) + M2C_FIELD(m, u16 *, 0x5E) * 4 + 2) < M2C_FIELD(m, u16 *, 0x5C)) {
+        M2C_FIELD(m, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(m, u8 **, 0x74) + M2C_FIELD(m, s16 *, 0x70) * 4);
+        M2C_FIELD(m, u16 *, 0x5E) = M2C_FIELD(m, u16 *, 0x70);
+    }
+    func_80015780(m, 1);
+    Model_ProjectBonedVerts(m);
+    func_80017CD4_801368CC(g_Game_801368CC.f_8, D_800E7D00_801368CC, m);
+    Model_ProjectVertsAlt((void *)D_800B4D64, M2C_FIELD(m, void **, 0x14), D_800E7D00_801368CC);
+    func_80017EFC(g_Game_801368CC.f_8, D_800E7D00_801368CC, (void *)D_800B4D64, 0);
+    r.vx = 0;
+    r.vz = 0;
+    r.vy = g_Game_801368CC.f_0 * -64;
+    RotMatrixZYX(&r, &mat);
+    v = rsin(g_Game_801368CC.f_0 << 7) >> 3;
+    s.vx = 0x1000 - v;
+    s.vz = 0x1000 - v;
+    s.vy = v + 0x1000;
+    ScaleMatrix(&mat, &s);
+    mat.t[0] = 0;
+    mat.t[1] = -0x80;
+    mat.t[2] = 0x60;
+    CompMatrix(M2C_FIELD(m, void **, 0x14), &mat, &mat);
+    Model_ProjectVertsAlt((void *)(D_800B4D64 + 0x20), &mat, D_800E7D00_801368CC);
+    func_80017EFC(g_Game_801368CC.f_8, D_800E7D00_801368CC, (void *)(D_800B4D64 + 0x20), 0);
+}
 
 typedef struct { u8 pad0[0x14]; s16 *f_14; u8 pad18[0xC]; s32 f_24, f_28, f_2C; u8 pad30[0x2C]; u16 f_5C; u16 f_5E; SVECTOR f_60; u8 pad68[8]; s16 f_70, f_72; s16 *f_74; } Obj_80136AA0;
 extern Obj_80136AA0 D_80136F88;

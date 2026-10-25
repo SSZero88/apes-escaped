@@ -21,7 +21,6 @@ extern struct S_D_801429C0 { u8 pad_0[0xB]; s8 f_B; } D_801429C0[];
 M2C_UNK Camera_StartShake(M2C_UNK);
 M2C_UNK Effect_SpawnAt(M2C_UNK, M2C_UNK);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
-M2C_UNK func_801407E4(M2C_UNK, M2C_UNK);
 M2C_UNK func_8013D000(M2C_UNK, M2C_UNK *, void *);
 void func_8013FFFC(void);
 extern s8 D_80142322;
@@ -236,7 +235,72 @@ void func_8013DA10(void) {
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013DB94);
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013DDC4);
+typedef struct { u8 pad0[0x28]; s32 y; u8 pad2C[0x52]; u8 f_7E; u8 pad7F[7]; s16 f_86; } Mdl_8013DDC4;
+extern struct { u8 f_0; u8 f_1; u8 pad2[2]; s32 f_4; } D_80142320_8013DDC4 asm("D_80142320");
+extern s32 D_80141D00;
+s32 rsin(s32);
+void func_8013DB94();
+
+void func_8013DDC4(Mdl_8013DDC4 *m) {
+    s32 sc[3];
+    s32 y;
+    u32 st;
+    s32 t;
+    s32 flags;
+    s32 v;
+
+    st = D_80142320_8013DDC4.f_1;
+    y = m->y;
+    if (st < 0x14) {
+        sc[0] = 0x1CCC;
+        sc[1] = 0x1CCC;
+        sc[2] = 0x1CCC;
+        if (st == 0x13) {
+            sc[0] = 0x1800;
+            sc[1] = 0x1800;
+            sc[2] = 0x1800;
+        } else if (st == 2) {
+            sc[0] = 0x2000 - (D_80142320_8013DDC4.f_4 << 8);
+            sc[1] = (D_80142320_8013DDC4.f_4 << 8) + 0x2000;
+            sc[2] = 0x2000 - (D_80142320_8013DDC4.f_4 << 8);
+        } else if (st == 4) {
+            sc[0] = (D_80142320_8013DDC4.f_4 << 8) + 0x400;
+            sc[1] = 0x8000 - (D_80142320_8013DDC4.f_4 << 10);
+            sc[2] = (D_80142320_8013DDC4.f_4 << 8) + 0x400;
+        } else if (st == 3) {
+            t = D_80142320_8013DDC4.f_4;
+            if (t >= 8) {
+                return;
+            }
+            sc[0] = 0x2000 - (t << 10);
+            sc[2] = 0x2000 - (t << 10);
+            sc[1] = (t << 12) + 0x2000;
+        }
+        m->f_86 = (m->f_86 + 0x44) % 0x1000;
+        m->y += rsin(m->f_86) >> 6;
+    } else {
+        sc[0] = 0x1000;
+        sc[1] = 0x1000;
+        sc[2] = 0x1000;
+    }
+    flags = 0;
+    if (m->f_7E == 2) {
+        v = D_80141D00 & 0xF;
+        if (v >= 8) {
+            v = 15 - v;
+        }
+        flags = (v << 4) | 0x10000;
+    } else if (m->f_7E < 2) {
+        v = D_80141D00 & 7;
+        if (v >= 4) {
+            v = 7 - v;
+        }
+        flags = (v << 5) | 0x10000;
+    }
+    func_8013DB94(m, sc, flags);
+    m->y = y;
+    D_80141D00 = (D_80141D00 + 1) & 0xFF;
+}
 
 void func_8013DFB0(s32 arg0) {
     s32 var_s0;
@@ -413,7 +477,34 @@ void func_801407BC(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_801407E4);
+typedef struct { s16 x, y, z, h; s8 vx, vy, vz; u8 life; } Pt_801407E4;
+extern Pt_801407E4 D_801429C0_801407E4[] asm("D_801429C0");
+#define RAND_801407E4() (g_RandSeed = g_RandSeed * 5 + 1)
+s32 Floor_GetHeight(s32, s32, s32);
+
+M2C_UNK func_801407E4(SVECTOR *v, s32 n) {
+    s32 i;
+    s16 x = v->vx;
+    s16 y = v->vy;
+    s16 z = v->vz;
+    s16 h = Floor_GetHeight(v->vx, v->vy, v->vz);
+
+    for (i = 31; i >= 0; i--) {
+        if (D_801429C0_801407E4[i].life == 0) {
+            D_801429C0_801407E4[i].life = (RAND_801407E4() >> 8 & 0x1F) + 0x28;
+            D_801429C0_801407E4[i].h = h;
+            D_801429C0_801407E4[i].x = x + ((RAND_801407E4() >> 8) - 0x80) / 2;
+            D_801429C0_801407E4[i].y = y - ((RAND_801407E4() >> 8) - 0x80) / 2;
+            D_801429C0_801407E4[i].z = z + ((RAND_801407E4() >> 8) - 0x80) / 2;
+            D_801429C0_801407E4[i].vx = ((RAND_801407E4() >> 8) - 0x80) / 4;
+            D_801429C0_801407E4[i].vy = -(RAND_801407E4() >> 8 & 0x1F) - 0x18;
+            D_801429C0_801407E4[i].vz = ((RAND_801407E4() >> 8) - 0x80) / 4;
+            if (--n == 0) {
+                break;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_801409D4);
 

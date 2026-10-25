@@ -3,7 +3,67 @@
 
 INCLUDE_ASM("asm/ovl/415/nonmatchings/415_monkey_madness_a", func_8013D000);
 
-INCLUDE_ASM("asm/ovl/415/nonmatchings/415_monkey_madness_a", func_8013D0FC);
+extern struct { u8 pad_0[0x8120]; u16 f_8120; u8 pad_8122[0xA]; u8 f_812C; u8 pad_812D[0xDF]; u8 *f_820C; } g_Game_8013D0FC asm("g_Game");
+extern s32 D_800EC250;
+s32 SaveByte_Get(s32);
+s32 Overlay_GetState_8013D0FC(void) asm("Overlay_GetState");
+void Overlay_Request(s8);
+s32 func_800863B0(s32, s32);
+s32 func_8008FC30(s16, void *);
+
+s32 func_8013D0FC(s16 *p) {
+    s32 x;
+    s32 t;
+    u8 *e;
+
+    if (g_Game_8013D0FC.f_8120 == 0x13) {
+        return 0;
+    }
+    switch (p[1]) {
+    case 0:
+        x = SaveByte_Get(5);
+        if (x != 5) {
+            return 0;
+        }
+        if (SaveByte_Get(4) != x) {
+            return 0;
+        }
+        if (g_Game_8013D0FC.f_812C != 3) {
+            return 0;
+        }
+        t = D_800EC250 & 0xF0;
+        if (t != 0x10 && t != 0x20 && t != 0x30) {
+            return 0;
+        }
+        p[1] = 1;
+        p[3] = 0;
+        e = g_Game_8013D0FC.f_820C + p[2] * 0x38;
+        M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+        func_800863B0(2, 0x28);
+        Overlay_Request(6);
+        return 0;
+    case 1:
+        if (Overlay_GetState_8013D0FC() != 0) {
+            return 0;
+        }
+        func_800863B0(0, 0);
+        p[1] = 3;
+        break;
+    case 2:
+    case 3:
+    case 4:
+        if (SaveByte_Get(8) != 5) {
+            return 0;
+        }
+        p[1] = 5;
+        func_8008FC30(p[7], p);
+        func_8008FC30(p[8], p);
+        break;
+    case 5:
+        break;
+    }
+    return 0;
+}
 
 extern struct S_g_Game { u8 pad_0[0x8120]; u16 f_8120; u8 pad_8122[0x116]; u8 *f_8238; } g_Game;
 s32 SaveByte_Get(s32);

@@ -75,7 +75,65 @@ s32 func_8013D158(s16 *p) {
 
 INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013D208);
 
-INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013D5C0);
+typedef struct { u8 pad0[4]; s16 f_4; u8 pad6[2]; s16 f_8; u8 padA[0xE]; } Trig_8013D5C0;
+typedef struct { s16 x, y, z; u8 pad6[0x32]; } Ent_8013D5C0;
+typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; u8 pad30[0x4A]; u8 f_7A; u8 pad7B[0x1D5]; } Monkey_8013D5C0;
+extern struct { u8 pad_0[0x820C]; Ent_8013D5C0 *f_820C; u8 pad_8210[0x10]; Trig_8013D5C0 *f_8220; } g_Game_8013D5C0 asm("g_Game");
+extern Monkey_8013D5C0 g_Monkeys_8013D5C0[] asm("g_Monkeys");
+extern u16 g_RandSeed_8013D5C0 asm("g_RandSeed");
+
+s32 func_8013D5C0(s16 *p) {
+    s32 i;
+    s32 r;
+    s32 n;
+    Trig_8013D5C0 *t;
+    Ent_8013D5C0 *e;
+
+    for (i = 7; i >= 0; i--) {
+        g_Monkeys_8013D5C0[i].f_7A = 0;
+    }
+    r = (g_RandSeed_8013D5C0 = g_RandSeed_8013D5C0 * 5 + 1) >> 8 & 7;
+
+    if (!(r & 1)) {
+        t = &g_Game_8013D5C0.f_8220[p[6]];
+    } else {
+        t = &g_Game_8013D5C0.f_8220[p[9]];
+    }
+    n = t->f_4;
+    t->f_8 = 1;
+    g_Monkeys_8013D5C0[0].f_7A = 4;
+    e = &g_Game_8013D5C0.f_820C[n];
+    g_Monkeys_8013D5C0[0].x = e->x;
+    g_Monkeys_8013D5C0[0].y = e->y;
+    g_Monkeys_8013D5C0[0].z = e->z;
+
+    if (!(r & 2)) {
+        t = &g_Game_8013D5C0.f_8220[p[7]];
+    } else {
+        t = &g_Game_8013D5C0.f_8220[p[10]];
+    }
+    n = t->f_4;
+    t->f_8 = 2;
+    g_Monkeys_8013D5C0[1].f_7A = 4;
+    e = &g_Game_8013D5C0.f_820C[n];
+    g_Monkeys_8013D5C0[1].x = e->x;
+    g_Monkeys_8013D5C0[1].y = e->y;
+    g_Monkeys_8013D5C0[1].z = e->z;
+
+    if (!(r & 4)) {
+        t = &g_Game_8013D5C0.f_8220[p[8]];
+    } else {
+        t = &g_Game_8013D5C0.f_8220[p[11]];
+    }
+    n = t->f_4;
+    t->f_8 = 3;
+    g_Monkeys_8013D5C0[2].f_7A = 4;
+    e = &g_Game_8013D5C0.f_820C[n];
+    g_Monkeys_8013D5C0[2].x = e->x;
+    g_Monkeys_8013D5C0[2].y = e->y;
+    g_Monkeys_8013D5C0[2].z = e->z;
+    return 0;
+}
 
 extern struct { u8 pad_0[0x220]; u8 *f_220; } D_800F4350_8013D7E8 asm("D_800F4350");
 typedef struct { u8 pad_0[0x7A]; u8 f_7A; u8 pad_7B[0x250 - 0x7B]; } Monkey_8013D7E8;

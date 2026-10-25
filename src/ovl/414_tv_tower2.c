@@ -199,7 +199,78 @@ void func_8013DC38(void *obj) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013DC68);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x14]; s16 f44, f46, f48, f4A; u8 pad4C[0x14]; s16 f60, f62, f64; u8 pad66[0xB]; u8 f71; u8 pad72[6]; s16 f78; u8 pad7A; u8 f7B; u8 pad7C[0x24]; s32 fA0; s32 fA4; u8 padA8[5]; u8 fAD, fAE, fAF; u8 padB0[2]; s16 fB2; u8 padB4[6]; u8 fBA; u8 padBB; s32 fBC; u8 padC0[4]; } Obj_8013DC68;
+extern Obj_8013DC68 D_80143D70_8013DC68[] asm("D_80143D70");
+extern struct { u8 pad0[2]; u8 f2, f3; u8 pad4[4]; s16 f8; u8 padA[2]; u8 fC, fD; } D_80143EF8_8013DC68 asm("D_80143EF8");
+extern struct { u8 pad_0[0x8244]; u8 *f_8244; } g_Game_8013DC68 asm("g_Game");
+extern u8 D_800AF840;
+extern s16 D_800E69BE;
+s32 SaveByte_Get(s32);
+void func_80140948(void *arg0, s32 anim);
+void func_8013F68C(void);
+void func_8013F130(void);
+void func_8013ECF4(void);
+void func_8013D52C(void);
+void func_8013DB98(void);
+void func_8013DC00(void);
+
+void func_8013DC68(void) {
+    u8 *hdr;
+    s16 *p;
+    s16 *tbl;
+    Obj_8013DC68 *o;
+    s32 i;
+
+    D_80143EF8_8013DC68.fC = 1;
+    hdr = g_Game_8013DC68.f_8244;
+    if (SaveByte_Get(0) == 5) {
+        D_800AF840 = 1;
+        return;
+    }
+    i = 0;
+    D_800E69BE = 0;
+    D_80143EF8_8013DC68.f3 = 0;
+    D_80143EF8_8013DC68.f2 = 0;
+    D_80143EF8_8013DC68.f8 = 0;
+    D_80143EF8_8013DC68.fD = 0;
+    tbl = (s16 *)(g_Game_8013DC68.f_8244 + M2C_FIELD(hdr, s32 *, 8));
+    o = D_80143D70_8013DC68;
+    for (; i < 2; i++, o++) {
+        p = tbl + i * 16;
+        func_8013D1F0(i, (M2C_UNK *)o, (u8 *)o + 0x74);
+        o->x = p[1];
+        o->y = p[2];
+        o->z = p[3];
+        o->f78 = 0;
+        o->fA0 = 0;
+        o->fA4 = 0;
+        o->fB2 = 0x3C;
+        o->fAF = 6;
+        o->fBC = 0;
+        o->f7B = 0;
+        o->fBA = 0;
+        o->f60 = 0x1000;
+        o->f62 = 0;
+        o->f64 = 0;
+        if ((u16)p[0] == 0xC8) {
+            o->f71 = 0;
+            func_80140948(o, 2);
+            o->fAD = 0;
+            o->fAE = 0;
+            Collision_Set(5, &o->x, o);
+            o->f48 = 1;
+            o->f4A = -0x7EFE;
+            o->f44 = 0x4E2;
+            o->f46 = 0x300;
+        }
+    }
+    func_8013F68C();
+    func_8013F130();
+    func_8013ECF4();
+    func_8013D52C();
+    func_8013DB98();
+    func_8013DC00();
+}
 
 void func_8013DE24(s32 arg0) {
     s32 var_s0;
@@ -260,7 +331,32 @@ void func_8013E464(s32 c)
   ((struct Game_414 *)&g_Game)->prim = (u8 *) (m + 1);
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013E53C);
+typedef struct { s16 x, y, z; u8 f6, f7; s16 vx, vy, vz; u8 fE, fF; } Bit_8013E53C;
+extern Bit_8013E53C D_80144370[32];
+
+void func_8013E53C(SVECTOR *pos, s32 c) {
+    s32 i;
+    Bit_8013E53C *b;
+    s16 d[3];
+
+    i = 31;
+    b = D_80144370;
+    for (; i >= 0; i--, b++) {
+        b->f6 = 0x10;
+        b->fF = (u8)c;
+        b->fE = (RAND() >> 8) & 1;
+        b->f7 = (RAND() >> 8) & 0xF;
+        b->x = pos->vx + ((((u16)RAND() >> 8) - 0x80) << 3);
+        b->y = pos->vy + ((((u16)RAND() >> 8) - 0x80) << 3);
+        b->z = pos->vz - (((u16)RAND() >> 8) << 2);
+        d[0] = pos->vx - b->x;
+        d[1] = pos->vy - b->y;
+        d[2] = pos->vz - b->z;
+        b->vx = d[0] / 16;
+        b->vy = d[1] / 16;
+        b->vz = d[2] / 16;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013E6E4);
 

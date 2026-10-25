@@ -601,7 +601,68 @@ s32 func_80140F30(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80140FE0);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_80140FE0 asm("g_Game");
+extern struct { u8 pad0[0x24]; s32 x, y, z; s32 f30, f34, f38; } g_Spike_80140FE0 asm("g_Spike");
+extern u8 *D_800B4D64_80140FE0 asm("D_800B4D64");
+typedef struct { s16 id; s16 on; } Snd_80140FE0;
+extern Snd_80140FE0 D_801434C0_80140FE0 asm("D_801434C0");
+extern Snd_80140FE0 D_801434C4_80140FE0 asm("D_801434C4");
+extern s16 D_800EC238;
+s32 func_801402D8(void *arg0);
+s32 func_80140374(u8 *e);
+void Spike_SetPlayMode(s32);
+s32 func_80087BA4(s32, s16, s16, s16);
+
+s32 func_80140FE0(s16 *p) {
+    s16 *e = (s16 *)(g_Game_80140FE0.f_820C + p[2] * 0x38);
+
+    switch (p[1]) {
+    case 0:
+        if (p[4] == e[0x19]) {
+            p[1] = 1;
+            func_801402D8(e);
+            func_801402F8();
+            Spike_SetPlayMode(0);
+            g_Spike_80140FE0.x = e[0];
+            g_Spike_80140FE0.y = e[1] - e[4];
+            g_Spike_80140FE0.z = e[2];
+            g_Spike_80140FE0.f30 = 0;
+            g_Spike_80140FE0.f34 = 0;
+            g_Spike_80140FE0.f38 = 0;
+        }
+        break;
+    case 1:
+        if (D_800EC238 != p[2]) {
+            p[1] = 3;
+            p[3] = 0;
+            p[6] = func_80140374((u8 *)e);
+        }
+        break;
+    case 2:
+        break;
+    case 3:
+        if (p[5] == e[0x19]) {
+            p[1] = 4;
+            if (e[7] >= 0) {
+                M2C_FIELD(D_800B4D64_80140FE0 + e[7] * 32, s16 *, 0x16) = 0;
+            }
+            func_801402D8(e);
+            p[3] = 0x3C;
+        }
+        break;
+    case 4:
+        func_80087BA4(0xAD, D_801434C0_80140FE0.id, p[3], 0x3C);
+        func_80087BA4(0xAE, D_801434C4_80140FE0.id, p[3], 0x3C);
+        if (--p[3] <= 0) {
+            p[1] = 5;
+            func_801402F8();
+        }
+        break;
+    case 5:
+        break;
+    }
+    return 0;
+}
 
 s32 func_8014119C(s16 *p) {
     u8 *e = g_Game.f_820C + p[2] * 0x38;
@@ -864,4 +925,51 @@ s32 func_80142800(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_80142808);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_80142808;
+typedef struct { u16 start; u16 end; } Rng_80142808;
+extern struct { u8 pad0[0x14]; Mat_80142808 *mat; void *anim; u8 pad1C[0x40]; u16 frame; s16 f5E; u8 pad60[0x2C]; s16 f8C; u8 pad8E[6]; Mat_80142808 m94; u8 padB4[0x2C]; s32 fE0; } g_Spike_80142808 asm("g_Spike");
+extern void *g_SpikeAnimSets[];
+extern struct { u8 pad0[0x158]; u32 f158; u8 pad15C[4]; u32 f160; } g_Pad_80142808 asm("g_Pad");
+extern s32 D_800EC214;
+extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_80142808 asm("g_Game");
+extern u8 D_800E7D00_80142808[] asm("D_800E7D00");
+void Anim_SetFrame(void *);
+void *ApplyMatrix(void *, void *, void *);
+void Matrix_RotateY(s32, void *);
+void Model_CalcJointMatrices(void *, s32);
+void func_80017CD4_80142808(void *, void *, void *) asm("func_80017CD4");
+
+void func_80142808(void) {
+    SVECTOR v;
+    Rng_80142808 *r;
+
+    g_Spike_80142808.f5E = 0;
+    g_Spike_80142808.f8C = 0;
+    g_Spike_80142808.frame++;
+    g_Spike_80142808.anim = g_SpikeAnimSets[0];
+    r = g_SpikeAnimSets[1];
+    if (r->end < g_Spike_80142808.frame || g_Spike_80142808.frame < r->start) {
+        g_Spike_80142808.frame = r->start;
+    }
+    if (g_Pad_80142808.f158 & g_Pad_80142808.f160 & 0xA) {
+        D_800EC214 = -1;
+    } else {
+        D_800EC214 = 0;
+    }
+    Anim_SetFrame(&g_Spike_80142808);
+    if (g_Spike_80142808.fE0 & 1) {
+        *g_Spike_80142808.mat = g_Spike_80142808.m94;
+        v.vx = g_Spike_80142808.m94.t[0];
+        v.vy = g_Spike_80142808.m94.t[1];
+        v.vz = g_Spike_80142808.m94.t[2];
+        ApplyMatrix(g_Spike_80142808.mat, &v, g_Spike_80142808.mat->t);
+    }
+    Matrix_RotateY(0x400, g_Spike_80142808.mat);
+    Model_CalcJointMatrices(&g_Spike_80142808, 7);
+    Model_ProjectBonedVerts(&g_Spike_80142808);
+    func_80017CD4_80142808(g_Game_80142808.f_80 + g_Game_80142808.f_C * 0x4078, D_800E7D00_80142808, &g_Spike_80142808);
+    g_Spike_80142808.fE0 = 0;
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop");
