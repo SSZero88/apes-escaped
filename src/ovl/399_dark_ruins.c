@@ -355,7 +355,20 @@ void func_8013DF08(void) {
     Link_SendEvent(7, 0x11, 0);
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013DF40);
+void func_8013DC78(void *, void *, s32);
+
+void func_8013DF40(u8 *o) {
+    SVECTOR p;
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(o, s16 *, 0x60) / 48;
+    v.vy = 0;
+    v.vz = M2C_FIELD(o, s16 *, 0x64) / 48;
+    p.vx = M2C_FIELD(o, u16 *, 0x24) + (M2C_FIELD(o, s16 *, 0x60) * 85 >> 11);
+    p.vy = M2C_FIELD(o, u16 *, 0x28) - 0x5A;
+    p.vz = M2C_FIELD(o, u16 *, 0x2C) + (M2C_FIELD(o, s16 *, 0x64) * 85 >> 11);
+    func_8013DC78(&p, &v, M2C_FIELD(o, s8 *, 0xCB));
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013E020);
 
@@ -421,7 +434,22 @@ void func_8013E600(void) {
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013E680);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013E74C);
+extern u8 D_800E77A0[];
+u8 *func_80056BC4(s32, s32 *, s32);
+
+void func_8013E74C(u8 *o) {
+    s32 pos[3];
+    s32 i;
+
+    pos[0] = M2C_FIELD(o, s32 *, 0x24);
+    pos[1] = M2C_FIELD(o, s32 *, 0x28) - 0xAA;
+    pos[2] = M2C_FIELD(o, s32 *, 0x2C);
+    M2C_FIELD(func_80056BC4(0x1A, pos, M2C_FIELD(o, s8 *, 0xCB)), u8 *, 0x8F) = 0;
+    for (i = 0; i < D_800E77A0[1] - 1; i++) {
+        pos[1] -= 0x118;
+        M2C_FIELD(func_80056BC4(0x1A, pos, M2C_FIELD(o, s8 *, 0xCB)), u8 *, 0x8F) = i + 1;
+    }
+}
 
 void func_8013E810(void) {
     s32 temp_a0;
@@ -572,7 +600,32 @@ INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013F408);
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013F6FC);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013F9C0);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013F9C0 asm("g_Game");
+extern u8 *D_800B4D64_8013F9C0 asm("D_800B4D64");
+
+s32 func_8013F9C0(s16 *p) {
+    u8 *e = g_Game_8013F9C0.f_820C + p[2] * 0x38;
+    u8 *e2;
+
+    if (p[4] == 0) {
+        p[1] = 0;
+        p[3] = 0;
+    } else {
+        p[1] = 1;
+        if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+            M2C_FIELD(D_800B4D64_8013F9C0 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+        }
+        M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+        if (p[5] >= 0) {
+            e2 = g_Game_8013F9C0.f_820C + p[5] * 0x38;
+            M2C_FIELD(e2, u16 *, 0x18) |= 0x8000;
+            if (M2C_FIELD(e2, s16 *, 0xE) >= 0) {
+                M2C_FIELD(D_800B4D64_8013F9C0 + M2C_FIELD(e2, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+            }
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013FA8C);
 
@@ -611,7 +664,29 @@ s32 func_8014060C(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8014061C);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8014061C asm("g_Game");
+extern s32 D_800EC20C;
+extern u8 *D_800B4D64_8014061C asm("D_800B4D64");
+
+s32 func_8014061C(s16 *p) {
+    u8 *t;
+    u8 *e;
+
+    if (p[1] == 0 && p[4] < D_800EC20C) {
+        p[1] = 1;
+        if (p[5] >= 0) {
+            t = g_Game_8014061C.f_8220 + p[5] * 0x18;
+            e = g_Game_8014061C.f_820C + M2C_FIELD(t, s16 *, 4) * 0x38;
+            if (M2C_FIELD(t, s16 *, 2) == 1) {
+                M2C_FIELD(t, s16 *, 2) = 2;
+                if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+                    M2C_FIELD(D_800B4D64_8014061C + M2C_FIELD(e, s16 *, 0xE) * 32, u16 *, 0x16) = 0xFFFF;
+                }
+            }
+        }
+    }
+    return 0;
+}
 
 s16 func_80092324(s16 *, u16 *);
 
@@ -633,7 +708,29 @@ s32 func_801406D4(s16 *p) {
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_80140768);
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8014090C);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8014090C asm("g_Game");
+s32 Model_SetTurnAngle(s16, s16, s32);
+
+s32 func_8014090C(s16 *p) {
+    u8 *e = g_Game_8014090C.f_820C + p[2] * 0x38;
+
+    M2C_FIELD(e, u16 *, 0x24) = M2C_FIELD(e, u16 *, 0x0);
+    M2C_FIELD(e, u16 *, 0x26) = M2C_FIELD(e, u16 *, 0x2);
+    M2C_FIELD(e, u16 *, 0x28) = M2C_FIELD(e, u16 *, 0x4);
+    M2C_FIELD(e, u16 *, 0x32) = M2C_FIELD(e, u16 *, 0x6);
+    M2C_FIELD(e, u16 *, 0x34) = M2C_FIELD(e, u16 *, 0x8);
+    M2C_FIELD(e, u16 *, 0x36) = M2C_FIELD(e, u16 *, 0xA);
+    p[1] = 0;
+    p[3] = 0;
+    p[11] = 0;
+    M2C_FIELD(e, s16 *, 0x10) = func_80092324(p, e);
+    if (p[4] == 1) {
+        Model_SetTurnAngle(3, p[6], p[11]);
+    } else {
+        Model_SetTurnAngle(2, p[6], p[11]);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_801409D8);
 

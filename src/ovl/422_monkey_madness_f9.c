@@ -66,9 +66,32 @@ void func_8013D0A0(s32 ot, s32 arg1, Mdl_422 *m, s32 add) {
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013D1FC);
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013D33C);
+typedef struct { s32 x, y, z; u8 pad_C[0x14]; s16 f_20; s16 pad_22; s16 f_24; s16 f_26; } Shape_8013D3EC;
+typedef struct { Shape_8013D3EC *shape; s16 x, y, z; } Coll_8013D3EC;
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013D3EC asm("g_Spike");
+Shape_8013D3EC *CollShape_Alloc(void);
+s32 Collision_Set(s32, void *, void *);
 
-void func_8013D33C(void *, s32, s32, s32, s32);
+void func_8013D33C(Coll_8013D3EC *c, void *owner, s32 a2, s16 a3, s16 a4) {
+    s32 dx = g_Spike_8013D3EC.x - c->x;
+    s32 dz = g_Spike_8013D3EC.z - c->z;
+
+    if (dx * dx + dz * dz > 0x24000) {
+        c->shape = NULL;
+        return;
+    }
+    c->shape = CollShape_Alloc();
+    if (c->shape != NULL) {
+        c->shape->x = c->x;
+        c->shape->y = c->y;
+        c->shape->z = c->z;
+        c->shape->f_20 = a2;
+        c->shape->f_24 = a3 | 1;
+        c->shape->f_26 = a4;
+        Collision_Set(7, c->shape, owner);
+    }
+}
+
 
 void func_8013D450(void *arg0, s32 arg1, s32 arg2, s16 arg3) {
     func_8013D33C(arg0, arg1, arg2, 0, arg3);
@@ -194,7 +217,34 @@ void func_8013E7F8(void) {
     } while (var_v1 >= 0);
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013E81C);
+typedef struct { u8 pad_0[0x14]; u8 f_14; u8 f_15; u8 pad_16[2]; s16 f_18; u8 pad_1A[2]; u8 *f_1C; u8 *f_20; u8 pad_24[8]; } Ent_8013E81C;
+extern Ent_8013E81C D_801452E0_8013E81C[4] asm("D_801452E0");
+extern struct { u8 pad_0[0xF]; u8 f_F; } D_80144BE8_8013E81C asm("D_80144BE8");
+void func_8013E098(u8 *);
+
+void func_8013E81C(u8 *a0, s32 a1) {
+    s32 i;
+    Ent_8013E81C *e;
+
+    i = 3;
+    e = D_801452E0_8013E81C;
+    do {
+        if (e->f_14 == 0) {
+            e->f_14 = 1;
+            e->f_15 = a1;
+            e->f_18 = 0x40;
+            e->f_1C = a0 + 0x74;
+            e->f_20 = a0 + 0x7C;
+            func_8013E098(a0 + 0x7C);
+            if (D_80144BE8_8013E81C.f_F != 1 || e->f_15 != 0) {
+                Sound_PlayFixed(0x92);
+            }
+            return;
+        }
+        i--;
+        e++;
+    } while (i >= 0);
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013E8D4);
 
@@ -224,9 +274,49 @@ void func_8013F75C(void *arg0, s32 anim) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F78C);
+extern u16 g_RandSeed_8013F78C asm("g_RandSeed");
+extern u8 D_80144068[];
+void Fx_SpawnFadeRing(void *, s16, s32, u8);
+void Effect_SpawnAt(s32, void *);
+#define RAND_8013F78C() (g_RandSeed_8013F78C = g_RandSeed_8013F78C * 5 + 1)
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F86C);
+void func_8013F78C(u8 *e, s16 a1, s16 a2, s16 a3) {
+    SVECTOR v;
+
+    M2C_FIELD(e, s16 *, 0x90) = a1;
+    M2C_FIELD(e, s16 *, 0x92) = a2;
+    M2C_FIELD(e, s16 *, 0x94) = a3;
+    M2C_FIELD(e, u8 *, 0x8C) = 2;
+    M2C_FIELD(e, s16 *, 0x96) = 0;
+    Fx_SpawnFadeRing(e + 0x74, 0, 0x300, 0);
+    v.vx = (RAND_8013F78C() >> 4) & 0xFF0;
+    v.vy = (RAND_8013F78C() >> 4) & 0xFF0;
+    v.vz = (RAND_8013F78C() >> 4) & 0xFF0;
+    func_80070284(e + 0x74, D_80144068, 1, 0, &v);
+    Effect_SpawnAt(0x109, e + 0x74);
+}
+
+typedef struct { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; u8 pad30[0x5C]; u8 f_8C[4]; u8 pad90[2]; u8 f_92; u8 pad93[7]; s16 f_9A; s16 f_9C; u8 pad9E[2]; } Ent_8013F86C;
+extern Ent_8013F86C D_80144AA8_8013F86C[2] asm("D_80144AA8");
+void func_8013D000(s32, void *, void *);
+
+void func_8013F86C(void) {
+    s32 i;
+    Ent_8013F86C *e;
+    s16 x;
+
+    for (i = 0, e = D_80144AA8_8013F86C; i < 2; i++, e++) {
+        func_8013D000(8, e, e->f_8C);
+        func_8013F75C(e, 0);
+        x = i * 0x41C - 0x20E;
+        e->f_9A = x;
+        e->f_92 = 0;
+        e->f_24 = x;
+        e->f_28 = -0x3200;
+        e->f_2C = 0xBD2;
+        e->f_9C = 0;
+    }
+}
 
 typedef struct { u8 pad0[0x92]; u8 f_92; u8 pad93[9]; s16 f_9C; u8 pad9E[2]; } Ent_422b;
 extern Ent_422b D_80144AA8[2];

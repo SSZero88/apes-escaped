@@ -318,7 +318,29 @@ void func_8013E97C(void *pos) {
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013E9D8);
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013EADC);
+extern u8 D_80141AF8[];
+void func_800702B0(SVECTOR *, void *);
+void Fx_DebrisExplosion(s32, s32, s32);
+void func_8013E388(void *);
+
+void func_8013EADC(u8 *o) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(o, s32 *, 0x24);
+    v.vy = M2C_FIELD(o, s32 *, 0x28);
+    v.vz = M2C_FIELD(o, s32 *, 0x2C);
+    func_800702B0(&v, D_80141AF8);
+    func_800702B0(&v, D_80141AF8 + 0xC);
+    Object_PlaySound(o, 0x4D);
+    Fx_DebrisExplosion((s16)M2C_FIELD(o, s32 *, 0x24), (s16)M2C_FIELD(o, s32 *, 0x28), (s16)M2C_FIELD(o, s32 *, 0x2C));
+    M2C_FIELD(o, s8 *, 0x80) = 0x15;
+    M2C_FIELD(o, s8 *, 0xC8) = 0;
+    M2C_FIELD(o, s16 *, 0x5E) = 1;
+    func_8005588C(o, 0x3C);
+    func_8013E388(o);
+    Object_DropPickups(o);
+    Object_DisableCollision(o);
+}
 
 void func_8013EB94(void *arg0, s32 arg1) {
     void *temp_v1;
@@ -356,7 +378,16 @@ void func_8013ED10(void *arg0, s16 n) {
     func_8013EC78(arg0, n * 50 + 0x104, 500 - n * 10, -0x14, 5);
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013ED7C);
+void func_8013ED7C(u8 *o) {
+    s32 n = (s16)(M2C_FIELD(o, u16 *, 0x5C) - *(u16 *)(M2C_FIELD(o, u8 **, 0x88) + M2C_FIELD(o, u8 *, 0x7F) * 4));
+
+    if (n < 5) {
+        if (n == 1) {
+            Object_PlaySound(o, 0x82);
+        }
+        func_8013EC78(o, n * 50 + 0x104, 400 - n * 10, -0x14, 5);
+    }
+}
 
 void func_8013D2E8(void *, s32, s32, s32, s32, s32);
 
@@ -566,7 +597,39 @@ s32 func_80141090(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_80141134);
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_801413D8);
+typedef struct { u8 pad_0[0x20C]; u8 *f_820C; u8 pad_210[0x10]; u8 *f_8220; } G_801413D8;
+extern G_801413D8 D_800F4350;
+extern s16 D_800EC238;
+extern u8 *D_800B4D64_801413D8 asm("D_800B4D64");
+
+s32 func_801413D8(s16 *p) {
+    s32 i;
+    u8 *d;
+    G_801413D8 *g;
+    u8 *e;
+    u8 *t;
+    s32 st = p[1];
+    s32 id = p[2];
+
+    if (st == 0 && D_800EC238 == id) {
+        i = 0;
+        g = &D_800F4350;
+        d = D_800B4D64_801413D8;
+        for (; i < 7; i++) {
+            if (p[4 + i] < 0) {
+                break;
+            }
+            t = g->f_8220 + p[4 + i] * 0x18;
+            e = g->f_820C + M2C_FIELD(t, s16 *, 4) * 0x38;
+            if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+                M2C_FIELD(d + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+            }
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF1) | 0x8001;
+        }
+        p[1] = 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_80141494);
 

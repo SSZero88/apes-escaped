@@ -7,7 +7,29 @@ INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_80136000);
 
 INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_8013626C);
 
-INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_80136494);
+typedef struct { s16 x, y, w, h; } RECT_80136494;
+void LoadImage(RECT_80136494 *, u32 *);
+
+void func_80136494(s32 n, s32 row) {
+    u32 *p = (u32 *)0x80155000;
+    RECT_80136494 r;
+
+    for (; n != 0; n--) {
+        p += 2;
+        p += *p >> 2;
+        p += *p >> 2;
+    }
+    p += 2;
+    r = *(RECT_80136494 *)(p + 1);
+    r.x = 0x1C0;
+    r.y = row + 0xFE;
+    LoadImage(&r, p + 3);
+    p += *p >> 2;
+    r = *(RECT_80136494 *)(p + 1);
+    r.x = row * 128 + 0x1C0;
+    r.y = 0;
+    LoadImage(&r, p + 3);
+}
 
 typedef struct { s16 x, y, w, h; } Rect_430;
 extern Rect_430 D_80137838;
@@ -33,7 +55,34 @@ void func_80136590(void) {
     DrawSync(0);
 }
 
-INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_80136624);
+extern GameDraw g_Game;
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_80136624;
+typedef struct { u32 tag; u32 tpage; u32 code; u32 xy; u32 uvclut; u32 wh; } Sprt_80136624;
+
+void func_80136624(s32 y) {
+    Sprt_80136624 *p = (Sprt_80136624 *)G_DRAW.prim;
+    u32 *ot = &G_DRAW.db[G_DRAW.cur].ot[2];
+
+    ((u8 *)p)[3] = 5;
+    p->tpage = 0xE1000207;
+    p->code = 0x65000000;
+    p->xy = (y << 16) | 0x20;
+    p->wh = 0x180100;
+    p->uvclut = 0x3E9CC800;
+    ((Tag_80136624 *)p)->addr = ((Tag_80136624 *)ot)->addr;
+    ((Tag_80136624 *)ot)->addr = (u32)p;
+    p++;
+    ((u8 *)p)[3] = 5;
+    p->tpage = 0xE1000208;
+    p->code = 0x65000000;
+    p->xy = (y << 16) | 0x120;
+    p->wh = 0x180040;
+    p->uvclut = 0x3E9CC800;
+    ((Tag_80136624 *)p)->addr = ((Tag_80136624 *)ot)->addr;
+    ((Tag_80136624 *)ot)->addr = (u32)p;
+    p++;
+    G_DRAW.prim = (u8 *)p;
+}
 
 INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_80136730);
 

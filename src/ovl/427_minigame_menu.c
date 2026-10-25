@@ -48,7 +48,32 @@ INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801360F0);
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013626C);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801364CC);
+typedef struct { u8 pad0[0x1C]; u8 f_1C; u8 pad1D[0x1B]; } Pad_801364CC;
+extern Pad_801364CC D_8013FBF8_801364CC[2] asm("D_8013FBF8");
+s32 PadGetState(s32);
+void func_8013626C(s32, s32, s32);
+
+void func_801364CC(void) {
+    s32 i;
+
+    for (i = 0; i < 2; i++) {
+        switch (PadGetState(i * 16)) {
+        case 0:
+            func_8013626C(0, i, i * 16);
+            break;
+        case 1:
+            if (!(D_8013FBF8_801364CC[i].f_1C & 1)) {
+                func_8013626C(0, i, i * 16);
+            }
+            break;
+        case 6:
+            if (D_8013FBF8_801364CC[i].f_1C != 3) {
+                func_8013626C(1, i, i * 16);
+            }
+            break;
+        }
+    }
+}
 
 void func_801365A8(void) {
     Seq_Tick();
@@ -101,7 +126,23 @@ INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", jtbl_8013EBA8);
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80137654);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80137874);
+typedef struct { s16 x, y, z; s16 pad; u32 col; } Star_80137874;
+extern Star_80137874 *D_8013FC78_80137874 asm("D_8013FC78");
+extern u16 D_800AE8F2_80137874 asm("D_800AE8F2");
+extern u16 g_RandSeed_80137874 asm("g_RandSeed");
+
+void func_80137874(void) {
+    s32 i;
+    Star_80137874 *s;
+
+    D_8013FC78_80137874 = func_8008C09C(0x300);
+    for (i = 0; i < 0x40; i++) {
+        D_8013FC78_80137874[i].x = (D_800AE8F2_80137874 = D_800AE8F2_80137874 * 5 + 1) & 0x1FF;
+        D_8013FC78_80137874[i].z = ((g_RandSeed_80137874 = g_RandSeed_80137874 * 5 + 1) >> 8 & 3) + 1;
+        D_8013FC78_80137874[i].y = (D_800AE8F2_80137874 = D_800AE8F2_80137874 * 5 + 1) >> 8;
+        M2C_FIELD(&D_8013FC78_80137874[i], u32 *, 8) = 0xFFFFFF;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80137934);
 

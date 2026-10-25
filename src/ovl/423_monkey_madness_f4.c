@@ -10,7 +10,6 @@ s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, void *);
 M2C_UNK func_80088120(s8);
 s32 Spike_WithinRadiusXZ(s32, s32, M2C_UNK);
 void func_8013E22C(void *arg0);
-M2C_UNK func_8013E670(void *, M2C_UNK);
 void *Collision_GetShape(s32);
 M2C_UNK Object_DisableCollision(void *);
 M2C_UNK func_800525A0(void *, void *);
@@ -228,7 +227,25 @@ INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E2B0);
 
 INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E494);
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E670);
+s32 func_8013E494(u8 *);
+void VectorNormalSS(void *, void *);
+void Object_TurnToward(void *, s16, s16, s16, s16);
+
+void func_8013E670(u8 *e, s32 flag) {
+    s16 *pt;
+
+    M2C_FIELD(e, u8 *, 0x8E) = func_8013E494(e);
+    pt = (s16 *)(M2C_FIELD(e, u8 **, 0x90) + M2C_FIELD(e, u8 *, 0x8E) * 8);
+    M2C_FIELD(e, s16 *, 0x94) = pt[0] - M2C_FIELD(e, s16 *, 0x24);
+    M2C_FIELD(e, s16 *, 0x96) = pt[1] - M2C_FIELD(e, s16 *, 0x9C);
+    M2C_FIELD(e, s16 *, 0x98) = pt[2] - M2C_FIELD(e, s16 *, 0x2C);
+    VectorNormalSS(e + 0x94, e + 0x94);
+    if (flag) {
+        Object_TurnToward(e, -M2C_FIELD(e, s16 *, 0x94), -M2C_FIELD(e, s16 *, 0x98), 0, M2C_FIELD(e, s16 *, 0xB0));
+    } else {
+        Object_TurnToward(e, M2C_FIELD(e, s16 *, 0x94), M2C_FIELD(e, s16 *, 0x98), 0, M2C_FIELD(e, s16 *, 0xB0));
+    }
+}
 
 void func_8013E740(void *arg0) {
     s32 temp_v0_2;
@@ -245,7 +262,23 @@ void func_8013E740(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0x2C) = (s32) (M2C_FIELD(arg0, s32 *, 0x2C) + ((s32) (M2C_FIELD(arg0, s16 *, 0x98) * temp_v0_2) >> 0xC));
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E7CC);
+s16 Object_PathPointNear(void *, void *, s32, s32);
+
+s32 func_8013E7CC(u8 *e, s32 spd) {
+    s32 s;
+
+    if (Object_PathPointNear(e, e + 0x24, spd * 2, M2C_FIELD(e, u8 *, 0x8E)) != 0) {
+        return 1;
+    }
+    if ((M2C_FIELD(e, s16 *, 0xA8) >> 3) < spd) {
+        M2C_FIELD(e, s16 *, 0xA8) += 0x32;
+    }
+    s = M2C_FIELD(e, s16 *, 0xA8) >> 3;
+    M2C_FIELD(e, s32 *, 0x24) += (M2C_FIELD(e, s16 *, 0x94) * s) >> 12;
+    M2C_FIELD(e, s16 *, 0x9C) += (M2C_FIELD(e, s16 *, 0x96) * s) >> 12;
+    M2C_FIELD(e, s32 *, 0x2C) += (M2C_FIELD(e, s16 *, 0x98) * s) >> 12;
+    return 0;
+}
 
 void func_8013E8A0(void *arg0) {
     if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s32 *, 0x2C), 0x800) != 0) {

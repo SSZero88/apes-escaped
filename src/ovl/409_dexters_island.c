@@ -254,9 +254,52 @@ void func_8013FCB4(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0x96) = 0;
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013FD00);
+void func_8006B3CC_8013FD00(SVECTOR *) asm("func_8006B3CC");
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013FDD0);
+s32 func_8013FD00(u8 *o) {
+    u8 *s = M2C_FIELD(o, u8 **, 0xB4);
+    SVECTOR v;
+
+    if ((M2C_FIELD(s, u32 *, 0x2C) >> 28) != 11) {
+        return 0;
+    }
+    if (M2C_FIELD(o, u8 *, 0x84) != 0) {
+        return 0;
+    }
+    v.vx = M2C_FIELD(s, s32 *, 0);
+    v.vy = M2C_FIELD(s, s32 *, 4);
+    v.vz = M2C_FIELD(s, s32 *, 8);
+    func_8006B3CC_8013FD00(&v);
+    Object_PlaySound(o, 0x15);
+    Object_PlaySound(o, 0xB9);
+    M2C_FIELD(o, u8 *, 0x84) = 20;
+    if (func_800525A0(o, (u8 *)Collision_GetShape(M2C_FIELD(s, u16 *, 0x2C) & 0xFFF))) {
+        func_8013FC78(o);
+        func_8013FCB4(o);
+    }
+    return 1;
+}
+
+extern struct { s16 x, y, z; } D_801438A8_8013FDD0 asm("D_801438A8");
+extern u8 D_800E77E5;
+
+void func_8013FDD0(u8 *o) {
+    s16 *a = M2C_FIELD(o, s16 **, 0x74);
+    s32 *s = M2C_FIELD(o, s32 **, 0xB4);
+    s32 v[3];
+
+    D_801438A8_8013FDD0.x = s[0] = a[0];
+    D_801438A8_8013FDD0.y = s[1] = a[1] + 0xBE;
+    D_801438A8_8013FDD0.z = s[2] = a[2];
+    D_801438A8_8013FDD0.y -= 0xC8;
+    func_8013EC9C(s, 0x17C);
+    if (D_800E77E5 >= 2) {
+        v[0] = s[0];
+        v[1] = s[1];
+        v[2] = s[2];
+        Debug_DrawWorldQuad(v, ((s16 *)s)[0x10], ((s16 *)s)[0x11]);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013FE88);
 

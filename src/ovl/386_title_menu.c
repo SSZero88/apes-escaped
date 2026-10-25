@@ -49,6 +49,32 @@ INCLUDE_ASM("asm/ovl/386/nonmatchings/386_title_menu", func_80136D00);
 
 INCLUDE_ASM("asm/ovl/386/nonmatchings/386_title_menu", func_80136F54);
 
-INCLUDE_ASM("asm/ovl/386/nonmatchings/386_title_menu", func_801374E4);
+extern s16 D_80137818;
+extern s16 D_8013781A;
+void func_801375C4(void);
+
+s32 func_801374E4(void) {
+    switch (D_80137818) {
+    case 1:
+        return 0;
+    case 0:
+        func_801375C4();
+        if (--D_8013781A < 0) {
+            D_80137818 = 1;
+            D_8013781A = 0;
+        }
+        return 0;
+    case 2:
+    case 3:
+        func_801375C4();
+        if (++D_8013781A >= 0x1F) {
+            D_80137818 = 1;
+            D_8013781A = 0;
+            return -1;
+        }
+        return 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/386/nonmatchings/386_title_menu", func_801375C4);

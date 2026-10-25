@@ -124,7 +124,28 @@ s32 func_8013DBAC(void *arg0, s16 arg1) {
     return func_80055AA0(arg0, M2C_FIELD(temp_s0, s16 *, 0), M2C_FIELD(temp_s0, s16 *, 4), arg1) != 0;
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013DC34);
+void Object_ApplyVelocity(void *);
+
+s32 func_8013DC34(u8 *o, s32 a) {
+    s32 r = 0;
+
+    if (M2C_FIELD(o, u16 *, 0x8C) != 0) {
+        if (func_8013DBAC(o, a)) {
+            func_8013DB6C(o);
+            r = 1;
+        }
+        Object_ApplyVelocity(o);
+    } else {
+        if (func_80055AA0(o, M2C_FIELD(o, s16 *, 0xBC), M2C_FIELD(o, s16 *, 0xC0), a)) {
+            func_8013DB6C(o);
+            r = 1;
+        }
+        func_8013DAD8(o);
+        M2C_FIELD(o, s32 *, 0x24) += M2C_FIELD(o, s16 *, 0x94);
+        M2C_FIELD(o, s32 *, 0x2C) += M2C_FIELD(o, s16 *, 0x98);
+    }
+    return r;
+}
 
 s32 func_8013DCF8(u8 *a, s32 r) {
     s32 ret = 0;
@@ -496,7 +517,32 @@ void func_8013F9D4(void *arg0) {
     Object_PlaySound(arg0, 0x79);
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013FA50);
+u16 *Collision_GetShape(s16);
+s32 func_800525A0(u8 *, u16 *);
+void func_800573A0_8013FA50(void *, s16, s16, s16) asm("func_800573A0");
+void Object_PlaySound_8013FA50(void *, s32) asm("Object_PlaySound");
+
+s32 func_8013FA50(u8 *o) {
+    u16 *s;
+
+    if ((M2C_FIELD(o, u32 *, 0x50) >> 28) != 11) {
+        return 0;
+    }
+    s = Collision_GetShape(M2C_FIELD(o, u16 *, 0x50) & 0xFFF);
+    func_800525A0(o, s);
+    func_800573A0_8013FA50(o, s[0] - M2C_FIELD(o, u16 *, 0x24), M2C_FIELD(o, u16 *, 0x28) - s[2], s[4] - M2C_FIELD(o, u16 *, 0x2C));
+    Object_PlaySound_8013FA50(o, 0x60);
+    if (M2C_FIELD(o, u8 *, 0x81) != 0) {
+        M2C_FIELD(o, u8 *, 0x84) = 20;
+        M2C_FIELD(o, u8 *, 0x80) = 5;
+        M2C_FIELD(o, u8 *, 0x7F) = 2;
+        M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(o, u8 **, 0x88), u16 *, 0x8);
+    } else {
+        func_8013F984(o);
+        func_8013F9D4(o);
+    }
+    return 1;
+}
 
 void func_8013FB40(void *arg0) {
     if (M2C_FIELD(arg0, u8 *, 0xCF) == 4) {

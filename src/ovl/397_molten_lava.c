@@ -431,7 +431,23 @@ void func_8013F368(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereAt(arg0, &v, 0xC8);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013F3A4);
+extern s32 D_800EC204;
+extern s32 D_800EC208;
+extern s32 D_800EC20C;
+
+s32 func_8013F3A4(u8 *o) {
+    s16 v[4];
+    s32 r;
+
+    func_8013F300(o, v);
+    r = 0;
+    if (ABS(D_800EC204 - v[0]) < 0x80
+        && ABS(D_800EC208 + (500 - M2C_FIELD(o, s32 *, 0x28))) < 0x80
+        && ABS(D_800EC20C - v[2]) < 0x80) {
+        r = 1;
+    }
+    return r;
+}
 
 INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013F484);
 

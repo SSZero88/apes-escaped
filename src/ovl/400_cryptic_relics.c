@@ -207,9 +207,56 @@ s32 func_8013DC70(s32 arg0, s16 arg1) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013DD08);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013DD08 asm("g_Game");
 
-INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013DDD8);
+s32 func_8013DD08(s16 *p) {
+    u8 *e = g_Game_8013DD08.f_820C + p[2] * 0x38;
+
+    M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+    if (p[4] == 0) {
+        p[1] = 0;
+        M2C_FIELD(e, s16 *, 0x14) = 0;
+        M2C_FIELD(e, u16 *, 0x12) &= 0xF0FF;
+    } else {
+        M2C_FIELD(e, u16 *, 0x14) = p[5];
+        M2C_FIELD(e, u16 *, 0x12) &= 0xF0FF;
+        if (p[5] & 0xE) {
+            M2C_FIELD(e, u16 *, 0x12) |= 0x400;
+        } else {
+            M2C_FIELD(e, u16 *, 0x12) |= 0x500;
+        }
+        func_8008FC30(p[6], p);
+        p[1] = 2;
+    }
+    p[3] = 0;
+    return 0;
+}
+
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013DDD8 asm("g_Game");
+
+s32 func_8013DDD8(s16 *p) {
+    u8 *e = g_Game_8013DDD8.f_820C + p[2] * 0x38;
+
+    switch (p[1]) {
+    case 0:
+        M2C_FIELD(e, s16 *, 0x14) = 0;
+        break;
+    case 1:
+        M2C_FIELD(e, u16 *, 0x14) = p[5];
+        M2C_FIELD(e, u16 *, 0x12) &= 0xF0FF;
+        if (p[5] & 0xE) {
+            M2C_FIELD(e, u16 *, 0x12) |= 0x400;
+        } else {
+            M2C_FIELD(e, u16 *, 0x12) |= 0x500;
+        }
+        func_8008FC30(p[6], p);
+        p[1] = 2;
+        break;
+    case 2:
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/400/nonmatchings/400_cryptic_relics", func_8013DE90);
 

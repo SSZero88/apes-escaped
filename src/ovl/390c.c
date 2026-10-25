@@ -58,7 +58,38 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013D238);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013D834);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013D92C);
+extern s16 D_800E3880_8013D92C asm("D_800E3880");
+extern s16 D_800E3884;
+extern s16 D_8013F284;
+void func_8013CD1C(s32, s32);
+
+s32 func_8013D92C(void) {
+    switch (D_800E3880_8013D92C) {
+    case 0:
+        if (D_800E3884 == 10) {
+            MemCard_Request(0xC, 0);
+        } else {
+            func_8013E098();
+            func_8013CD1C(D_8013F284 == 0 ? 0x1D : 0x24, 0);
+        }
+        break;
+    case -7:
+        func_8013CD1C(0x12, 0);
+        break;
+    case -8:
+    case -5:
+        func_8013E098();
+        func_8013CD1C(D_8013F284 == 0 ? 0x1E : 0x24, 0);
+        break;
+    case -2:
+    case -1:
+        func_8013CD1C(0x29, 0);
+        break;
+    case 1:
+        break;
+    }
+    return 0;
+}
 
 extern s16 D_800E3880_8013DA00 asm("D_800E3880");
 void func_8013CD1C(s32, s32);
@@ -82,7 +113,31 @@ s32 func_8013DA00(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DA7C);
+extern s16 D_800E3880_8013DA7C asm("D_800E3880");
+
+s32 func_8013DA7C(void) {
+    switch (D_800E3880_8013DA7C) {
+    case -5:
+        func_8013E098();
+        func_8013CD1C(D_8013F284 == 0 ? 0x25 : 0x24, 0);
+        break;
+    case 0:
+        func_8013E098();
+        func_8013CD1C(D_8013F284 == 0 ? 0x27 : 0x24, 0);
+        break;
+    case -8:
+        func_8013E098();
+        func_8013CD1C(D_8013F284 == 0 ? 0x18 : 0x24, 0);
+        break;
+    case -2:
+    case -1:
+        func_8013CD1C(0x29, 0);
+        break;
+    case 1:
+        break;
+    }
+    return 0;
+}
 
 extern s16 D_800E3880_8013DB48 asm("D_800E3880");
 extern s16 D_8013F284;
@@ -137,7 +192,43 @@ s32 func_8013DBF0(void) {
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DC78);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013DDF0);
+extern s16 D_800E3880_8013DDF0 asm("D_800E3880");
+extern s32 D_8013F288;
+s32 func_8013E114(void);
+
+s32 func_8013DDF0(void) {
+    s32 a;
+
+    switch (D_800E3880_8013DDF0) {
+    case 0:
+        func_8013E098();
+        if (D_8013F284 != 0) {
+            a = 0x24;
+        } else if (func_8013E114() != 0) {
+            a = 0x14;
+        } else {
+            if (D_8013F288 == 0) {
+                func_8013E188(0);
+            }
+            MemCard_Request(0xF, 0);
+            a = 0x21;
+        }
+        func_8013CD1C(a, 0);
+        break;
+    case -7:
+        func_8013CD1C(0x12, 0);
+        break;
+    case -2:
+    case -1:
+        func_8013CD1C(0x2F, 0);
+        break;
+    case -8:
+        break;
+    case 1:
+        break;
+    }
+    return 0;
+}
 
 extern s16 D_800E3880_8013DEB4 asm("D_800E3880");
 extern s32 D_8013F288;
@@ -275,7 +366,25 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013E438);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013E604);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013EB14);
+typedef struct { s16 f0; u16 f2; s16 f4; s16 f6; s16 f8; s16 fA; u16 fC; } Anim_8013EB14;
+typedef struct { u8 pad[0x14]; u16 f14; } Elem_8013EB14;
+extern Anim_8013EB14 D_8013F55C[];
+extern Elem_8013EB14 D_8013F29C[];
+
+s32 func_8013EB14(void) {
+    s32 i;
+
+    for (i = 0; i < 4; i++) {
+        if (++D_8013F55C[i].f8 > D_8013F55C[i].fA) {
+            D_8013F55C[i].f8 = 0;
+            if (++D_8013F55C[i].f4 >= D_8013F55C[i].f6) {
+                D_8013F55C[i].f4 = 0;
+            }
+            D_8013F29C[D_8013F55C[i].f0].f14 = D_8013F55C[i].fC + D_8013F55C[i].f2 * (u16)D_8013F55C[i].f4;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013EBD0);
 

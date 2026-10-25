@@ -40,7 +40,30 @@ s32 func_8013D000(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013D06C);
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013D2A0);
+int abs(int);
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013D2A0 asm("g_Spike");
+extern u8 *D_800B4D64_8013D2A0 asm("D_800B4D64");
+void Model_BindStageMesh(void *, s32);
+
+s32 func_8013D2A0(s16 *p) {
+    switch (p[1]) {
+    case 0:
+        if (abs(g_Spike_8013D2A0.x - 0x620) < 0x3A0 && abs(g_Spike_8013D2A0.y + 0xA00) < 0x100 && abs(g_Spike_8013D2A0.z + 0xDC0) < 0x1C0) {
+            p[1] = 1;
+            Model_BindStageMesh(D_800B4D64_8013D2A0 + p[6] * 32, p[7]);
+        }
+        break;
+    case 1:
+        if (!(abs(g_Spike_8013D2A0.x - 0x620) < 0x3A0 && abs(g_Spike_8013D2A0.y + 0xA00) < 0x100 && abs(g_Spike_8013D2A0.z + 0xDC0) < 0x1C0)) {
+            p[1] = 0;
+            Model_BindStageMesh(D_800B4D64_8013D2A0 + p[6] * 32, p[8]);
+        }
+        break;
+    }
+    return 0;
+}
+
+__asm__(".section .text\n.balign 16");
 
 INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013D3F0);
 
@@ -86,11 +109,70 @@ void func_8013D4E0(s32 ot, s32 arg1, Mdl_422 *m, s32 add) {
     Model_DrawPrims(ot, c, arg1);
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013D63C);
+extern struct { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013D63C asm("g_Game");
+extern u8 D_800E78C0[];
+extern u8 D_800E7D00[];
+void SetRotMatrix(void *m);
+void SetTransMatrix(void *m);
+s32 RotTransPers(void *v0, s32 *sxy, s32 *p, s32 *flag);
+void *ScaleMatrix(void *m, void *v);
+void Matrix_FromDirection(void *, void *);
+void func_80015780(void *, s32);
+void Model_ProjectBonedVerts(void *);
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013D77C);
+s32 func_8013D63C(u8 *a, void *scale, s32 c) {
+    SVECTOR v;
+    s32 sxy;
+    s16 x;
+    s16 y;
+    s32 p;
+    s32 z;
 
-void func_8013D77C(void *, s32, s32, s32, s32);
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    v.vx = M2C_FIELD(a, s32 *, 0x24);
+    v.vy = M2C_FIELD(a, s32 *, 0x28);
+    v.vz = M2C_FIELD(a, s32 *, 0x2C);
+    z = RotTransPers(&v, &sxy, &p, &p);
+    x = sxy;
+    y = sxy >> 16;
+    if (x < -0x80 || x > 0x200 || y < -0x80 || y > 0x1B8 || z > 0x1000 || z <= 0) {
+        return 1;
+    }
+    Matrix_FromDirection(a + 0x60, M2C_FIELD(a, void **, 0x14));
+    ScaleMatrix(M2C_FIELD(a, void **, 0x14), scale);
+    func_80015780(a, 3);
+    Model_ProjectBonedVerts(a);
+    func_8013D4E0(g_Game_8013D63C.f_80 + g_Game_8013D63C.f_C * 0x4078, D_800E7D00, a, c);
+    return 0;
+}
+
+typedef struct { s32 x, y, z; u8 pad_C[0x14]; s16 f_20; s16 pad_22; s16 f_24; s16 f_26; } Shape_8013D77C;
+typedef struct { Shape_8013D77C *shape; s16 x, y, z; } Coll_8013D77C;
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013D77C asm("g_Spike");
+Shape_8013D77C *CollShape_Alloc(void);
+s32 Collision_Set(s32, void *, void *);
+
+void func_8013D77C(Coll_8013D77C *c, void *owner, s32 a2, s16 a3, s16 a4) {
+    s32 dx = g_Spike_8013D77C.x - c->x;
+    s32 dz = g_Spike_8013D77C.z - c->z;
+
+    if (dx * dx + dz * dz > 0x24000) {
+        c->shape = NULL;
+        return;
+    }
+    c->shape = CollShape_Alloc();
+    if (c->shape != NULL) {
+        c->shape->x = c->x;
+        c->shape->y = c->y;
+        c->shape->z = c->z;
+        c->shape->f_20 = a2;
+        c->shape->f_24 = a3 | 1;
+        c->shape->f_26 = a4;
+        Collision_Set(7, c->shape, owner);
+    }
+}
+
 
 void func_8013D890(void *arg0, s32 arg1, s32 arg2, s16 arg3) {
     func_8013D77C(arg0, arg1, arg2, 0, arg3);
@@ -279,7 +361,42 @@ void func_8013EF44(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013EFCC);
+extern struct { s32 f_0; } g_Game_8013EFCC asm("g_Game");
+extern u32 D_80141870;
+extern u8 D_80141860[];
+
+void func_8013EFCC(u8 *a) {
+    s32 c;
+    s32 t;
+
+    if (M2C_FIELD(a, s8 *, 0x90) != 0) {
+        M2C_FIELD(a, s32 *, 0x2C) -= M2C_FIELD(a, s8 *, 0x90);
+        a[0x90] += a[0x91];
+        a[0x91] += 8;
+        if (M2C_FIELD(a, s8 *, 0x90) > 0) {
+            a[0x90] = 0;
+        }
+    }
+    c = 0;
+    if (a[0x86] == 0) {
+        t = (g_Game_8013EFCC.f_0 & 1) * 0xF0;
+        c = t | 0x10000;
+    } else if (a[0x86] == 2) {
+        t = D_80141870 & 0xF;
+        if (t >= 8) {
+            t = 0xF - t;
+        }
+        c = (t << 4) | 0x10000;
+    } else if (a[0x86] < 2) {
+        t = D_80141870 & 7;
+        if (t >= 4) {
+            t = 7 - t;
+        }
+        c = (t << 5) | 0x10000;
+    }
+    func_8013D63C(a, D_80141860, c);
+    D_80141870 = (D_80141870 + 1) & 0xFF;
+}
 
 void func_8013F0E0(void) {
     if (D_80141880.f_2 != 0) {

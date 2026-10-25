@@ -77,7 +77,30 @@ volatile unsigned short func_8013D4C8(void *arg0)
   }
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013D520);
+s32 func_8013D520(u8 *o) {
+    if (!((M2C_FIELD(o, u32 *, 0xE0) >> 11) & 1)) {
+        switch (M2C_FIELD(o, u8 *, 0x80)) {
+        case 5:
+            if (M2C_FIELD(o, u16 *, 0x5C) == *(u16 *)(M2C_FIELD(o, u8 **, 0x88) + M2C_FIELD(o, u8 *, 0x7F) * 4) + 2) {
+                func_8013D430(o, 0x32, 1, 0x203);
+            }
+            break;
+        case 1:
+            func_8013D4C8(o);
+            if (!Spike_WithinRadiusXZ(M2C_FIELD(o, s32 *, 0x24), M2C_FIELD(o, s32 *, 0x2C), 0x400)) {
+                break;
+            }
+        default:
+            func_8013D430(o, 0, 0xB01, 0x200);
+            break;
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+            break;
+        }
+    }
+}
 
 void func_8013D608(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x80) = 7;
@@ -106,7 +129,30 @@ void func_8013DE24(void *arg0, s32 y, s16 lim) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013DE78);
+void func_80058134(void *, s32);
+void func_80055E6C(void *, s16);
+
+void func_8013DE78(u8 *o) {
+    if (!((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1)) {
+        M2C_FIELD(o, s16 *, 0xA0) = 0x32;
+        M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(o, s16 *, 0x48) = 2;
+        M2C_FIELD(o, s16 *, 0x4A) = 0x103;
+        M2C_FIELD(o, s16 *, 0xB0) = 0x16;
+        M2C_FIELD(o, s16 *, 0x44) = 0xDC;
+        M2C_FIELD(o, s16 *, 0x46) = 0xA0;
+        func_80055F1C(o, 0x13);
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    func_80058134(o, M2C_FIELD(o, s16 *, 0x44));
+    if (M2C_FIELD(o, u8 *, 0x80) == 1) {
+        func_80055E6C(o, 0x13);
+        func_8013DE24(o, M2C_FIELD(o, s16 *, 0x9C), 0x1C);
+        Object_ApplyVelocity(o);
+    }
+}
 
 void func_8013DF48(void) {
     s32 var_v1;
@@ -129,7 +175,34 @@ INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E1E0);
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E560);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E688);
+s32 *Collision_GetShape(s16);
+void func_8006B3CC(SVECTOR *);
+s32 func_800525A0(u8 *, s32 *);
+
+void func_8013E688(u8 *o) {
+    SVECTOR v;
+    s32 *s;
+
+    if ((M2C_FIELD(o, u32 *, 0x50) >> 28) == 11) {
+        s = Collision_GetShape(M2C_FIELD(o, u16 *, 0x50) & 0xFFF);
+        v.vx = s[0];
+        v.vy = s[1];
+        v.vz = s[2];
+        func_8006B3CC(&v);
+        Object_PlaySound(o, 0xB7);
+        func_800525A0(o, Collision_GetShape(M2C_FIELD(o, u16 *, 0x50) & 0xFFF));
+        M2C_FIELD(o, u8 *, 0x84) = 20;
+        if (M2C_FIELD(o, u8 *, 0x81) == 0) {
+            M2C_FIELD(o, u8 *, 0x80) = 6;
+            M2C_FIELD(o, u8 *, 0x7F) = 4;
+            M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(o, u8 **, 0x88), u16 *, 0x10);
+            func_80052038(o, 0x78);
+            Object_PlaySound(o, 0xB8);
+        } else {
+            Object_PlaySound(o, 0xB6);
+        }
+    }
+}
 
 extern s32 D_80143160;
 
@@ -378,9 +451,54 @@ void func_801400B0(void *arg0)
   Object_ApplyVelocity_801400B0(arg0, temp_lo);
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_80140150);
+void Object_SetVelocityToward(void *, void *, s32, s16);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_80140214);
+void func_80140150(u8 *o) {
+    s16 v[4];
+    s16 *t = M2C_FIELD(o, s16 **, 0x90);
+
+    v[0] = t[0] - M2C_FIELD(o, u16 *, 0x24);
+    v[1] = 0;
+    v[2] = t[2] - M2C_FIELD(o, u16 *, 0x2C);
+    if (v[2] * 2 + v[0] * v[0] < 400) {
+        M2C_FIELD(o, u8 *, 0x8E) = 1;
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x40;
+        M2C_FIELD(o, s32 *, 0x24) = t[0];
+        M2C_FIELD(o, s32 *, 0x2C) = t[2];
+        M2C_FIELD(o, u8 *, 0x80) = 1;
+    } else {
+        Object_SetVelocityToward(o, v, 0x14, 0x800);
+        Object_ApplyVelocity(o);
+    }
+}
+
+void Object_PlaceAtPathPoint(void *, s32);
+void func_8005866C(void *, s32);
+
+void func_80140214(u8 *o) {
+    M2C_FIELD(o, s16 *, 0xA0) = 300;
+    M2C_FIELD(o, s16 *, 0xB0) = 0x16;
+    M2C_FIELD(o, u8 *, 0xC8) = 0x1B;
+    M2C_FIELD(o, s16 *, 0x48) = 0x400;
+    M2C_FIELD(o, s16 *, 0x4A) = -0x3EFF;
+    M2C_FIELD(o, s16 *, 0x46) = 300;
+    M2C_FIELD(o, s16 *, 0x44) = 0x10E;
+    M2C_FIELD(o, u32 *, 0xE0) |= 0x10000;
+    M2C_FIELD(o, s16 *, 0xA8) = 0;
+    M2C_FIELD(o, u32 *, 0xE0) |= 0x200;
+    M2C_FIELD(o, u8 *, 0x8F) = 0;
+    M2C_FIELD(o, u32 *, 0xE0) &= ~0x40;
+    M2C_FIELD(o, u8 *, 0x8E) = 1;
+    if (M2C_FIELD(o, u16 *, 0x8C) != 0) {
+        Object_PlaceAtPathPoint(o, 0);
+        func_8005866C(o, 1);
+    }
+    func_8013F904();
+    M2C_FIELD(o, u8 *, 0x80) = 1;
+    M2C_FIELD(o, u8 *, 0x7F) = 0;
+    M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
+    func_8013F8A4(o);
+}
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801402E8);
 
@@ -507,7 +625,32 @@ INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_80140F9C);
 
 INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801411B8);
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_801412C4);
+extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Spike_801412C4 asm("g_Spike");
+s32 Vec_Length(s32, s32, s32);
+
+void func_801412C4(u8 *o) {
+    s32 dx;
+    s32 dz;
+    s32 k;
+
+    M2C_FIELD(o, s16 *, 0x96) = -0x62;
+    M2C_FIELD(o, u8 *, 0x80) = 3;
+    if (Spike_WithinRadiusXZ(M2C_FIELD(o, s16 *, 0x9A), M2C_FIELD(o, s16 *, 0x9E), M2C_FIELD(o, s16 *, 0xA6))) {
+        dx = g_Spike_801412C4.x - M2C_FIELD(o, s32 *, 0x24);
+        dz = g_Spike_801412C4.z - M2C_FIELD(o, s32 *, 0x2C);
+    } else {
+        dx = M2C_FIELD(o, s16 *, 0x9A) - M2C_FIELD(o, s32 *, 0x24);
+        dz = M2C_FIELD(o, s16 *, 0x9E) - M2C_FIELD(o, s32 *, 0x2C);
+    }
+    if (ABS(dx) >= 20 || ABS(dz) >= 20) {
+        Vec_Length(dx, 0, dz);
+    }
+    k = 10;
+    M2C_FIELD(o, s16 *, 0xAE) = 0;
+    M2C_FIELD(o, u8 *, 0x8F) = 0;
+    M2C_FIELD(o, s16 *, 0x94) = M2C_FIELD(o, s16 *, 0x60) * k >> 12;
+    M2C_FIELD(o, s16 *, 0x98) = M2C_FIELD(o, s16 *, 0x64) * k >> 12;
+}
 
 void func_801413AC(void *arg0, M2C_UNK arg1) {
     if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s32 *, 0x2C), 0x400) != 0) {

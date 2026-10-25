@@ -428,7 +428,25 @@ void func_8013F3EC(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013F460);
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013F7F8);
+extern struct { u32 f_0; } g_Game_8013F7F8 asm("g_Game");
+extern u16 g_RandSeed;
+void func_80052038_8013F7F8(void *, s32) asm("func_80052038");
+void Puff_Spawn(void *, s32, s32, s32);
+s32 Spike_WithinRadiusXZ_8013F7F8(s32, s32, s32) asm("Spike_WithinRadiusXZ");
+
+void func_8013F7F8(u8 *o, s32 a) {
+    if (a) {
+        func_80052038_8013F7F8(o, 0x12);
+    } else {
+        func_80052038_8013F7F8(o, 0xA7);
+    }
+    Puff_Spawn(o + 0x24, 1, 0, 200);
+    if (Spike_WithinRadiusXZ_8013F7F8(M2C_FIELD(o, s32 *, 0x24), M2C_FIELD(o, s32 *, 0x2C), 0x600)) {
+        if (g_Game_8013F7F8.f_0 % 5 == 0 || (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 3) == 0) {
+            Object_PlaySound(o, 0x5B);
+        }
+    }
+}
 
 extern s32 D_800EC208;
 extern s32 D_801422E0;
@@ -444,7 +462,19 @@ s32 func_8013F8BC(void *arg0) {
     return var_v0;
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013F91C);
+extern s32 D_800EC204;
+extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013F91C asm("g_Spike");
+
+s32 func_8013F91C(u8 *o, s32 r) {
+    s32 ret = 0;
+
+    if (ABS(D_800EC204 - M2C_FIELD(o, s32 *, 0x24)) < r
+        && ABS(g_Spike_8013F91C.y - M2C_FIELD(o, s32 *, 0x28) + 0xD7) < r
+        && ABS(g_Spike_8013F91C.z - M2C_FIELD(o, s32 *, 0x2C)) < r) {
+        ret = 1;
+    }
+    return ret;
+}
 
 extern u16 g_RandSeed;
 

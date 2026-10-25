@@ -45,7 +45,44 @@ INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D1AC);
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D324);
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D43C);
+extern struct { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013D43C asm("g_Game");
+extern u8 D_800E78C0[];
+extern u8 D_800E7D00[];
+void SetRotMatrix(void *m);
+void SetTransMatrix(void *m);
+s32 RotTransPers(void *v0, s32 *sxy, s32 *p, s32 *flag);
+void *ScaleMatrix(void *m, void *v);
+void Matrix_FromDirection(void *, void *);
+void func_80015780(void *, s32);
+void Model_ProjectBonedVerts(void *);
+void func_8013D324(void *, void *, void *, s32);
+
+s32 func_8013D43C(u8 *a, void *scale, s32 c) {
+    SVECTOR v;
+    s32 sxy;
+    s16 x;
+    s16 y;
+    s32 p;
+    s32 z;
+
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    v.vx = M2C_FIELD(a, s32 *, 0x24);
+    v.vy = M2C_FIELD(a, s32 *, 0x28);
+    v.vz = M2C_FIELD(a, s32 *, 0x2C);
+    z = RotTransPers(&v, &sxy, &p, &p);
+    x = sxy;
+    y = sxy >> 16;
+    if (x < -0x80 || x > 0x200 || y < -0x80 || y > 0x1B8 || z > 0x1000 || z <= 0) {
+        return 1;
+    }
+    Matrix_FromDirection(a + 0x60, M2C_FIELD(a, void **, 0x14));
+    ScaleMatrix(M2C_FIELD(a, void **, 0x14), scale);
+    func_80015780(a, 3);
+    Model_ProjectBonedVerts(a);
+    func_8013D324(g_Game_8013D43C.f_80 + g_Game_8013D43C.f_C * 0x4078, D_800E7D00, a, c);
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D57C);
 
@@ -99,7 +136,42 @@ void func_8013E4D8(void) {
     D_80140CF8 = 0;
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013E500);
+typedef struct {
+    SVECTOR pos;
+    s32 f_8;
+    SVECTOR vel;
+    SVECTOR vel0;
+    u8 f_1C;
+    u8 f_1D;
+    s16 f_1E;
+    u8 f_20;
+    u8 f_21;
+    u8 pad_22[2];
+} Spark_8013E500;
+extern Spark_8013E500 D_80140AB8_E500[] asm("D_80140AB8");
+
+void func_8013E500(SVECTOR *pos, s32 a1, s32 rnd, u8 a3, u8 a4) {
+    Spark_8013E500 *e = &D_80140AB8_E500[D_80140CF8];
+
+    e->f_1C = 8;
+    e->f_1D = 1;
+    e->pos = *pos;
+    e->f_8 = a1;
+    e->f_1E = ((g_RandSeed = g_RandSeed * 5 + 1) >> 4) & 0xFF0;
+    e->f_20 = a3;
+    e->f_21 = a4;
+    if (rnd == 0) {
+        e->vel.vx = 0;
+        e->vel.vy = 0;
+        e->vel.vz = 0;
+    } else {
+        e->vel.vx = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x1F) - 0x10;
+        e->vel.vy = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0xF) - 7;
+        e->vel.vz = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x1F) - 0x10;
+    }
+    e->vel0 = e->vel;
+    D_80140CF8 = (D_80140CF8 + 1) % 16;
+}
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013E650);
 

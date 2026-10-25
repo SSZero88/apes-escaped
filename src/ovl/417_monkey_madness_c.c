@@ -138,7 +138,45 @@ void func_8013D8F0(void *arg0, s32 a) {
     M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(arg0, u8 *, 0x71) * 4 + M2C_FIELD(arg0, u8 **, 0x74));
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D910);
+typedef struct { u8 b[0x84]; } O_8013D910;
+extern O_8013D910 D_80140A60[];
+void func_80052038(void *, s32);
+u8 *func_800520A8(void *, s32);
+
+void func_8013D910(void) {
+    u8 *o;
+    s32 i;
+    s32 m;
+
+    for (i = 4; i >= 0; i--) {
+        o = D_80140A60[i].b;
+        switch (i % 3) {
+        case 0:
+            m = 0x5F;
+            break;
+        case 1:
+            m = 0x61;
+            break;
+        case 2:
+            m = 0x63;
+            break;
+        }
+        func_80052038(o, m);
+        M2C_FIELD(o, u8 **, 0x74) = func_800520A8(o, 0x5F);
+        M2C_FIELD(o, s16 *, 0x44) = 0x50;
+        M2C_FIELD(o, s16 *, 0x46) = 0x82;
+        M2C_FIELD(o, s16 *, 0x66) = 3;
+        M2C_FIELD(o, s16 *, 0x4A) = 0x8103;
+        M2C_FIELD(o, s16 *, 0x48) = 1;
+        o[0x70] = i;
+        o[0x73] = 0;
+        o[0x72] = 1;
+        o[0x7A] = 0;
+        o[0x7D] = i * 0x33;
+        M2C_FIELD(o, s8 *, 0x7E) = -1;
+        func_8013D8F0(o, 0);
+    }
+}
 
 void func_8013DA44(void *arg0) {
     if (M2C_FIELD(arg0, s8 *, 0x7E) == -1) {
@@ -530,7 +568,63 @@ s32 func_80140264(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_80140278);
+extern struct { u8 pad_0[0x8120]; u16 f_8120; } g_Game_80140278 asm("g_Game");
+extern s32 D_800EC20C;
+s32 Overlay_GetState(void);
+void Overlay_Request(s8);
+s32 Sound_UnloadBanks(s32);
+s32 func_800863B0(s32, s32);
+void func_8008745C(void);
+
+s32 func_80140278(s16 *p) {
+    if (g_Game_80140278.f_8120 == 0x13) {
+        return 0;
+    }
+    switch (p[1]) {
+    case 0:
+        if (D_800EC20C < -0x7FF) {
+            return 0;
+        }
+        p[1] = 1;
+        p[3] = 0;
+        func_800863B0(2, 0x28);
+        Overlay_Request(2);
+        return 0;
+    case 1:
+        if (Overlay_GetState() != 0) {
+            return 0;
+        }
+        func_800863B0(0, 0);
+        p[1] = 3;
+        p[7] = 0;
+        break;
+    case 2:
+        if (D_800EC20C < -0x7FF) {
+            return 0;
+        }
+        p[1] = 3;
+        p[7] = 0;
+        break;
+    case 3:
+        if (p[7] != 0) {
+            p[1] = 4;
+            Sound_UnloadBanks(2);
+            Overlay_Request(3);
+            return 0;
+        }
+        break;
+    case 4:
+        if (Overlay_GetState() != 0) {
+            return 0;
+        }
+        p[1] = 5;
+        func_8008745C();
+        break;
+    case 5:
+        break;
+    }
+    return 0;
+}
 
 s32 func_801403BC(void) {
     return 0;

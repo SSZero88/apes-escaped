@@ -72,9 +72,32 @@ void func_8013D0A0(s32 ot, s32 arg1, Mdl_422 *m, s32 add) {
     Model_DrawPrims(ot, c, arg1);
 }
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013D1FC);
+typedef struct { s32 x, y, z; u8 pad_C[0x14]; s16 f_20; s16 pad_22; s16 f_24; s16 f_26; } Shape_8013D3EC;
+typedef struct { Shape_8013D3EC *shape; s16 x, y, z; } Coll_8013D3EC;
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013D3EC asm("g_Spike");
+Shape_8013D3EC *CollShape_Alloc(void);
+s32 Collision_Set(s32, void *, void *);
 
-void func_8013D1FC(void *, s32, s32, s32, s32);
+void func_8013D1FC(Coll_8013D3EC *c, void *owner, s32 a2, s16 a3, s16 a4) {
+    s32 dx = g_Spike_8013D3EC.x - c->x;
+    s32 dz = g_Spike_8013D3EC.z - c->z;
+
+    if (dx * dx + dz * dz > 0x24000) {
+        c->shape = NULL;
+        return;
+    }
+    c->shape = CollShape_Alloc();
+    if (c->shape != NULL) {
+        c->shape->x = c->x;
+        c->shape->y = c->y;
+        c->shape->z = c->z;
+        c->shape->f_20 = a2;
+        c->shape->f_24 = a3 | 1;
+        c->shape->f_26 = a4;
+        Collision_Set(7, c->shape, owner);
+    }
+}
+
 
 void func_8013D310(void *arg0, s32 arg1, s32 arg2, s16 arg3) {
     func_8013D1FC(arg0, arg1, arg2, 0, arg3);
@@ -186,7 +209,35 @@ void func_8013E020(void) {
     } while (var_v1 >= 0);
 }
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013E044);
+typedef struct { u8 pad0[4]; s16 x, y, z; u8 f_A; u8 f_B; SVECTOR f_C; s16 dx, dy, dz; u8 f_1A; u8 pad1B; } Ent_8013E044;
+extern Ent_8013E044 D_801427A0_8013E044[1] asm("D_801427A0");
+void VectorNormalSS(void *, void *);
+
+void func_8013E044(SVECTOR *pos) {
+    s32 i;
+    Ent_8013E044 *e;
+
+    i = 0;
+    e = D_801427A0_8013E044;
+    do {
+        if (e->f_A == 0) {
+            e->f_A = 1;
+            e->f_B = 0;
+            e->f_1A = 0;
+            e->x = pos->vx;
+            e->y = pos->vy;
+            e->z = pos->vz;
+            e->f_C = *pos;
+            e->dx = -0x100 - pos->vx;
+            e->dy = -0xA00 - pos->vy;
+            e->dz = -0x100 - pos->vz;
+            VectorNormalSS(&e->dx, &e->dx);
+            return;
+        }
+        i--;
+        e++;
+    } while (i >= 0);
+}
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013E120);
 
@@ -271,7 +322,29 @@ void func_8013FFFC(void) {
     } while (var_v1 >= 0);
 }
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_80140020);
+typedef struct { s32 f_0; u8 pad4[6]; u8 f_A; u8 f_B; u8 padC[8]; s32 f_14; s32 f_18; s16 f_1C; u8 pad1E[2]; } Rock_80140020;
+extern Rock_80140020 D_80142940_80140020[4] asm("D_80142940");
+extern u16 g_RandSeed_80140020 asm("g_RandSeed");
+#define RAND_80140020() (g_RandSeed_80140020 = g_RandSeed_80140020 * 5 + 1)
+
+s32 func_80140020(void) {
+    s32 i;
+    Rock_80140020 *e;
+
+    for (i = 3, e = D_80142940_80140020; i >= 0; i--, e++) {
+        if (e->f_B == 0) {
+            e->f_B = 1;
+            e->f_A = 0;
+            e->f_18 = (RAND_80140020() >> 4) & 0xFF0;
+            e->f_1C = ((RAND_80140020() >> 2) & 0xC0) - 0x60;
+            e->f_14 = (RAND_80140020() >> 4) & 0xFF0;
+            e->f_0 = 0;
+            Sound_PlayFixed(0x8E);
+            return 0;
+        }
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_801400F4);
 

@@ -155,7 +155,27 @@ INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80137EF8);
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138428);
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_801388A4);
+s32 func_801388A4(void) {
+    u8 *p = G_DRAW.prim;
+
+    p[3] = 4;
+    p[7] = 0x65;
+    M2C_FIELD(p, u16 *, 0xE) = 0x3F5C;
+    M2C_FIELD(p, s16 *, 0x8) = 0x28;
+    M2C_FIELD(p, s16 *, 0xA) = 0x58;
+    M2C_FIELD(p, s16 *, 0x10) = 0x80;
+    M2C_FIELD(p, s16 *, 0x12) = 0x60;
+    p[0xC] = 0;
+    p[0xD] = 0;
+    ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$5", "$3");
+    p += 0x14;
+    p[3] = 1;
+    M2C_FIELD(p, u32 *, 4) = 0xE1000289;
+    ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$5", "$3");
+    p += 8;
+    G_DRAW.prim = p;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138978);
 
@@ -175,4 +195,44 @@ INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138AEC);
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138C44);
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138D7C);
+typedef struct { s16 x, y, w, h; } RECT_80138D7C;
+extern char D_80138EDC[];
+void LoadImage2(RECT_80138D7C *, u32 *);
+void bios_printf(char *, ...);
+s32 DrawSync(s32);
+
+s32 func_80138D7C(void) {
+    u32 *p;
+    RECT_80138D7C r1;
+    RECT_80138D7C r2;
+
+    p = D_80139478;
+    r2.x = 0x1C0;
+    r2.y = 0xFD;
+    r2.w = 0x100;
+    r2.h = 1;
+    r1.x = 0x240;
+    r1.w = 0x40;
+    r1.y = 0;
+    r1.h = 0x80;
+    if (*p == 0x10) {
+        p++;
+        switch (*p & 0xF) {
+        case 2:
+            LoadImage2(&r1, p + 4);
+            break;
+        case 8:
+        case 9:
+            p++;
+            LoadImage2(&r2, p + 3);
+            p += *p >> 2;
+            LoadImage2(&r1, p + 3);
+            break;
+        default:
+            bios_printf(D_80138EDC, *p);
+            break;
+        }
+    }
+    DrawSync(0);
+    return 0;
+}

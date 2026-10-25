@@ -307,7 +307,28 @@ void func_8013EBD4(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013EC88);
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013EE4C);
+void func_8013EE4C(u8 *o) {
+    switch (M2C_FIELD(o, u8 *, 0x7F)) {
+    case 9:
+        M2C_FIELD(o, u8 *, 0x7F) = 8;
+        M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(o, u8 **, 0x88), u16 *, 0x20);
+        M2C_FIELD(o, u8 *, 0xC8) = 12;
+        M2C_FIELD(o, u8 *, 0xDD) = 1;
+        M2C_FIELD(o, u8 *, 0x8F) = 0;
+        func_8013E2A4(o, 1);
+        Object_PlaySound(o, 0x14);
+        break;
+    case 8:
+        if (++M2C_FIELD(o, u8 *, 0x8F) == 1) {
+            M2C_FIELD(o, u8 *, 0x7F) = 7;
+            M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(M2C_FIELD(o, u8 **, 0x88), u16 *, 0x1C);
+        }
+        break;
+    case 7:
+        func_8013E980(o);
+        break;
+    }
+}
 
 void Effect_SpawnAt(s32, SVECTOR *);
 s32 rcos_8013EF18(s32) asm("rcos");

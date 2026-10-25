@@ -645,11 +645,65 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80140C00);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80140CB4);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80140E1C);
+typedef struct { s16 f[12]; } S18_80140E1C;
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; S18_80140E1C *f_8220; } g_Game_80140E1C asm("g_Game");
+
+s32 func_80140E1C(s16 *p) {
+    u8 *e = g_Game_80140E1C.f_820C + p[2] * 0x38;
+    S18_80140E1C *t;
+    s32 x;
+
+    M2C_FIELD(e, s16 *, 0x24) = M2C_FIELD(e, s16 *, 0);
+    M2C_FIELD(e, s16 *, 0x26) = M2C_FIELD(e, s16 *, 2);
+    M2C_FIELD(e, s16 *, 0x28) = M2C_FIELD(e, s16 *, 4);
+    p[1] = 0;
+    p[3] = 0;
+    if (p[4] >= 0) {
+        t = g_Game_80140E1C.f_8220 + p[4];
+        e = g_Game_80140E1C.f_820C + t->f[2] * 0x38;
+        p[8] = M2C_FIELD(e, s16 *, 0x24);
+        p[9] = M2C_FIELD(e, s16 *, 0x26);
+        x = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) * 0x740) / 256;
+        p[10] = x - 0x3A0;
+        if (p[10] < 0) {
+            p[10] = x - 0x520;
+        } else {
+            p[10] = x - 0x220;
+        }
+        p[10] += 0x80;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80140F24);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8014143C);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; struct S18_8014143C { s16 f[12]; } *f_8220; } g_Game_8014143C asm("g_Game");
+extern u8 *D_800B4D64_8014143C asm("D_800B4D64");
+void func_800147D0(s16 *, void *);
+
+s32 func_8014143C(s16 *p) {
+    u8 *e = g_Game_8014143C.f_820C + p[2] * 0x38;
+    s16 v[3];
+    struct S18_8014143C *t;
+
+    p[1] = 0;
+    p[3] = 0;
+    p[9] = p[6];
+    p[10] = M2C_FIELD(e, s16 *, 0xA);
+    p[11] = -1;
+    if (p[4] >= 0) {
+        t = g_Game_8014143C.f_8220 + p[4];
+        t->f[3] = p[5];
+    }
+    if (M2C_FIELD(e, s16 *, 0xE) > 0) {
+        v[1] = 0x1000;
+        v[0] = 0x1000;
+        v[2] = p[9];
+        func_800147D0(v, M2C_FIELD(D_800B4D64_8014143C + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
+        M2C_FIELD(e, s16 *, 0xA) = (p[10] * p[9]) / 4096;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8014153C);
 
@@ -846,7 +900,48 @@ INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8014281C);
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142908);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142ACC);
+extern struct { u8 pad_0[0x8126]; u16 f_8126; u8 pad_8128[0xE4]; u8 *f_820C; } g_Game_80142ACC asm("g_Game");
+extern u8 *D_800B4D64_80142ACC asm("D_800B4D64");
+extern s16 D_800AFA24;
+
+s32 func_80142ACC(s16 *p) {
+    s16 flag;
+    u8 *e;
+
+    if (g_Game_80142ACC.f_8126 == 0x50) {
+        flag = D_800AFA24;
+    } else {
+        flag = SaveByte_Get(0xD) == 5;
+    }
+    e = g_Game_80142ACC.f_820C + p[2] * 0x38;
+    if (p[4] == 0) {
+        if (flag == 1) {
+            return 0;
+        }
+        M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+        if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+            M2C_FIELD(D_800B4D64_80142ACC + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+        }
+    } else if (p[4] == 1) {
+        if (flag == 0) {
+            return 0;
+        }
+        M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+        if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+            M2C_FIELD(D_800B4D64_80142ACC + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
+        }
+    } else {
+        if (flag != 1) {
+            return 0;
+        }
+        if (p[5] == 0) {
+            return 0;
+        }
+        M2C_FIELD(e, s16 *, 0) += p[5];
+        M2C_FIELD(D_800B4D64_80142ACC + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x10) += p[5];
+    }
+    return 0;
+}
 
 extern struct S_g_Game_801426B4 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_801426B4 asm("g_Game");
 
@@ -863,9 +958,59 @@ s32 func_80142C10(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142C9C);
+extern struct { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x4C]; u16 f_8150; u8 pad_8152[0xCE]; struct S18_80142C9C { s16 f[12]; } *f_8220; } g_Game_80142C9C asm("g_Game");
+void CamFlyby_StartSegment(s32);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80142D9C);
+s32 func_80142C9C(s16 *p) {
+    struct S18_80142C9C *t;
+
+    switch (p[1]) {
+    case 0:
+        t = g_Game_80142C9C.f_8220 + p[4];
+        if (t->f[11] > p[5]) {
+            if (g_Game_80142C9C.f_8150 == 8) {
+                p[1] = 1;
+            }
+        }
+        break;
+    case 1:
+        if (g_Game_80142C9C.f_8150 == 0) {
+            func_8008FC30(p[7], p);
+            func_8008FC30(p[8], p);
+            if (p[6] > 0) {
+                CamFlyby_StartSegment(p[6] - 1);
+                g_Game_80142C9C.f_8100 = 7;
+            }
+            p[1] = 2;
+        }
+        break;
+    case 2:
+        break;
+    }
+    return 0;
+}
+
+typedef struct { s16 f[12]; } S18_80142D9C;
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; S18_80142D9C *f_8220; } g_Game_80142D9C asm("g_Game");
+
+s32 func_80142D9C(s16 *p) {
+    S18_80142D9C *t = g_Game_80142D9C.f_8220 + p[4];
+    u8 *e;
+
+    if (t->f[1] == 1 || SaveByte_Get(0xD) == 5) {
+        p[1] = 2;
+        t = g_Game_80142D9C.f_8220 + p[6];
+        t->f[1] = 0;
+    } else {
+        p[1] = 0;
+        t = g_Game_80142D9C.f_8220 + p[6];
+        t->f[1] = 3;
+    }
+    e = g_Game_80142D9C.f_820C + t->f[2] * 0x38;
+    M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+    p[3] = -1;
+    return 0;
+}
 
 extern struct S_g_Game_80142EA0 { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x11C]; u8 *f_8220; } g_Game_80142EA0 asm("g_Game");
 extern s32 D_800EC204;
@@ -942,9 +1087,67 @@ s32 func_80143600(s16 *p) {
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8014369C);
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_801437B4);
+typedef struct { s16 f[12]; } S18_801437B4;
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; S18_801437B4 *f_8220; } g_Game_801437B4 asm("g_Game");
+extern u8 *D_800B4D64_801437B4 asm("D_800B4D64");
+extern s16 D_800AFA24;
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_801438E8);
+s32 func_801437B4(s16 *p) {
+    u8 *e;
+    S18_801437B4 *t;
+
+    if (p[2] >= 0) {
+        e = g_Game_801437B4.f_820C + p[2] * 0x38;
+    }
+    t = g_Game_801437B4.f_8220 + p[4];
+    if (t->f[1] == 1 || D_800AFA24 == 1) {
+        p[1] = 1;
+        if (p[5] == 0) {
+            M2C_FIELD(D_800B4D64_801437B4 + p[6] * 32, s16 *, 0x16) = 0;
+            if (p[2] >= 0) {
+                M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+            }
+        } else if (p[5] == 2) {
+            Model_BindStageMesh(D_800B4D64_801437B4 + p[6] * 32, p[7]);
+        }
+    } else {
+        p[1] = 0;
+        if (p[5] == 1) {
+            M2C_FIELD(D_800B4D64_801437B4 + p[6] * 32, s16 *, 0x16) = 0;
+        }
+    }
+    return 0;
+}
+
+typedef struct { s16 f[12]; } S18_801438E8;
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; S18_801438E8 *f_8220; } g_Game_801438E8 asm("g_Game");
+extern u8 *D_800B4D64_801438E8 asm("D_800B4D64");
+
+s32 func_801438E8(s16 *p) {
+    u8 *e;
+    S18_801438E8 *t;
+
+    if (p[2] >= 0) {
+        e = g_Game_801438E8.f_820C + p[2] * 0x38;
+    }
+    if (p[1] == 0) {
+        t = g_Game_801438E8.f_8220 + p[4];
+        if (t->f[1] == 1 || D_800AFA24 == 1) {
+            p[1] = 1;
+            if (p[5] == 0) {
+                M2C_FIELD(D_800B4D64_801438E8 + p[6] * 32, s16 *, 0x16) = 0;
+                if (p[2] >= 0) {
+                    M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+                }
+            } else if (p[5] == 2) {
+                Model_BindStageMesh(D_800B4D64_801438E8 + p[6] * 32, p[7]);
+            } else {
+                M2C_FIELD(D_800B4D64_801438E8 + p[6] * 32, u16 *, 0x16) = 0xFFFF;
+            }
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80143A1C);
 

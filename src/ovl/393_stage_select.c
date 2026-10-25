@@ -23,7 +23,34 @@ INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_801375C0);
 
 INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_80137714);
 
-INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_8013786C);
+extern u8 g_Game[];
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_8013786C;
+extern Mat_8013786C D_800E78C0_8013786C asm("D_800E78C0");
+extern u8 D_800E7D00_8013786C[] asm("D_800E7D00");
+void func_8004637C(Mat_8013786C *);
+void RotMatrix(void *, Mat_8013786C *);
+void CompMatrix(Mat_8013786C *, Mat_8013786C *, Mat_8013786C *);
+void Model_ProjectVerts(void *, Mat_8013786C *, void *);
+void Model_CalcEnvMapUVs64(void *);
+void func_8001CE54(void *, void *, void *);
+
+void func_8013786C(s16 *pos, void *rot, void *mdl) {
+    Mat_8013786C m;
+    u8 *sc = (u8 *)0x1F800000;
+
+    sc[0x3F4] = 1;
+    *(s16 *)(sc + 0x3C6) = 0;
+    *(s16 *)(sc + 0x3C4) = 0;
+    func_8004637C(&m);
+    m.t[2] = pos[2];
+    m.t[0] = pos[0];
+    m.t[1] = pos[1];
+    RotMatrix(rot, &m);
+    CompMatrix(&D_800E78C0_8013786C, &m, &m);
+    Model_ProjectVerts(mdl, &m, D_800E7D00_8013786C);
+    Model_CalcEnvMapUVs64(mdl);
+    func_8001CE54(g_Game + 0x80 + G_DRAW.cur * 0x4078, D_800E7D00_8013786C, mdl);
+}
 
 INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_80137950);
 
@@ -124,6 +151,29 @@ s32 func_8013882C(u8 *s) {
     return w;
 }
 
-INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_8013886C);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; } Tile1_8013886C;
+
+void func_8013886C(void) {
+    s32 seed = 0;
+    s32 i;
+    s32 x;
+    Tile1_8013886C *p;
+    u32 *ot;
+
+    p = (Tile1_8013886C *)G_DRAW.prim;
+    ot = &G_DRAW.db[G_DRAW.cur].ot[0xFFF];
+    for (i = 0; i < 300; i++) {
+        x = seed = (seed * 87 + 1) & 0x1FF;
+        seed = (seed * 87 + 1) & 0x1FF;
+        *(u32 *)&p->r0 = 0xFFFFFF;
+        ((u8 *)p)[3] = 2;
+        p->code = 0x68;
+        p->x0 = x;
+        p->y0 = seed;
+        ADD_PRIM_ASM(ot, p);
+        p++;
+    }
+    G_DRAW.prim = (u8 *)p;
+}
 
 INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_8013893C);

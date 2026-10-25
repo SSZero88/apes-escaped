@@ -268,7 +268,44 @@ INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80137E4C);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013829C);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_801383E0);
+extern s16 D_800E3880_801383E0 asm("D_800E3880");
+extern s16 D_800E3884;
+extern s16 D_8013AF64;
+void func_8013784C(s32, s32);
+
+s32 func_801383E0(void) {
+    switch (D_800E3880_801383E0) {
+    case 0:
+        D_8013AF64 = 0;
+        if (D_800E3884 == 0) {
+            MemCard_Request(1, 0);
+        } else {
+            func_8013784C(1, 5);
+        }
+        break;
+    case -5:
+    case -4:
+        D_8013AF64 = 0;
+        func_8013784C(1, 2);
+        break;
+    case -8:
+        D_8013AF64 = 1;
+        func_8013784C(1, 2);
+        break;
+    case -7:
+        D_8013AF64 = 0;
+        func_8013784C(2, 0);
+        break;
+    case -2:
+    case -1:
+        D_8013AF64 = 0;
+        func_8013784C(0x29, 0);
+        break;
+    case 1:
+        break;
+    }
+    return 0;
+}
 
 extern s16 D_800E3880_801384BC asm("D_800E3880");
 void func_8013784C(s32, s32);
@@ -290,9 +327,70 @@ s32 func_801384BC(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80138524);
+extern s16 D_800E3880_80138524 asm("D_800E3880");
+extern s16 D_800E3886;
+extern u8 D_800E1A00[];
+void func_8001078C(void *);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_801385EC);
+s32 func_80138524(void) {
+    switch (D_800E3880_80138524) {
+    case 0:
+        func_8013784C(8, 0);
+        func_8001078C(D_800E1A00 + D_800E3886 * 0x7A0);
+        MemCard_Request(2, 0);
+        break;
+    case -7:
+        func_8013784C(2, 0);
+        break;
+    case -8:
+        func_8013784C(4, 0);
+        break;
+    case -4:
+        func_8013784C(9, 0);
+        break;
+    case -2:
+    case -1:
+        func_8013784C(0x2B, 0);
+        break;
+    case 1:
+        break;
+    }
+    return 0;
+}
+
+extern struct { s16 f_0; s16 pad_2; s16 f_4; s16 f_6; } D_800E3880_801385EC asm("D_800E3880");
+
+s32 func_801385EC(void) {
+    switch (D_800E3880_801385EC.f_0) {
+    case -5:
+        MemCard_Request(5, 0);
+        break;
+    case 0:
+        if (D_800E3880_801385EC.f_4 == 5) {
+            func_8001078C(D_800E1A00 + D_800E3880_801385EC.f_6 * 0x7A0);
+            MemCard_Request(2, 0);
+        } else {
+            func_8013784C(0xB, 0);
+        }
+        break;
+    case -7:
+        func_8013784C(2, 0);
+        break;
+    case -8:
+        func_8013784C(4, 0);
+        break;
+    case -4:
+        func_8013784C(9, 0);
+        break;
+    case -2:
+    case -1:
+        func_8013784C(0x2B, 0);
+        break;
+    case 1:
+        break;
+    }
+    return 0;
+}
 
 extern s16 D_800E3880_801386CC asm("D_800E3880");
 
@@ -316,7 +414,34 @@ s32 func_801386CC(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80138744);
+extern s16 D_800E3880_80138744 asm("D_800E3880");
+
+s32 func_80138744(void) {
+    switch (D_800E3880_80138744) {
+    case 0:
+        D_8013AF64 = 0;
+        func_8013784C(1, 5);
+        break;
+    case -5:
+        D_8013AF64 = 0;
+        func_8013784C(1, 2);
+        MemCard_Request(7, 0);
+        break;
+    case -8:
+        D_8013AF64 = 1;
+        func_8013784C(1, 2);
+        MemCard_Request(7, 0);
+        break;
+    case -2:
+    case -1:
+        D_8013AF64 = 0;
+        func_8013784C(0x29, 0);
+        break;
+    case 1:
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_801387FC);
 
@@ -378,7 +503,31 @@ s32 func_8013A43C(void) {
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013A478);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013A634);
+extern s16 D_8013AF68;
+void func_8013A70C(void);
+
+s32 func_8013A634(void) {
+    switch (D_8013AF66) {
+    case 1:
+        return 0;
+    case 0:
+        func_8013A70C();
+        if (--D_8013AF68 < 0) {
+            D_8013AF66 = 1;
+            D_8013AF68 = 0;
+        }
+        return 0;
+    case 2:
+        func_8013A70C();
+        if (++D_8013AF68 >= 0x1F) {
+            D_8013AF66 = 1;
+            D_8013AF68 = 0;
+            return -1;
+        }
+        return 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013A70C);
 

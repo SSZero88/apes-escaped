@@ -248,6 +248,65 @@ void func_80138E20(void) {
 
 INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80138F38);
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_801392B0);
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_801392B0;
+typedef struct { u8 pad_0[4]; s16 x, y, z; u8 pad_A[0xB]; u8 rot; } Obj_801392B0;
+typedef struct { u8 *f0; u8 pad[0xC]; } Mdl_801392B0;
+extern Mdl_801392B0 D_800F4C30[];
+extern u8 D_800E7D00_801392B0[] asm("D_800E7D00");
+extern void *D_800EC358;
+void Matrix_RotateY(s32, Mat_801392B0 *);
+void Model_ProjectVerts(Mdl_801392B0 *, Mat_801392B0 *, void *);
+void Model_CalcEnvMapUVs64(Mdl_801392B0 *);
+void func_8001CE54(void *, void *, Mdl_801392B0 *);
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_8013939C);
+void func_801392B0(s32 id, Obj_801392B0 *o) {
+    Mat_801392B0 m;
+    Mdl_801392B0 *mdl;
+    void *buf;
+
+    func_8004637C(&m);
+    m.t[0] = o->x;
+    m.t[1] = o->y;
+    m.t[2] = o->z;
+    Matrix_RotateY(o->rot << 6, &m);
+    CompMatrix(&D_800E78C0, &m, &m);
+    mdl = &D_800F4C30[id];
+    buf = *(u16 *)(mdl->f0 + 0xA) != 0 ? (void *)0x1F800080 : D_800E7D00_801392B0;
+    Model_ProjectVerts(mdl, &m, buf);
+    Model_CalcEnvMapUVs64(mdl);
+    *(u8 *)0x1F8003F4 = 2;
+    func_8001CE54(D_800EC358, buf, mdl);
+}
+
+extern struct { u8 f_0; u8 pad_1[0x8125]; u16 f_8126; } g_Game_8013939C asm("g_Game");
+typedef struct { u8 pad_0[4]; s16 x, y, z; u8 pad_A[0xB]; u8 rot; u8 pad_16[2]; } Obj_8013939C;
+s32 func_800964B0(s32);
+
+void func_8013939C(void) {
+    Obj_8013939C o;
+    s32 i;
+    u16 mode = g_Game_8013939C.f_8126;
+
+    switch (mode) {
+    case 0x13:
+        if ((func_800964B0(0x13) & 0x18) != 0x18) {
+            return;
+        }
+        break;
+    case 0x24:
+        if ((func_800964B0(0x24) & 0x18) != 0x18) {
+            return;
+        }
+        break;
+    }
+    for (i = 0; i < 5; i++) {
+        o.x = i * 0x100 - 0x200;
+        o.y = 0;
+        o.z = 0x500;
+        o.rot = g_Game_8013939C.f_0 + i * 8;
+        func_801392B0(0xD, &o);
+    }
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop");

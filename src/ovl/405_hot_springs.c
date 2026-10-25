@@ -43,7 +43,20 @@ void func_8013D000(void *arg0, s32 dx, s32 dy, s32 dz) {
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D100);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D230);
+s16 Object_FloorAt(void *, s16, s16, s16);
+
+s32 func_8013D230(u8 *o) {
+    s32 c = rcos(M2C_FIELD(o, s16 *, 0xAA)) * 200 >> 12;
+    s32 s = rsin(M2C_FIELD(o, s16 *, 0xAA)) * 200 >> 12;
+    s32 d = M2C_FIELD(o, s16 *, 0x9C) - Object_FloorAt(o, M2C_FIELD(o, u16 *, 0x94) + c, 0, M2C_FIELD(o, u16 *, 0x98) + s);
+
+    if (ABS(d) > 200) {
+        M2C_FIELD(o, s16 *, 0x94) = 0;
+        M2C_FIELD(o, s16 *, 0x98) = 0;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D2FC);
 
@@ -77,7 +90,25 @@ INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D5BC);
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D7AC);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D904);
+extern struct { u32 f_0; } g_Game_8013D904 asm("g_Game");
+
+void func_8013D904(u8 *o) {
+    s32 a;
+
+    if (M2C_FIELD(o, u8 *, 0x7F) == 4
+        || (M2C_FIELD(o, u8 *, 0x7F) == 10 && g_Game_8013D904.f_0 % 6 < 3
+            && *(u16 *)(M2C_FIELD(o, u8 **, 0x88) + M2C_FIELD(o, u8 *, 0x7F) * 4) + 20 < M2C_FIELD(o, u16 *, 0x5C))) {
+        a = 0x9D;
+    } else if (M2C_FIELD(o, u8 *, 0x7F) == 6 || M2C_FIELD(o, u8 *, 0x7F) == 12 || M2C_FIELD(o, u8 *, 0x7F) == 8) {
+        a = 0x9E;
+    } else {
+        a = 9;
+    }
+    if (a != M2C_FIELD(o, u8 *, 0xDD)) {
+        func_80052038(o, a);
+        M2C_FIELD(o, u8 *, 0xDD) = a;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D9EC);
 

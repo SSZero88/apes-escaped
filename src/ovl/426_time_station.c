@@ -77,7 +77,29 @@ INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013D208);
 
 INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013D5C0);
 
-INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013D7E8);
+extern struct { u8 pad_0[0x220]; u8 *f_220; } D_800F4350_8013D7E8 asm("D_800F4350");
+typedef struct { u8 pad_0[0x7A]; u8 f_7A; u8 pad_7B[0x250 - 0x7B]; } Monkey_8013D7E8;
+extern Monkey_8013D7E8 g_Monkeys_8013D7E8[] asm("g_Monkeys");
+
+s32 func_8013D7E8(s16 *p) {
+    s32 n = 0;
+    s32 i;
+    s16 *t;
+
+    for (i = 2; i < 8; i++) {
+        t = (s16 *)(D_800F4350_8013D7E8.f_220 + p[i + 4] * 0x18);
+        if (t[1] != 0) {
+            if (t[4] != 0) {
+                g_Monkeys_8013D7E8[t[4] - 1].f_7A = 2;
+            }
+            n++;
+        }
+    }
+    if (n == 3) {
+        func_8008FC30(p[5], p);
+    }
+    return 0;
+}
 
 s32 func_8013D8A8(void *arg0) {
     if ((s32) g_Game.f_8160 >= M2C_FIELD(arg0, s16 *, 0xA)) {

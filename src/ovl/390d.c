@@ -27,7 +27,24 @@ u8 *func_8013FD44(void) {
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FD50);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FDE4);
+typedef struct { s16 x, y; u8 body[0x20]; } Item_8013FDE4;
+extern u8 D_80141824[];
+#define D_80141820 ((Item_8013FDE4 *)(D_80141824 - 4))
+
+s32 func_8013FDE4(s32 sel, s16 *flags) {
+    s32 i;
+
+    for (i = 0; i < 7; i++) {
+        if (flags[i] == 1) {
+            if (sel == i) {
+                func_80136000(D_80141820[i].body, D_80141820[i].x, D_80141820[i].y, 1);
+            } else {
+                func_80136000(D_80141820[i].body, D_80141820[i].x, D_80141820[i].y, 0);
+            }
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FEA0);
 

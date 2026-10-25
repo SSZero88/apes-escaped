@@ -13,7 +13,7 @@ M2C_UNK StSetRing(s32, s32);
 M2C_UNK StSetStream(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32);
 s32 func_8008C09C(s32);
 extern s32 D_8013C1A8;
-s32 CdControl(M2C_UNK, s32, M2C_UNK);
+s32 CdControl(s32, void *, void *);
 s32 CdRead2(M2C_UNK);
 M2C_UNK CdSync(M2C_UNK, M2C_UNK);
 extern s32 D_8013C544;
@@ -323,7 +323,27 @@ void func_8013800C(void *arg0, CamKey_384 *k)
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138094);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013818C);
+typedef struct { s16 x, y; u16 w, h; } Rect_8013818C;
+typedef struct { Rect_8013818C r; u16 n; } Src_8013818C;
+void SetDrawMove(void *, Rect_8013818C *, s32, s32);
+
+void func_8013818C(void *arg0, Src_8013818C *s) {
+    Rect_8013818C r;
+    s16 pos[2];
+    u8 *p;
+    u32 *ot;
+    s32 n;
+
+    r = s->r;
+    n = s->n;
+    *(s32 *)pos = *(s32 *)&r;
+    r.x += r.w * n;
+    p = G_DRAW.prim;
+    SetDrawMove(p, &r, pos[0], pos[1]);
+    ot = &G_DRAW.db[G_DRAW.cur].ot[0xFFF];
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    G_DRAW.prim = p + 0x18;
+}
 
 void func_80138254(void *arg0, s32 arg1) {
     s32 temp_a1;
@@ -379,7 +399,31 @@ void func_801385CC(void *arg0, s32 arg1) {
     func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0, &D_8013C558);
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138670);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, p1; s16 x1, y1; u8 r2, g2, b2, p2; s16 x2, y2; u8 r3, g3, b3, p3; s16 x3, y3; } PolyG4_80138670;
+
+void func_80138670(void *arg0, u32 *col) {
+    PolyG4_80138670 *p;
+    u32 *ot;
+
+    p = (PolyG4_80138670 *)G_DRAW.prim;
+    p->x0 = 0;
+    p->y0 = 0;
+    p->x1 = 0x180;
+    p->y1 = 0;
+    p->x2 = 0;
+    p->y2 = 0xF0;
+    p->x3 = 0x180;
+    p->y3 = 0xF0;
+    *(u32 *)&p->r0 = col[0];
+    *(u32 *)&p->r1 = col[1];
+    *(u32 *)&p->r2 = col[2];
+    *(u32 *)&p->r3 = col[3];
+    ((u8 *)p)[3] = 8;
+    p->code = 0x38;
+    ot = &G_DRAW.db[G_DRAW.cur].ot[0xFFF];
+    ADD_PRIM_R(ot, p, "$5", "$4");
+    G_DRAW.prim += 0x24;
+}
 
 void func_80138728(void) {
 }
@@ -467,7 +511,30 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139124);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801391C8);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139668);
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_80139668;
+typedef struct { s32 vx, vy, vz, pad; } Vec_80139668;
+void RotMatrixZYX(void *, void *);
+void ScaleMatrix(void *, void *);
+
+void func_80139668(Mat_80139668 *m, s16 *a, s32 mode) {
+    Vec_80139668 v;
+
+    if (mode == 1) {
+        RotMatrixZYX(a + 6, m);
+        v.vx = a[0];
+        v.vy = a[1];
+        v.vz = a[2];
+        ScaleMatrix(m, &v);
+        m->t[0] = a[3];
+        m->t[1] = a[4];
+        m->t[2] = a[5];
+    } else {
+        RotMatrixZYX(a + 3, m);
+        m->t[0] = a[0];
+        m->t[1] = a[1];
+        m->t[2] = a[2];
+    }
+}
 
 void func_80139724(void) {
 }
@@ -688,7 +755,32 @@ s32 func_8013AD04(u8 *arg0) {
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013AD40);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013ADA0);
+typedef struct { u8 loc[4]; u32 size; } Req_8013ADA0;
+extern volatile s32 D_8013C760_ADA0 asm("D_8013C760");
+extern u32 D_8013C770_ADA0 asm("D_8013C770");
+extern s32 D_8013C774_ADA0 asm("D_8013C774");
+extern u32 D_8013C778_ADA0 asm("D_8013C778");
+extern s32 D_8013C77C_ADA0 asm("D_8013C77C");
+void func_8013AE90(s32);
+
+void func_8013ADA0(s32 arg0, Req_8013ADA0 *req) {
+    s32 mode;
+    u32 n;
+
+    while (D_8013C760_ADA0 != 0) {
+    }
+    D_8013C760_ADA0 = 1;
+    D_8013C770_ADA0 = n = (req->size + 0x7FF) >> 11;
+    D_8013C778_ADA0 = (req->size & 0x7FF) ? req->size - ((n - 1) << 11) : 0;
+    D_8013C774_ADA0 = arg0;
+    mode = 0x80;
+    while (CdControl(0xE, &mode, 0) == 0) {
+    }
+    VSync(3);
+    while (CdControl(6, req, 0) == 0) {
+    }
+    D_8013C77C_ADA0 = CdReadyCallback((s32)func_8013AE90);
+}
 
 s32 func_8013AE80(void) {
     return D_8013C760;

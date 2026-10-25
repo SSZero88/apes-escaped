@@ -29,7 +29,23 @@ INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D16C);
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D488);
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D6A4);
+extern u8 D_801409C0[];
+extern u8 D_80140A68[];
+void func_800702B0(void *, void *);
+void Object_CameraShake(void *, s32);
+
+void func_8013D6A4(u8 *o) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(o, u16 *, 0x24) + (M2C_FIELD(o, s16 *, 0x60) * 25 >> 8);
+    v.vy = M2C_FIELD(o, u16 *, 0x28) - 0x40;
+    v.vz = M2C_FIELD(o, u16 *, 0x2C) + (M2C_FIELD(o, s16 *, 0x64) * 25 >> 8);
+    func_80070284(&v, D_801409C0, 1, 0, 0);
+    func_80070284(&v, D_801409C0 + 0x54, 1, 0, 0);
+    func_800702B0(&v, D_80140A68);
+    Object_CameraShake(o, 2);
+    Object_PlaySound(o, 0x79);
+}
 
 extern struct { u8 pad0[0x24]; s32 x, y, z; } g_Spike_8013D780 asm("g_Spike");
 s32 Math_WithinSquare(s32, s32, s32);

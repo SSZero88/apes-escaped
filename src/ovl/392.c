@@ -1,7 +1,7 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-M2C_UNK func_80139628(s32);
+void func_80139628(u8 *);
 extern M2C_UNK D_8013B490;
 extern M2C_UNK D_8013B998;
 
@@ -155,9 +155,70 @@ INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80139248);
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801394D0);
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80139628);
+extern struct S_g_Game g_Game;
+/* addPrim with hard a0 (lwl) / v0 (sll) temps and memory operands */
+#define ADD_PRIM_A0V0_80139628(ot, p) \
+    __asm__ volatile("lwl $4, %0\n\tsll $2, %2, 8\n\tswl $2, %0\n\tswl $4, %1" \
+                     : : "m"(*((u8 *)(ot) + 2)), "m"(*((u8 *)(p) + 2)), "r"(p) : "$2", "$4")
+typedef struct { s16 x, y; u16 clut, tpage; u32 *ot; } TextPos_80139628;
+extern TextPos_80139628 D_8013B998_9628 asm("D_8013B998");
+extern u8 D_8013B5E0[];
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80139710);
+void func_80139628(u8 *str) {
+    SprtTp *p = (SprtTp *)G_DRAW.prim;
+    s32 x = D_8013B998_9628.x;
+    s32 y = D_8013B998_9628.y;
+    u8 c = *str;
+
+    while (c != 0) {
+        *(u32 *)&p->r0 = 0x404040;
+        ((u8 *)p)[3] = 5;
+        p->tpage = (D_8013B998_9628.tpage & 0x9FF) | 0xE1000200;
+        p->u0 = (c & 0xF) << 4;
+        p->code = 0x66;
+        p->x0 = x;
+        p->y0 = y;
+        p->v0 = c & 0xF0;
+        p->clut = D_8013B998_9628.clut;
+        p->w = 0x10;
+        p->h = 0x10;
+        ADD_PRIM_A0V0_80139628(D_8013B998_9628.ot, p);
+        p++;
+        str++;
+        x += D_8013B5E0[c];
+        c = *str;
+    }
+    D_8013B998_9628.x = x;
+    G_DRAW.prim = (u8 *)p;
+}
+
+extern struct S_g_Game g_Game;
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0, w, h; } Tile_80139710;
+void SetDrawStp(void *, s32);
+
+void func_80139710(void) {
+    u8 *p;
+    u8 *base;
+    u32 *ot;
+
+    p = G_DRAW.prim;
+    p[3] = 3;
+    *(u32 *)&((Tile_80139710 *)p)->r0 = 0;
+    ((Tile_80139710 *)p)->code = 0x60;
+    ((Tile_80139710 *)p)->w = 0x180;
+    ((Tile_80139710 *)p)->x0 = 0;
+    ((Tile_80139710 *)p)->y0 = 0;
+    ((Tile_80139710 *)p)->h = 0xF0;
+    base = (u8 *)&g_Game + 0x80;
+    ot = &((u32 *)(base + G_DRAW.cur * 0x4078))[0xFFF];
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    p += 0x10;
+    SetDrawStp(p, 1);
+    ot = &((u32 *)(base + G_DRAW.cur * 0x4078))[0xFFF];
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    p += 0xC;
+    G_DRAW.prim = p;
+}
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801397F4);
 

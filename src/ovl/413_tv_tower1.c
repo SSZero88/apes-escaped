@@ -112,7 +112,27 @@ s32 func_8013D3C4(s16 *p) {
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D46C);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013D548);
+typedef struct { s16 f0, st, f4, f6; s16 ids[8]; } P_8013D548;
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013D548 asm("g_Game");
+
+s32 func_8013D548(P_8013D548 *p) {
+    u8 *e = g_Game_8013D548.f_820C + p->f4 * 0x38;
+    u8 *t = g_Game_8013D548.f_8220 + p->ids[0] * 0x18;
+    s32 i;
+
+    if (p->st == 0 && M2C_FIELD(t, s16 *, 2) == 1) {
+        p->st = 1;
+        M2C_FIELD(e, u16 *, 0x12) = M2C_FIELD(e, u8 *, 0x12);
+        for (i = 0; i < 2; i++) {
+            if (p->ids[i + 2] >= 0) {
+                t = g_Game_8013D548.f_8220 + p->ids[i + 2] * 0x18;
+                e = g_Game_8013D548.f_820C + M2C_FIELD(t, s16 *, 4) * 0x38;
+                M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+            }
+        }
+    }
+    return 0;
+}
 
 s32 func_8013D620(void *arg0) {
     void *temp_s0;
@@ -185,7 +205,30 @@ s32 func_8013DE4C(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013DEB4);
+extern struct { u8 pad_0[0x8150]; u16 f_8150; u8 pad_8152[0xCE]; u8 *f_8220; } g_Game_8013DEB4 asm("g_Game");
+
+s32 func_8013DEB4(s16 *p) {
+    u8 *t;
+
+    switch (p[1]) {
+    case 0:
+        t = g_Game_8013DEB4.f_8220 + p[4] * 0x18;
+        if (M2C_FIELD(t, s16 *, 0x16) >= p[5]
+            && g_Game_8013DEB4.f_8150 == 8) {
+            p[1] = 1;
+        }
+        break;
+    case 1:
+        if (g_Game_8013DEB4.f_8150 == 0) {
+            p[1] = 2;
+            func_8004BD0C();
+        }
+        break;
+    case 2:
+        break;
+    }
+    return 0;
+}
 
 extern struct S_g_Game_8013DF6C { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013DF6C asm("g_Game");
 
@@ -278,7 +321,39 @@ s32 func_8013EDA0(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013EE2C);
+extern struct { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x4C]; u16 f_8150; u8 pad_8152[0xCE]; struct S18_80142C9C { s16 f[12]; } *f_8220; } g_Game_80142C9C asm("g_Game");
+void CamFlyby_StartSegment(s32);
+void CamFlyby_StartSegment(s32);
+void CamFlyby_StartSegment(s32);
+
+s32 func_8013EE2C(s16 *p) {
+    struct S18_80142C9C *t;
+
+    switch (p[1]) {
+    case 0:
+        t = g_Game_80142C9C.f_8220 + p[4];
+        if (t->f[11] > p[5]) {
+            if (g_Game_80142C9C.f_8150 == 8) {
+                p[1] = 1;
+            }
+        }
+        break;
+    case 1:
+        if (g_Game_80142C9C.f_8150 == 0) {
+            func_8008FC30(p[7], p);
+            func_8008FC30(p[8], p);
+            if (p[6] > 0) {
+                CamFlyby_StartSegment(p[6] - 1);
+                g_Game_80142C9C.f_8100 = 7;
+            }
+            p[1] = 2;
+        }
+        break;
+    case 2:
+        break;
+    }
+    return 0;
+}
 
 extern struct S_g_Game_8013EF2C { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013EF2C asm("g_Game");
 
@@ -606,7 +681,20 @@ INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8014173C);
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141840);
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801418D8);
+extern s32 D_800EC204;
+extern s32 D_800EC208;
+extern s32 D_800EC20C;
+
+s32 func_801418D8(u8 *o, s32 r) {
+    s32 res = 0;
+
+    if (ABS(D_800EC204 - M2C_FIELD(o, s32 *, 0x24)) < r
+        && ABS(D_800EC208 - M2C_FIELD(o, s32 *, 0x28)) < r
+        && ABS(D_800EC20C - M2C_FIELD(o, s32 *, 0x2C)) < r) {
+        res = 1;
+    }
+    return res;
+}
 
 INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_80141998);
 
