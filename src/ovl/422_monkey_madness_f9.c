@@ -64,7 +64,43 @@ void func_8013D0A0(s32 ot, s32 arg1, Mdl_422 *m, s32 add) {
     Model_DrawPrims(ot, c, arg1);
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013D1FC);
+extern struct { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013D63C asm("g_Game");
+extern u8 D_800E78C0[];
+extern u8 D_800E7D00[];
+void SetRotMatrix(void *m);
+void SetTransMatrix(void *m);
+s32 RotTransPers(void *v0, s32 *sxy, s32 *p, s32 *flag);
+void *ScaleMatrix(void *m, void *v);
+void Matrix_FromDirection(void *, void *);
+void func_80015780(void *, s32);
+void Model_ProjectBonedVerts(void *);
+
+s32 func_8013D1FC(u8 *a, void *scale, s32 c) {
+    SVECTOR v;
+    s32 sxy;
+    s16 x;
+    s16 y;
+    s32 p;
+    s32 z;
+
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    v.vx = M2C_FIELD(a, s32 *, 0x24);
+    v.vy = M2C_FIELD(a, s32 *, 0x28);
+    v.vz = M2C_FIELD(a, s32 *, 0x2C);
+    z = RotTransPers(&v, &sxy, &p, &p);
+    x = sxy;
+    y = sxy >> 16;
+    if (x < -0x80 || x > 0x200 || y < -0x80 || y > 0x1B8 || z > 0x1000 || z <= 0) {
+        return 1;
+    }
+    Matrix_FromDirection(a + 0x60, M2C_FIELD(a, void **, 0x14));
+    ScaleMatrix(M2C_FIELD(a, void **, 0x14), scale);
+    func_80015780(a, 3);
+    Model_ProjectBonedVerts(a);
+    func_8013D0A0(g_Game_8013D63C.f_80 + g_Game_8013D63C.f_C * 0x4078, D_800E7D00, a, c);
+    return 0;
+}
 
 typedef struct { s32 x, y, z; u8 pad_C[0x14]; s16 f_20; s16 pad_22; s16 f_24; s16 f_26; } Shape_8013D3EC;
 typedef struct { Shape_8013D3EC *shape; s16 x, y, z; } Coll_8013D3EC;
@@ -337,9 +373,42 @@ INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F9FC);
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013FAA4);
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_80140498);
+typedef struct { s16 x, y, w, h; } RECT16_80140498;
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_80140498;
+void SetDrawMove(void *, RECT16_80140498 *, s32, s32);
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_80140564);
+void func_80140498(long row)
+{
+  u32 *ot;
+  RECT16_80140498 r;
+  u8 *p;
+ do { } while (0);
+  p = (*((GameDraw *) (&g_Game))).prim;
+  r.x = 0x200;
+  if ((!row) && (!row))
+  {
+  }
+  r.y = row + 0xBE;
+  r.w = 0x10;
+  r.h = 1;
+  ot = &(*((GameDraw *) (&g_Game))).db[(*((GameDraw *) (&g_Game))).cur].ot[0xFFF];
+  SetDrawMove(p, &r, 0x200, 0xBD);
+  ((Tag_80140498 *) p)->addr = ((Tag_80140498 *) ot)->addr;
+  ((Tag_80140498 *) ot)->addr = (u32) p;
+  p += 0x18;
+  (*((GameDraw *) (&g_Game))).prim = p;
+}
+
+typedef struct { s16 x, y, w, h; } RECT16_80140564;
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_80140564;
+
+void func_80140564(s32 row)
+{
+  u32 *ot;
+  RECT16_80140564 r;
+  u8 *p;
+ do { p = (*((GameDraw *) (&g_Game))).prim; r.x = 0x200; r.y = row + 0xC2; r.w = 0x10; r.h = 1; ot = &(*((GameDraw *) (&g_Game))).db[(*((GameDraw *) (&g_Game))).cur].ot[0xFFF]; SetDrawMove(p, &r, 0x200, 0xC1); ((Tag_80140564 *) p)->addr = ((Tag_80140564 *) ot)->addr; ((Tag_80140564 *) ot)->addr = (u32) p; p += 0x18; (*((GameDraw *) (&g_Game))).prim = p; } while (0);
+}
 
 void func_80140630(s16 arg0) {
     D_80144C0C = arg0;

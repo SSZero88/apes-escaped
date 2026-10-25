@@ -504,7 +504,6 @@ s32 func_8013A43C(void) {
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013A478);
 
 extern s16 D_8013AF68;
-void func_8013A70C(void);
 
 s32 func_8013A634(void) {
     switch (D_8013AF66) {
@@ -529,6 +528,25 @@ s32 func_8013A634(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013A70C);
+s32 func_8013A70C(void) {
+    u8 *p = G_DRAW.prim;
+    s32 v = D_8013AF68 * 255 / 30;
+
+    p[3] = 3;
+    p[7] = 0x62;
+    M2C_FIELD(p, s16 *, 0xC) = 0x180;
+    M2C_FIELD(p, s16 *, 0x8) = 0;
+    M2C_FIELD(p, s16 *, 0xA) = 0;
+    M2C_FIELD(p, s16 *, 0xE) = 0xF0;
+    p[4] = p[5] = p[6] = v;
+    ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$5", "$3");
+    p += 0x10;
+    p[3] = 1;
+    M2C_FIELD(p, u32 *, 4) = 0xE1000240;
+    ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$5", "$3");
+    p += 8;
+    G_DRAW.prim = p;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013A804);

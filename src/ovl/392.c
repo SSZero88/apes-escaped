@@ -224,7 +224,28 @@ INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801397F4);
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801399A4);
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80139E0C);
+typedef struct { s16 x, y, w, h; } Rect_80139E0C;
+void SetDrawMove(void *, Rect_80139E0C *, s32, s32);
+
+void func_80139E0C(s32 y)
+{
+  u8 (*new_var)[];
+  Rect_80139E0C r;
+  u8 *p;
+  u32 *ot;
+  u32 *ot2;
+  ot = (*((GameDraw *) (&g_Game))).ot;
+  p = (*((GameDraw *) (&g_Game))).prim;
+  if ((*((GameDraw *) (&g_Game))).cur != 0)
+  {
+    y += 0x100;
+  }
+ do { r.x = 0x18; r.y = y; r.w = 0x80; r.h = 1; SetDrawMove(p, &r, 0x200, 0); __asm__ volatile("lwl " "$4" ", 2(%0)\n\tsll " "$2" ", %2, 8\n\tswl " "$2" ", 2(%0)\n\tswl " "$4" ", %1" : : "r"(ot + 0xFFE), "m"(*((u8 *)(p) + 2)), "r"(p) : "$4", "$2"); p += 0x18; r.x = 0x200; r.y = 0; SetDrawMove(p, &r, 0x18, y); } while (0);
+  __asm__ volatile("lwl " "$3" ", 2(%0)\n\tsll " "$2" ", %2, 8\n\tswl " "$2" ", 2(%0)\n\tswl " "$3" ", %1" : : "r"(ot), "m"(*((u8 *)(p) + 2)), "r"(p) : "$3", "$2");
+  new_var = &g_Game;
+  p += 0x18;
+  (*((GameDraw *) new_var)).prim = p;
+}
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80139EE0);
 
