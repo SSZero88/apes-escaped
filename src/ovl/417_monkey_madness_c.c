@@ -225,9 +225,23 @@ void func_8013DD64(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013DDAC);
+extern struct { u32 f_0; } g_Game_8013DDAC asm("g_Game");
+extern s32 D_80140CF4;
+s32 rcos_8013DDAC(s32) asm("rcos");
+s32 rsin_8013DDAC(s32) asm("rsin");
 
-void func_8013DDAC(void *, void *);
+void func_8013DDAC(u8 *arg0, u8 *arg1) {
+    s32 *pos = (s32 *)(arg0 + 0x24);
+    s32 ang;
+    s32 dy;
+
+    ang = (M2C_FIELD(arg1, s16 *, 0xAA) + (arg0[0x70] << 12) / D_80140CF4) % 0x1000;
+    M2C_FIELD(arg0, s32 *, 0x24) = M2C_FIELD(arg1, s32 *, 0x24) + ((rcos_8013DDAC(ang) * 300) >> 12);
+    pos[2] = M2C_FIELD(arg1, s32 *, 0x2C) + ((rsin_8013DDAC(ang) * 300) >> 12);
+    dy = ((rsin_8013DDAC((ang + ((g_Game_8013DDAC.f_0 % 60) << 12) / 60) & 0xFFF) * 100) >> 12) - 600;
+    pos[1] = M2C_FIELD(arg1, s32 *, 0x28) + dy;
+}
+
 
 void func_8013DF10(void *arg0, void *arg1) {
     func_8013DDAC(arg0, arg1);

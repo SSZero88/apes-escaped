@@ -149,7 +149,51 @@ void func_80136604(void)
   D_8013C494 = D_800EBFA0_80136604.f_28;
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013668C);
+typedef struct { u8 f_0; u8 f_1; u8 pad2[0xE]; u32 f_10; u8 pad14[8]; } Fmv_8013668C;
+extern Fmv_8013668C *D_8013C484_8013668C asm("D_8013C484");
+extern Fmv_8013668C D_8013C090[];
+extern s32 D_8013C4B0;
+extern s32 D_8013C4B4;
+void func_8013BA80(s32);
+void func_8008C01C(void);
+void func_800A3750(s32);
+s32 func_80136884(s32);
+void func_8013990C(void *);
+void func_80137D20(void);
+void func_80136000(s32 arg0, s32 arg1);
+void func_80086248(s32);
+s32 CdControlB(s32, void *, void *);
+void func_80136EA8(void);
+void func_80136BD4(void);
+
+s32 func_8013668C(s32 *mode, s32 idx) {
+    func_8013BA80(0);
+    func_80136604();
+    func_8008C01C();
+    func_800A3750(1);
+    D_8013C484_8013668C = &D_8013C090[idx];
+    if (func_80136884(idx) != 0) {
+        return 1;
+    }
+    D_8013C4B0 = D_8013C4B4 = D_8013C484_8013668C->f_0;
+    func_8013990C((void *)0x80148000);
+    func_80137D20();
+    func_80136000(0, D_8013C484_8013668C->f_1);
+    *mode = 0x120;
+    if (D_8013C484_8013668C->f_10 & 1) {
+        *mode = 0x1A0;
+    }
+    if ((D_8013C484_8013668C->f_10 >> 1) & 1) {
+        *mode |= 0x48;
+        func_80136E68(1);
+    }
+    func_80086248(-1);
+    while (CdControlB(0xC, 0, 0) == 0) {
+    }
+    func_80136EA8();
+    func_80136BD4();
+    return 0;
+}
 
 typedef struct { s16 x, y, w, h; } Rect_801367DC;
 typedef struct { u8 pad0[0x6E]; u16 y; u8 pad70[0x4078 - 0x70]; } Db_801367DC;
@@ -215,7 +259,40 @@ void func_80136E68(u8 chan)
 
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136EA8);
+typedef struct { u8 pad0[0x10]; u32 f_10; } Fmv_80136EA8;
+extern Fmv_80136EA8 *D_8013C484;
+void func_801367DC(void);
+void DrawSync(s32);
+void VSync(s32);
+void Gfx_BeginFrame(void);
+void Screen_DrawLetterbox(s32, s32, s32);
+void *PutDispEnv(void *);
+void *PutDrawEnv(void *);
+void DrawOTag(u32 *);
+
+void func_80136EA8(void) {
+    s32 i;
+
+    i = 0;
+    if ((D_8013C484->f_10 >> 3) & 1) {
+        G_DRAW.cur ^= 1;
+        func_801367DC();
+        DrawSync(i);
+        G_DRAW.db[1].env[0x18] = 0;
+        G_DRAW.db[0].env[0x18] = 0;
+        for (; i < 0x100; i += 4) {
+            Gfx_BeginFrame();
+            Screen_DrawLetterbox(0x1E, 0x1E, i);
+            DrawSync(0);
+            VSync(0);
+            PutDispEnv(&G_DRAW.db[G_DRAW.cur].env[0x5C]);
+            PutDrawEnv(G_DRAW.db[G_DRAW.cur].env);
+            DrawOTag(&G_DRAW.db[G_DRAW.cur].ot[0xFFF]);
+        }
+        G_DRAW.db[1].env[0x18] = 1;
+        G_DRAW.db[0].env[0x18] = 1;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136FF0);
 

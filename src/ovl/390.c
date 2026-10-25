@@ -148,13 +148,102 @@ void func_80136D58(void) {
     func_80141B34();
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80136D90);
+extern u8 D_800E78C0_80136D90[] asm("D_800E78C0");
+extern struct { u8 pad0[0x1C]; s32 f_1C; u8 pad20[4]; s32 f_24; s32 f_28; s32 f_2C; } D_800EBFA0_80136D90 asm("D_800EBFA0");
+extern s32 D_8013B214;
+extern s32 D_8013AF70;
+extern s32 D_8013AF74;
+extern s16 D_8013AF6A;
+extern s16 D_8013AF68;
+void func_8008C01C(void);
+u8 *func_8008C09C(s32);
+void Model_BindMesh(void *, u32 *);
+s32 func_8002FAF0(s32);
+void Light_SetColorMode(s32, s32, s32, s32);
+void Stage_ApplyFog(void);
+void func_8004637C(void *);
+
+s32 func_80136D90(void) {
+    u8 *h;
+    u8 n;
+    s32 i;
+    u8 *e;
+    s32 off;
+
+    h = (u8 *)0x80154000;
+    func_8008C01C();
+    n = h[0];
+    i = 1;
+    D_8013B214 = (s32)func_8008C09C(n << 5);
+    for (; i <= n; i++) {
+        if (h[i * 4 + 2] == 2) {
+            Model_BindMesh((void *)(D_8013B214 + (i - 1) * 0x20), (u32 *)(h + *(u16 *)(h + i * 4) * 4));
+        }
+    }
+    func_8002FAF0(0xA4);
+    Light_SetColorMode(0, 0, 0, 0);
+    D_800EBFA0_80136D90.f_24 = 0;
+    D_800EBFA0_80136D90.f_28 = 0x1000;
+    D_800EBFA0_80136D90.f_2C = 0x1000;
+    D_800EBFA0_80136D90.f_1C = 0;
+    Stage_ApplyFog();
+    func_8004637C(D_800E78C0_80136D90);
+    D_8013AF70 = 0;
+    D_8013AF74 = 0x10;
+    D_8013AF6A = -1;
+    D_8013AF66 = 0;
+    D_8013AF68 = 0x1E;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80136ED8);
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80137104);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013730C);
+extern s16 D_8013AF68;
+extern s32 D_8013AF78;
+extern u8 D_80138370[];
+s32 func_80096580(s32);
+s32 func_80137424(void);
+s32 Save_SumStageMonkeys(s32);
+void func_80137C84(s32, u8 *);
+u8 *func_8013FC20(void);
+void func_80141A10(void *);
+
+s32 func_8013730C(void) {
+    u8 a[8];
+    u8 b[8];
+    s32 has;
+    s32 n;
+    u8 *p;
+
+    has = func_80096580(0x18) > 0;
+    n = func_80137424();
+    func_80137C84((s16)Save_SumStageMonkeys(0), a);
+    if (has) {
+        func_80137C84((s16)n, b);
+    } else {
+        b[0] = 0x7F;
+        b[1] = 0x7F;
+        b[2] = 0;
+    }
+    p = func_8013FC20();
+    p[0] = a[0];
+    p[1] = a[1];
+    p[2] = a[2];
+    p[4] = b[0];
+    p[5] = b[1];
+    p[6] = b[2];
+    p[7] = 0;
+    D_8013AF52 = 1;
+    D_8013AF78 = -0x200;
+    D_8013AF66 = 0;
+    D_8013AF68 = 0x1E;
+    D_8013AF6C = 0;
+    func_80137DA8(1);
+    func_80141A10(D_80138370);
+    return 0;
+}
 
 typedef struct { u8 f_0; u8 f_1; u8 pad2[14]; } Ent_390;
 
@@ -266,7 +355,111 @@ s32 func_80137E1C(void) {
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80137E4C);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013829C);
+/* NOTE: func_8013829C.s also holds a second, never-returning function at 0x80138370 (named func_80138370 here); both verified with wip/_ovl/ag/A/pair.py (each 0 diffs, total 0x144) */
+s32 func_801383E0(void);
+s32 func_801384BC(void);
+s32 func_80138524(void);
+s32 func_801385EC(void);
+s32 func_801386CC(void);
+s32 func_80138744(void);
+s32 func_801387FC(void);
+s32 func_8013B400(void);
+
+void func_8013829C(void) {
+    while (1) {
+        switch (D_8013AF56) {
+        case 0:
+            func_801383E0();
+            MemCard_Request(4, 0);
+            break;
+        case 2:
+            func_80138744();
+            MemCard_Request(4, 0);
+            break;
+        case 6:
+            func_80138524();
+            break;
+        case 8:
+            func_801385EC();
+            break;
+        case 17:
+            func_8013B400();
+            break;
+        case 10:
+            func_801387FC();
+            break;
+        case 12:
+            func_801386CC();
+            break;
+        case 1:
+        case 4:
+        case 5:
+        case 7:
+        case 9:
+        case 11:
+        case 13:
+        case 15:
+        case 16:
+            func_801384BC();
+            MemCard_Request(4, 0);
+            break;
+        case 3:
+        case 14:
+        case 18:
+        case 19:
+        case 20:
+        case 21:
+        case 22:
+        case 23:
+        case 24:
+        case 25:
+        case 26:
+        case 27:
+        case 28:
+        case 29:
+        case 30:
+        case 31:
+        case 32:
+        case 33:
+        case 34:
+        case 35:
+        case 36:
+        case 37:
+        case 38:
+        case 39:
+        case 40:
+        case 41:
+        case 42:
+        case 43:
+        case 44:
+        case 45:
+            break;
+        }
+    }
+}
+
+extern s16 D_800E3880_80138370 asm("D_800E3880");
+extern s16 D_8013AF6C;
+
+void func_80138370(void) {
+    while (1) {
+        switch (D_800E3880_80138370) {
+        case -8:
+        case -7:
+        case -5:
+        case -4:
+        case -2:
+        case -1:
+        case 0:
+            D_8013AF6C = 0;
+        case -6:
+        case -3:
+        case 1:
+            break;
+        }
+        MemCard_Request(0x10, 0);
+    }
+}
 
 extern s16 D_800E3880_801383E0 asm("D_800E3880");
 extern s16 D_800E3884;

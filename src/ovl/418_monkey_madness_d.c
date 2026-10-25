@@ -516,7 +516,53 @@ s32 func_8014119C(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_801411E8);
+typedef struct { s16 id; s16 on; } Snd_801411E8;
+extern struct { u8 pad_0[0x8150]; u16 f_8150; u8 pad_8152[0xBA]; u8 *f_820C; } g_Game_801411E8 asm("g_Game");
+extern s16 D_800EC238;
+extern Snd_801411E8 D_801434C8;
+extern Snd_801411E8 D_801434C0_801411E8 asm("D_801434C0");
+extern Snd_801411E8 D_801434C4_801411E8 asm("D_801434C4");
+extern struct { s16 a; s16 b; } D_800B4DB0;
+extern struct { u8 pad_0[0x34]; s32 f_34; s32 f_38; } D_800E7880_801411E8 asm("D_800E7880");
+s32 Sound_Play(s32, s32);
+s32 Sound_PlayTracked(s32, s32);
+void Sound_Stop(s32, s32);
+
+s32 func_801411E8(s16 *p) {
+    u8 *e = g_Game_801411E8.f_820C + p[2] * 0x38;
+
+    switch (p[1]) {
+    case 0:
+        if (D_800EC238 == p[2]) {
+            g_Game_801411E8.f_8150 = 2;
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+            p[1] = 1;
+            D_801434C8.id = Sound_Play(0, 0xAC);
+            D_801434C8.on = 1;
+            D_801434C0_801411E8.id = Sound_PlayTracked(0, 0x50AD);
+            D_801434C0_801411E8.on = 1;
+            D_801434C4_801411E8.id = Sound_PlayTracked(0, 0x50AE);
+            D_801434C4_801411E8.on = 1;
+            D_800B4DB0.a = 0x1000;
+            D_800B4DB0.b = 0x1000;
+            D_800E7880_801411E8.f_34 = 0;
+            D_800E7880_801411E8.f_38 = 0;
+            p[3] = 0;
+        }
+        break;
+    case 1:
+        if (++p[3] > 32) {
+            Sound_Stop(0xAC, D_801434C8.id);
+            D_801434C8.on = 0;
+            D_801434C8.id = -1;
+            p[1] = 2;
+        }
+        break;
+    case 2:
+        break;
+    }
+    return 0;
+}
 
 extern struct S_g_Game_8014134C { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8014134C asm("g_Game");
 typedef struct { u8 pad_0[0x20C]; u8 *f_820C; u8 pad_210[0x10]; u8 *f_8220; } G_8014134C;

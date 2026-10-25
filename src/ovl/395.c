@@ -102,11 +102,52 @@ void func_80137334(s32 arg0) {
     func_8008DDC8(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_801373A4);
+extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; } g_Game;
+typedef struct { s16 x, y, w, h; } Rect_801373A4;
+void SetDrawMove(void *p, void *rect, s32 x, s32 y);
+extern s32 D_80138CFC;
+extern u8 *D_800EC354;
+
+void func_801373A4(void) {
+    u8 *p;
+    u32 *ot;
+    Rect_801373A4 r;
+    s32 k;
+
+    k = 0;
+    if (D_80138CFC >= 6 && D_80138CFC < 100) {
+        switch (D_80138CFC % 15) {
+        case 0:
+            k = 1;
+            break;
+        case 7:
+            k = 2;
+            break;
+        }
+    }
+    if (k != 0) {
+        p = G_DRAW.prim;
+        r.w = 0x10;
+        r.h = 0x10;
+        r.x = 0x230;
+        ot = &G_DRAW.db[G_DRAW.cur].ot[0xFFF];
+        switch (k) {
+        case 1:
+            r.y = 0x70;
+            break;
+        case 2:
+            r.y = 0xB0;
+            break;
+        }
+        SetDrawMove(p, &r, 0x230, 0x30);
+        ADD_PRIM_R(ot, p, "$2", "$3");
+        p += 0x18;
+        D_800EC354 = p;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_801374D0);
 
-extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; } g_Game;
 void SetDrawStp(void *, s32);
 
 void func_80137CD4(void) {

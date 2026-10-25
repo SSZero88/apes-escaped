@@ -413,7 +413,6 @@ s32 func_8013E22C(void) {
 
 void func_8013E438(void);
 void func_8013E604(void);
-void func_8013EBD0(void);
 s32 func_8013FEA0(void);
 void func_80136160(s32, s32, s32, s32);
 void func_80139A68(void);
@@ -431,7 +430,48 @@ s32 func_8013E290(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013E30C);
+extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_8013E30C asm("g_Pad");
+extern struct { s16 f_0, f_2, f_4, f_6, f_8, f_A, f_C; } D_8013F5E4_8013E30C asm("D_8013F5E4");
+extern s32 D_800E5488;
+extern s16 D_8013AF66;
+s32 Sound_PlayFixed(s32);
+
+s32 func_8013E30C(void) {
+    u32 b;
+
+    if (D_8013AF66 == 1) {
+        if (D_800E5488 == 0x1000) {
+            Sound_PlayFixed(0);
+            if (--D_8013F288 < 0) {
+                D_8013F288 = 1;
+            }
+        }
+        if (D_800E5488 == 0x4000) {
+            Sound_PlayFixed(0);
+            if (++D_8013F288 >= 2) {
+                D_8013F288 = 0;
+            }
+        }
+        b = g_Pad_8013E30C.f_160 & g_Pad_8013E30C.f_158;
+        if (b & 0x800) {
+            Sound_PlayFixed(1);
+            return 1;
+        }
+        if (b & 0x20) {
+            Sound_PlayFixed(3);
+            if (D_8013F288 == 0) {
+                if (D_8013F5E4_8013E30C.f_0 > D_8013F5E4_8013E30C.f_C) {
+                    func_8013CD1C(0x1F, 0);
+                } else {
+                    func_8013CD1C(0x31, 0);
+                }
+            } else {
+                func_8013CD1C(0x28, 0);
+            }
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013E438);
 
@@ -457,6 +497,46 @@ s32 func_8013EB14(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013EBD0);
+extern u8 g_Game_8013EBD0[] asm("g_Game");
+#define GD_8013EBD0 (*(GameDraw *)g_Game_8013EBD0)
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8013EBD0;
+
+s32 func_8013EBD0(void) {
+    u8 *p;
+    u32 *ot;
+
+    p = GD_8013EBD0.prim;
+    p[3] = 4;
+    ((Sprt_8013EBD0 *)p)->code = 0x65;
+    ((Sprt_8013EBD0 *)p)->clut = 0x7C5D;
+    ((Sprt_8013EBD0 *)p)->x0 = 0x64;
+    ((Sprt_8013EBD0 *)p)->y0 = 0xD8;
+    ((Sprt_8013EBD0 *)p)->w = 0x13;
+    ((Sprt_8013EBD0 *)p)->h = 0x11;
+    ((Sprt_8013EBD0 *)p)->u0 = 0;
+    ((Sprt_8013EBD0 *)p)->v0 = 0x98;
+    ot = &GD_8013EBD0.db[GD_8013EBD0.cur].ot[0];
+    ADD_PRIM_R(ot, p, "$5", "$4");
+    p += 0x14;
+    p[3] = 4;
+    ((Sprt_8013EBD0 *)p)->code = 0x65;
+    ((Sprt_8013EBD0 *)p)->clut = 0x7C1D;
+    ((Sprt_8013EBD0 *)p)->x0 = 0xDC;
+    ((Sprt_8013EBD0 *)p)->y0 = 0xD8;
+    ((Sprt_8013EBD0 *)p)->w = 0x13;
+    ((Sprt_8013EBD0 *)p)->h = 0x11;
+    ((Sprt_8013EBD0 *)p)->u0 = 0;
+    ((Sprt_8013EBD0 *)p)->v0 = 0x80;
+    ot = &GD_8013EBD0.db[GD_8013EBD0.cur].ot[0];
+    ADD_PRIM_R(ot, p, "$5", "$4");
+    p += 0x14;
+    p[3] = 1;
+    ((u32 *)p)[1] = 0xE1000217;
+    ot = &GD_8013EBD0.db[GD_8013EBD0.cur].ot[0];
+    ADD_PRIM_R(ot, p, "$5", "$4");
+    p += 8;
+    GD_8013EBD0.prim = p;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013ED0C);

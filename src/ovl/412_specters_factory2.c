@@ -454,7 +454,30 @@ void func_8013F010(void *arg0) {
     func_80052038(arg0, a);
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F058);
+s32 rcos_8013F058(s32) asm("rcos");
+s32 rsin_8013F058(s32) asm("rsin");
+
+void func_8013F058(u8 *arg0, s32 arg1) {
+    SVECTOR v;
+    s32 ang;
+    u16 r;
+
+    if (arg1 != 0) {
+        r = g_RandSeed * 5 + 1;
+        g_RandSeed = r;
+        ang = (M2C_FIELD(arg0, s16 *, 0xAC) + ((r >> 8) << 12) / 1020 + 0x600) % 0x1000;
+    } else {
+        r = g_RandSeed * 5 + 1;
+        g_RandSeed = r;
+        ang = (M2C_FIELD(arg0, s16 *, 0xAC) + ((r >> 8) << 12) / 510 + 0xC00) % 0x1000;
+    }
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24) + ((rcos_8013F058(ang) << 8) >> 12);
+    r = (&g_RandSeed)[1] * 5 + 1;
+    (&g_RandSeed)[1] = r;
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28) - (r >> 8) - 200;
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C) + ((rsin_8013F058(ang) << 8) >> 12);
+    Effect_SpawnAt(7, &v);
+}
 
 void func_8013F1C0(void *arg0) {
     u16 temp_v0;
@@ -469,11 +492,33 @@ void func_8013F1C0(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F240);
+s32 rcos_8013F240(s32) asm("rcos");
+s32 rsin_8013F240(s32) asm("rsin");
+void func_8006D548(SVECTOR *);
+
+void func_8013F240(u8 *arg0, s32 arg1) {
+    SVECTOR v;
+    s32 ang;
+    u16 r;
+
+    if (arg1 != 0) {
+        r = g_RandSeed * 5 + 1;
+        g_RandSeed = r;
+        ang = (M2C_FIELD(arg0, s16 *, 0xAC) + ((r >> 8) << 12) / 1020 + 0x600) % 0x1000;
+    } else {
+        r = g_RandSeed * 5 + 1;
+        g_RandSeed = r;
+        ang = (M2C_FIELD(arg0, s16 *, 0xAC) + ((r >> 8) << 12) / 510 + 0xC00) % 0x1000;
+    }
+    v.vx = M2C_FIELD(arg0, u16 *, 0x24) + ((rcos_8013F240(ang) << 8) >> 12);
+    r = (&g_RandSeed)[1] * 5 + 1;
+    (&g_RandSeed)[1] = r;
+    v.vy = M2C_FIELD(arg0, u16 *, 0x28) - (r >> 9) - 300;
+    v.vz = M2C_FIELD(arg0, u16 *, 0x2C) + ((rsin_8013F240(ang) << 8) >> 12);
+    func_8006D548(&v);
+}
 
 extern u32 g_Game_8013F3A4 asm("g_Game");
-void func_8013F058(void *, s32);
-void func_8013F240(void *, s32);
 void func_8013F1C0(void *arg0);
 
 void func_8013F3A4(u8 *arg0) {
@@ -554,7 +599,29 @@ void func_8013F80C(void *arg0) {
     Object_AddAttackSphereAt(arg0, temp_s0, 0xC8);
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013F860);
+typedef struct { u8 pad[0xAC]; s16 f_AC; } Obj_8013F860;
+extern u32 g_Game_8013F860 asm("g_Game");
+s32 rcos_8013F860(s32) asm("rcos");
+s32 rsin_8013F860(s32) asm("rsin");
+
+void func_8013F860(u8 *arg0) {
+    SVECTOR v;
+    s32 ang;
+    u16 r;
+
+    if (g_Game_8013F860 % 5 == 0 || g_Game_8013F860 % 17 == 0) {
+        r = g_RandSeed * 5 + 1;
+        g_RandSeed = r;
+        ang = (((Obj_8013F860 *)arg0)->f_AC + ((r >> 8) << 12) / 510 + 0xC00) % 0x1000;
+        v.vx = M2C_FIELD(arg0, u16 *, 0x24) + ((rcos_8013F860(ang) << 8) >> 12);
+        r = g_RandSeed * 5 + 1;
+        g_RandSeed = r;
+        v.vy = M2C_FIELD(arg0, u16 *, 0x28) - ((r >> 9) + 250);
+        v.vz = M2C_FIELD(arg0, u16 *, 0x2C) + ((rsin_8013F860(ang) << 8) >> 12);
+        Effect_SpawnAt(0x102, &v);
+        Object_PlaySound(arg0, 0x4D);
+    }
+}
 
 void func_8013F9C0(void *arg0, s32 arg1) {
     Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6) + arg1);

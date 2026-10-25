@@ -571,7 +571,43 @@ void func_8013FB24(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013FBDC);
+extern struct { u8 f_0; u8 f_1; } D_800E77A0;
+typedef struct { u8 pad0[8]; s16 f_8; s16 f_A; } Pt_8013FBDC;
+typedef struct { u32 b0 : 12; u32 b12 : 1; u32 b13 : 1; u32 b14 : 7; u32 b21 : 1; u32 b22 : 2; u32 b24 : 2; u32 b26 : 6; } Bits_8013FBDC;
+extern u8 D_80144658[];
+void func_8013EEDC(void);
+
+void func_8013FBDC(u8 *o) {
+    M2C_FIELD(o, s16 *, 0xA0) = 0x12C;
+    M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
+    M2C_FIELD(o, s16 *, 0x44) = 0xE6;
+    M2C_FIELD(o, s16 *, 0x46) = 0x190;
+    o[0xCD] = 4;
+    o[0x7D] = 7;
+    o[0xDC] = 6;
+    M2C_FIELD(o, s8 *, 0x7C) = -1;
+    o[0xC8] = 0;
+    M2C_FIELD(o, Bits_8013FBDC *, 0xE0).b24 = 1;
+    M2C_FIELD(o, Bits_8013FBDC *, 0xE0).b21 = 1;
+    o[0xDD] = 1;
+    M2C_FIELD(o, Bits_8013FBDC *, 0xE0).b12 = 0;
+    o[0x81] = 0x14;
+    M2C_FIELD(o, Bits_8013FBDC *, 0xE0).b13 = 1;
+    M2C_FIELD(o, Pt_8013FBDC **, 0x74) = (Pt_8013FBDC *)(D_80144658 + D_800E77A0.f_1 * 0x18);
+    M2C_FIELD(o, Pt_8013FBDC **, 0x74)->f_8 = 7;
+    M2C_FIELD(o, Pt_8013FBDC **, 0x74)->f_A = 0x5D;
+    M2C_FIELD(o, Pt_8013FBDC **, 0x78) = (Pt_8013FBDC *)(D_80144658 + 0xC + D_800E77A0.f_1 * 0x18);
+    M2C_FIELD(o, Pt_8013FBDC **, 0x78)->f_8 = 7;
+    M2C_FIELD(o, Pt_8013FBDC **, 0x78)->f_A = 0x5E;
+    func_8013EEDC();
+    o[0x80] = 1;
+    o[0xDE] = 0;
+    o[0x8F] = 0;
+    M2C_FIELD(o, s32 *, 0x28) -= 0xBB8;
+    Object_DisableCollision(o);
+    D_80144650 = 0;
+    D_800E77A0.f_1++;
+}
 
 INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013FD38);
 

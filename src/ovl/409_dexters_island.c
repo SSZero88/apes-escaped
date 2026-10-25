@@ -676,7 +676,38 @@ s32 func_80141A54(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_80141AD0);
+extern struct { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x4C]; u16 f_8150; u8 pad_8152[0xCE]; u8 *f_8220; } g_Game_80141AD0 asm("g_Game");
+void CamFlyby_StartSegment(s32);
+s32 Sound_PlayFixed_80141AD0(s32) asm("Sound_PlayFixed");
+
+s32 func_80141AD0(s16 *p) {
+    u8 *t;
+
+    if (p[4] < 0) {
+        return 0;
+    }
+    switch (p[1]) {
+    case 0:
+        t = g_Game_80141AD0.f_8220 + p[4] * 0x18;
+        if (M2C_FIELD(t, s16 *, 0x16) >= p[5] && g_Game_80141AD0.f_8150 == 8) {
+            p[1] = 1;
+        }
+        break;
+    case 1:
+        if (g_Game_80141AD0.f_8150 == 0) {
+            t = g_Game_80141AD0.f_8220 + p[7] * 0x18;
+            M2C_FIELD(t, s16 *, 2) = 5;
+            CamFlyby_StartSegment(p[6] - 1);
+            g_Game_80141AD0.f_8100 = 7;
+            p[1] = 2;
+            Sound_PlayFixed_80141AD0(0x80);
+        }
+        break;
+    case 2:
+        break;
+    }
+    return 0;
+}
 
 extern struct S_g_Game_80141BE4 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80141BE4 asm("g_Game");
 

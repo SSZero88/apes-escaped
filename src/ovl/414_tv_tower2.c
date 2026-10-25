@@ -546,8 +546,56 @@ void func_80140A18(void *arg0) {
     Sound_PlayFixed(0x4D);
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_80140A90);
+extern u8 D_80143850[];
+void func_8013DE24(s32 arg0);
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_80140BF0);
+void func_80140A90(u8 *arg0) {
+    SVECTOR dir = { M2C_FIELD(arg0, s16 *, 0x60), 0, M2C_FIELD(arg0, s16 *, 0x64) };
+    SVECTOR pos = { M2C_FIELD(arg0, s16 *, 0x24) + M2C_FIELD(arg0, s16 *, 0x60) / 4, M2C_FIELD(arg0, s16 *, 0x28) - 0xA0, M2C_FIELD(arg0, s16 *, 0x2C) + M2C_FIELD(arg0, s16 *, 0x64) / 4 };
+
+    if (M2C_FIELD(arg0, s32 *, 0xA0) > 0) {
+        pos.vy += M2C_FIELD(arg0, s32 *, 0xA0);
+    }
+    func_80070284(&pos, D_80143850, 1, 0, (s32)&dir);
+    func_8013DE24((s32)&pos);
+    func_8013DE24((s32)&pos);
+    Sound_PlayFixed(0x27);
+    Sound_PlayFixed(0x28);
+}
+
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; u8 pad_30[8]; s32 f_38; } g_Spike_80140BF0 asm("g_Spike");
+extern struct { s16 f_0; u8 f_2; } D_80143EF8_80140BF0 asm("D_80143EF8");
+void Effect_Spawn_80140BF0(s32, SVECTOR *, void *, s32) asm("Effect_Spawn");
+
+void func_80140BF0(u8 *arg0, s32 n, s32 burst) {
+    SVECTOR v;
+    s32 off;
+    u16 r;
+    s32 dy;
+
+    if (n >= 4) {
+        n = 3;
+    }
+    if (burst != 0) {
+        for (off = -0x400; off <= 0x400; off += 0x800) {
+            v.vx = M2C_FIELD(arg0, u16 *, 0x24) + off + (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 3;
+            r = g_RandSeed * 5 + 1;
+            dy = (r >> 8) * 2 + 0x100;
+            v.vy = M2C_FIELD(arg0, u16 *, 0x28) - dy;
+            v.vz = M2C_FIELD(arg0, u16 *, 0x2C);
+            g_RandSeed = r;
+            Effect_Spawn_80140BF0(n + 0xCA, &v, &D_80143718, 0);
+        }
+    }
+    if (0xA8C - n * 512 < g_Spike_80140BF0.z) {
+        D_80143EF8_80140BF0.f_0 = n * 16 + 0x50;
+        D_80143EF8_80140BF0.f_2 = 10;
+    }
+    if (D_80143EF8_80140BF0.f_2 != 0) {
+        D_80143EF8_80140BF0.f_2--;
+        g_Spike_80140BF0.f_38 = -D_80143EF8_80140BF0.f_0;
+        D_80143EF8_80140BF0.f_0 = D_80143EF8_80140BF0.f_0 * 3 / 4;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_80140D60);

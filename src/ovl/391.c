@@ -193,7 +193,55 @@ void func_80138258(s32 x0, s32 y0, s32 w, s32 h) {
     D_800EC354 = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_8013836C);
+extern struct { u8 pad0[4]; u8 *prim; u32 *ot; u8 pad0C[0x8114]; u16 f_8120; u8 pad8122[2]; u16 f_8124; } g_Game_8013836C asm("g_Game");
+extern s32 D_80139AB0;
+s32 func_80096580(s32);
+void func_80138258(s32 x0, s32 y0, s32 w, s32 h);
+
+void func_8013836C(void) {
+    SprtTp *p;
+    u32 *ot;
+    s32 r;
+    s32 mode;
+    u16 uv;
+    u16 clut;
+
+    p = (SprtTp *)g_Game_8013836C.prim;
+    ot = g_Game_8013836C.ot;
+    if (D_80139AB0 == 0) {
+        D_80139AB0 = 1;
+    }
+    mode = g_Game_8013836C.f_8120;
+    r = func_80096580(g_Game_8013836C.f_8124);
+    ((u8 *)p)[3] = 5;
+    p->tpage = 0xE1000238;
+    p->code = 0x67;
+    p->x0 = 0x1E;
+    p->y0 = 0x1E;
+    p->w = 0x100;
+    p->h = 0x20;
+    switch (mode) {
+    case 12:
+        if (r >= 2) {
+            uv = 0x2000;
+            clut = 0x3FA7;
+        } else {
+            uv = 0;
+            clut = 0x3F67;
+        }
+        break;
+    case 20:
+        uv = 0x4000;
+        clut = 0x3F27;
+        break;
+    }
+    *(u16 *)&p->u0 = uv;
+    p->clut = clut;
+    ADD_PRIM_ASM2(ot, p);
+    p++;
+    D_800EC354 = (u8 *)p;
+    func_80138258(0x18, 0x16, 0x110, 0x30);
+}
 
 INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_801384A0);
 

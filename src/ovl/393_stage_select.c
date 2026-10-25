@@ -6,6 +6,8 @@ void Gfx_InitDisplay(void);
 void ResetGraph(s32);
 void ClearImage(Rect_393 *, s32, s32, s32);
 void DrawSync(s32);
+typedef struct { u8 pad0[0x12C]; s16 world[24]; } StageSet_393;
+extern StageSet_393 D_80138A20[];
 
 s32 func_80136000(void) {
     Rect_393 r = { 0, 0, 0x180, 0x200 };
@@ -54,11 +56,33 @@ void func_8013786C(s16 *pos, void *rot, void *mdl) {
 
 INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_80137950);
 
-INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_801382D8);
-
-typedef struct { u8 pad0[0x12C]; s16 world[24]; } StageSet_393;
 extern u8 D_80139914[];
-extern StageSet_393 D_80138A20[];
+s32 Stage_GetWorld(s32);
+s32 func_80096580_801382D8(s32) asm("func_80096580");
+extern s8 D_801399A8[][4];
+extern s8 D_801399D4[];
+
+s32 func_801382D8(s32 world, s32 stage) {
+    s32 i;
+    s32 r;
+
+    if (Stage_GetWorld(D_80138A20[world].world[D_80139914[stage * 2 + world * 9 + 1]]) == 1) {
+        return 1;
+    }
+    if (world < 9) {
+        return func_80096580_801382D8(D_801399A8[world][stage]) > 0;
+    }
+    r = 1;
+    for (i = 0; D_801399D4[i] > 0; i++) {
+        if (func_80096580_801382D8(D_801399D4[i]) < 2) {
+            r = 0;
+            break;
+        }
+    }
+    return r;
+}
+
+extern u8 D_80139914[];
 s32 Stage_GetWorld(s32);
 void func_80096580(s32);
 

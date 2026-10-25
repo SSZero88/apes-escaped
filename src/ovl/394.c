@@ -88,7 +88,41 @@ INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136208);
 
 INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136724);
 
-INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136780);
+extern struct { u8 pad0[0x8280]; s32 f_8280; } g_Game_80136780 asm("g_Game");
+extern s32 D_800B4D64;
+typedef struct { u8 pad0[0x18]; u8 *f_18; u8 pad1C[0x40]; s16 f_5C, f_5E, f_60, f_62, f_64; u8 pad66[0xA]; s16 f_70, f_72; u8 *f_74; u8 pad78[0x10]; } Obj_80136780;
+extern Obj_80136780 D_80136F00[];
+u8 *func_8008C09C(s32);
+void Model_BindMesh(void *, u32 *);
+void func_80015AC0(void *, u8 *);
+
+s32 func_80136780(void) {
+    u8 *h;
+    s32 i;
+    Obj_80136780 *e;
+    u8 *q;
+
+    h = (u8 *)0x80154000;
+    g_Game_80136780.f_8280 = 2;
+    D_800B4D64 = (s32)func_8008C09C(0x40);
+    for (i = 0; i < g_Game_80136780.f_8280; i++) {
+        Model_BindMesh((void *)(D_800B4D64 + i * 0x20), (u32 *)(h + *(u16 *)(h + i * 4 + 0x14) * 4));
+    }
+    for (i = 0; i < 2; i++) {
+        func_80015AC0(&D_80136F00[i], h + *(u16 *)(h + i * 4 + 4) * 4);
+        q = (u8 *)(*(u16 *)(h + i * 4 + 0xC) * 4 + (s32)h);
+        D_80136F00[i].f_18 = q + *(s32 *)q * 4 + 4;
+        D_80136F00[i].f_74 = h + *(u16 *)(h + i * 4 + 0xC) * 4 + 4;
+        D_80136F00[i].f_5C = 0;
+        D_80136F00[i].f_5E = 0;
+        D_80136F00[i].f_70 = 0;
+        D_80136F00[i].f_72 = 0;
+        D_80136F00[i].f_60 = 0;
+        D_80136F00[i].f_62 = 0;
+        D_80136F00[i].f_64 = -0x1000;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_801368CC);
 
