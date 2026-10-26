@@ -73,7 +73,81 @@ s32 func_80136000(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_8013626C);
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_8013626C;
+typedef struct { u32 tag; u32 tpage; u32 code; u32 xy; u32 uvclut; u32 wh; } Sprt_8013626C;
+extern GameDraw g_Game_8013626C asm("g_Game");
+extern Sprt_8013626C *D_800EC354_8013626C asm("D_800EC354");
+extern u16 D_80137980[];
+extern u8 D_80137880[];
+
+u8 *func_8013626C(u8 *s, s32 x, s16 y, s32 flags) {
+    Sprt_8013626C *p;
+    u32 *ot;
+    u32 semi;
+    s32 opaque;
+    s32 a;
+
+    semi = 0;
+    opaque = 1;
+    if (flags & 8) {
+        semi = 0x2000000;
+        opaque = 0;
+    }
+    flags &= 3;
+    p = (Sprt_8013626C *)g_Game_8013626C.prim;
+    {
+        s32 b = (s32)g_Game_8013626C.db[g_Game_8013626C.cur].ot;
+        ot = (u32 *)(opaque * 4 + b);
+    }
+    for (;;) {
+        u32 c = *s;
+
+        if (c == 0) {
+            break;
+        }
+        if (c == 0xD) {
+            s++;
+            break;
+        }
+        if ((u16)(y + 0x20) < 0x131) {
+            a = 0x80;
+            if (y < 0x10) {
+                a = y * 4;
+                semi = 0x2000000;
+            }
+            if (y >= 0xD0) {
+                a = (0xF0 - y) * 4;
+            }
+            if (!opaque) {
+                a = 0x10;
+            }
+            a = a < 0 ? 0 : (a >= 0x100 ? 0xFF : a);
+            {
+                register u32 tp asm("$2") = 0xE1000226;
+                register u32 wh asm("$4") = 0x100010;
+                u32 m;
+
+                p->tpage = tp;
+                m = (a << 16) | (a << 8) | a;
+                {
+                    register u32 r asm("$3") = 0x64000000;
+                    p->code = semi | (m | r);
+                }
+                ((u8 *)p)[3] = 5;
+                p->xy = (y << 16) | (u16)x;
+                p->wh = wh;
+            }
+            p->uvclut = ((c >> 4) << 12) | ((c & 0xF) << 4) | (D_80137980[flags] << 16);
+            ((Tag_8013626C *)p)->addr = ((Tag_8013626C *)ot)->addr;
+            ((Tag_8013626C *)ot)->addr = (u32)p;
+            p++;
+            x += D_80137880[c];
+        }
+        s++;
+    }
+    D_800EC354_8013626C = p;
+    return s;
+}
 
 typedef struct { s16 x, y, w, h; } RECT_80136494;
 void LoadImage(RECT_80136494 *, u32 *);
@@ -200,7 +274,62 @@ void func_80137374(void)
 
 }
 
-INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_8013748C);
+typedef struct { s16 x, y; union { u8 c[4]; s32 col; } u; } Pt_8013748C;
+extern Pt_8013748C *D_801387B8_8013748C asm("D_801387B8");
+extern struct { s32 frame; u8 pad4[0x811C]; u16 f_8120; } g_Game_8013748C asm("g_Game");
+
+void func_8013748C(void) {
+    s32 a;
+    s32 b;
+    s32 c;
+    Pt_8013748C *p;
+    Pt_8013748C *l;
+    Pt_8013748C *r;
+    s32 i;
+    s32 k;
+    s32 mode;
+    register Pt_8013748C *q asm("$16");
+
+    p = D_801387B8_8013748C + 0xB0;
+    mode = g_Game_8013748C.f_8120 == 0x1E;
+    for (i = 12; i >= 2; i--) {
+        for (k = 0; k < 16; p++, k++) {
+            r = p + 1;
+            if (k == 15) {
+                r = p - 15;
+            }
+            l = p - 1;
+            if (k == 0) {
+                l = p + 15;
+            }
+            if (!mode) {
+                p->u.c[0] = (r[-16].u.c[0] + l[-16].u.c[0] + p[-16].u.c[0] * 2) >> 2;
+                p->u.c[1] = (r[-16].u.c[1] + l[-16].u.c[1] + p[-16].u.c[1] * 2) >> 2;
+                p->u.c[2] = (r[-16].u.c[2] + l[-16].u.c[2] + p[-16].u.c[2] * 2) >> 2;
+            } else {
+                p->u.c[0] = (r[-16].u.c[0] + l[-16].u.c[0] + p[-16].u.c[0] * 2) >> 4;
+                p->u.c[1] = (r[-16].u.c[1] + l[-16].u.c[1] + p[-16].u.c[1] * 2) >> 3;
+                p->u.c[2] = (r[-16].u.c[2] + l[-16].u.c[2] + p[-16].u.c[2] * 2) >> 2;
+            }
+        }
+        p -= 32;
+    }
+    p = D_801387B8_8013748C;
+    for (i = 15; i >= 0; i--) {
+        p[i].u.col = 0;
+    }
+    if (g_Game_8013748C.frame & 0xFF) {
+        for (i = 0, q = p, a = g_Game_8013748C.frame << 5; i < 16; a += 0x100, i++, q++) {
+            q->u.col += ((rsin(a) + 0x1000) * 4) & 0xFF00;
+        }
+        for (i = 0, q = p, b = (g_Game_8013748C.frame << 5) + 0x555; i < 16; b += 0x100, i++, q++) {
+            q->u.col += ((rsin(b) + 0x1000) >> 6) & 0xFF;
+        }
+        for (i = 0, q = p, c = (g_Game_8013748C.frame << 5) + 0xAAA; i < 16; c += 0x100, i++, q++) {
+            q->u.col += (((rsin(c) + 0x1000) >> 6) & 0xFF) << 16;
+        }
+    }
+}
 
 typedef struct { u32 xy; u32 col; } Vtx_801376EC;
 typedef struct { u32 addr : 24; u32 len : 8; } Tag_801376EC;
@@ -208,7 +337,6 @@ typedef struct { Tag_801376EC tag; u32 c0; u32 xy0; u32 c1; u32 xy1; u32 c2; u32
 extern struct { u32 frame; PolyG4_801376EC *prim; u32 *ot; } g_Game_801376EC asm("g_Game");
 extern PolyG4_801376EC *D_800EC354_801376EC asm("D_800EC354");
 extern Vtx_801376EC *D_801387B8_801376EC asm("D_801387B8");
-void func_8013748C();
 
 void func_801376EC(void) {
     PolyG4_801376EC *p = g_Game_801376EC.prim;

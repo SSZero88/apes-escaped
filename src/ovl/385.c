@@ -310,7 +310,45 @@ INCLUDE_ASM("asm/ovl/385/nonmatchings/385", func_80136AEC);
 
 INCLUDE_ASM("asm/ovl/385/nonmatchings/385", func_80136D18);
 
-INCLUDE_ASM("asm/ovl/385/nonmatchings/385", func_80136E60);
+typedef struct { s16 x, y, w, h; } Rect_80136E60;
+s32 LoadImage(void *rect, u32 *p);
+s32 func_800A3710(u8 *);
+s32 func_8002F1E0(s32);
+void func_80136FA0();
+
+void func_80136E60(u8 *s, Rect_80136E60 *r) {
+    u32 buf[0x80];
+    s32 n;
+    s32 x0;
+    s32 glyph;
+    s32 a, b, z;
+    s32 c;
+    register u8 *p asm("s1");
+
+    n = func_800A3710(s);
+    x0 = r->x;
+    for (p = s; p < s + n; p++) {
+        if (*p == '\n') {
+            r->x = x0;
+            r->y += r->h + 3;
+            continue;
+        }
+        if (*p & 0x80) {
+            c = *p++;
+            a = 7;
+            b = 0x1E;
+            z = 0;
+            glyph = func_8002F1E0(*p | (c << 8));
+        }
+        __asm__ volatile("" :: "r"(z));
+        DrawSync(0);
+        func_80136FA0(buf, glyph, a, b);
+        LoadImage(r, buf);
+        r->x++;
+        LoadImage(r, buf);
+        { s16 w = r->w; s16 x = r->x; r->x = x + w; }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/385/nonmatchings/385", func_80136FA0);
 

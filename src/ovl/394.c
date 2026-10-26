@@ -84,7 +84,150 @@ u8 *func_801361D8(u8 *arg0, s32 arg1)
   return var_a0;
 }
 
-INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136208);
+typedef struct { s16 x, y, w, h; } Rect_80136208;
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x, y, w, h; } Tile_80136208;
+extern struct { u8 pad0[0x10]; SVECTOR eye; SVECTOR at; u8 pad20[0x14]; s16 tx, ty, tz, n; u8 pad3C[0x20]; s32 f5C; } D_80137010_80136208 asm("D_80137010");
+extern struct { u8 pad0[0x24]; s32 f24; s32 f28; s32 f2C; } D_800EBFA0_80136208 asm("D_800EBFA0");
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; u16 mode; } g_Game_80136208 asm("g_Game");
+extern s16 D_80136E30;
+extern u8 D_80136E34[];
+extern s32 D_800E3890;
+void func_8008C01C(void);
+s32 Gfx_InitDisplay(void);
+s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
+s32 DrawSync(s32 mode);
+s32 VSync(s32 mode);
+void *PutDispEnv(void *env);
+void *PutDrawEnv(void *env);
+void DrawOTag(u32 *p);
+void func_80136C94(void);
+s32 func_80011194(void *);
+s32 func_800116C0(void);
+void Cd_Update(void);
+void Cd_WaitIdle();
+s32 func_80136780(void);
+s32 Sound_ResumeStreams(void);
+void func_8002FAF0(s32);
+void Light_SetColorMode(s32, s32, s32, s32);
+void func_80136C04(void);
+void func_80136C6C(void);
+void func_8001325C(s32);
+void Gfx_BeginFrame(void);
+void func_8008C390(void);
+void func_801368CC(void);
+void func_80136AA0(void);
+s32 func_80136724(void);
+void func_80136000(SVECTOR *eye, SVECTOR *at);
+
+s32 func_80136208(void) {
+    Rect_80136208 r = { 0, 0, 0x180, 0x200 };
+    SprtTp *p;
+    Tile_80136208 *t;
+    s32 n, dx, dy, dz;
+    u32 *ot;
+
+    func_8008C01C();
+    Gfx_InitDisplay();
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    g_Game_80136208.cur = 0;
+    PutDispEnv(&g_Game_80136208.db[g_Game_80136208.cur].env[0x5C]);
+    PutDrawEnv(g_Game_80136208.db[g_Game_80136208.cur].env);
+    VSync(0);
+    D_80136E30 = 0;
+    func_80136C94();
+    func_80011194(D_80136E34);
+    while (func_800116C0() >= 0) {
+        VSync(2);
+        Cd_Update();
+    }
+    Cd_WaitIdle(0);
+    func_80136780();
+    Sound_ResumeStreams();
+    func_8002FAF0(0x148);
+    Light_SetColorMode(0, 0, 0, 0);
+    D_800EBFA0_80136208.f24 = 0;
+    D_800EBFA0_80136208.f28 = 0x1000;
+    D_800EBFA0_80136208.f2C = 0x1000;
+    D_80137010_80136208.eye.vx = 0;
+    D_80137010_80136208.eye.vy = -0x100;
+    D_80137010_80136208.eye.vz = -0x200;
+    D_80137010_80136208.tx = 0;
+    D_80137010_80136208.ty = -0x100;
+    D_80137010_80136208.tz = -0x200;
+    D_80137010_80136208.n = 0x3C;
+    D_80137010_80136208.at.vx = 0;
+    D_80137010_80136208.at.vy = -0x80;
+    D_80137010_80136208.at.vz = 0;
+    D_80137010_80136208.f5C = 0;
+    func_80136000(&D_80137010_80136208.eye, &D_80137010_80136208.at);
+    func_80136C04();
+    func_80136C6C();
+    for (;;) {
+        func_8001325C(0);
+        Gfx_BeginFrame();
+        func_8008C390();
+        p = (SprtTp *)g_Game_80136208.prim;
+        ot = g_Game_80136208.ot;
+        ((u8 *)p)[3] = 5;
+        p->code = 0x65;
+        p->y0 = 0x20;
+        p->w = 0xC0;
+        p->h = 0x40;
+        p->tpage = 0xE1000206;
+        p->x0 = 0x60;
+        p->u0 = 0;
+        p->v0 = 0;
+        p->clut = 0x3C1B;
+        ADD_PRIM_R(&ot[0xFFF], p, "$4", "$2");
+        p++;
+        g_Game_80136208.prim = (u8 *)p;
+        func_801368CC();
+        func_80136AA0();
+        t = (Tile_80136208 *)g_Game_80136208.prim;
+        *(u32 *)&t->r0 = 0;
+        ((u8 *)t)[3] = 3;
+        t->code = 0x60;
+        *(u32 *)&t->x = 0;
+        *(u32 *)&t->w = 0xF00180;
+        ADD_PRIM_R(&g_Game_80136208.db[g_Game_80136208.cur].ot[0xFFF], t, "$5", "$3");
+        t++;
+        g_Game_80136208.prim = (u8 *)t;
+        if (func_80136724() < 0 && D_800E3890 == 0) {
+            break;
+        }
+        DrawSync(0);
+        VSync(0);
+        g_Game_80136208.frame++;
+        PutDispEnv(&g_Game_80136208.db[g_Game_80136208.cur].env[0x5C]);
+        PutDrawEnv(g_Game_80136208.db[g_Game_80136208.cur].env);
+        DrawOTag(&g_Game_80136208.db[g_Game_80136208.cur].ot[0xFFF]);
+        Cd_Update();
+        n = D_80137010_80136208.n;
+        if (n > 0) {
+            dx = (D_80137010_80136208.tx - D_80137010_80136208.eye.vx) / n;
+            dy = (D_80137010_80136208.ty - D_80137010_80136208.eye.vy) / n;
+            dz = (D_80137010_80136208.tz - D_80137010_80136208.eye.vz) / n;
+            D_80137010_80136208.n = --n;
+            D_80137010_80136208.eye.vx += dx;
+            D_80137010_80136208.eye.vy += dy;
+            D_80137010_80136208.eye.vz += dz;
+        }
+        func_80136000(&D_80137010_80136208.eye, &D_80137010_80136208.at);
+        D_80137010_80136208.f5C++;
+    }
+    g_Game_80136208.mode = 0xD;
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    VSync(0);
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    Gfx_InitDisplay();
+    PutDispEnv(&g_Game_80136208.db[g_Game_80136208.cur].env[0x5C]);
+    PutDrawEnv(g_Game_80136208.db[g_Game_80136208.cur].env);
+    VSync(0);
+    return 0;
+}
 
 extern s16 D_80136E30;
 extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_80136724 asm("g_Pad");

@@ -89,11 +89,235 @@ u8 *func_801361D8(u8 *arg0, s32 arg1)
   return var_a0;
 }
 
-INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_80136208);
+typedef struct { s16 x, y, w, h; } Rect_80136208;
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; u16 mode; u8 pad8122[4]; u16 stage; } g_Game_80136208 asm("g_Game");
+extern struct { u8 pad0[4]; s16 f4; s16 f6; u32 *f8; s32 fC; SVECTOR eye; SVECTOR at; u8 pad20[8]; s16 sub; s16 pad2A; s16 buf; u8 pad2E[0x1A]; s32 f48; s32 f4C; } D_80138CA0_80136208 asm("D_80138CA0");
+extern struct { u8 pad0[0x24]; s32 f24; s32 f28; s32 f2C; } D_800EBFA0_80136208 asm("D_800EBFA0");
+extern struct { u8 pad0[8]; s16 f8; u8 padA[6]; s16 f10; } D_801389B4_80136208 asm("D_801389B4");
+extern struct { u8 pad0[0xA1]; u8 f_A1; u8 f_A2; } g_GadgetState_80136208 asm("g_GadgetState");
+extern s16 D_801389B0;
+extern s32 D_80138CE8;
+s32 Gfx_InitDisplay(void);
+s32 ResetGraph(s32 mode);
+s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
+s32 DrawSync(s32 mode);
+s32 VSync(s32 mode);
+void *PutDispEnv(void *env);
+void *PutDrawEnv(void *env);
+void DrawOTag(u32 *p);
+void func_8002FAF0(s32);
+void Light_SetColorMode(s32, s32, s32, s32);
+s32 func_80011194(void *);
+void func_8001325C(s32);
+void Gfx_BeginFrame(void);
+s32 func_80136954(void);
+void func_80137CD4(void);
+void Cd_Update(void);
+s32 func_8001231C(void);
+s32 Sound_UnloadBanks(s32);
+s32 Cd_StartFileLoad(s32, s32);
+s32 func_800116C0(void);
+
+s32 func_80136208(void) {
+    Rect_80136208 r = { 0, 0, 0x180, 0x200 };
+    s32 s;
+
+    Gfx_InitDisplay();
+    ResetGraph(1);
+    ClearImage(&r, 0, 0, 0);
+    func_8002FAF0(0x148);
+    Light_SetColorMode(0, 0, 0, 0);
+    D_800EBFA0_80136208.f24 = 0;
+    D_800EBFA0_80136208.f28 = 0x1000;
+    D_800EBFA0_80136208.f2C = 0x1000;
+    DrawSync(0);
+    D_80138CE8 = 0;
+    switch (g_Game_80136208.stage) {
+    case 2:
+        g_Game_80136208.stage = 0x62;
+        D_80138CA0_80136208.f48 = 8;
+        D_80138CA0_80136208.f4C = 0x18;
+        break;
+    case 6:
+        g_Game_80136208.stage = 0x5C;
+        D_80138CA0_80136208.f48 = 2;
+        D_801389B4_80136208.f10 = 0x30;
+        D_80138CA0_80136208.f4C = 0x19;
+        break;
+    case 15:
+        g_Game_80136208.stage = 0x5D;
+        D_80138CA0_80136208.f48 = 3;
+        g_GadgetState_80136208.f_A1 = 7;
+        g_GadgetState_80136208.f_A2 = 3;
+        D_801389B4_80136208.f10 = 0x31;
+        D_80138CA0_80136208.f4C = 0x1A;
+        break;
+    case 20:
+        g_Game_80136208.stage = 0x5E;
+        D_80138CA0_80136208.f48 = 4;
+        D_801389B4_80136208.f10 = 0x32;
+        D_80138CA0_80136208.f4C = 0x1B;
+        break;
+    case 30:
+        g_Game_80136208.stage = 0x60;
+        D_80138CA0_80136208.f48 = 6;
+        D_801389B4_80136208.f10 = 0x33;
+        D_80138CA0_80136208.f4C = 0x1C;
+        break;
+    case 53:
+        g_Game_80136208.stage = 0x61;
+        D_80138CA0_80136208.f48 = 7;
+        D_801389B4_80136208.f8 = 0x24;
+        D_801389B4_80136208.f10 = 0x34;
+        D_80138CA0_80136208.f4C = 0x1D;
+        break;
+    default:
+        g_Game_80136208.stage = 0x5F;
+        D_80138CA0_80136208.f48 = 5;
+        D_801389B4_80136208.f10 = 0x35;
+        D_80138CA0_80136208.f4C = 0x1E;
+        break;
+    }
+    func_80011194(&D_801389B4_80136208);
+    g_Game_80136208.cur = 0;
+    D_80138CA0_80136208.f4 = 0x3FDF;
+    D_80138CA0_80136208.f6 = 0x26;
+    D_80138CA0_80136208.fC = 0x20;
+    D_80138CA0_80136208.eye.vz = -0x1000;
+    D_801389B0 = 0;
+    D_80138CA0_80136208.eye.vx = 0;
+    D_80138CA0_80136208.eye.vy = 0;
+    D_80138CA0_80136208.at.vx = 0;
+    D_80138CA0_80136208.at.vy = 0;
+    D_80138CA0_80136208.at.vz = 0;
+    g_Game_80136208.db[1].env[0x18] = 1;
+    g_Game_80136208.db[0].env[0x18] = 1;
+    g_Game_80136208.db[1].env[0x19] = 0;
+    g_Game_80136208.db[0].env[0x19] = 0;
+    g_Game_80136208.db[1].env[0x1A] = 0;
+    g_Game_80136208.db[0].env[0x1A] = 0;
+    g_Game_80136208.db[1].env[0x1B] = 8;
+    g_Game_80136208.db[0].env[0x1B] = 8;
+    g_Game_80136208.mode = 0x11;
+    do {
+        func_8001325C(0);
+        g_Game_80136208.frame++;
+        Gfx_BeginFrame();
+        D_80138CA0_80136208.f8 = g_Game_80136208.db[g_Game_80136208.cur].hud;
+        if (func_80136954() < 0) {
+            break;
+        }
+        DrawSync(0);
+        VSync(2);
+        switch (D_801389B0) {
+        case 1:
+            s = D_80138CA0_80136208.sub;
+            if (s == 0) {
+                func_80137CD4();
+                PutDispEnv(&g_Game_80136208.db[g_Game_80136208.cur].env[0x5C]);
+                PutDrawEnv(g_Game_80136208.db[g_Game_80136208.cur].env);
+                D_80138CA0_80136208.sub = 1;
+                D_80138CA0_80136208.buf = g_Game_80136208.cur;
+            } else if (s == 1) {
+                g_Game_80136208.db[1].env[0x18] = 0;
+                g_Game_80136208.db[0].env[0x18] = 0;
+                PutDispEnv(&g_Game_80136208.db[D_80138CA0_80136208.buf].env[0x5C]);
+                PutDrawEnv(g_Game_80136208.db[(s16)(D_80138CA0_80136208.buf ^ 1)].env);
+            } else if (s == 2) {
+                PutDispEnv(&g_Game_80136208.db[D_80138CA0_80136208.buf].env[0x5C]);
+                PutDrawEnv(g_Game_80136208.db[(s16)(D_80138CA0_80136208.buf ^ 1)].env);
+                g_Game_80136208.db[1].env[0x18] = 1;
+                g_Game_80136208.db[0].env[0x18] = 1;
+                D_801389B0 = s;
+            }
+            break;
+        case 3:
+            if (D_80138CA0_80136208.sub == 0) {
+                PutDispEnv(&g_Game_80136208.db[g_Game_80136208.cur].env[0x5C]);
+                PutDrawEnv(g_Game_80136208.db[g_Game_80136208.cur].env);
+                g_Game_80136208.db[1].env[0x18] = 0;
+                g_Game_80136208.db[0].env[0x18] = 0;
+                D_80138CA0_80136208.sub = 1;
+                D_80138CA0_80136208.buf = g_Game_80136208.cur;
+            } else if (D_80138CA0_80136208.sub == 1) {
+                PutDispEnv(&g_Game_80136208.db[D_80138CA0_80136208.buf].env[0x5C]);
+                PutDrawEnv(g_Game_80136208.db[(s16)(D_80138CA0_80136208.buf ^ 1)].env);
+            } else if (D_80138CA0_80136208.sub == 2) {
+                PutDispEnv(&g_Game_80136208.db[D_80138CA0_80136208.buf].env[0x5C]);
+                PutDrawEnv(g_Game_80136208.db[(s16)(D_80138CA0_80136208.buf ^ 1)].env);
+                D_801389B0 = 4;
+            }
+            break;
+        default:
+            PutDispEnv(&g_Game_80136208.db[g_Game_80136208.cur].env[0x5C]);
+            PutDrawEnv(g_Game_80136208.db[g_Game_80136208.cur].env);
+            break;
+        }
+        DrawOTag(&g_Game_80136208.db[g_Game_80136208.cur].ot[0xFFF]);
+        Cd_Update();
+    } while (D_801389B0 != 4);
+    DrawSync(0);
+    VSync(0);
+    func_8001231C();
+    Sound_UnloadBanks(1);
+    Cd_StartFileLoad(1, g_Game_80136208.stage);
+    while (func_800116C0() == 0) {
+        Cd_Update();
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_80136954);
 
-INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_80137214);
+extern u8 *D_800EC354;
+extern u8 D_80138B90[];
+typedef struct { s16 x, y; u16 clut, tpage; u32 *ot; s32 scale; } Pen_80137214;
+extern Pen_80137214 D_80138CA0_80137214 asm("D_80138CA0");
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad1; s16 x3, y3; u8 u3, v3; u16 pad2; } PolyFT4_80137214;
+
+void func_80137214(u8 *s) {
+    PolyFT4_80137214 *p;
+    s32 x, y, sc;
+    u32 c;
+    u8 u, v;
+
+    p = (PolyFT4_80137214 *)D_800EC354;
+    x = D_80138CA0_80137214.x;
+    y = D_80138CA0_80137214.y;
+    sc = D_80138CA0_80137214.scale;
+    while ((c = *s) != 0) {
+        p->x1 = x + sc;
+        p->x3 = x + sc;
+        u = (c & 0xF) << 4;
+        v = c & 0xF0;
+        p->u0 = u;
+        p->u2 = u;
+        p->v0 = v;
+        p->v1 = v;
+        u += 15;
+        v += 15;
+        ((u8 *)p)[3] = 9;
+        p->code = 0x2F;
+        p->x0 = x;
+        p->x2 = x;
+        p->y0 = y;
+        p->y1 = y;
+        p->y2 = y + sc;
+        p->y3 = y + sc;
+        p->u1 = u;
+        p->u3 = u;
+        p->v2 = v;
+        p->v3 = v;
+        p->clut = D_80138CA0_80137214.clut;
+        p->tpage = D_80138CA0_80137214.tpage;
+        { register u32 *ot asm("$3") = D_80138CA0_80137214.ot; ADD_PRIM_R(ot, p, "$4", "$2"); }
+        p++;
+        x += (D_80138B90[c] * sc) / 16;
+        s++;
+    }
+    D_80138CA0_80137214.x = x;
+    D_800EC354 = (u8 *)p;
+}
 
 void func_80137334(s32 arg0) {
     func_8008DDB0(M2C_FIELD(&D_80138CA0, s16 *, 0), M2C_FIELD(&D_80138CA0, s16 *, 2));
@@ -146,7 +370,264 @@ void func_801373A4(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_801374D0);
+typedef struct { u8 pad0[0x5C]; u16 frame; u16 anim; u8 pad60[0x10]; s16 next; u16 flags; s16 (*anims)[2]; s16 tr[3]; s16 rsteps; s16 tp[3]; s16 psteps; } Mdl_801374D0;
+typedef struct { s32 n; struct { s16 a; s16 b; s32 c; } e[1]; } Tbl_801374D0;
+typedef struct { u16 x; u16 y; u16 str; s8 type; s8 on; } Txt_801374D0;
+extern struct { s16 x, y; u8 pad4[8]; s32 fC; SVECTOR eye; SVECTOR at; s16 *pc; s16 *mark; u8 pad28[8]; Tbl_801374D0 *tbl; s16 eyeT[3]; s16 eyeN; s16 atT[3]; s16 atN; s32 wait; s32 f48; u8 pad4C[0xC]; s32 flags; s32 timer; } D_80138CA0_801374D0 asm("D_80138CA0");
+extern Mdl_801374D0 D_80138D00[];
+extern Txt_801374D0 D_80138B7C[];
+extern u8 D_80138AAC[];
+void func_80138468(void);
+void func_801373A4(void);
+void func_80137214(u8 *s);
+void func_80137334(s32 arg0);
+void func_801380D8(void);
+
+void func_801374D0(void) {
+    s16 *p;
+    s32 f;
+    s32 t;
+    u16 op;
+    s32 v;
+    s32 n, dx, dy, dz;
+    s32 ex, ey, ez;
+    Txt_801374D0 *e;
+    s32 found;
+    s32 k;
+    Tbl_801374D0 *tbl;
+    s32 cnt;
+    struct { s16 a; s16 b; s32 c; } *ent;
+
+    f = D_80138CA0_801374D0.flags;
+    p = D_80138CA0_801374D0.pc;
+    if (f & 1) {
+        found = 0;
+        tbl = D_80138CA0_801374D0.tbl;
+        t = D_80138CA0_801374D0.timer;
+        cnt = tbl->n;
+        ent = tbl->e;
+        if (t <= 0xFFFE) {
+            t++;
+        }
+        for (k = 0; k < cnt; k++) {
+            if (t <= ent[k].b) {
+                found = 1;
+            }
+        }
+        D_80138CA0_801374D0.timer = t;
+        if (!found) {
+            D_80138CA0_801374D0.flags |= 2;
+        }
+    }
+    while (*p != 0x3FC0) {
+        op = *p;
+        switch (op & 0x3FC0) {
+        case 0x40:
+            {
+            s16 i = op & 0x3F;
+            switch (i) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                p++;
+                D_80138D00[i].tp[0] = *p;
+                p++;
+                D_80138D00[i].tp[1] = *p;
+                p++;
+                D_80138D00[i].tp[2] = *p;
+                p++;
+                D_80138D00[i].psteps = *p;
+                break;
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+                break;
+            case 17:
+                p++;
+                D_80138CA0_801374D0.eye.vx = *p;
+                p++;
+                D_80138CA0_801374D0.eye.vy = *p;
+                p++;
+                D_80138CA0_801374D0.eye.vz = *p;
+                break;
+            case 16:
+                p++;
+                D_80138CA0_801374D0.at.vx = *p;
+                p++;
+                D_80138CA0_801374D0.at.vy = *p;
+                p++;
+                D_80138CA0_801374D0.at.vz = *p;
+                break;
+            case 19:
+                p++;
+                D_80138CA0_801374D0.eyeT[0] = *p;
+                p++;
+                D_80138CA0_801374D0.eyeT[1] = *p;
+                p++;
+                D_80138CA0_801374D0.eyeT[2] = *p;
+                p++;
+                D_80138CA0_801374D0.eyeN = *p;
+                break;
+            case 18:
+                p++;
+                D_80138CA0_801374D0.atT[0] = *p;
+                p++;
+                D_80138CA0_801374D0.atT[1] = *p;
+                p++;
+                D_80138CA0_801374D0.atT[2] = *p;
+                p++;
+                D_80138CA0_801374D0.atN = *p;
+                break;
+            }
+            }
+            break;
+        case 0x80:
+            {
+            s32 i = op & 0x3F;
+            if (i < 5) if (i >= 0) {
+                p++;
+                D_80138D00[i].tr[0] = *p;
+                p++;
+                D_80138D00[i].tr[1] = *p;
+                p++;
+                D_80138D00[i].tr[2] = *p;
+                p++;
+                D_80138D00[i].rsteps = *p;
+            }
+            }
+            break;
+        case 0x0:
+            {
+            s32 i = op & 0x3F;
+            if (i < 5) if (i >= 0) {
+                p++;
+                D_80138D00[i].flags = *p;
+            }
+            }
+            break;
+        case 0x140:
+            {
+            s32 i = op & 0x3F;
+            if (i < 5) if (i >= 0) {
+                p++;
+                D_80138D00[i].next = *p;
+            }
+            }
+            break;
+        case 0x180:
+            {
+            s32 i = op & 0x3F;
+            if (i < 5) if (i >= 0) {
+                p++;
+                v = *p;
+                D_80138D00[i].anim = v;
+                D_80138D00[i].frame = D_80138D00[i].anims[v][0];
+                D_80138D00[i].next = v;
+            }
+            }
+            break;
+        case 0x1C0:
+            p++;
+            D_80138CA0_801374D0.wait = *p;
+            break;
+        case 0x200:
+            if (D_80138CA0_801374D0.wait != 0) {
+                D_80138CA0_801374D0.wait--;
+                goto done;
+            }
+            break;
+        case 0xC0:
+            p++;
+            D_80138B7C[*p].on = 1;
+            break;
+        case 0x100:
+            p++;
+            D_80138B7C[*p].on = 0;
+            break;
+        case 0x240:
+            D_80138CA0_801374D0.mark = p + 1;
+            break;
+        case 0x280:
+            p = D_80138CA0_801374D0.mark;
+            goto done2;
+        case 0x2C0:
+            p++;
+            func_80137D4C(*p);
+            p++;
+            continue;
+        case 0x300:
+            D_80138CA0_801374D0.flags = 1;
+            break;
+        case 0x340:
+            if (!(D_80138CA0_801374D0.flags & 2)) {
+                D_80138CA0_801374D0.wait--;
+                goto done;
+            }
+            break;
+        case 0x3C0:
+            func_80138468();
+            break;
+        }
+        p++;
+    }
+done:
+done2:
+    D_80138CA0_801374D0.pc = p;
+    if (D_80138CA0_801374D0.f48 != 7) {
+        func_801373A4();
+    }
+    n = D_80138CA0_801374D0.eyeN;
+    if (n > 0) {
+        dx = (D_80138CA0_801374D0.eyeT[0] - D_80138CA0_801374D0.eye.vx) / n;
+        dy = (D_80138CA0_801374D0.eyeT[1] - D_80138CA0_801374D0.eye.vy) / n;
+        dz = (D_80138CA0_801374D0.eyeT[2] - D_80138CA0_801374D0.eye.vz) / n;
+        D_80138CA0_801374D0.eyeN = --n;
+        D_80138CA0_801374D0.eye.vx += dx;
+        D_80138CA0_801374D0.eye.vy += dy;
+        D_80138CA0_801374D0.eye.vz += dz;
+    }
+    n = D_80138CA0_801374D0.atN;
+    if (n > 0) {
+        ex = (D_80138CA0_801374D0.atT[0] - D_80138CA0_801374D0.at.vx) / n;
+        ey = (D_80138CA0_801374D0.atT[1] - D_80138CA0_801374D0.at.vy) / n;
+        ez = (D_80138CA0_801374D0.atT[2] - D_80138CA0_801374D0.at.vz) / n;
+        D_80138CA0_801374D0.atN = --n;
+        D_80138CA0_801374D0.at.vx += ex;
+        D_80138CA0_801374D0.at.vy += ey;
+        D_80138CA0_801374D0.at.vz += ez;
+    }
+    e = D_80138B7C;
+    while (e->on >= 0) {
+        if ((u8)e->on == 0) {
+            e++;
+            continue;
+        }
+        D_80138CA0_801374D0.x = e->x;
+        D_80138CA0_801374D0.y = e->y;
+        switch (e->type) {
+        case 0:
+            func_80137214(func_801361D8(D_80138AAC, e->str));
+            break;
+        case 1:
+            func_80137334((s32)func_801361D8(D_80138AAC, e->str));
+            break;
+        case 2:
+            func_801380D8();
+            break;
+        }
+        e++;
+    }
+}
 
 void SetDrawStp(void *, s32);
 

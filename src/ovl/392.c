@@ -103,7 +103,6 @@ extern u8 D_8013AED0[];
 extern u8 D_800F4458[];
 extern struct { u8 pad0[0x8120]; u16 mode; u8 pad8122[4]; u16 stage; u8 pad8128[0x1C]; u32 best; u8 pad8148[0x12]; u16 f_815A; } g_Game_8013683C asm("g_Game");
 s32 func_80136A1C(void);
-void func_801375B4(void);
 s32 SaveByte_Get(s32);
 s32 Stage_GetWorld(s32);
 s32 Stage_GetInfo(u32, void *);
@@ -160,7 +159,130 @@ s32 func_8013683C(void) {
 
 INCLUDE_RODATA("asm/ovl/392/nonmatchings/392", D_8013ADB0);
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80136A1C);
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x26]; u16 stage; } g_Game_80136A1C asm("g_Game");
+extern struct { u8 pad0[4]; s16 f4; s16 f6; u8 pad8[4]; s32 fC; u8 pad10[0x10]; u8 *f20; u8 pad24[4]; s16 sub; s16 pad2A; s16 buf; u8 pad2E[0x1A]; s32 f48; } D_8013B998_6A1C asm("D_8013B998");
+extern struct { u8 pad0[0x24]; s32 f24; s32 f28; s32 f2C; } D_800EBFA0_6A1C asm("D_800EBFA0");
+extern struct { u8 pad0[8]; u16 f8; u8 padA[6]; u16 f10; } D_8013AE84_6A1C asm("D_8013AE84");
+extern u8 *D_8013B9B8_6A1C asm("D_8013B9B8");
+extern u8 D_8013B228[];
+extern u8 D_8013B290[];
+extern u8 D_8013B2D0[];
+extern u8 D_8013B310[];
+extern u8 D_8013B350[];
+extern u8 D_8013B390[];
+extern u8 D_8013B408[];
+s32 Gfx_InitDisplay(void);
+s32 ResetGraph(s32 mode);
+void func_8002FAF0(s32);
+void Light_SetColorMode(s32, s32, s32, s32);
+void func_8008C01C(void);
+s32 func_80010CA4(s32);
+void func_80011194(void *);
+void func_8001325C(s32);
+void Gfx_BeginFrame(void);
+void func_8008C390(void);
+s32 func_80137198(void);
+void func_80139710(void);
+void *PutDrawEnv(void *env);
+void *PutDispEnv(void *env);
+void DrawOTag(u32 *p);
+void Cd_Update(void);
+void func_800964DC(s32);
+
+s32 func_80136A1C(void) {
+    Rect_8013683C r;
+    u16 add;
+    s32 s;
+
+    r = D_8013ADB0;
+    Gfx_InitDisplay();
+    add = 0;
+    ResetGraph(1);
+    ClearImage(&r, 0, 0, 0);
+    func_8002FAF0(0x148);
+    Light_SetColorMode(0, 0, 0, 0);
+    D_800EBFA0_6A1C.f24 = 0;
+    D_800EBFA0_6A1C.f28 = 0x1000;
+    D_800EBFA0_6A1C.f2C = 0x1000;
+    DrawSync(0);
+    func_8008C01C();
+    D_8013B998_6A1C.f20 = D_8013B228;
+    D_8013B998_6A1C.f48 = 0;
+    switch (func_80010CA4(g_Game_80136A1C.stage)) {
+    case 2:
+        add = 2;
+        D_8013B9B8_6A1C = D_8013B290;
+        break;
+    case 4:
+        add = 4;
+        D_8013B9B8_6A1C = D_8013B2D0;
+        break;
+    case 5:
+        add = 6;
+        D_8013B9B8_6A1C = D_8013B310;
+        break;
+    case 7:
+        add = 8;
+        D_8013B9B8_6A1C = D_8013B350;
+        break;
+    case 10:
+        add = 10;
+        D_8013B9B8_6A1C = D_8013B390;
+        break;
+    case 11:
+        add = 12;
+        D_8013B998_6A1C.f20 = D_8013B408;
+        D_8013B998_6A1C.f48 = 1;
+        break;
+    }
+    D_8013AE84_6A1C.f8 += add;
+    D_8013AE84_6A1C.f10 += add;
+    func_80011194(&D_8013AE84_6A1C);
+    D_8013B998_6A1C.f4 = 0x3FDF;
+    D_8013B998_6A1C.f6 = 6;
+    D_8013B998_6A1C.fC = 0x10;
+    g_Game_80136A1C.db[1].env[0x18] = 1;
+    g_Game_80136A1C.db[0].env[0x18] = 1;
+    g_Game_80136A1C.db[1].env[0x19] = 0;
+    g_Game_80136A1C.db[0].env[0x19] = 0;
+    g_Game_80136A1C.db[1].env[0x1A] = 0;
+    g_Game_80136A1C.db[0].env[0x1A] = 0;
+    g_Game_80136A1C.db[1].env[0x1B] = 8;
+    g_Game_80136A1C.db[0].env[0x1B] = 8;
+    while (func_8001325C(0), Gfx_BeginFrame(), func_8008C390(), func_80137198() >= 0) {
+        DrawSync(0);
+        VSync(2);
+        g_Game_80136A1C.frame++;
+        if (D_8013AE60 == 1 || D_8013AE60 == 3) {
+            s = D_8013B998_6A1C.sub;
+            if (s == 0) {
+                func_80139710();
+                PutDispEnv(&g_Game_80136A1C.db[g_Game_80136A1C.cur].env[0x5C]);
+                PutDrawEnv(g_Game_80136A1C.db[g_Game_80136A1C.cur].env);
+                D_8013B998_6A1C.sub = 1;
+                D_8013B998_6A1C.buf = g_Game_80136A1C.cur;
+            } else if (s == 1) {
+                g_Game_80136A1C.db[1].env[0x18] = 0;
+                g_Game_80136A1C.db[0].env[0x18] = 0;
+                PutDispEnv(&g_Game_80136A1C.db[D_8013B998_6A1C.buf].env[0x5C]);
+                PutDrawEnv(g_Game_80136A1C.db[(s16)(D_8013B998_6A1C.buf ^ 1)].env);
+            } else if (s == 2) {
+                PutDispEnv(&g_Game_80136A1C.db[D_8013B998_6A1C.buf].env[0x5C]);
+                PutDrawEnv(g_Game_80136A1C.db[(s16)(D_8013B998_6A1C.buf ^ 1)].env);
+                g_Game_80136A1C.db[1].env[0x18] = 1;
+                g_Game_80136A1C.db[0].env[0x18] = 1;
+                D_8013AE60 = s;
+            }
+        } else {
+            PutDispEnv(&g_Game_80136A1C.db[g_Game_80136A1C.cur].env[0x5C]);
+            PutDrawEnv(g_Game_80136A1C.db[g_Game_80136A1C.cur].env);
+        }
+        DrawOTag(&g_Game_80136A1C.db[g_Game_80136A1C.cur].ot[0xFFF]);
+        Cd_Update();
+    }
+    func_800964DC(g_Game_80136A1C.stage);
+    return 0;
+}
 
 typedef struct { s16 x, y, w, h; } Rect_80136EAC;
 extern GameDraw g_Game_80136EAC asm("g_Game");
@@ -270,7 +392,6 @@ s32 func_80010CA4(s32);
 void func_80138138();
 void func_801380DC(void);
 void func_80138118(void);
-void func_801385B0();
 void func_80136000(SVECTOR *eye, SVECTOR *at);
 void func_80016F34(void);
 s32 Sound_PlayFixed(s32);
@@ -385,7 +506,160 @@ s32 func_80137198(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801375B4);
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; u16 mode; u8 pad8122[4]; u16 stage; u8 pad8128[0x20]; s32 f_8148; s32 f_814C; } g_Game_801375B4 asm("g_Game");
+extern struct { u8 pad0[4]; s16 f4; s16 f6; u32 *f8; s32 fC; SVECTOR eye; SVECTOR at; u8 pad20[8]; s16 sub; s16 pad2A; s16 buf; u8 pad2E[0x2A]; s32 f58; } D_8013B998_801375B4 asm("D_8013B998");
+extern struct { u8 pad0[0x24]; s32 f24; s32 f28; s32 f2C; } D_800EBFA0_801375B4 asm("D_800EBFA0");
+extern struct { s16 f0; u8 pad2[0xE]; s16 f10; } D_8013AE64_801375B4 asm("D_8013AE64");
+extern u16 g_RandSeed;
+extern u16 D_800AE8F2;
+extern u8 D_8013B008[];
+extern u8 D_8013B0A8[];
+extern u8 D_8013B148[];
+s32 func_80096580(s32);
+s32 Stage_GetTargetTimes(u32);
+void Spike_SetBlinkFrame(s32);
+s32 func_80137C88(void);
+
+s32 func_801375B4(void) {
+    Rect_8013683C r;
+    s16 *t;
+    s32 w;
+    s32 best;
+    s32 s;
+
+    r = D_8013ADB0;
+    Gfx_InitDisplay();
+    ResetGraph(1);
+    ClearImage(&r, 0, 0, 0);
+    func_8002FAF0(0x148);
+    Light_SetColorMode(0, 0, 0, 0);
+    D_800EBFA0_801375B4.f24 = 0;
+    D_800EBFA0_801375B4.f28 = 0x1000;
+    D_800EBFA0_801375B4.f2C = 0x1000;
+    DrawSync(0);
+    func_8008C01C();
+    func_8013A7A8();
+    switch (g_Game_801375B4.stage) {
+    case 0x13:
+    case 0x24:
+        D_8013AE64_801375B4.f0 = 0x1B;
+        D_8013AE64_801375B4.f10 = 0x26;
+        D_8013B9B8 = (s16 *)D_8013B148;
+        break;
+    case 0x2D:
+    case 0x3F:
+    case 0x45:
+    case 0x57:
+        if (g_Game_801375B4.mode == 0x12 || func_80096580(Stage_GetWorld(g_Game_801375B4.stage)) > 0) {
+            D_8013B9B8 = (s16 *)D_8013B008;
+        } else {
+            D_8013AE64_801375B4.f10 = 0x27;
+            D_8013B9B8 = (s16 *)D_8013B0A8;
+        }
+        break;
+    default:
+        D_8013B9B8 = (s16 *)D_8013B008;
+        break;
+    }
+    func_80011194(&D_8013AE64_801375B4);
+    g_Game_801375B4.cur = 0;
+    D_8013B998_801375B4.f4 = 0x1B;
+    D_8013B998_801375B4.f6 = 0x26;
+    D_8013B998_801375B4.fC = 0x10;
+    D_8013B998_801375B4.f58 = 0;
+    g_Game_801375B4.db[1].env[0x18] = 1;
+    g_Game_801375B4.db[0].env[0x18] = 1;
+    g_Game_801375B4.db[1].env[0x19] = 0;
+    g_Game_801375B4.db[0].env[0x19] = 0;
+    g_Game_801375B4.db[1].env[0x1A] = 0;
+    g_Game_801375B4.db[0].env[0x1A] = 0;
+    g_Game_801375B4.db[1].env[0x1B] = 8;
+    g_Game_801375B4.db[0].env[0x1B] = 8;
+    g_Game_801375B4.f_814C = -1;
+    if (g_Game_801375B4.mode == 0x12) {
+        w = Stage_GetWorld(g_Game_801375B4.stage);
+        t = (s16 *)Stage_GetTargetTimes(w);
+        Stage_GetInfo(w, (void *)0x1F800000);
+        g_Game_801375B4.f_8148 = t[0];
+        best = *(s32 *)0x1F800000;
+        if (best != -1) {
+            if (t[2] >= best) {
+                g_Game_801375B4.f_8148 = -1;
+                g_Game_801375B4.f_814C = t[3];
+            } else if (t[1] >= best) {
+                g_Game_801375B4.f_8148 = t[2];
+            } else if (t[0] >= best) {
+                g_Game_801375B4.f_8148 = t[1];
+            }
+        }
+    } else {
+        g_Game_801375B4.f_8148 = -1;
+    }
+    for (;;) {
+        func_8001325C(0);
+        g_RandSeed = g_RandSeed * 5 + 1;
+        D_800AE8F2 = D_800AE8F2 * 5 + 1;
+        Gfx_BeginFrame();
+        D_8013B998_801375B4.f8 = g_Game_801375B4.db[g_Game_801375B4.cur].hud;
+        g_Game_801375B4.frame++;
+        func_8008C390();
+        Spike_SetBlinkFrame(0);
+        if (func_80137C88() < 0) {
+            break;
+        }
+        DrawSync(0);
+        VSync(2);
+        switch (D_8013AE60) {
+        case 1:
+            s = D_8013B998_801375B4.sub;
+            if (s == 0) {
+                func_80139710();
+                PutDispEnv(&g_Game_801375B4.db[g_Game_801375B4.cur].env[0x5C]);
+                PutDrawEnv(g_Game_801375B4.db[g_Game_801375B4.cur].env);
+                D_8013B998_801375B4.sub = 1;
+                D_8013B998_801375B4.buf = g_Game_801375B4.cur;
+            } else if (s == 1) {
+                g_Game_801375B4.db[1].env[0x18] = 0;
+                g_Game_801375B4.db[0].env[0x18] = 0;
+                PutDispEnv(&g_Game_801375B4.db[D_8013B998_801375B4.buf].env[0x5C]);
+                PutDrawEnv(g_Game_801375B4.db[(s16)(D_8013B998_801375B4.buf ^ 1)].env);
+            } else if (s == 2) {
+                PutDispEnv(&g_Game_801375B4.db[D_8013B998_801375B4.buf].env[0x5C]);
+                PutDrawEnv(g_Game_801375B4.db[(s16)(D_8013B998_801375B4.buf ^ 1)].env);
+                g_Game_801375B4.db[1].env[0x18] = 1;
+                g_Game_801375B4.db[0].env[0x18] = 1;
+                D_8013AE60 = s;
+            }
+            break;
+        case 3:
+            if (D_8013B998_801375B4.sub == 0) {
+                PutDispEnv(&g_Game_801375B4.db[g_Game_801375B4.cur].env[0x5C]);
+                PutDrawEnv(g_Game_801375B4.db[g_Game_801375B4.cur].env);
+                g_Game_801375B4.db[1].env[0x18] = 0;
+                g_Game_801375B4.db[0].env[0x18] = 0;
+                D_8013B998_801375B4.sub = 1;
+                D_8013B998_801375B4.buf = g_Game_801375B4.cur;
+            } else if (D_8013B998_801375B4.sub == 1) {
+                PutDispEnv(&g_Game_801375B4.db[D_8013B998_801375B4.buf].env[0x5C]);
+                PutDrawEnv(g_Game_801375B4.db[(s16)(D_8013B998_801375B4.buf ^ 1)].env);
+            } else if (D_8013B998_801375B4.sub == 2) {
+                PutDispEnv(&g_Game_801375B4.db[D_8013B998_801375B4.buf].env[0x5C]);
+                PutDrawEnv(g_Game_801375B4.db[(s16)(D_8013B998_801375B4.buf ^ 1)].env);
+            }
+            break;
+        default:
+            PutDispEnv(&g_Game_801375B4.db[g_Game_801375B4.cur].env[0x5C]);
+            PutDrawEnv(g_Game_801375B4.db[g_Game_801375B4.cur].env);
+            break;
+        }
+        DrawOTag(&g_Game_801375B4.db[g_Game_801375B4.cur].ot[0xFFF]);
+        DrawOTag(g_Game_801375B4.db[g_Game_801375B4.cur].hud);
+        Cd_Update();
+    }
+    DrawSync(0);
+    VSync(0);
+    return 0;
+}
 
 extern struct { u8 pad0[0x8120]; u16 f_8120; u8 pad8122[2]; u16 f_8124; u16 stage; u8 pad8128[0x1A4]; u8 f_82CC; u8 f_82CD; } g_Game_80137C88 asm("g_Game");
 extern s16 D_8013B480;
@@ -583,7 +857,275 @@ s32 func_80138370(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801385B0);
+typedef struct { u8 pad0[0x5C]; u16 frame; u16 anim; u8 pad60[0x10]; s16 next; u16 flags; s16 (*anims)[2]; s16 tr[3]; s16 rsteps; s16 tp[3]; s16 psteps; } Mdl_801385B0;
+typedef struct { u16 x; u16 y; u16 str; s8 type; s8 on; } Txt_801385B0;
+extern struct { s16 x, y; u8 pad4[8]; s32 fC; SVECTOR eye; SVECTOR at; s16 *pc; s16 *mark; u8 pad28[0xC]; s16 eyeT[3]; s16 eyeN; s16 atT[3]; s16 atN; s32 wait; u8 pad48[8]; u16 f50; u8 pad52[6]; s32 flags; s32 timer; } D_8013B998_801385B0 asm("D_8013B998");
+extern Mdl_801385B0 D_8013B6F0_801385B0[] asm("D_8013B6F0");
+extern Txt_801385B0 D_8013AEA4_801385B0[] asm("D_8013AEA4");
+extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x26]; u16 stage; } g_Game_801385B0 asm("g_Game");
+void Cd_PlayXaTrack();
+void func_80139248(void);
+void func_801394D0(void);
+
+void func_801385B0(void) {
+    s16 *p;
+    s32 f;
+    s32 t;
+    u16 op;
+    s32 v;
+    s32 n, dx, dy, dz;
+    s32 ex, ey, ez;
+    s32 xa;
+    s32 st;
+    Txt_801385B0 *e;
+
+    f = D_8013B998_801385B0.flags;
+    p = D_8013B998_801385B0.pc;
+    if (f & 1) {
+        t = D_8013B998_801385B0.timer;
+        if (t <= 0xFFFE) {
+            t++;
+        }
+        D_8013B998_801385B0.timer = t;
+        D_8013B998_801385B0.flags = f | 2;
+    }
+    while (*p != 0x3FC0) {
+        op = *p;
+        switch (op & 0x3FC0) {
+        case 0x40:
+            {
+            s16 i = op & 0x3F;
+            switch (i) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                p++;
+                D_8013B6F0_801385B0[i].tp[0] = *p;
+                p++;
+                D_8013B6F0_801385B0[i].tp[1] = *p;
+                p++;
+                D_8013B6F0_801385B0[i].tp[2] = *p;
+                p++;
+                D_8013B6F0_801385B0[i].psteps = *p;
+                break;
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+                break;
+            case 17:
+                p++;
+                D_8013B998_801385B0.eye.vx = *p;
+                p++;
+                D_8013B998_801385B0.eye.vy = *p;
+                p++;
+                D_8013B998_801385B0.eye.vz = *p;
+                break;
+            case 16:
+                p++;
+                D_8013B998_801385B0.at.vx = *p;
+                p++;
+                D_8013B998_801385B0.at.vy = *p;
+                p++;
+                D_8013B998_801385B0.at.vz = *p;
+                break;
+            case 19:
+                p++;
+                D_8013B998_801385B0.eyeT[0] = *p;
+                p++;
+                D_8013B998_801385B0.eyeT[1] = *p;
+                p++;
+                D_8013B998_801385B0.eyeT[2] = *p;
+                p++;
+                D_8013B998_801385B0.eyeN = *p;
+                break;
+            case 18:
+                p++;
+                D_8013B998_801385B0.atT[0] = *p;
+                p++;
+                D_8013B998_801385B0.atT[1] = *p;
+                p++;
+                D_8013B998_801385B0.atT[2] = *p;
+                p++;
+                D_8013B998_801385B0.atN = *p;
+                break;
+            }
+            }
+            break;
+        case 0x80:
+            {
+            s32 i = op & 0x3F;
+            if (i < 5) if (i >= 0) {
+                p++;
+                D_8013B6F0_801385B0[i].tr[0] = *p;
+                p++;
+                D_8013B6F0_801385B0[i].tr[1] = *p;
+                p++;
+                D_8013B6F0_801385B0[i].tr[2] = *p;
+                p++;
+                D_8013B6F0_801385B0[i].rsteps = *p;
+            }
+            }
+            break;
+        case 0x0:
+            {
+            s32 i = op & 0x3F;
+            if (i < 5) if (i >= 0) {
+                p++;
+                D_8013B6F0_801385B0[i].flags = *p;
+            }
+            }
+            break;
+        case 0x140:
+            {
+            s32 i = op & 0x3F;
+            if (i < 5) if (i >= 0) {
+                p++;
+                D_8013B6F0_801385B0[i].next = *p;
+            }
+            }
+            break;
+        case 0x180:
+            {
+            s32 i = op & 0x3F;
+            if (i < 5) if (i >= 0) {
+                p++;
+                v = *p;
+                D_8013B6F0_801385B0[i].anim = v;
+                D_8013B6F0_801385B0[i].frame = D_8013B6F0_801385B0[i].anims[v][0];
+                D_8013B6F0_801385B0[i].next = v;
+            }
+            }
+            break;
+        case 0x1C0:
+            p++;
+            D_8013B998_801385B0.wait = *p;
+            break;
+        case 0x200:
+            if (D_8013B998_801385B0.wait != 0) {
+                D_8013B998_801385B0.wait--;
+                goto done;
+            }
+            break;
+        case 0xC0:
+            p++;
+            D_8013AEA4_801385B0[*p].on = 1;
+            break;
+        case 0x240:
+            D_8013B998_801385B0.mark = p + 1;
+            break;
+        case 0x280:
+            p = D_8013B998_801385B0.mark;
+            goto done2;
+        case 0x300:
+            D_8013B998_801385B0.flags = 1;
+            break;
+        case 0x340:
+            if (!(D_8013B998_801385B0.flags & 2)) {
+                D_8013B998_801385B0.wait--;
+                goto done;
+            }
+            break;
+        case 0x380:
+            if ((u32)D_8013B998_801385B0.timer < (u32)p[1]) {
+                goto done2;
+            }
+            p++;
+            break;
+        case 0x3C0:
+            st = g_Game_801385B0.stage;
+            if (st == 0x13 || st == 0x24) {
+                Cd_PlayXaTrack(0x28);
+            } else {
+                xa = 0;
+                switch (func_80010CA4(st)) {
+                case 2:
+                    xa = 1;
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    xa = 2;
+                    break;
+                case 5:
+                    xa = 3;
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    xa = 4;
+                    break;
+                case 8:
+                case 9:
+                    break;
+                case 10:
+                    xa = 5;
+                    break;
+                case 11:
+                    xa = 6;
+                    break;
+                }
+                Cd_PlayXaTrack(xa | 0x10);
+            }
+            break;
+        }
+        p++;
+    }
+done:
+done2:
+    D_8013B998_801385B0.pc = p;
+    n = D_8013B998_801385B0.eyeN;
+    if (n > 0) {
+        dx = (D_8013B998_801385B0.eyeT[0] - D_8013B998_801385B0.eye.vx) / n;
+        dy = (D_8013B998_801385B0.eyeT[1] - D_8013B998_801385B0.eye.vy) / n;
+        dz = (D_8013B998_801385B0.eyeT[2] - D_8013B998_801385B0.eye.vz) / n;
+        D_8013B998_801385B0.eyeN = --n;
+        D_8013B998_801385B0.eye.vx += dx;
+        D_8013B998_801385B0.eye.vy += dy;
+        D_8013B998_801385B0.eye.vz += dz;
+    }
+    n = D_8013B998_801385B0.atN;
+    if (n > 0) {
+        ex = (D_8013B998_801385B0.atT[0] - D_8013B998_801385B0.at.vx) / n;
+        ey = (D_8013B998_801385B0.atT[1] - D_8013B998_801385B0.at.vy) / n;
+        ez = (D_8013B998_801385B0.atT[2] - D_8013B998_801385B0.at.vz) / n;
+        D_8013B998_801385B0.atN = --n;
+        D_8013B998_801385B0.at.vx += ex;
+        D_8013B998_801385B0.at.vy += ey;
+        D_8013B998_801385B0.at.vz += ez;
+    }
+    for (e = D_8013AEA4_801385B0; e->on >= 0; e++) {
+        if ((u8)e->on == 0) {
+            continue;
+        }
+        D_8013B998_801385B0.x = e->x;
+        D_8013B998_801385B0.y = e->y;
+        switch (e->type) {
+        case 0:
+            func_80139248();
+            break;
+        case 1:
+            break;
+        case 2:
+            if (g_Game_801385B0.frame % 30 < 15) {
+                func_801394D0();
+                if (g_Game_801385B0.stage != 0x13 && g_Game_801385B0.stage != 0x24 && g_Game_801385B0.frame % 30 == 0) {
+                    Sound_PlayFixed(0xAF);
+                }
+            }
+            break;
+        }
+    }
+}
 
 typedef struct { u8 pad0[4]; s16 a; u8 pad6[2]; s16 b; u8 padA[4]; s16 c; u8 str[8]; } Scr_80138E04;
 typedef struct { s16 x, y; u16 clut, tpage; u32 *ot; } TextPos_80138E04;

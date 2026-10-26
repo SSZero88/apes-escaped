@@ -154,7 +154,37 @@ void func_80138560(SVECTOR *eye, SVECTOR *at) {
     CompMatrix(&D_800AF0A0, &D_800E78C0, &D_800E78C0);
 }
 
-INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_80138700);
+extern u16 D_800AE8F2;
+extern u8 *D_800EC354;
+extern u8 D_80139BF0[];
+typedef struct { s16 x, y; u16 clut; u16 tpage; u32 *ot; } Pen_80138700;
+extern Pen_80138700 D_80139CF0;
+
+void func_80138700(u8 *s) {
+    SprtTp *p;
+    u32 c;
+    u32 r;
+
+    p = (SprtTp *)D_800EC354;
+    while ((c = *s) != 0) {
+        ((u8 *)p)[3] = 5;
+        p->tpage = (D_80139CF0.tpage & 0x9FF) | 0xE1000200;
+        p->code = 0x67;
+        r = ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) & 1;
+        p->x0 = D_80139CF0.x;
+        p->y0 = D_80139CF0.y - r;
+        p->u0 = (c & 0xF) << 4;
+        p->v0 = c & 0xF0;
+        p->clut = D_80139CF0.clut;
+        p->w = 0x10;
+        p->h = 0x10;
+        { register u32 *ot asm("$3") = D_80139CF0.ot; ADD_PRIM_R(ot, p, "$4", "$2"); }
+        p++;
+        D_80139CF0.x += D_80139BF0[c];
+        s++;
+    }
+    D_800EC354 = (u8 *)p;
+}
 
 u8 *func_801387FC(u8 *arg0, s32 arg1)
 {

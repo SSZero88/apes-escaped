@@ -209,7 +209,29 @@ void func_8013D5BC(u8 *o) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D7AC);
+extern u32 g_Game_8013D7AC asm("g_Game");
+extern u16 D_800AE8F2;
+void Effect_SpawnAt_8013D7AC(s32, SVECTOR *) asm("Effect_SpawnAt");
+#define RAND2_8013D7AC() (D_800AE8F2 = D_800AE8F2 * 5 + 1)
+
+void func_8013D7AC(u8 *o, SVECTOR *p) {
+    SVECTOR v;
+    s32 n;
+
+    if (o[0x7F] == 2) {
+        n = 15;
+    } else if (o[0x7F] == 4) {
+        n = 60;
+    } else {
+        n = 30;
+    }
+    if (g_Game_8013D7AC % n < 5) {
+        v.vx = p->vx + (M2C_FIELD(o, s16 *, 0x60) * 75 >> 11) + ((s32)((RAND2_8013D7AC() >> 8) * 5U >> 6) - 10);
+        { s32 t = (s32)((RAND2_8013D7AC() >> 8) * 5U >> 6) + 0x28; v.vy = p->vy + t; }
+        { s32 r = (RAND2_8013D7AC() >> 8); v.vz = p->vz + (M2C_FIELD(o, s16 *, 0x64) * 75 >> 11) + ((s32)(r * 5U >> 6) - 10); }
+        Effect_SpawnAt_8013D7AC(4, &v);
+    }
+}
 
 extern struct { u32 f_0; } g_Game_8013D904 asm("g_Game");
 

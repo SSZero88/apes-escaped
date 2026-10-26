@@ -320,7 +320,125 @@ void func_8013DE7C(SVECTOR *pos) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013DF68);
+typedef struct { s32 vx, vy, vz, pad; } Vec_8013DF68;
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_8013DF68;
+typedef struct { u8 *obj; s16 x, y, z; u8 active; u8 t; s16 vx, vy, vz; u8 state; u8 pad13; } Bomb_8013DF68;
+extern Bomb_8013DF68 D_801442D0_8013DF68[] asm("D_801442D0");
+extern struct { u8 pad_0[0x24]; u16 x; u8 pad_26[2]; u16 y; u8 pad_2A[2]; u16 z; } g_Spike_8013DF68 asm("g_Spike");
+extern struct { u8 pad0[0xD]; u8 fD; } D_80143EF8_8013DF68 asm("D_80143EF8");
+extern struct { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013DF68 asm("g_Game");
+const Vec_8013DF68 D_80143250 = { 0x2800, 0x2800, 0x2800, 0 };
+extern u8 D_800E78C0[];
+extern u8 D_800E7D00[];
+extern u8 D_800F4C40[];
+void func_8013D500(void *arg0, s32 arg1, s32 arg2, s16 arg3);
+void func_8013DB04(s32 arg0);
+void VectorNormalSS_8013DF68(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
+void Effect_SpawnAt(s32, SVECTOR *);
+s32 Sound_PlayFixed_8013DF68(s32) asm("Sound_PlayFixed");
+void *memset_8013DF68(void *, s32, s32) asm("memset");
+void Shadow_Draw_8013DF68(void *, s32, s32, s32) asm("Shadow_Draw");
+void Matrix_FromDirection_8013DF68(void *, void *) asm("Matrix_FromDirection");
+void *ScaleMatrix_8013DF68(void *m, void *v) asm("ScaleMatrix");
+void *CompMatrix_8013DF68(void *m0, void *m1, void *m2) asm("CompMatrix");
+void Model_ProjectVerts_8013DF68(void *, void *, void *) asm("Model_ProjectVerts");
+void func_80017CD4_8013DF68(void *, void *, void *) asm("func_80017CD4");
+
+void func_8013DF68(s32 arg0) {
+    Mat_8013DF68 m;
+    SVECTOR d;
+    Vec_8013DF68 b;
+    Vec_8013DF68 a;
+    Bomb_8013DF68 *p;
+    s32 i;
+    s32 ty;
+
+    for (i = 7; i >= 0; i--) {
+        p = &D_801442D0_8013DF68[i];
+        if (p->active == 0) {
+            continue;
+        }
+        p->t--;
+        switch (p->state) {
+        case 0:
+            p->vx = p->vx * 7 / 8;
+            p->vy = p->vy * 3 / 4;
+            p->vz = p->vz * 7 / 8;
+            if (p->t == 0) {
+                p->state = 1;
+                p->t = 0x12;
+            }
+            break;
+        case 1:
+            d.vx = g_Spike_8013DF68.x - p->x;
+            d.vy = g_Spike_8013DF68.y - p->y;
+            d.vz = g_Spike_8013DF68.z - p->z;
+            VectorNormalSS_8013DF68(&d, &d);
+            if (p->t == 0) {
+                p->state = 2;
+                p->t = 0xB4;
+                p->vx = d.vx / 128;
+                p->vy = d.vy / 128;
+                p->vz = d.vz / 128;
+                Effect_SpawnAt(0x27, (SVECTOR *)&D_801442D0_8013DF68[i].x);
+            } else {
+                p->vx = d.vx / 256;
+                p->vy = d.vy / 256;
+                p->vz = d.vz / 256;
+            }
+            break;
+        case 2:
+            if (p->t != 0 && p->y < -0x1020) {
+                if (p->obj == NULL) {
+                    break;
+                }
+                ty = M2C_FIELD(p->obj, u32 *, 0x2C) >> 28;
+                if (ty != 6 && ty != 10 && ty != 11) {
+                    break;
+                }
+            }
+            p->active = 0;
+            p->y = -0x1020;
+            Effect_SpawnAt(0x102, (SVECTOR *)&D_801442D0_8013DF68[i].x);
+            Camera_StartShake(0);
+            Sound_PlayFixed_8013DF68(0x4D);
+            if (D_80143EF8_8013DF68.fD == 0 && !(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 1)) {
+                func_8013DB04((s32)&D_801442D0_8013DF68[i].x);
+                D_80143EF8_8013DF68.fD = 1;
+            }
+            break;
+        }
+        if (p->active != 0) {
+            func_8013D500(p, arg0, 0x50, 0x200);
+            if (p->t & 1) {
+                Effect_SpawnAt(5, (SVECTOR *)&D_801442D0_8013DF68[i].x);
+            }
+            p->x += p->vx;
+            p->y += p->vy;
+            p->z += p->vz;
+        }
+    }
+    for (i = 7; i >= 0; i--) {
+        p = &D_801442D0_8013DF68[i];
+        if (p->active != 0) {
+            memset_8013DF68(&a, 0, 0x10);
+            a.vx = p->x;
+            a.vy = p->y;
+            a.vz = p->z;
+            b = a;
+            Shadow_Draw_8013DF68(&b, -0x1010, 0x80, 0);
+            Matrix_FromDirection_8013DF68(&D_801442D0_8013DF68[i].vx, &m);
+            a = D_80143250;
+            ScaleMatrix_8013DF68(&m, &a);
+            m.t[0] = p->x;
+            m.t[1] = p->y;
+            m.t[2] = p->z;
+            CompMatrix_8013DF68(D_800E78C0, &m, &m);
+            Model_ProjectVerts_8013DF68(D_800F4C40, &m, D_800E7D00);
+            func_80017CD4_8013DF68(g_Game_8013DF68.f_80 + g_Game_8013DF68.f_C * 0x4078, D_800E7D00, D_800F4C40);
+        }
+    }
+}
 
 typedef struct { u32 addr : 24; u32 len : 8; } P_TAG_414;
 typedef struct { P_TAG_414 tag; u32 rgbc; u32 xy; u32 wh; } TILE_414;
@@ -730,7 +848,208 @@ void func_8013F838(SVECTOR *v) {
     func_80070284(v, D_801438A4, 1, 0, 0);
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013F8B8);
+typedef struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; u8 pad_30[0x14]; s16 f_44; s16 f_46; s16 f_48; s16 f_4A; u8 pad_4C[4]; u32 f_50; u8 pad_54[8]; u16 f_5C; u8 pad_5E[2]; SVECTOR f_60; u8 pad_68[8]; u8 *f_70; s16 f_74; s16 f_76; s16 f_78; u8 pad_7A[2]; u16 *f_7C; u8 pad_80[2]; u8 f_82; u8 mode; u8 active; u8 f_85; u8 f_86; u8 f_87; s16 vx; s16 vy; s16 vz; s16 f_8E; s16 f_90; s16 f_92; u8 f_94; u8 pad_95[3]; } Mine_8013F8B8;
+extern Mine_8013F8B8 D_80143AF0_8013F8B8[] asm("D_80143AF0");
+extern struct { u8 pad_0[0xD]; u8 fD; } D_80143EF8_8013F8B8 asm("D_80143EF8");
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013F8B8 asm("g_Spike");
+extern u8 D_80143718_8013F8B8[] asm("D_80143718");
+void Effect_Spawn_8013F8B8(s32, SVECTOR *, void *, s32) asm("Effect_Spawn");
+s32 Sound_PlayFixed_8013F8B8(s32) asm("Sound_PlayFixed");
+s32 VectorNormalSS_8013F8B8(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
+void Collision_Set_8013F8B8(s32, void *, void *) asm("Collision_Set");
+void Collision_Remove_8013F8B8(void *) asm("Collision_Remove");
+void func_8007CD88_8013F8B8(void *) asm("func_8007CD88");
+void func_8007CDC4_8013F8B8(void *) asm("func_8007CDC4");
+void *memset_8013F8B8(void *, s32, s32) asm("memset");
+void Shadow_Draw_8013F8B8(void *, s32, s32, s32) asm("Shadow_Draw");
+s32 rsin_8013F8B8(s32) asm("rsin");
+s32 rcos_8013F8B8(s32) asm("rcos");
+s32 func_8013E9C8(u8 *a, void *scale, s32 c, s32 spin);
+void func_8013F838(SVECTOR *v);
+#define RAND_8013F8B8() (g_RandSeed = g_RandSeed * 5 + 1)
+
+void func_8013F8B8(void) {
+    s32 sc[3];
+    SVECTOR pos;
+    SVECTOR d;
+    SVECTOR t;
+    SVECTOR u;
+    Mine_8013F8B8 *p;
+    s32 i;
+    s32 r;
+    s32 c;
+
+    for (i = 3, p = D_80143AF0_8013F8B8; i >= 0; i--, p++) {
+        if (p->active == 0) {
+            continue;
+        }
+        if (p->f_87 != 0) {
+            p->f_87--;
+            continue;
+        }
+        pos.vx = p->x;
+        pos.vy = p->y;
+        pos.vz = p->z;
+        sc[0] = 0x1000;
+        sc[1] = 0x1000;
+        sc[2] = 0x1000;
+        if (p->active == 1) {
+            func_8013F838(&pos);
+            Camera_StartShake(1);
+            Sound_PlayFixed_8013F8B8(0x8F);
+            p->active = 2;
+            Collision_Set_8013F8B8(5, &p->x, p);
+            p->f_4A = 0x200;
+            p->f_48 = 1;
+            p->f_44 = 0x80;
+            p->f_46 = 0x80;
+            func_8007CD88_8013F8B8(&p->f_74);
+        } else if (p->active == 3) {
+            sc[0] = 0x1000 - (p->f_85 << 9);
+            sc[1] = (p->f_85 << 11) + 0x1000;
+            sc[2] = 0x1000 - (p->f_85 << 9);
+            p->y += 0x40;
+            if (p->f_85 >= 8) {
+                p->active = 0;
+                Collision_Remove_8013F8B8(&p->x);
+                func_8007CDC4_8013F8B8(&p->f_74);
+            }
+        } else {
+            p->x += p->vx;
+            p->y += p->vy;
+            p->z += p->vz;
+            if (p->f_85 > p->f_86 || (p->f_70 != NULL && (M2C_FIELD(p->f_70, u32 *, 0x2C) >> 28) == 6)) {
+                func_8013F838(&pos);
+                p->f_85 = 0;
+                p->active = 3;
+                Sound_PlayFixed_8013F8B8(0x90);
+            } else if (p->active == 2) {
+                if ((p->f_50 >> 28) == 0xB) {
+                    Effect_SpawnAt(0x113, &pos);
+                    if (--p->f_94 == 0) {
+                        func_8013F838(&pos);
+                        p->f_85 = 0;
+                        p->active = 3;
+                        Sound_PlayFixed_8013F8B8(0x90);
+                        Sound_PlayFixed_8013F8B8(0x6E);
+                        if (D_80143EF8_8013F8B8.fD == 0 && !((RAND_8013F8B8() >> 8) & 1)) {
+                            func_8013DB04((s32)&pos);
+                            D_80143EF8_8013F8B8.fD = 1;
+                        }
+                    } else {
+                        p->active = 4;
+                        Effect_SpawnAt(0x113, &pos);
+                        p->f_8E = 0x14;
+                        p->vx = p->x - g_Spike_8013F8B8.x;
+                        p->vy = 0;
+                        p->vz = p->z - g_Spike_8013F8B8.z;
+                        VectorNormalSS_8013F8B8((SVECTOR *)&p->vx, (SVECTOR *)&p->vx);
+                        p->vy = -0x20;
+                        p->vx >>= 5;
+                        p->vz >>= 5;
+                        Sound_PlayFixed_8013F8B8(0x60);
+                    }
+                }
+            }
+            Effect_Spawn_8013F8B8(0xD3, &pos, D_80143718_8013F8B8, 0);
+            if (p->active == 4) {
+                p->vx = p->vx * 7 / 8;
+                p->vy = p->vy * 7 / 8;
+                p->vz = p->vz * 7 / 8;
+                if (--p->f_8E == 0) {
+                    p->active = 2;
+                }
+            } else {
+                p->y += rsin_8013F8B8(p->f_92) >> 8;
+                p->f_92 = (p->f_92 + 0xE3) % 4096;
+            }
+            if (p->f_8E < 2) {
+                switch (p->mode) {
+                case 0:
+                    d.vx = g_Spike_8013F8B8.x - p->x;
+                    d.vy = g_Spike_8013F8B8.y - p->y;
+                    d.vz = g_Spike_8013F8B8.z - p->z;
+                    r = VectorNormalSS_8013F8B8(&d, &d);
+                    if (r > 0x100000 && p->f_86 == 0xFF) {
+                        p->f_86 = 0xF0;
+                    }
+                    p->vx = ((p->vx * 31) >> 5) + (d.vx >> 10);
+                    p->vy = ((p->vy * 31) >> 5) + (d.vy >> 10);
+                    p->vz = ((p->vz * 31) >> 5) + (d.vz >> 10);
+                    p->vx = p->vx < -0x1C ? -0x1C : p->vx > 0x1C ? 0x1C : p->vx;
+                    p->vy = p->vy < -0x10 ? -0x10 : p->vy > 0x10 ? 0x10 : p->vy;
+                    p->vz = p->vz < -0x1C ? -0x1C : p->vz > 0x1C ? 0x1C : p->vz;
+                    if (!(p->f_85 & 0x1F) && ((RAND_8013F8B8() >> 8) & 1)) {
+                        Sound_PlayFixed_8013F8B8(0x96);
+                    }
+                    break;
+                case 1:
+                    p->x += rcos_8013F8B8(p->f_90) >> 8;
+                    p->y += p->vy;
+                    p->z += rsin_8013F8B8(p->f_90) >> 8;
+                    p->f_90 = (p->f_90 + 0x71) % 4096;
+                    if (p->f_8E == 1 || (p->z < 0xA8C && p->f_82 == 0)) {
+                        p->f_82 = 1;
+                        p->vy = 0;
+                        p->vx = ((RAND_8013F8B8() >> 8) & 0x7F) - 0x40;
+                        p->vz = -((RAND_8013F8B8() >> 8) & 0x3F) - 8;
+                        Sound_PlayFixed_8013F8B8(0x96);
+                    }
+                    if (p->f_82 != 0) {
+                        if (p->x < -0x600) {
+                            p->x = -0x600;
+                            p->vx = -p->vx;
+                        }
+                        if (p->x > 0x600) {
+                            p->x = 0x600;
+                            p->vx = -p->vx;
+                        }
+                        if (p->z < -0x200) {
+                            p->z = -0x200;
+                            p->vz = -p->vz;
+                        }
+                        if (p->z > 0xA00) {
+                            p->z = 0xA00;
+                            p->vz = -p->vz;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        p->f_85++;
+        p->f_74 = p->x;
+        p->f_76 = p->y;
+        p->f_78 = p->z;
+        if (p->active == 2
+            && (g_Spike_8013F8B8.x - p->x < 0 ? p->x - g_Spike_8013F8B8.x : g_Spike_8013F8B8.x - p->x) < 0x200
+            && (g_Spike_8013F8B8.z - p->z < 0 ? p->z - g_Spike_8013F8B8.z : g_Spike_8013F8B8.z - p->z) < 0x200) {
+            func_8013D500(&p->f_70, (s32)p, 0x50, 0x200);
+        }
+        if (p->f_94 == 1 && !(p->f_85 & 3)) {
+            memset_8013F8B8(&u, 0, 8);
+            u.vx = p->x + (((u16)RAND_8013F8B8() >> 8) - 0x80);
+            u.vy = p->y - ((u16)RAND_8013F8B8() >> 8);
+            u.vz = p->z + (((u16)RAND_8013F8B8() >> 8) - 0x80);
+            t = u;
+            Effect_SpawnAt(7, &t);
+            func_8006D548(&t);
+        }
+        if (++p->f_5C > p->f_7C[1]) {
+            p->f_5C = p->f_7C[0];
+        }
+        c = 0;
+        if (p->f_94 == 1) {
+            if (p->f_85 & 1) {
+                c = 0x141E80;
+            }
+        } else if (p->vx | p->vy | p->vz) {
+            VectorNormalSS_8013F8B8((SVECTOR *)&p->vx, &p->f_60);
+        }
+        func_8013E9C8((u8 *)p, sc, c, 0);
+        Shadow_Draw_8013F8B8(&p->x, -0x1010, 0x80, 0);
+    }
+}
 
 typedef struct { SVECTOR at; SVECTOR eye; SVECTOR tgt; } Scr_801402D8;
 extern struct { u8 pad0[0x24]; s32 x, y, z; } g_Spike_801402D8 asm("g_Spike");

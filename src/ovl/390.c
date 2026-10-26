@@ -327,7 +327,6 @@ extern u8 D_80138370[];
 s32 func_80096580(s32);
 s32 func_80137424(void);
 s32 Save_SumStageMonkeys(s32);
-void func_80137C84(s32, u8 *);
 u8 *func_8013FC20(void);
 void func_80141A10(void *);
 
@@ -519,7 +518,29 @@ s32 func_801377F8(u8 *p, s32 flags) {
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013784C);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80137C84);
+extern u8 D_8013B018[];
+
+s32 func_80137C84(s32 n, u8 *out) {
+    s32 k;
+    s32 m;
+    s32 h;
+    u8 *tb = D_8013B018;
+
+    m = (s16)n;
+    h = m / 100;
+    out[0] = tb[(s16)h];
+    k = n;
+    if (out[0] == 0x6A) {
+        out[0] = 0xEF;
+    }
+    out[1] = tb[(s16)((s16)(m - h * 100) / 10)];
+    if (out[0] == 0xEF && out[1] == 0x6A) {
+        out[1] = out[0];
+    }
+    out[2] = D_8013B018[(s16)((s16)k % 10)];
+    out[3] = 0;
+    return 0;
+}
 
 s32 func_80137DA8(s32 arg0) {
     M2C_UNK var_a0;

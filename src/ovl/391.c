@@ -93,11 +93,254 @@ u8 *func_801361D8(u8 *arg0, s32 arg1)
   return var_a0;
 }
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80136208);
+typedef struct { s16 x, y, w, h; } Rect_80136208;
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; u16 mode; u8 pad8122[2]; u16 f_8124; u16 f_8126; u8 pad8128[0x32]; u16 f_815A; u8 pad815C[0x170]; u8 f_82CC; u8 f_82CD; } g_Game_80136208 asm("g_Game");
+extern struct { u8 pad0[6]; s16 f6; u32 *f8; s32 fC; SVECTOR eye; SVECTOR at; u8 pad20[8]; s16 sub; s16 pad2A; s16 buf; u8 pad2E[0x2A]; s32 f58; } D_80139B20_80136208 asm("D_80139B20");
+extern struct { u8 pad0[0x24]; s32 f24; s32 f28; s32 f2C; } D_800EBFA0_80136208 asm("D_800EBFA0");
+extern s16 D_80139B24;
+extern s16 D_80139540;
+extern s16 D_80139542;
+extern u8 D_80139544[];
+extern u8 D_80139564[];
+extern u8 D_80139584[];
+s32 Gfx_InitDisplay(void);
+s32 ResetGraph(s32 mode);
+s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
+s32 DrawSync(s32 mode);
+s32 VSync(s32 mode);
+void *PutDispEnv(void *env);
+void *PutDrawEnv(void *env);
+void DrawOTag(u32 *p);
+void func_8002FAF0(s32);
+void Light_SetColorMode(s32, s32, s32, s32);
+void func_8008C01C(void);
+s32 func_80011194(void *);
+void func_80138F38(void);
+void func_8001325C(s32);
+void Gfx_BeginFrame(void);
+s32 func_801368FC(void);
+void func_80137CA8(void);
+void Cd_Update(void);
+s32 func_8001231C(void);
+s32 Sound_UnloadBanks(s32);
+s32 func_800964B0(s32);
+s32 func_80096568(s32);
+
+s32 func_80136208(void) {
+    Rect_80136208 r = { 0, 0, 0x180, 0x200 };
+    s32 s;
+
+    Gfx_InitDisplay();
+    ResetGraph(1);
+    ClearImage(&r, 0, 0, 0);
+    func_8002FAF0(0x148);
+    Light_SetColorMode(0, 0, 0, 0);
+    D_800EBFA0_80136208.f24 = 0;
+    D_800EBFA0_80136208.f28 = 0x1000;
+    D_800EBFA0_80136208.f2C = 0x1000;
+    func_8008C01C();
+    DrawSync(0);
+    D_80139B24 = 0x3FDF;
+    switch (g_Game_80136208.f_8126) {
+    case 0x13:
+    case 0x24:
+        func_80011194(D_80139584);
+        D_80139B24 = 0x1B;
+        break;
+    case 0xFF:
+        func_80011194(D_80139564);
+        break;
+    default:
+        func_80011194(D_80139544);
+        break;
+    }
+    g_Game_80136208.cur = 0;
+    func_80138F38();
+    D_80139540 = 0;
+    D_80139B20_80136208.f6 = 0x26;
+    D_80139B20_80136208.fC = 0x20;
+    D_80139B20_80136208.eye.vz = -0x1000;
+    D_80139B20_80136208.eye.vx = 0;
+    D_80139B20_80136208.eye.vy = 0;
+    D_80139B20_80136208.at.vx = 0;
+    D_80139B20_80136208.at.vy = 0;
+    D_80139B20_80136208.at.vz = 0;
+    D_80139B20_80136208.f58 = 0;
+    g_Game_80136208.db[1].env[0x18] = 1;
+    g_Game_80136208.db[0].env[0x18] = 1;
+    g_Game_80136208.db[1].env[0x19] = 0;
+    g_Game_80136208.db[0].env[0x19] = 0;
+    g_Game_80136208.db[1].env[0x1A] = 0;
+    g_Game_80136208.db[0].env[0x1A] = 0;
+    g_Game_80136208.db[1].env[0x1B] = 0;
+    g_Game_80136208.db[0].env[0x1B] = 0;
+    func_80138B0C();
+    do {
+        func_8001325C(0);
+        g_Game_80136208.frame++;
+        Gfx_BeginFrame();
+        D_80139B20_80136208.f8 = g_Game_80136208.db[g_Game_80136208.cur].hud;
+        if (func_801368FC() < 0) {
+            break;
+        }
+        DrawSync(0);
+        VSync(2);
+        switch (D_80139540) {
+        case 1:
+            s = D_80139B20_80136208.sub;
+            if (s == 0) {
+                func_80137CA8();
+                PutDispEnv(&g_Game_80136208.db[g_Game_80136208.cur].env[0x5C]);
+                PutDrawEnv(g_Game_80136208.db[g_Game_80136208.cur].env);
+                D_80139B20_80136208.sub = 1;
+                D_80139B20_80136208.buf = g_Game_80136208.cur;
+            } else if (s == 1) {
+                g_Game_80136208.db[1].env[0x18] = 0;
+                g_Game_80136208.db[0].env[0x18] = 0;
+                PutDispEnv(&g_Game_80136208.db[D_80139B20_80136208.buf].env[0x5C]);
+                PutDrawEnv(g_Game_80136208.db[(s16)(D_80139B20_80136208.buf ^ 1)].env);
+            } else if (s == 2) {
+                PutDispEnv(&g_Game_80136208.db[D_80139B20_80136208.buf].env[0x5C]);
+                PutDrawEnv(g_Game_80136208.db[(s16)(D_80139B20_80136208.buf ^ 1)].env);
+                g_Game_80136208.db[1].env[0x18] = 1;
+                g_Game_80136208.db[0].env[0x18] = 1;
+                D_80139540 = s;
+            }
+            break;
+        case 3:
+            if (D_80139B20_80136208.sub == 0) {
+                PutDispEnv(&g_Game_80136208.db[g_Game_80136208.cur].env[0x5C]);
+                PutDrawEnv(g_Game_80136208.db[g_Game_80136208.cur].env);
+                g_Game_80136208.db[1].env[0x18] = 0;
+                g_Game_80136208.db[0].env[0x18] = 0;
+                D_80139B20_80136208.sub = 1;
+                D_80139B20_80136208.buf = g_Game_80136208.cur;
+            } else if (D_80139B20_80136208.sub == 1) {
+                PutDispEnv(&g_Game_80136208.db[D_80139B20_80136208.buf].env[0x5C]);
+                PutDrawEnv(g_Game_80136208.db[(s16)(D_80139B20_80136208.buf ^ 1)].env);
+            } else if (D_80139B20_80136208.sub == 2) {
+                PutDispEnv(&g_Game_80136208.db[D_80139B20_80136208.buf].env[0x5C]);
+                PutDrawEnv(g_Game_80136208.db[(s16)(D_80139B20_80136208.buf ^ 1)].env);
+                D_80139540 = 4;
+            }
+            break;
+        default:
+            PutDispEnv(&g_Game_80136208.db[g_Game_80136208.cur].env[0x5C]);
+            PutDrawEnv(g_Game_80136208.db[g_Game_80136208.cur].env);
+            break;
+        }
+        DrawOTag(&g_Game_80136208.db[g_Game_80136208.cur].ot[0xFFF]);
+        Cd_Update();
+    } while (D_80139540 != 4);
+    DrawSync(0);
+    VSync(0);
+    func_8001231C();
+    Sound_UnloadBanks(1);
+    if (D_80139542 != 0) {
+        g_Game_80136208.f_8126 = 0xFF;
+        return 0;
+    }
+    if (g_Game_80136208.mode == 0x14) {
+        g_Game_80136208.mode = 9;
+        return 0;
+    }
+    g_Game_80136208.mode = 0xD;
+    if (g_Game_80136208.f_8126 == 0xFF) {
+        return 0;
+    }
+    switch (g_Game_80136208.f_8124) {
+    case 6:
+        if (func_800964B0(0x13) & 1) {
+            return 0;
+        }
+        g_Game_80136208.f_8126 = 0x13;
+        g_Game_80136208.mode = 0x17;
+        g_Game_80136208.f_82CC = 2;
+        g_Game_80136208.f_82CD = 0;
+        break;
+    case 13:
+        if (func_800964B0(0x24) & 1) {
+            return 0;
+        }
+        g_Game_80136208.f_8126 = 0x24;
+        g_Game_80136208.mode = 0x17;
+        g_Game_80136208.f_82CC = 5;
+        g_Game_80136208.f_82CD = 0;
+        break;
+    case 24:
+    case 25:
+    case 26:
+    case 27:
+    case 28:
+    case 29:
+        if (func_80096568(4) != 0) {
+            return 0;
+        }
+        g_Game_80136208.mode = 0x1A;
+        g_Game_80136208.f_815A = 4;
+        break;
+    case 17:
+        if (func_80096568(1) != 0) {
+            return 0;
+        }
+        g_Game_80136208.mode = 0x1A;
+        g_Game_80136208.f_815A = 1;
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_801368FC);
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_801372D0);
+extern u8 *D_800EC354;
+extern u8 D_801399B0[];
+typedef struct { s16 x, y; u16 clut, tpage; u32 *ot; s32 scale; } Pen_801372D0;
+extern Pen_801372D0 D_80139B20_801372D0 asm("D_80139B20");
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad1; s16 x3, y3; u8 u3, v3; u16 pad2; } PolyFT4_801372D0;
+
+void func_801372D0(u8 *s) {
+    PolyFT4_801372D0 *p;
+    s32 x, y, sc;
+    u32 c;
+    u8 u, v;
+
+    p = (PolyFT4_801372D0 *)D_800EC354;
+    x = D_80139B20_801372D0.x;
+    y = D_80139B20_801372D0.y;
+    sc = D_80139B20_801372D0.scale;
+    while ((c = *s) != 0) {
+        p->x1 = x + sc - 1;
+        p->x3 = x + sc - 1;
+        u = (c & 0xF) << 4;
+        v = c & 0xF0;
+        p->u0 = u;
+        p->u2 = u;
+        p->v0 = v;
+        p->v1 = v;
+        u += 15;
+        v += 15;
+        ((u8 *)p)[3] = 9;
+        p->code = 0x2F;
+        p->x0 = x;
+        p->x2 = x;
+        p->y0 = y;
+        p->y1 = y;
+        p->y2 = y + sc - 1;
+        p->y3 = y + sc - 1;
+        p->u1 = u;
+        p->u3 = u;
+        p->v2 = v;
+        p->v3 = v;
+        p->clut = D_80139B20_801372D0.clut;
+        p->tpage = D_80139B20_801372D0.tpage;
+        { register u32 *ot asm("$3") = D_80139B20_801372D0.ot; ADD_PRIM_R(ot, p, "$4", "$2"); }
+        p++;
+        x += (D_801399B0[c] * sc) / 16;
+        s++;
+    }
+    D_80139B20_801372D0.x = x;
+    D_800EC354 = (u8 *)p;
+}
 
 void func_801373F8(s32 arg0) {
     func_8008DDB0(M2C_FIELD(&D_80139B20, s16 *, 0), M2C_FIELD(&D_80139B20, s16 *, 2));
@@ -106,7 +349,264 @@ void func_801373F8(s32 arg0) {
 
 INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80137438);
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_801374C8);
+typedef struct { u8 pad0[0x5C]; u16 frame; u16 anim; u8 pad60[0x10]; s16 next; u16 flags; s16 (*anims)[2]; s16 tr[3]; s16 rsteps; s16 tp[3]; s16 psteps; } Mdl_801374C8;
+typedef struct { u16 x; u16 y; u16 str; s8 type; s8 on; } Txt_801374C8;
+extern struct { s16 x, y; u8 pad4[8]; s32 fC; SVECTOR eye; SVECTOR at; s16 *pc; s16 *mark; u8 pad28[0xC]; s16 eyeT[3]; s16 eyeN; s16 atT[3]; s16 atN; s32 wait; u8 pad48[8]; u16 f50; u8 pad52[6]; s32 flags; s32 timer; } D_80139B20_801374C8 asm("D_80139B20");
+extern Mdl_801374C8 D_80139B80[];
+extern Txt_801374C8 D_8013995C[];
+extern u8 D_80139930[];
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; u16 mode; } g_Game_801374C8 asm("g_Game");
+void func_80138660(void);
+void func_801373F8(s32 arg0);
+void func_801372D0(u8 *s);
+void func_80137DC4(void);
+void func_8013836C(void);
+void func_8013939C(void);
+void func_801384A0(void);
+
+void func_801374C8(void) {
+    s16 *p;
+    s32 f;
+    s32 t;
+    u16 op;
+    s32 v;
+    s32 n, dx, dy, dz;
+    s32 ex, ey, ez;
+    Txt_801374C8 *e;
+
+    f = D_80139B20_801374C8.flags;
+    p = D_80139B20_801374C8.pc;
+    if (f & 1) {
+        t = D_80139B20_801374C8.timer;
+        if (t <= 0xFFFE) {
+            t++;
+        }
+        D_80139B20_801374C8.timer = t;
+        D_80139B20_801374C8.flags = f | 2;
+    }
+    while (*p != 0x3FC0) {
+        op = *p;
+        switch (op & 0x3FC0) {
+        case 0x40:
+            {
+            s16 i = op & 0x3F;
+            switch (i) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                p++;
+                D_80139B80[i].tp[0] = *p;
+                p++;
+                D_80139B80[i].tp[1] = *p;
+                p++;
+                D_80139B80[i].tp[2] = *p;
+                p++;
+                D_80139B80[i].psteps = *p;
+                break;
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+                break;
+            case 17:
+                p++;
+                D_80139B20_801374C8.eye.vx = *p;
+                p++;
+                D_80139B20_801374C8.eye.vy = *p;
+                p++;
+                D_80139B20_801374C8.eye.vz = *p;
+                break;
+            case 16:
+                p++;
+                D_80139B20_801374C8.at.vx = *p;
+                p++;
+                D_80139B20_801374C8.at.vy = *p;
+                p++;
+                D_80139B20_801374C8.at.vz = *p;
+                break;
+            case 19:
+                p++;
+                D_80139B20_801374C8.eyeT[0] = *p;
+                p++;
+                D_80139B20_801374C8.eyeT[1] = *p;
+                p++;
+                D_80139B20_801374C8.eyeT[2] = *p;
+                p++;
+                D_80139B20_801374C8.eyeN = *p;
+                break;
+            case 18:
+                p++;
+                D_80139B20_801374C8.atT[0] = *p;
+                p++;
+                D_80139B20_801374C8.atT[1] = *p;
+                p++;
+                D_80139B20_801374C8.atT[2] = *p;
+                p++;
+                D_80139B20_801374C8.atN = *p;
+                break;
+            }
+            }
+            break;
+        case 0x80:
+            {
+            s32 i = op & 0x3F;
+            if (i < 5) if (i >= 0) {
+                p++;
+                D_80139B80[i].tr[0] = *p;
+                p++;
+                D_80139B80[i].tr[1] = *p;
+                p++;
+                D_80139B80[i].tr[2] = *p;
+                p++;
+                D_80139B80[i].rsteps = *p;
+            }
+            }
+            break;
+        case 0x0:
+            {
+            s32 i = op & 0x3F;
+            if (i < 5) if (i >= 0) {
+                p++;
+                D_80139B80[i].flags = *p;
+            }
+            }
+            break;
+        case 0x140:
+            {
+            s32 i = op & 0x3F;
+            if (i < 5) if (i >= 0) {
+                p++;
+                D_80139B80[i].next = *p;
+            }
+            }
+            break;
+        case 0x400:
+            {
+            s32 i = op & 0x3F;
+            if (i < 5) if (i >= 0) {
+                D_80139B80[i].next = D_80139B20_801374C8.f50;
+            }
+            }
+            break;
+        case 0x180:
+            {
+            s32 i = op & 0x3F;
+            if (i < 5) if (i >= 0) {
+                p++;
+                v = *p;
+                D_80139B80[i].anim = v;
+                D_80139B80[i].frame = D_80139B80[i].anims[v][0];
+                D_80139B80[i].next = v;
+            }
+            }
+            break;
+        case 0x1C0:
+            p++;
+            D_80139B20_801374C8.wait = *p;
+            break;
+        case 0x200:
+            if (D_80139B20_801374C8.wait != 0) {
+                D_80139B20_801374C8.wait--;
+                goto done;
+            }
+            break;
+        case 0x380:
+            if ((u32)D_80139B20_801374C8.timer < (u32)p[1]) {
+                goto done2;
+            }
+            p++;
+            break;
+        case 0xC0:
+            p++;
+            D_8013995C[*p].on = 1;
+            break;
+        case 0x240:
+            D_80139B20_801374C8.mark = p + 1;
+            break;
+        case 0x280:
+            p = D_80139B20_801374C8.mark;
+            goto done2;
+        case 0x2C0:
+            p++;
+            func_80137D20(*p);
+            p++;
+            continue;
+        case 0x3C0:
+            func_80138660();
+            p++;
+            continue;
+        case 0x300:
+            D_80139B20_801374C8.flags = 1;
+            break;
+        }
+        p++;
+    }
+done:
+done2:
+    D_80139B20_801374C8.pc = p;
+    n = D_80139B20_801374C8.eyeN;
+    if (n > 0) {
+        dx = (D_80139B20_801374C8.eyeT[0] - D_80139B20_801374C8.eye.vx) / n;
+        dy = (D_80139B20_801374C8.eyeT[1] - D_80139B20_801374C8.eye.vy) / n;
+        dz = (D_80139B20_801374C8.eyeT[2] - D_80139B20_801374C8.eye.vz) / n;
+        D_80139B20_801374C8.eyeN = --n;
+        D_80139B20_801374C8.eye.vx += dx;
+        D_80139B20_801374C8.eye.vy += dy;
+        D_80139B20_801374C8.eye.vz += dz;
+    }
+    n = D_80139B20_801374C8.atN;
+    if (n > 0) {
+        ex = (D_80139B20_801374C8.atT[0] - D_80139B20_801374C8.at.vx) / n;
+        ey = (D_80139B20_801374C8.atT[1] - D_80139B20_801374C8.at.vy) / n;
+        ez = (D_80139B20_801374C8.atT[2] - D_80139B20_801374C8.at.vz) / n;
+        D_80139B20_801374C8.atN = --n;
+        D_80139B20_801374C8.at.vx += ex;
+        D_80139B20_801374C8.at.vy += ey;
+        D_80139B20_801374C8.at.vz += ez;
+    }
+    for (e = D_8013995C; e->on >= 0; e++) {
+        if ((u8)e->on == 0) {
+            continue;
+        }
+        D_80139B20_801374C8.x = e->x;
+        D_80139B20_801374C8.y = e->y;
+        switch (e->type) {
+        case 0:
+            D_80139B20_801374C8.fC = 0x20;
+            func_801372D0(func_801361D8(D_80139930, e->str));
+            break;
+        case 1:
+            func_801373F8((s32)func_801361D8(D_80139930, e->str));
+            break;
+        case 2:
+            func_80137DC4();
+            break;
+        case 3:
+            func_8013836C();
+            break;
+        case 4:
+            D_80139B20_801374C8.fC = 0x10;
+            func_801372D0(func_801361D8(D_80139930, e->str));
+            break;
+        case 5:
+            if (g_Game_801374C8.mode == 0x19) {
+                func_8013939C();
+            } else {
+                func_801384A0();
+            }
+            break;
+        }
+    }
+}
 
 void SetDrawStp(void *, s32);
 
@@ -309,7 +809,6 @@ extern struct { s16 x, y; u8 pad4[8]; s32 f_C; } D_80139B20_801384A0 asm("D_8013
 extern u8 D_80139AB4[];
 extern struct { u8 pad0[0x8124]; u16 stage; u8 pad8126[0x1A]; s32 time; u32 best; } g_Game_801384A0 asm("g_Game");
 s16 *Stage_GetTargetTimes(u32);
-void func_801372D0();
 void Hud_DrawTime(s32, s32, u32);
 void Hud_DrawTimeMedal(s32, s32, u32, s16 *);
 

@@ -382,7 +382,23 @@ M2C_UNK func_8013DC70(s16 x, s16 y, s16 z) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013DD94);
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013DD94 asm("g_Spike");
+s16 Object_FloorAt(void *, s16, s16, s16);
+
+void func_8013DD94(u8 *o) {
+    SVECTOR v;
+
+    v.vx = M2C_FIELD(o, s16 *, 0x9A) - g_Spike_8013DD94.x;
+    v.vy = 0;
+    v.vz = M2C_FIELD(o, s16 *, 0x9E) - g_Spike_8013DD94.z;
+    VectorNormalSS(&v, &v);
+    M2C_FIELD(o, s32 *, 0x24) = g_Spike_8013DD94.x + ((v.vx << 14) >> 16);
+    M2C_FIELD(o, s32 *, 0x2C) = g_Spike_8013DD94.z + ((v.vz << 14) >> 16);
+    M2C_FIELD(o, s32 *, 0x28) = Object_FloorAt(o, 0, 0, 0) - 0x400;
+    M2C_FIELD(o, s16 *, 0x98) = 0;
+    M2C_FIELD(o, s16 *, 0x96) = 0;
+    M2C_FIELD(o, s16 *, 0x94) = 0;
+}
 
 void func_8013DE4C(void *arg0) {
     if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 6) {

@@ -2187,7 +2187,234 @@ void func_8014283C(void) {
     M2C_FIELD(o, u8 *, 0x8E) = 6;
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801428E4);
+typedef struct { u16 b0 : 1; u16 b1 : 3; } BF_801428E4;
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_801428E4;
+typedef struct { u8 pad_0[0x1C]; s16 f_1C; s16 f_1E; s16 f_20; u8 pad_22[2]; s32 x; s32 y; s32 z; s32 f_30; s32 f_34; s32 f_38; u8 pad_3C[0x14]; u32 f_50; u8 pad_54[0xC]; SVECTOR f_60; SVECTOR f_68; s32 f_70; u8 pad_74[0x90]; s16 f_104; s16 f_106; s32 f_108; s32 f_10C; s32 f_110; s32 f_114; s32 f_118; s32 f_11C; s32 f_120; s32 f_124; s32 f_128; s32 f_12C; u8 pad_130[8]; s16 f_138; s16 f_13A; } Spike_801428E4;
+typedef struct { u8 pad_0[0x14]; void *f_14; u8 pad_18[4]; s16 f_1C; s16 f_1E; s16 f_20; u8 pad_22[2]; s32 x; s32 y; s32 z; u8 pad_30[0x5C]; u8 f_8C; u8 f_8D; s8 f_8E; u8 pad_8F; u8 f_90[4]; } Veh_801428E4;
+extern Spike_801428E4 g_Spike_801428E4 asm("g_Spike");
+extern Veh_801428E4 *D_800B4DC4_801428E4 asm("D_800B4DC4");
+extern struct { u8 pad_0[0x8]; u8 *f_8; u8 pad_C[0x8146]; u16 f_8152; u8 pad_8154[0x104]; s16 f_8258; s16 f_825A; s16 f_825C; u8 pad_825E[2]; s16 f_8260; s16 f_8262; s16 f_8264; } g_Game_801428E4 asm("g_Game");
+extern struct { u8 pad_0[0xA1]; s8 f_A1; u8 pad_A2; s8 f_A3; u8 pad_A4[0xB4]; u32 f_158; u8 pad_15C[4]; u32 f_160; } g_Pad_801428E4 asm("g_Pad");
+extern struct { u8 pad_0[0x46]; u8 f_46; } D_800E68D0_801428E4 asm("D_800E68D0");
+extern u8 D_800E6916_801428E4 asm("D_800E6916");
+extern SVECTOR D_800F4B30_801428E4[2] asm("D_800F4B30");
+extern u32 D_800E5478_801428E4 asm("D_800E5478");
+extern u8 D_800F4730_801428E4[] asm("D_800F4730");
+extern u8 D_80144610_801428E4[] asm("D_80144610");
+extern u8 D_80144618_801428E4[] asm("D_80144618");
+extern u8 D_80144620_801428E4[] asm("D_80144620");
+extern u8 D_800E9C60_801428E4[] asm("D_800E9C60");
+extern u8 D_800E7D00_801428E4[] asm("D_800E7D00");
+s16 func_800433B0_801428E4(s32, s32, s32, s16 *) asm("func_800433B0");
+s16 Water_Query_801428E4(s32, s32, s32) asm("Water_Query");
+s32 rsin_801428E4(s32) asm("rsin");
+s32 rcos_801428E4(s32) asm("rcos");
+void *ApplyMatrixSV_801428E4(void *, void *, void *) asm("ApplyMatrixSV");
+void func_80014804_801428E4(void *, void *) asm("func_80014804");
+s32 VectorNormalSS_801428E4(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
+s32 func_800463A4_801428E4(s32, s32, s32) asm("func_800463A4");
+void Matrix_LookAt_801428E4(void *, void *, void *, s32) asm("Matrix_LookAt");
+void Model_CalcJointMatrices_801428E4(void *, s32) asm("Model_CalcJointMatrices");
+void Model_ProjectBonedVerts_801428E4(void *) asm("Model_ProjectBonedVerts");
+void func_80017CD4_801428E4(void *, void *, void *) asm("func_80017CD4");
+void func_8004637C_801428E4(void *) asm("func_8004637C");
+void *CompMatrix_801428E4(void *, void *, void *) asm("CompMatrix");
+void Model_ProjectVerts_801428E4(void *, void *, void *) asm("Model_ProjectVerts");
+void Effect_SpawnAt_801428E4(s32, void *) asm("Effect_SpawnAt");
+void func_8006D548_801428E4(void *) asm("func_8006D548");
+void SetRotMatrix_801428E4(void *) asm("SetRotMatrix");
+void SetTransMatrix_801428E4(void *) asm("SetTransMatrix");
+void RotTransSV_801428E4(void *, void *, s32 *) asm("RotTransSV");
+s32 Projectile_Spawn_801428E4(void *, void *, s32) asm("Projectile_Spawn");
+u8 *Collision_GetShape_801428E4(s32) asm("Collision_GetShape");
+s32 Sound_PlayFixed_801428E4(s32) asm("Sound_PlayFixed");
+void Spike_SetPlayMode_801428E4(s32) asm("Spike_SetPlayMode");
+void func_8004B83C_801428E4(void) asm("func_8004B83C");
+void Camera_EnterAim_801428E4(void) asm("Camera_EnterAim");
+void func_80048748_801428E4(void) asm("func_80048748");
+void Camera_ExitAim_801428E4(void) asm("Camera_ExitAim");
+#define RAND_801428E4() (g_RandSeed = g_RandSeed * 5 + 1)
+
+void func_801428E4(void) {
+    SVECTOR v;
+    SVECTOR b;
+    Mat_801428E4 m;
+    SVECTOR u;
+    SVECTOR w;
+    s32 flag;
+    Veh_801428E4 *veh;
+    s32 a;
+    s32 t0, t1, t2, x, y, z;
+    u32 k;
+
+    veh = D_800B4DC4_801428E4;
+    g_Spike_801428E4.f_12C = func_800433B0_801428E4(g_Spike_801428E4.x, g_Spike_801428E4.y, g_Spike_801428E4.z, &g_Spike_801428E4.f_104);
+    g_Spike_801428E4.f_114 = (g_Spike_801428E4.f_30 << 12) + g_Spike_801428E4.f_108;
+    g_Spike_801428E4.f_11C = (g_Spike_801428E4.f_38 << 12) + g_Spike_801428E4.f_110;
+    g_Spike_801428E4.f_13A = g_Spike_801428E4.f_138;
+    g_Spike_801428E4.f_138 = Water_Query_801428E4(g_Spike_801428E4.x, g_Spike_801428E4.y, g_Spike_801428E4.z);
+    g_Spike_801428E4.f_70 = 2;
+    g_Spike_801428E4.f_128 = 0;
+    g_Spike_801428E4.f_120 = 0;
+    g_Spike_801428E4.f_110 = 0;
+    g_Spike_801428E4.f_108 = 0;
+    g_Spike_801428E4.f_10C += 0x7000;
+    g_Spike_801428E4.f_124 = g_Spike_801428E4.f_118 = (g_Spike_801428E4.f_34 << 12) + g_Spike_801428E4.f_10C;
+    *(volatile s32 *)&g_Spike_801428E4.f_10C = 0;
+    if (D_800E6916_801428E4 != 1 && g_Spike_801428E4.f_12C <= g_Spike_801428E4.y) {
+        a = (-g_Pad_801428E4.f_A3 + g_Pad_801428E4.f_A1) / 4;
+        m.m[0][0] = rcos_801428E4(a);
+        m.m[0][1] = 0;
+        m.m[0][2] = -rsin_801428E4(a);
+        m.m[1][0] = 0;
+        m.m[1][1] = 0x1000;
+        m.m[1][2] = 0;
+        m.m[2][0] = rsin_801428E4(a);
+        m.m[2][1] = 0;
+        m.m[2][2] = rcos_801428E4(a);
+        if (g_Game_801428E4.f_8152 != 0xB) {
+            ApplyMatrixSV_801428E4(&m, &g_Spike_801428E4.f_60, &g_Spike_801428E4.f_60);
+        }
+        func_80014804_801428E4(&g_Spike_801428E4.f_60, &m);
+        v.vy = 0;
+        v.vx = 0;
+        v.vz = -(g_Pad_801428E4.f_A3 + g_Pad_801428E4.f_A1) / 2;
+        ApplyMatrixSV_801428E4(&m, &v, &v);
+        if (g_Game_801428E4.f_8152 != 0xB) {
+            g_Spike_801428E4.f_108 += v.vx << 10;
+            g_Spike_801428E4.f_110 += v.vz << 10;
+        }
+    }
+    v.vy = 0x200;
+    v.vx = -g_Spike_801428E4.f_104;
+    v.vz = -g_Spike_801428E4.f_106;
+    VectorNormalSS_801428E4(&v, &v);
+    v.vx = func_800463A4_801428E4(g_Spike_801428E4.f_68.vx, v.vx, 0x40);
+    v.vy = func_800463A4_801428E4(g_Spike_801428E4.f_68.vy, v.vy, 0x40);
+    v.vz = func_800463A4_801428E4(g_Spike_801428E4.f_68.vz, v.vz, 0x40);
+    t0 = g_Spike_801428E4.f_120 + g_Spike_801428E4.f_108;
+    g_Spike_801428E4.f_120 = t0;
+    t1 = g_Spike_801428E4.f_124 + g_Spike_801428E4.f_10C;
+    t2 = g_Spike_801428E4.f_128 + g_Spike_801428E4.f_110;
+    g_Spike_801428E4.f_124 = t1;
+    g_Spike_801428E4.f_128 = t2;
+    x = t0 / 4096;
+    g_Spike_801428E4.f_30 = x;
+    y = t1 / 4096;
+    g_Spike_801428E4.f_34 = y;
+    z = t2 / 4096;
+    g_Spike_801428E4.f_38 = z;
+    g_Spike_801428E4.f_108 = t0 - (x << 12);
+    g_Spike_801428E4.f_10C = t1 - (y << 12);
+    g_Spike_801428E4.f_110 = t2 - (z << 12);
+    g_Spike_801428E4.f_114 = x;
+    g_Spike_801428E4.f_11C = z;
+    g_Spike_801428E4.f_118 = y;
+    VectorNormalSS_801428E4(&v, &g_Spike_801428E4.f_68);
+    if (D_800E68D0_801428E4.f_46 != 1) {
+        Matrix_LookAt_801428E4(&g_Spike_801428E4.f_60, &g_Spike_801428E4.f_68, veh->f_14, 0);
+        veh->x = g_Spike_801428E4.x;
+        veh->y = g_Spike_801428E4.y;
+        veh->z = g_Spike_801428E4.z;
+        g_Spike_801428E4.f_1C = veh->f_1C = g_Spike_801428E4.x;
+        g_Spike_801428E4.f_1E = veh->f_1E = g_Spike_801428E4.y - 0x80;
+        g_Spike_801428E4.f_20 = veh->f_20 = g_Spike_801428E4.z;
+        D_800F4B30_801428E4[0].vx = 0;
+        D_800F4B30_801428E4[0].vy = 0;
+        D_800F4B30_801428E4[0].vz = 0;
+        D_800F4B30_801428E4[1].vx = 0;
+        D_800F4B30_801428E4[1].vy = 0;
+        D_800F4B30_801428E4[1].vz = 0;
+        Model_CalcJointMatrices_801428E4(veh, 3);
+        Model_ProjectBonedVerts_801428E4(veh);
+        func_80017CD4_801428E4(g_Game_801428E4.f_8 + 0x80, D_800E7D00_801428E4, veh);
+        func_8004637C_801428E4(&m);
+        m.t[2] = 0x20;
+        m.t[1] = -0xC8;
+        CompMatrix_801428E4(D_800E9C60_801428E4, &m, &m);
+        Model_ProjectVerts_801428E4(veh->f_90, &m, D_800E7D00_801428E4);
+        func_80017CD4_801428E4(g_Game_801428E4.f_8, D_800E7D00_801428E4, veh->f_90);
+    }
+    if (veh->f_8E < 5 && D_800E68D0_801428E4.f_46 != 1) {
+        u.vx = veh->f_1C + (((u16)RAND_801428E4() >> 8) - 0x80);
+        u.vy = veh->f_1E - ((u16)RAND_801428E4() >> 9);
+        u.vz = veh->f_20 + (((u16)RAND_801428E4() >> 8) - 0x80);
+        Effect_SpawnAt_801428E4(7, &u);
+        if (veh->f_8E < 3) {
+            func_8006D548_801428E4(&u);
+        }
+    }
+    if (g_Game_801428E4.f_8152 != 0xB) {
+        if (D_800E6916_801428E4 != 1) {
+            if ((D_800E5478_801428E4 & 0x400) && veh->f_8C >= 0x1F) {
+                SetRotMatrix_801428E4(D_800F4730_801428E4);
+                SetTransMatrix_801428E4(D_800F4730_801428E4);
+                RotTransSV_801428E4(D_80144610_801428E4, &v, &flag);
+                ApplyMatrixSV_801428E4(D_800F4730_801428E4, D_80144620_801428E4, &b);
+                Projectile_Spawn_801428E4(&v, &b, 5);
+                veh->f_8C = 0;
+            } else {
+                veh->f_8C++;
+            }
+            if ((D_800E5478_801428E4 & 0x200) && veh->f_8D >= 6) {
+                SetRotMatrix_801428E4(D_800F4730_801428E4);
+                SetTransMatrix_801428E4(D_800F4730_801428E4);
+                RotTransSV_801428E4(D_80144618_801428E4, &v, &flag);
+                ApplyMatrixSV_801428E4(D_800F4730_801428E4, D_80144620_801428E4, &b);
+                Projectile_Spawn_801428E4(&v, &b, 4);
+                veh->f_8D = 0;
+            } else {
+                veh->f_8D++;
+            }
+        } else {
+            w.vx = g_Game_801428E4.f_8260 - g_Game_801428E4.f_8258;
+            w.vy = g_Game_801428E4.f_8262 - g_Game_801428E4.f_825A;
+            w.vz = g_Game_801428E4.f_8264 - g_Game_801428E4.f_825C;
+            VectorNormalSS_801428E4(&w, &w);
+            if ((D_800E5478_801428E4 & 0x400) && veh->f_8C >= 0x1F) {
+                Projectile_Spawn_801428E4(&veh->f_1C, &w, 5);
+                veh->f_8C = 0;
+            } else {
+                veh->f_8C++;
+            }
+            if ((D_800E5478_801428E4 & 0x200) && veh->f_8D >= 6) {
+                Projectile_Spawn_801428E4(&veh->f_1C, &w, 4);
+                veh->f_8D = 0;
+            } else {
+                veh->f_8D++;
+            }
+        }
+    }
+    if (g_Spike_801428E4.y >= g_Spike_801428E4.f_12C) {
+        s32 bb;
+        u32 kk = *(u16 *)0x1F8003F8;
+        bb = (kk >> 1) & 7;
+        if ((kk & 1) && !bb) {
+            veh->f_8E = 0;
+        }
+    }
+    if ((g_Spike_801428E4.f_50 >> 28) == 0xB) {
+        s32 dmg = M2C_FIELD(Collision_GetShape_801428E4(M2C_FIELD(&g_Spike_801428E4, u16 *, 0x50) & 0xFFF), u16 *, 0x24) & 0xF;
+        veh->f_8E -= dmg;
+        Sound_PlayFixed_801428E4(0x78);
+    }
+    if (veh->f_8E <= 0) {
+        Spike_SetPlayMode_801428E4(0);
+        return;
+    }
+    if (D_800E6916_801428E4 != 1 && g_Game_801428E4.f_8152 != 0xB) {
+        k = g_Pad_801428E4.f_158 & g_Pad_801428E4.f_160;
+        if (k & 0xA) {
+            Spike_SetPlayMode_801428E4(0);
+            func_8004B83C_801428E4();
+        } else if (k & 1) {
+            Camera_EnterAim_801428E4();
+            func_80048748_801428E4();
+        }
+    } else if ((g_Pad_801428E4.f_158 & g_Pad_801428E4.f_160) & 1) {
+        Camera_ExitAim_801428E4();
+    }
+}
 
 extern struct { u8 pad_0[0x8290]; u16 f_8290; } g_Game_801431B0 asm("g_Game");
 extern SVECTOR D_800F4B30_801431B0[3] asm("D_800F4B30");

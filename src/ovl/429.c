@@ -197,7 +197,6 @@ extern u8 D_800E78C0_80136CC4[] asm("D_800E78C0");
 s32 func_80096580(s32);
 s32 func_80138ABC(void);
 s32 Save_SumStageMonkeys(u8 *);
-void func_8013734C(s16, u8 *);
 void func_8008C01C(void);
 u8 *func_8008C09C(s32);
 void Model_BindMesh(void *, u32 *);
@@ -370,11 +369,33 @@ s32 func_80137308(void *obj) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_8013734C);
+extern u8 D_801391E0[];
+
+s32 func_8013734C(s32 n, u8 *out) {
+    s32 k;
+    s32 m;
+    s32 h;
+    u8 *tb = D_801391E0;
+
+    m = (s16)n;
+    h = m / 100;
+    out[0] = tb[(s16)h];
+    k = n;
+    if (out[0] == 0x6A) {
+        out[0] = 0xEF;
+    }
+    out[1] = tb[(s16)((s16)(m - h * 100) / 10)];
+    if (out[0] == 0xEF && out[1] == 0x6A) {
+        out[1] = out[0];
+    }
+    out[2] = D_801391E0[(s16)((s16)k % 10)];
+    out[3] = 0;
+    return 0;
+}
 
 extern s16 D_801391A8;
 s32 func_801374DC(void);
-void func_801378C4(void);
+s32 func_801378C4(void);
 
 s32 func_80137470(void) {
     switch (D_801391A8) {
@@ -505,7 +526,85 @@ s32 func_801374DC(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_801378C4);
+typedef struct { s16 f_0; u8 pad2[6]; } Row_801378C4;
+extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_801378C4 asm("g_Pad");
+extern Row_801378C4 D_80139368_801378C4[] asm("D_80139368");
+void func_80138428();
+s32 func_801388A4(void);
+s32 func_80136FF0(void);
+
+s32 func_801378C4(void) {
+    u8 *a;
+    u8 *b;
+    s32 i;
+    u32 pad;
+
+    a = func_80136A88(D_80139100, D_801391EC[D_801391BA]);
+    b = func_80136A88(D_80138FC8, D_80139180[D_80139200[D_801391BA]]);
+    func_80136000(a, 0xC0 - func_80136120(a) / 2, 0x18, 1);
+    func_80136000(b, 0xC0 - func_80136120(b) / 2, 0x2A, 0);
+    func_80137D40();
+    func_80138428();
+    func_801388A4();
+    func_80136160(0xC, 0x40, 0x160, 0xA0);
+    func_80138978();
+    if (D_801391B6 != 1) {
+        return 0;
+    }
+    pad = g_Pad_801378C4.f_160 & g_Pad_801378C4.f_158;
+    if (pad & 0x2000) {
+        D_801391B2 = D_801391B4;
+        for (i = D_801391B0 + 1; i < D_801391B4; i++) {
+            if (D_80139368_801378C4[i].f_0 == 1) {
+                D_801391B2 = i;
+                break;
+            }
+        }
+        if (D_801391B2 >= D_801391B4) {
+            Sound_PlayFixed(0);
+            if (D_80139200[D_801391BA + 1] <= D_801391BC) {
+                D_801391BA++;
+                func_80136FF0();
+                D_801391B2 = 0;
+                D_801391B0 = 0;
+            } else {
+                D_801391B0 = D_801391B2 = D_801391B4 - 1;
+            }
+            D_801391A8 = 1;
+        } else {
+            Sound_PlayFixed(0);
+            func_80137308((void *)(s32)D_801391B2);
+        }
+    } else if (pad & 0x8000) {
+        D_801391B2 = -1;
+        for (i = D_801391B0 - 1; i >= 0; i--) {
+            if (D_80139368_801378C4[i].f_0 == 1) {
+                D_801391B2 = i;
+                break;
+            }
+        }
+        if (D_801391B2 < 0) {
+            Sound_PlayFixed(0);
+            if (--D_801391BA >= 0) {
+                func_80136FF0();
+                D_801391B0 = D_801391B2 = D_801391B4 - 1;
+            } else {
+                D_801391BA = 0;
+                D_801391B2 = 0;
+                D_801391B0 = 0;
+            }
+            D_801391A8 = 1;
+        } else {
+            Sound_PlayFixed(0);
+            func_80137308((void *)(s32)D_801391B2);
+        }
+        return 0;
+    } else if (pad & 0xFFFF) {
+        Sound_PlayFixed(1);
+        D_801391A8 = 1;
+    }
+    return 0;
+}
 
 s32 func_80137C04(void) {
     u8 *p = G_DRAW.prim;

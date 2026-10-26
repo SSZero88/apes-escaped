@@ -155,7 +155,46 @@ s32 func_8013D43C(u8 *a, void *scale, s32 c) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D57C);
+typedef struct { SVECTOR at; SVECTOR eye; SVECTOR spike; } Scr_8013D57C;
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013D57C asm("g_Spike");
+extern struct { u8 pad0[0x10]; s32 f_10; u8 pad14[0x24]; s16 f_38; u8 f_3A; } D_801408C0_8013D57C_t asm("D_801408C0");
+s32 SquareRoot0(s32);
+void func_80047464(void *, s32, s32, s32);
+void func_80047558(void *, s32, s32, s32);
+
+s32 func_8013D57C(u8 *cam) {
+    Scr_8013D57C *sc = (Scr_8013D57C *)0x1F800000;
+    u8 *e = D_80140470;
+    SVECTOR v;
+    s32 r;
+    s32 h;
+
+    if (D_801408C0_8013D57C_t.f_3A != 0) {
+        return 0;
+    }
+    M2C_FIELD(cam, s32 *, 0x2C) = (D_801408C0_8013D57C_t.f_10 << 12) / 360;
+    v.vy = 0;
+    sc->spike.vx = g_Spike_8013D57C.x;
+    sc->spike.vy = g_Spike_8013D57C.y - 0x80;
+    sc->spike.vz = g_Spike_8013D57C.z;
+    sc->eye.vx = g_Spike_8013D57C.x;
+    sc->eye.vy = g_Spike_8013D57C.y - 0x80;
+    sc->eye.vz = g_Spike_8013D57C.z;
+    v.vx = g_Spike_8013D57C.x - M2C_FIELD(e, s32 *, 0x24);
+    v.vz = g_Spike_8013D57C.z - M2C_FIELD(e, s32 *, 0x2C);
+    r = SquareRoot0(v.vx * v.vx + v.vz * v.vz);
+    sc->at.vx = M2C_FIELD(e, s32 *, 0x24);
+    h = r / 8 + 0x280;
+    sc->at.vy = M2C_FIELD(e, u16 *, 0x28) - h;
+    if (sc->at.vy > M2C_FIELD(e, s32 *, 0x28) - 0x280) {
+        sc->at.vy = M2C_FIELD(e, u16 *, 0x28) - 0x280;
+    }
+    sc->at.vz = M2C_FIELD(e, s32 *, 0x2C);
+    func_80047558(cam, 0x10, 0x10, 0x10);
+    func_80047464(cam, 8, 0x10, 8);
+    D_801408C0_8013D57C_t.f_38 = M2C_FIELD(cam, u16 *, 0xC) + 0x3690;
+    return 1;
+}
 
 extern struct { u8 pad_0[0x24]; s32 x; u8 pad_28[4]; s32 z; } g_Spike_8013D708 asm("g_Spike");
 typedef struct { s32 x, y, z; u8 padC[0x14]; s16 f_20; u8 pad22[2]; s16 f_24; s16 f_26; } Shape_8013D708;

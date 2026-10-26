@@ -762,7 +762,49 @@ void func_80138670(void *arg0, u32 *col) {
 void func_80138728(void) {
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138730);
+typedef struct { s16 x, y, w, h; } Rect_80138730;
+typedef struct { Rect_80138730 a; Rect_80138730 b; s16 bx, by; s16 ax, ay; Rect_80138730 c; } Win_80138730;
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_80138730 asm("g_Game");
+extern s32 D_8013C530;
+extern u32 *D_8013C540_80138730 asm("D_8013C540");
+
+void func_80138730(void *arg0, Win_80138730 *w) {
+    u8 *p;
+    Rect_80138730 r;
+    register u32 *ot asm("$3");
+
+    p = g_Game_80138730.prim;
+    if (D_8013C530 != g_Game_80138730.frame) {
+        D_8013C530 = g_Game_80138730.frame;
+        D_8013C540_80138730 = &g_Game_80138730.db[g_Game_80138730.cur].ot[0xFFF];
+    }
+    if (w->c.w != 0) {
+        SetDrawMove(p, (void *)&w->c, 0x370, 0x40);
+        ot = D_8013C540_80138730;
+    ADD_PRIM_R(ot, p, "$4", "$2");
+        D_8013C540_80138730 = (u32 *)p;
+        p += 0x18;
+    }
+    r.x = w->a.x - (s16)(w->c.x - 0x370);
+    r.y = w->a.y - (s16)(w->c.y - 0x40);
+    r.w = w->a.w;
+    r.h = w->a.h;
+    SetDrawMove(p, (void *)&r, w->ax, w->ay);
+    ot = D_8013C540_80138730;
+    ADD_PRIM_R(ot, p, "$4", "$2");
+    D_8013C540_80138730 = (u32 *)p;
+    p += 0x18;
+    r.x = w->b.x - (s16)(w->c.x - 0x370);
+    r.y = w->b.y - (s16)(w->c.y - 0x40);
+    r.w = w->b.w;
+    r.h = w->b.h;
+    SetDrawMove(p, (void *)&r, w->bx, w->by);
+    ot = D_8013C540_80138730;
+    ADD_PRIM_R(ot, p, "$4", "$2");
+    D_8013C540_80138730 = (u32 *)p;
+    p += 0x18;
+    g_Game_80138730.prim = p;
+}
 
 void func_801388D8(void) {
 }
