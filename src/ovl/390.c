@@ -60,7 +60,87 @@ s32 func_80136120(u8 *s) {
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80136160);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80136554);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad2; s16 x3, y3; u8 u3, v3; u16 pad3; } PolyFT4_80136554;
+extern struct { u32 frame; PolyFT4_80136554 *prim; u32 *ot; } g_Game_80136554 asm("g_Game");
+extern PolyFT4_80136554 *D_800EC354_80136554 asm("D_800EC354");
+
+s32 func_80136554(s32 x, s32 y, s32 w, s32 h) {
+    PolyFT4_80136554 *p = g_Game_80136554.prim;
+    u32 *ot = g_Game_80136554.ot;
+    s32 i;
+    s32 yy = y;
+
+    for (i = 0; i < 9; i++) {
+        ((u8 *)p)[3] = 9;
+        p->code = 0x2E;
+        p->r0 = 0x40;
+        p->g0 = 0x40;
+        p->b0 = 0x40;
+        switch (i) {
+        case 0:
+            p->x0 = x; p->y0 = yy; p->x1 = x + 8; p->y1 = yy;
+            p->x2 = x; p->y2 = yy + 8; p->x3 = x + 8; p->y3 = yy + 8;
+            p->u0 = 0x80; p->v0 = 0xA0; p->u1 = 0x88; p->v1 = 0xA0;
+            p->u2 = 0x80; p->v2 = 0xA8; p->u3 = 0x88; p->v3 = 0xA8;
+            break;
+        case 1:
+            p->x0 = x + 8; p->y0 = yy; p->x1 = x + (s16)(w - 8); p->y1 = yy;
+            p->x2 = x + 8; p->y2 = yy + 8; p->x3 = x + (s16)(w - 8); p->y3 = yy + 8;
+            p->u0 = 0x88; p->v0 = 0xA0; p->u1 = 0x90; p->v1 = 0xA0;
+            p->u2 = 0x88; p->v2 = 0xA8; p->u3 = 0x90; p->v3 = 0xA8;
+            break;
+        case 2:
+            p->x0 = x + w - 8; p->y0 = yy; p->x1 = x + w; p->y1 = yy;
+            p->x2 = x + w - 8; p->y2 = yy + 8; p->x3 = x + w; p->y3 = yy + 8;
+            p->u0 = 0x90; p->v0 = 0xA0; p->u1 = 0x98; p->v1 = 0xA0;
+            p->u2 = 0x90; p->v2 = 0xA8; p->u3 = 0x98; p->v3 = 0xA8;
+            break;
+        case 3:
+            p->x0 = x; p->y0 = yy + 8; p->x1 = x + 8; p->y1 = yy + 8;
+            p->x2 = x; p->y2 = yy + (s16)(h - 8); p->x3 = x + 8; p->y3 = yy + (s16)(h - 8);
+            p->u0 = 0x80; p->v0 = 0xA8; p->u1 = 0x88; p->v1 = 0xA8;
+            p->u2 = 0x80; p->v2 = 0xB0; p->u3 = 0x88; p->v3 = 0xB0;
+            break;
+        case 4:
+            p->x0 = x + 8; p->y0 = yy + 8; p->x1 = x + (s16)(w - 8); p->y1 = yy + 8;
+            p->x2 = x + 8; p->y2 = yy + (s16)(h - 8); p->x3 = x + (s16)(w - 8); p->y3 = yy + (s16)(h - 8);
+            p->u0 = 0x88; p->v0 = 0xA8; p->u1 = 0x90; p->v1 = 0xA8;
+            p->u2 = 0x88; p->v2 = 0xB0; p->u3 = 0x90; p->v3 = 0xB0;
+            break;
+        case 5:
+            p->x0 = x + w - 8; p->y0 = yy + 8; p->x1 = x + w; p->y1 = yy + 8;
+            p->x2 = x + w - 8; p->y2 = yy + (s16)(h - 8); p->x3 = x + w; p->y3 = yy + (s16)(h - 8);
+            p->u0 = 0x90; p->v0 = 0xA8; p->u1 = 0x98; p->v1 = 0xA8;
+            p->u2 = 0x90; p->v2 = 0xB0; p->u3 = 0x98; p->v3 = 0xB0;
+            break;
+        case 6:
+            p->x0 = x; p->y0 = yy + h - 8; p->x1 = x + 8; p->y1 = yy + h - 8;
+            p->x2 = x; p->y2 = yy + h; p->x3 = x + 8; p->y3 = yy + h;
+            p->u0 = 0x80; p->v0 = 0xB0; p->u1 = 0x88; p->v1 = 0xB0;
+            p->u2 = 0x80; p->v2 = 0xB8; p->u3 = 0x88; p->v3 = 0xB8;
+            break;
+        case 7:
+            p->x0 = x + 8; p->y0 = yy + h - 8; p->x1 = x + (s16)(w - 8); p->y1 = yy + h - 8;
+            p->x2 = x + 8; p->y2 = yy + h; p->x3 = x + (s16)(w - 8); p->y3 = yy + h;
+            p->u0 = 0x88; p->v0 = 0xB0; p->u1 = 0x90; p->v1 = 0xB0;
+            p->u2 = 0x88; p->v2 = 0xB8; p->u3 = 0x90; p->v3 = 0xB8;
+            break;
+        case 8:
+            p->x0 = x + w - 8; p->y0 = yy + h - 8; p->x1 = x + w; p->y1 = yy + h - 8;
+            p->x2 = x + w - 8; p->y2 = yy + h; p->x3 = x + w; p->y3 = yy + h;
+            p->u0 = 0x90; p->v0 = 0xB0; p->u1 = 0x98; p->v1 = 0xB0;
+            p->u2 = 0x90; p->v2 = 0xB8; p->u3 = 0x98; p->v3 = 0xB8;
+            break;
+        }
+        p->clut = 0x77AB;
+        p->tpage = 0x5A;
+        ADD_PRIM_ASM(ot, p);
+        p++;
+        __asm__ volatile("" : : "r"(x), "r"(x));
+    }
+    D_800EC354_80136554 = p;
+    return 0;
+}
 
 typedef struct { s32 vx, vy, vz, pad; } VEC_391;
 typedef struct { s16 m[3][3]; s32 t[3]; } MAT_391;

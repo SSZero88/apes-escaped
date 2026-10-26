@@ -88,7 +88,55 @@ u8 *func_801361D8(u8 *arg0, s32 arg1)
   return var_a0;
 }
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80136208);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_80136208;
+extern GameDraw g_Game_80136208 asm("g_Game");
+
+s32 func_80136208(void) {
+    register u8 *p asm("$14");
+    u8 *base;
+    u32 *ot;
+
+    p = g_Game_80136208.prim;
+    *(u32 *)&((Sprt_80136208 *)p)->r0 = 0x808080;
+    p[3] = 4;
+    ((Sprt_80136208 *)p)->code = 0x64;
+    ((Sprt_80136208 *)p)->x0 = 0;
+    ((Sprt_80136208 *)p)->y0 = 0;
+    ((Sprt_80136208 *)p)->u0 = 0;
+    ((Sprt_80136208 *)p)->v0 = 0;
+    ((Sprt_80136208 *)p)->w = 0xFF;
+    ((Sprt_80136208 *)p)->h = 0xF0;
+    ((Sprt_80136208 *)p)->clut = 0x3C5C;
+    base = (u8 *)&g_Game_80136208 + 0x80;
+    ot = &((u32 *)(base + g_Game_80136208.cur * 0x4078))[0xFFF];
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    p += 0x14;
+    p[3] = 1;
+    ((u32 *)p)[1] = 0xE1000307;
+    ot = &((u32 *)(base + g_Game_80136208.cur * 0x4078))[0xFFF];
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    p += 8;
+    *(u32 *)&((Sprt_80136208 *)p)->r0 = 0x808080;
+    p[3] = 4;
+    ((Sprt_80136208 *)p)->code = 0x64;
+    ((Sprt_80136208 *)p)->x0 = 0xFF;
+    ((Sprt_80136208 *)p)->y0 = 0;
+    ((Sprt_80136208 *)p)->u0 = 0;
+    ((Sprt_80136208 *)p)->v0 = 0;
+    ((Sprt_80136208 *)p)->w = 0x80;
+    ((Sprt_80136208 *)p)->h = 0xF0;
+    ((Sprt_80136208 *)p)->clut = 0x3C5C;
+    ot = &((u32 *)(base + g_Game_80136208.cur * 0x4078))[0xFFF];
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    p += 0x14;
+    p[3] = 1;
+    ((u32 *)p)[1] = 0xE100030B;
+    ot = &((u32 *)(base + g_Game_80136208.cur * 0x4078))[0xFFF];
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    p += 8;
+    g_Game_80136208.prim = p;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80136394);
 
@@ -389,7 +437,6 @@ extern u8 D_8013B6F0[];
 s32 func_800116C0(void);
 void Sound_ResumeStreams(void);
 s32 func_80010CA4(s32);
-void func_80138138();
 void func_801380DC(void);
 void func_80138118(void);
 void func_80136000(SVECTOR *eye, SVECTOR *at);
@@ -808,7 +855,58 @@ void func_80138118(void) {
     D_8013B9C8 = b + M2C_FIELD(b, u16 *, 0x34);
 }
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80138138);
+typedef struct { u16 mesh, f_2, f_4, f_6, f_8, pad; } Ent_80138138;
+typedef struct { u32 *f_0; u8 pad4[0xC]; u16 f_10, f_12, f_14, f_16; u8 pad18[4]; u32 f_1C; } Obj_80138138;
+typedef struct { u8 pad0[0x18]; u8 *f_18; u8 pad1C[0x40]; s16 f_5C, f_5E, f_60, f_62, f_64; u8 pad66[0xA]; s16 f_70, f_72; u8 *f_74; u8 pad78[0x10]; } Act_80138138;
+extern struct { u8 pad0[0x8224]; u8 *f_8224; Ent_80138138 *f_8228; u8 pad822C[0x54]; s32 f_8280; } g_Game_80138138 asm("g_Game");
+extern Act_80138138 D_8013B6F0_80138138[] asm("D_8013B6F0");
+void Zone_SetTable(s32 *);
+void *func_8008C09C(s32);
+void func_80015AC0(void *, u8 *);
+
+s32 func_80138138(s32 n) {
+    u8 *b;
+    s32 i;
+    Obj_80138138 *o;
+    u8 *t;
+    u8 *t2;
+
+    b = (u8 *)0x80154000;
+    g_Game_80138138.f_8224 = b + M2C_FIELD(b, u16 *, 0x2C) * 4;
+    g_Game_80138138.f_8228 = (Ent_80138138 *)(b + M2C_FIELD(b, u16 *, 0x30) * 4 + 4);
+    g_Game_80138138.f_8280 = *(s32 *)(b + M2C_FIELD(b, u16 *, 0x30) * 4);
+    Zone_SetTable(0);
+    D_800B4D64 = func_8008C09C((g_Game_80138138.f_8280 + 1) << 5);
+    for (i = 0; i < g_Game_80138138.f_8280; i++) {
+        {
+        register Obj_80138138 *o asm("$4") = (Obj_80138138 *)(i * 32 + (s32)D_800B4D64);
+        o->f_10 = g_Game_80138138.f_8228[i].f_4;
+        o->f_14 = g_Game_80138138.f_8228[i].f_8;
+        o->f_12 = g_Game_80138138.f_8228[i].f_6;
+        o->f_16 = 0;
+        Model_BindMesh(o, g_Game_80138138.f_8224 + M2C_FIELD(g_Game_80138138.f_8224 + g_Game_80138138.f_8228[i].mesh * 4, u16 *, 4) * 4);
+        }
+        o = (Obj_80138138 *)(i * 32 + (s32)D_800B4D64);
+        o->f_1C = g_Game_80138138.f_8228[i].f_2;
+        *o->f_0 &= 0xFFFF1FFF;
+        o->f_16 = 0xFFFF;
+    }
+    for (i = 0; i < n; i++) {
+        func_80015AC0(&D_8013B6F0_80138138[i], b + M2C_FIELD(b + i * 4, u16 *, 4) * 4);
+        t = (u8 *)(M2C_FIELD(b + i * 4, u16 *, 0x18) * 4) + (u32)b;
+        D_8013B6F0_80138138[i].f_18 = t + *(s32 *)t * 4 + 4;
+        t2 = b + M2C_FIELD(b + i * 4, u16 *, 0x18) * 4 + 4;
+        D_8013B6F0_80138138[i].f_5C = 0;
+        D_8013B6F0_80138138[i].f_5E = 0;
+        D_8013B6F0_80138138[i].f_70 = 0;
+        D_8013B6F0_80138138[i].f_72 = 0;
+        D_8013B6F0_80138138[i].f_60 = 0;
+        D_8013B6F0_80138138[i].f_62 = 0;
+        D_8013B6F0_80138138[i].f_64 = -0x1000;
+        D_8013B6F0_80138138[i].f_74 = t2;
+    }
+    return 0;
+}
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_80138370;
 extern s16 D_8013B48C;
@@ -1486,7 +1584,6 @@ void func_80014804(SVECTOR *, s32);
 void func_80015780(void *, s32);
 void Model_ProjectBonedVerts(void *);
 s32 rsin(s32);
-void func_80139EE0(s32, s32, s32);
 void func_80017CD4(void *, void *, void *);
 void Model_DrawWireframe(void *, void *, void *);
 void Model_ProjectVertsAlt(void *, void *, void *);
@@ -1588,13 +1685,61 @@ void func_80139E0C(s32 y)
   (*((GameDraw *) new_var)).prim = p;
 }
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80139EE0);
+typedef struct { u16 vx, vy, vz, pad; } V_80139EE0;
+extern V_80139EE0 D_800E7D00_80139EE0[] asm("D_800E7D00");
+extern V_80139EE0 D_800EA060_80139EE0[] asm("D_800EA060");
+
+void func_80139EE0(s32 mode, s32 n, s32 lim) {
+    V_80139EE0 *s = D_800E7D00_80139EE0;
+    V_80139EE0 *d = D_800EA060_80139EE0;
+    s32 i;
+
+    switch (mode) {
+    case 0:
+        for (i = 0; i < n; i++) {
+            d[i].vx = s[i].vx;
+            d[i].vy = (s16)s[i].vy < lim ? lim : s[i].vy;
+            d[i].vz = s[i].vz;
+        }
+        break;
+    case 1:
+        for (i = 0; i < n; i++) {
+            d[i].vx = s[i].vx;
+            d[i].vy = (s16)s[i].vy > lim ? lim : s[i].vy;
+            d[i].vz = s[i].vz;
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80139FB8);
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_8013A10C);
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_8013A334);
+/* 6 diffs (hand) */
+s32 Text_GetWidth2(u8 *);
+
+s32 func_8013A334(u8 *s) {
+    s32 w;
+    s32 w2;
+    u8 *line;
+    register s32 c asm("$3");
+
+    w = Text_GetWidth2(s);
+    line = NULL;
+    for (; (c = *s) != 0; s++) {
+        if (c == '\r') {
+            line = s + 1;
+        }
+    }
+    if (line != NULL) {
+        w2 = Text_GetWidth2(line);
+        if (w < w2) {
+            w = w2;
+        }
+    }
+    return (0x180 - w) >> 1;
+}
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_8013A3C4);
 

@@ -802,7 +802,30 @@ void func_801383B8(void) {
     D_80138CD0 = b + M2C_FIELD(b, u16 *, 0x1C);
 }
 
-INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_801383D8);
+/* 6 diffs (hand) */
+s32 Text_GetWidth2(u8 *);
+
+s32 func_801383D8(u8 *s) {
+    s32 w;
+    s32 w2;
+    u8 *line;
+    register s32 c asm("$3");
+
+    w = Text_GetWidth2(s);
+    line = NULL;
+    for (; (c = *s) != 0; s++) {
+        if (c == '\r') {
+            line = s + 1;
+        }
+    }
+    if (line != NULL) {
+        w2 = Text_GetWidth2(line);
+        if (w < w2) {
+            w = w2;
+        }
+    }
+    return (0x180 - w) >> 1;
+}
 
 void func_80138468(void) {
     Cd_PlayXaTrack(D_80138CEC);

@@ -1399,7 +1399,33 @@ s32 func_801402C0(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_801404B0);
+extern u8 *D_800B4D64_801404B0 asm("D_800B4D64");
+void func_800147D0_801404B0(s16 *, void *) asm("func_800147D0");
+
+s32 func_801404B0(u8 *e, s16 *p) {
+    s16 v[3];
+
+    if (p[8] == 0) {
+        { register s32 t asm("$3"); t = M2C_FIELD(e, s16 *, 0x32) * p[9] / 4096; M2C_FIELD(e, s16 *, 6) = t; }
+        v[0] = p[9];
+        v[2] = 0x1000;
+        v[1] = 0x1000;
+    } else if (p[8] == 1) {
+        v[1] = 0x1000;
+        v[0] = 0x1000;
+        v[2] = p[9];
+        { register s32 t asm("$3"); t = M2C_FIELD(e, s16 *, 0x36) * p[9] / 4096; M2C_FIELD(e, s16 *, 0xA) = t; }
+    } else {
+        v[2] = 0x1000;
+        v[0] = 0x1000;
+        v[1] = p[9];
+        { register s32 t asm("$3"); t = M2C_FIELD(e, s16 *, 0x34) * p[9] / 4096; M2C_FIELD(e, s16 *, 8) = t; }
+    }
+    if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+        func_800147D0_801404B0(v, M2C_FIELD(D_800B4D64_801404B0 + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
+    }
+    return 0;
+}
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_801405C4 asm("g_Game");
 extern u8 *D_800B4D64_801405C4 asm("D_800B4D64");
@@ -1593,7 +1619,83 @@ s32 func_80140B58(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_80140EB0);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_80140EB0 asm("g_Game");
+
+s32 func_80140EB0(s16 *p) {
+    s32 a, b, c, d, e, f;
+    u8 *o1;
+    u8 *o2;
+
+    a = (u16)p[6] >> 8;
+    b = (u16)p[6] & 0xFF;
+    c = (u16)p[7] >> 8;
+    d = (u16)p[7] & 0xFF;
+    e = (u16)p[8] >> 8;
+    f = (u16)p[8] & 0xFF;
+    switch (p[1]) {
+    case 0:
+        o1 = g_Game_80140EB0.f_820C + c * 0x38;
+        o2 = g_Game_80140EB0.f_820C + d * 0x38;
+        if (M2C_FIELD(o1, s16 *, 0x1E) >= 0 || M2C_FIELD(o2, s16 *, 0x1E) >= 0) {
+            p[1] = 1;
+            M2C_FIELD(o1, u16 *, 0x18) |= 0x8000;
+            M2C_FIELD(o2, u16 *, 0x18) |= 0x8000;
+            o1 = g_Game_80140EB0.f_820C + a * 0x38;
+            M2C_FIELD(o1, u16 *, 0x18) |= 0x8000;
+            p[3] = 0;
+            if (M2C_FIELD(o1, s16 *, 0x1E) >= 0) {
+                Sound_PlayAt_8013EFB0(0xB4, o1);
+            } else {
+                Sound_PlayAt_8013EFB0(0xB4, o2);
+            }
+        }
+        break;
+    case 1:
+        Model_SetTurnAngle(p[4], p[9], p[3]);
+        p[3] += 0x20;
+        if (p[3] > 0x400) {
+            p[1] = 2;
+            o1 = g_Game_80140EB0.f_820C + e * 0x38;
+            M2C_FIELD(o1, u16 *, 0x18) &= 0x7FFF;
+            o2 = g_Game_80140EB0.f_820C + f * 0x38;
+            M2C_FIELD(o2, u16 *, 0x18) &= 0x7FFF;
+            o1 = g_Game_80140EB0.f_820C + b * 0x38;
+            M2C_FIELD(o1, u16 *, 0x18) &= 0x7FFF;
+        }
+        break;
+    case 2:
+        o1 = g_Game_80140EB0.f_820C + e * 0x38;
+        o2 = g_Game_80140EB0.f_820C + f * 0x38;
+        if (M2C_FIELD(o1, s16 *, 0x1E) >= 0 || M2C_FIELD(o2, s16 *, 0x1E) >= 0) {
+            p[1] = 3;
+            M2C_FIELD(o1, u16 *, 0x18) |= 0x8000;
+            M2C_FIELD(o2, u16 *, 0x18) |= 0x8000;
+            o1 = g_Game_80140EB0.f_820C + b * 0x38;
+            M2C_FIELD(o1, u16 *, 0x18) |= 0x8000;
+            p[3] = 0x400;
+            if (M2C_FIELD(o1, s16 *, 0x1E) >= 0) {
+                Sound_PlayAt_8013EFB0(0xB4, o1);
+            } else {
+                Sound_PlayAt_8013EFB0(0xB4, o2);
+            }
+        }
+        break;
+    case 3:
+        Model_SetTurnAngle(p[4], p[9], p[3]);
+        p[3] += 0x20;
+        if (p[3] > 0x800) {
+            p[1] = 0;
+            o1 = g_Game_80140EB0.f_820C + c * 0x38;
+            M2C_FIELD(o1, u16 *, 0x18) &= 0x7FFF;
+            o2 = g_Game_80140EB0.f_820C + d * 0x38;
+            M2C_FIELD(o2, u16 *, 0x18) &= 0x7FFF;
+            o1 = g_Game_80140EB0.f_820C + a * 0x38;
+            M2C_FIELD(o1, u16 *, 0x18) &= 0x7FFF;
+        }
+        break;
+    }
+    return 0;
+}
 
 extern struct S_g_Game_80141240 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80141240 asm("g_Game");
 

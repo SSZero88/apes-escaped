@@ -806,7 +806,6 @@ extern struct { u8 frame; u8 pad1[0x812B]; u8 f_812C; u8 pad812D[0xDF]; Ent_8013
 extern struct { u8 pad_0[0x24]; u16 x; u8 pad_26[2]; u16 y; u8 pad_2A[2]; u16 z; } g_Spike_8013F370 asm("g_Spike");
 extern u8 D_800E6908;
 void func_8006F274(void *, void *, s32);
-s32 func_8013F6BC();
 s32 Vec_Length(s32, s32, s32);
 s16 Sound_Play(s32, s32);
 s32 Sound_Stop(s32, s32);
@@ -859,4 +858,81 @@ s32 func_8013F370(s16 *a) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013F6BC);
+typedef struct { s32 x, y, z; u8 padC[0xC]; SVECTOR n; s16 r; u8 pad22[2]; s16 f_24; s16 f_26; } Coll_8013F6BC;
+typedef struct { s32 x, y, z; } Vec_8013F6BC;
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013F6BC asm("g_Spike");
+Coll_8013F6BC *CollShape_Alloc(void);
+s32 Collision_Set(s32, void *, void *);
+
+s32 func_8013F6BC(s32 mode, s16 *b, s32 r) {
+    SVECTOR n;
+    Vec_8013F6BC pos;
+    Coll_8013F6BC *c;
+    s16 dir;
+    s32 rad;
+
+    dir = mode;
+    if (b[0] - b[3] < g_Spike_8013F6BC.x && g_Spike_8013F6BC.x < b[0] + b[3]
+        && g_Spike_8013F6BC.y < b[1] && b[1] - b[4] < g_Spike_8013F6BC.y
+        && b[2] - b[5] < g_Spike_8013F6BC.z && g_Spike_8013F6BC.z < b[2] + b[5]) {
+        if ((s16)mode == 5) {
+            dir = g_Spike_8013F6BC.x < b[0];
+        } else if ((s16)mode == 6) {
+            dir = 2;
+            if (g_Spike_8013F6BC.z < b[2]) {
+                dir = 3;
+            }
+        }
+        n.vz = 0;
+        n.vy = 0;
+        n.vx = 0;
+        pos.x = g_Spike_8013F6BC.x;
+        pos.y = g_Spike_8013F6BC.y;
+        pos.z = g_Spike_8013F6BC.z;
+        rad = (s16)r;
+        switch (dir) {
+        case 0:
+            n.vx = 0x1000;
+            pos.x -= 0x40;
+            break;
+        case 1:
+            n.vx = -0x1000;
+            pos.x += 0x40;
+            break;
+        case 2:
+            n.vz = 0x1000;
+            pos.z -= 0x40;
+            break;
+        case 3:
+            n.vz = -0x1000;
+            pos.z += 0x40;
+            break;
+        case 4:
+            n.vx = g_Spike_8013F6BC.x - b[0];
+            n.vy = g_Spike_8013F6BC.y - b[1];
+            n.vz = g_Spike_8013F6BC.z - b[2];
+            VectorNormalSS(&n, &n);
+            pos.x = b[0];
+            pos.y = b[1];
+            pos.z = b[2];
+            rad = b[3];
+            break;
+        }
+        c = CollShape_Alloc();
+        if (c != NULL) {
+            c->n = n;
+            c->x = pos.x;
+            c->y = pos.y;
+            c->z = pos.z;
+            c->f_24 = 0x401;
+            c->r = rad;
+            c->f_26 = 0x202;
+            Collision_Set(6, c, 0);
+        }
+    }
+    return 0;
+}
+__asm__(".section .rodata\n\t.align 3\n\t.section .text");
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop\n\tnop");

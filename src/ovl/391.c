@@ -347,7 +347,29 @@ void func_801373F8(s32 arg0) {
     func_8008DDC8(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80137438);
+s32 Text_GetWidth2(u8 *);
+
+s32 func_80137438(u8 *s) {
+    s32 w;
+    s32 w2;
+    u8 *line;
+    register s32 c asm("$3");
+
+    w = Text_GetWidth2(s);
+    line = NULL;
+    for (; (c = *s) != 0; s++) {
+        if (c == '\r') {
+            line = s + 1;
+        }
+    }
+    if (line != NULL) {
+        w2 = Text_GetWidth2(line);
+        if (w < w2) {
+            w = w2;
+        }
+    }
+    return (0x180 - w) >> 1;
+}
 
 typedef struct { u8 pad0[0x5C]; u16 frame; u16 anim; u8 pad60[0x10]; s16 next; u16 flags; s16 (*anims)[2]; s16 tr[3]; s16 rsteps; s16 tp[3]; s16 psteps; } Mdl_801374C8;
 typedef struct { u16 x; u16 y; u16 str; s8 type; s8 on; } Txt_801374C8;

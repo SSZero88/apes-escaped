@@ -1569,7 +1569,148 @@ void func_80140670(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801407DC);
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[6]; u16 z; } g_Spike_801407DC asm("g_Spike");
+extern u32 g_Game_801407DC asm("g_Game");
+extern u16 D_800AE8F2;
+M2C_UNK func_80058134(void *, s16);
+M2C_UNK Puff_Spawn(void *, M2C_UNK, M2C_UNK, M2C_UNK);
+void *func_80057140_801407DC(void *, s32, s32) asm("func_80057140");
+void Fx_DebrisExplosion_801407DC(s32, s32, s32) asm("Fx_DebrisExplosion");
+void Object_DisableCollision(void *);
+void func_8005866C(void *, s32);
+void Object_ClampAnimFrame(void *, s32);
+s32 Object_SpikeInFront(void *, s32, s32, s16);
+void func_8013F630(u8 *o, s16 side, s16 drop, s16 fwd, s32 aimed);
+void func_8013FD8C(void *arg0);
+s32 func_8013FEE8(u8 *o);
+void func_8014020C(void *arg0);
+s32 func_80140298(u8 *e);
+void func_801404A4(void *arg0, s32 on);
+s32 func_801404EC(void *arg0);
+void func_80140578(void *arg0);
+void func_80140670(void *arg0);
+#define ANIM_801407DC(o, i) ((u16 *)(M2C_FIELD(o, u8 **, 0x88) + (i) * 4))
+#define RAND_801407DC() (g_RandSeed = g_RandSeed * 5 + 1)
+#define RAND2_801407DC() (D_800AE8F2 = D_800AE8F2 * 5 + 1)
+
+void func_801407DC(u8 *e) {
+    SVECTOR v;
+
+    if (!((M2C_FIELD(e, u32 *, 0xE0) >> 3) & 1)) {
+        M2C_FIELD(e, s16 *, 0x4A) = -0x3EFF;
+        e[0x81] = 5;
+        M2C_FIELD(e, s16 *, 0x48) = 0;
+        e[0xC8] = 0;
+        M2C_FIELD(e, u32 *, 0xE0) &= ~0x1000;
+        M2C_FIELD(e, u32 *, 0xE0) = (M2C_FIELD(e, u32 *, 0xE0) & 0xFCFFFFFF) | 0x1000000;
+        M2C_FIELD(e, u32 *, 0xE0) &= ~0x8000;
+        M2C_FIELD(e, u32 *, 0xE0) &= ~1;
+        M2C_FIELD(e, s16 *, 0x44) = 0xFA;
+        M2C_FIELD(e, u32 *, 0xE0) &= ~1;
+        M2C_FIELD(e, s16 *, 0x46) = 0x1EA;
+        { register u32 t asm("$3") = M2C_FIELD(e, u32 *, 0xE0); M2C_FIELD(e, u32 *, 0xE0) = t | 0x2000; }
+        M2C_FIELD(e, void **, 0x74) = func_80057140_801407DC(e, 7, 0xD9);
+        Object_DisableCollision(e);
+        e[0xDE] = 0;
+        if (M2C_FIELD(e, u16 *, 0x8C) != 0) {
+            func_8005866C(e, 1);
+        }
+        e[0x7F] = 2;
+        M2C_FIELD(e, s32 *, 0x28) = M2C_FIELD(e, s16 *, 0x9C);
+        M2C_FIELD(e, u16 *, 0x9C) -= 0x68;
+        M2C_FIELD(e, u16 *, 0x5C) = ANIM_801407DC(e, 2)[0];
+        func_8013FD8C(e);
+        M2C_FIELD(e, u32 *, 0xE0) |= 8;
+    }
+    func_80058134(e, M2C_FIELD(e, s16 *, 0x44));
+    if (func_80140298(e) == 0) {
+        func_8014020C(e);
+        e[0xCF] = 0;
+        switch (e[0x80]) {
+        case 5:
+            if (M2C_FIELD(e, u16 *, 0x5C) >= ANIM_801407DC(e, e[0x7F])[1]) {
+                e[0x80] = 3;
+                e[0x7F] = 0;
+                M2C_FIELD(e, u16 *, 0x5C) = ANIM_801407DC(e, 0)[0];
+                func_8005588C(e, 0);
+            }
+            break;
+        case 6:
+            M2C_FIELD(e, s16 *, 0x5E) = 2;
+            M2C_FIELD(e, u16 *, 0x96) += 7;
+            M2C_FIELD(e, s32 *, 0x28) += M2C_FIELD(e, s16 *, 0x96);
+            M2C_FIELD(e, u16 *, 0xD4) += 5;
+            M2C_FIELD(e, u16 *, 0xD6) += 5;
+            func_80140670(e);
+            Object_ClampAnimFrame(e, ANIM_801407DC(e, e[0x7F])[1]);
+            if (M2C_FIELD(e, s16 *, 0x9C) + 100 < M2C_FIELD(e, s32 *, 0x28)) {
+                M2C_FIELD(e, s32 *, 0x28) = M2C_FIELD(e, s16 *, 0x9C) + 100;
+                e[0x80] = 7;
+                Object_PlaySound(e, 0x4D);
+                Fx_DebrisExplosion_801407DC(M2C_FIELD(e, s16 *, 0x24), M2C_FIELD(e, s16 *, 0x28), M2C_FIELD(e, s16 *, 0x2C));
+            }
+            break;
+        case 7:
+            M2C_FIELD(e, s16 *, 0x5E) = 2;
+            Object_ClampAnimFrame(e, ANIM_801407DC(e, e[0x7F])[1]);
+            if (g_Game_801407DC % 20 < 5) {
+                v.vx = M2C_FIELD(e, u16 *, 0x24) + ((RAND2_801407DC() >> 8) - 0x80) * 2;
+                v.vy = M2C_FIELD(e, u16 *, 0x28) - (RAND2_801407DC() >> 8) - 0x12C;
+                v.vz = M2C_FIELD(e, u16 *, 0x2C) + ((RAND2_801407DC() >> 8) - 0x80) * 2;
+                Effect_SpawnAt(7, &v);
+                Puff_Spawn(e + 0x24, 1, 0, 0x100);
+                if (((RAND_801407DC() >> 8) & 0xF) == 0) {
+                    Object_PlaySound(e, 0x5B);
+                }
+            }
+            break;
+        case 2:
+            if (!(M2C_FIELD(e, u32 *, 0xE0) & 1)) {
+                e[0xC8] = 0;
+                M2C_FIELD(e, s32 *, 0x28) = M2C_FIELD(e, s16 *, 0x9C) + 0x68;
+                Object_DisableCollision(e);
+                e[0xDE] = 0;
+                func_8013FD8C(e);
+                if (M2C_FIELD(e, s8 *, 0x7C) != -1) {
+                    func_80088120(M2C_FIELD(e, s8 *, 0x7C));
+                }
+                M2C_FIELD(e, s8 *, 0x7C) = -1;
+            } else if (func_8013FEE8(e)) {
+                e[0x80] = 3;
+                e[0x7F] = 0;
+                M2C_FIELD(e, u16 *, 0x5C) = ANIM_801407DC(e, 0)[0];
+                func_8005588C(e, 15);
+            }
+            break;
+        case 3:
+            Object_TurnToward(e, (s16)(g_Spike_801407DC.x - M2C_FIELD(e, u16 *, 0x24)), (s16)(g_Spike_801407DC.z - M2C_FIELD(e, u16 *, 0x2C)), 0, M2C_FIELD(e, s16 *, 0xB0));
+            func_801404A4(e, 0);
+            if (func_8005588C(e, -1) == 0 && Object_SpikeInFront(e, 0x5A, 0xB50, 0x1200)) {
+                e[0x80] = 4;
+                e[0x7F] = 3;
+                M2C_FIELD(e, u16 *, 0x5C) = ANIM_801407DC(e, 3)[0];
+            }
+            break;
+        case 4:
+            Object_TurnToward(e, (s16)(g_Spike_801407DC.x - M2C_FIELD(e, u16 *, 0x24)), (s16)(g_Spike_801407DC.z - M2C_FIELD(e, u16 *, 0x2C)), 0, M2C_FIELD(e, s16 *, 0xB0));
+            if (M2C_FIELD(e, u16 *, 0x5C) == ANIM_801407DC(e, e[0x7F])[0] + 15) {
+                func_8013F630(e, 0, 0xC8, 0x1C2, 0);
+            }
+            func_801404A4(e, 1);
+            if (M2C_FIELD(e, u16 *, 0x5C) >= ANIM_801407DC(e, e[0x7F])[1]) {
+                e[0x80] = 3;
+                e[0x7F] = 0;
+                M2C_FIELD(e, u16 *, 0x5C) = ANIM_801407DC(e, 0)[0];
+                func_8005588C(e, func_801404EC(e));
+            }
+            break;
+        }
+        func_80140578(e);
+    }
+    func_8013F550(0);
+    func_8013F550(1);
+    func_801400A4(e);
+}
 
 void func_8005744C(void *, s32, s32, s32);
 
@@ -2486,7 +2627,269 @@ void func_801431B0(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_801433F0);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_801433F0;
+typedef struct { s8 a[4]; } Stk_801433F0;
+typedef struct { u8 pad_0[0x14]; void *f_14; s32 f_18; u8 pad_1C[8]; s32 x; s32 y; s32 z; s32 f_30; s32 f_34; s32 f_38; u8 pad_3C[0x20]; u16 f_5C; u8 pad_5E[2]; SVECTOR f_60; u8 pad_68[8]; s32 f_70; u8 pad_74[0x90]; s16 f_104; s16 f_106; s32 f_108; s32 f_10C; s32 f_110; s32 f_114; s32 f_118; s32 f_11C; s32 f_120; s32 f_124; s32 f_128; s32 f_12C; u8 pad_130[8]; u16 f_138; u16 f_13A; s16 f_13C; s16 f_13E; } Spike_801433F0;
+typedef struct { u8 pad_0[0x14]; void *f_14; s32 f_18; u8 pad_1C[8]; s32 x; s32 y; s32 z; u8 pad_30[0x48]; s16 f_78; s16 f_7A; s16 f_7C; u8 pad_7E[0xE]; u8 f_8C; u8 f_8D; u8 pad_8E[0x12]; Stk_801433F0 st; s16 f_A4; s16 f_A6; s16 f_A8; s16 f_AA; } Veh_801433F0;
+extern Spike_801433F0 g_Spike_801433F0 asm("g_Spike");
+extern Veh_801433F0 *D_800B4DC4_801433F0 asm("D_800B4DC4");
+extern Stk_801433F0 D_800E53C0_801433F0 asm("D_800E53C0");
+extern struct { s32 f_0; u8 pad_4[8]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_801433F0 asm("g_Game");
+extern struct { u8 pad_0[0x158]; u32 f_158; u8 pad_15C[4]; u32 f_160; } g_Pad_801433F0 asm("g_Pad");
+extern u8 D_800E6902_801433F0 asm("D_800E6902");
+extern s32 D_800EC014_801433F0 asm("D_800EC014");
+extern s32 D_800E54C4_801433F0 asm("D_800E54C4");
+extern s32 D_800E54C8_801433F0 asm("D_800E54C8");
+extern s16 D_800F4B30_801433F0[] asm("D_800F4B30");
+extern u8 D_800E7D00_801433F0[] asm("D_800E7D00");
+s16 func_800433B0_801433F0(s32, s32, s32, s16 *) asm("func_800433B0");
+u16 Water_Query_801433F0(s32, s32, s32) asm("Water_Query");
+s32 rsin_801433F0(s32) asm("rsin");
+s32 rcos_801433F0(s32) asm("rcos");
+s32 Sound_PlayFixed_801433F0(s32) asm("Sound_PlayFixed");
+void func_8004637C_801433F0(void *) asm("func_8004637C");
+void *RotMatrixY_801433F0(s32, void *) asm("RotMatrixY");
+void *ApplyMatrixSV_801433F0(void *, void *, void *) asm("ApplyMatrixSV");
+void func_8006699C_801433F0(s32) asm("func_8006699C");
+void func_80014804_801433F0(void *, void *) asm("func_80014804");
+void Model_CalcJointMatrices_801433F0(void *, s32) asm("Model_CalcJointMatrices");
+void Model_ProjectBonedVerts_801433F0(void *) asm("Model_ProjectBonedVerts");
+void func_80017CD4_801433F0(void *, void *, void *) asm("func_80017CD4");
+void Anim_SetFrame_801433F0(void *) asm("Anim_SetFrame");
+void Spike_SetPlayMode_801433F0(s32) asm("Spike_SetPlayMode");
+void func_8004B83C_801433F0(void) asm("func_8004B83C");
+void Spike_UpdateFootEffects_801433F0(void) asm("Spike_UpdateFootEffects");
+#define CLAMP_801433F0(v, lo, hi) ((v) < (lo) ? (lo) : (v) > (hi) ? (hi) : (v))
+
+void func_801433F0(void) {
+    Mat_801433F0 m;
+    Spike_801433F0 *sp = &g_Spike_801433F0;
+    Veh_801433F0 *veh;
+    s32 rot;
+    s32 spd;
+    s32 a;
+    s32 r;
+    s32 t0, t1, t2, x, y, z;
+    s32 save;
+    s32 c;
+    Stk_801433F0 *pad;
+
+    veh = D_800B4DC4_801433F0;
+    sp->f_12C = func_800433B0_801433F0(sp->x, sp->y, sp->z, &sp->f_104);
+    pad = &D_800E53C0_801433F0;
+    veh->st = *pad;
+    sp->f_13A = sp->f_138;
+    sp->f_138 = Water_Query_801433F0(sp->x, sp->y, sp->z);
+    sp->f_128 = 0;
+    sp->f_120 = 0;
+    sp->f_70 = 1;
+    if ((sp->f_138 >> 12) == 1) {
+        u16 *q = (u16 *)0x1F8003D4;
+        sp->f_13E = q[5];
+        sp->f_13C = q[5] - q[8];
+        if (sp->y - sp->f_13C > 0x20) {
+            sp->f_10C -= 0x3000;
+        } else if (sp->f_34 < 0) {
+            sp->f_34 = 0;
+            sp->f_10C = 0;
+        }
+        veh->f_78 = g_Spike_801433F0.x;
+        veh->f_7A = g_Spike_801433F0.y;
+        veh->f_7C = g_Spike_801433F0.z;
+    } else {
+        if (sp->f_12C <= sp->y) {
+            sp->x = veh->f_78;
+            sp->y = veh->f_7A;
+            sp->z = veh->f_7C;
+            sp->f_30 = -sp->f_114;
+            sp->f_38 = -sp->f_11C;
+            sp->f_34 = 0;
+        }
+        sp->f_10C += D_800EC014_801433F0 << 7;
+    }
+    g_Spike_801433F0.f_30 = CLAMP_801433F0(g_Spike_801433F0.f_30, -0x20, 0x20);
+    g_Spike_801433F0.f_38 = CLAMP_801433F0(g_Spike_801433F0.f_38, -0x20, 0x20);
+    g_Spike_801433F0.f_114 = (g_Spike_801433F0.f_30 << 12) + g_Spike_801433F0.f_108;
+    g_Spike_801433F0.f_11C = (g_Spike_801433F0.f_38 << 12) + g_Spike_801433F0.f_110;
+    g_Spike_801433F0.f_124 = g_Spike_801433F0.f_118 = (g_Spike_801433F0.f_34 << 12) + g_Spike_801433F0.f_10C;
+    g_Spike_801433F0.f_110 = 0;
+    g_Spike_801433F0.f_10C = 0;
+    g_Spike_801433F0.f_108 = 0;
+    g_Spike_801433F0.f_124 = CLAMP_801433F0(g_Spike_801433F0.f_124, -0x1E000, 0x1E000);
+    rot = 0;
+    if (D_800E6902_801433F0 != 1) {
+        spd = 0;
+        if (pad->a[1] > 100) {
+            veh->f_A4++;
+        } else if (pad->a[1] < -100) {
+            veh->f_A4--;
+        } else {
+            veh->f_A4 = 0;
+            veh->f_A8 = 0;
+        }
+        if (pad->a[3] > 100) {
+            veh->f_A6++;
+        } else if (pad->a[3] < -100) {
+            veh->f_A6--;
+        } else {
+            veh->f_A6 = 0;
+        }
+        if ((veh->f_A4 >= 0x10 && veh->f_A6 >= 0x10) || (veh->f_A4 < -0xF && veh->f_A6 < -0xF)) {
+            veh->f_AA = veh->f_A8;
+        }
+        if (veh->f_A4 >= 0xF) {
+            veh->f_A4 = 0xF;
+            a = veh->f_A8 + 0x100;
+            r = -rsin_801433F0(a) >> 5;
+            c = CLAMP_801433F0(r, -0x7F, 0x7F);
+            veh->st.a[1] = c;
+            r = rcos_801433F0(a) >> 5;
+            c = CLAMP_801433F0(r, -0x7F, 0x7F);
+            veh->st.a[0] = c;
+            veh->f_A8 = a & 0xFFF;
+        } else if (veh->f_A4 < -0xE) {
+            veh->f_A4 = -0xF;
+            a = veh->f_A8 + 0xF00;
+            r = -rsin_801433F0(a) >> 5;
+            c = CLAMP_801433F0(r, -0x7F, 0x7F);
+            veh->st.a[1] = c;
+            r = rcos_801433F0(a) >> 5;
+            c = CLAMP_801433F0(r, -0x7F, 0x7F);
+            veh->st.a[0] = c;
+            veh->f_A8 = a & 0xFFF;
+        }
+        if (veh->st.a[0] > 0x50) {
+            if (veh->f_A4 >= 0xF) {
+                rot -= 0x20;
+                spd += 0x100;
+            } else if (veh->f_A4 < -0xE) {
+                rot += 0x20;
+                spd -= 0x100;
+            } else {
+                rot -= D_800E54C4_801433F0 >> 6;
+                spd += D_800E54C4_801433F0 >> 4;
+            }
+            if (!(veh->f_8C & 1)) {
+                veh->f_8C = 0x11;
+                Sound_PlayFixed_801433F0(0xB0);
+            } else {
+                veh->f_8C = 1;
+            }
+        } else if (veh->f_8C & 1) {
+            veh->f_8C = 0x10;
+        } else {
+            veh->f_8C = 0;
+        }
+        if (veh->f_A6 >= 0xF) {
+            veh->f_A6 = 0xF;
+            a = veh->f_AA + 0x100;
+            r = -rsin_801433F0(a) >> 5;
+            c = CLAMP_801433F0(r, -0x7F, 0x7F);
+            veh->st.a[3] = c;
+            r = -rcos_801433F0(a) >> 5;
+            c = CLAMP_801433F0(r, -0x7F, 0x7F);
+            veh->st.a[2] = c;
+            veh->f_AA = a & 0xFFF;
+        } else if (veh->f_A6 < -0xE) {
+            veh->f_A6 = -0xF;
+            a = veh->f_AA + 0xF00;
+            r = -rsin_801433F0(a) >> 5;
+            c = CLAMP_801433F0(r, -0x7F, 0x7F);
+            veh->st.a[3] = c;
+            r = -rcos_801433F0(a) >> 5;
+            c = CLAMP_801433F0(r, -0x7F, 0x7F);
+            veh->st.a[2] = c;
+            veh->f_AA = a & 0xFFF;
+        }
+        if (veh->st.a[2] < -0x50) {
+            if (veh->f_A6 >= 0xF) {
+                rot += 0x20;
+                spd += 0x100;
+            } else if (veh->f_A6 < -0xE) {
+                rot -= 0x20;
+                spd -= 0x100;
+            } else {
+                rot -= D_800E54C8_801433F0 >> 6;
+                spd -= D_800E54C8_801433F0 >> 4;
+            }
+            if (!(veh->f_8D & 1)) {
+                veh->f_8D = 0x11;
+                Sound_PlayFixed_801433F0(0xB0);
+            } else {
+                veh->f_8D = 1;
+            }
+        } else if (veh->f_8D & 1) {
+            veh->f_8D = 0x10;
+        } else {
+            veh->f_8D = 0;
+        }
+        func_8004637C_801433F0(&m);
+        RotMatrixY_801433F0(rot, &m);
+        ApplyMatrixSV_801433F0(&m, &g_Spike_801433F0.f_60, &g_Spike_801433F0.f_60);
+        g_Spike_801433F0.f_108 += (g_Spike_801433F0.f_60.vx * spd) >> 2;
+        g_Spike_801433F0.f_110 += (g_Spike_801433F0.f_60.vz * spd) >> 2;
+    }
+    g_Spike_801433F0.f_120 += g_Spike_801433F0.f_108;
+    g_Spike_801433F0.f_124 += g_Spike_801433F0.f_10C;
+    g_Spike_801433F0.f_128 += g_Spike_801433F0.f_110;
+    g_Spike_801433F0.f_120 = CLAMP_801433F0(g_Spike_801433F0.f_120, -0x14000, 0x14000);
+    g_Spike_801433F0.f_128 = CLAMP_801433F0(g_Spike_801433F0.f_128, -0x14000, 0x14000);
+    func_8006699C_801433F0(spd == 0 ? 0x2AA : 0x3000);
+    t0 = g_Spike_801433F0.f_120;
+    x = t0 / 4096;
+    g_Spike_801433F0.f_30 = x;
+    t1 = g_Spike_801433F0.f_124;
+    y = t1 / 4096;
+    g_Spike_801433F0.f_34 = y;
+    t2 = g_Spike_801433F0.f_128;
+    z = t2 / 4096;
+    g_Spike_801433F0.f_38 = z;
+    g_Spike_801433F0.f_108 = t0 - (x << 12);
+    g_Spike_801433F0.f_10C = t1 - (y << 12);
+    g_Spike_801433F0.f_110 = t2 - (z << 12);
+    g_Spike_801433F0.f_114 = x;
+    g_Spike_801433F0.f_11C = z;
+    g_Spike_801433F0.f_118 = y;
+    func_80014804_801433F0(&g_Spike_801433F0.f_60, veh->f_14);
+    veh->x = g_Spike_801433F0.x;
+    veh->y = g_Spike_801433F0.y + (rsin_801433F0(g_Game_801433F0.f_0 << 6) >> 9);
+    veh->z = g_Spike_801433F0.z;
+    D_800F4B30_801433F0[0] = 0;
+    D_800F4B30_801433F0[1] = 0x800;
+    D_800F4B30_801433F0[2] = 0;
+    D_800F4B30_801433F0[4] = 0x400 - (veh->st.a[3] << 2);
+    D_800F4B30_801433F0[5] = 0;
+    D_800F4B30_801433F0[6] = (veh->st.a[2] << 2) - 0x480;
+    D_800F4B30_801433F0[8] = (veh->st.a[1] << 2) + 0x400;
+    D_800F4B30_801433F0[9] = 0;
+    D_800F4B30_801433F0[10] = (veh->st.a[0] << 2) - 0x380;
+    Model_CalcJointMatrices_801433F0(veh, 3);
+    Model_ProjectBonedVerts_801433F0(veh);
+    func_80017CD4_801433F0(g_Game_801433F0.f_80 + g_Game_801433F0.f_C * 0x4078, D_800E7D00_801433F0, veh);
+    if (++g_Spike_801433F0.f_5C >= 0x1E) {
+        g_Spike_801433F0.f_5C = 0;
+    }
+    func_80014804_801433F0(&g_Spike_801433F0.f_60, g_Spike_801433F0.f_14);
+    RotMatrixY_801433F0(0x800, g_Spike_801433F0.f_14);
+    save = g_Spike_801433F0.f_18;
+    g_Spike_801433F0.f_18 = veh->f_18;
+    Anim_SetFrame_801433F0(&g_Spike_801433F0);
+    g_Spike_801433F0.f_18 = save;
+    D_800F4B30_801433F0[0x12] -= veh->st.a[2] << 2;
+    D_800F4B30_801433F0[0x16] += veh->st.a[0] << 2;
+    D_800F4B30_801433F0[0x22] -= veh->st.a[2] << 1;
+    D_800F4B30_801433F0[0x26] += veh->st.a[0] << 1;
+    D_800F4B30_801433F0[0x21] += veh->st.a[3] << 2;
+    D_800F4B30_801433F0[0x25] -= veh->st.a[1] << 2;
+    Model_CalcJointMatrices_801433F0(&g_Spike_801433F0, 1);
+    Model_ProjectBonedVerts_801433F0(&g_Spike_801433F0);
+    func_80017CD4_801433F0(g_Game_801433F0.f_80 + g_Game_801433F0.f_C * 0x4078, D_800E7D00_801433F0, &g_Spike_801433F0);
+    if ((g_Pad_801433F0.f_158 & g_Pad_801433F0.f_160) & 0xA) {
+        Spike_SetPlayMode_801433F0(0);
+        func_8004B83C_801433F0();
+    }
+    Spike_UpdateFootEffects_801433F0();
+}
 
 typedef struct { u8 pad0[0xA]; s16 fA; u8 padC[4]; s16 f10; } Scr_80143F38;
 extern SVECTOR D_800F4B30[3];

@@ -1857,7 +1857,263 @@ void func_80141588(u8 *o) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8014186C);
+typedef struct { u8 b[4]; } Stk_8014186C;
+typedef struct { s16 m[3][3]; s32 t[3]; } Mtx_8014186C;
+typedef struct { u8 pad0[0x14]; void *f_14; s32 f_18; u8 pad1C[8]; s32 x; s32 y; s32 z; s32 f_30; s32 f_34; s32 f_38; u8 pad3C[0x20]; u16 f_5C; u8 pad5E[2]; SVECTOR f_60; u8 pad68[8]; s32 f_70; u8 pad74[0x90]; u8 f_104[4]; s32 f_108; s32 f_10C; s32 f_110; s32 f_114; s32 f_118; s32 f_11C; s32 f_120; s32 f_124; s32 f_128; s32 f_12C; u8 pad130[8]; u16 f_138; u16 f_13A; s16 f_13C; u16 f_13E; } Sp_8014186C;
+typedef struct { u8 pad0[0x14]; void *f_14; s32 f_18; u8 pad1C[8]; s32 x; s32 y; s32 z; u8 pad30[0x48]; s16 f_78; s16 f_7A; s16 f_7C; u8 pad7E[0xE]; u8 f_8C; u8 f_8D; u8 pad8E[0x12]; Stk_8014186C st; s16 f_A4; s16 f_A6; s16 f_A8; s16 f_AA; } Boat_8014186C;
+typedef struct { u8 pad0[0xA0]; Stk_8014186C st; u8 padA4[0xB4]; u32 f_158; u8 pad15C[4]; u32 f_160; u8 pad164[0x40]; s32 f_1A4; s32 f_1A8; } Pad_8014186C;
+typedef struct { u8 pad0[0xA]; u16 fA; u8 padC[4]; u16 f10; } Scr_8014186C;
+extern Sp_8014186C g_Spike_8014186C asm("g_Spike");
+extern Pad_8014186C g_Pad_8014186C asm("g_Pad");
+extern struct { u32 f_0; u8 pad4[8]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8014186C asm("g_Game");
+extern Boat_8014186C *D_800B4DC4_8014186C asm("D_800B4DC4");
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; } g_SpikeH_8014186C asm("g_Spike");
+extern Stk_8014186C D_800E53C0;
+extern s32 D_800E54C4;
+extern s32 D_800E54C8;
+extern s32 D_800EC014;
+extern u8 D_800E6902;
+extern SVECTOR D_800F4B30[3];
+extern u8 D_800E7D00_8014186C[] asm("D_800E7D00");
+s32 func_800433B0(s32, s32, s32, void *);
+s32 Water_Query(s32, s32, s32);
+void Sound_PlayFixed(s32);
+s32 rsin_8014186C(s32) asm("rsin");
+s32 rcos_8014186C(s32) asm("rcos");
+void func_8004637C_8014186C(Mtx_8014186C *) asm("func_8004637C");
+void RotMatrixY_8014186C(s32, void *) asm("RotMatrixY");
+void ApplyMatrixSV_8014186C(Mtx_8014186C *, SVECTOR *, SVECTOR *) asm("ApplyMatrixSV");
+void func_8006699C(s32);
+void func_80014804(s16 *, s16 *);
+void Model_CalcJointMatrices(void *, s32);
+void Model_ProjectBonedVerts(void *);
+void func_80017CD4_8014186C(void *, void *, void *) asm("func_80017CD4");
+void Anim_SetFrame(void *);
+void Spike_SetPlayMode(s32);
+void func_8004B83C(void);
+void Spike_UpdateFootEffects(void);
+#define CLAMP_8014186C(x, lo, hi) ((x) < (lo) ? (lo) : ((x) > (hi) ? (hi) : (x)))
+
+void func_8014186C(void) {
+    Mtx_8014186C m;
+    Boat_8014186C *o;
+    s32 rot;
+    s32 spd;
+    s32 ang;
+    s32 a, b, c, t;
+    s32 save;
+    Stk_8014186C *st;
+
+    o = D_800B4DC4_8014186C;
+    g_Spike_8014186C.f_12C = func_800433B0(g_Spike_8014186C.x, g_Spike_8014186C.y, g_Spike_8014186C.z, g_Spike_8014186C.f_104);
+    st = &D_800E53C0;
+    o->st = *st;
+    g_Spike_8014186C.f_13A = g_Spike_8014186C.f_138;
+    g_Spike_8014186C.f_138 = Water_Query(g_Spike_8014186C.x, g_Spike_8014186C.y, g_Spike_8014186C.z);
+    g_Spike_8014186C.f_128 = 0;
+    g_Spike_8014186C.f_120 = 0;
+    g_Spike_8014186C.f_70 = 1;
+    if ((g_Spike_8014186C.f_138 >> 12) == 1) {
+        g_Spike_8014186C.f_13E = ((Scr_8014186C *)0x1F8003D4)->fA;
+        g_Spike_8014186C.f_13C = ((Scr_8014186C *)0x1F8003D4)->fA - ((Scr_8014186C *)0x1F8003D4)->f10;
+        if (g_Spike_8014186C.y - g_Spike_8014186C.f_13C > 0x20) {
+            g_Spike_8014186C.f_10C -= 0x3000;
+        } else if (g_Spike_8014186C.f_34 < 0) {
+            g_Spike_8014186C.f_34 = 0;
+            g_Spike_8014186C.f_10C = 0;
+        }
+        o->f_78 = g_SpikeH_8014186C.x;
+        o->f_7A = g_SpikeH_8014186C.y;
+        o->f_7C = g_SpikeH_8014186C.z;
+    } else {
+        if (g_Spike_8014186C.f_12C <= g_Spike_8014186C.y) {
+            g_Spike_8014186C.x = o->f_78;
+            g_Spike_8014186C.y = o->f_7A;
+            g_Spike_8014186C.z = o->f_7C;
+            g_Spike_8014186C.f_30 = -g_Spike_8014186C.f_114;
+            g_Spike_8014186C.f_38 = -g_Spike_8014186C.f_11C;
+            g_Spike_8014186C.f_34 = 0;
+        }
+        g_Spike_8014186C.f_10C += D_800EC014 << 7;
+    }
+    g_Spike_8014186C.f_30 = CLAMP_8014186C(g_Spike_8014186C.f_30, -0x20, 0x20);
+    g_Spike_8014186C.f_38 = CLAMP_8014186C(g_Spike_8014186C.f_38, -0x20, 0x20);
+    a = (g_Spike_8014186C.f_30 << 12) + g_Spike_8014186C.f_108;
+    b = g_Spike_8014186C.f_110;
+    c = g_Spike_8014186C.f_10C;
+    g_Spike_8014186C.f_108 = g_Spike_8014186C.f_10C = g_Spike_8014186C.f_110 = 0;
+    g_Spike_8014186C.f_114 = a;
+    g_Spike_8014186C.f_11C = (g_Spike_8014186C.f_38 << 12) + b;
+    g_Spike_8014186C.f_124 = g_Spike_8014186C.f_118 = (g_Spike_8014186C.f_34 << 12) + c;
+    g_Spike_8014186C.f_124 = CLAMP_8014186C(g_Spike_8014186C.f_124, -0x1E000, 0x1E000);
+    rot = 0;
+    if (D_800E6902 != 1) {
+        spd = 0;
+        if ((s8)st->b[1] > 100) {
+            o->f_A4++;
+        } else if ((s8)st->b[1] < -100) {
+            o->f_A4--;
+        } else {
+            o->f_A4 = 0;
+            o->f_A8 = 0;
+        }
+        if ((s8)st->b[3] > 100) {
+            o->f_A6++;
+        } else if ((s8)st->b[3] < -100) {
+            o->f_A6--;
+        } else {
+            o->f_A6 = 0;
+        }
+        if ((o->f_A4 >= 16 && o->f_A6 >= 16) || (o->f_A4 < -15 && o->f_A6 < -15)) {
+            o->f_AA = o->f_A8;
+        }
+        if (o->f_A4 >= 15) {
+            o->f_A4 = 15;
+            ang = o->f_A8 + 0x100;
+            t = -rsin_8014186C(ang) >> 5;
+            t = CLAMP_8014186C(t, -0x7F, 0x7F);
+            o->st.b[1] = t;
+            t = rcos_8014186C(ang) >> 5;
+            t = CLAMP_8014186C(t, -0x7F, 0x7F);
+            o->st.b[0] = t;
+            o->f_A8 = ang & 0xFFF;
+        } else if (o->f_A4 < -14) {
+            o->f_A4 = -15;
+            ang = o->f_A8 + 0xF00;
+            t = -rsin_8014186C(ang) >> 5;
+            t = CLAMP_8014186C(t, -0x7F, 0x7F);
+            o->st.b[1] = t;
+            t = rcos_8014186C(ang) >> 5;
+            t = CLAMP_8014186C(t, -0x7F, 0x7F);
+            o->st.b[0] = t;
+            o->f_A8 = ang & 0xFFF;
+        }
+        if ((s8)o->st.b[0] > 80) {
+            if (o->f_A4 >= 15) {
+                rot -= 0x20;
+                spd += 0x100;
+            } else if (o->f_A4 < -14) {
+                rot += 0x20;
+                spd -= 0x100;
+            } else {
+                rot -= D_800E54C4 >> 6;
+                spd += D_800E54C4 >> 4;
+            }
+            if (!(o->f_8C & 1)) {
+                o->f_8C = 0x11;
+                Sound_PlayFixed(0xB0);
+            } else {
+                o->f_8C = 1;
+            }
+        } else if (o->f_8C & 1) {
+            o->f_8C = 0x10;
+        } else {
+            o->f_8C = 0;
+        }
+        if (o->f_A6 >= 15) {
+            o->f_A6 = 15;
+            ang = o->f_AA + 0x100;
+            t = -rsin_8014186C(ang) >> 5;
+            t = CLAMP_8014186C(t, -0x7F, 0x7F);
+            o->st.b[3] = t;
+            t = -rcos_8014186C(ang) >> 5;
+            t = CLAMP_8014186C(t, -0x7F, 0x7F);
+            o->st.b[2] = t;
+            o->f_AA = ang & 0xFFF;
+        } else if (o->f_A6 < -14) {
+            o->f_A6 = -15;
+            ang = o->f_AA + 0xF00;
+            t = -rsin_8014186C(ang) >> 5;
+            t = CLAMP_8014186C(t, -0x7F, 0x7F);
+            o->st.b[3] = t;
+            t = -rcos_8014186C(ang) >> 5;
+            t = CLAMP_8014186C(t, -0x7F, 0x7F);
+            o->st.b[2] = t;
+            o->f_AA = ang & 0xFFF;
+        }
+        if ((s8)o->st.b[2] < -80) {
+            if (o->f_A6 >= 15) {
+                rot += 0x20;
+                spd += 0x100;
+            } else if (o->f_A6 < -14) {
+                rot -= 0x20;
+                spd -= 0x100;
+            } else {
+                rot -= D_800E54C8 >> 6;
+                spd -= D_800E54C8 >> 4;
+            }
+            if (!(o->f_8D & 1)) {
+                o->f_8D = 0x11;
+                Sound_PlayFixed(0xB0);
+            } else {
+                o->f_8D = 1;
+            }
+        } else if (o->f_8D & 1) {
+            o->f_8D = 0x10;
+        } else {
+            o->f_8D = 0;
+        }
+        func_8004637C_8014186C(&m);
+        RotMatrixY_8014186C(rot, &m);
+        ApplyMatrixSV_8014186C(&m, &g_Spike_8014186C.f_60, &g_Spike_8014186C.f_60);
+        g_Spike_8014186C.f_108 += (g_Spike_8014186C.f_60.vx * spd) >> 2;
+        g_Spike_8014186C.f_110 += (g_Spike_8014186C.f_60.vz * spd) >> 2;
+    }
+    g_Spike_8014186C.f_120 += g_Spike_8014186C.f_108;
+    g_Spike_8014186C.f_124 += g_Spike_8014186C.f_10C;
+    g_Spike_8014186C.f_128 += g_Spike_8014186C.f_110;
+    g_Spike_8014186C.f_120 = CLAMP_8014186C(g_Spike_8014186C.f_120, -0x14000, 0x14000);
+    g_Spike_8014186C.f_128 = CLAMP_8014186C(g_Spike_8014186C.f_128, -0x14000, 0x14000);
+    func_8006699C(spd == 0 ? 0x2AA : 0x3000);
+    g_Spike_8014186C.f_30 = g_Spike_8014186C.f_120 / 4096;
+    g_Spike_8014186C.f_34 = g_Spike_8014186C.f_124 / 4096;
+    g_Spike_8014186C.f_38 = g_Spike_8014186C.f_128 / 4096;
+    g_Spike_8014186C.f_108 = g_Spike_8014186C.f_120 - (g_Spike_8014186C.f_30 << 12);
+    g_Spike_8014186C.f_10C = g_Spike_8014186C.f_124 - (g_Spike_8014186C.f_34 << 12);
+    g_Spike_8014186C.f_110 = g_Spike_8014186C.f_128 - (g_Spike_8014186C.f_38 << 12);
+    g_Spike_8014186C.f_114 = g_Spike_8014186C.f_30;
+    g_Spike_8014186C.f_11C = g_Spike_8014186C.f_38;
+    g_Spike_8014186C.f_118 = g_Spike_8014186C.f_34;
+    func_80014804((s16 *)&g_Spike_8014186C.f_60, o->f_14);
+    o->x = g_Spike_8014186C.x;
+    o->y = g_Spike_8014186C.y + (rsin_8014186C(g_Game_8014186C.f_0 << 6) >> 9);
+    o->z = g_Spike_8014186C.z;
+    D_800F4B30[0].vx = 0;
+    D_800F4B30[0].vy = 0x800;
+    D_800F4B30[0].vz = 0;
+    D_800F4B30[1].vx = 0x400 - (o->st.b[3] << 24 >> 22);
+    D_800F4B30[1].vy = 0;
+    D_800F4B30[1].vz = (o->st.b[2] << 24 >> 22) - 0x480;
+    D_800F4B30[2].vx = (o->st.b[1] << 24 >> 22) + 0x400;
+    D_800F4B30[2].vy = 0;
+    D_800F4B30[2].vz = (o->st.b[0] << 24 >> 22) - 0x380;
+    Model_CalcJointMatrices(o, 3);
+    Model_ProjectBonedVerts(o);
+    func_80017CD4_8014186C(g_Game_8014186C.f_80 + g_Game_8014186C.f_C * 0x4078, D_800E7D00_8014186C, o);
+    if (++g_Spike_8014186C.f_5C >= 30) {
+        g_Spike_8014186C.f_5C = 0;
+    }
+    func_80014804((s16 *)&g_Spike_8014186C.f_60, g_Spike_8014186C.f_14);
+    RotMatrixY_8014186C(0x800, g_Spike_8014186C.f_14);
+    save = g_Spike_8014186C.f_18;
+    g_Spike_8014186C.f_18 = o->f_18;
+    Anim_SetFrame(&g_Spike_8014186C);
+    g_Spike_8014186C.f_18 = save;
+    D_800F4B30[4].vz -= (o->st.b[2] << 24 >> 22);
+    D_800F4B30[5].vz += (o->st.b[0] << 24 >> 22);
+    D_800F4B30[8].vz -= (o->st.b[2] << 24 >> 23);
+    D_800F4B30[9].vz += (o->st.b[0] << 24 >> 23);
+    D_800F4B30[8].vy += (o->st.b[3] << 24 >> 22);
+    D_800F4B30[9].vy -= (o->st.b[1] << 24 >> 22);
+    Model_CalcJointMatrices(&g_Spike_8014186C, 1);
+    Model_ProjectBonedVerts(&g_Spike_8014186C);
+    func_80017CD4_8014186C(g_Game_8014186C.f_80 + g_Game_8014186C.f_C * 0x4078, D_800E7D00_8014186C, &g_Spike_8014186C);
+    if (g_Pad_8014186C.f_158 & g_Pad_8014186C.f_160 & 0xA) {
+        Spike_SetPlayMode(0);
+        func_8004B83C();
+    }
+    Spike_UpdateFootEffects();
+}
 
 typedef struct { u8 pad0[0xA]; s16 fA; u8 padC[4]; s16 f10; } Scr_801423AC;
 extern u8 *D_800B4DC4;

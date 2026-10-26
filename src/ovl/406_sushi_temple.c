@@ -477,7 +477,236 @@ s32 func_8013E058(u8 *o) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013E134);
+typedef struct { u16 start; u16 end; } Anim_8013E134;
+typedef struct { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; u8 pad30[0x14]; s16 f_44; s16 f_46; u8 pad48[0x14]; u16 f_5C; u8 pad5E[0x21]; u8 f_7F; u8 f_80; u8 f_81; u8 f_82; u8 pad83[0x5]; Anim_8013E134 *f_88; u8 pad8C[0x3]; u8 f_8F; u8 pad90[0x4]; s16 f_94; s16 f_96; s16 f_98; s16 f_9A; u8 pad9C[0x2]; s16 f_9E; s16 f_A0; u8 padA2[0x2]; s16 f_A4; s16 f_A6; u8 padA8[0x6]; s16 f_AE; s16 f_B0; u8 padB2[0x16]; u8 f_C8; u8 f_C9; u8 padCA[0x3]; u8 f_CD; u8 padCE[0x6]; s16 f_D4; u8 padD6[0x6]; u8 f_DC; u8 padDD[0x3]; u32 f_E0; } O_8013E134;
+void Object_ApplyVelocity(void *);
+M2C_UNK Object_TurnToward(void *, s16, s16, M2C_UNK, s32);
+void Object_TurnTowardSpike_8013E134(void *) asm("Object_TurnTowardSpike");
+void Object_ClampAnimFrame_8013E134(void *, s32) asm("Object_ClampAnimFrame");
+s32 func_80055C7C_8013E134(void *, s32) asm("func_80055C7C");
+void func_8013D77C(void);
+s32 func_8013DBF4(void *arg0);
+M2C_UNK func_8013DC70(s16 x, s16 y, s16 z);
+void func_8013DD94(u8 *o);
+void func_8013DE4C(void *arg0);
+void func_8013DE84(u8 *o);
+void func_8013E004(void *arg0);
+s32 func_8013E058(u8 *o);
+
+void func_8013E134(O_8013E134 *o) {
+    s16 fl;
+    s32 n;
+
+    if (!((o->f_E0 >> 3) & 1)) {
+        o->f_A0 = 0x46;
+        o->f_B0 = 0xB6;
+        o->f_CD = 2;
+        o->f_46 = 0x104;
+        o->f_44 = 0x5A;
+        o->f_81 = 12;
+        o->f_DC = 10;
+        o->f_C8 = 0;
+        {
+            u32 t = o->f_E0 | 0x200000;
+            *(volatile u32 *)&o->f_E0 = t;
+            o->f_E0 = t & ~0x1000;
+        }
+        Object_DisableCollision(o);
+        func_8013D77C();
+        o->f_7F = 9;
+        o->f_5C = o->f_88[9].start;
+        o->f_E0 |= 8;
+    }
+    func_80058134(o, o->f_44);
+    if (o->f_82 != 0) {
+        if (o->f_81 == 0 && o->f_7F == 2 && o->f_5C == o->f_88[o->f_7F].start + 5) {
+            o->f_7F = 3;
+            o->f_5C = o->f_88[3].start;
+            o->f_E0 &= ~0x200000;
+        }
+        return;
+    }
+    if (func_8013E058((u8 *)o) != 0) {
+        return;
+    }
+    switch (o->f_80) {
+    case 1:
+        o->f_C8 = 0;
+        if (func_8005588C(o, -1) == 0 && Spike_WithinRadiusXZ(o->f_9A, o->f_9E, o->f_A4)) {
+            o->f_80 = 2;
+            o->f_7F = 1;
+            o->f_5C = o->f_88[1].start + 15;
+            func_8013DD94((u8 *)o);
+            func_8013DC70(M2C_FIELD(o, s16 *, 0x24), M2C_FIELD(o, s16 *, 0x28), M2C_FIELD(o, s16 *, 0x2C));
+            Object_EnableCollision(o);
+            o->f_C8 = 5;
+        }
+        break;
+    case 2:
+        Object_TurnTowardSpike_8013E134(o);
+        Object_ClampAnimFrame_8013E134(o, o->f_88[o->f_7F].end);
+        fl = Object_FloorAt(o, 0, 0, 0);
+        o->f_96 += 14;
+        o->f_28 += o->f_96;
+        if (o->f_28 >= fl) {
+            o->f_28 = fl;
+            Object_PlaySound(o, 0xB4);
+            if (func_8013DBF4(o) == 0) {
+                o->f_80 = 7;
+                func_8005588C(o, 0x1E);
+            }
+        }
+        break;
+    case 3:
+        if (o->f_7F == 4) {
+            if (o->f_5C == o->f_88[o->f_7F].start + 14) {
+                Object_PlaySound(o, 0x68);
+            }
+            if (o->f_5C >= o->f_88[o->f_7F].end - 23) {
+                o->f_7F = 5;
+                o->f_5C = o->f_88[5].start;
+                Object_PlaySound(o, 0xB4);
+            }
+        }
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            switch (o->f_7F) {
+            case 5:
+                o->f_80 = 4;
+                o->f_7F = 6;
+                o->f_5C = o->f_88[6].start;
+                func_8005588C(o, 0x3C);
+                o->f_8F = 0;
+                break;
+            case 7:
+                o->f_80 = 5;
+                o->f_7F = 0;
+                o->f_5C = o->f_88[0].start;
+                func_8005588C(o, 0x2D);
+                break;
+            }
+        }
+        break;
+    case 4:
+        func_8013DE4C(o);
+        if ((u8)(o->f_C9 % 10) == 0 && !((o->f_E0 >> 2) & 1)) {
+            func_8013DE84((u8 *)o);
+        }
+        Object_TurnTowardSpike_8013E134(o);
+        if (o->f_8F >= 3) {
+            if (o->f_5C < o->f_88[o->f_7F].end) {
+                break;
+            }
+            o->f_80 = 3;
+            o->f_7F = 7;
+            o->f_5C = o->f_88[7].start;
+        }
+        func_8005588C(o, -1);
+        break;
+    case 5:
+        if (func_80055C7C_8013E134(o, 0x32)) {
+            Object_StepOnGroundFixed(o);
+            func_8013E004(o);
+        } else {
+            o->f_80 = 9;
+            o->f_7F = 1;
+            o->f_5C = o->f_88[1].start;
+            Object_TurnToward(o, o->f_9A - M2C_FIELD(o, u16 *, 0x24), o->f_9E - M2C_FIELD(o, u16 *, 0x2C), 0, 0x1000);
+            o->f_96 = o->f_A6 * -7 / 100;
+        }
+        if (func_8005588C(o, -1) == 0) {
+            o->f_80 = 6;
+            o->f_7F = 9;
+            o->f_5C = o->f_88[9].start;
+        }
+        break;
+    case 9:
+        if (o->f_C9 != 0) {
+            o->f_C9--;
+        }
+        if (o->f_5C >= o->f_88[o->f_7F].start + 15) {
+            Object_ClampAnimFrame_8013E134(o, o->f_88[o->f_7F].end);
+            if (o->f_AE == 0) {
+                o->f_96 += 7;
+                Object_ApplyVelocity(o);
+                fl = Object_FloorAt(o, 0, 0, 0);
+                if (o->f_28 >= fl) {
+                    o->f_28 = fl;
+                    o->f_98 = 0;
+                    o->f_96 = 0;
+                    o->f_94 = 0;
+                    o->f_80 = 5;
+                    o->f_7F = 0;
+                    o->f_5C = o->f_88[0].start;
+                    Object_PlaySound(o, 0xB4);
+                }
+            }
+        }
+        break;
+    case 6:
+        Object_TurnTowardSpike_8013E134(o);
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            n = o->f_7F + 1;
+            if (n >= 15) {
+                o->f_80 = 8;
+                o->f_7F = 4;
+                o->f_5C = o->f_88[4].start;
+                Object_DisableCollision(o);
+            } else {
+                o->f_7F = n;
+                o->f_5C = o->f_88[o->f_7F].start;
+                if (n == 10 || n == 13) {
+                    o->f_80 = 7;
+                    func_8005588C(o, 0x1E);
+                }
+            }
+        }
+        break;
+    case 7:
+        Object_TurnTowardSpike_8013E134(o);
+        if (func_8013DBF4(o) == 0 && func_8005588C(o, -1) == 0 && o->f_5C >= o->f_88[o->f_7F].end) {
+            o->f_80 = 6;
+            o->f_7F++;
+            o->f_5C = o->f_88[o->f_7F].start;
+        }
+        break;
+    case 8:
+        if (o->f_5C >= o->f_88[o->f_7F].end - 23) {
+            func_8013DC70(M2C_FIELD(o, s16 *, 0x24), M2C_FIELD(o, s16 *, 0x28), M2C_FIELD(o, s16 *, 0x2C));
+            o->f_80 = 1;
+            func_8005588C(o, 0x3C);
+        }
+        break;
+    case 10:
+        break;
+    case 11:
+        {
+            s32 g = Object_FloorAt(o, 0, 0, 0);
+            o->f_28 += o->f_96;
+            o->f_96 += 14;
+            if (g - 150 < o->f_28) {
+                o->f_28 = g - 150;
+            }
+            if (o->f_C9 >= 57) {
+                func_8013DC70(M2C_FIELD(o, s16 *, 0x24), g - (60 - o->f_C9) * 100, M2C_FIELD(o, s16 *, 0x2C));
+            }
+        }
+        if (o->f_C9 < 20 && !(o->f_C9 & 1)) {
+            o->f_C8 = 0;
+        } else {
+            o->f_C8 = 15;
+        }
+        if (func_8005588C(o, -1) == 0) {
+            o->f_80 = 1;
+            func_8005588C(o, 0x3C);
+            func_80052038(o, 0x16);
+            func_80052134(o, 0x16);
+            o->f_D4 = 0;
+            o->f_E0 &= 0xFF3FFFFF;
+        }
+        break;
+    }
+}
+__asm__(".section .rodata\n\t.align 3\n\t.section .text");
 
 void func_8013E9EC(void *arg0, M2C_UNK arg1) {
     if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s32 *, 0x2C), 0xA00) != 0) {

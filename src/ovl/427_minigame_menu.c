@@ -22,7 +22,6 @@ extern M2C_UNK D_8013FD58;
 M2C_UNK Msg_PutChar(M2C_UNK, M2C_UNK, M2C_UNK);
 M2C_UNK func_8008DDB0(s16, s16);
 void func_80138350(s32 arg0);
-M2C_UNK func_801384CC(s32, s32, M2C_UNK *, M2C_UNK);
 extern M2C_UNK D_8013EF8C;
 extern M2C_UNK D_8013EB60;
 extern M2C_UNK D_8013EB6C;
@@ -124,12 +123,83 @@ void func_801360F0(void) {
     func_8013E8D0();
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013626C);
+/* NOTE returns s32: src prototype void func_8013626C(s32, s32, s32); (line after the INCLUDE_ASM) must become s32 */
+typedef struct { u8 pad0[0x14]; u8 f_14[6]; u8 f_1A[2]; u8 f_1C; u8 pad1D[0x1B]; } Pad_8013626C;
+extern Pad_8013626C D_8013FBF8_8013626C[2] asm("D_8013FBF8");
+void PadSetAct(s32, u8 *, s32);
+s32 PadInfoMode(s32, s32, s32);
+s32 PadSetMainMode(s32, s32, s32);
+s32 PadInfoAct(s32, s32, s32);
+s32 PadSetActAlign(s32, u8 *);
+
+s32 func_8013626C(s32 mode, s32 i, s32 port_) {
+    register s32 port asm("$20") = port_;
+    Pad_8013626C *p;
+    Pad_8013626C *q;
+    s32 j;
+    s32 n;
+    s32 k;
+    s32 r;
+
+    if (mode == 0) {
+        PadSetAct(port, D_8013FBF8_8013626C[i].f_1A, 2);
+        for (j = 0; j < 6; j++) {
+            D_8013FBF8_8013626C[i].f_14[j] = 0xFF;
+        }
+        D_8013FBF8_8013626C[i].f_1C = 0;
+        return 0;
+    }
+    {
+        Pad_8013626C *b = D_8013FBF8_8013626C;
+        p = b + i;
+    }
+    if (!(p->f_1C & 1)) {
+        if (PadInfoMode(port, 1, 0) != 7) {
+            n = PadInfoMode(port, 4, -1);
+            for (j = 0; j < n; j++) {
+                if (PadInfoMode(port, 4, j) == 7) {
+                    if (PadSetMainMode(port, j, 3)) {
+                        p->f_1C = 1;
+                    }
+                    return 0;
+                }
+            }
+            return -1;
+        }
+        if (PadSetMainMode(port, PadInfoMode(port, 3, 0), 3)) {
+            p->f_1C = 1;
+        }
+        return 0;
+    }
+    n = PadInfoAct(port, -1, 0);
+    j = 0;
+    if (j < n) {
+        s32 one = 1;
+        s32 two = 2;
+        q = p;
+        do {
+        k = PadInfoAct(port, j, 1);
+        if (k == one) {
+            r = PadInfoAct(port, j, 2);
+            if (r != k) {
+                if (r == two) {
+                    q->f_14[0] = j;
+                }
+            } else {
+                q->f_14[1] = j;
+            }
+        }
+        } while (++j < n);
+    }
+    if (PadSetActAlign(port, D_8013FBF8_8013626C[i].f_14)) {
+        D_8013FBF8_8013626C[i].f_1C |= 2;
+    }
+    return 0;
+}
 
 typedef struct { u8 pad0[0x1C]; u8 f_1C; u8 pad1D[0x1B]; } Pad_801364CC;
 extern Pad_801364CC D_8013FBF8_801364CC[2] asm("D_8013FBF8");
 s32 PadGetState(s32);
-void func_8013626C(s32, s32, s32);
 
 void func_801364CC(void) {
     s32 i;
@@ -557,7 +627,121 @@ void func_80137874(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80137934);
+extern u8 g_Game[];
+typedef struct { s16 x; s16 y; s16 dy; s16 pad6; u32 col; } Star_80137934;
+extern Star_80137934 *D_8013FC78;
+extern u16 D_800AE8F2;
+extern u16 g_RandSeed;
+extern u8 *D_800EC354;
+extern struct { u8 pad0[0x1D]; u8 f_1D; u8 pad1E[0x37]; u8 f_55; } D_8013FBF8_80137934 asm("D_8013FBF8");
+s32 func_800463A4(s32, s32, s32);
+#define SPRT_80137934(tp, x, y, uv, clut, wh, A)                          \
+    p[3] = 5;                                                          \
+    M2C_FIELD(p, u32 *, 4) = tp;                                       \
+    p[0xB] = 0x65;                                                     \
+    M2C_FIELD(p, s16 *, 0xC) = x;                                      \
+    M2C_FIELD(p, s16 *, 0xE) = y;                                      \
+    M2C_FIELD(p, u32 *, 0x14) = wh;                                    \
+    M2C_FIELD(p, u16 *, 0x10) = uv;                                    \
+    M2C_FIELD(p, u16 *, 0x12) = clut;                                  \
+    ADD_PRIM_R(&ot[0xFFF], p, A, "$2");              \
+    p += 0x18;
+#define ADD_PRIM_R2_80137934(ot, p, A, B) __asm__ volatile("lwl " A ", 2(%0)\n\tsll " B ", %2, 8\n\tswl " B ", 2(%3)\n\tswl " A ", %1" : : "r"(ot), "m"(*((u8 *)(p) + 2)), "r"(p), "r"(ot) : A, B)
+
+void func_80137934(void) {
+    u8 *p;
+    Star_80137934 *st;
+    s32 s;
+    s32 t, y;
+    s32 u, v;
+    s32 i;
+    u32 *ot;
+
+    p = G_DRAW.prim;
+    ot = G_DRAW.db[G_DRAW.cur].ot;
+    st = D_8013FC78;
+    s = D_8013EFE0;
+    t = s >> 4;
+    if (t > -0x100 && t < 0x100) {
+        y = t + 0x80;
+        SPRT_80137934(0xE10002AB, 0, y, 0, 0x3FA0, 0x800100, "$3");
+        SPRT_80137934(0xE10002AD, 0x100, y, 0, 0x3FA0, 0x800080, "$3");
+    }
+    y = t - 0x280;
+    if (t - 0x200 > 0) {
+        if (y > 0) {
+            y = 0;
+        }
+        SPRT_80137934(0xE10002A8, 0, y, 0, 0x3FE0, 0x800100, "$3");
+        SPRT_80137934(0xE10002AA, 0x100, y, 0, 0x3FE0, 0x800080, "$3");
+    }
+    u = s >> 3;
+    { s32 v1 = u - 0x40;
+    if (u > 0 && u < 0x180) {
+        SPRT_80137934(0xE1000229, 0x100, v1, 0x8040, 0x36B7, 0x400040, "$4");
+    }
+    }
+    { s32 v2 = u - 0x130;
+    if (u > 0xF0 && u < 0x270) {
+        SPRT_80137934(0xE1000229, 0x20, v2, 0x8000, 0x3677, 0x400040, "$4");
+    }
+    }
+    { s32 v3 = u - 0x220;
+    if (u > 0x1D0 && u < 0x370) {
+        SPRT_80137934(0xE100022A, 0x100, v3, 0x8000, 0x3737, 0x500050, "$4");
+    }
+    }
+    { s32 v4 = u - 0x2C0;
+    if (u > 0x280 && u < 0x400) {
+        SPRT_80137934(0xE1000228, 0xC4, v4, 0x8060, 0x3777, 0x400040, "$4");
+    }
+    }
+    { s32 v5 = u - 0x360;
+    if (u > 0x320 && u < 0x4A0) {
+        SPRT_80137934(0xE1000228, 0x20, v5, 0x80A0, 0x37B7, 0x400050, "$4");
+    }
+    }
+    { s32 v6 = u - 0x420;
+    if (u > 0x3C0 && u < 0x580) {
+        SPRT_80137934(0xE1000228, 0x100, v6, 0x8000, 0x37F7, 0x600060, "$4");
+    }
+    }
+    {
+    for (i = 0; i < 0x40; i++, st++) {
+        M2C_FIELD(p, u32 *, 4) = ((D_800AE8F2 = D_800AE8F2 * 5 + 1) << 8) | ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) | 0x808080;
+        p[3] = 2;
+        p[7] = 0x68;
+        M2C_FIELD(p, u32 *, 8) = *(u32 *)st;
+        ADD_PRIM_R2_80137934(&ot[0xFFF], p, "$3", "$2");
+        p += 0xC;
+        if ((st->y += st->dy) > 0xF0) {
+            st->x = (D_800AE8F2 = D_800AE8F2 * 5 + 1) & 0x1FF;
+            st->y = 0;
+            st->dy = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 3) + 1;
+            st->col = ((g_RandSeed = g_RandSeed * 5 + 1) & 0xFF00) | 0xFF00FF;
+        }
+    }
+    }
+    p[3] = 3;
+    M2C_FIELD(p, u32 *, 4) = 0;
+    p[7] = 0x60;
+    M2C_FIELD(p, s16 *, 0xC) = 0x180;
+    M2C_FIELD(p, s16 *, 0x8) = 0;
+    M2C_FIELD(p, s16 *, 0xA) = 0;
+    M2C_FIELD(p, s16 *, 0xE) = 0xF0;
+    ADD_PRIM_R(&ot[0xFFF], p, "$4", "$2");
+    p += 0x10;
+    D_800EC354 = p;
+    if (D_8013FBF8_80137934.f_1D + D_8013FBF8_80137934.f_55 > 0) {
+        s++;
+    } else {
+        s = func_800463A4(s, 0, 8);
+    }
+    if (s > 0x3840) {
+        s = 0x3840;
+    }
+    D_8013EFE0 = s;
+}
 
 extern GameDraw g_Game_80137F50 asm("g_Game");
 extern SprtTp *D_800EC354_80137F50 asm("D_800EC354");
@@ -767,7 +951,49 @@ M2C_UNK func_80138368(M2C_UNK x, M2C_UNK y, M2C_UNK *str, M2C_UNK color) {
     D_800EC354_80138368 = p;
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801384CC);
+extern u8 *D_800EC354_801384CC asm("D_800EC354");
+extern u16 D_8013FC80_801384CC asm("D_8013FC80");
+
+void func_801384CC(s32 x, s32 y, u8 *str, u32 color) {
+    u8 *p = G_DRAW.prim;
+    u32 *ot = G_DRAW.ot;
+    register u32 c asm("$8");
+
+    for (; (c = *str) != 0; str++, x += 8) {
+        switch (c) {
+        case ' ':
+            continue;
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+            c -= 0x30;
+            break;
+        case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
+        case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N':
+        case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U':
+        case 'V': case 'W': case 'X': case 'Y': case 'Z':
+            c -= 0x36;
+            break;
+        case 0x21: case 0x22: case 0x23: case 0x24: case 0x25: case 0x26: case 0x27: case 0x28:
+        case 0x29: case 0x2A: case 0x2B: case 0x2C: case 0x2D: case 0x2E: case 0x2F:
+        case 0x3A: case 0x3B: case 0x3C: case 0x3D: case 0x3E: case 0x3F: case 0x40:
+            break;
+        }
+        M2C_FIELD(p, u32 *, 8) = color;
+        p[3] = 5;
+        M2C_FIELD(p, u32 *, 4) = 0xE1000239;
+        p[0xB] = 0x64;
+        M2C_FIELD(p, s16 *, 0xC) = x;
+        { register u32 lo asm("$2") = (c & 0xF) << 3; p[0x10] = lo; }
+        M2C_FIELD(p, s16 *, 0xE) = y;
+        { register u32 h asm("$2") = (c >> 4) * 8 + 0x70; p[0x11] = h; }
+        M2C_FIELD(p, s16 *, 0x14) = 8;
+        M2C_FIELD(p, s16 *, 0x16) = 8;
+        M2C_FIELD(p, u16 *, 0x12) = D_8013FC80_801384CC;
+        ADD_PRIM_ASM(ot, p);
+        p += 0x18;
+    }
+    D_800EC354_801384CC = p;
+}
 
 typedef struct { u8 *a; u8 *b; u8 *c; u8 *d; } O_801385B8;
 
@@ -840,7 +1066,46 @@ void func_801385F4(void) {
     D_8013F3E0_801385F4.f_30 = D_8013FD60_801385F4->f_8;
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80138860);
+extern struct { void *p[2]; s32 f_8; s32 f_C; s32 f_10; } D_8013FBD8_80138860 asm("D_8013FBD8");
+extern u8 D_8013FD70_80138860[] asm("D_8013FD70");
+void func_8013C7F0(void);
+
+void func_80138860(void) {
+    s32 i;
+
+    {
+        s32 *q;
+        D_8013FBD8_80138860.f_8 = 0;
+        D_8013FBD8_80138860.f_C = 0;
+        D_8013FBD8_80138860.f_10 = 0xA40;
+        q = &D_8013FBD8_80138860.f_8;
+        for (i = 1; i >= 0; i--) {
+            D_8013FBD8_80138860.p[i] = q;
+        }
+    }
+    func_8013A29C();
+    func_80139480();
+    func_801394A4();
+    func_80069500();
+    Fx_ClearAll();
+    func_8013C7F0();
+    i = 0;
+    do {
+        register u8 *e asm("$2") = D_8013FD70_80138860;
+        i++;
+        M2C_FIELD(e, s32 *, 0x24) = 0;
+        M2C_FIELD(e, s32 *, 0x28) = 0;
+        M2C_FIELD(e, s32 *, 0x2C) = 0xA40;
+        M2C_FIELD(e, s16 *, 0x5C) = 0;
+        M2C_FIELD(e, s16 *, 0x5E) = 0;
+        M2C_FIELD(e, s16 *, 0x60) = 0;
+        M2C_FIELD(e, s16 *, 0x62) = -0x1000;
+        M2C_FIELD(e, s16 *, 0x64) = 0;
+        M2C_FIELD(e, s16 *, 0x68) = 0;
+        M2C_FIELD(e, s16 *, 0x6A) = 0;
+        M2C_FIELD(e, s16 *, 0x6C) = 0x1000;
+    } while (i < 2);
+}
 
 void func_80138934(void) {
     s32 *var_v0;
@@ -944,7 +1209,6 @@ void func_80069BEC(void);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 void func_801380B4(void);
 void func_80138110(void);
-void func_80138860();
 void func_801389E4(void);
 void func_80139888();
 void func_80139BF8();

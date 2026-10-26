@@ -314,7 +314,6 @@ typedef struct { s16 x, y, w, h; } Rect_80136E60;
 s32 LoadImage(void *rect, u32 *p);
 s32 func_800A3710(u8 *);
 s32 func_8002F1E0(s32);
-void func_80136FA0();
 
 void func_80136E60(u8 *s, Rect_80136E60 *r) {
     u32 buf[0x80];
@@ -350,6 +349,25 @@ void func_80136E60(u8 *s, Rect_80136E60 *r) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/385/nonmatchings/385", func_80136FA0);
+extern u16 D_80137270;
+
+void func_80136FA0(u16 *dst, u8 *src, u32 range, s32 n) {
+    s32 i;
+    s32 b;
+    s32 hi = range & 0xFFFF;
+    s32 lo = range >> 16;
+    register u16 *c asm("$11");
+
+    i = 0;
+    if (n > 0) {
+        c = &D_80137270;
+        do {
+            for (b = hi; b >= lo; b--) {
+                *dst++ = ((*src >> b) & 1) ? *c : 0;
+            }
+            src++;
+        } while (++i < n);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/385/nonmatchings/385", func_80137014);

@@ -537,7 +537,188 @@ void func_8013E930(u8 *o) {
     M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013EA4C);
+typedef struct { u16 start; u16 end; } Anim_8013EA4C;
+typedef struct { u8 pad0[0x24]; s16 f_24; u8 pad26[0x2]; s16 f_28; u8 pad2A[0x2]; s16 f_2C; u8 pad2E[0x16]; s16 f_44; u8 pad46[0x16]; u16 f_5C; u8 pad5E[0x21]; u8 f_7F; u8 f_80; u8 f_81; u8 f_82; u8 pad83[0x5]; Anim_8013EA4C *f_88; u8 pad8C[0x2]; u8 f_8E; u8 pad8F[0x1]; u8 *f_90; u8 pad94[0x1A]; s16 f_AE; s16 f_B0; u8 padB2[0x2]; s32 f_B4; u8 padB8[0x13]; s8 f_CB; u8 padCC[0x14]; u32 f_E0; } O_8013EA4C;
+extern struct { u32 f_0; u8 pad_4[0x8122]; u16 f_8126; u8 pad_8128[0xF8]; u8 *f_8220; } g_Game_8013EA4C asm("g_Game");
+void func_8013E814(void *arg0);
+void func_8013E7A8(void *arg0);
+void func_8013E4C4(void *arg0, s32 n);
+void func_8013E17C(void *arg0);
+void func_8013E8EC(void *arg0);
+void func_8013E134_8013EA4C() asm("func_8013E134");
+s32 func_8013D54C_8013EA4C(s32, s32, void *, void *, s32) asm("func_8013D54C");
+void func_80058134_8013EA4C(void *, s32) asm("func_80058134");
+s32 func_800585D0_8013EA4C(void *, s32, s32, s32) asm("func_800585D0");
+void Object_EnableCollision_8013EA4C(void *) asm("Object_EnableCollision");
+u32 Object_DetachLink_8013EA4C(void *, s32) asm("Object_DetachLink");
+
+void func_8013EA4C(O_8013EA4C *o) {
+    SVECTOR v;
+    SVECTOR w;
+    register Anim_8013EA4C *an asm("$2");
+
+    if (!((o->f_E0 >> 3) & 1)) {
+        func_8013E930(o);
+        o->f_E0 |= 8;
+    }
+    func_80058134_8013EA4C(o, o->f_44);
+    if (o->f_82 != 0) {
+        return;
+    }
+    if ((o->f_E0 >> 20) & 1) {
+        o->f_E0 &= ~0x100000;
+        if (o->f_81 == 0) {
+            o->f_80 = 6;
+            o->f_7F = 14;
+            o->f_5C = o->f_88[14].start;
+            Object_PlaySound(o, 0x3B);
+        }
+    }
+    switch (o->f_80) {
+    case 1:
+        if (g_Game_8013EA4C.f_8126 == 0x32 && M2C_FIELD(g_Game_8013EA4C.f_8220, s16 *, 0xA4) != 0) {
+            func_80051E98(o, 0);
+            break;
+        }
+        if (func_8013E888(o)) {
+            o->f_80 = 2;
+            o->f_7F = 4;
+            o->f_5C = o->f_88[4].start;
+        }
+        break;
+    case 2:
+        func_8013E654(o, 0x20, -1);
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            o->f_80 = 10;
+            an = o->f_88;
+            goto reset2;
+        }
+        break;
+    case 10:
+        if (func_800585D0_8013EA4C(o, (s16)func_8013E308(o), 0, 1)) {
+            o->f_80 = 3;
+        }
+        Object_ApplyVelocity(o);
+        func_8013E654(o, 0, 0x12);
+        break;
+    case 3:
+        if (!func_8013E888(o)) {
+            o->f_80 = 7;
+            o->f_8E = 0;
+            o->f_E0 |= 0x40;
+        } else {
+            func_8013E814(o);
+        }
+        func_8013E1F4(o, 0);
+        break;
+    case 4:
+        func_8013E6A4(o);
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            func_8013E7A8(o);
+        }
+        break;
+    case 12:
+        func_8013E1F4(o, 1);
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            register s32 k asm("$3") = 12;
+            if (o->f_7F == k) {
+                goto reset;
+            } else if (o->f_7F == 13) {
+                o->f_7F = k;
+                o->f_5C = o->f_88[12].start;
+            }
+        }
+        break;
+    case 11:
+        if (o->f_5C < o->f_88[o->f_7F].start + 3 && o->f_7F == 8 && !(o->f_E0 & 1)) {
+            if (Object_DetachLink_8013EA4C(o, 0) == 6) {
+                o->f_E0 |= 1;
+            } else {
+                o->f_B4 = Object_AddAttackSphereNear(o, 500, o->f_24, o->f_28, o->f_2C, 0, 0x100);
+            }
+        }
+        if (o->f_5C < o->f_88[o->f_7F].end) {
+            break;
+        }
+        Object_EnableCollision_8013EA4C(o);
+        if (o->f_7F == 8) {
+            o->f_7F = 9;
+            o->f_5C = o->f_88[9].start;
+            break;
+        }
+        if (o->f_7F == 9) {
+            o->f_7F = 10;
+            o->f_5C = o->f_88[10].start;
+            break;
+        }
+        if (o->f_E0 & 1) {
+            func_8013E4C4(o, 2);
+            break;
+        }
+    case 5:
+    reset:
+        o->f_80 = 3;
+        an = o->f_88;
+    reset2:
+        o->f_7F = 0;
+        o->f_5C = an[0].start;
+        break;
+    case 6:
+        if (o->f_7F == 14) {
+            if (!(g_Game_8013EA4C.f_0 & 1)) {
+                v.vx = (u16)o->f_24 + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80);
+                v.vy = (u16)o->f_28 - ((g_RandSeed = g_RandSeed * 5 + 1) >> 8);
+                v.vz = (u16)o->f_2C + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80);
+                w.vx = 0;
+                w.vy = -0x46;
+                w.vz = 0;
+                func_8013D54C_8013EA4C(1, o->f_CB, &v, &w, 0);
+            }
+            if (o->f_5C >= o->f_88[o->f_7F].end) {
+                o->f_7F = 5;
+                o->f_5C = o->f_88[5].start;
+            }
+        } else if (o->f_5C >= o->f_88[o->f_7F].end - 0xD) {
+            func_8013E17C(o);
+        }
+        break;
+    case 13:
+        func_8013DF2C(o);
+        if (func_8005588C(o, -1) == 0) {
+            func_8013E134_8013EA4C(o);
+            func_80051E98(o, 1);
+        }
+        break;
+    case 7:
+        func_8013E8EC(o);
+        if (func_800585D0_8013EA4C(o, (s16)func_8013E308(o), 0, 1)) {
+            o->f_80 = 8;
+            Object_TurnToward(o, M2C_FIELD(o->f_90, u16 *, 8) - (u16)o->f_24, M2C_FIELD(o->f_90, u16 *, 0xC) - (u16)o->f_2C, 0, o->f_B0);
+        }
+        Object_ApplyVelocity(o);
+        func_8013E654(o, 0, 0x12);
+        func_8013E1F4(o, 0);
+        break;
+    case 8:
+        func_8013E8EC(o);
+        func_8013E1F4(o, 0);
+        if (o->f_AE == 0) {
+            o->f_80 = 9;
+            o->f_7F = 4;
+            o->f_5C = o->f_88[4].start;
+            o->f_5C = o->f_88[o->f_7F].end - 2;
+        }
+        break;
+    case 9:
+        o->f_5C -= 2;
+        if (o->f_5C <= o->f_88[o->f_7F].start) {
+            o->f_7F = 3;
+            o->f_5C = o->f_88[3].start;
+            o->f_80 = 1;
+        }
+        break;
+    }
+}
 
 typedef struct { u8 pad0[0x5C]; s16 f5C; u8 pad5E[2]; s16 f60, f62, f64, f66; u8 pad68[0x20]; } Mdl_408;
 s32 Hook_Add(void *);
@@ -1264,9 +1445,252 @@ void func_80140F5C(void) {
     Link_SendEvent(5, 1, 0);
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140F84);
+typedef struct { u16 start; u16 end; } Anim_80140F84;
+typedef struct { u8 pad0[0x24]; u16 f_24; u8 pad26[2]; u16 f_28; u8 pad2A[2]; u16 f_2C; u8 pad2E[0x16]; s16 f_44; u8 pad46[0x16]; u16 f_5C; u8 pad5E[0x16]; void *f_74; u8 pad78[7]; u8 f_7F; u8 f_80; u8 pad81; u8 f_82; u8 pad83[5]; Anim_80140F84 *f_88; u8 pad8C[8]; s16 f_94; u8 pad96[2]; s16 f_98; u8 pad9A[0x2E]; u8 f_C8; u8 f_C9; u8 padCA; s8 f_CB; u8 padCC[0x14]; u32 f_E0; } O_80140F84;
+extern u8 D_800B1CD0[];
+void Effect_SpawnAt_80140F84(s32, SVECTOR *) asm("Effect_SpawnAt");
+void func_80058134_80140F84(void *, s32) asm("func_80058134");
+void func_80070284_80140F84(void *, void *, s32, s32, s32) asm("func_80070284");
+s32 func_8013D54C_80140F84(s32, s32, void *, void *, s32) asm("func_8013D54C");
+void Object_ClampAnimFrame_80140F84(void *, s32) asm("Object_ClampAnimFrame");
+void Object_TurnTowardSpike_80140F84(void *) asm("Object_TurnTowardSpike");
+void Object_EnableCollision_80140F84(void *) asm("Object_EnableCollision");
+void func_801402D8_80140F84(void *) asm("func_801402D8");
+unsigned long func_801401F8_80140F84(void *) asm("func_801401F8");
+void func_8014006C(void *arg0);
+void func_80140088(void *arg0, s32 arg1);
+s32 func_80140244(void *arg0);
+s32 func_80140358_80140F84(void *) asm("func_80140358");
+void func_801403C0(void *arg0);
+void func_801403FC(u8 *o);
+void func_80140554(void *arg0);
+void func_80140778(void *arg0);
+void func_8014095C(void *arg0, s32 f1, s32 f2);
+void func_801409AC(s32 arg0, s32 arg1);
+void func_80140A18(u8 *o);
+void func_80140B40(u8 *o);
+void func_80140C54(u8 *o);
+void func_80140EE0(void *arg0);
+void func_80140F5C(void);
+#define RAND_80140F84() (g_RandSeed = g_RandSeed * 5 + 1)
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8014183C);
+void func_80140F84(O_80140F84 *o) {
+    SVECTOR v;
+    s32 i;
+
+    if (!((o->f_E0 >> 3) & 1)) {
+        func_80140A18((u8 *)o);
+        o->f_E0 |= 8;
+    }
+    func_80058134_80140F84(o, o->f_44);
+    if (o->f_82 != 0) {
+        if (Object_WouldLeaveHome(o, 0)) {
+            o->f_98 = 0;
+            o->f_94 = 0;
+        }
+        return;
+    }
+    func_801402D8_80140F84(o);
+    func_801401F8_80140F84(o);
+    switch (o->f_80) {
+    case 1:
+        Object_ClampAnimFrame_80140F84(o, o->f_88[o->f_7F].end);
+        func_80140EE0(o);
+        break;
+    case 11:
+        func_80140B40((u8 *)o);
+        if (func_8005588C(o, -1) == 0) {
+            o->f_80 = 10;
+            o->f_7F = 6;
+            o->f_5C = o->f_88[6].start;
+            func_8005588C(o, 0x1E);
+            o->f_C8 = 0xFF;
+            o->f_E0 |= 0x4000000;
+            func_80140C54((u8 *)o);
+            D_80145D20 = 0;
+            Sound_PlayFixed(8);
+        }
+        break;
+    case 10:
+        Object_ClampAnimFrame_80140F84(o, o->f_88[o->f_7F].start);
+        func_80140C54((u8 *)o);
+        if (func_8005588C(o, -1) == 0) {
+            func_80140088(o, 1);
+            o->f_C8 = 0xF;
+            o->f_E0 &= ~0x4000000;
+            Object_EnableCollision_80140F84(o);
+            Sound_PlayFixed(0xC);
+        }
+        break;
+    case 2:
+        Object_HeadTowardSpike(o, func_80140358_80140F84(o));
+        func_801409AC((s32)o, D_80145D24);
+        func_8014095C(o, 0x17, 0x39);
+        if (D_80145D24 != 0) {
+            func_8014095C(o, 0x16, 0x38);
+            if (++o->f_5C > o->f_88[o->f_7F].end) {
+                o->f_5C = o->f_88[o->f_7F].start;
+            }
+            if (D_80145D24 == 1) {
+                o->f_80 = 5;
+                o->f_7F = 2;
+                o->f_5C = o->f_88[2].start;
+                D_80145D38 = 1;
+                Sound_PlayFixed(9);
+            }
+        } else if (o->f_C9 == 0 || --o->f_C9 == 0) {
+            func_80140088(o, o->f_5C == o->f_88[o->f_7F].end);
+        }
+        func_80140244(o);
+        break;
+    case 5:
+        if (o->f_C9 != 0) {
+            o->f_C9--;
+        }
+        if (o->f_5C < o->f_88[o->f_7F].start + 0x30) {
+            Object_TurnTowardSpike_80140F84(o);
+            if (!((RAND_80140F84() >> 8) & 3)) {
+                Object_PlaySound(o, 0x5B);
+                if (o->f_5C < o->f_88[o->f_7F].start + 0x18) {
+                    void *p = o->f_74;
+                    func_8013D54C_80140F84(2, o->f_CB, p, p, 0);
+                }
+            }
+            func_80140554(o);
+        } else if (o->f_5C == o->f_88[o->f_7F].start + 0x30) {
+            func_80052038(o, 0x1E);
+        }
+        func_801403FC((u8 *)o);
+        if (func_80140244(o) == 0) {
+            func_8014095C(o, 0x3B, 0x62);
+            if (o->f_5C >= o->f_88[o->f_7F].end) {
+                func_8014006C(o);
+            }
+        }
+        break;
+    case 7:
+        if (o->f_7F == 0) {
+            Object_HeadTowardSpike(o, func_80140358_80140F84(o));
+            func_801409AC((s32)o, 0);
+            func_8014095C(o, 0x17, 0x39);
+        }
+        if (D_80145D28 != 0 || func_80140244(o) == 0) {
+            if (o->f_5C >= o->f_88[o->f_7F].end) {
+                if (o->f_7F == 0) {
+                    o->f_7F = 6;
+                    o->f_5C = o->f_88[6].start;
+                } else {
+                    o->f_80 = 3;
+                    o->f_7F = 7;
+                    o->f_5C = o->f_88[7].start;
+                    func_8005588C(o, 0x3C);
+                    D_80145D28 = 0;
+                }
+            }
+        }
+        break;
+    case 3:
+        func_801403C0(o);
+        D_80145D24 = 0xF0;
+        D_80145D20 = 1;
+        if (o->f_7F == 9) {
+            Object_HeadTowardSpike(o, 0x14);
+            func_801409AC((s32)o, 0);
+            if (++o->f_5C >= o->f_88[o->f_7F].end) {
+                o->f_5C = o->f_88[o->f_7F].end;
+                func_8014095C(o, o->f_88[o->f_7F].end - o->f_88[o->f_7F].start, 0);
+            }
+        }
+        if (func_8005588C(o, -1) == 0) {
+            if (o->f_5C >= o->f_88[o->f_7F].end) {
+                switch (o->f_7F) {
+                case 7:
+                    o->f_7F = 8;
+                    o->f_5C = o->f_88[8].start;
+                    break;
+                case 8:
+                    o->f_7F = 9;
+                    o->f_5C = o->f_88[9].start;
+                    break;
+                case 9:
+                    func_8014006C(o);
+                    func_8005588C(o, 0x78);
+                    D_80145D20 = 0;
+                    break;
+                }
+            }
+        }
+        break;
+    case 8:
+        func_80140244(o);
+        if (D_80145D24 != 0) {
+            D_80145D24 = 0x1F;
+        }
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            func_8014006C(o);
+            func_8005588C(o, 0x78);
+            D_80145D20 = 0;
+            if (D_80145D24 != 0) {
+                D_80145D24 = 0;
+                func_80052038(o, 0x1E);
+            }
+        }
+        break;
+    case 9:
+        o->f_5C++;
+        func_8014095C(o, 0x12, 1);
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            func_80140088(o, 1);
+        }
+        break;
+    case 4:
+        if (o->f_5C == o->f_88[o->f_7F].start + 0x30) {
+            Object_CameraShake(o, 2);
+            Sound_PlayFixed(0x79);
+            for (i = 0; i < 0x24; i++) {
+                v.vx = o->f_24 + (((u16)RAND_80140F84() >> 8) - 0x80) * 8;
+                v.vy = o->f_28 - ((u16)RAND_80140F84() >> 8);
+                v.vz = o->f_2C + (((u16)RAND_80140F84() >> 8) - 0x80) * 8;
+                Effect_SpawnAt_80140F84(0x16, &v);
+                Effect_SpawnAt_80140F84(6, &v);
+            }
+            v.vx = o->f_24;
+            v.vy = o->f_28 - 0x20;
+            v.vz = o->f_2C;
+            func_80070284_80140F84(&v, D_800B1CD0, 1, 0, 0);
+        }
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            func_80140F5C();
+            func_80051E98(o, 1);
+        }
+        break;
+    }
+    func_80140778(o);
+}
+
+typedef struct { s16 x, y, z; } V3_8014183C;
+extern V3_8014183C D_80145D30_8014183C asm("D_80145D30");
+extern u8 D_80145D48_8014183C[] asm("D_80145D48");
+s32 rcos_8014183C(s32) asm("rcos");
+s32 rsin_8014183C(s32) asm("rsin");
+typedef struct { u8 pad0[0x8F]; u8 f_8F; } O_8014183C;
+
+void func_8014183C(void *o) {
+    s32 a;
+    V3_8014183C *d;
+
+    d = (V3_8014183C *)(D_80145D48_8014183C + ((O_8014183C *)o)->f_8F * 16);
+    a = (((u16)RAND() >> 8) << 12) / 255;
+
+    {
+        s32 c = rcos_8014183C(a);
+        register s32 ap asm("$4") = a;
+        register V3_8014183C *b asm("$16") = &D_80145D30_8014183C;
+        d->x = b->x + (c * 100 >> 12);
+        d->y = b->y - ((u16)RAND() >> 8);
+        d->z = b->z + (rsin_8014183C(ap) * 100 >> 12);
+    }
+}
 
 M2C_UNK func_8006F274(void *, void *, u16);
 extern M2C_UNK D_80145D48;
@@ -1305,7 +1729,6 @@ void func_80141A38(u8 *a) {
     }
 }
 
-void func_8014183C(void *);
 void func_8014194C(void *arg0);
 void func_8014198C(void *arg0);
 void func_801419DC(void *arg0);
@@ -2294,7 +2717,33 @@ s32 func_80143CC0(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80143E94);
+extern u8 *D_800B4D64_80143E94 asm("D_800B4D64");
+void func_800147D0_80143E94(s16 *, void *) asm("func_800147D0");
+
+s32 func_80143E94(u8 *e, s16 *p) {
+    s16 v[3];
+
+    if (p[4] == 0) {
+        { register s32 t asm("$3"); t = M2C_FIELD(e, s16 *, 0x32) * p[3] / 4096; M2C_FIELD(e, s16 *, 6) = t; }
+        v[0] = p[3];
+        v[2] = 0x1000;
+        v[1] = 0x1000;
+    } else if (p[4] == 1) {
+        v[1] = 0x1000;
+        v[0] = 0x1000;
+        v[2] = p[3];
+        { register s32 t asm("$3"); t = M2C_FIELD(e, s16 *, 0x36) * p[3] / 4096; M2C_FIELD(e, s16 *, 0xA) = t; }
+    } else {
+        v[2] = 0x1000;
+        v[0] = 0x1000;
+        v[1] = p[3];
+        { register s32 t asm("$3"); t = M2C_FIELD(e, s16 *, 0x34) * p[3] / 4096; M2C_FIELD(e, s16 *, 8) = t; }
+    }
+    if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
+        func_800147D0_80143E94(v, M2C_FIELD(D_800B4D64_80143E94 + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
+    }
+    return 0;
+}
 
 typedef struct { s32 m[8]; } Mtx_80143FA8;
 void RotMatrixZYX(void *, void *);

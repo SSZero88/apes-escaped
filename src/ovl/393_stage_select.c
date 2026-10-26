@@ -54,7 +54,249 @@ void func_8013786C(s16 *pos, void *rot, void *mdl) {
     func_8001CE54(g_Game + 0x80 + G_DRAW.cur * 0x4078, D_800E7D00_8013786C, mdl);
 }
 
-INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_80137950);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, p1; s16 x1, y1; u8 r2, g2, b2, p2; s16 x2, y2; u8 r3, g3, b3, p3; s16 x3, y3; } PolyG4_80137950;
+extern struct { s32 frame; PolyG4_80137950 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x26]; u16 f_8126; u8 pad8128[0x1A4]; u8 f_82CC; u8 f_82CD; } g_Game_80137950 asm("g_Game");
+extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; u8 pad164[4]; s32 f_168; } g_Pad_80137950 asm("g_Pad");
+typedef struct { s16 x, y; u16 clut; u16 tpage; u32 *ot; } Pen_80137950;
+extern Pen_80137950 D_80139CF0_80137950 asm("D_80139CF0");
+typedef struct { char name[0x12C]; s16 world[24]; } StageSet_80137950;
+extern StageSet_80137950 D_80138A20_80137950[] asm("D_80138A20");
+extern s32 D_80139BDC;
+extern s32 D_80139BC4;
+extern s32 D_80139BC8;
+extern s32 D_80139BCC;
+extern s32 D_80139BD4;
+extern s32 D_80139BD8;
+extern s32 D_80139BE0;
+extern u8 D_80139BE4;
+extern s32 D_80139BE8;
+extern u32 D_800E5488;
+extern s8 D_80139978[][4];
+extern u8 D_80139914[];
+extern u8 D_80139B20[];
+extern char D_80138A08[];
+extern char D_80138A18[];
+s32 Sound_UnloadBanks(s32);
+s32 Sound_PlayFixed(s32);
+void func_8008C3C0(s32, s32);
+void DebugFont_Printf(char *, ...);
+s32 func_800116C0(void);
+s32 func_800976B8(s32, s32);
+#define PAD_80137950 (g_Pad_80137950.f_160 & g_Pad_80137950.f_158)
+
+s32 func_80137950(void) {
+    s32 i;
+    s32 d;
+    s32 stg;
+    s32 r;
+    u8 *s;
+    u32 *ot;
+
+    switch (D_80139BDC) {
+    case 0:
+        if ((PAD_80137950 & 3) == 3) {
+            Sound_UnloadBanks(0);
+            return -1;
+        }
+        if (PAD_80137950 & 0x800) {
+            Sound_PlayFixed(2);
+            if (D_80139BC4 < 11) {
+                D_80139BDC = 3;
+                D_80139BC8 = 0;
+                D_80139BE8 = 0;
+                while (1) {
+                    if (D_80138A20_80137950[D_80139BC4].world[D_80139BE8] == -2) {
+                        D_80139BE8--;
+                        break;
+                    }
+                    D_80139BE8++;
+                }
+            }
+        } else if (PAD_80137950 & 0x4000) {
+            Sound_PlayFixed(0);
+            D_80139BE4 = 8;
+            D_80139BC4 += 3;
+            if (D_80139BC4 >= 11) {
+                D_80139BC4 %= 3;
+            }
+        } else if (PAD_80137950 & 0x1000) {
+            Sound_PlayFixed(0);
+            D_80139BE4 = 8;
+            D_80139BC4 -= 3;
+            if (D_80139BC4 < 0) {
+                D_80139BC4 = (D_80139BC4 + 3) % 3 + 9;
+                if (D_80139BC4 >= 11) {
+                    D_80139BC4 -= 3;
+                }
+            }
+        } else if (PAD_80137950 & 0x8004) {
+            Sound_PlayFixed(0);
+            D_80139BE4 = 8;
+            D_80139BC4 = D_80139BC4 / 3 * 3 + (D_80139BC4 + 2) % 3;
+            if (D_80139BC4 >= 11) {
+                D_80139BC4 = 10;
+            }
+        } else if (PAD_80137950 & 0x2008) {
+            Sound_PlayFixed(0);
+            D_80139BE4 = 8;
+            D_80139BC4 = D_80139BC4 / 3 * 3 + (D_80139BC4 + 4) % 3;
+            if (D_80139BC4 >= 11) {
+                D_80139BC4 = 10;
+            }
+        }
+        func_8008C3C0(0x82, 10);
+        DebugFont_Printf(D_80138A08);
+        for (i = 0; i < 11; i++) {
+            if (i == D_80139BC4) {
+                d = 5 - D_80139BE4;
+            } else {
+                d = 0;
+            }
+            func_8008C3C0((i % 3) * 80 + 0x82 + d / 2, (i / 3) * 15 + 0x1C);
+            DebugFont_Printf(D_80138A18, D_80138A20_80137950[i].name);
+        }
+        {
+        register typeof(g_Game_80137950) *gd asm("$4") = &g_Game_80137950;
+        ((u8 *)gd->prim)[3] = 8;
+        gd->prim->code = 0x38;
+        gd->prim->code |= 2;
+        gd->prim->x0 = (D_80139BC4 % 3) * 80 + 0x7C;
+        gd->prim->y0 = (D_80139BC4 / 3) * 15 + 0x1E;
+        gd->prim->x1 = (D_80139BC4 % 3) * 80 + 0xBA;
+        gd->prim->y1 = (D_80139BC4 / 3) * 15 + 0x1E;
+        gd->prim->x2 = (D_80139BC4 % 3) * 80 + 0x7C;
+        gd->prim->y2 = (D_80139BC4 / 3) * 15 + 0x25;
+        gd->prim->x3 = (D_80139BC4 % 3) * 80 + 0xBA;
+        gd->prim->y3 = (D_80139BC4 / 3) * 15 + 0x25;
+        gd->prim->r0 = 0xF5;
+        gd->prim->g0 = 0xDC;
+        gd->prim->b0 = 0xC8;
+        gd->prim->r1 = 0xE6;
+        gd->prim->g1 = 0x46;
+        gd->prim->b1 = 0x28;
+        gd->prim->r2 = 0xC4;
+        gd->prim->g2 = 0x46;
+        gd->prim->b2 = 0x3C;
+        gd->prim->r3 = 0x5F;
+        gd->prim->g3 = 0xA;
+        gd->prim->b3 = 8;
+        ot = g_Game_80137950.db[g_Game_80137950.cur].ot;
+        __asm__ volatile("lwl $5, 2(%0)\n\tlw $2, %1\n\tsll $2, $2, 8\n\tswl $2, 2(%0)\n\tlw $2, %1\n\tswl $5, 2($2)" : : "r"(ot), "m"(gd->prim) : "$2", "$5", "memory");
+        gd->prim++;
+        }
+        D_80139BE4 >>= 1;
+        break;
+    case 1:
+        if (func_800116C0() < 0) {
+            return -2;
+        }
+        break;
+    case 3:
+        if (D_80139BC4 < 10) {
+            s = func_801387FC(D_80139B20, D_80139BC4);
+            D_80139CF0_80137950.x = 0xC0 - func_8013882C(s) / 2;
+            D_80139CF0_80137950.y = 0x2B;
+            D_80139CF0_80137950.clut = 0x3FA3;
+            D_80139CF0_80137950.ot = g_Game_80137950.db[g_Game_80137950.cur].ot;
+            func_80138700(s);
+        }
+        if (D_80139BD8 != 0) {
+            break;
+        }
+        switch (D_800E5488) {
+        case 0x10:
+        case 0x80:
+            Sound_UnloadBanks(1);
+            Sound_PlayFixed(1);
+            return -7;
+        case 0x20:
+        case 0x40:
+        case 0x800:
+            if (D_80139978[D_80139BC4][D_80139BCC] == -1) {
+                break;
+            }
+            stg = D_80139914[D_80139BCC * 2 + D_80139BC4 * 9 + 1];
+            D_80139BC8 = stg;
+            g_Game_80137950.f_8126 = D_80138A20_80137950[D_80139BC4].world[stg];
+            r = func_800976B8(D_80138A20_80137950[D_80139BC4].world[stg], g_Pad_80137950.f_168);
+            if (g_Pad_80137950.f_168 == 0x800 && (r != 3 || g_Game_80137950.f_8126 == 0x57)) {
+                break;
+            }
+            Sound_UnloadBanks(1);
+            Sound_PlayFixed(3);
+            g_Game_80137950.f_82CC = D_80139BC4;
+            g_Game_80137950.f_82CD = D_80139BCC;
+            if (r == 0) {
+                return -3;
+            }
+            if (r == 2) {
+                return -6;
+            }
+            if (r == 3) {
+                return -8;
+            }
+            return -4;
+        case 0x100:
+        case 0x1000:
+        case 0x4000:
+            break;
+        case 0x2000:
+            if (D_80139914[D_80139BC4 * 9] > D_80139BCC + 1) {
+                if (func_801382D8(D_80139BC4, D_80139BCC + 1)) {
+                    D_80139BE0 = 0;
+                    D_80139BCC++;
+                    Sound_PlayFixed(0);
+                    break;
+                }
+            }
+            if (D_80139BC4 < 9) {
+                if (func_801382D8(D_80139BC4 + 1, 0)) {
+                    D_80139BD8 = -1;
+                    D_80139BD4 = 0;
+                    D_80139BE0 = 0;
+                    Sound_PlayFixed(0xB);
+                }
+            }
+            break;
+        case 0x8000:
+            if (D_80139BCC > 0) {
+                D_80139BCC--;
+                D_80139BE0 = 0;
+                Sound_PlayFixed(0);
+                break;
+            }
+            if (D_80139BC4 != 0) {
+                D_80139BD4 = 0;
+                D_80139BD8 = 1;
+                D_80139BE0 = 0;
+                Sound_PlayFixed(0xB);
+            }
+            break;
+        case 4:
+            if (D_80139BC4 != 0) {
+                D_80139BD4 = 0;
+                D_80139BD8 = 1;
+                D_80139BE0 = 0;
+                Sound_PlayFixed(0xB);
+            }
+            break;
+        case 8:
+            if (D_80139BC4 < 9) {
+                if (func_801382D8(D_80139BC4 + 1, 0)) {
+                    D_80139BD8 = -1;
+                    D_80139BD4 = 0;
+                    D_80139BE0 = 0;
+                    Sound_PlayFixed(0xB);
+                }
+            }
+            break;
+        }
+        break;
+    default:
+        return 0;
+    }
+    return 0;
+}
 
 extern u8 D_80139914[];
 s32 Stage_GetWorld(s32);
