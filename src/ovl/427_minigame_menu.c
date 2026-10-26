@@ -778,7 +778,67 @@ void func_801385B8(O_801385B8 *out, u8 *b) {
     out->c = out->a + M2C_FIELD(out->a, u16 *, 0x14) * 4;
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801385F4);
+typedef struct { u16 off; u16 hi; } Ofs_801385F4;
+typedef struct { u8 pad0[0x18]; s32 *f_18; u8 pad1C[0x28]; s16 f_44; u8 pad46[2]; s16 f_48; u8 pad4A[6]; s32 f_50; u8 pad54[8]; s16 f_5C; s16 f_5E; u8 pad60[0x10]; s32 *f_70; } Mdl_801385F4;
+typedef struct { u16 a; u16 b; } Pos_801385F4;
+extern Mdl_801385F4 D_8013FD70_801385F4[] asm("D_8013FD70");
+extern Mdl_801385F4 D_8013FE60_801385F4[] asm("D_8013FE60");
+extern u8 D_80140200[][0x20];
+extern Pos_801385F4 D_8013F148[];
+typedef struct { s32 f_0; s32 f_4; s32 f_8; } Save_801385F4;
+extern Save_801385F4 *D_8013FD60_801385F4 asm("D_8013FD60");
+extern struct { u8 pad0[0x2C]; s32 f_2C; s32 f_30; } D_8013F3E0_801385F4 asm("D_8013F3E0");
+extern struct { u8 pad0[0x8138]; u8 f_8138; } g_Game_801385F4 asm("g_Game");
+extern struct { u8 pad0[0x42]; s16 f_42; u8 pad44[0x36]; s16 f_7A; } D_8013FBF8_801385F4 asm("D_8013FBF8");
+void func_80015AC0(void *, void *);
+void func_801385B8();
+void Model_BindMesh(void *, void *);
+Save_801385F4 *Minigame_GetSaveData(s32);
+void bios_printf(u8 *, ...);
+
+void func_801385F4(void) {
+    Ofs_801385F4 *f = (Ofs_801385F4 *)0x80154000;
+    s32 i;
+    s32 *b;
+
+    for (i = 0; i < 2; i++) {
+        func_80015AC0(&D_8013FD70_801385F4[i], (u32 *)f + f[1 + i].off);
+        D_8013FD70_801385F4[i].f_5C = 0;
+        D_8013FD70_801385F4[i].f_5E = 0;
+    }
+    for (i = 0; i < 3; i++) {
+        func_80015AC0(&D_8013FE60_801385F4[i], (u32 *)f + f[3 + i * 2].off);
+        b = (s32 *)((u32)(f[4 + i * 2].off * 4) + (u32)f);
+        D_8013FE60_801385F4[i].f_18 = b + *b + 1;
+        D_8013FE60_801385F4[i].f_70 = (s32 *)f + f[4 + i * 2].off + 1;
+        D_8013FE60_801385F4[i].f_5C = 0;
+        D_8013FE60_801385F4[i].f_5E = 0;
+        D_8013FE60_801385F4[i].f_48 = D_8013F148[i].a;
+        D_8013FE60_801385F4[i].f_44 = D_8013F148[i].b;
+        D_8013FE60_801385F4[i].f_50 = 0;
+    }
+    for (; i < 5; i++) {
+        func_801385B8(&D_8013FE60_801385F4[i], (u32 *)f + f[6 + i].off);
+        D_8013FE60_801385F4[i].f_48 = D_8013F148[i].a;
+        D_8013FE60_801385F4[i].f_44 = D_8013F148[i].b;
+        D_8013FE60_801385F4[i].f_50 = 1;
+    }
+    for (i = 0; i < 2; i++) {
+        Model_BindMesh(D_80140200[i], (u32 *)f + f[0xB + i].off);
+    }
+    D_8013FD60_801385F4 = Minigame_GetSaveData(2);
+    if (D_8013FD60_801385F4->f_0 == 0) {
+        bios_printf("Garaxy Data Init.\n");
+        D_8013FD60_801385F4->f_0 = 1;
+        func_8013609C();
+    }
+    if (g_Game_801385F4.f_8138) {
+        D_8013FBF8_801385F4.f_42 = 1;
+        D_8013FBF8_801385F4.f_7A = 1;
+    }
+    D_8013F3E0_801385F4.f_2C = D_8013FD60_801385F4->f_4;
+    D_8013F3E0_801385F4.f_30 = D_8013FD60_801385F4->f_8;
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80138860);
 
