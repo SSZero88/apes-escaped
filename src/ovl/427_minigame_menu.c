@@ -185,27 +185,153 @@ INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EAAC);
 
 INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EAB0);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801369F4);
+extern struct { s32 frame; SprtTp *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_801369F4 asm("g_Game");
+extern struct { u32 f_0; u32 f_4; u32 f_8; u32 f_C; u8 pad10[0x32]; s16 f_42; u8 pad44[0x36]; s16 f_7A; } D_8013FBF8_801369F4 asm("D_8013FBF8");
+/* these strings are shared with func_80136F30 */
+const char D_8013EAC4[] = "SCORE RESET";
+const char D_8013EAD0[] = "YES";
+const char D_8013EAD4[] = "NO";
+extern struct { u8 pad0[0x13A]; u16 f_13A; } D_800F4350_801369F4 asm("D_800F4350");
+void func_8013609C(void);
+M2C_UNK Sound_PlayFixed(M2C_UNK);
+s32 Sound_SetStereo(s32);
 
-INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EAD0);
+void func_801369F4(void) {
+    s32 sel;
+    u32 pad;
+    s32 c;
+    register char *str asm("$6");
+    s32 x, y, k;
+    SprtTp *p;
 
-INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EAD4);
-
-INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EAD8);
-
-INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EAE8);
-
-INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EAEC);
-
-INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EAF0);
-
-INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EB00);
-
-INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EB08);
-
-INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EB10);
-
-INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", jtbl_8013EB18);
+    sel = 0;
+    for (;;) {
+        Gfx_BeginFrame();
+        func_801360F0();
+        func_801364CC();
+        pad = (D_8013FBF8_801369F4.f_0 & D_8013FBF8_801369F4.f_4) | (D_8013FBF8_801369F4.f_8 & D_8013FBF8_801369F4.f_C);
+        func_8008C390();
+        p = g_Game_801369F4.prim;
+        ((u8 *)p)[3] = 5;
+        p->code = 0x65;
+        p->x0 = 0x40;
+        p->y0 = 0x18;
+        p->w = 0x100;
+        p->h = 0x6E;
+        p->tpage = 0xE1000239;
+        *(u16 *)&p->u0 = 0;
+        p->clut = 0x3A37;
+        { register u32 *ot asm("$4") = g_Game_801369F4.ot; ADD_PRIM_R(ot, p, "$5", "$2"); }
+        g_Game_801369F4.prim = p + 1;
+        func_80137934();
+        if (pad & PAD_DOWN) {
+            sel++;
+            Sound_PlayFixed(0);
+        }
+        if (pad & PAD_UP) {
+            sel--;
+            Sound_PlayFixed(0);
+        }
+        if (sel >= 6) {
+            sel = sel % 2 | 0x10;
+            func_80138350(1);
+            func_80138368(0x7E, 0x9E, (M2C_UNK *)D_8013EAC4, 0x808080);
+            func_80138350(0);
+            func_80138368(0xAE, 0xAC, (M2C_UNK *)D_8013EAD0, sel == 0x10 ? 0x808080 : 0x202020);
+            k = 0x202020;
+            if (sel == 0x11) {
+                k = 0x808080;
+            }
+            x = 0xB4;
+            str = D_8013EAD4;
+            y = 0xBA;
+        } else {
+            sel = (sel + 5) % 5;
+            func_80138350(0);
+            c = sel == 0 ? 0x808080 : 0x202020;
+            func_80138368(0x66, 0x94, (M2C_UNK *)"1P VIBRATION", c);
+            func_80138368(0x10E, 0x94, (M2C_UNK *)(D_8013FBF8_801369F4.f_42 ? "ON" : "OFF"), c);
+            c = sel == 1 ? 0x808080 : 0x202020;
+            func_80138368(0x66, 0xA2, (M2C_UNK *)"2P VIBRATION", c);
+            func_80138368(0x10E, 0xA2, (M2C_UNK *)(D_8013FBF8_801369F4.f_7A ? "ON" : "OFF"), c);
+            c = sel == 2 ? 0x808080 : 0x202020;
+            func_80138368(0x9C, 0xB0, (M2C_UNK *)(D_800F4350_801369F4.f_13A ? "STEREO" : " MONO "), c);
+            func_80138368(0x7E, 0xBE, (M2C_UNK *)D_8013EAC4, sel == 3 ? 0x808080 : 0x202020);
+            k = 0x202020;
+            if (sel == 4) {
+                k = 0x808080;
+            }
+            x = 0x9C;
+            y = 0xCC;
+            str = "RETURN";
+        }
+        func_80138368(x, y, (M2C_UNK *)str, k);
+        DrawSync(0);
+        VSync(0);
+        PutDispEnv(&g_Game_801369F4.db[g_Game_801369F4.cur].env[0x5C]);
+        PutDrawEnv(g_Game_801369F4.db[g_Game_801369F4.cur].env);
+        DrawOTag(&g_Game_801369F4.db[g_Game_801369F4.cur].ot[0xFFF]);
+        Cd_Update();
+        switch (sel) {
+        case 0:
+            if (pad & 0xA060) {
+                Sound_PlayFixed(0);
+                D_8013FBF8_801369F4.f_42 ^= 1;
+            }
+            break;
+        case 1:
+            if (pad & 0xA060) {
+                Sound_PlayFixed(0);
+                D_8013FBF8_801369F4.f_7A ^= 1;
+            }
+            break;
+        case 2:
+            if (pad & 0xA860) {
+                D_800F4350_801369F4.f_13A ^= 1;
+                Sound_SetStereo(D_800F4350_801369F4.f_13A);
+                Sound_PlayFixed(0);
+            }
+            break;
+        case 3:
+            if (pad & 0x860) {
+                sel = 0x10;
+                Sound_PlayFixed(0);
+            }
+            break;
+        case 4:
+            if (pad & 0x860) {
+                Sound_PlayFixed(0xA5);
+                return;
+            }
+            break;
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+            break;
+        case 0x10:
+            if (pad & 0x860) {
+                sel = 3;
+                func_8013609C();
+                Sound_PlayFixed(0x6C);
+            }
+            break;
+        case 0x11:
+            if (pad & 0x860) {
+                Sound_PlayFixed(0xA5);
+                sel = 3;
+            }
+            break;
+        }
+    }
+}
 
 INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EB60);
 
