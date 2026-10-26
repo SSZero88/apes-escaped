@@ -177,7 +177,64 @@ s32 func_80136000(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/386/nonmatchings/386_title_menu", func_8013654C);
+typedef struct { s16 vx, vy, vz, pad; } SVec_8013654C;
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_8013654C;
+extern Mat_8013654C D_800E78C0_8013654C asm("D_800E78C0");
+extern u32 D_80137848;
+extern u8 D_80137960_8013654C[] asm("D_80137960");
+extern u8 D_800E7D00_8013654C[] asm("D_800E7D00");
+extern u8 *D_800EC354;
+extern struct { u8 frame; } g_Game_8013654C asm("g_Game");
+#define GD_8013654C (*(GameDraw *)&g_Game_8013654C)
+void SetRotMatrix(void *m);
+void SetTransMatrix(void *m);
+void func_80016294(void *, void *);
+void func_80017EFC(void *, void *, void *, s32);
+
+void func_8013654C(void) {
+    SVec_8013654C *pos = (SVec_8013654C *)0x1F8003C8;
+    s32 i, j;
+    s32 z;
+    s16 y;
+    u8 *p;
+    s32 f;
+
+    SetRotMatrix(&D_800E78C0_8013654C);
+    SetTransMatrix(&D_800E78C0_8013654C);
+    D_80137848 += 0x40;
+    if (D_80137848 > 0x400) {
+        D_80137848 -= 0x400;
+    }
+    for (j = 0; j < 16; j++) {
+        for (i = 0; i < 16; i++) {
+            pos->vx = i * 0x400 - 0x2000;
+            pos->vy = 0;
+            pos->vz = D_80137848 + (j * 0x400 + 0xE000);
+            func_80016294(D_80137960_8013654C, D_800E7D00_8013654C);
+            func_80017EFC(GD_8013654C.ot + 0x40, D_800E7D00_8013654C, D_80137960_8013654C, 0);
+        }
+    }
+    p = D_800EC354;
+    z = 8 - (s16)(D_800E78C0_8013654C.m[2][1] / 18);
+    if (z < -0x80) {
+        y = -0x80;
+    } else if (z > 0) {
+        y = 0;
+    } else {
+        y = z;
+    }
+    f = g_Game_8013654C.frame;
+    p[3] = 5;
+    p[0xB] = 0x65;
+    *(u32 *)(p + 4) = 0xE10002AC;
+    *(u16 *)(p + 0x12) = 0x3F58;
+    *(u32 *)(p + 0xC) = y << 16;
+    *(u32 *)(p + 0x14) = 0x800180;
+    *(u16 *)(p + 0x10) = (0xFF - f) | 0x4000;
+    ADD_PRIM_R(GD_8013654C.ot + 0xFFF, p, "$4", "$3");
+    p += 0x18;
+    GD_8013654C.prim = p;
+}
 
 extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x158]; SVECTOR eye; SVECTOR at; } g_Game_8013674C asm("g_Game");
 extern u8 D_80137850_8013674C[] asm("D_80137850");

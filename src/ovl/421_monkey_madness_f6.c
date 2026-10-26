@@ -600,7 +600,85 @@ void func_8013F694(u8 *obj, s32 div) {
     func_8013D000();
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013F848);
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_8013F848;
+typedef struct { s32 cur; s32 wait; u8 seed[0x12]; u8 len[0x12]; } Bars_8013F848;
+extern Bars_8013F848 D_80140D30_8013F848 asm("D_80140D30");
+extern s32 D_801408C0_8013F848 asm("D_801408C0");
+extern u8 *D_800EC354;
+#define RAND_8013F848() (g_RandSeed = g_RandSeed * 5 + 1)
+
+void func_8013F848(void) {
+    u32 *ot;
+    u32 *p;
+    s32 i;
+    s32 j;
+    s32 n;
+    u16 seed;
+    s32 c;
+    s32 r;
+    u8 *q;
+
+    ot = G_DRAW.db[G_DRAW.cur].ot;
+    p = (u32 *)G_DRAW.prim;
+    if ((D_801408C0_8013F848 & 7) < 4) {
+        ((u8 *)p)[3] = 3;
+        p[1] = 0x420C280A;
+        p[2] = ((D_80140D30_8013F848.cur * 6 + 0x5C) << 16) | (D_80140D30_8013F848.len[D_80140D30_8013F848.cur] * 3 + 0xFC);
+        p[3] = ((D_80140D30_8013F848.cur * 6 + 0x5C) << 16) | (D_80140D30_8013F848.len[D_80140D30_8013F848.cur] * 3 + 0xFF);
+        ((Tag_8013F848 *)p)->addr = ((Tag_8013F848 *)&ot[1])->addr;
+        ((Tag_8013F848 *)&ot[1])->addr = (u32)p;
+        p += 4;
+    }
+    for (i = 0; i < 0x12; i++) {
+        seed = D_80140D30_8013F848.seed[i];
+        for (j = 0; j < D_80140D30_8013F848.len[i]; j++) {
+            seed = seed * 5 + 1;
+            ((u8 *)p)[3] = 5;
+            p[1] = 0xE1000228;
+            p[2] = 0x660C280A;
+            p[3] = ((i * 6 + 0x58) << 16) | (u16)(j * 3 + 0xFC);
+            p[5] = 0x50002;
+            p[4] = ((seed & 7) << 2) | 0x3877B800;
+            ((Tag_8013F848 *)p)->addr = ((Tag_8013F848 *)&ot[1])->addr;
+            ((Tag_8013F848 *)&ot[1])->addr = (u32)p;
+            p += 6;
+        }
+    }
+    n = 0;
+    if (D_80140D30_8013F848.wait != 0) {
+        if (--D_80140D30_8013F848.wait == 0) {
+            n = ((RAND_8013F848() >> 8) & 1) + 1;
+        }
+    } else {
+        D_80140D30_8013F848.len[D_80140D30_8013F848.cur]++;
+        if (D_80140D30_8013F848.len[D_80140D30_8013F848.cur] >= 6 && ((RAND_8013F848() >> 8) & 0xF) == 0) {
+            D_80140D30_8013F848.wait = (RAND_8013F848() >> 8) & 0x3F;
+        }
+        if (D_80140D30_8013F848.len[D_80140D30_8013F848.cur] >= 0x1E) {
+            n = 1;
+        }
+    }
+    while (n != 0) {
+        r = g_RandSeed;
+        c = D_80140D30_8013F848.cur++;
+        if ((((g_RandSeed = r * 5 + 1) >> 8) & 0x1F) == 0) {
+            D_80140D30_8013F848.cur = 0;
+            for (i = 0x11, q = (u8 *)&D_80140D30_8013F848 + i; i >= 0; i--, q--) {
+                q[0x1A] = 0;
+            }
+        } else if (c + 1 >= 0x12) {
+            D_80140D30_8013F848.cur = c;
+            for (i = 0; i < 0x11; i++) {
+                D_80140D30_8013F848.seed[i] = D_80140D30_8013F848.seed[i + 1];
+                D_80140D30_8013F848.len[i] = D_80140D30_8013F848.len[i + 1];
+            }
+        }
+        D_80140D30_8013F848.len[D_80140D30_8013F848.cur] = 0;
+        n--;
+        D_80140D30_8013F848.seed[D_80140D30_8013F848.cur] = RAND_8013F848() >> 8;
+    }
+    D_800EC354 = (u8 *)p;
+}
 
 extern struct { u8 pad0[4]; s32 f_4; u8 pad8[0x32]; u8 f_3A; } D_801408C0;
 

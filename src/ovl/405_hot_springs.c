@@ -253,7 +253,31 @@ void func_8013D904(u8 *o) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D9EC);
+#define ANIM_8013D9EC(a) ((u16 *)(M2C_FIELD(a, u8 **, 0x88) + (a)[0x7F] * 4))
+
+void func_8013D9EC(u8 *a, u8 next) {
+    u16 *an = (u16 *)(a[0x7F] * 4 + (u32)M2C_FIELD(a, u8 **, 0x88));
+    s32 len = an[1];
+    s32 st = an[0];
+    s32 cur;
+    s32 d;
+
+    len -= st;
+    cur = M2C_FIELD(a, u16 *, 0x5C);
+    d = cur - st;
+    if (len / 2 < d) {
+        M2C_FIELD(a, u16 *, 0x5C) = cur + 2;
+        if (M2C_FIELD(a, u16 *, 0x5C) >= ANIM_8013D9EC(a)[1]) {
+            a[0x7F] = next;
+            M2C_FIELD(a, u16 *, 0x5C) = ANIM_8013D9EC(a)[0];
+        }
+    } else if (st >= cur - 3) {
+        a[0x7F] = next;
+        M2C_FIELD(a, u16 *, 0x5C) = ANIM_8013D9EC(a)[0];
+    } else {
+        M2C_FIELD(a, u16 *, 0x5C) = cur - 3;
+    }
+}
 
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
 s32 Object_SpikeInFront(void *, s32, s32, s16);

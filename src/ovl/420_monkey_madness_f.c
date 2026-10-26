@@ -944,7 +944,72 @@ void func_8013F850(void *arg0) {
     Fx_DebrisExplosion(M2C_FIELD(arg0, s16 *, 0x24), M2C_FIELD(arg0, s16 *, 0x28), M2C_FIELD(arg0, s16 *, 0x2C));
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013F8BC);
+s32 Spike_WithinRadiusXZ_8013F8BC(s32, s32, s32) asm("Spike_WithinRadiusXZ");
+s32 Collision_GetId(s32);
+void func_8013F170(void *arg0, s32 arg1);
+void func_8013F1B0(void *arg0);
+void func_8013F800(s32 arg0);
+
+s32 func_8013F8BC(u8 *e) {
+    u8 *s;
+    s32 id;
+
+    if (e[0x82] != 0) {
+        func_8013F1B0(e);
+        if (e[0x81] != 0) {
+            if (Spike_WithinRadiusXZ_8013F8BC(M2C_FIELD(e, s32 *, 0x24), M2C_FIELD(e, s32 *, 0x2C), 1000)) {
+                u8 *l = M2C_FIELD(e, u8 **, 0x74);
+                u8 *r = M2C_FIELD(e, u8 **, 0x78);
+
+                M2C_FIELD(r, s16 *, 8) = 0x10;
+                M2C_FIELD(l, s16 *, 8) = 0x10;
+                M2C_FIELD(l, s16 *, 0xA) = 0xCB;
+                M2C_FIELD(r, s16 *, 0xA) = 0xC5;
+                e[0xCE] = 5;
+            } else {
+                e[0xCE] = 8;
+            }
+        } else {
+            e[0xCE] = 9;
+        }
+        if (M2C_FIELD(e, s16 *, 0x9C) + 0x600 < M2C_FIELD(e, s32 *, 0x28)) {
+            func_8013F800((s32)e);
+        }
+        return 1;
+    }
+    if ((M2C_FIELD(e, u32 *, 0xE0) >> 20) & 1) {
+        M2C_FIELD(e, u32 *, 0xE0) &= ~0x100000;
+        if (e[0x81] != 0) {
+            if (Spike_WithinRadiusXZ_8013F8BC(M2C_FIELD(e, s32 *, 0x24), M2C_FIELD(e, s32 *, 0x2C), 1000)) {
+                e[0x80] = 10;
+                func_8013F1F4(e, 5);
+                func_8013F170(e, 0x65);
+                return 0;
+            }
+            { register u8 *a asm("$4") = e; register s32 n asm("$5") = 8; __asm__ volatile("" : : "r"(a), "r"(n)); e[0x80] = 9; func_8013F1F4(a, n); }
+        } else {
+            e[0x80] = 12;
+            e[0x7F] = 9;
+            M2C_FIELD(e, u16 *, 0x5C) = M2C_FIELD(e, u16 **, 0x88)[0x12];
+            func_8005588C(e, 30);
+        }
+        e[0xDD] = 0;
+        return 0;
+    }
+    if (e[0xDD] != 0 && (M2C_FIELD(e, u32 *, 0x50) >> 28) == 0xB) {
+        s = Collision_GetShape(M2C_FIELD(e, u16 *, 0x50) & 0xFFF);
+        id = Collision_GetId(M2C_FIELD(e, u16 *, 0x50) & 0xFFF);
+        if ((M2C_FIELD(s, s16 *, 0x24) & 0xFF00) != 0xD00 && id != 2) {
+            e[0xCE] = e[0x7F];
+            e[0x7F] = e[0xCD];
+            M2C_FIELD(e, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(e, u8 **, 0x88) + e[0x7F] * 4);
+            func_800525E0(e);
+            func_80052864(e);
+            return 1;
+        }
+    }
+    return 0;
+}
 
 s32 func_8013FAD4(u8 *e) {
     if (func_8013F2A4(e) < 0x4E3) {

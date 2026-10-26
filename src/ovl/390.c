@@ -1248,7 +1248,29 @@ s32 func_80138744(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_801387FC);
+extern u16 D_800E3880_801387FC asm("D_800E3880");
+
+s32 func_801387FC(void) {
+    s32 a;
+    s32 s;
+    D_8013AF5C++;
+    if (D_8013AF5C < 3) {
+        return 0;
+    }
+    MemCard_Request(3, 0);
+    s = D_800E3880_801387FC;
+    __asm__("" : "=r"(s) : "0"(s));
+    if ((u16)(s + 2) < 2) {
+        a = 0x2A;
+    } else if ((s16)s != 0) {
+        a = 2;
+    } else {
+        MemCard_Request(4, 0);
+        a = 6;
+    }
+    func_8013784C(a, 0);
+    return 0;
+}
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad1; s16 x3, y3; u8 u3, v3; u16 pad2; } PolyFT4_8013888C;
 typedef struct { u16 clut; u8 u, v; } Tex_8013888C;

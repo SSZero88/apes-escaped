@@ -138,7 +138,64 @@ s32 func_80136208(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80136394);
+typedef struct { u8 tag[3]; u8 len; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad2; s16 x3, y3; u8 u3, v3; u16 pad3; } Ft4_80136394;
+extern struct { u32 frame; } g_Game_80136394 asm("g_Game");
+#define GD_80136394 (*(GameDraw *)&g_Game_80136394)
+extern u8 *D_800EC354;
+
+s32 func_80136394(s32 x, s32 y, s16 n, s16 lit) {
+    Ft4_80136394 *p;
+    u32 *ot;
+    s32 i;
+    s32 y0;
+
+    p = (Ft4_80136394 *)GD_80136394.prim;
+    i = 0;
+    y0 = y;
+    if (n > 0) {
+    y += 0x18;
+    do {
+        s32 xx = x + i * 16;
+        *(u32 *)&p->r0 = 0x808080;
+        p->len = 9;
+        p->code = 0x2C;
+        p->x0 = xx;
+        p->y0 = y0;
+        p->x1 = xx + 0x18;
+        p->y1 = y0;
+        p->x2 = xx;
+        p->y2 = y;
+        p->x3 = xx + 0x18;
+        p->y3 = y;
+        if ((g_Game_80136394.frame & 0xF) >= 9) {
+            p->u0 = (i < lit) ? 0x80 : 0xA0;
+            p->v0 = 0x20;
+            p->u1 = (i < lit) ? 0xA0 : 0xC0;
+            p->v1 = 0x20;
+            p->u2 = (i < lit) ? 0x80 : 0xA0;
+            p->v2 = 0x40;
+            p->u3 = (i < lit) ? 0xA0 : 0xC0;
+            p->v3 = 0x40;
+        } else {
+            p->u0 = (i < lit) ? 0x80 : 0xA0;
+            p->v0 = 0;
+            p->u1 = (i < lit) ? 0xA0 : 0xC0;
+            p->v1 = 0;
+            p->u2 = (i < lit) ? 0x80 : 0xA0;
+            p->v2 = 0x20;
+            p->u3 = (i < lit) ? 0xA0 : 0xC0;
+            p->v3 = 0x20;
+        }
+        p->clut = 0x18B4;
+        p->tpage = 0xD;
+        ot = &GD_80136394.db[GD_80136394.cur].ot[0];
+        ADD_PRIM_R(ot, p, "$4", "$3");
+        p++;
+    } while (++i < n);
+    }
+    D_800EC354 = (u8 *)p;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80136588);
 

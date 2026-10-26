@@ -22,7 +22,6 @@ void Gfx_BeginFrame(void);
 void func_8008C390(void);
 void func_80136590(void);
 void func_80136E58(void);
-s32 func_80136730();
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
@@ -226,7 +225,215 @@ void func_80136624(s32 y) {
     G_DRAW.prim = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_80136730);
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_80136730;
+typedef struct { u32 tag; u32 tpage; u32 code; u32 xy; u32 uvclut; u32 wh; } Sprt_80136730;
+extern GameDraw g_Game_80136730 asm("g_Game");
+extern struct { u8 f_0; u8 pad1; s16 f_2; s32 f_4, f_8, f_C, f_10, f_14, f_18, f_1C, f_20; } D_80138310_80136730 asm("D_80138310");
+u8 *func_8013626C(u8 *s, s32 x, s16 y, s32 flags);
+void func_80136494(s32 n, s32 row);
+void func_80136624(s32 y);
+void func_80136E7C(void);
+void func_801376EC(void);
+s32 func_8008760C(void);
+typedef struct { u32 tag; u32 code; u32 xy; u32 wh; } Tile_80136730;
+typedef struct { u32 tag; u32 code; } Mode_80136730;
+extern u16 D_80137988[];
+extern u16 D_8013798C[];
+extern u8 D_80137990[];
+extern u16 g_RandSeed;
+
+s32 func_80136730(void) {
+    u8 *s;
+    u8 *start;
+    s16 y;
+    s32 c;
+    s32 font;
+    s32 n;
+    s32 x;
+    Sprt_80136730 *p;
+    u32 *ot;
+    s32 f18;
+    s32 f10;
+
+    func_80136E7C();
+    func_801376EC();
+    s = D_80137990;
+    y = 0xF0 - D_80138310_80136730.f_2;
+    for (;;) {
+        c = *s;
+        if (c == 0) {
+            if (y < 0x91) {
+                D_80138310_80136730.f_0 = 1;
+            }
+            break;
+        }
+        if (c == 0xD) {
+            y += 4;
+            s++;
+            continue;
+        }
+        font = 0;
+        if (c == 1) {
+            y += 0x10;
+            font = 1;
+            s++;
+        }
+        c = *s;
+        if (c == 2) {
+            y += 8;
+            font = 2;
+            s++;
+            c = *s;
+        }
+        if (c == 3) {
+            func_80136624(y);
+            s++;
+            continue;
+        }
+        start = s;
+        s = func_8013626C(start, 0x10, y, font);
+        x = 0x10;
+        if (font != 0) {
+            n = 6;
+            if (font == 1) {
+                n = 8;
+            }
+            for (; n > 0; n--) {
+                func_8013626C(start, x + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) * 5 >> 8) - 2,
+                              y + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) * 5 >> 8) - 2, font | 8);
+            }
+        }
+        y += 0x18;
+        if (y >= 0x111) {
+            break;
+        }
+    }
+    if (--D_80138310_80136730.f_8 == 0) {
+        D_80138310_80136730.f_8 = 0x338;
+        if (D_80138310_80136730.f_14 == 6) {
+            D_80138310_80136730.f_10 = 0x10;
+            D_80138310_80136730.f_8 = 0x249F00;
+            D_80138310_80136730.f_14 = 7;
+        } else if (D_80138310_80136730.f_14 < 6) {
+            func_80136494(D_80138310_80136730.f_14, D_80138310_80136730.f_18 ^= 1);
+            D_80138310_80136730.f_10 = 0x10;
+            D_80138310_80136730.f_14++;
+        }
+    }
+    if (D_80138310_80136730.f_10 != 0) {
+        D_80138310_80136730.f_10--;
+    }
+    p = (Sprt_80136730 *)g_Game_80136730.prim;
+    ot = g_Game_80136730.db[g_Game_80136730.cur].ot;
+    f18 = D_80138310_80136730.f_18;
+    f10 = D_80138310_80136730.f_10;
+    if (f10 != 0 && D_80138310_80136730.f_14 == 7) {
+        {
+            s32 c4 = f10 * 4;
+            s32 tp;
+
+            ((u8 *)p)[3] = 5;
+            tp = (D_80137988[f18] & 0x9FF) | 0xE1000200;
+            p->code = (c4 << 16) | (c4 << 8) | c4 | 0x66000000;
+            p->xy = 0x6000B0;
+            p->wh = 0x8000C0;
+            p->tpage = tp;
+            p->uvclut = D_8013798C[f18] << 16;
+            ((Tag_80136730 *)p)->addr = ((Tag_80136730 *)&ot[2])->addr;
+            ((Tag_80136730 *)&ot[2])->addr = (u32)p;
+            p++;
+        }
+    } else if (f10 == 0) {
+        if ((u32)(D_80138310_80136730.f_14 - 1) < 6) {
+            s32 tp;
+
+            ((u8 *)p)[3] = 5;
+            tp = (D_80137988[f18] & 0x9FF) | 0xE1000200;
+            p->code = 0x65000000;
+            p->xy = 0x6000B0;
+            p->wh = 0x8000C0;
+            p->tpage = tp;
+            p->uvclut = D_8013798C[f18] << 16;
+            ((Tag_80136730 *)p)->addr = ((Tag_80136730 *)&ot[2])->addr;
+            ((Tag_80136730 *)&ot[2])->addr = (u32)p;
+            p++;
+        }
+    } else {
+        {
+            s32 a = (f10 * 8) ^ 0x7F;
+            s32 k;
+
+            k = 2;
+            if (D_80138310_80136730.f_14 == 1) {
+                k = 1;
+            }
+            for (; k > 0; k--) {
+                ((u8 *)p)[3] = 5;
+                p->tpage = (D_80137988[f18] & 0x9FF) | 0xE1000200;
+                p->code = (a << 16) | (a << 8) | a | 0x66000000;
+                p->xy = 0x6000B0;
+                p->wh = 0x8000C0;
+                p->uvclut = D_8013798C[f18] << 16;
+                f18 ^= 1;
+                a ^= 0x7F;
+                ((Tag_80136730 *)p)->addr = ((Tag_80136730 *)&ot[2])->addr;
+                ((Tag_80136730 *)&ot[2])->addr = (u32)p;
+                p++;
+            }
+            {
+                Tile_80136730 *t = (Tile_80136730 *)p;
+
+                ((u8 *)t)[3] = 3;
+                t->xy = 0x6000B0;
+                t->wh = 0x8000C0;
+                t->code = 0x61000000;
+                ((Tag_80136730 *)t)->addr = ((Tag_80136730 *)&ot[2])->addr;
+                ((Tag_80136730 *)&ot[2])->addr = (u32)t;
+                p = (Sprt_80136730 *)(t + 1);
+            }
+        }
+    }
+    g_Game_80136730.prim = (u8 *)p;
+    if (D_80138310_80136730.f_0 == 1) {
+        if (++D_80138310_80136730.f_1C >= 0x30D) {
+            return 1;
+        }
+        if (D_80138310_80136730.f_1C == 0x258) {
+            func_8008760C();
+        }
+        if (D_80138310_80136730.f_1C == 0x21C) {
+            D_80138310_80136730.f_20 = 0x3C;
+        }
+        if (D_80138310_80136730.f_20 != 0) {
+            Tile_80136730 *t;
+            s32 v;
+            u32 *ot1;
+
+            if (D_80138310_80136730.f_20 >= 2) {
+                D_80138310_80136730.f_20--;
+            }
+            t = (Tile_80136730 *)g_Game_80136730.prim;
+            v = 0xFF - D_80138310_80136730.f_20 * 4;
+            ot1 = g_Game_80136730.db[g_Game_80136730.cur].ot;
+            ((u8 *)t)[3] = 3;
+            t->code = (v << 16) | (v << 8) | v | 0x62000000;
+            t->xy = 0;
+            t->wh = 0xF00180;
+            ((Tag_80136730 *)t)->addr = ((Tag_80136730 *)&ot1[1])->addr;
+            ((Tag_80136730 *)&ot1[1])->addr = (u32)t;
+            t = (Tile_80136730 *)((u8 *)t + 0x10);
+            ((u8 *)t)[3] = 1;
+            t->code = 0xE1000240;
+            ((Tag_80136730 *)t)->addr = ((Tag_80136730 *)&ot1[1])->addr;
+            ((Tag_80136730 *)&ot1[1])->addr = (u32)t;
+            g_Game_80136730.prim = (u8 *)t + 8;
+        }
+        return 0;
+    }
+    D_80138310_80136730.f_4++;
+    D_80138310_80136730.f_2++;
+    return 0;
+}
 
 void func_80136E58(void) {
     M2C_UNK *var_v0;

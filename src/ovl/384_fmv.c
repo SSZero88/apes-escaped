@@ -899,7 +899,53 @@ void func_80138AC8(void) {
     G_DRAW.prim = p + 0xC;
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138B40);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_80138B40;
+extern GameDraw g_Game_80138B40 asm("g_Game");
+
+void func_80138B40(void) {
+    register Sprt_80138B40 *p asm("$15");
+    s32 y;
+    u32 *ot;
+
+    p = (Sprt_80138B40 *)g_Game_80138B40.prim;
+    {
+        u8 *b = (u8 *)&g_Game_80138B40;
+        y = *(s16 *)(b + g_Game_80138B40.cur * 0x4078 + 0x6E); /* db[cur].disp.disp.y */
+    }
+    ((u8 *)p)[3] = 4;
+    p->code = 0x67;
+    p->x0 = 0x100;
+    p->y0 = 0;
+    p->w = 0x80;
+    p->h = 0xF0;
+    p->u0 = 0;
+    p->v0 = 0;
+    ot = (u32 *)(g_Game_80138B40.cur * 0x4078 + ((u8 *)&g_Game_80138B40 + 0x80));
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    p++;
+    ((u8 *)p)[3] = 1;
+    ((u32 *)p)[1] = 0xE1000000 | 0x200 | 0 | ((((2 & 3) << 7) | ((0 & 3) << 5) | ((y & 0x100) >> 4) | ((0x100 & 0x3FF) >> 6) | ((y & 0x200) << 2)) & 0x9FF);
+    ot = (u32 *)(g_Game_80138B40.cur * 0x4078 + ((u8 *)&g_Game_80138B40 + 0x80));
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    p = (Sprt_80138B40 *)((u8 *)p + 8);
+    ((u8 *)p)[3] = 4;
+    p->code = 0x67;
+    p->x0 = 0;
+    p->y0 = 0;
+    p->w = 0x100;
+    p->h = 0xF0;
+    p->u0 = 0;
+    p->v0 = 0;
+    ot = (u32 *)(g_Game_80138B40.cur * 0x4078 + ((u8 *)&g_Game_80138B40 + 0x80));
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    p++;
+    ((u8 *)p)[3] = 1;
+    ((u32 *)p)[1] = 0xE1000000 | 0x200 | 0 | ((((2 & 3) << 7) | ((0 & 3) << 5) | ((y & 0x100) >> 4) | ((0 & 0x3FF) >> 6) | ((y & 0x200) << 2)) & 0x9FF);
+    ot = (u32 *)(g_Game_80138B40.cur * 0x4078 + ((u8 *)&g_Game_80138B40 + 0x80));
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    p = (Sprt_80138B40 *)((u8 *)p + 8);
+    g_Game_80138B40.prim = (u8 *)p;
+}
 
 void func_80138CDC(void) {
 }
