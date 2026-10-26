@@ -60,9 +60,114 @@ s32 func_8013C8E8(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013C954);
+/* D_8013AF66 and D_8013F280 come from the externs at the top of src/ovl/390c.c */
+extern s16 D_8013AF66;
+typedef struct { s16 x, y, w, h; } Rect_8013C954;
+typedef struct { u8 pad0[0x19]; u8 r0, g0, b0; } DrawEnv_8013C954;
+extern Rect_8013C954 D_8013EEE0;
+extern u8 D_8013D688[];
+extern s16 D_8013AF68;
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_8013C954 asm("g_Game");
+s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
+void DrawSync(s32);
+s32 VSync(s32 mode);
+void func_8001325C(s32);
+void Gfx_BeginFrame(void);
+s32 func_8013A634(void);
+s32 func_8013D19C(void);
+s32 func_8013D1F8(void);
+void func_80141A10(u8 *);
+void func_80141B00(void);
+void func_80141AB4(void);
+void MemCard_Request(s32, s32);
+void *PutDrawEnv(void *env);
+void *PutDispEnv(void *env);
+void DrawOTag(u32 *p);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013CB30);
+s32 func_8013C954(void) {
+    Rect_8013C954 r;
+
+    r = D_8013EEE0;
+    g_Game_8013C954.db[1].env[0x18] = 1;
+    g_Game_8013C954.db[0].env[0x18] = 1;
+    ((DrawEnv_8013C954 *)&g_Game_8013C954.db[0])->r0 = 0;
+    ((DrawEnv_8013C954 *)&g_Game_8013C954.db[0])->g0 = 0;
+    ((DrawEnv_8013C954 *)&g_Game_8013C954.db[0])->b0 = 0;
+    ((DrawEnv_8013C954 *)&g_Game_8013C954.db[1])->r0 = 0;
+    ((DrawEnv_8013C954 *)&g_Game_8013C954.db[1])->g0 = 0;
+    ((DrawEnv_8013C954 *)&g_Game_8013C954.db[1])->b0 = 0;
+    g_Game_8013C954.cur = 0;
+    func_8013D19C();
+    func_80141A10(D_8013D688);
+    D_8013AF66 = 0;
+    D_8013AF68 = 0x1E;
+    while (func_8001325C(2), Gfx_BeginFrame(), func_8013A634() >= 0) {
+        if (func_8013D1F8() != 0) {
+            D_8013AF66 = 2;
+        }
+        func_80141B00();
+        DrawSync(0);
+        VSync(0);
+        g_Game_8013C954.frame++;
+        PutDispEnv(&g_Game_8013C954.db[g_Game_8013C954.cur].env[0x5C]);
+        PutDrawEnv(g_Game_8013C954.db[g_Game_8013C954.cur].env);
+        DrawOTag(&g_Game_8013C954.db[g_Game_8013C954.cur].ot[0xFFF]);
+    }
+    func_80141AB4();
+    MemCard_Request(9, 0);
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    D_8013F280 = 0;
+    return 0;
+}
+
+/* D_8013AF66, D_8013F280 and D_8013F288 come from the externs at the top of src/ovl/390c.c */
+typedef struct { s16 x, y, w, h; } Rect_8013CB30;
+typedef struct { u8 pad0[0x19]; u8 r0, g0, b0; } DrawEnv_8013CB30;
+extern Rect_8013CB30 D_8013EEE0_8013CB30 asm("D_8013EEE0");
+extern u8 D_8013D764[];
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_8013CB30 asm("g_Game");
+s32 func_8013D218(void);
+void func_80095D44(void);
+
+s32 func_8013CB30(void) {
+    Rect_8013CB30 r;
+
+    r = D_8013EEE0_8013CB30;
+    g_Game_8013CB30.db[1].env[0x18] = 1;
+    g_Game_8013CB30.db[0].env[0x18] = 1;
+    ((DrawEnv_8013CB30 *)&g_Game_8013CB30.db[0])->r0 = 0;
+    ((DrawEnv_8013CB30 *)&g_Game_8013CB30.db[0])->g0 = 0;
+    ((DrawEnv_8013CB30 *)&g_Game_8013CB30.db[0])->b0 = 0;
+    ((DrawEnv_8013CB30 *)&g_Game_8013CB30.db[1])->r0 = 0;
+    ((DrawEnv_8013CB30 *)&g_Game_8013CB30.db[1])->g0 = 0;
+    ((DrawEnv_8013CB30 *)&g_Game_8013CB30.db[1])->b0 = 0;
+    g_Game_8013CB30.cur = 0;
+    func_8013D19C();
+    func_80141A10(D_8013D764);
+    D_8013AF68 = 0x1E;
+    D_8013AF66 = 0;
+    D_8013F288 = 0;
+    while (func_8001325C(2), Gfx_BeginFrame(), func_8013A634() >= 0) {
+        if (func_8013D218() != 0) {
+            D_8013AF66 = 2;
+        }
+        func_80141B00();
+        DrawSync(0);
+        VSync(0);
+        g_Game_8013CB30.frame++;
+        PutDispEnv(&g_Game_8013CB30.db[g_Game_8013CB30.cur].env[0x5C]);
+        PutDrawEnv(g_Game_8013CB30.db[g_Game_8013CB30.cur].env);
+        DrawOTag(&g_Game_8013CB30.db[g_Game_8013CB30.cur].ot[0xFFF]);
+    }
+    func_80141AB4();
+    MemCard_Request(9, 0);
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    func_80095D44();
+    D_8013F280 = 0;
+    return 0;
+}
 
 INCLUDE_RODATA("asm/ovl/390/nonmatchings/390c", D_8013EEE0);
 
