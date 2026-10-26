@@ -102,7 +102,51 @@ void func_8013D16C(void *a) {
     Hook_Add(func_8013D488);
 }
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D488);
+typedef struct { u8 pad0[0x14]; s32 mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 rvx, rvy, rvz; s16 rx, ry, rz; u8 owner; u8 timer; } Deb_8013D488;
+typedef struct { u8 pad0[0x28]; s32 y; u8 pad2C[0x70]; s16 floor; u8 pad9E[0x46]; } Obj_8013D488;
+void Model_ProjectBonedVerts(void *);
+void RotMatrixYXZ_8013D488(void *, void *) asm("RotMatrixYXZ");
+void func_80015780(void *, s32);
+void func_80016EBC(void *, void *, void *);
+s32 func_80051410(void *, s32, s32);
+extern M2C_UNK D_800E7D00;
+extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013D488 asm("g_Game");
+extern Deb_8013D488 D_80140BC8_8013D488[] asm("D_80140BC8");
+extern Obj_8013D488 g_Objects_8013D488[] asm("g_Objects");
+
+void func_8013D488(void) {
+    s32 i;
+    Deb_8013D488 *m;
+    Obj_8013D488 *t;
+    SVECTOR sv;
+
+    for (i = 0; i < 16; i++) {
+        m = &D_80140BC8_8013D488[i];
+        if (m->timer != 0) {
+            m->timer--;
+            m->x += m->vx;
+            m->y += m->vy;
+            m->z += m->vz;
+            *(volatile s16 *)&m->vy += 7;
+            t = &g_Objects_8013D488[m->owner];
+            if (t->floor < m->y) {
+                { s32 y = t->y; m->vy = -(m->vy / 2); m->y = y; }
+                sv.vx = m->x;
+                sv.vy = m->y;
+                sv.vz = m->z;
+            }
+            m->rx = (m->rx + m->rvx) % 4096;
+            m->ry = (m->ry + m->rvy) % 4096;
+            m->rz = (m->rz + m->rvz) % 4096;
+            if (func_80051410(&m->x, 0, 0) == 0) {
+                RotMatrixYXZ_8013D488(&m->rx, (void *)m->mat);
+                func_80015780(m, 3);
+                Model_ProjectBonedVerts(m);
+                func_80016EBC(g_Game_8013D488.f_80 + g_Game_8013D488.f_C * 0x4078, &D_800E7D00, m);
+            }
+        }
+    }
+}
 
 extern u8 D_801409C0[];
 extern u8 D_80140A68[];
