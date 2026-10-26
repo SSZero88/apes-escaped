@@ -22,7 +22,25 @@ M2C_UNK func_80070284(s16 *, M2C_UNK *, M2C_UNK, M2C_UNK, s32);
 extern M2C_UNK D_801441B8;
 extern struct S_D_80145430 { u8 pad_0[0x9]; s8 f_9; u8 pad_A[0x2]; } D_80145430[];
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013D000);
+extern struct { u8 pad_0[0x8244]; u8 *f_8244; } g_Game_8013D000 asm("g_Game");
+typedef struct { u8 pad0[0x18]; s32 f18, f1C; } AnimEnt_8013D000;
+extern u8 *D_80144410[];
+extern u8 *D_80144438[];
+void func_80015BA0(void *, void *);
+
+void func_8013D000(s32 i, void *obj, void *out) {
+    u8 *bank = g_Game_8013D000.f_8244;
+    AnimEnt_8013D000 *ent;
+    u8 *s;
+    u32 *q;
+
+    D_80144410[i] = bank + (ent = (AnimEnt_8013D000 *)(i * 32 + (u32)(bank + M2C_FIELD(bank, s32 *, 8))))->f18;
+    D_80144438[i] = s = g_Game_8013D000.f_8244 + ent->f1C;
+    q = (u32 *)s + 1;
+    *(u32 **)out = q;
+    M2C_FIELD(obj, u32 **, 0x18) = q + *(u16 *)s;
+    func_80015BA0(obj, D_80144410[i]);
+}
 
 #include "gte.h"
 typedef struct { u8 pad0[0x8]; u16 n; u8 padA[2]; s32 rgb[1]; } MdlHdr_422;
@@ -204,7 +222,6 @@ extern struct { u8 pad0[8]; s32 f_8; u8 f_C; u8 f_D; u8 f_E; u8 f_F; s16 f_10; u
 extern s16 D_800E69BE;
 extern u8 D_800AF840;
 s32 SaveByte_Get(s32);
-void func_8013D000(s32, void *, void *);
 void func_801406F8(s32 anim);
 void func_8013F86C(void);
 void func_8013E4A8(void);
@@ -872,7 +889,6 @@ void func_8013F78C(u8 *e, s16 a1, s16 a2, s16 a3) {
 
 typedef struct { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; u8 pad30[0x5C]; u8 f_8C[4]; u8 pad90[2]; u8 f_92; u8 pad93[7]; s16 f_9A; s16 f_9C; u8 pad9E[2]; } Ent_8013F86C;
 extern Ent_8013F86C D_80144AA8_8013F86C[2] asm("D_80144AA8");
-void func_8013D000(s32, void *, void *);
 
 void func_8013F86C(void) {
     s32 i;

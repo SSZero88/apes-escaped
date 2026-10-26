@@ -2240,7 +2240,126 @@ s32 func_80142054(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_801420E8);
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_801420E8;
+typedef struct { u8 pad0[0x10]; s16 x, y, z; u8 pad16[6]; Mat_801420E8 *m; } Plat_801420E8;
+typedef struct { s32 x, y, z; u8 pad_C[0xC]; SVECTOR r; s16 f_20; s16 pad_22; s16 f_24; s16 f_26; } Shape_801420E8;
+extern Plat_801420E8 *D_800B4D64_801420E8 asm("D_800B4D64");
+extern struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x16]; s16 f_46; } g_Spike_801420E8 asm("g_Spike");
+extern s32 D_800EC204;
+extern s32 D_800EC20C;
+void Sound_PlayFixed_801420E8(s32) asm("Sound_PlayFixed");
+s32 rsin_801420E8(s32) asm("rsin");
+void RotMatrixZYX_801420E8(SVECTOR *, Mat_801420E8 *) asm("RotMatrixZYX");
+void ApplyMatrixSV_801420E8(Mat_801420E8 *, SVECTOR *, SVECTOR *) asm("ApplyMatrixSV");
+Shape_801420E8 *CollShape_Alloc_801420E8(void) asm("CollShape_Alloc");
+s32 Collision_Set_801420E8(s32, void *, void *) asm("Collision_Set");
+#define ABS_801420E8(x) ((x) >= 0 ? (x) : -(x))
+
+s32 func_801420E8(s16 *p) {
+    SVECTOR r;
+    SVECTOR o;
+    Mat_801420E8 m;
+    Shape_801420E8 *s;
+    s32 a;
+    s32 d;
+    s32 w;
+    s32 h;
+    s32 off;
+
+    r.vx = r.vy = r.vz = 0;
+    switch (p[1]) {
+    case 0:
+        if (ABS_801420E8(D_800EC20C - D_800B4D64_801420E8[p[6]].z) < p[4] && D_800EC204 < -0x200) {
+            p[1] = 1;
+            p[3] = 0;
+            Sound_PlayFixed_801420E8(0x1A);
+        }
+        r.vx = r.vy = 0;
+        a = (-p[7] << 12) / 360;
+        r.vz = a;
+        RotMatrixZYX_801420E8(&r, D_800B4D64_801420E8[p[6]].m);
+        break;
+    case 1:
+        if (p[9] < ++p[3]) {
+            p[3] = 0;
+            p[1] = 2;
+            a = (-p[8] << 12) / 360;
+            Sound_PlayFixed_801420E8(0x60);
+        } else {
+            w = rsin_801420E8((p[3] << 10) / p[9]);
+            a = (-p[7] << 12) / 360 + (ABS_801420E8(p[8] - p[7]) * w) / 360;
+        }
+        r.vx = r.vy = 0;
+        r.vz = a;
+        RotMatrixZYX_801420E8(&r, D_800B4D64_801420E8[p[6]].m);
+        break;
+    case 2:
+        if (p[10] < ++p[3]) {
+            p[1] = 3;
+            p[3] = p[9];
+        }
+        r.vx = r.vy = 0;
+        a = (-p[8] << 12) / 360;
+        r.vz = a;
+        RotMatrixZYX_801420E8(&r, D_800B4D64_801420E8[p[6]].m);
+        break;
+    case 3:
+        if (--p[3] <= 0) {
+            p[1] = 0;
+            p[3] = 0;
+            a = (-p[7] << 12) / 360;
+        } else {
+            a = (-p[7] << 12) / 360 + (((ABS_801420E8(p[8] - p[7]) * p[3]) / p[9]) << 12) / 360;
+        }
+        r.vx = r.vy = 0;
+        r.vz = a;
+        RotMatrixZYX_801420E8(&r, D_800B4D64_801420E8[p[6]].m);
+        break;
+    case 4:
+        break;
+    }
+    if (p[6] >= 0) {
+        r.vx = r.vy = 0;
+        r.vz = a;
+        RotMatrixZYX_801420E8(&r, &m);
+        r.vx = 0;
+        r.vy = 0x980;
+        r.vz = 0;
+        ApplyMatrixSV_801420E8(&m, &r, &o);
+        if (ABS_801420E8(D_800EC20C - D_800B4D64_801420E8[p[6]].z) < 0x80) {
+            if (ABS_801420E8(D_800EC204 - D_800B4D64_801420E8[p[6]].x) < ABS_801420E8(o.vx)) {
+                h = D_800B4D64_801420E8[p[6]].y - (o.vy * ABS_801420E8(D_800EC204 - D_800B4D64_801420E8[p[6]].x)) / ABS_801420E8(o.vx);
+                if (h > g_Spike_801420E8.y) {
+                    return 0;
+                }
+                if (g_Spike_801420E8.y - g_Spike_801420E8.f_46 > h + 0x200) {
+                    return 0;
+                }
+                r.vx = r.vy = 0;
+                if (D_800B4D64_801420E8[p[6]].z < g_Spike_801420E8.z) {
+                    r.vz = 0x1000;
+                    off = -0x80;
+                } else {
+                    r.vz = -0x1000;
+                    off = 0x80;
+                }
+                s = CollShape_Alloc_801420E8();
+                if (s != NULL) {
+                    s->r = r;
+                    s->x = g_Spike_801420E8.x;
+                    s->y = g_Spike_801420E8.y;
+                    s->z = g_Spike_801420E8.z + off;
+                    s->f_20 = 0x100;
+                    s->f_24 = 1;
+                    s->f_26 = 0x202;
+                    Collision_Set_801420E8(6, s, NULL);
+                }
+            }
+        }
+    }
+    return 0;
+}
+__asm__(".section .rodata\n\t.align 3\n\t.section .text");
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8014277C asm("g_Game");
 extern u8 *D_800B4D64_8014277C asm("D_800B4D64");

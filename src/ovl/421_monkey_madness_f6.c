@@ -39,14 +39,31 @@ void func_8013D078(s32 arg0) {
     Pickup_Drop(var_a2, arg0, 3, 0);
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D10C);
+extern struct { u8 pad_0[0x8244]; u8 *f_8244; } g_Game_8013D10C asm("g_Game");
+typedef struct { u8 pad0[0x18]; s32 f18, f1C; } AnimEnt_8013D10C;
+extern u8 *D_80140870[];
+extern u8 *D_80140898[];
+void func_80015BA0(void *, void *);
+
+void func_8013D10C(s32 i, void *obj, void *out) {
+    u8 *bank = g_Game_8013D10C.f_8244;
+    AnimEnt_8013D10C *ent;
+    u8 *s;
+    u32 *q;
+
+    D_80140870[i] = bank + (ent = (AnimEnt_8013D10C *)(i * 32 + (u32)(bank + M2C_FIELD(bank, s32 *, 8))))->f18;
+    D_80140898[i] = s = g_Game_8013D10C.f_8244 + ent->f1C;
+    q = (u32 *)s + 1;
+    *(u32 **)out = q;
+    M2C_FIELD(obj, u32 **, 0x18) = q + *(u16 *)s;
+    func_80015BA0(obj, D_80140870[i]);
+}
 
 extern struct { u8 pad_0[0x8244]; u8 *f_8244; } g_Game_8013D1AC asm("g_Game");
 extern s16 D_800E69BE;
 extern u8 D_80140470[];
 extern struct { s32 f_0; s32 f_4; u8 f_8; u8 pad9[3]; s32 f_C; s32 f_10; u8 pad14[4]; s16 f_18; s16 f_1A; u8 pad1C[0x1E]; u8 f_3A; u8 f_3B; u8 f_3C; } D_801408C0_8013D1AC asm("D_801408C0");
 s32 Collision_Set(s32, void *, void *);
-void func_8013D10C(s32, void *, void *);
 void func_8013F4F0(void);
 void func_8013E8C0(void);
 void func_8013DE14(void);

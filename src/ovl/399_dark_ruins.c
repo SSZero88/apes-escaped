@@ -865,11 +865,34 @@ void func_8013ED7C(void *arg0)
   func_80070284(&v, &D_800B1C28, 1, 0xC, 0);
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013EE70);
+int abs(int);
+extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013EE70 asm("g_Spike");
+s32 Vec_Length(s32, s32, s32);
+void Object_OrbitAround(void *, s16, s16, s16, s16);
+void Object_PlaySound_8013EE70(void *, s32) asm("Object_PlaySound");
+
+void func_8013EE70(void *arg0) {
+    u8 *o = arg0;
+    s32 d;
+    s32 r;
+    s16 speed;
+
+    d = Vec_Length(g_Spike_8013EE70.x - M2C_FIELD(o, s16 *, 0x9A), 0, g_Spike_8013EE70.z - M2C_FIELD(o, s16 *, 0x9E));
+    r = M2C_FIELD(o, s16 *, 0xA6);
+    if (r + 0x600 < d) {
+        speed = 8;
+    } else if (d < r) {
+        speed = 0x20;
+    } else {
+        speed = (0x600 - d) / 64 + 8;
+    }
+    Object_OrbitAround(o, M2C_FIELD(o, s16 *, 0x9A), M2C_FIELD(o, s16 *, 0x9E), M2C_FIELD(o, s16 *, 0xA6), speed);
+    if (abs(M2C_FIELD(o, s16 *, 0xAA) - M2C_FIELD(o, s16 *, 0xD4)) > 0x800) Object_PlaySound_8013EE70(o, 0x2B);
+    M2C_FIELD(o, s16 *, 0xD4) = M2C_FIELD(o, s16 *, 0xAA);
+}
 
 void func_8013EBBC(void *arg0, s16 x, s16 y, s16 z);
 s32 func_8013EC28(void *arg0, s32 arg1, s32 arg2);
-void func_8013EE70(void *);
 
 void func_8013EF54(void *arg0) {
     u16 t;

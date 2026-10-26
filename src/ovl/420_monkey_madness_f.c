@@ -28,7 +28,6 @@ extern s32 D_80144650;
 M2C_UNK Fx_DebrisExplosion(s16, s16, s16);
 M2C_UNK Object_DisableCollision(void *);
 M2C_UNK Object_DropPickups(void *);
-M2C_UNK func_8013E9E0();
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 s32 Object_DetachLink(void *, M2C_UNK);
 void func_80140310(void);
@@ -560,7 +559,45 @@ void func_8013E990(void *arg0) {
     func_80070284(&v, D_80144118, 1, 0, 0);
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013E9E0);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x2C]; s16 f5C; u8 pad5E[2]; s16 f60, f62, f64, f66; u8 pad68[8]; s16 vx, vy, vz; s16 wx, wy, wz; s16 rx, ry, rz; s16 life; } Debris_8013E9E0;
+extern Debris_8013E9E0 D_80144688_8013E9E0[] asm("D_80144688");
+M2C_UNK func_80052038(void *, M2C_UNK);
+M2C_UNK func_800520A8(void *, M2C_UNK);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; } Obj_8013E9E0;
+
+/* called without all its arguments (old-style declaration), so defined old-style */
+void func_8013E9E0(o)
+    void *o;
+{
+    s32 i;
+    Debris_8013E9E0 *d;
+    s32 k;
+
+    for (i = 0; i < 7; i++) {
+        d = &D_80144688_8013E9E0[i];
+        k = i + 0x96;
+        func_80052038(d, k);
+        func_800520A8(d, k);
+        d->f5C = 0;
+        d->f62 = 0;
+        d->f60 = 0;
+        d->f64 = 0x1000;
+        d->f66 = 3;
+        d->x = ((Obj_8013E9E0 *)o)->x + ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) - 0x80;
+        d->y = ((Obj_8013E9E0 *)o)->y - ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8);
+        d->z = ((Obj_8013E9E0 *)o)->z + ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) - 0x80;
+        d->vx = (s32)(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 4;
+        d->vz = (s32)(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 4;
+        d->vy = -(s32)((g_RandSeed = g_RandSeed * 5 + 1) >> 8) / 4 - 0x40;
+        d->wx = (s32)((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 6) << 12) / 360;
+        d->wy = (s32)((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 6) << 12) / 360;
+        d->wz = (s32)((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 6) << 12) / 360;
+        d->rz = 0;
+        d->ry = 0;
+        d->rx = 0;
+        d->life = 1;
+    }
+}
 
 typedef struct { s16 x, y, z; } Rot_8013ECCC;
 typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 wx, wy, wz; Rot_8013ECCC r; s16 life; } Debris_8013ECCC;

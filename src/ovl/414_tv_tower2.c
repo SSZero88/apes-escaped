@@ -15,7 +15,6 @@ extern s32 D_801442CC;
 M2C_UNK Effect_Spawn(M2C_UNK, s32, M2C_UNK *, M2C_UNK);
 extern M2C_UNK D_80143718;
 extern M2C_UNK D_80144570;
-M2C_UNK func_8013D1F0(M2C_UNK, M2C_UNK *, void *);
 extern M2C_UNK D_80144598;
 extern M2C_UNK D_80143AF0;
 M2C_UNK Camera_StartShake(M2C_UNK);
@@ -36,7 +35,25 @@ s32 func_8013D174(void) {
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013D1A0);
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013D1F0);
+extern struct { u8 pad_0[0x8244]; u8 *f_8244; } g_Game_8013D1F0 asm("g_Game");
+typedef struct { u8 pad0[0x18]; s32 f18, f1C; } AnimEnt_8013D1F0;
+extern u8 *D_80143D50[];
+extern u8 *D_80143D60[];
+void func_80015BA0(void *, void *);
+
+M2C_UNK func_8013D1F0(M2C_UNK i, M2C_UNK *obj, void *out) {
+    u8 *bank = g_Game_8013D1F0.f_8244;
+    AnimEnt_8013D1F0 *ent;
+    u8 *s;
+    u32 *q;
+
+    D_80143D50[i] = bank + (ent = (AnimEnt_8013D1F0 *)(i * 32 + (u32)(bank + M2C_FIELD(bank, s32 *, 8))))->f18;
+    D_80143D60[i] = s = g_Game_8013D1F0.f_8244 + ent->f1C;
+    q = (u32 *)s + 1;
+    *(u32 **)out = q;
+    M2C_FIELD(obj, u32 **, 0x18) = q + *(u16 *)s;
+    func_80015BA0(obj, D_80143D50[i]);
+}
 
 #include "gte.h"
 typedef struct { u8 pad0[0x8]; u16 n; u8 padA[2]; s32 rgb[1]; } MdlHdr_422;

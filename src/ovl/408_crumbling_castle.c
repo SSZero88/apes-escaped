@@ -1211,7 +1211,45 @@ void func_80140B40(u8 *o) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_80140C54);
+extern u8 D_80144AEC[];
+
+void func_80140C54(u8 *o) {
+    SVECTOR v;
+    s32 n;
+    s32 a;
+    s32 b;
+    s32 k;
+
+    n = 30 - M2C_FIELD(o, u8 *, 0xC9);
+    k = 0x1800;
+    a = n * k / 30;
+    a = a * n;
+    b = (M2C_FIELD(o, u8 *, 0xC9) * 0x5000 / 30 + 0x1800) * n;
+    a /= 30;
+    M2C_FIELD(o, s16 *, 0xC4) = b / 30;
+    M2C_FIELD(o, s16 *, 0xC2) = M2C_FIELD(o, s16 *, 0xC6) = a;
+    if (M2C_FIELD(o, u8 *, 0xC9) % 3 == 0) {
+        v.vx = M2C_FIELD(o, u16 *, 0x24);
+        v.vy = M2C_FIELD(o, u16 *, 0x28);
+        v.vz = M2C_FIELD(o, u16 *, 0x2C);
+        func_80070284_801400B4(&v, D_80144AEC, 1, 0, 0);
+        func_80070284_801400B4(&v, D_80144AEC + 0x54, 1, 0, 0);
+        if (M2C_FIELD(o, u8 *, 0xC9) % 18 == 0) {
+            v.vy -= 0x20;
+            func_80070284_801400B4(&v, D_80144AEC + 0xA8, 1, 0, 0);
+            Sound_PlayFixed(9);
+        }
+        if (M2C_FIELD(o, u8 *, 0xC9) < 8) {
+            func_80070284_801400B4(&v, D_80144AEC + 0xFC, 1, 0, 0);
+        }
+        if (M2C_FIELD(o, u8 *, 0xC9) < 30) {
+            v.vy -= ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) * 4;
+            v.vx += (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 4;
+            v.vz += (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 4;
+            Effect_SpawnAt_8013DC04(0x112, &v);
+        }
+    }
+}
 
 void func_80140EE0(void *arg0) {
     if ((func_8013D0C8() != 0) && (func_8013D118() == 0) && (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA4)) != 0)) {
@@ -2440,7 +2478,40 @@ s32 func_801444E4(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_801446D4);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_801446D4 asm("g_Game");
+s32 Sound_Stop_801446D4(s32, s32) asm("Sound_Stop");
+
+s32 func_801446D4(s16 *p) {
+    u8 *e;
+
+    e = g_Game_801446D4.f_820C + p[2] * 0x38;
+    switch (p[1]) {
+    case 0:
+        if (p[3] == 0 && D_800EC238 == p[2]) {
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+            p[3] = 1;
+            p[1] = 1;
+            p[7] = M2C_FIELD(e, u16 *, 0);
+            p[8] = M2C_FIELD(e, u16 *, 2);
+            p[9] = M2C_FIELD(e, u16 *, 4);
+            p[4] = Sound_Play(1, 0xAE);
+        } else if (D_800EC238 < 0 && p[3] != 0) {
+            p[3] = 0;
+        }
+        break;
+    case 1:
+        if (M2C_FIELD(e, s16 *, 0x32) >= p[6] * 2 + 1) {
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
+            *(volatile s16 *)&p[1] = 0;
+            p[3] = D_800EC238 == p[2];
+            Sound_Stop_801446D4(0xAE, p[4]);
+        } else {
+            Sound_UpdateVoice3D(0xAE, p[4], 0x1000, e);
+        }
+        break;
+    }
+    return 0;
+}
 
 s32 func_8014483C(void *arg0) {
     M2C_FIELD(arg0, s16 *, 8) = Sound_Play(1, 0xB1);

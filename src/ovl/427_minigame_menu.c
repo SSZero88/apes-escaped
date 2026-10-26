@@ -24,7 +24,6 @@ M2C_UNK func_8008DDB0(s16, s16);
 void func_80138350(s32 arg0);
 M2C_UNK func_801384CC(s32, s32, M2C_UNK *, M2C_UNK);
 extern M2C_UNK D_8013EF8C;
-M2C_UNK func_80138368(M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK);
 extern M2C_UNK D_8013EB60;
 extern M2C_UNK D_8013EB6C;
 extern M2C_UNK D_8013EFC8;
@@ -713,11 +712,71 @@ void func_80138350(s32 arg0) {
     D_8013FC80.f_0 = ((arg0 + 0xF0) << 6) | 0x37;
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80138368);
+extern GameDraw g_Game_80138368 asm("g_Game");
+typedef struct { u32 tag; u32 tpage; u32 col; s16 x, y; u8 u, v; u16 clut; s16 w, h; } Sprt_80138368;
+extern Sprt_80138368 *D_800EC354_80138368 asm("D_800EC354");
+extern struct { u16 f_0; } D_8013FC80_80138368 asm("D_8013FC80");
+
+M2C_UNK func_80138368(M2C_UNK x, M2C_UNK y, M2C_UNK *str, M2C_UNK color) {
+    Sprt_80138368 *p = (Sprt_80138368 *)g_Game_80138368.prim;
+    u32 *ot = g_Game_80138368.ot;
+    u32 c;
+
+    for (; (c = *(u8 *)str) != 0; str = (M2C_UNK *)((u8 *)str + 1)) {
+        switch (c) {
+        case ' ':
+            x += 12; continue;
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+            c -= 0x30;
+            break;
+        case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
+        case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N':
+        case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U':
+        case 'V': case 'W': case 'X': case 'Y': case 'Z':
+            c -= 0x37;
+            break;
+        case 'a': case 'b': case 'c': case 'd':
+            c -= 0x39;
+            break;
+        case '.':
+            c = 0x24;
+            break;
+        case '?':
+            c = 0x26;
+            break;
+        case '!':
+            c = 0x27;
+            break;
+        }
+        p->col = color;
+        ((u8 *)p)[3] = 5;
+        p->tpage = 0xE1000239;
+        ((u8 *)p)[0xB] = 0x64;
+        p->x = x;
+        p->y = y;
+        p->u = (c % 10) * 12;
+        p->v = (c / 10) * 12 + 0x88;
+        p->w = 12;
+        p->h = 12;
+        p->clut = D_8013FC80_80138368.f_0;
+        ADD_PRIM_ASM(ot, p);
+        p++;
+        x += 12;
+    }
+    D_800EC354_80138368 = p;
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801384CC);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801385B8);
+typedef struct { u8 *a; u8 *b; u8 *c; u8 *d; } O_801385B8;
+
+void func_801385B8(O_801385B8 *out, u8 *b) {
+    out->a = b;
+    out->b = b + 0x18;
+    out->d = out->a + M2C_FIELD(out->a, u16 *, 0x10) * 4;
+    out->c = out->a + M2C_FIELD(out->a, u16 *, 0x14) * 4;
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801385F4);
 
@@ -835,7 +894,6 @@ void func_8013B92C();
 void func_80138934(void);
 void func_8013A548();
 void func_80139A74();
-void func_8013B14C();
 void func_801380E0(s16 arg0, s16 arg1, s32 arg2, s16 arg3);
 
 void func_80138C30(void) {
@@ -1078,7 +1136,23 @@ void func_8013966C(s16 *base, s16 *vel, s32 kind) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801396F4);
+void func_8013966C(s16 *base, s16 *vel, s32 kind);
+
+void func_801396F4(s32 *p, s16 *s, s32 c) {
+    s32 *w = (s32 *)0x1F800000;
+    s32 x0 = p[0];
+    s32 h0 = s[1] >> 6;
+    s32 x1, h1;
+
+    w[0x10] = x0 - h0;
+    w[0x14] = x0 + h0;
+    x1 = p[1];
+    h1 = s[0] >> 6;
+    w[0x11] = x1 + h1;
+    w[0x15] = x1 - h1;
+    func_8013966C((s16 *)0x1F800040, s, c);
+    func_8013966C((s16 *)0x1F800050, s, c);
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013978C);
 
@@ -1301,7 +1375,72 @@ void func_8013AFC0(s32 i) {
     func_8013AF14((u8 *)m);
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013B14C);
+extern struct { u8 pad0[0x1D]; u8 f_1D; u8 pad1E[0x1A]; u32 f_38; u8 pad3C[4]; s16 f_40; u8 pad42[0x13]; u8 f_55; u8 pad56[0x1A]; u32 f_70; u8 pad74[4]; s16 f_78; } D_8013FBF8_8013B14C asm("D_8013FBF8");
+extern struct { u8 pad0[0x28]; s32 f_28; } D_8013F3E0_8013B14C asm("D_8013F3E0");
+void func_8013B444_8013B14C() asm("func_8013B444");
+
+void func_8013B14C(void) {
+    u8 *buf = (u8 *)0x1F800000;
+    u32 q;
+    s32 sq;
+    u32 v;
+    s32 hi;
+    s32 i;
+
+    if (D_8013FBF8_8013B14C.f_38 > 99999999) {
+        D_8013FBF8_8013B14C.f_38 = 99999999;
+    }
+    if (D_8013FBF8_8013B14C.f_70 > 99999999) {
+        D_8013FBF8_8013B14C.f_70 = 99999999;
+    }
+    func_80138350(0);
+    v = D_8013FBF8_8013B14C.f_38;
+    buf[8] = 0;
+    if (D_8013F3E0_8013B14C.f_28 < v) {
+        D_8013F3E0_8013B14C.f_28 = v;
+    }
+    for (i = 7; i >= 0; i--) {
+        q = v % 10;
+        buf[i] = q + '0';
+        v /= 10;
+    }
+    func_80138368(0x10, 0x1A, (M2C_UNK *)buf, 0x808080);
+    func_80138350(1);
+    func_801384CC(0x22, 0x12, (M2C_UNK *)"PLAYER 1", 0x808080);
+    func_80138350(1);
+    v = D_8013FBF8_8013B14C.f_70;
+    buf[8] = 0;
+    if (D_8013F3E0_8013B14C.f_28 < v) {
+        D_8013F3E0_8013B14C.f_28 = v;
+    }
+    for (i = 7; i >= 0; i--) {
+        q = v % 10;
+        buf[i] = q + '0';
+        v /= 10;
+    }
+    func_80138368(0x106, 0x1A, (M2C_UNK *)buf, 0x808080);
+    func_80138350(0);
+    func_801384CC(0x118, 0x12, (M2C_UNK *)"PLAYER 2", 0x808080);
+    func_80138350(2);
+    hi = D_8013F3E0_8013B14C.f_28;
+    for (i = 7; i >= 0; i--) {
+        sq = hi % 10;
+        buf[i] = sq + '0';
+        hi /= 10;
+    }
+    func_80138368(0x90, 0x1A, (M2C_UNK *)buf, 0x808080);
+    func_801384CC(0x98, 0x12, (M2C_UNK *)"HIGH SCORE", 0x808080);
+    if (D_8013FBF8_8013B14C.f_1D != 0) {
+        for (i = 0; i < D_8013FBF8_8013B14C.f_40; i++) {
+            func_8013B444_8013B14C(0x10 + i * 0x18, 0x24);
+        }
+    }
+    if (D_8013FBF8_8013B14C.f_55 != 0) {
+        for (i = 0; i < D_8013FBF8_8013B14C.f_78; i++) {
+            func_8013B444_8013B14C(0x150 - i * 0x18, 0x24);
+        }
+    }
+}
 
 extern u8 g_Game[];
 

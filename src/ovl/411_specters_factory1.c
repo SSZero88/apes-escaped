@@ -161,7 +161,85 @@ s32 func_8013D4C0(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013D4FC);
+typedef struct { s16 x, y, z, vx, vy, vz, active, owner, grav, pad12; } Drip_8013D4FC;
+extern Drip_8013D4FC D_80141738_8013D4FC[4] asm("D_80141738");
+extern struct { u8 pad0[0x24]; s32 x, y, z; } g_Spike_8013D4FC asm("g_Spike");
+s32 func_8013D4C0(void);
+s32 rcos_8013D4FC(s32) asm("rcos");
+s32 rsin_8013D4FC(s32) asm("rsin");
+s32 Vec_Length_8013D4FC(s32, s32, s32) asm("Vec_Length");
+s32 VectorNormalSS_8013D4FC(void *, void *) asm("VectorNormalSS");
+void Object_PlaySound_8013D4FC(void *, s32) asm("Object_PlaySound");
+
+void func_8013D4FC(u8 *o, s16 side, s16 drop, s16 fwd, s32 aimed) {
+    Drip_8013D4FC *p;
+    s32 i;
+    s32 a;
+    s16 c;
+    s16 s;
+    s32 d;
+    s32 n;
+    s32 t;
+    s32 h;
+    SVECTOR v;
+
+    i = func_8013D4C0();
+    if (i == -1) {
+        return;
+    }
+    p = &D_80141738_8013D4FC[i];
+    a = (M2C_FIELD(o, s16 *, 0xAC) + 0x1000 + M2C_FIELD(o, s16 *, 0xB2)) % 0x1000;
+    c = rcos_8013D4FC(a);
+    s = rsin_8013D4FC(a);
+    { s32 cf = c * fwd; cf >>= 12; p->x = ((s * side) >> 12) + (M2C_FIELD(o, u16 *, 0x24) + cf); }
+    p->y = M2C_FIELD(o, u16 *, 0x28) - drop;
+    { s32 sf = (s * fwd) >> 12; p->z = ((-(c * side)) >> 12) + (M2C_FIELD(o, u16 *, 0x2C) + sf); }
+    p->active++;
+    d = Vec_Length_8013D4FC(g_Spike_8013D4FC.x - p->x, 0, g_Spike_8013D4FC.z - p->z);
+    if (aimed != 0) {
+        if (d > 0x400) {
+            v.vx = (u16)g_Spike_8013D4FC.x - p->x;
+            v.vy = 0;
+            v.vz = (u16)g_Spike_8013D4FC.z - p->z;
+            VectorNormalSS_8013D4FC(&v, &v);
+            p->vx = v.vx / 72;
+            p->vz = v.vz / 72;
+            n = d / 56;
+            p->grav = 1;
+            if (n == 0) {
+                p->vy = 0;
+            } else {
+                p->vy = (g_Spike_8013D4FC.y - (h = p->y + 0x80)) / n - n / 2;
+            }
+        } else {
+            v.vx = (u16)g_Spike_8013D4FC.x - p->x;
+            v.vy = -(p->y + 0x80) + g_Spike_8013D4FC.y;
+            v.vz = (u16)g_Spike_8013D4FC.z - p->z;
+            VectorNormalSS_8013D4FC(&v, &v);
+            p->vx = v.vx / 72;
+            p->vy = v.vy / 72;
+            p->vz = v.vz / 72;
+            p->grav = 0;
+        }
+    } else {
+        n = d / 85;
+        p->grav = 2;
+        p->vx = c / 48;
+        p->vz = s / 48;
+        if (n == 0) {
+            p->vy = 0;
+        } else {
+            h = p->y + 0x80;
+            t = g_Spike_8013D4FC.y - h;
+            if (t < -100) {
+                t = -100;
+            }
+            p->vy = t / n - n;
+        }
+    }
+    p->owner = M2C_FIELD(o, s8 *, 0xCB);
+    Object_PlaySound_8013D4FC(o, 0x77);
+}
 
 s32 func_8013D948(void *arg0) {
     return Floor_GetHeight(M2C_FIELD(arg0, s16 *, 0), M2C_FIELD(arg0, s16 *, 2), M2C_FIELD(arg0, s16 *, 4)) < M2C_FIELD(arg0, s16 *, 2);

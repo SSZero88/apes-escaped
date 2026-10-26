@@ -145,7 +145,69 @@ void func_80137D20(s32 row)
 
 INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80137DC4);
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80137F4C);
+extern GameDraw g_Game_80137F4C asm("g_Game");
+extern struct { u8 pad0[0x48]; s32 hidden; } D_80139B20_80137F4C asm("D_80139B20");
+extern u8 D_800E7D00_80137F4C[] asm("D_800E7D00");
+typedef struct { s16 frame, end; } Anim_80137F4C;
+typedef struct { u8 pad0[0x14]; s16 *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x2C]; u16 frame; u16 anim; s16 rx, ry, rz; u8 pad66[0xA]; s16 next; u16 flags; Anim_80137F4C *anims; s16 trx, try, trz, rsteps; s16 tx, ty, tz, steps; } Model_80137F4C;
+void VectorNormalSS(void *v0, void *v1);
+void func_80014804(s16 *, s16 *);
+void func_80015780(void *, s32);
+void Model_ProjectBonedVerts(void *);
+void func_80017CD4_80137F4C(void *, void *, void *) asm("func_80017CD4");
+
+void func_80137F4C(Model_80137F4C *base) {
+    Model_80137F4C *m;
+    SVECTOR v;
+    s32 i;
+    s32 n;
+    s32 bit;
+    s32 dx, dy, dz;
+    s32 x, y, z;
+    s32 k, px, py, pz;
+
+    for (i = 0; i < 5; i++) {
+        m = &base[i];
+        if (!(m->flags & 1)) {
+            continue;
+        }
+        bit = 1 << i;
+        if (D_80139B20_80137F4C.hidden & bit) {
+            continue;
+        }
+        n = m->rsteps;
+        if (n > 0) {
+            dx = (m->trx - m->rx) / n;
+            dy = (m->try - m->ry) / n;
+            dz = (m->trz - m->rz) / n;
+            m->rsteps = --n;
+            m->rx += dx;
+            m->ry += dy;
+            m->rz += dz;
+        }
+        k = m->steps;
+        if (k > 0) {
+            px = (m->tx - (x = m->x)) / k;
+            py = (m->ty - (y = m->y)) / k;
+            z = m->z;
+            pz = (m->tz - z) / k;
+            m->steps = --k;
+            m->x = x + px;
+            m->y = y + py;
+            m->z = z + pz;
+        }
+        VectorNormalSS(&m->rx, &v);
+        func_80014804((s16 *)&v, m->mat);
+        m->frame++;
+        if (m->anims[m->anim].end < m->frame) {
+            m->frame = m->anims[m->next].frame;
+            m->anim = m->next;
+        }
+        func_80015780(m, 1);
+        Model_ProjectBonedVerts(m);
+        func_80017CD4_80137F4C(g_Game_80137F4C.db[g_Game_80137F4C.cur].ot, D_800E7D00_80137F4C, m);
+    }
+}
 
 extern u8 *D_800EC354;
 typedef struct { u32 tag; u32 rgbc; s16 x0, y0; u8 u0, v0; u16 clut; } Sprt8_80138258;

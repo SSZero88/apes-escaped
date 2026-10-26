@@ -20,7 +20,6 @@ s32 VSync(s32 mode);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
 s32 func_80136A24(void);
-s32 func_801362B8();
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
@@ -78,7 +77,123 @@ s32 func_80136000(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/431/nonmatchings/431", func_801362B8);
+extern GameDraw g_Game_801362B8 asm("g_Game");
+extern u8 *D_800EC354_801362B8 asm("D_800EC354");
+extern u8 D_80136D18[12][0x20];
+s32 Text_GetWidth2(u8 *);
+void func_8008DDB0(s16, s16);
+void func_8008DDC8(u8 *);
+
+s32 func_801362B8(void) {
+    u8 *p = g_Game_801362B8.prim;
+    s32 w;
+    s32 x;
+    s32 t;
+    s32 w0, w1, w2;
+
+    if (D_80136CF0 == 0) {
+        func_8008DDB0(0x28, 0x46);
+        func_8008DDC8(D_80136D18[0]);
+        w0 = Text_GetWidth2(D_80136D18[0]);
+        x = w0 + 0x30;
+        func_8008DDB0(x, 0x46);
+        func_8008DDC8(D_80136D18[1]);
+        t = Text_GetWidth2(D_80136D18[1]);
+        w0 += 0x38;
+        x = w0 + t;
+        func_8008DDB0(x, 0x46);
+        func_8008DDC8(D_80136D18[2]);
+        t = Text_GetWidth2(D_80136D18[2]);
+        x += 8 + t;
+        func_8008DDB0(x, 0x46);
+        func_8008DDC8(D_80136D18[3]);
+
+        func_8008DDB0(0x28, 0x5A);
+        func_8008DDC8(D_80136D18[4]);
+        w1 = Text_GetWidth2(D_80136D18[4]);
+        x = w1 + 0x30;
+        func_8008DDB0(x, 0x5A);
+        func_8008DDC8(D_80136D18[5]);
+        t = Text_GetWidth2(D_80136D18[5]);
+        w1 += 0x38;
+        x = w1 + t;
+        func_8008DDB0(x, 0x5A);
+        func_8008DDC8(D_80136D18[6]);
+        t = Text_GetWidth2(D_80136D18[6]);
+        x += 8 + t;
+        func_8008DDB0(x, 0x5A);
+        func_8008DDC8(D_80136D18[7]);
+
+        func_8008DDB0(0x28, 0x6E);
+        func_8008DDC8(D_80136D18[8]);
+        w2 = Text_GetWidth2(D_80136D18[8]);
+        x = w2 + 0x30;
+        func_8008DDB0(x, 0x6E);
+        func_8008DDC8(D_80136D18[9]);
+        t = Text_GetWidth2(D_80136D18[9]);
+        w2 += 0x38;
+        x = w2 + t;
+        func_8008DDB0(x, 0x6E);
+        func_8008DDC8(D_80136D18[10]);
+        t = Text_GetWidth2(D_80136D18[10]);
+        x += 0xC + t;
+        func_8008DDB0(x, 0x6E);
+        func_8008DDC8(D_80136D18[11]);
+
+        p = g_Game_801362B8.prim;
+        M2C_FIELD(p, u32 *, 4) = 0x808080;
+        p[3] = 4;
+        p[7] = 0x64;
+        M2C_FIELD(p, s16 *, 0x8) = 0xC0;
+        M2C_FIELD(p, s16 *, 0xA) = 0x60;
+        M2C_FIELD(p, s16 *, 0x10) = 0xC0;
+        M2C_FIELD(p, s16 *, 0x12) = 0x80;
+        M2C_FIELD(p, u16 *, 0xE) = 0x3FD8;
+        p[0xC] = 0;
+        p[0xD] = 0;
+        { register u32 *ot asm("$3") = g_Game_801362B8.ot; ADD_PRIM_R(ot, p, "$4", "$2"); }
+        p += 0x14;
+        p[3] = 1;
+        M2C_FIELD(p, u32 *, 4) = 0xE1000286;
+        { register u32 *ot asm("$3") = g_Game_801362B8.ot; ADD_PRIM_R(ot, p, "$4", "$2"); }
+        p += 8;
+    } else {
+        M2C_FIELD(p, u32 *, 4) = 0x808080;
+        p[3] = 4;
+        p[7] = 0x64;
+        M2C_FIELD(p, s16 *, 0x8) = 0x20;
+        M2C_FIELD(p, s16 *, 0xA) = 0;
+        M2C_FIELD(p, s16 *, 0x10) = 0xFF;
+        M2C_FIELD(p, s16 *, 0x12) = 0xF0;
+        M2C_FIELD(p, u16 *, 0xE) = 0x3F98;
+        p[0xC] = 0;
+        p[0xD] = 0;
+        { register u32 *ot asm("$3") = g_Game_801362B8.ot; ADD_PRIM_R(ot, p, "$4", "$2"); }
+        p += 0x14;
+        p[3] = 1;
+        M2C_FIELD(p, u32 *, 4) = 0xE1000288;
+        { register u32 *ot asm("$3") = g_Game_801362B8.ot; ADD_PRIM_R(ot, p, "$4", "$2"); }
+        p += 8;
+        M2C_FIELD(p, u32 *, 4) = 0x808080;
+        p[3] = 4;
+        p[7] = 0x64;
+        M2C_FIELD(p, s16 *, 0x8) = 0x11F;
+        M2C_FIELD(p, s16 *, 0xA) = 0;
+        M2C_FIELD(p, s16 *, 0x10) = 0x40;
+        M2C_FIELD(p, s16 *, 0x12) = 0xF0;
+        M2C_FIELD(p, u16 *, 0xE) = 0x3F98;
+        p[0xC] = 0;
+        p[0xD] = 0;
+        { register u32 *ot asm("$3") = g_Game_801362B8.ot; ADD_PRIM_R(ot, p, "$4", "$2"); }
+        p += 0x14;
+        p[3] = 1;
+        M2C_FIELD(p, u32 *, 4) = 0xE100028A;
+        { register u32 *ot asm("$3") = g_Game_801362B8.ot; ADD_PRIM_R(ot, p, "$4", "$2"); }
+        p += 8;
+    }
+    D_800EC354_801362B8 = p;
+    return 0;
+}
 
 typedef struct { s16 x, y, w, h; } Rect_8013668C;
 extern Rect_8013668C D_80136CE0;

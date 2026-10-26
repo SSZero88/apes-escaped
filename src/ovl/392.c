@@ -273,7 +273,6 @@ void func_80138118(void);
 void func_801385B0();
 void func_80136000(SVECTOR *eye, SVECTOR *at);
 void func_80016F34(void);
-void func_801399A4();
 s32 Sound_PlayFixed(s32);
 void func_80139FB8();
 void func_8013A10C();
@@ -770,7 +769,56 @@ void func_80139248(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801394D0);
+extern struct { u8 pad0[4]; SprtTp *prim; u32 *ot; u8 padC[0x8120 - 0xC]; u16 f_8120; u8 pad8122[4]; u16 f_8126; } g_Game_801394D0 asm("g_Game");
+
+void func_801394D0(void) {
+    SprtTp *p;
+    u32 *ot;
+
+    p = g_Game_801394D0.prim;
+    ot = g_Game_801394D0.ot;
+    *(u32 *)&p->x0 = 0x1E001E;
+    switch (g_Game_801394D0.f_8126) {
+    case 0x13:
+        *(u32 *)&p->x0 = 0x1E003E;
+        ((u8 *)p)[3] = 5;
+        p->code = 0x67;
+        p->tpage = 0xE100022A;
+        *(u16 *)&p->u0 = 0;
+        p->clut = 0x3C2B;
+        *(u32 *)&p->w = 0x400100;
+        break;
+    case 0x24:
+        *(u32 *)&p->x0 = 0x1E003E;
+        ((u8 *)p)[3] = 5;
+        p->code = 0x67;
+        p->tpage = 0xE100022A;
+        *(u16 *)&p->u0 = 0x4000;
+        p->clut = 0x3C6B;
+        *(u32 *)&p->w = 0x400100;
+        break;
+    default:
+        ((u8 *)p)[3] = 5;
+        p->tpage = 0xE100022B;
+        p->code = 0x65;
+        *(u32 *)&p->w = 0x200100;
+        *(u32 *)&p->x0 = 0x1E001E;
+        switch (g_Game_801394D0.f_8120) {
+        case 0xA:
+            *(u16 *)&p->u0 = 0;
+            p->clut = 0x3C37;
+            break;
+        case 0x12:
+            *(u16 *)&p->u0 = 0x2000;
+            p->clut = 0x3637;
+            break;
+        }
+        break;
+    }
+    ADD_PRIM_ASM2(ot, p);
+    p++;
+    D_800EC354 = (u8 *)p;
+}
 
 extern struct S_g_Game g_Game;
 /* addPrim with hard a0 (lwl) / v0 (sll) temps and memory operands */
@@ -883,7 +931,97 @@ void func_801397F4(s32 x, s32 y, s32 val) {
     G_DRAW.prim = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801399A4);
+typedef struct { s16 start; s16 end; } Anim_801399A4;
+typedef struct { u8 *model; u8 pad4[0x10]; s32 f14; u8 pad18[0xC]; s32 px, py, pz; u8 pad30[0x2C]; u16 frame; u16 anim; SVECTOR rot; u8 pad68[8]; s16 next; u16 flags; Anim_801399A4 *anims; s16 trx, try_, trz, rsteps; s16 tpx, tpy, tpz, psteps; } Ent_801399A4;
+extern struct { u8 pad0[0x20]; u8 *f_20; u8 pad24[0x24]; s32 f_48; } D_8013B998_99A4 asm("D_8013B998");
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; u16 f_8120; } g_Game_801399A4 asm("g_Game");
+extern u8 D_8013B008[];
+extern u8 D_800EA060[];
+extern u8 D_800E7D00[];
+extern u8 D_800E9C80[];
+void VectorNormalSS(SVECTOR *, SVECTOR *);
+void func_80014804(SVECTOR *, s32);
+void func_80015780(void *, s32);
+void Model_ProjectBonedVerts(void *);
+s32 rsin(s32);
+void func_80139EE0(s32, s32, s32);
+void func_80017CD4(void *, void *, void *);
+void Model_DrawWireframe(void *, void *, void *);
+void Model_ProjectVertsAlt(void *, void *, void *);
+void func_80017EFC(void *, void *, void *, s32);
+
+void func_801399A4(Ent_801399A4 *arr) {
+    Ent_801399A4 *e;
+    SVECTOR v;
+    s32 i;
+    s32 n;
+    s32 dx, dy, dz;
+    s32 s;
+    s32 x, y, z;
+    s32 k, px, py, pz;
+
+    for (i = 0; i < 5; i++) {
+        e = &arr[i];
+        if (!(e->flags & 1)) {
+            continue;
+        }
+        n = e->rsteps;
+        if (n > 0) {
+            dx = (e->trx - e->rot.vx) / n;
+            dy = (e->try_ - e->rot.vy) / n;
+            dz = (e->trz - e->rot.vz) / n;
+            e->rsteps = --n;
+            e->rot.vx += dx;
+            e->rot.vy += dy;
+            e->rot.vz += dz;
+        }
+        k = e->psteps;
+        if (k > 0) {
+            px = (e->tpx - (x = e->px)) / k;
+            py = (e->tpy - (y = e->py)) / k;
+            z = e->pz;
+            pz = (e->tpz - z) / k;
+            e->psteps = --k;
+            e->px = x + px;
+            e->py = y + py;
+            e->pz = z + pz;
+        }
+        VectorNormalSS(&e->rot, &v);
+        func_80014804(&v, e->f14);
+        e->frame++;
+        if (e->anims[e->anim].end < e->frame) {
+            if (e->next != -1) {
+                e->frame = e->anims[e->next].start;
+                e->anim = e->next;
+            } else {
+                e->frame--;
+            }
+        }
+        func_80015780(e, 1);
+        Model_ProjectBonedVerts(e);
+        if (e->flags & 2) {
+            if (g_Game_801399A4.f_8120 == 0x17) {
+                continue;
+            }
+            if (D_8013B998_99A4.f_20 == D_8013B008) {
+                s = rsin(g_Game_801399A4.frame << 4) / 80 + 0x96;
+            } else {
+                s = rsin(g_Game_801399A4.frame << 4) / 50 + 0x8C;
+            }
+            func_80139EE0(1, *(u16 *)(e->model + 6), s);
+            func_80017CD4(g_Game_801399A4.ot, D_800EA060, e);
+            func_80139EE0(0, *(u16 *)(e->model + 6), s);
+            Model_DrawWireframe(g_Game_801399A4.ot, D_800EA060, e);
+            func_80139E0C(s);
+        } else {
+            func_80017CD4((u32 *)(g_Game_801399A4.cur * 0x4078 + ((u8 *)&g_Game_801399A4 + 0x80)), D_800E7D00, e);
+            if (D_8013B998_99A4.f_48 != 0) {
+                Model_ProjectVertsAlt(D_800B4D64 + 0x80, D_800E9C80, D_800E7D00);
+                func_80017EFC(g_Game_801399A4.ot, D_800E7D00, D_800B4D64 + 0x80, 0);
+            }
+        }
+    }
+}
 
 typedef struct { s16 x, y, w, h; } Rect_80139E0C;
 void SetDrawMove(void *, Rect_80139E0C *, s32, s32);

@@ -23,7 +23,30 @@ M2C_UNK func_800525E0();
 M2C_UNK func_80052864(void *);
 void func_8013E5FC(void *arg0);
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013D000);
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; u8 pad2E[6]; s32 h; } g_Spike_8013D000 asm("g_Spike");
+void func_80047558(void *, s32, s32, s32);
+void func_80047464(void *, s32, s32, s32);
+
+void func_8013D000(void *arg0) {
+    u16 x = g_Spike_8013D000.x;
+    SVECTOR *s = (SVECTOR *)0x1F800000;
+    u16 y = g_Spike_8013D000.y;
+    u16 z = g_Spike_8013D000.z;
+    s32 h;
+
+    s[2].vx = x;
+    s[2].vy = y;
+    s[2].vz = z;
+    h = g_Spike_8013D000.h;
+    s[1].vx = x - 0x100;
+    s[1].vy = -(h + 0x60) + y;
+    s[1].vz = z;
+    s[0].vx = x + 0x100;
+    s[0].vz = z;
+    s[0].vy = -(h * 4 + 0x60) + y;
+    func_80047558(arg0, 3, 3, 3);
+    func_80047464(arg0, 3, 3, 3);
+}
 
 void func_8013D0A0(void) {
     D_80142A60 = 0;
@@ -203,7 +226,29 @@ void func_8013D4BC(u8 *o) {
     func_8013D3D0(o);
 }
 
-INCLUDE_ASM("asm/ovl/409/nonmatchings/409_dexters_island", func_8013D72C);
+typedef struct { s32 x, y, z; u8 pad0C[0x14]; s16 f20, f22, f24, f26; } Col_8013D72C;
+typedef struct { s16 x, y, z; } SV_8013D72C;
+extern Col_8013D72C D_80142CA0_8013D72C asm("D_80142CA0");
+extern SV_8013D72C D_80142CD8_8013D72C asm("D_80142CD8");
+s32 Collision_Set(s32, void *, void *);
+void func_8007CD88(void *);
+
+void func_8013D72C(void *arg0) {
+    Col_8013D72C *c = &D_80142CA0_8013D72C;
+    s32 dz = (M2C_FIELD(arg0, s16 *, 0x64) * 0x19) >> 6;
+    D_80142CA0_8013D72C.x = M2C_FIELD(arg0, s32 *, 0x24) + ((M2C_FIELD(arg0, s16 *, 0x60) * 0x19) >> 6);
+    c->y = M2C_FIELD(arg0, s32 *, 0x28);
+    c->z = M2C_FIELD(arg0, s32 *, 0x2C) + dz;
+    c->f24 = 0;
+    c->f26 = -0x4000;
+    c->f20 = 0x2BC;
+    c->f22 = 0x59C;
+    Collision_Set(4, c, arg0);
+    D_80142CD8_8013D72C.x = D_80142CA0_8013D72C.x;
+    D_80142CD8_8013D72C.y = c->y - 0x2CE;
+    D_80142CD8_8013D72C.z = c->z;
+    func_8007CD88(&D_80142CD8_8013D72C);
+}
 
 void func_8013D7FC(void *arg0) {
     if (((u32) D_80142CA0.f_2C >> 0x1C) == 0xB) {

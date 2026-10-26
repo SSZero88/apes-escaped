@@ -723,7 +723,30 @@ void func_8013E7D8(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E82C);
+typedef struct { u8 pad0[0x28]; s32 f_28; u8 pad2C[0x54]; u8 f_80; u8 pad81[0xE]; u8 f_8F; u8 pad90[4]; s16 f_94; s16 f_96; s16 f_98; } Obj_8013E82C;
+s16 Object_FloorAt(void *, s16, s16, s16);
+
+void func_8013E82C(Obj_8013E82C *a) {
+    s16 h;
+
+    h = Object_FloorAt(a, 0, 0, 0);
+    a->f_96 += 7;
+    Object_ApplyVelocity(a);
+    if (h < a->f_28) {
+        a->f_28 = h;
+        if (a->f_8F == 2) {
+            a->f_80 = a->f_8F;
+            a->f_96 = 0;
+            func_8005588C(a, 0x28);
+        } else {
+            a->f_96 = -a->f_96 / 3;
+            a->f_8F++;
+            a->f_94 /= 2;
+            a->f_98 /= 2;
+            Object_PlaySound(a, 0x51);
+        }
+    }
+}
 
 void func_8013E934(void *arg0, void *arg1) {
     void *temp_a2;
@@ -821,7 +844,6 @@ s32 func_8013EBE8(void *arg0, void *arg1) {
 }
 
 void func_8013E7D8(void *arg0);
-void func_8013E82C();
 void func_8013EA8C(u8 *a);
 void func_8013EB8C(void *arg0);
 s32 func_8013EBE8(void *arg0, void *arg1);
