@@ -1,7 +1,31 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-INCLUDE_ASM("asm/ovl/389/nonmatchings/389", func_80146000);
+extern s32 D_80146770;
+s32 func_8014607C(void);
+s32 func_80146500(void);
+
+s32 func_80146000(void) {
+    s32 s;
+
+    D_80146770 = 0;
+    for (;;) {
+        s = D_80146770;
+    again:
+        switch (s) {
+        case 0:
+            if (func_8014607C() < 0) {
+                return 0;
+            }
+            break;
+        case 1:
+            func_80146500();
+            break;
+        default:
+            goto again;
+        }
+    }
+}
 
 typedef struct { s16 x, y, w, h; } Rect_8014607C;
 typedef struct { u8 pad0[0x19]; u8 r0, g0, b0; } DrawEnv_8014607C;

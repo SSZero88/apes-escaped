@@ -519,7 +519,67 @@ void func_8013ED18(s16 *pos) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013EE1C);
+typedef struct { u8 pad_0[4]; s16 x, y, z; u8 active; u8 f_B; s16 vx, vy, vz; u8 pad_12[2]; } Deb_8013EE1C;
+extern Deb_8013EE1C D_80144570_8013EE1C[] asm("D_80144570");
+void Sound_PlayFixed_8013EE1C(s32) asm("Sound_PlayFixed");
+void func_8006D548(void *);
+
+void func_8013EE1C(void *o) {
+    Deb_8013EE1C *d;
+    s32 i;
+    s32 n;
+    s32 played;
+    SVECTOR v;
+
+    played = 0;
+    for (i = 1, d = D_80144570_8013EE1C; i >= 0; i--, d++) {
+        if (d->active == 0) {
+            continue;
+        }
+        d->x += d->vx;
+        d->y += d->vy;
+        d->z += d->vz;
+        switch (d->active) {
+        case 1:
+            d->vx = d->vx * 31 / 32;
+            d->vy += 5;
+            if (d->y >= -0x1020) {
+                d->y = -0x1020;
+                d->vx = 0;
+                d->vy = 0;
+                d->vz = -0x30 - (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x1F);
+                d->active = 2;
+                Sound_PlayFixed_8013EE1C(0x94);
+            }
+            Effect_Spawn(0xCF, (s32)&d->x, &D_80143718, 0);
+            func_8006D548(&d->x);
+            break;
+        case 2:
+            Camera_StartShake(0);
+            if (d->z < -0x200) {
+                d->active = 0;
+            }
+            for (n = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 1) + 1; n >= 0; n--) {
+                v.vx = d->x + ((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) << 2);
+                v.vy = d->y;
+                v.vz = d->z;
+                Effect_Spawn((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 1) + 0xCF, (s32)&v, &D_80143718, 0);
+            }
+            if ((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x1F) == 0 && played == 0) {
+                played = 1;
+                Sound_PlayFixed_8013EE1C(0x95);
+            }
+            d->x -= 0x280;
+            func_8013D3EC((void *)d, o, 0x100, 0x200, 0x200);
+            d->x += 0x280;
+            func_8013D3EC((void *)d, o, 0x100, 0x200, 0x200);
+            d->x += 0x280;
+            func_8013D3EC((void *)d, o, 0x100, 0x200, 0x200);
+            d->x -= 0x280;
+            break;
+        }
+    }
+}
 
 void func_8013F130(void) {
     M2C_UNK *var_s1;
@@ -551,7 +611,29 @@ void func_8013F190(void) {
     } while (var_v1 >= 0);
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013F1B4);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x4A]; s16 f_7A, f_7C, f_7E; u8 f_80, f_81; u8 pad82[2]; } Blast_8013F1B4;
+extern Blast_8013F1B4 D_80144598_8013F1B4[1] asm("D_80144598");
+void Effect_SpawnAt(s32, SVECTOR *);
+
+void func_8013F1B4(s16 *p) {
+    s32 i;
+    Blast_8013F1B4 *b;
+
+    for (i = 0, b = D_80144598_8013F1B4; i < 1; i++, b++) {
+        if (b->f_80 == 0) {
+            b->f_80 = 1;
+            b->x = p[0];
+            b->y = p[1];
+            b->z = p[2];
+            b->f_7A = 0;
+            b->f_7C = 0;
+            b->f_7E = 0;
+            b->f_81 = 0;
+            Effect_SpawnAt(0x113, (SVECTOR *)p);
+            return;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013F240);
 

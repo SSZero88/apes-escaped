@@ -233,7 +233,42 @@ void func_8013DCD4(void *arg0) {
     func_80070284(&v, D_801411D0, 1, 0, 0);
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013DD24);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x2C]; s16 f5C; u8 pad5E[2]; s16 f60, f62, f64, f66; u8 pad68[8]; s16 vx, vy, vz; s16 wx, wy, wz; s16 rx, ry, rz; s16 life; } Debris_8013DD24;
+extern Debris_8013DD24 D_80141908_8013DD24[] asm("D_80141908");
+M2C_UNK func_80052038(void *, M2C_UNK);
+void func_800520A8(void *, s32);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; } Obj_8013DD24;
+
+void func_8013DD24(Obj_8013DD24 *o) {
+    s32 i;
+    Debris_8013DD24 *d;
+    s32 k;
+
+    for (i = 0; i < 7; i++) {
+        d = &D_80141908_8013DD24[i];
+        k = i + 0x8F;
+        func_80052038(d, k);
+        func_800520A8(d, k);
+        d->f5C = 0;
+        d->f62 = 0;
+        d->f60 = 0;
+        d->f64 = 0x1000;
+        d->f66 = 3;
+        d->x = o->x + ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) - 0x80;
+        d->y = o->y - ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8);
+        d->z = o->z + ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) - 0x80;
+        d->vx = (s32)(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 4;
+        d->vz = (s32)(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 4;
+        d->vy = -(s32)((g_RandSeed = g_RandSeed * 5 + 1) >> 8) / 4 - 0x40;
+        d->wx = (s32)((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 6) << 12) / 360;
+        d->wy = (s32)((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 6) << 12) / 360;
+        d->wz = (s32)((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 6) << 12) / 360;
+        d->rz = 0;
+        d->ry = 0;
+        d->rx = 0;
+        d->life = 1;
+    }
+}
 
 typedef struct { s16 x, y, z; } Rot_8013E010;
 typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 wx, wy, wz; Rot_8013E010 r; s16 life; } Debris_8013E010;
@@ -1177,7 +1212,72 @@ s32 func_80140B78(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_80140B84);
+extern s32 D_800EC204;
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; u8 pad_30[0x16]; s16 h; } g_Spike_80140B84 asm("g_Spike");
+void *CollShape_Alloc(void);
+s32 Collision_Set(s32, void *, void *);
+u32 Geo_ProjectOnLine_80140B84(s16 *, s16 *, s16, s32 *) asm("Geo_ProjectOnLine");
+
+s32 func_80140B84(s16 *p) {
+    SVECTOR v;
+    s32 out[3];
+    s16 a[4];
+    s16 b[4];
+    s16 i;
+    s16 ang;
+    u8 *c;
+
+    if (p[6] < 0) {
+        return 0;
+    }
+    p[3] += p[5];
+    if (p[3] > 0x1000) {
+        p[3] -= 0x1000;
+    } else if (p[3] < 0) {
+        p[3] += 0x1000;
+    }
+    v.vz = 0;
+    v.vy = 0;
+    v.vx = p[3];
+    RotMatrixZYX(&v, M2C_FIELD(D_800B4D64 + p[6] * 32, void **, 0x1C));
+    if (p[9] < ABS(M2C_FIELD(D_800B4D64 + p[6] * 32, s16 *, 0x10) - D_800EC204)) {
+        return 0;
+    }
+    a[0] = M2C_FIELD(D_800B4D64 + p[6] * 32, u16 *, 0x14);
+    a[1] = M2C_FIELD(D_800B4D64 + p[6] * 32, u16 *, 0x12);
+    b[0] = g_Spike_80140B84.z;
+    b[1] = g_Spike_80140B84.y - g_Spike_80140B84.h / 2;
+    for (i = 0; i < 2; i++) {
+        ang = p[3] + (i << 16 >> 6);
+        if (ang > 0x1000) {
+            ang -= 0x1000;
+        }
+        if (Geo_ProjectOnLine_80140B84(a, b, -ang, out) <= p[8] && out[2] < p[7]) {
+            v.vx = g_Spike_80140B84.x - M2C_FIELD(D_800B4D64 + p[6] * 32, u16 *, 0x10);
+            v.vy = g_Spike_80140B84.y - out[1];
+            v.vz = g_Spike_80140B84.z - out[0];
+            VectorNormalSS(&v, &v);
+            i = 1;
+            if (M2C_FIELD(D_800B4D64 + p[6] * 32, s16 *, 0x10) < g_Spike_80140B84.x) {
+                i = -1;
+            }
+            c = CollShape_Alloc();
+            if (c == NULL) {
+                break;
+            }
+            *(SVECTOR *)(c + 0x18) = v;
+            M2C_FIELD(c, s32 *, 0) = g_Spike_80140B84.x + (i << 16 >> 10);
+            M2C_FIELD(c, s32 *, 4) = g_Spike_80140B84.y;
+            M2C_FIELD(c, s32 *, 8) = g_Spike_80140B84.z;
+            M2C_FIELD(c, s16 *, 0x20) = p[7];
+            M2C_FIELD(c, s16 *, 0x24) = 1;
+            M2C_FIELD(c, s16 *, 0x26) = 0x203;
+            Collision_Set(6, c, 0);
+            return 0;
+        }
+    }
+    return 0;
+}
 
 extern struct S_g_Game_80140E68 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_80140E68 asm("g_Game");
 extern u8 *D_800B4D64;

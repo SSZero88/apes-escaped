@@ -60,7 +60,47 @@ void func_8013D000(void *arg0) {
     func_80047464(arg0, 0x10, 0x10, 0x10);
 }
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D16C);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x2C]; u16 frame; u8 pad5E[2]; s16 r0, r1, r2, r3; u8 pad68[8]; s16 vx, vy, vz; s16 wx, wy, wz; s16 rx, ry, rz; u8 f82; u8 life; } Piece_8013D16C;
+extern Piece_8013D16C D_80140BC8[];
+extern struct { s32 x; s32 y; s32 z; } D_80140B80_8013D16C asm("D_80140B80");
+extern u16 g_RandSeed;
+extern u16 D_800AE8F2;
+void func_800520A8(void *, s32);
+void Hook_Add(void *);
+void func_8013D488();
+
+void func_8013D16C(void *a) {
+    s32 i;
+    s32 k;
+    Piece_8013D16C *p;
+
+    for (i = 0; i < 16; i++) {
+        p = &D_80140BC8[i];
+        k = (i & 1) + 0xA1;
+        func_80052038(p, k);
+        func_800520A8(p, k);
+        p->r2 = 0x1000;
+        p->frame = 0;
+        p->r1 = 0;
+        p->r0 = 0;
+        p->r3 = 3;
+        p->x = D_80140B80_8013D16C.x + ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) - 0x80;
+        p->y = D_80140B80_8013D16C.y - ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8);
+        p->z = D_80140B80_8013D16C.z + ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) - 0x80;
+        p->vx = (s32)(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 4;
+        p->vz = (s32)(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 4;
+        p->vy = -(s32)((g_RandSeed = g_RandSeed * 5 + 1) >> 8) / 4 - 0x40;
+        p->wx = (s32)((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 20) << 12) / 360;
+        p->wy = (s32)((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 20) << 12) / 360;
+        p->wz = (s32)((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 20) << 12) / 360;
+        p->rz = 0;
+        p->ry = 0;
+        p->rx = 0;
+        p->life = 60;
+        p->f82 = M2C_FIELD(a, u8 *, 0xCB);
+    }
+    Hook_Add(func_8013D488);
+}
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013D488);
 
@@ -112,7 +152,6 @@ void func_8013D81C(void *arg0) {
 extern u8 D_80140B80_8013D870[] asm("D_80140B80");
 s32 Collision_GetShape(s32);
 s32 func_800525A0(void *, s32);
-void func_8013D16C(void *);
 
 void func_8013D870(u8 *a) {
     u8 *c;

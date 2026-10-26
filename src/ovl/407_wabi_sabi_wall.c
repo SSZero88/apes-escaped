@@ -456,7 +456,77 @@ void func_8013E6F8(u8 *o) {
     Object_SetForwardVelocity(o, M2C_FIELD(o, s16 *, 0xC6) >> 3);
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E7E8);
+typedef struct { u16 start; u16 end; } Rng_8013E7E8;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; } Spike_8013E7E8;
+extern Spike_8013E7E8 g_Spike_8013E7E8 asm("g_Spike");
+extern s32 D_800EC208;
+void func_80055E6C(void *, s16);
+void func_80055F1C(void *, s32);
+void Object_ApplyVelocity(void *);
+void func_8013E358(void *arg0);
+void func_8013E3AC(void *arg0);
+void func_8013E51C(u8 *a, s32 y);
+s32 func_8013E604(void *a);
+void func_8013E6F8(u8 *o);
+
+void func_8013E7E8(u8 *o) {
+    Spike_8013E7E8 *sp;
+
+    if (!((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1)) {
+        M2C_FIELD(o, s16 *, 0x48) = 1;
+        M2C_FIELD(o, s16 *, 0x4A) = 0x103;
+        M2C_FIELD(o, s16 *, 0xA0) = 0x32;
+        M2C_FIELD(o, s16 *, 0x44) = 0x96;
+        M2C_FIELD(o, s16 *, 0x46) = 0x82;
+        M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(o, u8 *, 0xCD) = 2;
+        M2C_FIELD(o, u8 *, 0xDC) = 5;
+        M2C_FIELD(o, s16 *, 0xA8) = 0;
+        func_80055F1C(o, 0xC);
+        func_8013E5C4(o);
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    func_80058134(o, M2C_FIELD(o, s16 *, 0x44));
+    func_8013E358(o);
+    switch (M2C_FIELD(o, u8 *, 0x80)) {
+    case 1:
+        func_80055E6C(o, 0xC);
+        func_8013E51C(o, M2C_FIELD(o, s16 *, 0x9C));
+        Object_ApplyVelocity(o);
+        if (!func_8005588C(o, -1) && Spike_WithinRadiusXZ(M2C_FIELD(o, s32 *, 0x24), M2C_FIELD(o, s32 *, 0x2C), 0x500)) {
+            sp = &g_Spike_8013E7E8;
+            if (Object_FloorAt(o, 0, 0, 0) >= sp->y && M2C_FIELD(o, s32 *, 0x28) < sp->y) {
+                M2C_FIELD(o, u8 *, 0x80) = 2;
+                M2C_FIELD(o, s16 *, 0xC6) = 0;
+            }
+        }
+        break;
+    case 2:
+        func_8013E6F8(o);
+        func_8013E51C(o, D_800EC208 - 0x200);
+        Object_ApplyVelocity(o);
+        func_8013E604(o);
+        break;
+    case 5:
+        func_8013E6F8(o);
+        func_8013E51C(o, D_800EC208 - 0x200);
+        Object_ApplyVelocity(o);
+        if (!func_8013E604(o) && !func_8005588C(o, -1)) {
+            if (M2C_FIELD(o, u8 *, 0x7F) == 1) {
+                if (M2C_FIELD(o, u16 *, 0x5C) == M2C_FIELD(o, Rng_8013E7E8 **, 0x88)[M2C_FIELD(o, u8 *, 0x7F)].start + 0x13) {
+                    func_8013E3AC(o);
+                }
+                if (M2C_FIELD(o, u16 *, 0x5C) >= M2C_FIELD(o, Rng_8013E7E8 **, 0x88)[M2C_FIELD(o, u8 *, 0x7F)].end) {
+                    func_8013E5C4(o);
+                }
+            } else if (M2C_FIELD(o, u16 *, 0x5C) >= M2C_FIELD(o, Rng_8013E7E8 **, 0x88)[M2C_FIELD(o, u8 *, 0x7F)].end) {
+                M2C_FIELD(o, u8 *, 0x7F) = 1;
+                M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, Rng_8013E7E8 **, 0x88)[1].start;
+            }
+        }
+        break;
+    }
+}
 
 void func_8013EA9C(void *arg0) {
     if (M2C_FIELD(arg0, s8 *, 0x7C) == -1) {
@@ -754,7 +824,86 @@ s32 func_8013F3F8(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013F584);
+extern struct { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x1C]; u16 f_8120; u8 pad_8122[0x2E]; u16 f_8150; u8 pad_8152[0xBA]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013F584 asm("g_Game");
+extern struct { u8 pad_0[0x24]; s32 x; u8 pad_28[4]; s32 z; } g_Spike_8013F584 asm("g_Spike");
+extern u8 *D_800B4D64_8013F584 asm("D_800B4D64");
+void CamFlyby_StartSegment(s32);
+
+s32 func_8013F584(s16 *p) {
+    u8 *t;
+    s16 *e;
+    s32 d;
+    s32 dx;
+    s32 dz;
+
+    switch (p[1]) {
+    case 0:
+        if (p[5] >= 0) {
+            t = g_Game_8013F584.f_8220 + p[5] * 0x18;
+            e = (s16 *)(g_Game_8013F584.f_820C + M2C_FIELD(t, s16 *, 4) * 0x38);
+            dx = e[0] - g_Spike_8013F584.x;
+            dz = e[2] - g_Spike_8013F584.z;
+            d = dx * dx + dz * dz;
+            if (p[3] == 0) {
+                if (d < p[8] * p[8]) {
+                    p[3] = 1;
+                }
+            } else if (p[8] * p[8] < d) {
+                if (e[2] < g_Spike_8013F584.z) {
+                    M2C_FIELD(t, s16 *, 2) = 2;
+                    if (e[7] >= 0) {
+                        M2C_FIELD(D_800B4D64_8013F584 + e[7] * 32, u16 *, 0x16) = 0xFFFF;
+                    }
+                    p[1] = 1;
+                }
+                p[3] = 0;
+            }
+        }
+        break;
+    case 1:
+        if (p[4] >= 0) {
+            t = g_Game_8013F584.f_8220 + p[4] * 0x18;
+            if (M2C_FIELD(t, s16 *, 6) != 0 && g_Game_8013F584.f_8150 == 8) {
+                p[1] = 2;
+                p[3] = 0;
+            }
+        }
+        break;
+    case 2:
+        if (g_Game_8013F584.f_8150 == 0) {
+            if (p[6] >= 0) {
+                t = g_Game_8013F584.f_8220 + p[6] * 0x18;
+                M2C_FIELD(t, s16 *, 2) = 1;
+                e = (s16 *)(g_Game_8013F584.f_820C + M2C_FIELD(t, s16 *, 4) * 0x38);
+                if (e[7] >= 0) {
+                    M2C_FIELD(D_800B4D64_8013F584 + e[7] * 32, u16 *, 0x16) = 0xFFFF;
+                }
+                M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+            }
+            if (p[7] >= 0) {
+                t = g_Game_8013F584.f_8220 + p[7] * 0x18;
+                M2C_FIELD(t, s16 *, 2) = 1;
+                e = (s16 *)(g_Game_8013F584.f_820C + M2C_FIELD(t, s16 *, 4) * 0x38);
+                if (e[7] >= 0) {
+                    M2C_FIELD(D_800B4D64_8013F584 + e[7] * 32, u16 *, 0x16) = 0xFFFF;
+                }
+                M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+            }
+            if (p[5] >= 0) {
+                t = g_Game_8013F584.f_8220 + p[5] * 0x18;
+                M2C_FIELD(t, s16 *, 2) = 5;
+            }
+            func_8004BD0C();
+            p[1] = 3;
+            if (g_Game_8013F584.f_8120 != 0x13) {
+                CamFlyby_StartSegment(0);
+                g_Game_8013F584.f_8100 = 7;
+            }
+        }
+        break;
+    }
+    return 0;
+}
 
 s32 func_8013F8D4(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0xE) = 0x100;
@@ -766,7 +915,103 @@ s32 func_8013F8D4(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013F8FC);
+typedef struct { s16 f0, state, f4, timer; s16 len[5]; } Gate_8013F8FC;
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013F8FC asm("g_Game");
+extern u8 *D_800B4D64_8013F8FC asm("D_800B4D64");
+s32 func_8013FC68(s16 a0, s16 *pos, s32 n, s32 len);
+void func_800147D0(void *, void *);
+
+s32 func_8013F8FC(s16 *p) {
+    s16 *e;
+    u8 *m;
+    s32 k;
+    s16 j;
+    SVECTOR v;
+
+    e = (s16 *)(g_Game_8013F8FC.f_820C + p[2] * 0x38);
+    m = D_800B4D64_8013F8FC;
+    M2C_FIELD(m + p[5] * 32, s16 *, 0x10) = e[0];
+    M2C_FIELD(m + p[5] * 32, s16 *, 0x12) = e[1] - e[4];
+    M2C_FIELD(m + p[5] * 32, s16 *, 0x14) = e[2] + e[3];
+    M2C_FIELD(m + p[6] * 32, s16 *, 0x10) = e[0];
+    M2C_FIELD(m + p[6] * 32, s16 *, 0x12) = e[1] - e[4];
+    M2C_FIELD(m + p[6] * 32, s16 *, 0x14) = e[2] - e[3];
+    switch (p[1]) {
+    case 0:
+        p[3] = 0x2AA;
+        p[9] = 0x2A;
+        p[1] = p[10];
+        break;
+    case 1:
+    case 3:
+        k = 4;
+        if (p[1] == 1) {
+            k = 3;
+        }
+        ((Gate_8013F8FC *)p)->len[k] += p[9];
+        if (((Gate_8013F8FC *)p)->len[k] >= p[3]) {
+            ((Gate_8013F8FC *)p)->len[k] = p[3];
+            if (k == 3) {
+                p[1] = 2;
+            } else {
+                p[1] = 4;
+            }
+        }
+        break;
+    case 2:
+    case 4:
+        k = 4;
+        if (p[1] == 2) {
+            k = 3;
+        }
+        ((Gate_8013F8FC *)p)->len[k] -= p[9];
+        if (((Gate_8013F8FC *)p)->len[k] <= 0x100) {
+            ((Gate_8013F8FC *)p)->len[k] = 0x100;
+            if (p[3] == 0x2AA) {
+                p[1] = 5;
+                p[3] = 0x14;
+                p[10] = k;
+            } else {
+                p[1] = 6;
+                p[3] = 0x23;
+                if (k == 3) {
+                    p[10] = k;
+                } else {
+                    p[10] = 1;
+                }
+            }
+        }
+        break;
+    case 5:
+        if (--p[3] < 0) {
+            j = 3;
+            if (p[10] == 3) {
+                j = 1;
+            }
+            p[3] = 0x1000;
+            p[1] = j;
+            p[9] = 0x199;
+            Sound_PlayAt_8013EFB0(0xAD, e);
+        }
+        break;
+    case 6:
+        if (--p[3] < 0) {
+            p[1] = 0;
+            p[3] = 0;
+        }
+        break;
+    }
+    func_8013FC68(p[3], (s16 *)(D_800B4D64_8013F8FC + p[5] * 32 + 0x10), -1, p[7]);
+    func_8013FC68(p[3], (s16 *)(D_800B4D64_8013F8FC + p[6] * 32 + 0x10), 1, p[8]);
+    v.vy = 0x1000;
+    v.vx = 0x1000;
+    v.vz = p[7];
+    func_800147D0(&v, M2C_FIELD(D_800B4D64_8013F8FC + p[5] * 32, void **, 0x1C));
+    v.vz = p[8];
+    func_800147D0(&v, M2C_FIELD(D_800B4D64_8013F8FC + p[6] * 32, void **, 0x1C));
+    return 0;
+}
+__asm__(".section .rodata\n\t.align 3\n\t.section .text");
 
 typedef struct { s32 x, y, z; u8 pad_C[0xC]; SVECTOR rot; s16 f_20; s16 pad_22; s16 f_24; s16 f_26; } Shape_8013FC68;
 extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013FC68 asm("g_Spike");
@@ -1188,7 +1433,44 @@ s32 func_801409C8(u8 *a) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_80140B58);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_80140B58 asm("g_Game");
+void Model_SetTurnAngle(s32, s32, s32);
+#define SHOW_80140B58(k, i) k = (i); if (k >= 0) { u8 *e_ = g_Game_80140B58.f_820C + k * 0x38; M2C_FIELD(e_, u16 *, 0x18) = (M2C_FIELD(e_, u16 *, 0x18) & 0xFFF0) | 1; }
+#define HIDE_80140B58(k, i) k = (i); if (k >= 0) { u8 *e_ = g_Game_80140B58.f_820C + k * 0x38; M2C_FIELD(e_, u16 *, 0x18) |= 0x8000; }
+
+s32 func_80140B58(s16 *p) {
+    s32 a, b, c, d, e, f;
+    s32 k;
+    s32 k2;
+
+    a = (u16)p[6] >> 8;
+    b = (u16)p[6] & 0xFF;
+    c = (u16)p[7] >> 8;
+    d = (u16)p[7] & 0xFF;
+    e = (u16)p[8] >> 8;
+    f = (u16)p[8] & 0xFF;
+    if (p[5] == 0) {
+        p[1] = 0;
+        SHOW_80140B58(k, a);
+        HIDE_80140B58(k, b);
+        SHOW_80140B58(k, c);
+        SHOW_80140B58(k, d);
+        HIDE_80140B58(k2, e);
+        HIDE_80140B58(k2, f);
+        p[3] = 0;
+    } else {
+        p[1] = 2;
+        HIDE_80140B58(k, a);
+        SHOW_80140B58(k, b);
+        HIDE_80140B58(k, c);
+        HIDE_80140B58(k, d);
+        SHOW_80140B58(k2, e);
+        SHOW_80140B58(k2, f);
+        p[3] = 0x400;
+        Model_SetTurnAngle(p[4], p[9], 0x400);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_80140EB0);
 

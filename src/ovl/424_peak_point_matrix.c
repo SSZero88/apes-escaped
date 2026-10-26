@@ -432,7 +432,22 @@ INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013E4B4);
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013E8A8);
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013EA24);
+extern struct { u8 pad0[8]; u8 f_8; s8 f_9; s16 f_A; } D_80142320_8013EA24 asm("D_80142320");
+M2C_UNK Collision_Remove(void *);
+
+void func_8013EA24(void) {
+    u8 *e = (u8 *)&D_80142338;
+
+    if (D_80142320_8013EA24.f_8 == 0) {
+        Collision_Remove(e + 0x24);
+        D_80142320_8013EA24.f_8 = 1;
+        D_80142320_8013EA24.f_9 = 2;
+        D_80142320_8013EA24.f_A = 0x10;
+        Pad_Vibrate(1, 0xC8, 3);
+        Sound_PlayFixed(0x37);
+        Sound_PlayFixed(0x38);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013EA9C);
 

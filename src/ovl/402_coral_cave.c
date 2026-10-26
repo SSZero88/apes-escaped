@@ -295,7 +295,106 @@ void func_8013E004(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0x2C) = (s32) (M2C_FIELD(arg0, s32 *, 0x2C) - ((s32) (M2C_FIELD(arg0, s16 *, 0x64) * temp_v0) >> 0xC));
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013E068);
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[6]; u16 z; } g_Spike_8013E068 asm("g_Spike");
+void Object_PlaceAtPathPoint(void *, s32);
+void func_8005866C(void *, s32);
+void Object_TurnToward(void *, s16, s16, s32, s32);
+void func_8013D850(void *arg0);
+s32 func_8013DC34(u8 *o, s32 a);
+s32 func_8013DDA8_8013E068(void *, s16) asm("func_8013DDA8");
+void func_8013DE0C(void *arg0, s32 k, s16 r);
+void func_8013DEA8(void *arg0);
+void func_8013DF8C(void *arg0);
+void func_8013E004(void *arg0);
+
+void func_8013E068(u8 *o) {
+    s32 end;
+    s32 f;
+    s32 k;
+
+    if (!((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1)) {
+        M2C_FIELD(o, s16 *, 0xB0) = 0x16;
+        M2C_FIELD(o, s16 *, 0xA0) = 0x64;
+        M2C_FIELD(o, s16 *, 0x44) = 0xC8;
+        M2C_FIELD(o, s16 *, 0x48) = 1;
+        M2C_FIELD(o, s16 *, 0x4A) = -0x7EFF;
+        M2C_FIELD(o, s16 *, 0x46) = 0;
+        M2C_FIELD(o, s16 *, 0xAC) = 0;
+        M2C_FIELD(o, s16 *, 0xA8) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x1000;
+        M2C_FIELD(o, u32 *, 0xE0) |= 0x200;
+        M2C_FIELD(o, s16 *, 0xA4) = M2C_FIELD(o, s16 *, 0xA6);
+        M2C_FIELD(o, s16 *, 0xA6) -= 0x190;
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x80000;
+        if (M2C_FIELD(o, u16 *, 0x8C)) {
+            Object_PlaceAtPathPoint(o, 0);
+            func_8005866C(o, 1);
+            M2C_FIELD(o, u8 *, 0x8E) = 0;
+            M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
+        }
+        func_8013D850(o);
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    switch (M2C_FIELD(o, u8 *, 0x80)) {
+    case 1:
+        if (M2C_FIELD(o, s16 *, 0xA8) != 0) {
+            M2C_FIELD(o, s16 *, 0xA8) -= 0x14;
+        }
+        if (!func_8013DC34(o, (M2C_FIELD(o, s16 *, 0xA8) >> 3) + 0x21) && func_8013D8BC(o)) {
+            M2C_FIELD(o, u8 *, 0x80) = 3;
+            M2C_FIELD(o, u8 *, 0x7F) = 2;
+            M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, u16 **, 0x88)[4];
+        }
+        break;
+    case 3:
+        end = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2);
+        f = M2C_FIELD(o, u16 *, 0x5C);
+        if (f < end - 0x19) {
+            if (!M2C_FIELD(o, u16 *, 0x8C)) {
+                Object_TurnToward(o, g_Spike_8013E068.x - M2C_FIELD(o, u16 *, 0x24), g_Spike_8013E068.z - M2C_FIELD(o, u16 *, 0x2C), 0, 0x5B);
+            }
+        } else {
+            if (f < end - 0xF) {
+                k = (end - f) * 3 + 0x21;
+            } else {
+                k = 0x21;
+            }
+            if (func_8013DDA8_8013E068(o, k)) {
+                break;
+            }
+            func_8013DE0C(o, 0x190, 0xC8);
+        }
+        func_8013DEA8(o);
+        if (M2C_FIELD(o, u16 *, 0x5C) >= *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) {
+            M2C_FIELD(o, u8 *, 0x80) = 4;
+            M2C_FIELD(o, u8 *, 0x7F) = 0;
+            M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
+        }
+        break;
+    case 4:
+        func_8013DDA8_8013E068(o, 0x21);
+        break;
+    case 2:
+        func_8013DF8C(o);
+        if (M2C_FIELD(o, u16 *, 0x5C) >= *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88)) + 0x23) {
+            func_8013DF04(o);
+            M2C_FIELD(o, u8 *, 0x80) = 5;
+            M2C_FIELD(o, s16 *, 0xA8) = 0x280;
+        }
+        break;
+    case 5:
+        func_8013E004(o);
+        if (M2C_FIELD(o, u16 *, 0x5C) >= *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) {
+            func_8013D850(o);
+            M2C_FIELD(o, u8 *, 0x80) = 1;
+            M2C_FIELD(o, u8 *, 0x7F) = 0;
+            M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
+        }
+        break;
+    }
+}
 
 void func_8013E3A0(void *arg0) {
     M2C_FIELD(arg0, u8 *, 0x80) = 3;
@@ -1105,7 +1204,78 @@ s32 func_80140900(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_80140984);
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; } g_Spike_80140984 asm("g_Spike");
+void func_80055E6C(void *, s16);
+void func_80055F1C(void *, s32);
+s32 Object_SpikeInFront(void *, s32, s32, s32);
+void func_80054220(void *);
+void func_801406A8(void *arg0);
+void func_801406F8(void *arg0);
+void func_80140718(void *arg0);
+void func_801407DC(u8 *a);
+s32 func_80140900(void *arg0);
+
+void func_80140984(u8 *o) {
+    if (!((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1)) {
+        M2C_FIELD(o, s16 *, 0xA0) = 0x32;
+        M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(o, s16 *, 0x44) = 0x3C;
+        M2C_FIELD(o, s16 *, 0x48) = 0x201;
+        M2C_FIELD(o, s16 *, 0x4A) = -0x7EFD;
+        M2C_FIELD(o, s16 *, 0x46) = 0x64;
+        M2C_FIELD(o, u8 *, 0xCD) = 1;
+        M2C_FIELD(o, u8 *, 0xDC) = 1;
+        M2C_FIELD(o, s16 *, 0x9C) -= 200;
+        M2C_FIELD(o, s32 *, 0x28) = M2C_FIELD(o, s16 *, 0x9C);
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x1000;
+        M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
+        func_80055F1C(o, 8);
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    func_80058134(o, M2C_FIELD(o, s16 *, 0x44));
+    if (func_80140900(o)) {
+        return;
+    }
+    switch (M2C_FIELD(o, u8 *, 0x80)) {
+    case 1:
+        func_80055E6C(o, 8);
+        Object_SeekHeight(o, 8);
+        func_801406F8(o);
+        if (!func_8005588C(o, -1) && Object_SpikeInFront(o, 0x168, -0x1000, 0x400)) {
+            func_801406A8(o);
+        }
+        break;
+    case 2:
+        Object_TurnToward(o, g_Spike_80140984.x - M2C_FIELD(o, u16 *, 0x24), g_Spike_80140984.z - M2C_FIELD(o, u16 *, 0x2C), 0, 0x1000);
+        if (M2C_FIELD(o, u16 *, 0x5C) >= M2C_FIELD(o, u16 **, 0x88)[M2C_FIELD(o, u8 *, 0x7F) * 2 + 1] - 10) {
+            M2C_FIELD(o, u8 *, 0x80) = 3;
+            M2C_FIELD(o, s16 *, 0xA8) = 0;
+            M2C_FIELD(o, u32 *, 0xE0) |= 0x10000;
+            M2C_FIELD(o, u16 *, 0xBC) = g_Spike_80140984.x;
+            M2C_FIELD(o, u16 *, 0xC0) = g_Spike_80140984.z;
+            M2C_FIELD(o, u16 *, 0xBE) = g_Spike_80140984.y - 200;
+            M2C_FIELD(o, u8 *, 0x8F) = 0;
+        }
+        break;
+    case 3:
+        if (M2C_FIELD(o, u8 *, 0x8F) < 3 && ++M2C_FIELD(o, u8 *, 0x8F) == 3) {
+            Object_PlaySound_801407DC(o, 0xA6);
+        }
+        func_801407DC(o);
+        if (Object_FloorAt(o, 0, 0, 0) < M2C_FIELD(o, s32 *, 0x28)) {
+            func_8014061C(o);
+        } else if (M2C_FIELD(o, u16 *, 0x5C) >= M2C_FIELD(o, u16 **, 0x88)[M2C_FIELD(o, u8 *, 0x7F) * 2 + 1] && M2C_FIELD(o, u8 *, 0x7F) == 2) {
+            M2C_FIELD(o, u8 *, 0x7F) = 4;
+            M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, u16 **, 0x88)[8];
+        }
+        break;
+    case 4:
+        func_80140718(o);
+        break;
+    }
+    func_80054220(o);
+}
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_80140C78 asm("g_Game");
 s32 Model_SetTurnAngle_80140C78(s16, s16, s32) asm("Model_SetTurnAngle");

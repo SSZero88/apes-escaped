@@ -115,7 +115,116 @@ void func_8013D2B0(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0xAC) = (s16) (var_v1 - ((var_v0 >> 0xC) << 0xC));
 }
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013D368);
+extern u16 g_RandSeed;
+extern s32 D_8013F7F4[];
+M2C_UNK func_8005588C(void *, M2C_UNK);
+s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
+void Object_DisableCollision(void *);
+void Object_EnableCollision(void *);
+void Object_PlaceAtPathPoint(void *, s32);
+s32 func_800585D0(void *, s32, s32, s32);
+void Object_StepOnGroundFixed(void *);
+void Object_StepOnGround(void *, s32);
+void Object_SetForwardVelocity(void *, s16);
+s32 Object_WouldLeaveHome(void *, s32);
+void Object_SpawnEffect(void *, s32, s32, s32, s32);
+s32 Object_DetachLink(void *, s32);
+s32 rcos_8013D9C4(s32) asm("rcos");
+s32 rsin_8013D9C4(s32) asm("rsin");
+void func_8013D2B0(void *arg0);
+
+void func_8013D368(u8 *o) {
+    if (!((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1)) {
+        M2C_FIELD(o, s16 *, 0xA0) = 0x32;
+        M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(o, s16 *, 0x44) = 0x78;
+        M2C_FIELD(o, s16 *, 0x46) = 0x118;
+        M2C_FIELD(o, u8 *, 0xCD) = 2;
+        M2C_FIELD(o, u8 *, 0x81) = 0xC;
+        M2C_FIELD(o, u8 *, 0xDC) = 0xA;
+        M2C_FIELD(o, s16 *, 0xA8) = 0;
+        M2C_FIELD(o, u8 *, 0xC8) = 0;
+        M2C_FIELD(o, s16 *, 0x48) = 1;
+        M2C_FIELD(o, s16 *, 0x4A) = -0x7DFD;
+        M2C_FIELD(o, u8 *, 0x80) = 1;
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
+        Object_DisableCollision(o);
+        Object_PlaceAtPathPoint(o, 0);
+        func_8005866C(o, 1);
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x40;
+        M2C_FIELD(o, u8 *, 0x8E) = 1;
+        M2C_FIELD(o, u8 *, 0x8F) = 0;
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    func_80058134(o, M2C_FIELD(o, s16 *, 0x44));
+    switch (M2C_FIELD(o, u8 *, 0x80)) {
+    case 1:
+        if (Spike_WithinRadiusXZ(M2C_FIELD(o, s16 *, 0x9A), M2C_FIELD(o, s16 *, 0x9E), M2C_FIELD(o, s16 *, 0xA4))) {
+            M2C_FIELD(o, u8 *, 0x80) = 2;
+            M2C_FIELD(o, u8 *, 0xC8) = 6;
+            M2C_FIELD(o, u8 *, 0x8F) = 0;
+            Object_EnableCollision(o);
+        }
+        break;
+    case 2:
+        if (func_800585D0(o, 0x28, 0, 0)) {
+            M2C_FIELD(o, s16 *, 0xAE) = 0;
+            func_8013D2B0(o);
+            M2C_FIELD(o, u8 *, 0x80) = 3;
+        } else {
+            Object_StepOnGroundFixed(o);
+        }
+        break;
+    case 3:
+        if (M2C_FIELD(o, u16 *, 0x5C) == *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88))) {
+            Object_PlaySound(o, D_8013F7F4[((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 1]);
+        }
+        Object_SetForwardVelocity(o, 0x28);
+        Object_StepOnGroundFixed(o);
+        if (!func_8005588C(o, -1) && Object_WouldLeaveHome(o, -0x1F4)) {
+            M2C_FIELD(o, u8 *, 0x80) = 4;
+            M2C_FIELD(o, u8 *, 0x7F) = 1;
+            M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, u16 **, 0x88)[2];
+            Object_PlaySound(o, 0x98);
+            M2C_FIELD(o, s16 *, 0xA8) = 0x140;
+        }
+        break;
+    case 4:
+        if (M2C_FIELD(o, s16 *, 0xA8) != 0) {
+            M2C_FIELD(o, s16 *, 0xA8) -= 10;
+            if (M2C_FIELD(o, s16 *, 0xA8) < 0) {
+                M2C_FIELD(o, s16 *, 0xA8) = 0;
+            }
+            Object_SetForwardVelocity(o, M2C_FIELD(o, s16 *, 0xA8) >> 3);
+            Object_StepOnGround(o, 0x64);
+        }
+        if (M2C_FIELD(o, u16 *, 0x5C) >= *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) {
+            M2C_FIELD(o, u8 *, 0x80) = 3;
+            M2C_FIELD(o, u8 *, 0x7F) = 0;
+            M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
+            func_8013D2B0(o);
+            M2C_FIELD(o, s16 *, 0x60) = rcos_8013D9C4(M2C_FIELD(o, s16 *, 0xAC));
+            M2C_FIELD(o, s16 *, 0x64) = rsin_8013D9C4(M2C_FIELD(o, s16 *, 0xAC));
+            func_8005588C(o, 0x1E);
+        }
+        break;
+    }
+    if (M2C_FIELD(o, u8 *, 0x80) != 1) {
+        Object_SpawnEffect(o, 5, -((M2C_FIELD(o, s16 *, 0x60) * 25) >> 9), 0, -((M2C_FIELD(o, s16 *, 0x64) * 25) >> 9));
+        if (Object_DetachLink(o, 0) == 6) {
+            Object_DisableCollision(o);
+            M2C_FIELD(o, u8 *, 0x8F) = 0x3C;
+        }
+        if (M2C_FIELD(o, u8 *, 0x8F)) {
+            if (--M2C_FIELD(o, u8 *, 0x8F) == 0) {
+                Object_EnableCollision(o);
+            }
+        } else if (!((M2C_FIELD(o, u32 *, 0xE0) >> 2) & 1)) {
+            M2C_FIELD(o, s32 *, 0xB4) = Object_AddAttackSphereNear(o, M2C_FIELD(o, u16 *, 0x44) + 0x32, M2C_FIELD(o, s16 *, 0x1C), M2C_FIELD(o, s16 *, 0x1E), M2C_FIELD(o, s16 *, 0x20), M2C_FIELD(o, s16 *, 0x48), M2C_FIELD(o, s16 *, 0x4A));
+        }
+    }
+}
 
 typedef struct { u8 pad[0xE4]; } Obj_8013D77C;
 typedef struct { u8 pad0[0x10]; s8 a; s8 b; s8 c; u8 pad13; } Slot_8013D77C;
@@ -360,7 +469,74 @@ void func_8013E9EC(void *arg0, M2C_UNK arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/406/nonmatchings/406_sushi_temple", func_8013EA38);
+void func_8013E9EC(void *arg0, M2C_UNK arg1);
+extern u16 D_800AE8F2;
+extern u32 D_8013F7E8[];
+extern s32 D_8013F6A0[];
+extern s32 D_800B1F1C[];
+void Effect_Spawn(s32, s16 *, u32 *, s16 **);
+void Object_ApplyVelocity(void *);
+void Object_PlaceRandomAroundHome(void *, s16);
+s16 Object_FloorAt(void *, s16, s16, s16);
+void func_80070284(SVECTOR *, void *, s32, s32, s32);
+typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; u8 pad30[0x14]; s16 f44, f46, f48, f4A; u8 pad4C[0x10]; u16 frame; u8 pad5E[0x21]; u8 anim; u8 pad80[8]; u16 *anims; u8 pad8C[8]; s16 vx, vy, vz; u8 pad9A[2]; s16 floor; u8 pad9E[2]; s16 fA0; u8 padA2[4]; s16 fA6; u8 padA8[8]; s16 fB0; u8 padB2[0x17]; u8 timer; u8 padCA[0x16]; u32 b0:1, b1:1, b2:1, b3:1; } Obj_8013EA38;
+
+void func_8013EA38(Obj_8013EA38 *e) {
+    SVECTOR v;
+    s32 i;
+    s32 fl;
+
+    if (!e->b3) {
+        e->fA0 = 0x32;
+        e->fB0 = 0x5B;
+        e->f48 = 0x201;
+        e->f4A = -0x7DFE;
+        e->f46 = 1;
+        e->f44 = 1;
+        Object_PlaceRandomAroundHome(e, 0x64);
+        e->vy = -0x78 - (s32)((u32)(((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) * 5) >> 5);
+        e->anim = 0;
+        e->y += 0x64;
+        e->frame = e->anims[0];
+        e->b3 = 1;
+    }
+    e->vy += 4;
+    Object_ApplyVelocity(e);
+    if (!e->b2) {
+        v.vx = e->x;
+        v.vy = e->y;
+        v.vz = e->z;
+        Object_AddAttackSphereNear(e, 0x64, e->x, e->y, (s16)e->z, e->f48, e->f4A);
+        Effect_Spawn(0xC8, &v.vx, D_8013F7E8, 0);
+        Effect_Spawn(0xC8, &v.vx, D_8013F7E8, 0);
+        if (!(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 7)) {
+            Effect_Spawn(0xC9, &v.vx, D_8013F7E8, 0);
+        }
+    }
+    if (e->timer == 0) {
+        fl = Object_FloorAt(e, 0, 0, 0);
+        if (fl < e->y) {
+            v.vx = e->x;
+            v.vy = fl;
+            v.vz = e->z;
+            func_80070284(&v, D_8013F6A0, 1, 0, 0);
+            func_80070284(&v, D_800B1F1C, 1, 0, 0);
+            for (i = 0; i < 0x10; i++) {
+                Effect_Spawn(0xCA, &v.vx, D_8013F7E8, 0);
+            }
+            Object_PlaceRandomAroundHome(e, e->fA6);
+            e->vz = 0;
+            e->vx = 0;
+            e->y = e->floor;
+            e->vy = -0x78 - (s32)((u32)(((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) * 5) >> 5);
+            func_8005588C(e, 0x1E);
+            func_8013E9EC(e, 0x94);
+            func_8013E9EC(e, 0x43);
+        }
+    } else {
+        e->timer--;
+    }
+}
 
 s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
 void func_8006D548(SVECTOR *);

@@ -7,7 +7,101 @@ INCLUDE_ASM("asm/ovl/386/nonmatchings/386_title_menu", func_80136000);
 
 INCLUDE_ASM("asm/ovl/386/nonmatchings/386_title_menu", func_8013654C);
 
-INCLUDE_ASM("asm/ovl/386/nonmatchings/386_title_menu", func_8013674C);
+extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x158]; SVECTOR eye; SVECTOR at; } g_Game_8013674C asm("g_Game");
+extern u8 D_80137850_8013674C[] asm("D_80137850");
+typedef struct { u8 *mesh; u8 pad4[0xC]; } Part_8013674C;
+extern Part_8013674C D_801379A0_8013674C[] asm("D_801379A0");
+typedef struct { s16 m[3][3]; s32 t[3]; } MAT_8013674C;
+extern MAT_8013674C D_800E9C60_8013674C[] asm("D_800E9C60");
+extern struct { u8 pad0[0xC0]; MAT_8013674C mat; } D_800F4730_8013674C asm("D_800F4730");
+extern u8 g_CameraTarget[];
+extern u8 D_800F45B0[];
+extern u8 D_800E78C0[];
+extern u8 D_800EC330[];
+extern u8 D_800E7D00_8013674C[] asm("D_800E7D00");
+s32 rsin(s32);
+s32 rcos(s32);
+void Camera_LookAt(void *, void *, void *, void *, s32);
+void func_80014804(s16 *, s16 *);
+void func_80015780(void *, s32);
+void Model_ProjectBonedVerts(void *);
+void func_80017CD4_8013674C(void *, void *, void *) asm("func_80017CD4");
+void func_80017D94_8013674C(void *, void *, void *, s32) asm("func_80017D94");
+void Shadow_Draw(void *, s32, s32, s32);
+void *RotMatrixZYX(void *r, void *m);
+void CompMatrix(void *, void *, void *);
+void Model_ProjectVerts(void *, void *, void *);
+void *ApplyMatrixSV(void *m, void *v0, void *v1);
+void Monkey_DrawHelmetLight(SVECTOR *, s32, s32);
+void func_8013654C(void);
+
+void func_8013674C(void) {
+    MAT_8013674C mat;
+    SVECTOR r;
+    SVECTOR v;
+    u8 *m;
+
+    m = D_80137850_8013674C;
+    g_Game_8013674C.at.vx = 0;
+    g_Game_8013674C.at.vy = -0xFA;
+    g_Game_8013674C.at.vz = 0;
+    g_Game_8013674C.eye.vx = rsin(g_Game_8013674C.frame * 8) / 5;
+    g_Game_8013674C.eye.vy = (rsin(g_Game_8013674C.frame * 4) >> 2) - 0x500;
+    g_Game_8013674C.eye.vz = rcos(g_Game_8013674C.frame * 8) / 5;
+    Camera_LookAt(g_CameraTarget, D_800F45B0, D_800E78C0, D_800EC330, 0);
+
+    M2C_FIELD(m, s32 *, 0x24) = 0;
+    M2C_FIELD(m, s32 *, 0x28) = 0;
+    M2C_FIELD(m, s32 *, 0x2C) = 0x200;
+    func_80014804((s16 *)(m + 0x60), M2C_FIELD(m, s16 **, 0x14));
+    M2C_FIELD(m, u16 *, 0x5C)++;
+    if (*(s16 *)(M2C_FIELD(m, u8 **, 0x74) + M2C_FIELD(m, u16 *, 0x5E) * 4 + 2) < M2C_FIELD(m, u16 *, 0x5C)) {
+        M2C_FIELD(m, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(m, u8 **, 0x74) + M2C_FIELD(m, s16 *, 0x70) * 4);
+        M2C_FIELD(m, u16 *, 0x5E) = M2C_FIELD(m, u16 *, 0x70);
+    }
+    func_80015780(m, 1);
+    Model_ProjectBonedVerts(m);
+    func_80017CD4_8013674C(g_Game_8013674C.ot, D_800E7D00_8013674C, m);
+    Shadow_Draw(m + 0x24, M2C_FIELD(m, s32 *, 0x28), 0x60, 0);
+    m += 0x88;
+
+    r.vx = 0x400;
+    r.vy = 0x400;
+    r.vz = 0;
+    RotMatrixZYX(&r, &mat);
+    mat.t[0] = 0;
+    mat.t[1] = 0;
+    mat.t[2] = 0;
+    CompMatrix(&D_800E9C60_8013674C[*(u16 *)(D_801379A0_8013674C[0].mesh + 4)], &mat, &mat);
+    Model_ProjectVerts(&D_801379A0_8013674C[0], &mat, D_800E7D00_8013674C);
+    func_80017CD4_8013674C(g_Game_8013674C.ot, D_800E7D00_8013674C, &D_801379A0_8013674C[0]);
+
+    M2C_FIELD(m, s32 *, 0x24) = 0;
+    M2C_FIELD(m, s32 *, 0x28) = 0;
+    M2C_FIELD(m, s32 *, 0x2C) = -0x200;
+    func_80014804((s16 *)(m + 0x60), M2C_FIELD(m, s16 **, 0x14));
+    M2C_FIELD(m, u16 *, 0x5C)++;
+    if (*(s16 *)(M2C_FIELD(m, u8 **, 0x74) + M2C_FIELD(m, u16 *, 0x5E) * 4 + 2) < M2C_FIELD(m, u16 *, 0x5C)) {
+        M2C_FIELD(m, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(m, u8 **, 0x74) + M2C_FIELD(m, s16 *, 0x70) * 4);
+        M2C_FIELD(m, u16 *, 0x5E) = M2C_FIELD(m, u16 *, 0x70);
+    }
+    func_80015780(m, 3);
+    Model_ProjectBonedVerts(m);
+    func_80017D94_8013674C(g_Game_8013674C.ot, D_800E7D00_8013674C, m, 0x400);
+    Model_ProjectVerts(&D_801379A0_8013674C[1], &D_800E9C60_8013674C[*(u16 *)(D_801379A0_8013674C[1].mesh + 4)], D_800E7D00_8013674C);
+    func_80017CD4_8013674C(g_Game_8013674C.ot, D_800E7D00_8013674C, &D_801379A0_8013674C[1]);
+    Shadow_Draw(m + 0x24, M2C_FIELD(m, s32 *, 0x28), 0x40, 0);
+
+    v.vx = 0;
+    v.vy = 100;
+    v.vz = 0;
+    ApplyMatrixSV(&D_800F4730_8013674C.mat, &v, &v);
+    v.vx += D_800F4730_8013674C.mat.t[0];
+    v.vy += D_800F4730_8013674C.mat.t[1] + 0xDC;
+    v.vz += D_800F4730_8013674C.mat.t[2];
+    Monkey_DrawHelmetLight(&v, 2, 1);
+    func_8013654C();
+}
 
 typedef struct { u8 pad0[0x18]; u8 *f_18; u8 pad1C[0x40]; s16 f_5C; s16 f_5E; s16 f_60; s16 f_62; s16 f_64; u8 pad66[0xA]; s16 f_70; s16 f_72; u8 *f_74; u8 pad78[0x10]; } Obj_80136AC0;
 typedef struct { u8 pad0[0x10]; } Spr_80136AC0;

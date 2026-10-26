@@ -25,7 +25,6 @@ void func_80138350(s32 arg0);
 M2C_UNK func_801384CC(s32, s32, M2C_UNK *, M2C_UNK);
 extern M2C_UNK D_8013EF8C;
 M2C_UNK func_80138368(M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK);
-M2C_UNK func_8013E940(M2C_UNK, M2C_UNK, s32);
 extern M2C_UNK D_8013EB60;
 extern M2C_UNK D_8013EB6C;
 extern M2C_UNK D_8013EFC8;
@@ -332,7 +331,47 @@ void func_80137874(void) {
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80137934);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80137F50);
+extern GameDraw g_Game_80137F50 asm("g_Game");
+extern SprtTp *D_800EC354_80137F50 asm("D_800EC354");
+extern u16 D_800AE8F2_80137F50 asm("D_800AE8F2");
+extern u8 D_8013F048[];
+
+void func_80137F50(s32 x, s32 y, u8 *s, s32 pal) {
+    SprtTp *p;
+    u32 *ot;
+    u32 c;
+    p = (SprtTp *)g_Game_80137F50.prim;
+    c = *s;
+    ot = g_Game_80137F50.ot;
+
+    for (; c != 0; c = *s) {
+        ((u8 *)&p->tag)[3] = 5;
+        p->tpage = 0xE1000226;
+        p->code = 0x67;
+        D_800AE8F2_80137F50 = D_800AE8F2_80137F50 * 5 + 1;
+        p->x0 = x;
+        p->clut = (pal << 6) | 0x1B;
+        p[1].clut = 0xDB;
+        p->w = 16; p[1].w = 16;
+        p->h = 16; p[1].h = 16;
+        p->y0 = y - ((D_800AE8F2_80137F50 >> 8) & 1);
+        p[1].u0 = p->u0 = (c & 0xF) << 4;
+        p[1].v0 = p->v0 = c & 0xF0;
+        ADD_PRIM_ASM_DW(ot, p);
+        p++;
+        ((u8 *)&p->tag)[3] = 5;
+        p->code = 0x67;
+        p->tpage = 0xE1000246;
+        p->x0 = x + 2;
+        D_800AE8F2_80137F50 = D_800AE8F2_80137F50 * 5 + 1;
+        p->y0 = y - (((D_800AE8F2_80137F50 >> 8) & 1) - 2);
+        ADD_PRIM_ASM(ot, p);
+        p++;
+        s++;
+        x += D_8013F048[c];
+    }
+    D_800EC354_80137F50 = p;
+}
 
 void func_801380B4(void) {
     s32 var_v1;
@@ -405,9 +444,41 @@ void func_80138110(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013825C);
+typedef struct { s32 f_0; s16 f_4, f_6, f_8, f_A; } Pop_8013825C;
+extern Pop_8013825C D_8013FC98_8013825C[6] asm("D_8013FC98");
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801382C0);
+void func_8013825C(s16 x, s16 y, s32 v, s32 c) {
+    s32 i;
+    Pop_8013825C *e;
+
+    for (e = D_8013FC98_8013825C, i = 0; i < 6; i++, e++) {
+        if (e->f_8 <= 0) {
+            e->f_0 = v;
+            e->f_4 = x;
+            e->f_6 = y;
+            e->f_8 = 0x3C;
+            e->f_A = ((0xF1 - c) << 6) | 0x37;
+            return;
+        }
+    }
+}
+
+extern struct { u16 f_0; } D_8013FC80_801382C0 asm("D_8013FC80");
+typedef struct { s32 f_0; s16 f_4, f_6, f_8, f_A; } Pop_801382C0;
+extern Pop_801382C0 D_8013FC98_801382C0[6] asm("D_8013FC98");
+
+void func_801382C0(void) {
+    s32 i;
+    Pop_801382C0 *e;
+
+    for (e = D_8013FC98_801382C0, i = 0; i < 6; i++, e++) {
+        if (e->f_8 != 0) {
+            e->f_8--;
+            D_8013FC80_801382C0.f_0 = e->f_A;
+            func_801384CC(e->f_4, e->f_6, (M2C_UNK *)e->f_0, 0x808080);
+        }
+    }
+}
 
 void func_80138350(s32 arg0) {
     D_8013FC80.f_0 = ((arg0 + 0xF0) << 6) | 0x37;
@@ -525,7 +596,6 @@ void func_80069BEC(void);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 void func_801380B4(void);
 void func_80138110(void);
-void func_801382C0();
 void func_80138860();
 void func_801389E4(void);
 void func_80139888();
@@ -534,7 +604,6 @@ void func_8013B4B4(void);
 void func_8013B890(void);
 void func_8013B92C();
 void func_80138934(void);
-void func_8013A6CC();
 void func_8013A548();
 void func_80139A74();
 void func_8013B14C();
@@ -726,11 +795,59 @@ void func_801394A4(void) {
     } while (var_v0 >= 0);
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801394C8);
+typedef struct { s16 x, z, f_4; u8 f_6, f_7; s16 dx, dz; } Spark_801394C8;
+extern Spark_801394C8 *D_8013FCE4_801394C8 asm("D_8013FCE4");
+extern s32 D_8013F3F0;
+
+void func_801394C8(s16 *pos, s16 *vel, s32 kind) {
+    s32 i;
+    s32 n;
+    Spark_801394C8 *e;
+
+    e = D_8013FCE4_801394C8;
+    n = (D_8013F3F0 << 5) / 100;
+    if (n > 32) {
+        n = 32;
+    }
+    for (i = 0; i < n; i++, e++) {
+        if (e->f_7 == 0) {
+            *(s32 *)&e->dx = *(s32 *)vel;
+            e->f_7 = 1;
+            e->f_6 = kind;
+            e->x = pos[0];
+            e->z = pos[2];
+            e->f_4 = 0xA40;
+            e->dx = vel[0];
+            e->dz = vel[1];
+            if (vel[0] == 0 && vel[1] == 0) {
+                e->dz = 0x1000;
+            }
+            return;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801395B8);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013966C);
+typedef struct { s16 x, z, f_4; u8 f_6, f_7; s32 vel; } Spark_8013966C;
+extern Spark_8013966C *D_8013FCE0_8013966C asm("D_8013FCE0");
+
+void func_8013966C(s16 *base, s16 *vel, s32 kind) {
+    s32 i;
+    Spark_8013966C *e;
+
+    for (e = D_8013FCE0_8013966C, i = 0; i < 24; i++, e++) {
+        if (e->f_7 == 0) {
+            e->vel = *(s32 *)vel;
+            e->f_7 = 1;
+            e->f_6 = kind;
+            e->x = base[0] + (vel[0] >> 5);
+            e->z = base[2] + (vel[1] >> 5);
+            e->f_4 = 0xA40;
+            return;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801396F4);
 
@@ -759,7 +876,30 @@ INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013A2C8);
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013A548);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013A6CC);
+extern s32 *D_8013FBD8_8013A6CC[] asm("D_8013FBD8");
+extern s32 D_8013FBE0_8013A6CC[] asm("D_8013FBE0");
+extern s32 D_8013FD94_8013A6CC[] asm("D_8013FD94");
+extern s32 D_8013FE08_8013A6CC[] asm("D_8013FE08");
+extern struct { u8 pad0[0x1D]; u8 f_1D; u8 pad1E[0x37]; u8 f_55; } D_8013FBF8_8013A6CC asm("D_8013FBF8");
+
+void func_8013A6CC(void) {
+    s32 i = 0;
+    s32 *t = D_8013FBE0_8013A6CC;
+
+    if (D_8013FBF8_8013A6CC.f_1D != 0) {
+        t = D_8013FD94_8013A6CC;
+        D_8013FBD8_8013A6CC[0] = t;
+        i = 1;
+    }
+    if (D_8013FBF8_8013A6CC.f_55 != 0) {
+        t = D_8013FE08_8013A6CC;
+        D_8013FBD8_8013A6CC[i] = t;
+        i++;
+    }
+    for (; i < 2; i++) {
+        D_8013FBD8_8013A6CC[i] = t;
+    }
+}
 
 void func_8013A760(s32 *arg0, s32 *arg1, s32 arg2) {
     s32 *var_a0;
@@ -1079,7 +1219,26 @@ void func_8013B890(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013B8B8);
+typedef struct { s16 x, z, y, kind, dx, dz; } Shot_8013B8B8;
+extern Shot_8013B8B8 D_8013FCF0_8013B8B8[] asm("D_8013FCF0");
+
+void func_8013B8B8(s32 kind, s16 *pos, s16 *dir) {
+    s32 i;
+    Shot_8013B8B8 *e;
+
+    for (i = 0; i < 5; i++) {
+        e = &D_8013FCF0_8013B8B8[i];
+        if (e->kind == 0) {
+            e->kind = kind;
+            e->x = pos[0];
+            e->z = pos[2];
+            e->y = 0xA40;
+            e->dx = -dir[0];
+            e->dz = -dir[1];
+            return;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013B92C);
 
@@ -1146,7 +1305,6 @@ void func_8013BC28(Mdl_8013BC28 *m) {
 typedef struct { s16 next; s16 last; } Anim_8013BE5C;
 typedef struct { u8 pad0[0x14]; void *f_14; u8 pad18[0xC]; s32 x; s32 y; s32 z; s32 vx; s32 vy; u8 pad38[0xC]; s16 f_44; s16 f_46; s16 f_48; u8 pad4A[4]; u16 f_4E; u8 pad50[0xC]; u16 f_5C; u16 f_5E; SVECTOR f_60; SVECTOR f_68; Anim_8013BE5C *f_70; } Mdl_8013BE5C;
 extern u16 g_RandSeed_8013BE5C asm("g_RandSeed");
-void func_801394C8();
 extern s32 *D_8013FBD8_8013BE5C[] asm("D_8013FBD8");
 
 void func_8013BE5C(Mdl_8013BE5C *m) {
@@ -1626,7 +1784,23 @@ INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013D044);
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013D1F0);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013D528);
+typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; u8 pad30[0x30]; s16 r[3]; u8 pad66[2]; s16 s[3]; u8 pad6E[0x6]; } Mdl_8013D528;
+extern Mdl_8013D528 D_8013FD70_8013D528[] asm("D_8013FD70");
+extern s8 D_8013FC15;
+
+void func_8013D528(void) {
+    D_8013FC15 = 3;
+    D_8013FD70_8013D528[0].z = 0xA40;
+    D_8013FD70_8013D528[0].r[1] = 0x1000;
+    D_8013FD70_8013D528[0].s[2] = 0x1000;
+    D_8013FD70_8013D528[0].x = 0;
+    D_8013FD70_8013D528[0].y = 0;
+    D_8013FD70_8013D528[0].r[0] = 0;
+    D_8013FD70_8013D528[0].r[2] = 0;
+    D_8013FD70_8013D528[0].s[0] = 0;
+    D_8013FD70_8013D528[0].s[1] = 0;
+    D_8013F402 = 1;
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013D578);
 
@@ -1719,7 +1893,6 @@ extern struct { u32 f_0; u32 f_4; u32 f_8; u32 f_C; } D_8013FBF8_8013DB7C asm("D
 extern struct { u8 pad0[0x28]; s32 y; } D_8013FD70_8013DB7C asm("D_8013FD70");
 void func_8013D044();
 void func_8013D1F0();
-void func_8013D528();
 void func_8013D578();
 void func_8013D8B8(void);
 void func_8013D910(void);
@@ -1804,7 +1977,21 @@ void func_8013DB7C(void) {
     DrawOTag(&g_Game_8013DB7C.db[g_Game_8013DB7C.cur].ot[0xFFF]);
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013DEFC);
+void func_8013DEFC(s32 n, s8 *buf) {
+    s32 i;
+    s32 d;
+
+    buf[8] = 0;
+    for (i = 7; i >= 0; i--) {
+        d = n % 10;
+        n /= 10;
+        if (d == 0 && n == 0 && i != 7) {
+            buf[i] = ' ';
+        } else {
+            buf[i] = d + '0';
+        }
+    }
+}
 
 void func_8013DF7C(void) {
     D_8013FD40 = 0;
@@ -1919,7 +2106,20 @@ void func_8013E8D0(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013E940);
+void func_8013CA94(s32 digit, s32 x, s32 y, s32 sh);
+
+M2C_UNK func_8013E940(s32 x, s32 y, s32 n) {
+    s32 i;
+    s32 d;
+
+    x += 0x90;
+    for (i = 7; i >= 0; i--) {
+        d = n % 10;
+        n /= 10;
+        func_8013CA94(d, x, y, 2);
+        x -= 0x12;
+    }
+}
 
 void func_8013E9E0(void) {
     func_80138350(2);

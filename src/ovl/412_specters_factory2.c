@@ -348,7 +348,41 @@ s32 func_8013DFF0(void *arg0) {
 
 INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013E074);
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013E388);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x2C]; s16 f5C; u8 pad5E[2]; s16 f60, f62, f64, f66; u8 pad68[8]; s16 vx, vy, vz; s16 wx, wy, wz; s16 rx, ry, rz; s16 life; } Debris_8013E388;
+extern Debris_8013E388 D_80142008_8013E388[] asm("D_80142008");
+extern u16 D_800AE8F2;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; } Obj_8013E388;
+
+void func_8013E388(void *o) {
+    s32 i;
+    Debris_8013E388 *d;
+    s32 k;
+
+    for (i = 0; i < 6; i++) {
+        d = &D_80142008_8013E388[i];
+        k = i + 0x72;
+        func_80052038(d, k);
+        func_800520A8(d, k);
+        d->f5C = 0;
+        d->f62 = 0;
+        d->f60 = 0;
+        d->f64 = 0x1000;
+        d->f66 = 3;
+        d->x = ((Obj_8013E388 *)o)->x + ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) - 0x80;
+        d->y = ((Obj_8013E388 *)o)->y - ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8);
+        d->z = ((Obj_8013E388 *)o)->z + ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) - 0x80;
+        d->vx = (s32)(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 4;
+        d->vz = (s32)(((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 4;
+        d->vy = -(s32)((g_RandSeed = g_RandSeed * 5 + 1) >> 8) / 4 - 0x40;
+        d->wx = (s32)((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 6) << 12) / 360;
+        d->wy = (s32)((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 6) << 12) / 360;
+        d->wz = (s32)((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 6) << 12) / 360;
+        d->rz = 0;
+        d->ry = 0;
+        d->rx = 0;
+        d->life = 2;
+    }
+}
 
 typedef struct { s16 x, y, z; } Rot_8013E674;
 typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 wx, wy, wz; Rot_8013E674 r; s16 life; } Debris_8013E674;
@@ -435,7 +469,6 @@ INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013E9D8);
 extern u8 D_80141AF8[];
 void func_800702B0(SVECTOR *, void *);
 void Fx_DebrisExplosion(s32, s32, s32);
-void func_8013E388(void *);
 
 void func_8013EADC(u8 *o) {
     SVECTOR v;
@@ -468,9 +501,22 @@ void func_8013EB94(void *arg0, s32 arg1) {
     M2C_FIELD(arg0, s16 *, 0x96) = (s16) ((s32) -(arg1 * (s16) (((M2C_FIELD(temp_v1, u16 *, 0x12) + 5) - M2C_FIELD(temp_v1, u16 *, 0x10)) - 1)) / 2);
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_8013EBF4);
+void func_8013EBF4(void *arg0, s16 *v) {
+    s32 s = M2C_FIELD(arg0, s16 *, 0x60);
+    s32 a = s * v[2];
+    s32 c = M2C_FIELD(arg0, s16 *, 0x64);
+    s32 b = c * v[2];
+    s32 d = c * v[0];
+    s32 e = -s * v[0];
+    u16 px = M2C_FIELD(arg0, u16 *, 0x24);
+    u16 py = M2C_FIELD(arg0, u16 *, 0x28);
+    u16 pz = M2C_FIELD(arg0, u16 *, 0x2C);
 
-void func_8013EBF4(void *, SVECTOR *);
+    v[1] = py - v[1];
+    v[0] = px + (a >> 12) + (d >> 12);
+    v[2] = pz + (b >> 12) + (e >> 12);
+}
+
 
 void func_8013EC78(void *arg0, s16 x, s16 y, s32 z, s32 fx) {
     SVECTOR v;
@@ -1020,7 +1066,82 @@ s32 func_801413D8(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/412/nonmatchings/412_specters_factory2", func_80141494);
+extern s32 D_80142320;
+s32 Sound_Play_80141494(s32, s32) asm("Sound_Play");
+s32 func_80094B6C(s16, s16 *, s16 *);
+s32 func_8014173C(s16 arg0, s16 arg1);
+
+s32 func_80141494(s16 *p) {
+    s16 *e = (s16 *)(g_Game_80140BD0.f_820C + p[2] * 0x38);
+
+    switch (p[1]) {
+    case 0:
+        if (D_800EC238 == p[2] && p[3] == 0) {
+            e[0xC] = (e[0xC] & 0xFFF0) | 2;
+            p[3] = 1;
+            p[1] = 1;
+            p[9] = e[0];
+            p[10] = e[1];
+            p[11] = e[2];
+            if (p[5] >= 0) {
+                func_8014173C(p[5], 1);
+            }
+            D_80142320 = Sound_Play_80141494(0, 0xB3);
+        } else if (D_800EC238 < 0 && p[3] != 0) {
+            p[3] = 0;
+        }
+        break;
+    case 1:
+        if (p[8] >= 0) {
+            func_80094B6C(p[8], e, &p[9]);
+        }
+        if (e[0x19] >= p[6] * 2 + 1) {
+            e[0xC] = (e[0xC] & 0xFFF0) | 1;
+            p[1] = 2;
+            if (p[4] >= 0) {
+                Sound_PlayAt(p[4], e);
+            }
+            p[3] = D_800EC238 == p[2];
+            Sound_Stop_80140D60(0xB3, D_80142320);
+        } else {
+            Sound_UpdateVoice3D_80140D60(0xB3, D_80142320, 0x1000, e);
+        }
+        break;
+    case 2:
+        if (D_800EC238 == p[2] && p[3] == 0) {
+            e[0xC] = (e[0xC] & 0xFFF0) | 2;
+            p[1] = 3;
+            p[3] = 1;
+            p[9] = e[0];
+            p[10] = e[1];
+            p[11] = e[2];
+            if (p[5] >= 0) {
+                func_8014173C(p[5], 3);
+            }
+            D_80142320 = Sound_Play_80141494(0, 0xB3);
+        } else if (D_800EC238 < 0 && p[3] != 0) {
+            p[3] = 0;
+        }
+        break;
+    case 3:
+        if (p[8] >= 0) {
+            func_80094B6C(p[8], e, &p[9]);
+        }
+        if (e[0x19] == 1) {
+            e[0xC] = (e[0xC] & 0xFFF0) | 1;
+            p[1] = 0;
+            if (p[4] >= 0) {
+                Sound_PlayAt(p[4], e);
+            }
+            p[3] = D_800EC238 == p[2];
+            Sound_Stop_80140D60(0xB3, D_80142320);
+        } else {
+            Sound_UpdateVoice3D_80140D60(0xB3, D_80142320, 0x1000, e);
+        }
+        break;
+    }
+    return 0;
+}
 
 s32 func_8014173C(s16 arg0, s16 arg1) {
     void *temp_a0;

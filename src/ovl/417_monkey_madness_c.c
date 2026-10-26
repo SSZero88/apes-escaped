@@ -117,7 +117,20 @@ void func_8013D43C(void *arg0) {
     func_8013D3B4(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D4D8);
+void func_8013D2D0(s32 *p);
+void func_8013D3E4(s32 arg0);
+void func_8013D43C(void *arg0);
+
+void func_8013D4D8(void *arg0) {
+    u32 t = M2C_FIELD(arg0, u32 *, 0x50) >> 28;
+
+    if (t == 11) {
+        func_8013D2D0((s32 *)((u8 *)arg0 + 0x24));
+        func_8013D3E4((s32)arg0);
+    } else if (t == 1) {
+        func_8013D43C(arg0);
+    }
+}
 
 extern s32 D_800EC208;
 extern struct { u8 pad0[0x24]; s16 x; u8 pad26[6]; s16 z; } g_Spike_8013D538 asm("g_Spike");
@@ -370,9 +383,54 @@ void func_8013E034(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E098);
+s32 Math_Atan2(s32, s32);
+s32 rcos(s32);
+s32 rsin(s32);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E1A4);
+void func_8013E098(u8 *a, s16 x, s16 z) {
+    s32 cur = Math_Atan2(M2C_FIELD(a, s16 *, 0x60), M2C_FIELD(a, s16 *, 0x64));
+    s32 tgt = Math_Atan2(x, z);
+    s32 d;
+    s32 t;
+    s32 ad;
+    s32 s;
+    s32 step;
+
+    t = cur - 0x3000;
+    d = (tgt - t) % 0x1000;
+    if (d != 0) {
+        s = (d > 0) ? 1 : -1;
+        ad = ABS(d);
+        if (ad > 0x800) {
+            ad = 0x1000 - ad;
+            s = -s;
+        }
+        step = 0x5B;
+        if (ad < step) {
+            step = ad;
+        }
+        cur = (cur + s * step + 0x1000) % 0x1000;
+        M2C_FIELD(a, s16 *, 0x60) = rcos(cur);
+        M2C_FIELD(a, s16 *, 0x64) = rsin(cur);
+    }
+}
+
+extern struct { u8 pad_0[0x24]; u16 f_24; u8 pad_26[6]; u16 f_2C; } g_Spike_8013E1A4 asm("g_Spike");
+
+void func_8013E1A4(u8 *e) {
+    s32 d = D_800EC208 - M2C_FIELD(e, s32 *, 0x28) - 0x32;
+
+    if (ABS(d) > 12) {
+        if (d > 0) {
+            M2C_FIELD(e, s32 *, 0x28) += 12;
+        } else if (d < 0) {
+            M2C_FIELD(e, s32 *, 0x28) -= 12;
+        }
+    }
+    func_8013E098(e, g_Spike_8013E1A4.f_24 - M2C_FIELD(e, u16 *, 0x24), g_Spike_8013E1A4.f_2C - M2C_FIELD(e, u16 *, 0x2C));
+    M2C_FIELD(e, s32 *, 0x24) += (M2C_FIELD(e, s16 *, 0x60) * 5) >> 9;
+    M2C_FIELD(e, s32 *, 0x2C) += (M2C_FIELD(e, s16 *, 0x64) * 5) >> 9;
+}
 
 void func_8013E27C(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x73) = 0;
@@ -392,7 +450,32 @@ void func_8013E2C4(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E310);
+typedef struct { u8 b[0x84]; } O_8013E310;
+extern O_8013E310 D_80140A60_8013E310[] asm("D_80140A60");
+
+void func_8013E310(s32 arg0) {
+    u8 idx = arg0;
+    s32 j = D_80140CF8;
+    s32 n;
+    u8 *o;
+
+    if (idx == D_80140CF4 - 1) {
+        return;
+    }
+    if (idx >= j) {
+        j = idx + 1;
+    }
+    for (n = D_80140CF4 - 1; idx < n; n--) {
+        o = D_80140A60_8013E310[j].b;
+        if (o[0x73] != 0 && o[0x72] == 1) {
+            o[0x7D] = 0;
+            return;
+        }
+        if (++j >= D_80140CF4) {
+            j = idx + 1;
+        }
+    }
+}
 
 s32 Object_AddAttackSphere(void *, s32, s16, s16, s32, s32, s32);
 
@@ -411,7 +494,6 @@ void func_8013E3B8(void *arg0) {
 }
 
 void func_800573A0(void *, s32, s32, s32);
-void func_8013E310(s32);
 
 void func_8013E44C(void *arg0) {
     u32 s = M2C_FIELD(arg0, u32 *, 0x50) >> 28;
@@ -433,7 +515,6 @@ void func_8013DF10(void *arg0, void *arg1);
 void func_8013E44C(void *arg0);
 void func_8013E034(void *arg0);
 void func_8013E3B8(void *arg0);
-void func_8013E1A4(void *arg0);
 void func_8013DD64(void *arg0);
 void func_8013DCC4(void *arg0);
 s32 func_80051410(void *, s32, s32);
@@ -500,7 +581,20 @@ void func_8013E650(s32 arg0, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013E730);
+typedef struct { u8 b[0x84]; } O_8013E730;
+extern O_8013E730 D_80140A60_8013E730[] asm("D_80140A60");
+
+void func_8013E730(void) {
+    s32 i;
+    u8 *o;
+
+    for (i = D_80140CF4 - 1; i >= 0; i--) {
+        o = D_80140A60_8013E730[i].b;
+        if (M2C_FIELD(o, u8 *, 0x73) != 0) {
+            func_8013E3B8(o);
+        }
+    }
+}
 
 void func_8013E7A0(void) {
     Link_SendEvent(6, 0, 0);
@@ -540,7 +634,6 @@ void func_8013E864(void) {
 }
 
 void func_80051E98(void *, s32);
-M2C_UNK func_8013E730();
 extern M2C_UNK D_80140D00;
 extern M2C_UNK D_80140D38;
 
@@ -618,15 +711,51 @@ tick:
     }
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013EAD4);
+s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
+s32 Object_DetachLink(void *, M2C_UNK);
+void Object_DisableCollision(void *);
+void Object_EnableCollision(void *);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013EBC0);
+void func_8013EAD4(u8 *e) {
+    if (e[0x8F] != 0) {
+        if (--e[0x8F] == 0) {
+            Object_EnableCollision(e);
+        }
+    } else if (Object_DetachLink(e, 0) == 6) {
+        Object_PlaySound((s32)e, 0x1C);
+        e[0x8F] = 0x1E;
+        e[0x80] = 7;
+        M2C_FIELD(e, s16 *, 0xB0) = 0x38;
+        e[0xC9] = 0x14;
+        Object_DisableCollision(e);
+    } else if ((u8)(e[0x80] - 6) < 2) {
+        M2C_FIELD(e, s32 *, 0xB4) = Object_AddAttackSphereNear(e, 0x10E, M2C_FIELD(e, s16 *, 0x24), M2C_FIELD(e, u16 *, 0x28) - 0xA0, M2C_FIELD(e, s16 *, 0x2C), 1, 0x203);
+    }
+}
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013EC24);
+s32 rcos_8013EBC0(s32) asm("rcos");
+s32 rsin_8013EBC0(s32) asm("rsin");
+
+void func_8013EBC0(void *arg0) {
+    s32 a = (M2C_FIELD(arg0, s16 *, 0xAC) + 0xC00) % 4096;
+
+    M2C_FIELD(arg0, s16 *, 0xC2) = rcos_8013EBC0(a);
+    M2C_FIELD(arg0, s16 *, 0xC6) = rsin_8013EBC0(a);
+}
+
+extern struct { s32 x, y, z; } D_80140D00_8013EC24 asm("D_80140D00");
+extern struct { s16 x, y, z; } D_80140D38_8013EC24 asm("D_80140D38");
+
+void func_8013EC24(void *arg0) {
+    D_80140D00_8013EC24.x = M2C_FIELD(arg0, s32 *, 0x24);
+    D_80140D00_8013EC24.y = M2C_FIELD(arg0, s32 *, 0x28) - 0x1A4;
+    D_80140D00_8013EC24.z = M2C_FIELD(arg0, s32 *, 0x2C);
+    D_80140D38_8013EC24.x = D_80140D00_8013EC24.x;
+    D_80140D38_8013EC24.y = D_80140D00_8013EC24.y - 0xB4;
+    D_80140D38_8013EC24.z = D_80140D00_8013EC24.z;
+}
 
 s32 func_8013D280(void);
-void func_8013EC24(void *);
-void func_8013EBC0(void *);
 void func_8013E864(void);
 void Object_StepOrbitAngle(void *, s16);
 s32 Object_WouldLeaveHome(void *, s16);
@@ -662,7 +791,20 @@ INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013ED4C);
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013EE4C);
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013F37C);
+void func_8013F37C(u8 *e) {
+    if (e[0x8F] != 0) {
+        if (--e[0x8F] == 0) {
+            Object_EnableCollision(e);
+        }
+    } else if (Object_DetachLink(e, 0) == 6) {
+        Object_PlaySound((s32)e, 0x1C);
+        e[0x8F] = 0x1E;
+        Object_DisableCollision(e);
+        e[0xC9] = 0;
+    } else if (e[0x7F] == 1) {
+        M2C_FIELD(e, s32 *, 0xB4) = Object_AddAttackSphereNear(e, 0xC8, M2C_FIELD(e, s16 *, 0x24), M2C_FIELD(e, u16 *, 0x28) - 0xA0, M2C_FIELD(e, s16 *, 0x2C), 0xA01, 0x101);
+    }
+}
 
 void func_8013F450(void *arg0) {
     SVECTOR v;

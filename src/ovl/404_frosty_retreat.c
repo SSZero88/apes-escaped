@@ -964,7 +964,86 @@ void func_8013FC4C(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013FCE0);
+typedef struct { u32 b0 : 3; u32 init : 1; u32 b4 : 18; u32 mode : 2; u32 b24 : 8; } Flags_8013FCE0;
+typedef struct { u16 start; u16 end; } Rng_8013FCE0;
+typedef struct { u8 pad0[0x5C]; u16 frame; } Obj_8013FCE0;
+void func_8013F7F8(u8 *o, s32 a);
+s32 func_8013F8BC(void *arg0);
+s32 func_8013F91C(u8 *o, s32 r);
+void func_8013F9D4(void *arg0);
+void func_8013FA20(void *arg0);
+void func_8013FAB8(void *arg0);
+void func_8013FB54_8013FCE0(void *, s32, s32, s32) asm("func_8013FB54");
+void func_8013FC04(void *arg0);
+void func_8013FC4C(void *arg0);
+
+void func_8013FCE0(u8 *o) {
+    if (!M2C_FIELD(o, Flags_8013FCE0 *, 0xE0).init) {
+        M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
+        D_801422E0 = -0x764;
+        M2C_FIELD(o, s16 *, 0xA0) = 0;
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, Flags_8013FCE0 *, 0xE0).mode = 1;
+        ((Obj_8013FCE0 *)o)->frame = M2C_FIELD(o, Rng_8013FCE0 **, 0x88)[0].start;
+        ((Obj_8013FCE0 *)o)->frame = (s32)(M2C_FIELD(o, Rng_8013FCE0 **, 0x88)[M2C_FIELD(o, u8 *, 0x7F)].end * ((g_RandSeed = g_RandSeed * 5 + 1) >> 8)) / 255;
+        func_8005588C(o, ((g_RandSeed = g_RandSeed * 5 + 1) >> 9) + 0x40);
+        M2C_FIELD(o, Flags_8013FCE0 *, 0xE0).init = 1;
+    }
+    switch (M2C_FIELD(o, u8 *, 0x80)) {
+    case 1:
+        if (func_8013F8BC(o)) {
+            func_8013FA20(o);
+        } else {
+            func_8013FC04(o);
+        }
+        if (!func_8005588C(o, -1)) {
+            M2C_FIELD(o, u8 *, 0x80) = 2;
+            func_8005588C(o, 0xF);
+        }
+        break;
+    case 2:
+        if (func_8013F8BC(o)) {
+            func_8013FA20(o);
+            func_8013F7F8(o, 1);
+        } else {
+            func_8013F7F8(o, g_Game_8013F7F8.f_0 & 1);
+            func_8013FC04(o);
+        }
+        if (!func_8005588C(o, -1)) {
+            func_8013F9D4(o);
+            func_8013F7F8(o, 1);
+        }
+        break;
+    case 3:
+        if (func_8013F8BC(o)) {
+            func_8013FB54_8013FCE0(o, g_Spike_8013F91C.x, g_Spike_8013F91C.y + 0xD7, g_Spike_8013F91C.z);
+            if (func_8013F91C(o, 0x96)) {
+                M2C_FIELD(o, u8 *, 0x80) = 4;
+                M2C_FIELD(o, u32 *, 0xE0) &= ~1;
+                func_8005588C(o, 0x1E);
+            }
+        } else {
+            func_8013F9D4(o);
+        }
+        break;
+    case 4:
+        func_8013F7F8(o, g_Game_8013F7F8.f_0 & 1);
+        func_8013FC4C(o);
+        if (!func_8005588C(o, -1)) {
+            M2C_FIELD(o, u8 *, 0x80) = 5;
+            func_8013F7F8(o, 1);
+            func_8005588C(o, 0x3C);
+        }
+        break;
+    case 5:
+        if (!func_8005588C(o, -1)) {
+            func_8013F9D4(o);
+        }
+        break;
+    }
+    M2C_FIELD(o, s16 *, 0xAE) = 0;
+    func_8013FAB8(o);
+}
 
 typedef struct { s16 f0; s16 x, y, z; s16 f8; u16 fA; u8 padC[4]; } Src_8013FFC8;
 typedef struct { s16 x, y, z, floor; s16 x8, yA, zC; u8 fE; u8 padF[9]; s16 f18; s16 f1A; u8 pad1C[4]; } Pt_8013FFC8;

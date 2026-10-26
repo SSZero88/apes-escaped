@@ -86,7 +86,18 @@ u8 *func_801361D8(u8 *arg0, s32 arg1)
 
 INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136208);
 
-INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136724);
+extern s16 D_80136E30;
+extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_80136724 asm("g_Pad");
+
+s32 func_80136724(void) {
+    if (g_Pad_80136724.f_158 & g_Pad_80136724.f_160 & 0x800) {
+        return -1;
+    }
+    if (++D_80136E30 >= 0x259) {
+        return -1;
+    }
+    return 0;
+}
 
 extern struct { u8 pad0[0x8280]; s32 f_8280; } g_Game_80136780 asm("g_Game");
 extern s32 D_800B4D64;
@@ -228,7 +239,23 @@ void func_80136AA0(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/394/nonmatchings/394", func_80136C04);
+typedef struct { u8 f_0; u8 f_1; u8 pad2[10]; } Ent_394;
+extern Ent_394 D_80136E4C[];
+extern s32 D_80137058;
+extern struct { u8 pad0[0x28]; s32 f_28; u8 pad2C[0x30]; u16 f_5C; u16 f_5E; s16 f_60; u8 pad62[2]; s16 f_64; u8 pad66[0xA]; s16 f_70; u8 pad72[2]; u8 *f_74; } D_80136F88_80136C04 asm("D_80136F88");
+
+void func_80136C04(void) {
+    s32 i = D_80137058;
+    s32 n = D_80136E4C[i].f_1;
+    u16 fr = *(u16 *)(n * 4 + D_80136F88_80136C04.f_74);
+
+    D_80136F88_80136C04.f_60 = -0x400;
+    D_80136F88_80136C04.f_64 = -0x1000;
+    D_80136F88_80136C04.f_70 = -1;
+    D_80136F88_80136C04.f_5E = n;
+    D_80136F88_80136C04.f_28 = 0x200;
+    D_80136F88_80136C04.f_5C = fr;
+}
 
 void func_80136C6C(void) {
     Cd_PlayXaTrack(D_8013705C);

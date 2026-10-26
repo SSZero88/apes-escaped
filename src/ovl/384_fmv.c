@@ -396,7 +396,18 @@ INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136FF0);
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80137248);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80137878);
+typedef struct { u8 pad0[8]; s16 x; s16 y; u8 padC[0x406C]; } Buf_80137878;
+extern struct { u8 pad0[0x10]; Buf_80137878 db[2]; } g_Game_80137878 asm("g_Game");
+void SetDefDrawEnv(void *, s32, s32, s32, s32);
+
+void func_80137878(void) {
+    SetDefDrawEnv(&g_Game_80137878.db[0], 0, 0x1E, 0x180, 0xB4);
+    SetDefDrawEnv(&g_Game_80137878.db[1], 0, 0x11E, 0x180, 0xB4);
+    g_Game_80137878.db[0].y = 0;
+    g_Game_80137878.db[0].x = 0;
+    g_Game_80137878.db[1].x = 0;
+    g_Game_80137878.db[1].y = 0x100;
+}
 
 typedef struct { u32 *f_0; u8 pad4[0x1C]; } Ent_801378F0;
 extern Ent_801378F0 *D_800B4D64_801378F0 asm("D_800B4D64");

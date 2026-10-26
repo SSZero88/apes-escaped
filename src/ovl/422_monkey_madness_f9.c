@@ -517,7 +517,36 @@ void func_8013F080(void) {
     } while (var_v1 >= 0);
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F0A4);
+/* 3 diffs (hand) */
+typedef struct { u8 pad0[4]; s16 x, y, z; u8 f_A; u8 pad_B; s16 f_C, f_E, f_10; u8 pad12[2]; } Bit_8013F0A4;
+extern Bit_8013F0A4 D_80145390_8013F0A4[8] asm("D_80145390");
+extern u16 g_RandSeed_8013F0A4 asm("g_RandSeed");
+void Effect_SpawnAt(s32, void *);
+#define RAND_8013F0A4() (g_RandSeed_8013F0A4 = g_RandSeed_8013F0A4 * 5 + 1)
+typedef struct { u8 pad[0x7C]; s16 x, y, z; } Src_8013F0A4;
+
+void func_8013F0A4(Src_8013F0A4 *a0) {
+    s32 i;
+    Bit_8013F0A4 *e;
+
+    i = 7;
+    e = D_80145390_8013F0A4;
+    do {
+        if (e->f_A == 0) {
+            e->f_A = 1;
+            M2C_FIELD(e, s16 *, 4) = a0->x + ((RAND_8013F0A4() >> 8) - 0x80);
+            e->y = a0->y;
+            e->z = a0->z + ((RAND_8013F0A4() >> 8) - 0x80);
+            e->f_C = 0;
+            e->f_10 = 0;
+            e->f_E = -0x60 - ((RAND_8013F0A4() >> 8) & 0x3F);
+            Effect_SpawnAt(0x112, &e->x);
+            return;
+        }
+        i--;
+        e++;
+    } while (i >= 0);
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F198);
 
@@ -642,9 +671,54 @@ void func_8013F930(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F964);
+typedef struct { u8 pad0[0x92]; u8 f92, f93; u8 pad94[8]; s16 f9C; u8 pad9E[2]; } Ent_8013F964;
+extern Ent_8013F964 D_80144AA8_8013F964[2] asm("D_80144AA8");
+extern u8 D_80144BF7;
+extern s32 D_800EC204;
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013F9FC);
+void func_8013F964(void) {
+    s32 i;
+    Ent_8013F964 *e;
+
+    if (D_80144BF7 == 1) {
+        e = D_80144AA8_8013F964;
+        if (D_800EC204 > 0) {
+            e++;
+        }
+        if (e->f92 == 3) {
+            e->f92 = 4;
+            e->f9C = 0;
+            e->f93 = 1;
+        }
+        return;
+    }
+    for (i = 0, e = D_80144AA8_8013F964; i < 2; i++, e++) {
+        if (e->f92 == 3) {
+            e->f92 = 4;
+            e->f9C = 0;
+            e->f93 = 1;
+        }
+    }
+}
+
+typedef struct { u8 pad0[0x74]; SVECTOR pos; u8 pad7C[0x24]; } Ent_8013F9FC;
+extern Ent_8013F9FC D_80144AA8_8013F9FC[2] asm("D_80144AA8");
+extern u8 D_80143F00[];
+
+void func_8013F9FC(void) {
+    s32 i;
+    s32 j;
+    Ent_8013F9FC *e;
+
+    for (i = 0, e = D_80144AA8_8013F9FC; i < 2; i++, e++) {
+        Effect_SpawnAt(0x102, &e->pos);
+        Fx_SpawnFadeRing(&e->pos, 0, 0x200, 0);
+        for (j = 0; j < 12; j++) {
+            Effect_Spawn(0xCD, &e->pos, D_80143F00, 0);
+        }
+    }
+    Sound_PlayFixed(0xBA);
+}
 
 INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013FAA4);
 
@@ -689,7 +763,23 @@ void func_80140630(s16 arg0) {
     D_80144C0C = arg0;
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8014063C);
+extern struct { u32 f_0; } g_Game_8014063C asm("g_Game");
+extern struct { u8 pad_0[0x24]; u16 f_24; } D_80144BE8_8014063C asm("D_80144BE8");
+
+void func_8014063C(void) {
+    s32 n;
+
+    if (D_80144BE8_8014063C.f_24 == 0) {
+        n = (g_Game_8014063C.f_0 / 6) % 10;
+    } else {
+        D_80144BE8_8014063C.f_24--;
+        n = D_80144BE8_8014063C.f_24 % 10;
+    }
+    if (n >= 5) {
+        n = 9 - n;
+    }
+    func_80140564(n);
+}
 
 extern struct { u16 cur; u8 pad2[2]; u16 f_4; u8 f_6; u8 f_7; u8 *tbl; } D_80144BE8_801406F8 asm("D_80144BE8");
 
@@ -702,7 +792,29 @@ void func_801406F8(s32 anim) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_80140738);
+typedef struct { u16 start; u16 end; } Rng_80140738;
+extern struct { u16 anim; u16 pad2; u16 frame; u8 f_6; u8 f_7; Rng_80140738 *tbl; } D_80144BE8_80140738 asm("D_80144BE8");
+#define A_80140738 D_80144BE8_80140738
+
+void func_80140738(void) {
+    u16 old = A_80140738.frame;
+    u16 n;
+    Rng_80140738 *r;
+
+    n = old + 1;
+    A_80140738.frame = n;
+    r = (Rng_80140738 *)(A_80140738.anim * 4 + (s32)A_80140738.tbl);
+    if (n == r->end) {
+        A_80140738.f_6 = 0;
+    }
+    if (r->end < n) {
+        if (A_80140738.f_7 == 1) {
+            A_80140738.frame = old;
+            return;
+        }
+        A_80140738.frame = r->start;
+    }
+}
 
 typedef struct { u8 pad0[0x8C]; u8 f_8C; u8 pad8D[0xB]; } Ent_422c;
 extern Ent_422c D_80144460[];
@@ -759,7 +871,16 @@ void func_8014092C(void) {
     Sound_PlayFixed(0x82);
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801409AC);
+extern struct { u8 pad_0[0xC]; s8 f_C; u8 pad_D[3]; s16 f_10; u8 pad_12[5]; u8 f_17; s32 f_18; } D_80144BE8_801409AC asm("D_80144BE8");
+
+void func_801409AC(void) {
+    D_80144BE8_801409AC.f_C = 0xA;
+    D_80144BE8_801409AC.f_10 = 0x5A;
+    func_801406F8(D_80144BE8_801409AC.f_17 + 9);
+    func_80070284((s16 *)(D_80144BE8_801409AC.f_18 + 0x7C), (M2C_UNK *)D_80143F18, 1, 0, D_80144BE8_801409AC.f_18 + 0x60);
+    Sound_PlayFixed(0x27);
+    Sound_PlayFixed(0x28);
+}
 
 extern struct { u8 pad0[0xC]; u8 f_C; u8 padD; u8 f_E; u8 padF; s16 f_10; } D_80144BE8_80140A20 asm("D_80144BE8");
 
@@ -1034,7 +1155,22 @@ void func_801425EC(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801428A4);
+typedef struct { u8 *mdl; u8 pad4[6]; u8 f_A; u8 padB[0x19]; SVECTOR pos; } Piece_801428A4;
+extern Piece_801428A4 D_80145458_801428A4[12] asm("D_80145458");
+extern u8 D_801443A4[];
+extern SVECTOR D_801443B0[];
+extern u8 *D_800B4D64;
+
+void func_801428A4(void) {
+    s32 i;
+    Piece_801428A4 *e;
+
+    for (i = 0, e = D_80145458_801428A4; i < 12; i++, e++) {
+        e->f_A = 0;
+        e->mdl = D_800B4D64 + D_801443A4[i] * 32;
+        e->pos = D_801443B0[i];
+    }
+}
 
 typedef struct { u8 pad0[4]; s16 x, y, z; u8 f_A; u8 padB; s16 vx, vy, vz; s16 f_12; s16 f_14, f_16, f_18; s16 f_1A; s16 f_1C, f_1E, f_20; u8 pad22[2]; s16 f_24, f_26, f_28; u8 pad2A[2]; } Deb_80142924;
 extern Deb_80142924 D_80145458[];

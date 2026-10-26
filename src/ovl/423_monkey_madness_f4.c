@@ -205,7 +205,27 @@ void func_8013E134(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013E1C4);
+typedef struct { u8 pad0[8]; s16 f_8; s16 f_A; } Ent_8013E1C4;
+extern Ent_8013E1C4 D_8013FC50_8013E1C4[] asm("D_8013FC50");
+
+void func_8013E1C4(void) {
+    Ent_8013E1C4 *p = D_8013FC50_8013E1C4;
+
+    p->f_8 = 0xA;
+    p->f_A = 0x121;
+    p++;
+    p->f_8 = 9;
+    p->f_A = 0x102;
+    p++;
+    p->f_8 = 4;
+    p->f_A = 0x89;
+    p++;
+    p->f_8 = 6;
+    p->f_A = 0xBF;
+    p++;
+    p->f_8 = 6;
+    p->f_A = 0xB6;
+}
 
 void func_8013E22C(void *arg0) {
     if (M2C_FIELD(arg0, s8 *, 0x7C) == -1) {
@@ -481,7 +501,33 @@ void func_8013EC44(u8 *a) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013ECE8);
+s32 Hook_Add(s32);
+void func_8013DC3C(void);
+void func_8013DCC8();
+void Object_PlaceAtPathPoint(void *, s32);
+
+void func_8013ECE8(u8 *o) {
+    M2C_FIELD(o, s16 *, 0xA0) = 0xC8;
+    M2C_FIELD(o, s16 *, 0xB0) = 0x88;
+    M2C_FIELD(o, s16 *, 0x46) = 0x280;
+    M2C_FIELD(o, s16 *, 0x44) = 0x12C;
+    M2C_FIELD(o, u8 *, 0x81) = 0x14;
+    M2C_FIELD(o, u8 *, 0xDC) = 9;
+    M2C_FIELD(o, u8 *, 0xC8) = 0;
+    M2C_FIELD(o, u8 *, 0x8F) = 0;
+    M2C_FIELD(o, u32 *, 0xE0) &= ~0x1000;
+    M2C_FIELD(o, s8 *, 0x7C) = -1;
+    M2C_FIELD(o, u32 *, 0xE0) = (M2C_FIELD(o, u32 *, 0xE0) & 0xFCFFFFFF) | 0x1000000;
+    Object_PlaceAtPathPoint(o, 0);
+    M2C_FIELD(o, s32 *, 0x28) += 0x2B8;
+    func_8013E1C4();
+    M2C_FIELD(o, u8 *, 0x80) = 1;
+    M2C_FIELD(o, u8 *, 0x7F) = 0;
+    M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
+    func_8013DC3C();
+    Hook_Add((s32)func_8013DCC8);
+    Object_DisableCollision(o);
+}
 
 INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013EDBC);
 

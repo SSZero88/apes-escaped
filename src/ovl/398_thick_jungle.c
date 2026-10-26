@@ -18,7 +18,7 @@ extern struct S_D_800E77A0 { u8 pad_0[0x1]; u8 f_1; } D_800E77A0;
 M2C_UNK Collision_Set(M2C_UNK, M2C_UNK *, s32);
 extern struct S_D_80143170 { u8 pad_0[0x20]; s16 f_20; s16 f_22; s16 f_24; s16 f_26; } D_80143170;
 M2C_UNK Hook_Add(M2C_UNK *);
-extern M2C_UNK func_8013FA20;
+void func_8013FA20(void);
 extern struct S_D_801431B0 { u8 pad_0[0x10]; s32 f_10; } D_801431B0[];
 s32 Spike_WithinRadiusXZ(s32 x, s32 z, s32 r);
 s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, s32);
@@ -371,9 +371,18 @@ s32 func_8013E768(void *arg0) {
     return r;
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E7EC);
+typedef struct { u8 pad0[0x88]; u16 *anims; } Obj_8013E7EC;
 
-M2C_UNK func_8013E7EC(void *);
+M2C_UNK func_8013E7EC(void *arg0) {
+    s32 r;
+
+    M2C_FIELD(arg0, u8 *, 0x80) = 4;
+    M2C_FIELD(arg0, u8 *, 0x7F) = 1;
+    r = ((g_RandSeed = g_RandSeed * 5 + 1) >> 10) + 0x1E;
+    M2C_FIELD(arg0, u16 *, 0x5C) = ((Obj_8013E7EC *)arg0)->anims[2];
+    func_8005588C(arg0, r);
+}
+
 extern s32 D_80143160;
 
 void func_8013E848(void *arg0) {
@@ -691,7 +700,23 @@ void func_8013F984(void *arg0, void *arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013FA20);
+typedef struct { u8 pad0[8]; u8 f_8[8]; s32 f_10; } Sp_398;
+extern Sp_398 D_801431B0_8013FA20[12] asm("D_801431B0");
+extern struct { u32 frame; } g_Game_8013FA20 asm("g_Game");
+void func_8006F274(void *, void *, u16);
+
+void func_8013FA20(void) {
+    s32 i;
+    Sp_398 *e;
+
+    for (i = 11; i >= 0; i--) {
+        e = &D_801431B0_8013FA20[i];
+        if (e->f_10 != 0) {
+            e->f_10--;
+            func_8006F274(e, e->f_8, (u16)g_Game_8013FA20.frame);
+        }
+    }
+}
 
 void func_8013FA90(void *arg0, void *arg1) {
     M2C_FIELD(arg1, s16 *, 0) = (s16) (M2C_FIELD(arg0, u16 *, 0x24) + ((s32) (M2C_FIELD(arg0, s16 *, 0x60) * 0xC3) >> 9));

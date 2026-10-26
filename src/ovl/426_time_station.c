@@ -315,7 +315,25 @@ __asm__(".section .text\n.balign 16");
 
 INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013DB30);
 
-INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013DD64);
+s32 func_80097F2C(void);
+s32 Overlay_GetState(void);
+
+s32 func_8013DD64(s16 *p) {
+    switch (p[1]) {
+    case 0:
+        if (func_80097F2C() != 0) {
+            p[1] = 1;
+        }
+        break;
+    case 1:
+        if (Overlay_GetState() == 0) {
+            p[1] = 5;
+        }
+        break;    case 2:
+        break;
+    }
+    return 0;
+}
 
 s32 func_8013DDDC(void *arg0) {
     void *temp_v1;
@@ -346,7 +364,31 @@ s32 func_8013E0E8(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/426/nonmatchings/426_time_station", func_8013E178);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013E178 asm("g_Game");
+extern struct { u8 pad_0[0x24]; s32 x; u8 pad_28[4]; s32 z; s32 f_30; u8 pad_34[4]; s32 f_38; u8 pad_3C[0x1C]; s16 f_58; } g_Spike_8013E178 asm("g_Spike");
+
+s32 func_8013E178(s16 *p) {
+    u8 *e = g_Game_8013E178.f_820C + p[2] * 0x38;
+
+    switch (p[1]) {
+    case 0:
+        if (g_Spike_8013E178.f_58 == p[2] && func_800978E0(p[4]) != 0 && p[3] == 0) {
+            M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
+            p[1] = 1;
+            p[3] = 1;
+            p[10] = g_Spike_8013E178.x;
+            p[11] = g_Spike_8013E178.z;
+        }
+        break;
+    case 1:
+        g_Spike_8013E178.x = p[10];
+        g_Spike_8013E178.z = p[11];
+        g_Spike_8013E178.f_38 = 0;
+        g_Spike_8013E178.f_30 = 0;
+        break;
+    }
+    return 0;
+}
 
 s32 func_8013E280(s16 *p) {
     s32 n = p[4];

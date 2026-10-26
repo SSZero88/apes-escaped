@@ -73,7 +73,56 @@ void func_8013D058(void) {
     g_Game_8013F058.prim = (u8 *)(p + 1);
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013D148);
+typedef struct { SVECTOR at; SVECTOR eye; SVECTOR spike; u8 pad18[0x28]; s16 f40; u8 pad42[2]; s16 f44; } Scr_8013F148;
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_8013F148;
+void Camera_UpdateOrientation(void *);
+void Camera_HandleManualInput(void *);
+void Camera_KeepAboveFloor(void *);
+void Matrix_LookAt(void *, void *, void *, s32);
+void ApplyMatrixSV(void *, void *, void *);
+void func_80047464(void *, s32, s32, s32);
+void func_80047558(void *, s32, s32, s32);
+s32 rcos_8013F148(s32) asm("rcos");
+s32 rsin_8013F148(s32) asm("rsin");
+extern s32 D_800E5478;
+extern SVECTOR D_800EC240[2];
+void func_80047464(void *, s32, s32, s32);
+void func_80047558(void *, s32, s32, s32);
+void Matrix_LookAt(void *, void *, void *, s32);
+
+void func_8013D148(void *c) {
+    Scr_8013F148 *scr = (Scr_8013F148 *)0x1F800000;
+    SVECTOR v;
+    Mat_8013F148 m;
+    s32 t;
+
+    Camera_UpdateOrientation(c);
+    M2C_FIELD(c, s32 *, 0x38) = (M2C_FIELD(c, s32 *, 0x38) * 3 + 0x400) / 4;
+    Camera_HandleManualInput(c);
+    if (!(D_800E5478 & 0xA000)) {
+        M2C_FIELD(c, s32 *, 0x4C) = M2C_FIELD(c, s32 *, 0x4C) * 3 / 4;
+    }
+    t = M2C_FIELD(c, s32 *, 0x4C) + 0x1000;
+    M2C_FIELD(c, s32 *, 0x40) = (M2C_FIELD(c, s32 *, 0x48) + t) % 0x1000;
+    M2C_FIELD(c, u8 *, 0x34) = 0;
+    M2C_FIELD(c, u8 *, 0x32) = 0;
+    Matrix_LookAt(&D_800EC240[0], &D_800EC240[1], &m, 0);
+    v.vx = 0;
+    v.vy = 0;
+    v.vz = -M2C_FIELD(c, u16 *, 0x38);
+    ApplyMatrixSV(&m, &v, &v);
+    scr->eye.vx = scr->spike.vx + scr->f40 / 16;
+    scr->eye.vy = scr->spike.vy + (s16)(v.vy - 0x3C);
+    scr->eye.vz = scr->spike.vz + scr->f44 / 16;
+    scr->at.vx = scr->eye.vx + ((rcos_8013F148(M2C_FIELD(c, s32 *, 0x40)) * M2C_FIELD(c, s32 *, 0x38)) >> 12);
+    scr->at.vy = scr->spike.vy - (s16)(v.vy + 0x140);
+    scr->at.vz = scr->eye.vz + ((rsin_8013F148(M2C_FIELD(c, s32 *, 0x40)) * M2C_FIELD(c, s32 *, 0x38)) >> 12);
+    func_80047558(c, 2, 8, 2);
+    func_80047464(c, 2, 4, 2);
+    M2C_FIELD(c, s16 *, 0xC) += M2C_FIELD(c, s16 *, 0x6C);
+    Camera_KeepAboveFloor(c);
+    M2C_FIELD(c, s32 *, 0x44) = M2C_FIELD(c, s32 *, 0x40);
+}
 
 void func_8013D37C(void *arg0, void *arg1, M2C_UNK arg2) {
     func_80052038(arg1, arg2);

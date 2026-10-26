@@ -3,7 +3,6 @@
 
 extern struct S_g_Game { u8 pad_0[0x820C]; s32 f_820C; } g_Game;
 
-s32 func_8013D520();
 M2C_UNK Spike_WithinRadiusXZ(s16, s16, s16);
 M2C_UNK Object_StepOnGroundFixed(s32);
 M2C_UNK func_80056128(s32, M2C_UNK);
@@ -84,7 +83,19 @@ s32 func_8013D230(u8 *o) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D2FC);
+s32 func_8013D230(u8 *o);
+void Object_StepGrowShrink(void *, s32, s32, s32);
+
+void func_8013D2FC(void *arg0, s32 arg1, s32 arg2) {
+    Object_StepGrowShrink(arg0, 0, 0, (s16)arg1);
+    M2C_FIELD(arg0, s16 *, 0x94) = (s16) ((s32) (rcos(M2C_FIELD(arg0, s16 *, 0xAA)) * ((s32) (M2C_FIELD(arg0, u16 *, 0xA8) << 0x10) >> 0x13)) >> 0xC);
+    M2C_FIELD(arg0, s16 *, 0x98) = (s16) ((s32) (rsin(M2C_FIELD(arg0, s16 *, 0xAA)) * ((s32) (M2C_FIELD(arg0, u16 *, 0xA8) << 0x10) >> 0x13)) >> 0xC);
+    if (arg2 != 0) {
+        M2C_FIELD(arg0, s16 *, 0x94) = M2C_FIELD(arg0, s16 *, 0x94) * -1;
+        M2C_FIELD(arg0, s16 *, 0x98) = M2C_FIELD(arg0, s16 *, 0x98) * -1;
+    }
+    func_8013D230(arg0);
+}
 
 s32 func_8013D2FC_8013D3B4(void *, s32, s32) asm("func_8013D2FC");
 s32 Object_WouldLeaveHome_8013D3B4(void *, s32) asm("Object_WouldLeaveHome");
@@ -118,7 +129,6 @@ s32 func_8013D3B4(u8 *o) {
     return r;
 }
 
-void func_8013D2FC(void *, s32, s32);
 void Object_ApplyVelocity(void *);
 
 void func_8013D4B8(void *arg0) {
@@ -132,7 +142,21 @@ void func_8013D4B8(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013D520);
+extern struct { u8 pad0[0x24]; s32 x; u8 pad28[4]; s32 z; } g_Spike_8013D520 asm("g_Spike");
+
+/* called without all its arguments (old-style declaration), so defined old-style */
+s32 func_8013D520(arg0)
+    void *arg0;
+{
+    s32 dx;
+    s32 dz;
+    s32 r;
+
+    dx = g_Spike_8013D520.x - M2C_FIELD(arg0, s16 *, 0x9A);
+    dz = g_Spike_8013D520.z - M2C_FIELD(arg0, s16 *, 0x9E);
+    r = M2C_FIELD(arg0, s16 *, 0xA4) + 0xC8;
+    return r * r < dx * dx + dz * dz;
+}
 
 void func_8013D578(void *arg0) {
     if (func_8013D520() != 0) {
@@ -527,7 +551,69 @@ void func_8013ECD4(Obj_8013ECD4 *o) {
     func_8013EC6C(o);
 }
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013EFBC);
+typedef struct { u16 start; u16 end; } Rng_8013EFBC;
+typedef struct { s32 vx, vy, vz, pad; } Vec_8013EFBC;
+void func_80058134(void *, s32);
+s32 Floor_GetHeight_8013EFBC(s32, s32, s32) asm("Floor_GetHeight");
+s32 rcos_8013EFBC(s32) asm("rcos");
+s32 rsin_8013EFBC(s32) asm("rsin");
+void Shadow_Draw(void *, s32, s32, s32);
+
+void func_8013EFBC(u8 *o) {
+    s32 f;
+    s32 ang;
+    s32 dx;
+    s32 dz;
+    Vec_8013EFBC v;
+
+    if (!((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1)) {
+        M2C_FIELD(o, s16 *, 0xA0) = 0x3C;
+        M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(o, s16 *, 0x44) = 0x64;
+        M2C_FIELD(o, s16 *, 0x4A) = -0x3EFF;
+        M2C_FIELD(o, s16 *, 0x48) = 0;
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, s32 *, 0x28) = M2C_FIELD(o, s16 *, 0x9C) - 0xD7;
+        M2C_FIELD(o, u32 *, 0xE0) |= 0x200;
+        M2C_FIELD(o, volatile u32 *, 0xE0) &= ~0x1000;
+        M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, Rng_8013EFBC **, 0x88)[0].start;
+        if ((u8)(M2C_FIELD(o, u8 *, 0x7E) - 0x59) < 3) {
+            M2C_FIELD(o, volatile u32 *, 0xE0) |= 0x80000;
+            M2C_FIELD(o, u16 *, 0x5C) = ((*(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88))) + (*(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2))) >> 1;
+        } else {
+            M2C_FIELD(o, u32 *, 0xE0) &= ~0x80000;
+        }
+        func_8005588C(o, 0);
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    func_80058134(o, M2C_FIELD(o, s16 *, 0x44));
+    if (M2C_FIELD(o, u8 *, 0xC9)) {
+        M2C_FIELD(o, u8 *, 0xC9)--;
+    } else {
+        func_8005588C(o, 0x16);
+        if (Spike_WithinRadiusXZ(M2C_FIELD(o, s16 *, 0x9A), M2C_FIELD(o, s16 *, 0x9E), 0x800)) {
+            Object_PlaySound(o, 0x81);
+        }
+    }
+    if ((M2C_FIELD(o, u32 *, 0xE0) >> 19) & 1) {
+        f = M2C_FIELD(o, u16 *, 0x5C) - 2;
+        if (f < (*(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88)))) {
+            { s32 d = (*(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88))) - f; s32 e = (*(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) + 1; f = e - d; }
+        }
+        M2C_FIELD(o, u16 *, 0x5C) = f;
+    }
+    if (!((M2C_FIELD(o, u32 *, 0xE0) >> 2) & 1)) {
+        ang = ((M2C_FIELD(o, u16 *, 0x5C) - (*(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88)))) << 12) / ((*(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2)) - (*(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88))) + 1);
+        ang = (ang + 0x5FA) % 4096;
+        dx = rcos_8013EFBC(ang) * 797 >> 12;
+        dz = rsin_8013EFBC(ang) * 797 >> 12;
+        Object_AddAttackSphereNear(o, 0x78, M2C_FIELD(o, u16 *, 0x24) + dx, M2C_FIELD(o, s16 *, 0x28), (s16)(M2C_FIELD(o, u16 *, 0x2C) + dz), 1, 0x203);
+        v.vx = M2C_FIELD(o, s32 *, 0x24) + dx;
+        v.vy = M2C_FIELD(o, s32 *, 0x28);
+        v.vz = M2C_FIELD(o, s32 *, 0x2C) + dz;
+        Shadow_Draw(&v, Floor_GetHeight_8013EFBC(v.vx, v.vy, v.vz), 100, *(s32 *)0x1F8003FC);
+    }
+}
 
 void func_8013F2EC(void *arg0, void *arg1, M2C_UNK arg2) {
     func_80052038(arg1, arg2);

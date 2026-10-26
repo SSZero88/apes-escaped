@@ -217,4 +217,21 @@ void func_8013886C(void) {
     G_DRAW.prim = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_8013893C);
+typedef struct { s16 x, y; } Pt_8013893C;
+s32 VectorNormalSS(SVECTOR *, SVECTOR *);
+s32 rsin(s32);
+s32 rcos(s32);
+
+s32 func_8013893C(s32 x, s32 y) {
+    SVECTOR d;
+    Pt_8013893C p;
+    s32 r;
+
+    d.vx = 0xC0 - x;
+    d.vy = 0x78 - y;
+    d.vz = 0;
+    r = SquareRoot0(VectorNormalSS(&d, &d)) << 5;
+    p.x = x + (rsin(r) >> 16);
+    p.y = y + (rcos(r) >> 16);
+    return *(s32 *)&p;
+}

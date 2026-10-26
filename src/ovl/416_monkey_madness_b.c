@@ -350,7 +350,43 @@ void func_8013E1AC(void) {
     } while (var_v1 >= 0);
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013E1D0);
+typedef struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; u8 pad_30[0x2C]; s16 f_5C; u8 pad_5E[0x12]; s32 f_70; u8 pad_74[6]; u8 f_7A; u8 f_7B; u8 pad_7C[6]; u8 f_82; u8 type; u8 active; u8 f_85; u16 f_86; s16 f_88; s16 f_8A; s16 f_8C; u8 f_8E; u8 f_8F; u8 f_90; u8 pad_91[3]; } O_8013E1D0;
+extern O_8013E1D0 D_80141D20_8013E1D0[] asm("D_80141D20");
+
+void func_8013E1D0(s16 *pos, s32 type) {
+    s32 i;
+    O_8013E1D0 *p;
+
+    for (i = 0, p = D_80141D20_8013E1D0; i < 8; i++, p++) {
+        if (p->active == 0) {
+            p->active = 1;
+            p->f_82 = i << 5;
+            p->f_70 = 0;
+            p->f_85 = 0;
+            p->x = pos[0];
+            p->y = pos[1];
+            p->z = pos[2];
+            p->f_88 = 0;
+            p->f_8A = 0;
+            p->f_8C = 0;
+            p->f_86 = 0xFFFF;
+            p->f_7A = 0;
+            p->f_7B = 0;
+            p->f_90 = 2;
+            p->type = type;
+            if (type != 2) {
+                if (type >= 3) {
+                    if (type == 4) {
+                        p->f_8E = 0;
+                        p->f_8F = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0xF) + 8;
+                    }
+                }
+            }
+            p->f_5C = 0;
+            return;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013E2BC);
 
@@ -512,7 +548,85 @@ void func_8013F0E0(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013F1AC);
+typedef struct { SVECTOR at; SVECTOR eye; SVECTOR spike; } Scr_8013F1AC;
+typedef struct { u8 pad_0[0x24]; s32 x, y, z; u8 pad_30[0x54]; u8 f_84; u8 pad_85[3]; s16 f_88; } M_8013F1AC;
+extern M_8013F1AC D_80142260_8013F1AC asm("D_80142260");
+extern struct { u8 f_0; u8 f_1; u8 pad_2[0xA]; s32 f_C; u8 pad_10[0xF]; u8 f_1F; } D_80141880_8013F1AC asm("D_80141880");
+extern struct { u8 pad_0[0x24]; s32 x, y, z; } g_Spike_8013F1AC asm("g_Spike");
+extern s32 D_800EC204;
+extern s8 g_CurrentGadget;
+extern u8 D_800E6916;
+void Camera_ResetToStart(void);
+s32 Sound_PlayFixed_8013F1AC(s32) asm("Sound_PlayFixed");
+void func_8004AF78(void *);
+void func_80047464(void *, s32, s32, s32);
+void func_80047558(void *, s32, s32, s32);
+
+s32 func_8013F1AC(void *cam) {
+    Scr_8013F1AC *sc = (Scr_8013F1AC *)0x1F800000;
+    s32 d;
+    M_8013F1AC *m = &D_80142260_8013F1AC;
+
+    if (D_80141880_8013F1AC.f_0 != 0) {
+        return 0;
+    }
+    if (m->f_84 == 0) {
+        if (D_80141880_8013F1AC.f_1F != 0) {
+            return 0;
+        }
+        if (D_800EC204 < -0x180) {
+            D_80141880_8013F1AC.f_1F = 1;
+            Camera_ResetToStart();
+            Sound_PlayFixed_8013F1AC(4);
+        }
+    }
+    if (D_80141880_8013F1AC.f_1F != 0) {
+        return 0;
+    }
+    sc->spike.vx = g_Spike_8013F1AC.x;
+    sc->spike.vy = g_Spike_8013F1AC.y - 0x80;
+    sc->spike.vz = g_Spike_8013F1AC.z;
+    if (m->z < g_Spike_8013F1AC.z) {
+        sc->spike.vz = m->z;
+    }
+    sc->eye.vy = -0xA00;
+    sc->at.vx = (g_Spike_8013F1AC.x - 0x600) * 3 / 2 + 0x600;
+    sc->at.vy = m->y - 0x44C;
+    sc->at.vz = sc->spike.vz - 0x640;
+    sc->eye.vx = (g_Spike_8013F1AC.x - 0x600) / 2 + 0x600;
+    sc->eye.vz = sc->at.vz + 0xBB8;
+    if (D_80141880_8013F1AC.f_1 == 0xD) {
+        sc->at.vz += 0x320;
+    } else if ((D_80141880_8013F1AC.f_1 == 4 || D_80141880_8013F1AC.f_1 == 8) && m->z < g_Spike_8013F1AC.z) {
+        sc->at.vz += 0x400;
+        sc->eye.vz += 0x400;
+        sc->eye.vy += 0x258;
+    } else if (D_80141880_8013F1AC.f_1 == 0x14) {
+        sc->at.vz -= 0x400;
+    } else if (D_80141880_8013F1AC.f_1 == 0x18) {
+        d = -0x258;
+        if (m->x < D_800EC204) {
+            d = 0x258;
+        }
+        sc->eye.vx += d - m->f_88 * 8 + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) + 0xFF80);
+        sc->at.vx += m->f_88 * 8 - d + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) + 0xFF80);
+        sc->at.vz += (g_RandSeed = g_RandSeed * 5 + 1) >> 8;
+    } else if (D_80141880_8013F1AC.f_1 == 0x19) {
+        if (D_80141880_8013F1AC.f_C >= 0x49) {
+            sc->at.vz += 0x400;
+            sc->eye.vy -= 0x100;
+        } else {
+            sc->at.vz -= 0x200;
+        }
+    }
+    sc->at.vx = sc->at.vx < 0x80 ? 0x80 : (sc->at.vx > 0xB80 ? 0xB80 : sc->at.vx);
+    if (g_CurrentGadget == 3 && D_800E6916 != 1) {
+        func_8004AF78(cam);
+    }
+    func_80047558(cam, 8, 0x18, 0x10);
+    func_80047464(cam, 8, 0x18, 8);
+    return 1;
+}
 
 void func_8013F544(void) {
     M2C_UNK *var_s1;

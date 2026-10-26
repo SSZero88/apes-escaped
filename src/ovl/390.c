@@ -1209,7 +1209,30 @@ s32 func_80139CF0(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80139F08);
+extern struct { u8 pad_0[0x168]; s32 f_168; } g_Pad_80139F08 asm("g_Pad");
+extern s16 D_8013AF5A;
+void func_8013FFEC(s32);
+s32 func_8013A400(void);
+
+s32 func_80139F08(void) {
+    func_8013FFEC(D_8013AF5A);
+    if (D_8013AF66 != 1) {
+        return 0;
+    }
+    if (g_Pad_80139F08.f_168 == 0x1000) {
+        Sound_PlayFixed(0);
+        D_8013AF5A = D_8013AF5A == 0;
+    }
+    if (g_Pad_80139F08.f_168 == 0x4000) {
+        Sound_PlayFixed(0);
+        D_8013AF5A = D_8013AF5A == 0;
+    }
+    if (func_8013A400() != 0) {
+        Sound_PlayFixed(3);
+        return D_8013AF5A + 1;
+    }
+    return 0;
+}
 
 typedef struct { u8 pad0[0x180]; s16 f_180; u8 pad182[0x7A0 - 0x182]; } Slot_80139FC8;
 extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_80139FC8 asm("g_Pad");

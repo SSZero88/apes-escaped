@@ -302,7 +302,21 @@ block_3:
 
 INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_801386B8);
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80138A9C);
+extern s8 D_80139B00[];
+extern s16 D_80139542;
+
+void func_80138A9C(void) {
+    s32 ok = 1;
+    s32 i;
+
+    for (i = 0; D_80139B00[i] > 0; i++) {
+        if (func_80096580(D_80139B00[i]) < 2) {
+            ok = 0;
+            break;
+        }
+    }
+    D_80139542 = ok;
+}
 
 typedef struct { s16 x, y; s32 z; } Pt_391;
 void *func_8008C09C(s32);
@@ -379,7 +393,104 @@ void func_80138E20(void) {
     G_DRAW.prim = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80138F38);
+extern struct { u8 pad0[0x48]; s32 flags; s32 msg; s32 result; } D_80139B20_80138F38 asm("D_80139B20");
+extern struct { u8 pad0[0x8120]; u16 mode; u8 pad8122[2]; u16 f_8124; u16 stage; u8 pad8128[4]; u16 f_812C; u8 pad812E[0x12]; u32 time; u32 best; } g_Game_80138F38 asm("g_Game");
+s32 SaveByte_Get(s32);
+s32 Stage_GetWorld(s32);
+
+void func_80138F38(void) {
+    s16 *times;
+    s32 rb, rt;
+
+    D_80139B20_80138F38.flags = 0;
+    D_80139B20_80138F38.msg = 0;
+    D_80139B20_80138F38.result = 0;
+    if (g_Game_80138F38.mode == 12 || g_Game_80138F38.mode == 20) {
+        if (func_80096580(0x11) > 0 && SaveByte_Get(4) != 5) {
+            D_80139B20_80138F38.flags |= 1;
+        }
+        if (func_80096580(0x11) > 0 && SaveByte_Get(5) != 5) {
+            D_80139B20_80138F38.flags |= 2;
+        }
+    }
+    switch (g_Game_80138F38.mode) {
+    case 12:
+        if (!(D_80139B20_80138F38.flags & 2)) {
+            if (func_80096580(g_Game_80138F38.f_8124) >= 2) {
+                D_80139B20_80138F38.msg = 0x20;
+            } else {
+                D_80139B20_80138F38.msg = 0x1F;
+            }
+        }
+        break;
+    case 20:
+        times = Stage_GetTargetTimes(Stage_GetWorld(g_Game_80138F38.stage));
+        rb = 0;
+        rt = rb;
+        if ((u32)times[0] < g_Game_80138F38.time) {
+            D_80139B20_80138F38.result = 4;
+            if (!(D_80139B20_80138F38.flags & 2)) {
+                D_80139B20_80138F38.msg = 0x25;
+            }
+            break;
+        }
+        if (!((u32)times[0] < g_Game_80138F38.best)) {
+            if ((u32)times[1] < g_Game_80138F38.best) {
+                rb = 1;
+            } else if ((u32)times[2] >= g_Game_80138F38.best) {
+                rb = 3;
+            } else {
+                rb = 2;
+            }
+        }
+        if (!((u32)times[0] < g_Game_80138F38.time)) {
+            if ((u32)times[1] < g_Game_80138F38.time) {
+                rt = 1;
+            } else if ((u32)times[2] >= g_Game_80138F38.time) {
+                rt = 3;
+            } else {
+                rt = 2;
+            }
+        }
+        if (rb >= rt) {
+            if (g_Game_80138F38.time < g_Game_80138F38.best) {
+                if (!(D_80139B20_80138F38.flags & 2)) {
+                    D_80139B20_80138F38.msg = 0x24;
+                }
+                D_80139B20_80138F38.result = 3;
+            } else {
+                D_80139B20_80138F38.msg = 0;
+                D_80139B20_80138F38.result = 8;
+            }
+            break;
+        }
+        switch (rt) {
+        case 1:
+            D_80139B20_80138F38.msg = 0x21;
+            D_80139B20_80138F38.result = 5;
+            break;
+        case 2:
+            D_80139B20_80138F38.msg = 0x22;
+            D_80139B20_80138F38.result = 6;
+            break;
+        case 3:
+            D_80139B20_80138F38.msg = 0x23;
+            D_80139B20_80138F38.result = 7;
+            break;
+        }
+        if (D_80139B20_80138F38.flags & 2) {
+            D_80139B20_80138F38.msg = 0;
+        }
+        break;
+    case 25:
+        if (g_Game_80138F38.f_812C == 8) {
+            D_80139B6C = 0x2A;
+        } else {
+            D_80139B6C = 0x29;
+        }
+        break;
+    }
+}
 
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_801392B0;
 typedef struct { u8 pad_0[4]; s16 x, y, z; u8 pad_A[0xB]; u8 rot; } Obj_801392B0;

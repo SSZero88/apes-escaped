@@ -134,7 +134,6 @@ s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
 s32 VSync(s32 mode);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-s32 func_80137470();
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
@@ -293,7 +292,25 @@ s32 func_80137308(void *obj) {
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_8013734C);
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80137470);
+extern s16 D_801391A8;
+s32 func_801374DC(void);
+void func_801378C4(void);
+
+s32 func_80137470(void) {
+    switch (D_801391A8) {
+    case 0:
+        break;
+    case 1:
+        if (func_801374DC() < 0) {
+            return -1;
+        }
+        break;
+    case 2:
+        func_801378C4();
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_801374DC);
 
