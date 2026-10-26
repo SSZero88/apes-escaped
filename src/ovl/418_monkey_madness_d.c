@@ -654,7 +654,62 @@ void func_8013F818(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013F894);
+s32 rsin_8013F894(s32) asm("rsin");
+typedef struct { u32 active : 1; u32 b1 : 2; u32 init : 1; u32 b4 : 8; u32 b12 : 1; u32 b13 : 19; } Flags_8013F894;
+s32 Spike_WithinRadiusXZ_8013F894(s32, s32, s32) asm("Spike_WithinRadiusXZ");
+void *func_80056BC4(s16, s32, s16);
+void func_8013F380(void);
+void func_8013F818(void *arg0);
+
+void func_8013F894(u8 *e) {
+    s32 t;
+
+    if (!M2C_FIELD(e, Flags_8013F894 *, 0xE0).init) {
+        M2C_FIELD(e, s16 *, 0xA0) = 0x32;
+        M2C_FIELD(e, s16 *, 0xB0) = 0x5B;
+        e[0xC8] = 5;
+        M2C_FIELD(e, s16 *, 0x44) = 0x50;
+        M2C_FIELD(e, s16 *, 0x46) = 0xE6;
+        e[0x81] = 6;
+        e[0x7D] = 9;
+        e[0xDC] = 1;
+        M2C_FIELD(e, Flags_8013F894 *, 0xE0).active = 0;
+        t = M2C_FIELD(e, s16 *, 0xAC) + 0x800;
+        M2C_FIELD(e, Flags_8013F894 *, 0xE0).b12 = 0;
+        M2C_FIELD(e, s16 *, 0xAC) = t % 0x1000;
+        M2C_FIELD(e, s16 *, 0x60) = rcos(M2C_FIELD(e, s16 *, 0xAC));
+        M2C_FIELD(e, s16 *, 0x64) = rsin_8013F894(M2C_FIELD(e, s16 *, 0xAC));
+        func_8013F380();
+        e[0x7F] = 0;
+        M2C_FIELD(e, u16 *, 0x5C) = *M2C_FIELD(e, u16 **, 0x88);
+        M2C_FIELD(e, Flags_8013F894 *, 0xE0).init = 1;
+    }
+    func_80058134(e, M2C_FIELD(e, s16 *, 0x44));
+    switch (e[0x80]) {
+    case 1:
+        if (Spike_WithinRadiusXZ_8013F894(M2C_FIELD(e, s32 *, 0x24), M2C_FIELD(e, s32 *, 0x2C), 0x600)) {
+            e[0x80] = 2;
+            e[0x7F] = 1;
+            M2C_FIELD(e, u16 *, 0x5C) = M2C_FIELD(e, u16 **, 0x88)[2];
+        }
+        break;
+    case 2:
+        if (M2C_FIELD(e, u16 *, 0x5C) >= M2C_FIELD(e, u16 **, 0x88)[e[0x7F] * 2 + 1]) {
+            e[0x80] = 3;
+            e[0x7F] = 0;
+            M2C_FIELD(e, u16 *, 0x5C) = *M2C_FIELD(e, u16 **, 0x88);
+            func_80056BC4(0x18, 0, M2C_FIELD(e, s8 *, 0xCB));
+            M2C_FIELD(e, Flags_8013F894 *, 0xE0).active = 0;
+        }
+        break;
+    case 3:
+        if (M2C_FIELD(e, Flags_8013F894 *, 0xE0).active) {
+            e[0x80] = 1;
+        }
+        break;
+    }
+    func_8013F818(e);
+}
 
 s32 func_8013FA8C(s32 *arg0, void **arg1) {
     s16 temp_a0;

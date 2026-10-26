@@ -31,7 +31,7 @@ M2C_UNK Object_DropPickups(void *);
 M2C_UNK func_8013E9E0();
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 s32 Object_DetachLink(void *, M2C_UNK);
-extern M2C_UNK func_80140310;
+void func_80140310(void);
 extern struct S_D_80144AD0 { u8 pad_0[0x10]; s32 f_10; } D_80144AD0[];
 void *Collision_GetShape(s32);
 M2C_UNK func_800525E0(void *);
@@ -777,7 +777,23 @@ void func_80140274(void *arg0, void *arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_80140310);
+typedef struct { SVECTOR a; SVECTOR b; s32 n; } Spark_80140310;
+extern Spark_80140310 D_80144AD0_80140310[6] asm("D_80144AD0");
+extern struct { u16 f_0; } g_Game_80140310 asm("g_Game");
+void func_8006F274(SVECTOR *, SVECTOR *, u16);
+
+void func_80140310(void) {
+    s32 i;
+    Spark_80140310 *p;
+
+    for (i = 5; i >= 0; i--) {
+        p = &D_80144AD0_80140310[i];
+        if (p->n) {
+            p->n--;
+            func_8006F274(&p->a, &p->b, g_Game_80140310.f_0);
+        }
+    }
+}
 
 void func_80140380(void *arg0, void *arg1, s32 arg2) {
     M2C_FIELD(arg1, s16 *, 0) = (s16) (M2C_FIELD(arg0, u16 *, 0x24) + ((s32) (M2C_FIELD(arg0, s16 *, 0x60) * arg2) >> 0xC));

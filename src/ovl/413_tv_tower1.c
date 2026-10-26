@@ -14,7 +14,7 @@ M2C_UNK func_80052038(void *, M2C_UNK);
 M2C_UNK func_800520A8(void *, M2C_UNK);
 s16 Floor_GetHeight(s16, s16, s16);
 M2C_UNK Hook_Add(M2C_UNK *);
-extern M2C_UNK func_8013FB40;
+void func_8013FB40(void);
 extern struct S_D_80144640 { u8 pad_0[0xC]; s16 f_C; u8 pad_E[0x6]; } D_80144640[];
 void *Collision_GetShape(s32);
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
@@ -902,7 +902,65 @@ void func_8013FB00(SVECTOR *arg0) {
     Effect_SpawnAt(0x102, &v);
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013FB40);
+typedef struct { s16 x, y, z, vx, vy, vz, active, owner, grav, pad12; } Drip_8013DA0C;
+typedef struct { s16 x, y, z; } V3_8013DA0C;
+typedef struct { u8 pad[0x24]; s32 x, y, z; u8 pad30[0x30]; s16 vx, vy, vz; } M_8013DA0C;
+typedef struct { u8 pad[0x28]; s32 y; u8 pad2C[0xB4 - 0x2C]; s32 f_B4; u8 padB8[0xE4 - 0xB8]; } Obj_8013DA0C;
+M2C_UNK Sound_PlayAt(M2C_UNK, void *);
+extern Drip_8013DA0C D_80141738_8013DA0C[4] asm("D_80144640");
+extern M_8013DA0C D_801418D8_8013DA0C asm("D_801447E0");
+extern Obj_8013DA0C g_Objects_8013DA0C[] asm("g_Objects");
+s32 VectorNormalSS_8013DA0C(void *, void *) asm("VectorNormalSS");
+s32 Object_AddAttackSphere_8013DA0C(void *, s32, s16, s16, s32, s32, s32) asm("Object_AddAttackSphere");
+void func_8013F550(s32 arg0);
+s32 func_8013FA7C(void *arg0);
+void func_8013FAC0(SVECTOR *arg0);
+void func_8013FB00(SVECTOR *arg0);
+void func_8013F550(s32 arg0);
+
+void func_8013FB40(void) {
+    Drip_8013DA0C *p;
+    M_8013DA0C *m;
+    Obj_8013DA0C *o;
+    s32 i;
+    s32 r;
+    V3_8013DA0C s;
+    V3_8013DA0C v;
+
+    m = &D_801418D8_8013DA0C;
+    for (i = 3; i >= 0; i--) {
+        p = &D_80141738_8013DA0C[i];
+        if (p->active != 0) {
+            p->active++;
+            p->vy += p->grav;
+            o = &g_Objects_8013DA0C[p->owner];
+            func_8013FAC0((SVECTOR *)p);
+            p->x += p->vx;
+            p->y += p->vy;
+            p->z += p->vz;
+            r = Object_DetachLink(o, 0);
+            if (func_8013FA7C(p) || o->y + 0x600 < p->y || r == 6) {
+                v.x = p->x;
+                v.y = p->y;
+                v.z = p->z;
+                s = v;
+                Sound_PlayAt(0x4D, &s);
+                p->active = 0;
+                func_8013FB00((SVECTOR *)p);
+                continue;
+            }
+            m->x = p->x;
+            m->y = p->y;
+            m->z = p->z;
+            m->vx = p->vx;
+            m->vy = p->vy;
+            m->vz = p->vz;
+            VectorNormalSS_8013DA0C(&m->vx, &m->vx);
+            func_8013F550(3);
+            o->f_B4 = Object_AddAttackSphere_8013DA0C(o, 100, p->x, p->y, p->z, 0x201, 0x203);
+        }
+    }
+}
 
 void func_8013FD48(void) {
     s32 i;
