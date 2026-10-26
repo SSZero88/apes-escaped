@@ -148,7 +148,32 @@ void func_8013DAC8(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013DB34);
+typedef struct { s32 x, y, z; u8 pad_C[0x14]; s16 f_20; s16 pad_22; s16 f_24; s16 f_26; } Shape_8013DB34;
+typedef struct { Shape_8013DB34 *shape; s16 x, y, z; } Coll_8013DB34;
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013DB34 asm("g_Spike");
+Shape_8013DB34 *CollShape_Alloc_8013DB34(void) asm("CollShape_Alloc");
+s32 Collision_Set_8013DB34(s32, void *, void *) asm("Collision_Set");
+
+void func_8013DB34(void *cv, void *owner, s32 a2, s16 a3) {
+    Coll_8013DB34 *c = cv;
+    s32 dx = g_Spike_8013DB34.x - c->x;
+    s32 dz = g_Spike_8013DB34.z - c->z;
+
+    if (dx * dx + dz * dz > 0x24000) {
+        c->shape = NULL;
+        return;
+    }
+    c->shape = CollShape_Alloc_8013DB34();
+    if (c->shape != NULL) {
+        c->shape->x = c->x;
+        c->shape->y = c->y;
+        c->shape->z = c->z;
+        c->shape->f_20 = a2;
+        c->shape->f_24 = 1;
+        c->shape->f_26 = a3;
+        Collision_Set_8013DB34(7, c->shape, owner);
+    }
+}
 
 void func_8013DC3C(void) {
     M2C_UNK *var_v0;
@@ -182,7 +207,92 @@ void func_8013DC60(s32 a, SVECTOR *v, s32 b, s32 c) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013DCC8);
+typedef struct { u32 *shape; SVECTOR head; SVECTOR tail; s32 obj; u8 state; u8 pad19; s8 size; u8 pad1B; u16 timer; u16 age; SVECTOR *src; SVECTOR vel; s32 snd; } Ev_8013DCC8;
+extern Ev_8013DCC8 D_8013FB90_8013DCC8[4] asm("D_8013FB90");
+extern u8 D_800B1C28[];
+extern u8 D_8013F990[];
+void func_80070284(void *, void *, s32, s32, void *);
+s32 Camera_StartShake_8013DCC8(s32) asm("Camera_StartShake");
+s32 Object_PlaySound_8013DCC8(s32, s32) asm("Object_PlaySound");
+void func_8006F3D0_8013DCC8(SVECTOR *, s32, void *, s32) asm("func_8006F3D0");
+void func_8013DB34(void *cv, void *owner, s32 a2, s16 a3);
+
+void func_8013DCC8(void) {
+    SVECTOR pts[16];
+    Ev_8013DCC8 *e;
+    s32 i;
+    s32 k;
+    s16 h;
+    s32 d;
+
+    for (i = 3, e = D_8013FB90_8013DCC8; i >= 0; i--, e++) {
+        if (e->state == 0) {
+            continue;
+        }
+        switch (e->state) {
+        case 1:
+            e->tail = *e->src;
+            e->head = e->tail;
+            Fx_SpawnFadeRing(&e->tail, 3, 0x300, 0);
+            e->state = 2;
+            e->age = 0;
+            e->size = 0xC;
+            Effect_SpawnAt(0x114, &e->tail);
+            func_80070284(&e->tail, D_800B1C28, 1, 0, &e->vel);
+            Camera_StartShake_8013DCC8(0);
+            Object_PlaySound_8013DCC8(e->obj, e->snd);
+            break;
+        case 2:
+            e->age++;
+            if (e->size < 0x24) {
+                e->size += 4;
+            }
+            e->head.vx += e->vel.vx;
+            e->head.vy += e->vel.vy;
+            e->head.vz += e->vel.vz;
+            h = Floor_GetHeight(e->head.vx, e->head.vy, e->head.vz);
+            if (e->age >= 0x10 || e->head.vy > h || (e->shape != NULL && (e->shape[0xB] >> 28) == 6)) {
+            d = e->head.vy - h;
+            if ((d < 0 ? h - e->head.vy : d) < 0x100) {
+                e->head.vy = h - 0x20;
+            }
+            e->state = 3;
+            e->timer = e->age;
+            Effect_SpawnAt(0x114, &e->head);
+            func_80070284(&e->head, D_800B1C28, 1, 0, 0);
+            } else {
+                func_8013DB34(e, (void *)e->obj, 0x80, 0x200);
+            }
+            break;
+        case 3:
+            e->tail.vx += e->vel.vx;
+            e->tail.vy += e->vel.vy;
+            e->tail.vz += e->vel.vz;
+            e->size -= 8;
+            if (e->size < 4) {
+                e->size = 4;
+            }
+            if (--e->timer == 0) {
+                e->state = 0;
+            }
+            break;
+        }
+    }
+    for (i = 3, e = D_8013FB90_8013DCC8; i >= 0; i--, e++) {
+        if (e->state >= 2) {
+            SVECTOR *q = pts;
+            *q = e->tail;
+            for (k = 16; k > 0; k--) {
+                q->vx = (e->tail.vx * k + e->head.vx * (16 - k)) / 16;
+                q->vy = (e->tail.vy * k + e->head.vy * (16 - k)) / 16;
+                q->vz = (e->tail.vz * k + e->head.vz * (16 - k)) / 16;
+                q++;
+            }
+            func_8006F3D0_8013DCC8(pts, 16, D_8013F990, e->size);
+            Effect_SpawnAt(0x2F, &e->head);
+        }
+    }
+}
 
 typedef struct { u8 pad0[8]; s16 f_8, f_A; } Pt_423;
 extern Pt_423 D_8013FC50[5];
@@ -503,7 +613,6 @@ void func_8013EC44(u8 *a) {
 
 s32 Hook_Add(s32);
 void func_8013DC3C(void);
-void func_8013DCC8();
 void Object_PlaceAtPathPoint(void *, s32);
 
 void func_8013ECE8(u8 *o) {
@@ -529,7 +638,163 @@ void func_8013ECE8(u8 *o) {
     Object_DisableCollision(o);
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013EDBC);
+typedef struct { u16 start; u16 end; } Rng_8013EDBC;
+typedef struct { u32 b0 : 3; u32 init : 1; u32 b4 : 2; u32 alt : 1; u32 b7 : 15; u32 b22 : 2; u32 b24 : 8; } Bits_8013EDBC;
+extern s32 D_800EC208;
+void func_8013ECE8(u8 *o);
+void func_80058134(void *, s32);
+void func_8013E134(void *arg0);
+void func_8013EB3C(void *arg0);
+void Object_ClampAnimFrame(void *, s32);
+void Object_TurnTowardSpike(void *);
+void Object_EnableCollision(void *);
+void Object_DropPickups(void *);
+void func_8013E2B0(u8 *e, s32 n);
+void func_8013EB00(void *arg0);
+void func_8013E994(u8 *e);
+void func_8013E8A0(void *arg0);
+s32 func_8013E7CC(u8 *e, s32 spd);
+void func_8013E740(void *arg0);
+void func_8013DAC8(void *arg0);
+void func_80051E98(void *, s32);
+void func_8013EC44(u8 *a);
+#define TBL_8013EDBC (M2C_FIELD(o, Rng_8013EDBC **, 0x88))
+#define FRAME_8013EDBC (M2C_FIELD(o, u16 *, 0x5C))
+#define BITS_8013EDBC (M2C_FIELD(o, Bits_8013EDBC *, 0xE0))
+
+void func_8013EDBC(u8 *o) {
+    SVECTOR v;
+
+    if (!((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1)) {
+        func_8013ECE8(o);
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    func_80058134(o, M2C_FIELD(o, s16 *, 0x44));
+    func_8013E134(o);
+    func_8013EB3C(o);
+    switch (o[0x80]) {
+    case 1:
+        if (Spike_WithinRadiusXZ(M2C_FIELD(o, s32 *, 0x24), M2C_FIELD(o, s32 *, 0x2C), 0x800) && D_800EC208 < M2C_FIELD(o, s32 *, 0x28)) {
+            o[0x80] = 2;
+            FRAME_8013EDBC = TBL_8013EDBC[o[0x7F]].start;
+            o[0xC8] = 0xF;
+            M2C_FIELD(o, s16 *, 0x96) = -0x70;
+            M2C_FIELD(o, s16 *, 0xAA) = 0;
+            func_8013E22C(o);
+        }
+        break;
+    case 2:
+        Object_ClampAnimFrame(o, TBL_8013EDBC[o[0x7F]].end);
+        Object_TurnTowardSpike(o);
+        func_8013E2B0(o, 0);
+        M2C_FIELD(o, s32 *, 0x28) += M2C_FIELD(o, s16 *, 0x96);
+        M2C_FIELD(o, s16 *, 0x96) += 7;
+        if (M2C_FIELD(o, s16 *, 0x96) >= 0) {
+            o[0x80] = 3;
+            o[0x7F] = 1;
+            FRAME_8013EDBC = TBL_8013EDBC[1].start;
+            func_8013E26C(o);
+            Object_PlaySound((s32)o, 0x9F);
+        }
+        break;
+    case 3:
+        func_8013E948(o);
+        func_8013E2B0(o, 1);
+        Object_TurnTowardSpike(o);
+        if (FRAME_8013EDBC >= TBL_8013EDBC[o[0x7F]].end) {
+            func_8013EB00(o);
+            Object_EnableCollision(o);
+        }
+        break;
+    case 4:
+        func_8013E948(o);
+        func_8013E2B0(o, 1);
+        Object_TurnTowardSpike(o);
+        func_8013E994(o);
+        if (func_8005588C(o, -1) == 0 && FRAME_8013EDBC >= TBL_8013EDBC[o[0x7F]].end) {
+            o[0x80] = 5;
+            o[0x7F] = 3;
+            FRAME_8013EDBC = TBL_8013EDBC[3].start;
+        }
+        break;
+    case 5:
+        func_8013E948(o);
+        func_8013E2B0(o, 1);
+        Object_TurnTowardSpike(o);
+        func_8013E8A0(o);
+        break;
+    case 6:
+        func_8013E948(o);
+        func_8013E2B0(o, 0);
+        func_8013E7CC(o, 0x5A);
+        if (FRAME_8013EDBC >= TBL_8013EDBC[o[0x7F]].end) {
+            o[0x80] = 7;
+            if (BITS_8013EDBC.alt) {
+                o[0x7F] = 8;
+                FRAME_8013EDBC = TBL_8013EDBC[8].start;
+            } else {
+                o[0x7F] = 5;
+                FRAME_8013EDBC = TBL_8013EDBC[5].start;
+            }
+        }
+        break;
+    case 7:
+        func_8013E948(o);
+        func_8013E2B0(o, 0);
+        if (func_8013E7CC(o, 0x5A)) {
+            o[0x80] = 8;
+            if (BITS_8013EDBC.alt) {
+                o[0x7F] = 9;
+                FRAME_8013EDBC = TBL_8013EDBC[9].start;
+            } else {
+                o[0x7F] = 6;
+                FRAME_8013EDBC = TBL_8013EDBC[6].start;
+            }
+            func_8013E26C(o);
+            Object_PlaySound((s32)o, 0x9F);
+        }
+        break;
+    case 8:
+        func_8013E948(o);
+        func_8013E740(o);
+        func_8013E2B0(o, 0);
+        if (FRAME_8013EDBC >= TBL_8013EDBC[o[0x7F]].end) {
+            func_8013EB00(o);
+        }
+        break;
+    case 9:
+        func_8013E2B0(o, 1);
+        if (FRAME_8013EDBC >= TBL_8013EDBC[o[0x7F]].end) {
+            func_8013E8A0(o);
+            o[0x8F] = 0x3C;
+        }
+        break;
+    case 10:
+        BITS_8013EDBC.b22 = 1;
+        M2C_FIELD(o, s16 *, 0xD4) = (M2C_FIELD(o, s16 *, 0xD4) + 3) % 0x1000;
+        M2C_FIELD(o, s16 *, 0xD6) = (M2C_FIELD(o, s16 *, 0xD6) + 5) % 0x1000;
+        if (TBL_8013EDBC[o[0x7F]].start + 3 < FRAME_8013EDBC) {
+            FRAME_8013EDBC = TBL_8013EDBC[o[0x7F]].start;
+        }
+        if ((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 3) == 0) {
+            func_8013E2B0(o, 0);
+        }
+        func_8013DAC8(o);
+        if (func_8005588C(o, -1) == 0) {
+            func_80051E98(o, 1);
+            Object_DropPickups(o);
+            Object_PlaySound((s32)o, 0x6E);
+            v.vx = M2C_FIELD(o, s32 *, 0x24);
+            v.vy = M2C_FIELD(o, s32 *, 0x28) - 0xC8;
+            v.vz = M2C_FIELD(o, s32 *, 0x2C);
+            Fx_SpawnFadeRing(&v, 0, 0x320, 8);
+            v.vy -= 0x80;
+            func_80070284(&v, D_800B1C28, 1, 8, 0);
+        }
+        break;
+    }
+    func_8013EC44(o);
+}
 
 s32 func_8013F360(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0x16) = -1;

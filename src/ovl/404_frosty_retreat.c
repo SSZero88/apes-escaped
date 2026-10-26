@@ -552,7 +552,142 @@ void func_8013E698(void *arg0) {
     Object_DisableCollision(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_8013E778);
+typedef struct { u16 start; u16 end; } Anim_8013E778;
+typedef struct { u8 pad0[0x44]; s16 f_44; u8 pad46[0xA]; u32 f_50; u8 pad54[0x8]; u16 f_5C; u8 pad5E[0x21]; u8 f_7F; u8 f_80; u8 pad81[0x7]; Anim_8013E778 *f_88; u8 pad8C[0x14]; s16 f_A0; u8 padA2[0x3E]; u32 f_E0; } O_8013E778;
+void func_8013E360(void *arg0);
+void func_8013E528(void *arg0);
+void func_8013E554(void *arg0);
+void func_8013E5E4(void *arg0);
+void func_8013E674(void *obj);
+void func_8013E698(void *arg0);
+M2C_UNK Object_StepOnGroundFixed_8013E778(void *) asm("Object_StepOnGroundFixed");
+void Object_TurnTowardSpike_8013E778(void *) asm("Object_TurnTowardSpike");
+void func_80058134_8013E778(void *, s32) asm("func_80058134");
+void func_80055C7C_8013E778(void *, s32) asm("func_80055C7C");
+void func_80055D28_8013E778(void *, s32, s32) asm("func_80055D28");
+void Object_EnableCollision_8013E778(void *) asm("Object_EnableCollision");
+s32 Object_SpikeInFront_8013E778(void *, s32, s32, s32) asm("Object_SpikeInFront");
+s32 Object_SpikeNearXZ_8013E778(void *, s32) asm("Object_SpikeNearXZ");
+
+void func_8013E778(O_8013E778 *o) {
+    if (!((o->f_E0 >> 3) & 1)) {
+        func_8013E698(o);
+        o->f_E0 |= 8;
+    }
+    func_80058134_8013E778(o, o->f_44);
+    if ((o->f_E0 >> 20) & 1) {
+        o->f_E0 &= ~0x100000;
+        o->f_80 = 6;
+        o->f_7F = 0;
+        o->f_5C = o->f_88[0].start;
+        func_8013E528(o);
+    }
+    switch (o->f_80) {
+    case 1:
+        o->f_5C = o->f_88[o->f_7F].start;
+        func_80055C7C_8013E778(o, 0x3C);
+        Object_StepOnGroundFixed_8013E778(o);
+        if (func_8005588C(o, -1) == 0) {
+            func_8013E5E4(o);
+            Object_EnableCollision_8013E778(o);
+        }
+        break;
+    case 3:
+        o->f_A0 += 5;
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            o->f_80 = 2;
+            o->f_7F = 2;
+            o->f_5C = o->f_88[2].start;
+        }
+        break;
+    case 2:
+        if (Object_SpikeInFront_8013E778(o, 0x168, -0x1000, 0x800)) {
+            o->f_80 = 7;
+            o->f_7F = 4;
+            o->f_5C = o->f_88[4].start;
+            Object_PlaySound(o, 0x61);
+            break;
+        }
+        if (Object_SpikeInFront_8013E778(o, 0xB4, 0, 0x300)) {
+            o->f_80 = 8;
+            o->f_7F = 4;
+            o->f_5C = o->f_88[4].start;
+        }
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            o->f_80 = 6;
+            o->f_7F = 0;
+            o->f_5C = o->f_88[0].start;
+        }
+        break;
+    case 8:
+        Object_TurnTowardSpike_8013E778(o);
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            o->f_80 = 6;
+            o->f_7F = 0;
+            o->f_5C = o->f_88[0].start;
+            func_8013E528(o);
+        }
+        break;
+    case 7:
+        Object_TurnTowardSpike_8013E778(o);
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            o->f_80 = 4;
+            o->f_7F = 3;
+            o->f_5C = o->f_88[3].start;
+        }
+        break;
+    case 4:
+        Object_TurnTowardSpike_8013E778(o);
+        if ((o->f_50 >> 28) == 6 || !Object_SpikeInFront_8013E778(o, 0xB4, 0, 0x800) || Object_SpikeInFront_8013E778(o, 0xB4, 0, 0x300)) {
+            o->f_80 = 6;
+            o->f_7F = 0;
+            o->f_5C = o->f_88[0].start;
+            func_8013E528(o);
+            break;
+        }
+        if (o->f_5C == o->f_88[o->f_7F].start + 0x14) {
+            func_8013E674(o);
+        }
+        break;
+    case 5:
+        if (Object_SpikeInFront_8013E778(o, 0xB4, 0, 0x300) || !Object_SpikeInFront_8013E778(o, 0xB4, 0, 0x800) || !Object_SpikeNearXZ_8013E778(o, 0x600)) {
+            o->f_80 = 6;
+            o->f_7F = 0;
+            o->f_5C = o->f_88[0].start;
+        }
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            if (Object_SpikeInFront_8013E778(o, 0xB4, 0, 0x800)) {
+                o->f_80 = 4;
+                o->f_7F = 3;
+                o->f_5C = o->f_88[3].start;
+                Object_TurnTowardSpike_8013E778(o);
+            } else {
+                o->f_80 = 6;
+                o->f_7F = 0;
+                o->f_5C = o->f_88[0].start;
+                func_8013E528(o);
+            }
+        }
+        break;
+    case 6:
+        if (o->f_A0 != 0) {
+            o->f_A0 -= 5;
+        }
+        Object_DisableCollision(o);
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            o->f_A0 = 0;
+            func_8005588C(o, 0x2D);
+            o->f_80 = 1;
+            o->f_7F = 1;
+            o->f_5C = o->f_88[1].start;
+            func_80055D28_8013E778(o, 0x3C, 0);
+            func_8013E528(o);
+        }
+        break;
+    }
+    func_8013E554(o);
+    func_8013E360(o);
+}
 
 void func_8013EC60(void *arg0) {
     if (M2C_FIELD(arg0, s8 *, 0x7C) == -1) {

@@ -101,4 +101,152 @@ s32 func_8013B550(void) {
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390b", func_8013B6C4);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390b", func_8013BC64);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, pad1; s16 x1, y1; u8 r2, g2, b2, pad2; s16 x2, y2; u8 r3, g3, b3, pad3; s16 x3, y3; } PolyG4_8013BC64;
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, pad1; s16 x1, y1; u8 r2, g2, b2, pad2; s16 x2, y2; } PolyG3_8013BC64;
+extern u8 g_Game[];
+extern u8 D_8013C550[];
+void Menu_DrawCaps(s32, s32, s32);
+void func_8013FD50(void *);
+void func_80136000(u8 *s, s32 x, s32 y, s32 c);
+s32 func_8013946C(s32 i, s32 x, s32 y);
+#define G4_8013BC64 ((PolyG4_8013BC64 *)G_DRAW.prim)
+#define G3_8013BC64 ((PolyG3_8013BC64 *)G_DRAW.prim)
+#define ADDPRIM_8013BC64(OT) __asm__ volatile("lwl $4, 2(%0)\n\tlw $2, %1\n\tsll $2, $2, 8\n\tswl $2, 2(%0)\n\tlw $2, %1\n\tswl $4, 2($2)" : : "r"(OT), "m"(G_DRAW.prim) : "$2", "$4", "memory")
+#define ADDPRIM2_8013BC64(OT) __asm__ volatile("lwl $4, 2(%0)\n\tlw $3, %1\n\tsll $3, $3, 8\n\tswl $3, 2(%0)\n\tlw %0, %1\n\tswl $4, 2(%0)" : : "r"(OT), "m"(G_DRAW.prim) : "$3", "$4", "memory")
+
+s32 func_8013BC64(void) {
+    u8 buf[2];
+    s32 i;
+    s32 x, y;
+    s16 cur, col, row;
+
+    if (D_8013C5AC < 2) {
+        col = D_8013C5A8 % 15;
+        row = D_8013C5A8 / 15;
+        y = row * 20 + 0x3E;
+        x = col * 16 + (s16)(col / 5) * 20 + 0x32;
+    } else {
+        col = D_8013C5A8 % 11;
+        row = D_8013C5A8 / 11;
+        x = col * 16 + 0x64;
+        y = row * 20 + 0x52;
+    }
+    Menu_DrawCaps(x + 8, y - 2, 0x20);
+    func_8013FD50(&D_8013C540);
+    for (i = 0; i < 5; i++) {
+        buf[0] = D_8013C5C0[i];
+        buf[1] = 0;
+        func_80136000(buf, i * 16 + 0xAE, 0x20, 1);
+    }
+    for (i = 0; i < D_8013C5B0; i++) {
+        if (D_8013C5AC < 2) {
+            y = i / 15 * 20 + 0x3E;
+            x = (i % 15) * 16 + (i % 15) / 5 * 20 + 0x32;
+        } else {
+            x = (i % 11) * 16 + 0x64;
+            y = i / 11 * 20 + 0x52;
+        }
+        buf[0] = D_8013C550[i + D_8013C5AE];
+        buf[1] = 0;
+        if (i == D_8013C5A8) {
+            func_80136000(buf, x, y - 2, 0);
+        } else {
+            func_80136000(buf, x, y, 1);
+        }
+    }
+    for (i = 0; i < 5; i++) {
+        ((u8 *)G4_8013BC64)[3] = 8;
+        G4_8013BC64->code = 0x38;
+        G4_8013BC64->x0 = i * 16 + 0xB0;
+        G4_8013BC64->y0 = 0x30;
+        G4_8013BC64->x1 = i * 16 + 0xBC;
+        G4_8013BC64->y1 = 0x30;
+        G4_8013BC64->x2 = i * 16 + 0xB0;
+        G4_8013BC64->y2 = 0x34;
+        G4_8013BC64->x3 = i * 16 + 0xBC;
+        G4_8013BC64->y3 = 0x34;
+        if (D_8013C5AA == i) {
+            G4_8013BC64->r0 = 0xF5;
+            G4_8013BC64->g0 = 0xDC;
+            G4_8013BC64->b0 = 0xC8;
+            G4_8013BC64->r1 = 0xE6;
+            G4_8013BC64->g1 = 0x46;
+            G4_8013BC64->b1 = 0x28;
+            G4_8013BC64->r2 = 0xC4;
+            G4_8013BC64->g2 = 0x46;
+            G4_8013BC64->b2 = 0x3C;
+            G4_8013BC64->r3 = 0x5F;
+            G4_8013BC64->g3 = 0x0A;
+            G4_8013BC64->b3 = 0x08;
+        } else {
+            G4_8013BC64->r0 = 0xC8;
+            G4_8013BC64->g0 = 0xDC;
+            G4_8013BC64->b0 = 0xF5;
+            G4_8013BC64->r1 = 0x28;
+            G4_8013BC64->g1 = 0x46;
+            G4_8013BC64->b1 = 0xE6;
+            G4_8013BC64->r2 = 0x3C;
+            G4_8013BC64->g2 = 0x46;
+            G4_8013BC64->b2 = 0xC4;
+            G4_8013BC64->r3 = 0x08;
+            G4_8013BC64->g3 = 0x0A;
+            G4_8013BC64->b3 = 0x5F;
+        }
+        ADDPRIM_8013BC64(&G_DRAW.db[G_DRAW.cur].ot[0]);
+        G_DRAW.prim += 0x24;
+    }
+    ((u8 *)G3_8013BC64)[3] = 6;
+    G3_8013BC64->code = 0x31;
+    G3_8013BC64->x0 = 0x37;
+    G3_8013BC64->x1 = 0x3F;
+    G3_8013BC64->x2 = 0x3F;
+    G3_8013BC64->y0 = 0xC8;
+    G3_8013BC64->y1 = 0xC0;
+    G3_8013BC64->y2 = 0xD0;
+    G3_8013BC64->r0 = 0xC8;
+    G3_8013BC64->g0 = 0xDC;
+    G3_8013BC64->b0 = 0xF5;
+    G3_8013BC64->r1 = 0x28;
+    G3_8013BC64->g1 = 0x46;
+    G3_8013BC64->b1 = 0xE6;
+    G3_8013BC64->r2 = 0x3C;
+    G3_8013BC64->g2 = 0x46;
+    G3_8013BC64->b2 = 0xC4;
+    ADDPRIM2_8013BC64(&G_DRAW.db[G_DRAW.cur].ot[0]);
+    G_DRAW.prim += 0x1C;
+    ((u8 *)G3_8013BC64)[3] = 6;
+    G3_8013BC64->code = 0x31;
+    G3_8013BC64->x0 = 0x9B;
+    G3_8013BC64->x1 = 0x93;
+    G3_8013BC64->x2 = 0x93;
+    G3_8013BC64->y0 = 0xC8;
+    G3_8013BC64->y1 = 0xD0;
+    G3_8013BC64->y2 = 0xC0;
+    G3_8013BC64->r0 = 0xC8;
+    G3_8013BC64->g0 = 0xDC;
+    G3_8013BC64->b0 = 0xF5;
+    G3_8013BC64->r1 = 0x28;
+    G3_8013BC64->g1 = 0x46;
+    G3_8013BC64->b1 = 0xE6;
+    G3_8013BC64->r2 = 0x3C;
+    G3_8013BC64->g2 = 0x46;
+    G3_8013BC64->b2 = 0xC4;
+    ADDPRIM2_8013BC64(&G_DRAW.db[G_DRAW.cur].ot[0]);
+    G_DRAW.prim += 0x1C;
+    func_8013946C(0, 0x10C, D_8013C5D0[0] + 0x20);
+    func_8013946C(1, 0x120, D_8013C5D0[1] + 0x20);
+    func_8013946C(3, 0xC2, D_8013C5D0[4] + 0xC0);
+    func_8013946C(4, 0x22, D_8013C5D0[2] + 0xC0);
+    func_8013946C(5, 0x9C, D_8013C5D0[3] + 0xC0);
+    func_8013946C(6, 0x10F, 0xC0);
+    G_DRAW.prim[3] = 1;
+    *(u32 *)(G_DRAW.prim + 4) = 0xE1000217;
+    ADDPRIM2_8013BC64(&G_DRAW.db[G_DRAW.cur].ot[0]);
+    G_DRAW.prim += 8;
+    func_80139A3C(3);
+    func_80139A68();
+    return 0;
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop");

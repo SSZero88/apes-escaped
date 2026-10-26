@@ -312,7 +312,118 @@ s32 func_80137470(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_801374DC);
+int abs(int);
+typedef struct { s16 x, y; u8 s[0x20]; } Label_801374DC;
+typedef struct { s16 f_0; s16 pad2[3]; } Rec_801374DC;
+extern struct { u8 pad0[0x158]; s32 held; s32 pad15C; s32 pressed; s32 pad164; s32 rep; } g_Pad_801374DC asm("g_Pad");
+extern s32 D_800E5488;
+extern s16 D_801391B4;
+extern u8 D_801391EC[];
+extern s8 D_80139180[];
+extern u8 D_80139100[];
+extern u8 D_80138FC8[];
+extern u8 D_80138F84[];
+extern Rec_801374DC D_80139368[];
+void func_80136000(u8 *s, s32 x, s32 y, s32 c);
+s32 func_80136120(u8 *s);
+s32 func_80137C04(void);
+s32 func_80137D40(void);
+s32 func_80137EF8(void);
+s32 func_80136160(s32, s32, s32, s32);
+s32 func_80138978(void);
+s32 func_80137308(void *obj);
+s32 Sound_PlayFixed(s32);
+
+s32 func_801374DC(void) {
+    u8 *a;
+    u8 *b;
+    Label_801374DC *t;
+    s32 pad;
+    u8 *q;
+
+    a = func_80136A88(D_80139100, D_801391EC[D_801391BA]);
+    b = func_80136A88(D_80138FC8, D_80139180[D_80139200[D_801391BA]]);
+    func_80136000(a, 0xC0 - func_80136120(a) / 2, 0x18, 1);
+    func_80136000(b, 0xC0 - func_80136120(b) / 2, 0x2A, 0);
+    func_80137C04();
+    q = D_80138F84;
+    t = (Label_801374DC *)(q - 4);
+    func_80136000(t->s, t->x, t->y, 0);
+    func_80136000(t[1].s, t[1].x, t[1].y, 0);
+    func_80137D40();
+    func_80137EF8();
+    func_80136160(0xC, 0x40, 0x160, 0x90);
+    func_80138978();
+    if (D_801391B6 != 1) {
+        return 0;
+    }
+    if (D_801391BE != 0) {
+        if (D_801391BE > 0) {
+            D_801391BE--;
+        }
+        if (D_801391BE < 0) {
+            D_801391BE++;
+        }
+        if (abs(D_801391BE) == 15) {
+            func_80136FF0();
+        }
+        return 0;
+    }
+    pad = g_Pad_801374DC.pressed & g_Pad_801374DC.held;
+    if (pad & PAD_START) {
+        Sound_PlayFixed(1);
+        return -1;
+    }
+    if (pad & PAD_CIRCLE) {
+        if (D_80139368[D_801391B0].f_0 == 1) {
+            Sound_PlayFixed(3);
+            func_80137308((void *)D_801391B0);
+            return 0;
+        }
+        Sound_PlayFixed(0x30);
+        return 0;
+    }
+    if (g_Pad_801374DC.rep == PAD_L1) {
+        if (--D_801391BA < 0) {
+            D_801391BA = 0;
+        } else {
+            Sound_PlayFixed(0xB);
+            D_801391BE = -30;
+        }
+    }
+    if (D_800E5488 == PAD_R1 && D_801391BE == 0 && D_80139200[D_801391BA + 1] <= D_801391BC) {
+        D_801391BA++;
+        Sound_PlayFixed(0xB);
+        D_801391BE = 30;
+    }
+    if (D_800E5488 == PAD_LEFT) {
+        if (--D_801391B0 < 0) {
+            D_801391B0 = 0;
+            return 0;
+        }
+    } else if (D_800E5488 == PAD_UP) {
+        s16 old = D_801391B0;
+        if ((D_801391B0 -= 8) < 0) {
+            D_801391B0 = old;
+            return 0;
+        }
+    } else if (D_800E5488 == PAD_RIGHT) {
+        if (++D_801391B0 >= D_801391B4) {
+            D_801391B0 = D_801391B4 - 1;
+            return 0;
+        }
+    } else if (D_800E5488 == PAD_DOWN) {
+        s16 old = D_801391B0;
+        if ((D_801391B0 += 8) >= D_801391B4) {
+            D_801391B0 = old;
+            return 0;
+        }
+    } else {
+        return 0;
+    }
+    Sound_PlayFixed(0);
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_801378C4);
 

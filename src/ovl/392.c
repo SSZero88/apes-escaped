@@ -102,7 +102,7 @@ extern s8 D_8013B450[];
 extern u8 D_8013AED0[];
 extern u8 D_800F4458[];
 extern struct { u8 pad0[0x8120]; u16 mode; u8 pad8122[4]; u16 stage; u8 pad8128[0x1C]; u32 best; u8 pad8148[0x12]; u16 f_815A; } g_Game_8013683C asm("g_Game");
-void func_80136A1C(void);
+s32 func_80136A1C(void);
 void func_801375B4(void);
 s32 SaveByte_Get(s32);
 s32 Stage_GetWorld(s32);
@@ -388,7 +388,135 @@ s32 func_80137198(void) {
 
 INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_801375B4);
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_80137C88);
+extern struct { u8 pad0[0x8120]; u16 f_8120; u8 pad8122[2]; u16 f_8124; u16 stage; u8 pad8128[0x1A4]; u8 f_82CC; u8 f_82CD; } g_Game_80137C88 asm("g_Game");
+extern s16 D_8013B480;
+extern s16 D_8013B482;
+extern s16 D_8013AEA8;
+extern s16 D_8013AEA4[];
+s32 Cd_StartFileLoad(s32, s32);
+void func_8013AABC(void);
+
+s32 func_80137C88(void) {
+    s32 a, b;
+    s32 pad[2];
+
+    switch (D_8013AE60) {
+    case 0:
+        if (D_8013B480 != 0 && func_800116C0() < 0) {
+            Sound_ResumeStreams();
+            D_8013B480 = 0;
+        }
+        D_8013B482 += 2;
+        if (D_8013B482 < 0x79) {
+            return 0;
+        }
+        if (D_8013B480 != 0) {
+            return 0;
+        }
+        D_8013B482 = 0;
+        func_80138138(2);
+        switch (g_Game_80137C88.f_8120) {
+        case 0x12:
+            D_8013AEA8 = 3;
+            break;
+        case 0x11:
+            break;
+        case 0x17:
+            D_8013AEA4[2] = 4;
+            D_8013AEA4[6] = 5;
+            D_8013AEA4[10] = 6;
+            ((s8 *)D_8013AEA4)[0x1E] = -1;
+            switch (g_Game_80137C88.f_8124) {
+            case 7:
+                g_Game_80137C88.f_82CC = 2;
+                g_Game_80137C88.f_82CD = 0;
+                break;
+            case 14:
+                g_Game_80137C88.f_82CC = 5;
+                g_Game_80137C88.f_82CD = 0;
+                break;
+            }
+            break;
+        }
+        func_801385B0();
+        func_80136000(&D_8013B998_80137198.eye, &D_8013B998_80137198.at);
+        func_801399A4(D_8013B6F0);
+        D_8013AE60 = 1;
+        D_8013B998_80137198.sub = 0;
+        D_8013B998_80137198.timer = 0;
+        Sound_PlayFixed(0xAC);
+        return 0;
+    case 1:
+        b = D_8013B998_80137198.timer;
+        if (b < 6) {
+            a = b * 192 / 5;
+            b = 2;
+            if (a > 0xC0) {
+                a = 0xC0;
+            }
+        } else {
+            b = (b - 5) * 30;
+            a = 0xC0;
+            if (b > 0x80) {
+                b = 0x80;
+            }
+        }
+        func_80139FB8(a, b);
+        if (++D_8013B998_80137198.timer < 11) {
+            return 0;
+        }
+        D_8013B998_80137198.sub = 2;
+        return 0;
+    case 2:
+        if ((g_Pad_80137198.held & g_Pad_80137198.mask & 0x860) || *D_8013B9B8 == 0x3FC0) {
+            Sound_PlayFixed(0xAD);
+            D_8013B480 = 2;
+            D_8013AE60 = 3;
+            D_8013B998_80137198.sub = 0;
+            D_8013B998_80137198.timer = 10;
+        }
+        break;
+    case 3:
+        if (D_8013B480 == 1 && func_800116C0() < 0) {
+            D_8013B480 = 0;
+        }
+        if (D_8013B998_80137198.sub < 2) {
+            b = D_8013B998_80137198.timer;
+            if (b < 6) {
+                a = b * 192 / 5;
+                b = 2;
+                if (a > 0xC0) {
+                    a = 0xC0;
+                }
+            } else {
+                b = (b - 5) * 30;
+                a = 0xC0;
+                if (b > 0x80) {
+                    b = 0x80;
+                }
+            }
+            func_8013A10C(a, b);
+            if (--D_8013B998_80137198.timer < 0) {
+                D_8013B998_80137198.sub = 2;
+                Cd_StartFileLoad(1, g_Game_80137C88.stage);
+                D_8013B480 = 1;
+                if (g_Game_80137C88.stage != 0x13 && g_Game_80137C88.stage != 0x24) {
+                    Sound_UnloadBanks(1);
+                }
+            }
+        }
+        if (D_8013B480 == 0) {
+            D_8013B480 = 1;
+            return -1;
+        }
+        return 0;
+    }
+    func_801385B0();
+    func_80136000(&D_8013B998_80137198.eye, &D_8013B998_80137198.at);
+    func_801399A4(D_8013B6F0);
+    func_8013AABC();
+    return 0;
+}
 
 extern u8 *D_800B4D64;
 void Model_BindMesh(void *, void *);

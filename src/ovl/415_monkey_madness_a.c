@@ -1,7 +1,28 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-INCLUDE_ASM("asm/ovl/415/nonmatchings/415_monkey_madness_a", func_8013D000);
+extern struct { u8 pad_0[0x8120]; u16 f_8120; u8 pad_8122[0xEA]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013D000 asm("g_Game");
+
+s32 func_8013D000(s16 *p) {
+    u8 *e;
+    p[1] = p[4];
+    p[3] = 0;
+    if (g_Game_8013D000.f_8120 == 0x13) {
+        return 0;
+    }
+    if (p[1] == 5) {
+        e = g_Game_8013D000.f_820C + p[2] * 0x38;
+        M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+        e = g_Game_8013D000.f_8220 + p[7] * 0x18;
+        M2C_FIELD(e, s16 *, 0xC) = 1;
+        e = g_Game_8013D000.f_8220 + p[8] * 0x18;
+        M2C_FIELD(e, s16 *, 0xC) = 1;
+    } else if ((u16)(p[1] - 2) < 2) {
+        e = g_Game_8013D000.f_820C + p[2] * 0x38;
+        M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+    }
+    return 0;
+}
 
 extern struct { u8 pad_0[0x8120]; u16 f_8120; u8 pad_8122[0xA]; u8 f_812C; u8 pad_812D[0xDF]; u8 *f_820C; } g_Game_8013D0FC asm("g_Game");
 extern s32 D_800EC250;
@@ -98,7 +119,95 @@ s32 func_8013D308(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/415/nonmatchings/415_monkey_madness_a", func_8013D388);
+/* only diff: in the loop the -(i+1)*0x2C0/6 result lands in v1 (orig) vs v0 (ours), swapping a subu/sh pair */
+typedef struct { s16 f_0; s16 f_2; u8 pad_4[0x14]; } T_8013D388;
+typedef struct { s32 x, y, z; u8 pad_C[0xC]; SVECTOR r; s16 f_20; s16 pad_22; s16 f_24; s16 f_26; } Shape_8013D388;
+extern struct { u8 f_0; u8 pad_1[0x821F]; T_8013D388 *f_8220; } g_Game_8013D388 asm("g_Game");
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013D388 asm("g_Spike");
+extern u16 g_RandSeed;
+Shape_8013D388 *CollShape_Alloc(void);
+s32 Collision_Set(s32, void *, void *);
+void Sound_Stop(s32, s32);
+s32 Sound_UpdateVoice3D_8013D388(s32, s32, s32, void *) asm("Sound_UpdateVoice3D");
+void func_8006F274(void *, void *, u16);
+
+s32 func_8013D388(s16 *p) {
+    SVECTOR a;
+    SVECTOR b;
+    SVECTOR c;
+    s32 pos[3];
+    Shape_8013D388 *s;
+    s32 i;
+    s32 v;
+    s32 w;
+    s32 x;
+    s32 z;
+    s32 d;
+    T_8013D388 *t;
+
+    if (p[1] == 0) {
+        t = &g_Game_8013D388.f_8220[p[4]];
+        if (t->f_2 >= 2) {
+            p[1] = 1;
+            Sound_Stop(0x66, p[11]);
+        } else {
+        for (i = 0; i < 5; i++) {
+            b.vx = 0xD80;
+            a.vx = 0xD80;
+            w = -((i + 1) * 0x2C0) / 6;
+            a.vz = -0x300;
+            b.vz = -0x700;
+            b.vy = w;
+            a.vy = w;
+            func_8006F274(&a, &b, g_Game_8013D388.f_0 * ((g_RandSeed = g_RandSeed * 5 + 1) >> 8));
+            func_8006F274(&a, &b, g_Game_8013D388.f_0 * ((g_RandSeed = g_RandSeed * 5 + 1) >> 8));
+        }
+        c.vx = 0xD00;
+        c.vy = -0x12E;
+        c.vz = -0x500;
+        Sound_UpdateVoice3D_8013D388(0x66, p[11], 0x1800, &c);
+        x = g_Spike_8013D388.x;
+        v = x - 0xD80;
+        if (v < 0) {
+            v = -v;
+        }
+        if (v <= 0x100) {
+            z = g_Spike_8013D388.z;
+            d = ABS(z + 0x500);
+            if (d <= 0x200) {
+                c.vz = 0;
+                c.vy = 0;
+                c.vx = 0;
+                pos[0] = x;
+                pos[2] = z;
+                pos[1] = g_Spike_8013D388.y;
+                if (d <= 0x1C0) {
+                    pos[0] = x + 0x40;
+                    c.vx = -0x1000;
+                } else if (z >= -0x4FF) {
+                    pos[2] = z - 0x40;
+                    c.vz = 0x1000;
+                } else {
+                    pos[2] = z + 0x40;
+                    c.vz = -0x1000;
+                }
+                s = CollShape_Alloc();
+                if (s != NULL) {
+                    s->r = c;
+                    s->x = pos[0];
+                    s->y = pos[1];
+                    s->z = pos[2];
+                    s->f_20 = 0x80;
+                    s->f_24 = 0x401;
+                    s->f_26 = 0x202;
+                    Collision_Set(6, s, NULL);
+                }
+            }
+        }
+        }
+    }
+    return 0;
+}
 
 s32 SaveByte_Get(s32);
 void func_80010CDC(s32);

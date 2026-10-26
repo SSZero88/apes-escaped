@@ -965,7 +965,103 @@ s32 func_801400C4(s16 *p) {
 
 INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8014039C);
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_80140484);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_80140484 asm("g_Game");
+extern u8 *D_800B4D64_80140484 asm("D_800B4D64");
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; u8 pad_30[0x16]; s16 h; } g_Spike_80140484 asm("g_Spike");
+s32 Sound_PlayFixed(s32);
+void func_8004BD0C(void);
+void RotMatrixZYX(SVECTOR *, void *);
+void *CollShape_Alloc(void);
+u32 Geo_ProjectOnLine_80140484(s16 *, s16 *, s16, s32 *) asm("Geo_ProjectOnLine");
+
+s32 func_80140484(s16 *p) {
+    SVECTOR v;
+    s32 out[3];
+    s16 a[4];
+    s16 b[4];
+    u8 *e;
+    u8 *d;
+    u8 *c;
+    s32 dx;
+    s32 dz;
+
+    if (p[6] < 0) {
+        return 0;
+    }
+    if (p[1] != 0) {
+        return 0;
+    }
+    e = g_Game_80140484.f_820C + p[2] * 0x38;
+    if (p[5] == 0) {
+        Sound_Stop(0xB1, p[10]);
+        Sound_Stop(0xB2, p[11]);
+        Sound_PlayFixed(0xB3);
+        Sound_PlayFixed(0xB4);
+        M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+        p[1] = 1;
+        M2C_FIELD(D_800B4D64_80140484 + p[6] * 32, s16 *, 0x16) = 0;
+        dx = p[8] / 2 * rsin(p[3]) / 4096;
+        dz = p[8] / 2 * rcos(p[3]) / 4096;
+        v.vx = M2C_FIELD(D_800B4D64_80140484 + p[6] * 32, u16 *, 0x10) + dx;
+        v.vz = M2C_FIELD(D_800B4D64_80140484 + p[6] * 32, u16 *, 0x14) + dz;
+        v.vy = M2C_FIELD(D_800B4D64_80140484 + p[6] * 32, u16 *, 0x12);
+        Fx_Explosion(&v, p[6], 1);
+        v.vx = M2C_FIELD(D_800B4D64_80140484 + p[6] * 32, u16 *, 0x10) - dx;
+        v.vz = M2C_FIELD(D_800B4D64_80140484 + p[6] * 32, u16 *, 0x14) - dz;
+        Fx_Explosion(&v, p[6], 1);
+        func_8004BD0C();
+        return 0;
+    }
+    Sound_UpdateVoice3D(0xB1, p[10], 0x1800, e);
+    Sound_UpdateVoice3D(0xB2, p[11], 0x1800, e);
+    if (p[5] > 0) {
+        M2C_FIELD(e, s16 *, 0x2C) = -0x1000 / p[5];
+    } else {
+        M2C_FIELD(e, s16 *, 0x2C) = 0;
+    }
+    p[3] += p[5];
+    if (p[3] > 0x1000) {
+        p[3] -= 0x1000;
+    } else if (p[3] < 0) {
+        p[3] += 0x1000;
+    }
+    v.vz = 0;
+    v.vx = 0;
+    v.vy = p[3];
+    RotMatrixZYX(&v, M2C_FIELD(D_800B4D64_80140484 + p[6] * 32, void **, 0x1C));
+    d = (u8 *)((s32)p[6] * 32 + (s32)D_800B4D64_80140484);
+    if (M2C_FIELD(d, s16 *, 0x12) < g_Spike_80140484.y - g_Spike_80140484.h) {
+        return 0;
+    }
+    if (g_Spike_80140484.y < M2C_FIELD(d, s16 *, 0x12)) {
+        return 0;
+    }
+    a[0] = M2C_FIELD(d, u16 *, 0x10);
+    a[1] = M2C_FIELD(D_800B4D64_80140484 + p[6] * 32, u16 *, 0x14);
+    b[0] = g_Spike_80140484.x;
+    b[1] = g_Spike_80140484.z;
+    if (Geo_ProjectOnLine_80140484(a, b, -p[3], out) > p[8]) {
+        return 0;
+    }
+    if (out[2] < p[7]) {
+        v.vy = 0;
+        v.vx = g_Spike_80140484.x - out[0];
+        v.vz = g_Spike_80140484.z - out[1];
+        VectorNormalSS(&v, &v);
+        c = CollShape_Alloc();
+        if (c != NULL) {
+            *(SVECTOR *)(c + 0x18) = v;
+            M2C_FIELD(c, s32 *, 0) = out[0];
+            M2C_FIELD(c, s32 *, 4) = M2C_FIELD(D_800B4D64_80140484 + p[6] * 32, s16 *, 0x12);
+            M2C_FIELD(c, s32 *, 8) = out[1];
+            M2C_FIELD(c, s16 *, 0x20) = p[7];
+            M2C_FIELD(c, s16 *, 0x24) = 1;
+            M2C_FIELD(c, s16 *, 0x26) = 0x202;
+            Collision_Set(6, c, 0);
+        }
+    }
+    return 0;
+}
 
 extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; } g_Game;
 

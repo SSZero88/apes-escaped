@@ -76,7 +76,111 @@ s32 func_801361BC(void)
   return 0;
 }
 
-INCLUDE_ASM("asm/ovl/387/nonmatchings/387_sound_test", func_80136244);
+typedef struct { unsigned addr : 24; unsigned len : 8; } Tag_80136244;
+typedef struct { u8 name[0x10]; u8 s10[8]; u16 f18; } Song_80136244;
+typedef struct { u8 tag[3]; u8 len; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, pad1; s16 x1, y1; u8 r2, g2, b2, pad2; s16 x2, y2; u8 r3, g3, b3, pad3; s16 x3, y3; } PolyG4_80136244;
+extern struct { u8 pad0[0x158]; u32 held; u8 pad15C[4]; u32 pressed; u8 pad164[4]; u32 repeat; } g_Pad_80136244 asm("g_Pad");
+extern u8 D_80136AA0[];
+extern u8 D_80136AB8[];
+extern s32 D_80136FC4[];
+extern Song_80136244 D_80136B54[];
+extern s32 D_80136B44;
+extern s32 D_80136B48;
+extern u16 D_80136FB4;
+void func_8008CC60(s32, s32);
+void func_8008CBFC(u8 *, ...);
+s32 Sound_PlayFixed(s32);
+void func_80011194(void *);
+s32 func_800116C0(void);
+void Cd_Update(void);
+
+s32 func_80136244(void) {
+    s32 i;
+    s32 y;
+    u32 b;
+
+    func_8008CC60(0x64, 0x28);
+    func_8008CBFC(D_80136AA0);
+    for (i = 0; i < 3; i++) {
+        func_8008CC60(0xA0, 0x64 + i * 0x14);
+        func_8008CBFC(D_80136AB8, D_80136FC4[i]);
+    }
+    func_8008CC60(0xBE, 0x96);
+    func_8008CBFC(D_80136AB8, D_80136B54[D_80136B40].name);
+    func_8008CC60(0x104, 0x96);
+    func_8008CBFC(D_80136AB8, D_80136B54[D_80136B40].s10);
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->len = 8;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->code = 0x38;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->code |= 2;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->x0 = 0x90;
+    y = D_80136B50 * 0x14;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->y0 = y + 0x66;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->x1 = 0x108;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->y1 = y + 0x66;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->x2 = 0x90;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->y2 = y + 0x6D;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->x3 = 0x108;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->y3 = y + 0x6D;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->r0 = 0xF5;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->g0 = 0xDC;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->b0 = 0xC8;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->r1 = 0xE6;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->g1 = 0x46;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->b1 = 0x28;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->r2 = 0xC4;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->g2 = 0x46;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->b2 = 0x3C;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->r3 = 0x5F;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->g3 = 0x0A;
+    ((PolyG4_80136244 *)g_Game_80136000.prim)->b3 = 0x08;
+    ((Tag_80136244 *)g_Game_80136000.prim)->addr = ((Tag_80136244 *)g_Game_80136000.db[g_Game_80136000.cur].ot)->addr;
+    ((Tag_80136244 *)g_Game_80136000.db[g_Game_80136000.cur].ot)->addr = (u32)g_Game_80136000.prim;
+    g_Game_80136000.prim += sizeof(PolyG4_80136244);
+    if (g_Pad_80136244.held & g_Pad_80136244.pressed & 0x800) {
+        Sound_PlayFixed(2);
+        if (D_80136B50 == 0) {
+            return -1;
+        }
+        if (D_80136B50 == 1) {
+            D_80136B4C = 1;
+            D_80136B44 = 0;
+        } else {
+            D_80136B4C = 2;
+            D_80136B44 = 0xAC;
+            D_80136B48 = 0;
+            D_80136FB4 = D_80136B54[D_80136B40].f18;
+            func_80011194(&D_80136FB4);
+            while (func_800116C0() >= 0) {
+                Cd_Update();
+            }
+            return 0;
+        }
+    } else {
+        b = g_Pad_80136244.repeat;
+        if (b & 0x1000) {
+            Sound_PlayFixed(0);
+            if (--D_80136B50 < 0) {
+                D_80136B50 = 2;
+            }
+        } else if (b & 0x4000) {
+            Sound_PlayFixed(0);
+            if (++D_80136B50 >= 3) {
+                D_80136B50 = 0;
+            }
+        } else if (b & 0x8000) {
+            Sound_PlayFixed(0);
+            if (--D_80136B40 < 0) {
+                D_80136B40 = 0x2A;
+            }
+        } else if (b & 0x2000) {
+            Sound_PlayFixed(0);
+            if (++D_80136B40 >= 0x2B) {
+                D_80136B40 = 0;
+            }
+        }
+    }
+    return 0;
+}
 
 /* returns s32 0: change the file prototype at the top of 387_sound_test.c to s32 func_80136698(void); */
 extern struct { u8 pad0[0x158]; u32 held; u8 pad15C[4]; u32 pressed; u8 pad164[4]; u32 repeat; } g_Pad_80136698 asm("g_Pad");

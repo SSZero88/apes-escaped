@@ -835,7 +835,142 @@ void func_8013FA0C(void *arg0) {
     Object_DisableCollision(arg0);
 }
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013FAEC);
+typedef struct { u16 start; u16 end; } Anim_8013FAEC;
+typedef struct { u8 pad0[0x44]; s16 f_44; u8 pad46[0xA]; u32 f_50; u8 pad54[0x8]; u16 f_5C; u8 pad5E[0x21]; u8 f_7F; u8 f_80; u8 pad81[0x7]; Anim_8013FAEC *f_88; u8 pad8C[0x14]; s16 f_A0; u8 padA2[0x3E]; u32 f_E0; } O_8013FAEC;
+void func_8013F6D4(void *arg0);
+void func_8013F89C(void *arg0);
+void func_8013F8C8(void *arg0);
+void func_8013F958(void *arg0);
+void func_8013F9E8(void *obj);
+void func_8013FA0C(void *arg0);
+M2C_UNK Object_StepOnGroundFixed_8013FAEC(void *) asm("Object_StepOnGroundFixed");
+void Object_TurnTowardSpike_8013FAEC(void *) asm("Object_TurnTowardSpike");
+void func_80058134_8013FAEC(void *, s32) asm("func_80058134");
+void func_80055C7C_8013FAEC(void *, s32) asm("func_80055C7C");
+void func_80055D28_8013FAEC(void *, s32, s32) asm("func_80055D28");
+void Object_EnableCollision_8013FAEC(void *) asm("Object_EnableCollision");
+s32 Object_SpikeInFront_8013FAEC(void *, s32, s32, s32) asm("Object_SpikeInFront");
+s32 Object_SpikeNearXZ_8013FAEC(void *, s32) asm("Object_SpikeNearXZ");
+
+void func_8013FAEC(O_8013FAEC *o) {
+    if (!((o->f_E0 >> 3) & 1)) {
+        func_8013FA0C(o);
+        o->f_E0 |= 8;
+    }
+    func_80058134_8013FAEC(o, o->f_44);
+    if ((o->f_E0 >> 20) & 1) {
+        o->f_E0 &= ~0x100000;
+        o->f_80 = 6;
+        o->f_7F = 0;
+        o->f_5C = o->f_88[0].start;
+        func_8013F89C(o);
+    }
+    switch (o->f_80) {
+    case 1:
+        o->f_5C = o->f_88[o->f_7F].start;
+        func_80055C7C_8013FAEC(o, 0x3C);
+        Object_StepOnGroundFixed_8013FAEC(o);
+        if (func_8005588C(o, -1) == 0) {
+            func_8013F958(o);
+            Object_EnableCollision_8013FAEC(o);
+        }
+        break;
+    case 3:
+        o->f_A0 += 5;
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            o->f_80 = 2;
+            o->f_7F = 2;
+            o->f_5C = o->f_88[2].start;
+        }
+        break;
+    case 2:
+        if (Object_SpikeInFront_8013FAEC(o, 0x168, -0x1000, 0x800)) {
+            o->f_80 = 7;
+            o->f_7F = 4;
+            o->f_5C = o->f_88[4].start;
+            Object_PlaySound(o, 0x61);
+            break;
+        }
+        if (Object_SpikeInFront_8013FAEC(o, 0xB4, 0, 0x300)) {
+            o->f_80 = 8;
+            o->f_7F = 4;
+            o->f_5C = o->f_88[4].start;
+        }
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            o->f_80 = 6;
+            o->f_7F = 0;
+            o->f_5C = o->f_88[0].start;
+        }
+        break;
+    case 8:
+        Object_TurnTowardSpike_8013FAEC(o);
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            o->f_80 = 6;
+            o->f_7F = 0;
+            o->f_5C = o->f_88[0].start;
+            func_8013F89C(o);
+        }
+        break;
+    case 7:
+        Object_TurnTowardSpike_8013FAEC(o);
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            o->f_80 = 4;
+            o->f_7F = 3;
+            o->f_5C = o->f_88[3].start;
+        }
+        break;
+    case 4:
+        Object_TurnTowardSpike_8013FAEC(o);
+        if ((o->f_50 >> 28) == 6 || !Object_SpikeInFront_8013FAEC(o, 0xB4, 0, 0x800) || Object_SpikeInFront_8013FAEC(o, 0xB4, 0, 0x300)) {
+            o->f_80 = 6;
+            o->f_7F = 0;
+            o->f_5C = o->f_88[0].start;
+            func_8013F89C(o);
+            break;
+        }
+        if (o->f_5C == o->f_88[o->f_7F].start + 0x14) {
+            func_8013F9E8(o);
+        }
+        break;
+    case 5:
+        if (Object_SpikeInFront_8013FAEC(o, 0xB4, 0, 0x300) || !Object_SpikeInFront_8013FAEC(o, 0xB4, 0, 0x800) || !Object_SpikeNearXZ_8013FAEC(o, 0x600)) {
+            o->f_80 = 6;
+            o->f_7F = 0;
+            o->f_5C = o->f_88[0].start;
+        }
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            if (Object_SpikeInFront_8013FAEC(o, 0xB4, 0, 0x800)) {
+                o->f_80 = 4;
+                o->f_7F = 3;
+                o->f_5C = o->f_88[3].start;
+                Object_TurnTowardSpike_8013FAEC(o);
+            } else {
+                o->f_80 = 6;
+                o->f_7F = 0;
+                o->f_5C = o->f_88[0].start;
+                func_8013F89C(o);
+            }
+        }
+        break;
+    case 6:
+        if (o->f_A0 != 0) {
+            o->f_A0 -= 5;
+        }
+        Object_DisableCollision(o);
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            o->f_A0 = 0;
+            func_8005588C(o, 0x2D);
+            o->f_80 = 1;
+            o->f_7F = 1;
+            o->f_5C = o->f_88[1].start;
+            func_80055D28_8013FAEC(o, 0x3C, 0);
+            func_8013F89C(o);
+        }
+        break;
+    }
+    func_8013F8C8(o);
+    func_8013F6D4(o);
+}
 
 s32 Math_Atan2(s32, s32);
 
@@ -1088,7 +1223,106 @@ s32 func_80140968(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_801409B0);
+extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Spike_801409B0 asm("g_Spike");
+s32 Sound_Play(s32, s32);
+void Sound_UpdateVoice3D(s32, s32, s32, void *);
+void Sound_Stop(s32, s32);
+void *CollShape_Alloc(void);
+s32 Collision_Set(s32, void *, void *);
+
+s32 func_801409B0(s16 *p) {
+    SVECTOR v;
+    SVECTOR w;
+    s32 i;
+    u8 *c;
+
+    switch (p[1]) {
+    case 0:
+        if (++p[3] > p[10]) {
+            p[3] = 0;
+            p[1] = 1;
+        }
+        break;
+    case 1:
+        if (++p[3] > 20) {
+            p[3] = 0;
+            p[1] = 2;
+            p[9] = Sound_Play(1, 0xB2);
+        }
+        v.vx = p[4] + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x3F);
+        v.vy = p[5] - ((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x3F) + 0x20);
+        v.vz = p[6] + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x3F);
+        Effect_SpawnAt(5, &v);
+        break;
+    case 2:
+        if (++p[3] > 12) {
+            p[1] = 3;
+            break;
+        }
+        Sound_UpdateVoice3D(0xB2, p[9], 0x1000, &p[4]);
+        for (i = 0; i < p[3]; i++) {
+            v.vx = p[4] + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x3F);
+            v.vy = p[5] - ((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x3F) + 0x20) - (i << 7);
+            v.vz = p[6] + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x3F);
+            Effect_SpawnAt(5, &v);
+        }
+        if ((u32)SquareRoot0((g_Spike_801409B0.x - p[4]) * (g_Spike_801409B0.x - p[4]) + (g_Spike_801409B0.z - p[6]) * (g_Spike_801409B0.z - p[6])) < 0xC0
+            && g_Spike_801409B0.y < p[5] + 0x40 && p[5] - (p[3] << 7) < g_Spike_801409B0.y) {
+            w.vx = g_Spike_801409B0.x - p[4];
+            w.vy = g_Spike_801409B0.y - p[5];
+            w.vz = g_Spike_801409B0.z - p[6];
+            VectorNormalSS(&w, &w);
+            c = CollShape_Alloc();
+            if (c != NULL) {
+                *(SVECTOR *)(c + 0x18) = w;
+                M2C_FIELD(c, s32 *, 0) = p[4];
+                M2C_FIELD(c, s32 *, 4) = p[5];
+                M2C_FIELD(c, s32 *, 8) = p[6];
+                M2C_FIELD(c, s16 *, 0x20) = 0x80;
+                M2C_FIELD(c, s16 *, 0x24) = 1;
+                M2C_FIELD(c, s16 *, 0x26) = 0x202;
+                Collision_Set(6, c, 0);
+            }
+        }
+        break;
+    case 3:
+        p[3] -= 2;
+        if (p[3] < 0) {
+            p[3] = 0;
+            p[1] = 0;
+            p[10] = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 7) * 30;
+            Sound_Stop(0xB2, p[9]);
+            break;
+        }
+        Sound_UpdateVoice3D(0xB2, p[9], 0x1000, &p[4]);
+        for (i = 0; i < p[3]; i++) {
+            v.vx = p[4] + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x3F);
+            v.vy = p[5] - ((((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x3F) + 0x20) - (i << 7);
+            v.vz = p[6] + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x3F);
+            Effect_SpawnAt(5, &v);
+        }
+        if ((u32)SquareRoot0((g_Spike_801409B0.x - p[4]) * (g_Spike_801409B0.x - p[4]) + (g_Spike_801409B0.z - p[6]) * (g_Spike_801409B0.z - p[6])) < 0xC0
+            && g_Spike_801409B0.y < p[5] + 0x40 && p[5] - (p[3] << 7) < g_Spike_801409B0.y) {
+            w.vx = g_Spike_801409B0.x - p[4];
+            w.vy = g_Spike_801409B0.y - p[5];
+            w.vz = g_Spike_801409B0.z - p[6];
+            VectorNormalSS(&w, &w);
+            c = CollShape_Alloc();
+            if (c != NULL) {
+                *(SVECTOR *)(c + 0x18) = w;
+                M2C_FIELD(c, s32 *, 0) = p[4];
+                M2C_FIELD(c, s32 *, 4) = g_Spike_801409B0.y;
+                M2C_FIELD(c, s32 *, 8) = p[6];
+                M2C_FIELD(c, s16 *, 0x20) = 0xC4;
+                M2C_FIELD(c, s16 *, 0x24) = 1;
+                M2C_FIELD(c, s16 *, 0x26) = 0x202;
+                Collision_Set(6, c, 0);
+            }
+        }
+        break;
+    }
+    return 0;
+}
 
 extern u32 g_Game_80140F94 asm("g_Game");
 void Sound_PlayAt(s32, void *);

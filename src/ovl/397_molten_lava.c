@@ -1463,7 +1463,54 @@ void func_80140880(u8 *o) {
     func_801405C8(o);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_80140B0C);
+typedef struct { SVECTOR at; SVECTOR eye; SVECTOR spike; } Scr_80140B0C;
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2a[2]; u16 z; } g_Spike_80140B0C asm("g_Spike");
+void func_8004B8F4(void *, s32, void *);
+void func_80047464(void *, s32, s32, s32);
+void func_80047558(void *, s32, s32, s32);
+s32 VectorNormalSS_80140B0C(void *, void *) asm("VectorNormalSS");
+s32 SquareRoot0(s32);
+
+void func_80140B0C(u8 *o) {
+    SVECTOR v;
+    SVECTOR d;
+    SVECTOR w;
+    s32 dist;
+    s32 k;
+
+    ((Scr_80140B0C *)0x1F800000)->spike.vx = g_Spike_80140B0C.x;
+    ((Scr_80140B0C *)0x1F800000)->spike.vy = g_Spike_80140B0C.y;
+    ((Scr_80140B0C *)0x1F800000)->spike.vz = g_Spike_80140B0C.z;
+    func_8004B8F4(o, 2, &v);
+    d.vx = v.vx - ((Scr_80140B0C *)0x1F800000)->spike.vx;
+    d.vy = 0;
+    d.vz = v.vz - ((Scr_80140B0C *)0x1F800000)->spike.vz;
+    VectorNormalSS_80140B0C(&d, &d);
+    w = (SVECTOR){ ((Scr_80140B0C *)0x1F800000)->spike.vx - v.vx, 0, ((Scr_80140B0C *)0x1F800000)->spike.vz - v.vz };
+    k = 2000;
+    dist = SquareRoot0(w.vx * w.vx + w.vz * w.vz);
+    if (dist > 1000) {
+        k = dist * 2;
+    }
+    if (k > 0xD48) {
+        k = 0xD48;
+    }
+    ((Scr_80140B0C *)0x1F800000)->eye.vx = v.vx - ((d.vx * k / 4) >> 12);
+    ((Scr_80140B0C *)0x1F800000)->eye.vy = ((Scr_80140B0C *)0x1F800000)->spike.vy - 0x82;
+    ((Scr_80140B0C *)0x1F800000)->eye.vz = v.vz - ((d.vz * k / 4) >> 12);
+    ((Scr_80140B0C *)0x1F800000)->at.vx = v.vx - (d.vx * k >> 12);
+    ((Scr_80140B0C *)0x1F800000)->at.vy = ((Scr_80140B0C *)0x1F800000)->spike.vy - 0x35C;
+    ((Scr_80140B0C *)0x1F800000)->at.vz = v.vz - (d.vz * k >> 12);
+    func_80047558(o, 8, 8, 8);
+    func_80047464(o, 8, 16, 8);
+    w = (SVECTOR){ M2C_FIELD(o, s16 *, 0xA) - v.vx, 0, M2C_FIELD(o, s16 *, 0xE) - v.vz };
+    if (VectorNormalSS_80140B0C(&w, &w) <= 0x1DE83F) {
+        M2C_FIELD(o, s16 *, 0x12) = (v.vx + w.vx * 350) >> 12;
+        M2C_FIELD(o, s16 *, 0x16) = (v.vz + w.vz * 350) >> 12;
+        M2C_FIELD(o, s16 *, 0xA) = (v.vx + w.vx * 1400) >> 12;
+        M2C_FIELD(o, s16 *, 0xE) = (v.vz + w.vz * 1400) >> 12;
+    }
+}
 
 s32 func_80140E40(void *arg0) {
     s16 temp_a0;

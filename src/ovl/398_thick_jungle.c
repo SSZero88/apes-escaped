@@ -206,7 +206,150 @@ void func_8013D790(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013D914);
+typedef struct { u16 start; u16 end; } Anim_8013D914;
+typedef struct { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; u8 pad30[0x14]; s16 f_44; s16 f_46; u8 pad48[0x2]; s16 f_4A; u8 pad4C[0x10]; u16 f_5C; u8 pad5E[0x2]; s16 f_60; u8 pad62[0x2]; s16 f_64; u8 pad66[0x17]; u8 f_7D; u8 pad7E[0x1]; u8 f_7F; u8 f_80; u8 pad81[0x7]; Anim_8013D914 *f_88; u8 pad8C[0x3]; u8 f_8F; u8 pad90[0xA]; s16 f_9A; s16 f_9C; s16 f_9E; s16 f_A0; u8 padA2[0xA]; s16 f_AC; u8 padAE[0x1A]; u8 f_C8; u8 f_C9; u8 padCA[0x3]; u8 f_CD; u8 padCE[0x2]; s32 f_D0; u8 padD4[0x8]; u8 f_DC; u8 padDD[0x3]; u32 f_E0; } O_8013D914;
+s32 func_8013D000(void);
+s32 func_8013D040(void);
+s32 func_8013D520(u8 *o);
+void func_8013D608(void *arg0);
+void func_8013D790(void *arg0);
+s32 func_8013D660_8013D914(void *, s32) asm("func_8013D660");
+void func_80058134_8013D914(void *, s32) asm("func_80058134");
+void Object_ClampAnimFrame_8013D914(void *, s32) asm("Object_ClampAnimFrame");
+void Object_EnableCollision_8013D914(void *) asm("Object_EnableCollision");
+s16 Object_FloorAt_8013D914(void *, s32, s32, s32) asm("Object_FloorAt");
+void Shadow_Draw_8013D914(void *, s32, s32, s32) asm("Shadow_Draw");
+
+void func_8013D914(O_8013D914 *o) {
+    if (!((o->f_E0 >> 3) & 1)) {
+        o->f_44 = 0x8C;
+        o->f_A0 = 200;
+        o->f_46 = 0x78;
+        o->f_4A = -0x4000;
+        o->f_C8 = 0x19;
+        o->f_7D = 10;
+        o->f_CD = 7;
+        o->f_DC = 1;
+        o->f_E0 &= ~0x800;
+        o->f_7F = 0;
+        o->f_5C = o->f_88[0].start;
+        o->f_E0 |= 8;
+    }
+    func_80058134_8013D914(o, o->f_44);
+    func_8013D520((u8 *)o);
+    switch (o->f_80) {
+    case 1:
+        Object_ClampAnimFrame_8013D914(o, o->f_88[o->f_7F].end);
+        func_8013D790(o);
+        break;
+    case 2:
+        if (o->f_5C == o->f_88[o->f_7F].start + 7) {
+            Object_PlaySound(o, 0x69);
+        }
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            o->f_80 = 3;
+            o->f_7F = 3;
+            o->f_5C = o->f_88[3].start;
+            func_8005588C(o, 0x3C);
+        }
+        break;
+    case 3:
+        if ((s16)func_8013D000()) {
+            o->f_80 = 4;
+            Object_PlaySound(o, 0x99);
+        }
+        if (func_8005588C(o, -1) == 0) {
+            o->f_80 = 6;
+            o->f_7F = 3;
+            o->f_5C = o->f_88[3].start;
+            func_8005588C(o, 2);
+        }
+        break;
+    case 4:
+        if ((o->f_5C - o->f_88[o->f_7F].start) % 10 == 0) {
+            Object_PlaySound(o, 0x99);
+        }
+        if ((s16)func_8013D040()) {
+            o->f_80 = 5;
+            o->f_7F = 2;
+            o->f_5C = o->f_88[2].start;
+            o->f_E0 |= 0x800;
+        } else if (!(s16)func_8013D000()) {
+            o->f_80 = 3;
+        }
+        break;
+    case 6:
+        if (func_8005588C(o, -1) == 0) {
+            o->f_80 = 5;
+            o->f_7F = 2;
+            o->f_5C = o->f_88[2].start;
+        }
+        break;
+    case 5:
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            if ((o->f_E0 >> 11) & 1) {
+                func_8013D608(o);
+                o->f_E0 &= ~0x800;
+            } else {
+                Object_EnableCollision_8013D914(o);
+                o->f_80 = 8;
+                o->f_7F = 0;
+                o->f_5C = o->f_88[0].start;
+                func_8005588C(o, 0x1E);
+            }
+        }
+        break;
+    case 8:
+        if (func_8005588C(o, -1) == 0) {
+            o->f_80 = 1;
+        }
+        break;
+    case 7:
+        o->f_AC = (o->f_AC + 0xB6) % 4096;
+        o->f_60 = rcos(o->f_AC);
+        o->f_64 = rsin(o->f_AC);
+        if (o->f_C9 != 0) {
+            o->f_C9--;
+            o->f_C8 = o->f_C9 * 2;
+            if (o->f_C9 < 13) {
+                o->f_A0 -= 10;
+            }
+            func_8013D660_8013D914(o, o->f_C9 >= 6);
+        } else {
+            o->f_C8 = 0;
+            o->f_80 = 9;
+            o->f_8F = 0;
+        }
+        break;
+    case 9:
+        if (o->f_A0 != 0) {
+            o->f_A0 -= 10;
+            Shadow_Draw_8013D914(&o->f_24, Object_FloorAt_8013D914(o, 0, 0, 0), o->f_A0, o->f_D0);
+        }
+        if (func_8005588C(o, -1) == 0) {
+            if (++o->f_8F == 5) {
+                o->f_80 = 10;
+                func_8005588C(o, 0x19);
+                o->f_24 = o->f_9A;
+                o->f_28 = o->f_9C;
+                o->f_2C = o->f_9E;
+            } else {
+                func_8005588C(o, 0x3C);
+            }
+        }
+        break;
+    case 10:
+        o->f_C8 = 25 - o->f_C9;
+        o->f_A0 = (25 - o->f_C9) * 8;
+        if (func_8005588C(o, -1) == 0) {
+            Object_EnableCollision_8013D914(o);
+            o->f_46 = 0;
+            o->f_C8 = 25;
+            o->f_80 = 1;
+        }
+        break;
+    }
+}
 
 void func_8013DE24(void *arg0, s32 y, s16 lim) {
     s16 d;
@@ -438,7 +581,149 @@ void func_8013E8A8(u8 *a) {
     Hook_Add_8013E8A8(func_8013E1E0_8013E8A8);
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E9D8);
+typedef struct { u16 start; u16 end; } Anim_8013E9D8;
+typedef struct { u8 pad0[0x44]; s16 f_44; u8 pad46[0x16]; u16 f_5C; s16 f_5E; u8 pad60[0x1C]; s8 f_7C; u8 pad7D[0x2]; u8 f_7F; u8 f_80; u8 pad81[0x7]; Anim_8013E9D8 *f_88; u8 pad8C[0x1C]; s16 f_A8; u8 padAA[0x25]; u8 f_CF; u8 padD0[0x10]; u32 f_E0; } O_8013E9D8;
+extern struct { u32 f_0; u8 pad_4[0x8122]; u16 f_8126; } g_Game_8013E9D8 asm("g_Game");
+extern struct { u8 pad_0[0x30]; s32 f_30; u8 pad_34[4]; s32 f_38; } g_Spike_8013E9D8 asm("g_Spike");
+extern s32 D_800EC218;
+void func_8013E560(u8 *a);
+s32 func_8013E768(void *arg0);
+M2C_UNK func_8013E7EC(void *arg0);
+void func_8013E848(void *arg0);
+void func_8013E8A8_8013E9D8(void *) asm("func_8013E8A8");
+M2C_UNK func_80052038_8013E9D8(void *, M2C_UNK) asm("func_80052038");
+void Object_ClampAnimFrame_8013E9D8(void *, s32) asm("Object_ClampAnimFrame");
+
+void func_8013E9D8(O_8013E9D8 *o) {
+    s16 t;
+    u32 d;
+
+    if (!((o->f_E0 >> 3) & 1)) {
+        func_8013E8A8_8013E9D8(o);
+        o->f_E0 |= 8;
+    }
+    func_80058134(o, o->f_44);
+    if (D_80143168 != 0) {
+        D_80143168--;
+    }
+    if (o->f_A8 != 0) {
+        o->f_A8 = t = o->f_A8 - 10;
+        if (g_Game_8013E9D8.f_8126 == 9) {
+            g_Spike_8013E9D8.f_30 = -t / 2;
+            g_Spike_8013E9D8.f_38 = -o->f_A8 / 2 - 10;
+        } else {
+            D_800EC218 = t;
+        }
+        if (o->f_A8 == 0 && o->f_7C != -1) {
+            func_80088120(o->f_7C);
+            o->f_7C = -1;
+        }
+    }
+    switch (o->f_80) {
+    case 1:
+        Object_ClampAnimFrame_8013E9D8(o, o->f_88[o->f_7F].end);
+        if (o->f_CF == 1) {
+            o->f_80 = 2;
+            o->f_7F = 0;
+            o->f_5C = o->f_88[0].start;
+            func_80052038_8013E9D8(o, 0x4E);
+            o->f_CF = 0;
+        }
+        break;
+    case 2:
+        if (o->f_88[o->f_7F].end - 2 < o->f_5C) {
+            o->f_80 = 3;
+            func_8005588C(o, 10);
+        }
+        break;
+    case 3:
+        Object_ClampAnimFrame_8013E9D8(o, o->f_88[o->f_7F].end);
+        if (func_8005588C(o, -1) == 0) {
+            func_8013E7EC(o);
+        }
+        break;
+    case 4:
+        func_8013E560(o);
+        if (func_8013E768(o) != 0) {
+            break;
+        }
+        if (func_8005588C(o, -1) != 0) {
+            break;
+        }
+        o->f_80 = 8;
+        o->f_7F = 5;
+        D_80143164 = 0;
+        o->f_5C = o->f_88[5].start;
+        break;
+    case 5:
+        if ((u8)(o->f_7F - 2) < 2 && D_80143160 == 3) {
+            o->f_5C += 3;
+            if (o->f_5C >= o->f_88[o->f_7F].start + 0x1F) {
+                if (o->f_7F == 2) {
+                    o->f_7F = 8;
+                    o->f_5C = o->f_88[8].start;
+                } else {
+                    o->f_7F = 7;
+                    o->f_5C = o->f_88[7].start;
+                }
+            }
+        }
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            func_8013E848(o);
+        }
+        break;
+    case 9:
+        func_8013E688(o);
+        if (func_8005588C(o, -1) != 0) {
+            break;
+        }
+        o->f_80 = 7;
+        if (g_Game_8013E9D8.f_0 & 1) {
+            o->f_7F = 10;
+            D_80143164 = 1;
+            o->f_5C = o->f_88[10].start;
+        } else {
+            o->f_7F = 11;
+            D_80143164 = 0;
+            o->f_5C = o->f_88[11].start;
+        }
+        break;
+    case 7:
+        d = o->f_5C - o->f_88[o->f_7F].start;
+        if (d == 0x1B) {
+            Object_PlaySound(o, 0x1A);
+        } else if (d - 0x10 < 2) {
+            func_8013E560(o);
+        }
+        if (func_8013E768(o) != 0) {
+            break;
+        }
+        if (o->f_5C >= o->f_88[o->f_7F].end) {
+            func_8013E7EC(o);
+        }
+        break;
+    case 8:
+        func_8013E560(o);
+        if (func_8013E768(o) != 0) {
+            break;
+        }
+        if (o->f_5C < o->f_88[o->f_7F].end) {
+            break;
+        }
+        if (o->f_7F == 5) {
+            o->f_7F = 6;
+            D_80143164 = 1;
+            o->f_5C = o->f_88[6].start;
+        } else {
+            func_8013E7EC(o);
+        }
+        break;
+    case 6:
+        Object_ClampAnimFrame_8013E9D8(o, o->f_88[o->f_7F].end);
+        o->f_5E = 1;
+        break;
+    }
+}
 
 extern s32 D_800B1BD4;
 void Camera_StartShake(s32);
@@ -474,7 +759,6 @@ void func_8013EFDC(s32 arg0) {
 typedef struct { u8 pad[0xE4]; } Obj_8013F020;
 extern Obj_8013F020 g_Objects_8013F020[] asm("g_Objects");
 extern u8 D_800B1C28[];
-void func_8013F354(void *, void *);
 void *memset(void *, s32, s32);
 
 void func_8013F020(u8 *o) {
@@ -536,7 +820,24 @@ void func_8013F1F8(void *arg0, void *arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013F354);
+void func_8013E068(SVECTOR *, s32);
+
+void func_8013F354(void *a, void *b) {
+    SVECTOR q;
+    SVECTOR p;
+    u16 r;
+    s32 c;
+
+    memset(&p, 0, 8);
+    p.vx = M2C_FIELD(a, u16 *, 0x24) + ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80;
+    p.vy = M2C_FIELD(a, u16 *, 0x28) - ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x40;
+    r = g_RandSeed * 5 + 1;
+    p.vz = M2C_FIELD(a, u16 *, 0x2C) + (r >> 8) - 0x80;
+    q = p;
+    c = M2C_FIELD(b, s16 *, 0x28);
+    g_RandSeed = r;
+    func_8013E068(&q, c);
+}
 
 void func_8013EEB8(u8 *a);
 

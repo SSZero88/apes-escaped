@@ -3,7 +3,179 @@
 
 INCLUDE_RODATA("asm/ovl/386/nonmatchings/386_title_menu", D_801376F0);
 
-INCLUDE_ASM("asm/ovl/386/nonmatchings/386_title_menu", func_80136000);
+typedef struct { s16 x, y, w, h; } Rect_80136000;
+extern struct { u32 frame; SprtTp *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; u16 mode; u8 pad8122[4]; u16 stage; u8 pad8128[0x32]; u16 f_815A; u16 f_815C; } g_Game_80136000 asm("g_Game");
+extern struct { u8 pad0[0x1C]; s32 f1C; u8 pad20[4]; s32 f24; s32 f28; s32 f2C; } D_800EBFA0_80136000 asm("D_800EBFA0");
+extern u8 D_80137828[];
+extern s32 D_80137810;
+extern s16 D_80137818;
+extern s16 D_8013781A;
+extern s16 D_8013781C;
+extern s32 D_800A8A58;
+s32 Gfx_InitDisplay(void);
+void Game_NewGameReset(void);
+void func_8002FAF0(s32);
+s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
+void DrawSync(s32);
+s32 VSync(s32 mode);
+void func_80011194(void *);
+s32 func_800116C0(void);
+void Cd_Update(void);
+void func_80136AC0(u8 *b);
+void func_80069500(void);
+void Stage_ApplyFog(void);
+void Light_SetColorMode(s32, s32, s32, s32);
+void func_8001325C(s32);
+void Gfx_BeginFrame(void);
+void func_8008C390(void);
+s32 func_801374E4(void);
+s32 func_80136C5C(void);
+void func_8008760C(void);
+void func_8013674C(void);
+void *PutDrawEnv(void *env);
+void *PutDispEnv(void *env);
+void DrawOTag(u32 *p);
+void Sound_UnloadBanks(s32);
+void Stage_ResetActors(s32);
+s32 Cd_StartFileLoad(s32, s32);
+
+s32 func_80136000(void) {
+    Rect_80136000 r;
+    SprtTp *p;
+    u32 *ot;
+    s32 res;
+    s32 v;
+    u8 c;
+    s32 n;
+
+    r.x = 0;
+    r.y = 0;
+    r.w = 0x180;
+    r.h = 0x200;
+    Gfx_InitDisplay();
+    Game_NewGameReset();
+    func_8002FAF0(0x148);
+    ClearImage(&r, 0xFF, 0xFF, 0xFF);
+    DrawSync(0);
+    g_Game_80136000.db[1].env[0x18] = 1;
+    g_Game_80136000.db[0].env[0x18] = 1;
+    g_Game_80136000.cur = 0;
+    func_80011194(D_80137828);
+    while (func_800116C0() >= 0) {
+        Cd_Update();
+        VSync(2);
+    }
+    func_80136AC0((u8 *)0x80154000);
+    func_80069500();
+    D_800EBFA0_80136000.f24 = 0xF000;
+    D_800EBFA0_80136000.f28 = 0x600;
+    D_800EBFA0_80136000.f2C = 0x4000;
+    D_800EBFA0_80136000.f1C = 0;
+    Stage_ApplyFog();
+    Light_SetColorMode(0, 0, 0, 0);
+    D_80137810 = 0;
+    D_8013781A = 0x1E;
+    D_8013781C = 0;
+    D_80137818 = 0;
+    D_800A8A58 = 0;
+    while (func_8001325C(2), Gfx_BeginFrame(), func_8008C390(), func_801374E4() >= 0) {
+        v = func_80136C5C();
+        if (v < 0 && D_80137818 == 1) {
+            res = v;
+            if (res == -3) {
+                D_80137818 = 3;
+            } else {
+                D_80137818 = 2;
+            }
+        }
+        D_8013781C++;
+        if (D_80137818 == 1 && D_8013781C >= 0x709) {
+            res = -9;
+            D_80137818 = 2;
+            func_8008760C();
+        }
+        p = g_Game_80136000.prim;
+        ot = g_Game_80136000.db[g_Game_80136000.cur].ot;
+        ((u8 *)p)[3] = 5;
+        p->tpage = 0xE1000229;
+        p->code = 0x65;
+        *(u32 *)&p->x0 = 0xC80040;
+        *(u32 *)&p->w = 0x100100;
+        *(u16 *)&p->u0 = 0x8000;
+        p->clut = 0x3CB7;
+        ADD_PRIM_R(ot, p, "$5", "$2");
+        p++;
+        ((u8 *)p)[3] = 5;
+        p->tpage = 0xE10002A9;
+        p->code = 0x65;
+        *(u32 *)&p->x0 = 0x180040;
+        *(u32 *)&p->w = 0x800100;
+        *(u16 *)&p->u0 = 0;
+        p->clut = 0x3F98;
+        ADD_PRIM_R(ot, p, "$5", "$2");
+        p++;
+        g_Game_80136000.prim = p;
+        func_8013674C();
+        DrawSync(0);
+        VSync(2);
+        g_Game_80136000.frame++;
+        PutDispEnv(&g_Game_80136000.db[g_Game_80136000.cur].env[0x5C]);
+        PutDrawEnv(g_Game_80136000.db[g_Game_80136000.cur].env);
+        DrawOTag(&g_Game_80136000.db[g_Game_80136000.cur].ot[0xFFF]);
+    }
+    DrawSync(0);
+    VSync(0);
+    Sound_UnloadBanks(1);
+    if (res == -3) {
+        ClearImage(&r, 0xFF, 0xFF, 0xFF);
+    } else {
+        ClearImage(&r, 0, 0, 0);
+    }
+    DrawSync(0);
+    switch (res) {
+    case -1:
+        g_Game_80136000.mode = 0xD;
+        break;
+    case -2:
+        g_Game_80136000.mode = 0xB;
+        break;
+    case -3:
+        g_Game_80136000.mode = 0x1A;
+        g_Game_80136000.f_815A = 0;
+        break;
+    case -4:
+        g_Game_80136000.mode = 6;
+        break;
+    case -5:
+        g_Game_80136000.mode = 5;
+        break;
+    case -6:
+        g_Game_80136000.mode = 0xE;
+        break;
+    case -8:
+        g_Game_80136000.mode = 0x1B;
+        break;
+    case -9:
+        n = g_Game_80136000.f_815C + 1;
+        n %= 5;
+        g_Game_80136000.stage = n + 0x63;
+        g_Game_80136000.mode = 0x24;
+        g_Game_80136000.f_815C = n;
+        Stage_ResetActors(g_Game_80136000.stage);
+        Cd_StartFileLoad(1, g_Game_80136000.stage);
+        while (func_800116C0() == 0) {
+            Cd_Update();
+            VSync(2);
+        }
+        break;
+    case -10:
+        g_Game_80136000.mode = 0x22;
+        break;
+    case -7:
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/386/nonmatchings/386_title_menu", func_8013654C);
 

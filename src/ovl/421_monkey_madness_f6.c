@@ -218,7 +218,117 @@ void func_8013DE38(s32 unused, SVECTOR *pos) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013DEEC);
+typedef struct { s32 x, y, z; } V3_8013DEEC;
+typedef struct { u32 *coll; SVECTOR v[8]; SVECTOR pos; SVECTOR vel; u8 state; u8 pad55; s8 size; u8 pad57; u16 timer; u16 age; } Rock_8013DEEC;
+extern Rock_8013DEEC D_80140948_8013DEEC[4] asm("D_80140948");
+extern u8 D_801403A0[];
+extern u8 D_80140448[];
+extern u8 D_80140394[];
+void Fx_DrawFadeRing_8013DEEC(void *, s32, s32, s32) asm("Fx_DrawFadeRing");
+void func_80070284_8013DEEC(void *, void *, s32, s32, void *) asm("func_80070284");
+s32 Camera_StartShake_8013DEEC(s32) asm("Camera_StartShake");
+void Effect_SpawnAt_8013DEEC(s32, void *) asm("Effect_SpawnAt");
+void Effect_Spawn_8013DEEC(s32, void *, void *, s32) asm("Effect_Spawn");
+s32 Sound_PlayFixed_8013DEEC(s32) asm("Sound_PlayFixed");
+s32 VectorNormalSS_8013DEEC(void *, void *) asm("VectorNormalSS");
+void Shadow_Draw_8013DEEC(void *, s32, s32, s32) asm("Shadow_Draw");
+void func_8006F3D0_8013DEEC(void *, s32, void *, s32) asm("func_8006F3D0");
+void func_8013D078(s32 arg0);
+#define RAND_8013DEEC() (g_RandSeed = g_RandSeed * 5 + 1)
+
+void func_8013DEEC(void) {
+    Rock_8013DEEC *p;
+    s32 i;
+    s32 k;
+    s32 j;
+    u8 c;
+    SVECTOR d;
+    V3_8013DEEC u;
+    V3_8013DEEC t;
+
+    for (i = 3, p = D_80140948_8013DEEC; i >= 0; i--, p++) {
+        if (p->state == 0) {
+            continue;
+        }
+        for (j = 6; j >= 0; j--) {
+            p->v[j + 1] = p->v[j];
+        }
+        switch (p->state) {
+        case 1:
+            p->size = 1;
+            c = 0x40 - p->timer;
+            Fx_DrawFadeRing_8013DEEC(&p->v[0], p->timer * 0x18, 4, (c << 16) | (c << 8) | c);
+            p->timer = p->timer * 3 / 4;
+            if (p->timer == 0) {
+                p->vel.vx = ((RAND_8013DEEC() >> 8) - 0x80) / 3;
+                p->vel.vy = -(RAND_8013DEEC() >> 11) - 0x18;
+                p->vel.vz = -(RAND_8013DEEC() >> 8) / 4;
+                p->state = 2;
+                p->age = 0;
+                func_80070284_8013DEEC(&p->v[0], D_801403A0, 1, 0, &p->vel);
+                Camera_StartShake_8013DEEC(0);
+                Effect_SpawnAt_8013DEEC(4, &p->v[0]);
+                for (k = 0; k < 5; k++) {
+                    Effect_Spawn_8013DEEC(0xC8, &p->v[0], D_80140394, 0);
+                }
+                Sound_PlayFixed_8013DEEC(0x8F);
+                Sound_PlayFixed_8013DEEC(0x77);
+            }
+            break;
+        case 2:
+            p->age++;
+            if (p->size < 0x14) {
+                p->size += 2;
+            }
+            d.vx = p->pos.vx - p->v[0].vx;
+            d.vy = p->pos.vy - p->v[0].vy;
+            d.vz = p->pos.vz - p->v[0].vz;
+            if (VectorNormalSS_8013DEEC(&d, &d) <= 0x960F || p->age >= 0x40 || (p->coll != NULL && (p->coll[0xB] >> 28) == 6)) {
+                p->v[0].vy = -0x3620;
+                p->state = 3;
+                p->timer = p->age;
+                Effect_SpawnAt_8013DEEC(0x113, &p->v[0]);
+                func_80070284_8013DEEC(&p->v[0], D_801403A0, 1, 0, 0);
+            } else {
+                func_8013D708(p, D_80140470, 0x80);
+            }
+            p->vel.vx = (p->vel.vx * 0x39D) >> 10;
+            p->vel.vy = (p->vel.vy * 0x39D) >> 10;
+            p->vel.vz = (p->vel.vz * 0x39D) >> 10;
+            p->vel.vx += d.vx >> 8;
+            p->vel.vy += (d.vy >> 8) + 4;
+            p->vel.vz += d.vz >> 8;
+            p->v[0].vx += p->vel.vx;
+            p->v[0].vy += p->vel.vy;
+            p->v[0].vz += p->vel.vz;
+            p->vel.vx = p->vel.vx < -0xC4 ? -0xC4 : (p->vel.vx > 0xC4 ? 0xC4 : p->vel.vx);
+            p->vel.vy = p->vel.vy < -0xC4 ? -0xC4 : (p->vel.vy > 0xC4 ? 0xC4 : p->vel.vy);
+            p->vel.vz = p->vel.vz < -0xC4 ? -0xC4 : (p->vel.vz > 0xC4 ? 0xC4 : p->vel.vz);
+            if (p->v[0].vy >= -0x3640) {
+                p->v[0].vy = -0x3640;
+            }
+            t.x = p->v[0].vx;
+            t.y = p->v[0].vy;
+            t.z = p->v[0].vz;
+            u = t;
+            Shadow_Draw_8013DEEC(&u, -0x3610, 0x40, 0);
+            break;
+        case 3:
+            if (--p->timer == 0) {
+                p->state = 0;
+                if (((RAND_8013DEEC() >> 8) & 0xF) == 0) {
+                    func_8013D078((s32)&p->v[0]);
+                }
+            }
+            break;
+        }
+    }
+    for (i = 3, p = D_80140948_8013DEEC; i >= 0; i--, p++) {
+        if (p->state != 0) {
+            func_8006F3D0_8013DEEC(&p->v[0], 7, D_80140448, p->size);
+        }
+    }
+}
 
 typedef struct { u8 pad0[0x1C]; u8 f_1C; u8 pad1D[7]; } Slot_421b;
 extern Slot_421b D_80140AB8[16];

@@ -715,7 +715,100 @@ void func_8013F838(SVECTOR *v) {
 
 INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013F8B8);
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_801402D8);
+typedef struct { SVECTOR at; SVECTOR eye; SVECTOR tgt; } Scr_801402D8;
+extern struct { u8 pad0[0x24]; s32 x, y, z; } g_Spike_801402D8 asm("g_Spike");
+extern u8 D_80143D70_801402D8[] asm("D_80143D70");
+extern u8 D_80144598_801402D8[] asm("D_80144598");
+extern struct { u8 pad_0[3]; u8 f_3; s16 f_4; } D_80143EF8_801402D8 asm("D_80143EF8");
+extern s8 g_CurrentGadget;
+extern u8 D_800E6916;
+void func_800495F4(void *, s32);
+void func_8004AF78(void *);
+void func_80047464(void *, s32, s32, s32);
+void func_80047558(void *, s32, s32, s32);
+void func_80047720(s32, s32, s32);
+s32 VectorNormalSS_801402D8(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
+
+void func_801402D8(void *o) {
+    Scr_801402D8 *sc = (Scr_801402D8 *)0x1F800000;
+    u8 *d = D_80143D70_801402D8;
+    u8 *p;
+    SVECTOR v;
+    u8 m;
+
+    if (g_Spike_801402D8.z < -0xA5A) {
+        func_800495F4(o, 0);
+        return;
+    }
+    sc->tgt.vx = g_Spike_801402D8.x;
+    sc->tgt.vy = g_Spike_801402D8.y - 0x80;
+    sc->tgt.vz = g_Spike_801402D8.z;
+    sc->eye.vx = (M2C_FIELD(d, s32 *, 0x24) + sc->tgt.vx * 3) / 4;
+    sc->eye.vy = -0x1200;
+    sc->eye.vz = (M2C_FIELD(d, s32 *, 0x2C) + sc->tgt.vz * 3) / 4;
+    v.vx = sc->eye.vx - sc->tgt.vx;
+    v.vy = 0;
+    v.vz = sc->eye.vz - sc->tgt.vz;
+    VectorNormalSS_801402D8(&v, &v);
+    sc->at.vx = sc->tgt.vx - v.vx / 4 * 3;
+    sc->at.vy = M2C_FIELD(d, u16 *, 0x28) - 0x3E8;
+    sc->at.vz = sc->tgt.vz - v.vz / 4 * 3;
+    m = d[0x71];
+    if (m < 4) {
+        sc->at.vx = sc->tgt.vx - v.vx / 2;
+        sc->at.vy = M2C_FIELD(d, u16 *, 0x28) - 0x76C;
+        sc->at.vz = -(v.vz / 2 + 0x200) + sc->tgt.vz;
+    } else if (m == 13 || m == 14) {
+        v.vx = -sc->tgt.vx;
+        v.vy = 0;
+        v.vz = 0x400 - sc->tgt.vz;
+        VectorNormalSS_801402D8(&v, &v);
+        sc->eye.vx = sc->tgt.vx + (v.vx >> 1);
+        sc->eye.vy = sc->tgt.vy - 0xC8;
+        sc->eye.vz = sc->tgt.vz + (v.vz >> 1);
+        sc->at.vx = sc->tgt.vx - (v.vx >> 1);
+        sc->at.vy = sc->tgt.vy - 0x118;
+        sc->at.vz = sc->tgt.vz - (v.vz >> 1);
+    } else if (m == 10 || m == 11 || m == 12 || m == 15 || m == 16 || m == 21) {
+        sc->eye.vy = M2C_FIELD(d, u16 *, 0x28) + 0x640;
+        sc->at.vy = sc->tgt.vy;
+        sc->at.vx = sc->tgt.vx - v.vx / 3;
+        sc->at.vz = sc->tgt.vz - v.vz / 3;
+    } else if (m == 20 || m == 22) {
+        sc->at.vx = sc->tgt.vx + v.vz / 2;
+        sc->at.vz = sc->tgt.vz - v.vx / 2;
+        sc->eye.vy = M2C_FIELD(d, u16 *, 0x28);
+        sc->at.vy = sc->tgt.vy - 0x17C;
+    }
+    p = D_80144598_801402D8;
+    if (p[0x80] != 0) {
+        v.vx = M2C_FIELD(p, u16 *, 0x24) - sc->tgt.vx;
+        v.vy = 0;
+        v.vz = M2C_FIELD(p, u16 *, 0x2C) - sc->tgt.vz;
+        VectorNormalSS_801402D8(&v, &v);
+        sc->eye.vx = M2C_FIELD(p, u16 *, 0x24);
+        sc->eye.vy = sc->tgt.vy - 0xC8;
+        sc->eye.vz = M2C_FIELD(p, u16 *, 0x2C);
+        sc->at.vx = sc->tgt.vx - (v.vx >> 1);
+        sc->at.vy = sc->tgt.vy - 0x400;
+        sc->at.vz = sc->tgt.vz - (v.vz >> 1);
+    }
+    if (sc->eye.vy > -0x1200) {
+        sc->eye.vy = -0x1200;
+    }
+    if (g_CurrentGadget == 3 && D_800E6916 != 1) {
+        func_8004AF78(o);
+    }
+    func_80047558(o, 0x20, 0x18, 0x20);
+    func_80047464(o, 0x18, 0x18, 0x18);
+    if (D_80143EF8_801402D8.f_3 != 0) {
+        func_80047720(0, 0, D_80143EF8_801402D8.f_4);
+        D_80143EF8_801402D8.f_4 += 0x18;
+        if (--D_80143EF8_801402D8.f_3 == 0) {
+            D_80143EF8_801402D8.f_4 = 0;
+        }
+    }
+}
 
 void func_80140760(void) {
     D_80143F04 = 0;
