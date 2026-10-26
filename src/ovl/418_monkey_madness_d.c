@@ -679,7 +679,67 @@ void func_8013E9C8(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0x96, M2C_FIELD(arg0, s16 *, 0x24), (s16) (M2C_FIELD(arg0, u16 *, 0x28) - ((s32) (M2C_FIELD(arg0, u16 *, 0x46) << 0x10) >> 0x11)), (s32) M2C_FIELD(arg0, s16 *, 0x2C), (s32) M2C_FIELD(arg0, s16 *, 0x48), (s32) M2C_FIELD(arg0, s16 *, 0x4A));
 }
 
-INCLUDE_ASM("asm/ovl/418/nonmatchings/418_monkey_madness_d", func_8013EA6C);
+void Object_PlaySound_8013D714(void *, s32) asm("Object_PlaySound");
+s32 func_800563E0(void *, s32);
+void func_80058134_8013D714(void *, s32) asm("func_80058134");
+void func_8013E86C(void *arg0);
+void func_8013E948(void *arg0);
+void func_8013E9C8(void *arg0);
+
+void func_8013EA6C(void *arg0) {
+    if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 3) & 1)) {
+        M2C_FIELD(arg0, s16 *, 0xA0) = 0x32;
+        M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(arg0, s16 *, 0x4A) = -0x7DFD;
+        M2C_FIELD(arg0, s16 *, 0x48) = 1;
+        M2C_FIELD(arg0, s16 *, 0x44) = 0x58;
+        M2C_FIELD(arg0, s16 *, 0x46) = 0x114;
+        M2C_FIELD(arg0, u8 *, 0xCD) = 4;
+        M2C_FIELD(arg0, u8 *, 0xDC) = 0;
+        M2C_FIELD(arg0, u8 *, 0x80) = 1;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 0;
+        M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(arg0, u16 **, 0x88)[0];
+        M2C_FIELD(arg0, s32 *, 0x28) = M2C_FIELD(arg0, s16 *, 0x9C) + 0x100;
+        M2C_FIELD(arg0, u32 *, 0xE0) |= 8;
+    }
+    func_80058134_8013D714(arg0, M2C_FIELD(arg0, s16 *, 0x44));
+    switch (M2C_FIELD(arg0, u8 *, 0x80)) {
+    case 1:
+        if (func_8013E7F4(arg0) != 0) {
+            M2C_FIELD(arg0, u8 *, 0x80) = 2;
+            M2C_FIELD(arg0, u8 *, 0x7F) = 1;
+            M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(arg0, u16 **, 0x88)[2];
+            M2C_FIELD(arg0, s16 *, 0x96) = 4;
+            M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 1, M2C_FIELD(arg0, s16 *, 0x24), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s16 *, 0x2C), M2C_FIELD(arg0, s16 *, 0x48), M2C_FIELD(arg0, s16 *, 0x4A));
+        }
+        break;
+    case 2:
+        if ((s16)func_800563E0(arg0, 0) == 0) {
+            M2C_FIELD(arg0, u8 *, 0x80) = 3;
+            M2C_FIELD(arg0, u8 *, 0x7F) = 2;
+            M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(arg0, u16 **, 0x88)[4];
+            Object_PlaySound_8013D714(arg0, 0xA2);
+        }
+        M2C_FIELD(arg0, s16 *, 0x96) += 6;
+        if (M2C_FIELD(arg0, u8 *, 0x7F) == 1 && M2C_FIELD(arg0, u16 *, 0x5C) == M2C_FIELD(arg0, u16 **, 0x88)[M2C_FIELD(arg0, u8 *, 0x7F) * 2 + 1]) {
+            M2C_FIELD(arg0, u8 *, 0x7F) = 2;
+            M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(arg0, u16 **, 0x88)[4];
+        }
+        break;
+    case 3:
+        func_8013E9C8(arg0);
+        func_8013E86C(arg0);
+        func_8013E948(arg0);
+        break;
+    case 4:
+        if (M2C_FIELD(arg0, u16 *, 0x5C) >= M2C_FIELD(arg0, u16 **, 0x88)[M2C_FIELD(arg0, u8 *, 0x7F) * 2 + 1]) {
+            M2C_FIELD(arg0, u8 *, 0x80) = 3;
+            M2C_FIELD(arg0, u8 *, 0x7F) = 2;
+            M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(arg0, u16 **, 0x88)[4];
+        }
+        break;
+    }
+}
 
 void Effect_SpawnAt(s32, SVECTOR *);
 

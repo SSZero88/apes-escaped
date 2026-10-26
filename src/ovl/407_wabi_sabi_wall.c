@@ -264,7 +264,90 @@ void func_8013D98C(void *arg0) {
                                M2C_FIELD(arg0, s16 *, 0x2C), 0xA01, 0x200);
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013D9D8);
+typedef struct { u32 b0 : 3; u32 init : 1; u32 b4 : 2; u32 b6 : 1; u32 b7 : 5; u32 b12 : 1; u32 b13 : 19; } Flags_8013D9D8;
+typedef struct { u16 start; u16 end; } Rng_8013D9D8;
+extern struct { u8 pad0; u8 f_1; } D_800E77A0_8013D9D8 asm("D_800E77A0");
+void func_80058134(void *, s32);
+void Object_PlaceAtPathPoint(void *, s32);
+void func_8005866C(void *, s32);
+void func_800585D0(void *, s32, s32, s32);
+void Object_ApplyVelocity(void *);
+s32 func_8005588C(void *, s32);
+void func_80051E98(void *, s32);
+void func_8013D98C(void *arg0);
+
+void func_8013D9D8(u8 *o) {
+    s32 st;
+
+    if (!M2C_FIELD(o, Flags_8013D9D8 *, 0xE0).init) {
+        M2C_FIELD(o, s16 *, 0xA0) = 0x190;
+        M2C_FIELD(o, Flags_8013D9D8 *, 0xE0).b12 = 0;
+        M2C_FIELD(o, s16 *, 0x98) = 0;
+        M2C_FIELD(o, s16 *, 0x96) = 0;
+        M2C_FIELD(o, s16 *, 0x94) = 0;
+        M2C_FIELD(o, u8 *, 0x8F) = 0;
+        M2C_FIELD(o, s16 *, 0x44) = 1;
+        M2C_FIELD(o, s16 *, 0x46) = 0x320;
+        M2C_FIELD(o, s16 *, 0x4A) = -0x7EFD;
+        M2C_FIELD(o, s16 *, 0x48) = 1;
+        M2C_FIELD(o, s16 *, 0xAA) = 0;
+        M2C_FIELD(o, u8 *, 0x8E) = 1;
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x40;
+        Object_PlaceAtPathPoint(o, 0);
+        func_8005866C(o, 1);
+        M2C_FIELD(o, s16 *, 0x9C) = M2C_FIELD(o, s32 *, 0x28);
+        M2C_FIELD(o, s16 *, 0x96) = 100;
+        M2C_FIELD(o, s32 *, 0x28) += 1000;
+        M2C_FIELD(o, u8 *, 0x80) = 1;
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, Rng_8013D9D8 **, 0x88)[0].start;
+        M2C_FIELD(o, Flags_8013D9D8 *, 0xE0).init = 1;
+    }
+    func_80058134(o, M2C_FIELD(o, s16 *, 0x44));
+    switch (st = M2C_FIELD(o, u8 *, 0x80)) {
+    case 1:
+        M2C_FIELD(o, s16 *, 0x96) -= 7;
+        M2C_FIELD(o, s32 *, 0x28) += M2C_FIELD(o, s16 *, 0x96);
+        if (M2C_FIELD(o, s32 *, 0x28) <= M2C_FIELD(o, s16 *, 0x9C)) {
+            M2C_FIELD(o, s32 *, 0x28) = M2C_FIELD(o, s16 *, 0x9C);
+            M2C_FIELD(o, u8 *, 0x80) = 2;
+            M2C_FIELD(o, u8 *, 0x7F) = st;
+            M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, Rng_8013D9D8 **, 0x88)[1].start;
+        }
+        func_8013D98C(o);
+        break;
+    case 2:
+        func_8013D98C(o);
+        if (M2C_FIELD(o, u16 *, 0x5C) >= M2C_FIELD(o, Rng_8013D9D8 **, 0x88)[M2C_FIELD(o, u8 *, 0x7F)].end) {
+            M2C_FIELD(o, s8 *, 0x7C) = Sound_ReserveSlot(0x707C, 0x1000, o + 0x24);
+            M2C_FIELD(o, u8 *, 0x80) = 3;
+            M2C_FIELD(o, u8 *, 0x7F) = st;
+            M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, Rng_8013D9D8 **, 0x88)[2].start;
+        }
+        break;
+    case 3:
+        func_800585D0(o, 0x28, 0, 1);
+        if (M2C_FIELD(o, u8 *, 0x8E) == 0) {
+            M2C_FIELD(o, u8 *, 0x80) = 4;
+            M2C_FIELD(o, s16 *, 0x96) = 0;
+            M2C_FIELD(o, s16 *, 0xAE) = 0;
+            func_8005588C(o, 0x14);
+        } else {
+            Object_ApplyVelocity(o);
+        }
+        func_8013D98C(o);
+        break;
+    case 4:
+        M2C_FIELD(o, s16 *, 0x96) += 8;
+        Object_ApplyVelocity(o);
+        if (!func_8005588C(o, -1)) {
+            func_80088120(M2C_FIELD(o, s8 *, 0x7C));
+            D_800E77A0_8013D9D8.f_1--;
+            func_80051E98(o, 0);
+        }
+        break;
+    }
+}
 
 typedef struct { u16 start; u16 end; } Rng_8013DC64;
 extern struct { u8 pad0; u8 f_1; } D_800E77A0_8013DC64 asm("D_800E77A0");
@@ -335,7 +418,37 @@ void func_8013DE8C(u8 *o) {
     Object_AddAttackSphereNear(o, 100, M2C_FIELD(o, s16 *, 0x24), M2C_FIELD(o, s16 *, 0x1E), M2C_FIELD(o, s16 *, 0x2C), 1, 0x202);
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013DF50);
+s16 func_80058400(void *, u8, s8, s16);
+
+void func_8013DF50(u8 *o) {
+    u16 n;
+
+    if (func_80058400(o, M2C_FIELD(o, u8 *, 0x8E), 1, 0x32)) {
+        if ((M2C_FIELD(o, u32 *, 0xE0) >> 6) & 1) {
+            if (M2C_FIELD(o, u8 *, 0x8E) == 0) {
+                M2C_FIELD(o, u8 *, 0x8E)++;
+                M2C_FIELD(o, u8 *, 0x80) = 4;
+                M2C_FIELD(o, u8 *, 0x7F) = 3;
+                M2C_FIELD(o, u32 *, 0xE0) &= ~0x40;
+                M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, u16 **, 0x88)[6];
+                return;
+            }
+            M2C_FIELD(o, u8 *, 0x8E)--;
+        } else {
+            n = M2C_FIELD(o, u16 *, 0x8C);
+            if (M2C_FIELD(o, u8 *, 0x8E) == n - 1) {
+                M2C_FIELD(o, u8 *, 0x8E) = n - 2;
+                M2C_FIELD(o, u8 *, 0x80) = 4;
+                M2C_FIELD(o, u8 *, 0x7F) = 3;
+                M2C_FIELD(o, u32 *, 0xE0) |= 0x40;
+                M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, u16 **, 0x88)[6];
+                return;
+            }
+            M2C_FIELD(o, u8 *, 0x8E)++;
+        }
+    }
+    Object_ApplyVelocity(o);
+}
 
 s32 func_8013E044(void *arg0) {
     s32 var_s0;
@@ -368,7 +481,15 @@ void func_8013E3AC(void *arg0) {
     Effect_SpawnAt(7, &v);
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E43C);
+s32 func_8013E43C(s32 v, s32 lim) {
+    if (__builtin_abs(v) <= lim) {
+        return v;
+    }
+    if (v > 0) {
+        return lim;
+    }
+    return -lim;
+}
 
 INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E46C);
 

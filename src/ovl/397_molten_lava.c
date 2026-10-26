@@ -287,7 +287,38 @@ void func_8013D8AC(u8 *a)
   }
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013D95C);
+typedef struct { u8 pad0[0x8E]; u8 f8E; u8 f8F; u8 pad90[0x50]; u32 fE0; } Obj_8013D95C;
+extern s32 D_80141150;
+s32 func_80057140(void *, s32, s32);
+void Object_PlaceAtPathPoint(void *, s32);
+void func_8005866C(void *, s32);
+
+void func_8013D95C(u8 *o) {
+    u16 *t;
+
+    M2C_FIELD(o, s16 *, 0xB0) = 0x2D;
+    M2C_FIELD(o, s16 *, 0x4A) = -0x4000;
+    M2C_FIELD(o, s16 *, 0x46) = 1000;
+    M2C_FIELD(o, s16 *, 0xA0) = 300;
+    M2C_FIELD(o, u8 *, 0x81) = 4;
+    M2C_FIELD(o, s16 *, 0x44) = 300;
+    M2C_FIELD(o, s16 *, 0x48) = 0;
+    ((Obj_8013D95C *)o)->fE0 &= ~0x1000;
+    ((Obj_8013D95C *)o)->fE0 &= ~0x8000;
+    M2C_FIELD(o, u8 *, 0x8F) = 0;
+    ((Obj_8013D95C *)o)->fE0 &= ~0x40;
+    M2C_FIELD(o, u8 *, 0x8E) = 0;
+    D_80141154 = 0;
+    ((Obj_8013D95C *)o)->fE0 |= 0x2200;
+    M2C_FIELD(o, s32 *, 0x74) = func_80057140(o, 0xD, -1);
+    M2C_FIELD(o, s32 *, 0x78) = func_80057140(o, 6, 0x3E);
+    Object_PlaceAtPathPoint(o, 0);
+    func_8005866C(o, 1);
+    t = M2C_FIELD(o, u16 **, 0x88);
+    D_80141150 = 0;
+    M2C_FIELD(o, u8 *, 0x7F) = 0;
+    M2C_FIELD(o, u16 *, 0x5C) = *t;
+}
 
 void func_80058134(void *, s32);
 void Object_SpawnEffect(void *, s32, s32, s32, s32);
@@ -428,9 +459,21 @@ void TRex_UpdateHeadBox(u8 *a) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013DF3C);
+void func_8013DF3C(void *o_, SVECTOR *v) {
+    u8 *o = o_;
+    s32 c = M2C_FIELD(o, s16 *, 0x60);
+    s32 s = M2C_FIELD(o, s16 *, 0x64);
+    s32 z = v->vz;
+    s32 x = v->vx;
+    s32 cz = (c * z) >> 12;
+    s32 sz = (s * z) >> 12;
+    s32 sx = (s * x) >> 12;
+    s32 cx = (c * x) >> 12;
+    v->vx = M2C_FIELD(o, s16 *, 0x24) + cz - sx;
+    v->vy = M2C_FIELD(o, s16 *, 0x28) + v->vy;
+    v->vz = M2C_FIELD(o, s16 *, 0x2C) + sz + cx;
+}
 
-void func_8013DF3C(void *, SVECTOR *);
 void Effect_SpawnAt(s32, SVECTOR *);
 
 void func_8013DFC4(void *arg0, s32 n, s16 x, s32 z) {
@@ -528,7 +571,39 @@ void func_8013E2D8(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013E320);
+extern struct { s32 x, y, z; u8 padC[0x14]; s16 f20, f22, f24, f26; } g_TRexHeadBox_8013E320 asm("g_TRexHeadBox");
+typedef struct { u8 pad0[0xA6]; s16 f_A6; } Obj_8013E320;
+void TRex_UpdateHeadBox(u8 *a);
+s32 Collision_Set(s32, void *, void *);
+void Object_PlaceRandomAroundHome(void *, s16);
+void *func_80056BC4_8013E320(s32, void *, s32) asm("func_80056BC4");
+
+void func_8013E320(o)
+    u8 *o;
+{
+    M2C_FIELD(o, s16 *, 0xA0) = 0x12C;
+    M2C_FIELD(o, s16 *, 0x44) = 0x12C;
+    M2C_FIELD(o, s16 *, 0x46) = 0x258;
+    M2C_FIELD(o, s16 *, 0x4A) = -0x4000;
+    M2C_FIELD(o, s16 *, 0xB0) = 0x16;
+    M2C_FIELD(o, u8 *, 0x81) = 3;
+    g_TRexHitFlag = 0;
+    M2C_FIELD(o, s16 *, 0x48) = 0;
+    M2C_FIELD(o, u32 *, 0xE0) &= ~0x1000;
+    M2C_FIELD(o, u32 *, 0xE0) |= 0x200;
+    Object_PlaceRandomAroundHome(o, ((Obj_8013E320 *)o)->f_A6);
+    D_8014115C = 1000;
+    M2C_FIELD(o, s16 *, 0xA8) = 0;
+    g_TRexHeadBox_8013E320.f20 = 0xA0;
+    g_TRexHeadBox_8013E320.f22 = 0x118;
+    g_TRexHeadBox_8013E320.f24 = 1;
+    g_TRexHeadBox_8013E320.f26 = -0x7EFD;
+    TRex_UpdateHeadBox(o);
+    Collision_Set(5, &g_TRexHeadBox_8013E320, o);
+    M2C_FIELD(o, u8 *, 0x7F) = 0;
+    M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
+    func_80056BC4_8013E320(0x30, o + 0x24, M2C_FIELD(o, s8 *, 0xCB));
+}
 
 void func_80058134_8013FA24(void *, s32) asm("func_80058134");
 void TRex_CountHit(u8 *a);
@@ -538,7 +613,6 @@ void func_8013E1C4(void *arg0);
 void func_8013E214(void *arg0);
 void func_8013E284(void *arg0);
 void func_8013E2D8(void *arg0);
-void func_8013E320();
 #define ANIM_8013E40C(o, i) (*(u16 *)((i) * 4 + M2C_FIELD(o, u8 **, 0x88)))
 #define AEND_8013E40C(o, i) (*(u16 *)((i) * 4 + M2C_FIELD(o, u8 **, 0x88) + 2))
 
@@ -746,7 +820,59 @@ s32 func_8013EBE8(void *arg0, void *arg1) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_8013EC54);
+void func_8013E7D8(void *arg0);
+void func_8013E82C();
+void func_8013EA8C(u8 *a);
+void func_8013EB8C(void *arg0);
+s32 func_8013EBE8(void *arg0, void *arg1);
+void TRex_OnCollide(void *arg0);
+
+void func_8013EC54(u8 *o) {
+    u8 *t = (u8 *)&g_Objects_397[M2C_FIELD(o, s8 *, 0xCA)];
+    s32 a;
+
+    if (!((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1)) {
+        func_8013EA8C(o);
+        M2C_FIELD(o, u32 *, 0xE0) |= 8;
+    }
+    func_80058134(o, M2C_FIELD(o, s16 *, 0x44));
+    if (o[0x82] != 0) {
+        TRex_OnCollide(o);
+        o[0x84] = 0;
+        return;
+    }
+    if ((M2C_FIELD(o, u32 *, 0xE0) >> 20) & 1) {
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x100000;
+        TRex_HeadSlam(o);
+    }
+    func_8013E7D8(o);
+    func_8013EB8C(o);
+    switch (o[0x80]) {
+    case 2:
+        if (func_8005588C(o, -1) == 0) {
+            TRex_HeadSlam(o);
+        }
+        break;
+    case 1:
+        if (func_8013EBE8(o, t) == 0) {
+            if (o[0xC9] != 0) {
+                func_8013E934(o, t);
+                if (--o[0xC9] == 0x1B) {
+                    o[0xC8] = 10;
+                }
+                if (o[0xC9] == 0) {
+                    a = (M2C_FIELD(t, s16 *, 0xAC) + 0x14A) % 4096;
+                    M2C_FIELD(o, s16 *, 0x94) = (u32)(rcos_8013D468(a) * 5) >> 9;
+                    M2C_FIELD(o, s16 *, 0x98) = (u32)(rsin_8013D468(a) * 5) >> 9;
+                    M2C_FIELD(o, s16 *, 0x96) = -0x38;
+                }
+            } else {
+                func_8013E82C(o);
+            }
+        }
+        break;
+    }
+}
 
 void Monkey_DrawHelmetLight(SVECTOR *, s32, s32);
 
@@ -1303,7 +1429,51 @@ void func_80140338(SVECTOR *p) {
     Effect_SpawnAt(0x108, &v);
 }
 
-INCLUDE_ASM("asm/ovl/397/nonmatchings/397_molten_lava", func_801403C0);
+typedef struct { u8 pad0[0x28]; s32 y; u8 pad2C[0x88]; s32 fB4; u8 padB8[0x2C]; } Obj_801403C0;
+extern Obj_801403C0 g_Objects_801403C0[] asm("g_Objects");
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x30]; SVECTOR dir; } Mdl_801403C0;
+extern Mdl_801403C0 D_80141240_801403C0 asm("D_80141240");
+void Object_PlaySound_801403C0(void *, s32) asm("Object_PlaySound");
+s32 Object_AddAttackSphere_801403C0(void *, s32, s16, s16, s32, s32, s32) asm("Object_AddAttackSphere");
+
+void func_801403C0(void) {
+    Drip_396 *p;
+    Obj_801403C0 *o;
+    s32 i;
+    Mdl_801403C0 *m;
+
+    m = &D_80141240_801403C0;
+    for (i = 7; i >= 0; i--) {
+        p = &D_8013F2A0_s[i];
+        if (p->active != 0) {
+            p->active++;
+            p->vy += 4;
+            o = &g_Objects_801403C0[p->unkE];
+            func_801402F8((SVECTOR *)p);
+            p->x += p->vx;
+            p->y += p->vy;
+            p->z += p->vz;
+            if (Object_DetachLink(o, 0) == 6) {
+                p->active = 0;
+                func_80140338((SVECTOR *)p);
+                Object_PlaySound_801403C0(o, 0x6B);
+            } else if (func_801402B4(p) != 0 || o->y + 0x600 < p->y) {
+                p->active = 0;
+                func_80140338((SVECTOR *)p);
+            } else {
+                m->x = p->x;
+                m->y = p->y;
+                m->z = p->z;
+                m->dir.vx = p->vx;
+                m->dir.vy = p->vy;
+                m->dir.vz = p->vz;
+                VectorNormalSS(&m->dir, &m->dir);
+                func_80140024(0, 3);
+                o->fB4 = Object_AddAttackSphere_801403C0(o, 0x1E, p->x, p->y, p->z, 1, 0x203);
+            }
+        }
+    }
+}
 
 void Object_SpawnEffect(void *, s32, s32, s32, s32);
 

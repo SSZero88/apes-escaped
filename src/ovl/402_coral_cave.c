@@ -527,14 +527,30 @@ void func_8013E6E4(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013E834);
+typedef struct { u8 p0[0x44]; s16 f44; s16 f46; s16 f48; s16 f4A; u8 p4C[0x10]; u16 f5C; u8 p5E[0x21]; u8 f7F; u8 p80[8]; u16 *f88; u8 p8C[0x14]; s16 fA0; u8 pA2[6]; s16 fA8; u8 pAA[6]; s16 fB0; u8 pB2[0x1B]; u8 fCD; u8 pCE[0xE]; u8 fDC; u8 pDD[3]; u32 fE0; } Obj_8013E834;
+
+void func_8013E834(void *arg0) {
+    ((Obj_8013E834 *)arg0)->fA0 = 0x32;
+    ((Obj_8013E834 *)arg0)->fB0 = 0x5B;
+    ((Obj_8013E834 *)arg0)->f44 = 0x32;
+    ((Obj_8013E834 *)arg0)->f4A = -0x7DFC;
+    ((Obj_8013E834 *)arg0)->f48 = 0x600;
+    ((Obj_8013E834 *)arg0)->f46 = 0x3C;
+    ((Obj_8013E834 *)arg0)->fCD = 2;
+    ((Obj_8013E834 *)arg0)->fDC = 0;
+    ((Obj_8013E834 *)arg0)->f7F = 0;
+    ((Obj_8013E834 *)arg0)->fE0 &= ~0x10000;
+    ((Obj_8013E834 *)arg0)->fE0 &= ~0x1000;
+    *(volatile u32 *)&((Obj_8013E834 *)arg0)->fE0 |= 0x200000;
+    ((Obj_8013E834 *)arg0)->f5C = *((Obj_8013E834 *)arg0)->f88;
+    ((Obj_8013E834 *)arg0)->fA8 = 0x23;
+}
 
 void func_80058134_8013E8B4(void *, s32) asm("func_80058134");
 void Object_PlaySound_8013E8B4(void *, s32) asm("Object_PlaySound");
 void Object_Destroy_8013E8B4(void *) asm("Object_Destroy");
 s32 Object_SpikeNear_8013E8B4(void *, s32) asm("Object_SpikeNear");
 void Object_HeadHome_8013E8B4(void *, s32, s32) asm("Object_HeadHome");
-void func_8013E834(void *);
 void func_8013E3F4(u8 *a);
 void func_8013E518(void *arg0);
 void func_8013E6E4(void *arg0);
@@ -595,7 +611,36 @@ void func_8013E8B4(u8 *o) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013EAF8);
+extern struct { u8 pad0[0x1A]; s8 f_1A; u8 pad1B; s8 f_1C; } D_800E77D0_8013EAF8 asm("D_800E77D0");
+void Object_OrbitAround(void *, s16, s16, s16, s16);
+
+void func_8013EAF8(void *arg0) {
+    if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 3) & 1)) {
+        M2C_FIELD(arg0, s16 *, 0xA0) = 0x32;
+        M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(arg0, s16 *, 0xA8) = 0;
+        M2C_FIELD(arg0, u8 *, 0x8F) = 0;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 0;
+        M2C_FIELD(arg0, u32 *, 0xE0) |= 0x10000;
+        M2C_FIELD(arg0, u16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
+        M2C_FIELD(arg0, u32 *, 0xE0) |= 8;
+    }
+    func_80058134_8013E8B4(arg0, M2C_FIELD(arg0, s16 *, 0x44));
+    Object_OrbitAround(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA6), (M2C_FIELD(arg0, s16 *, 0xA8) >> 3) + 4);
+    switch (M2C_FIELD(arg0, u8 *, 0x80)) {
+    case 1:
+        if (Object_SpikeNear_8013E8B4(arg0, 0x15E) != 0) {
+            M2C_FIELD(arg0, u8 *, 0x80) = 2;
+        }
+        break;
+    case 2:
+        if (Object_StepGrowShrink(arg0, 0x14, D_800E77D0_8013EAF8.f_1A + 0x50, -6 - D_800E77D0_8013EAF8.f_1C) != 0) {
+            M2C_FIELD(arg0, s16 *, 0xA8) = 0;
+            M2C_FIELD(arg0, u8 *, 0x80) = 1;
+        }
+        break;
+    }
+}
 
 void func_8013EC38(void *arg0, void *arg1, M2C_UNK arg2) {
     func_80052038(arg1, arg2);
@@ -712,7 +757,52 @@ void func_8013EFE4(SVECTOR *p) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013F044);
+typedef struct { u8 pad0[0x28]; s32 y; u8 pad2C[0x88]; s32 fB4; u8 padB8[0x2C]; } Obj_8013F044;
+extern Obj_8013F044 g_Objects_8013F044[] asm("g_Objects");
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x30]; SVECTOR dir; } Mdl_8013F044;
+extern Mdl_8013F044 D_801417F8_8013F044 asm("D_801417F8");
+void VectorNormalSS(void *, void *);
+void Object_PlaySound_8013F044(void *, s32) asm("Object_PlaySound");
+s32 Object_AddAttackSphere_8013F044(void *, s32, s16, s16, s32, s32, s32) asm("Object_AddAttackSphere");
+
+void func_8013F044(void) {
+    Drip_396 *p;
+    Obj_8013F044 *o;
+    s32 i;
+    Mdl_8013F044 *m;
+
+    m = &D_801417F8_8013F044;
+    for (i = 7; i >= 0; i--) {
+        p = &D_8013F2A0_s[i];
+        if (p->active != 0) {
+            p->active++;
+            p->vy += 4;
+            o = &g_Objects_8013F044[p->unkE];
+            func_8013EFA4((SVECTOR *)p);
+            p->x += p->vx;
+            p->y += p->vy;
+            p->z += p->vz;
+            if (Object_DetachLink(o, 0) == 6) {
+                p->active = 0;
+                func_8013EFE4((SVECTOR *)p);
+                Object_PlaySound_8013F044(o, 0x6B);
+            } else if (func_8013EF68(p) != 0 || o->y + 0x600 < p->y) {
+                p->active = 0;
+                func_8013EFE4((SVECTOR *)p);
+            } else {
+                m->x = p->x;
+                m->y = p->y;
+                m->z = p->z;
+                m->dir.vx = p->vx;
+                m->dir.vy = p->vy;
+                m->dir.vz = p->vz;
+                VectorNormalSS(&m->dir, &m->dir);
+                func_8013ECD8(0, 3);
+                o->fB4 = Object_AddAttackSphere_8013F044(o, 0x1E, p->x, p->y, p->z, 1, 0x203);
+            }
+        }
+    }
+}
 
 void Object_SpawnEffect(void *, s32, s32, s32, s32);
 
@@ -1116,7 +1206,67 @@ void func_8014033C(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0x96, M2C_FIELD(arg0, s16 *, 0x24), (s16) (M2C_FIELD(arg0, u16 *, 0x28) - ((s32) (M2C_FIELD(arg0, u16 *, 0x46) << 0x10) >> 0x11)), (s32) M2C_FIELD(arg0, s16 *, 0x2C), (s32) M2C_FIELD(arg0, s16 *, 0x48), (s32) M2C_FIELD(arg0, s16 *, 0x4A));
 }
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_801403E0);
+void Object_PlaySound_801403E0(void *, s32) asm("Object_PlaySound");
+s32 func_800563E0(void *, s32);
+void func_80058134_801403E0(void *, s32) asm("func_80058134");
+void func_801401E0(void *arg0);
+void func_801402BC(void *arg0);
+void func_8014033C(void *arg0);
+
+void func_801403E0(void *arg0) {
+    if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 3) & 1)) {
+        M2C_FIELD(arg0, s16 *, 0xA0) = 0x32;
+        M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(arg0, s16 *, 0x4A) = -0x7DFD;
+        M2C_FIELD(arg0, s16 *, 0x48) = 1;
+        M2C_FIELD(arg0, s16 *, 0x44) = 0x58;
+        M2C_FIELD(arg0, s16 *, 0x46) = 0x114;
+        M2C_FIELD(arg0, u8 *, 0xCD) = 4;
+        M2C_FIELD(arg0, u8 *, 0xDC) = 0;
+        M2C_FIELD(arg0, u8 *, 0x80) = 1;
+        M2C_FIELD(arg0, u8 *, 0x7F) = 0;
+        M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(arg0, u16 **, 0x88)[0];
+        M2C_FIELD(arg0, s32 *, 0x28) = M2C_FIELD(arg0, s16 *, 0x9C) + 0x100;
+        M2C_FIELD(arg0, u32 *, 0xE0) |= 8;
+    }
+    func_80058134_801403E0(arg0, M2C_FIELD(arg0, s16 *, 0x44));
+    switch (M2C_FIELD(arg0, u8 *, 0x80)) {
+    case 1:
+        if (func_80140168(arg0) != 0) {
+            M2C_FIELD(arg0, u8 *, 0x80) = 2;
+            M2C_FIELD(arg0, u8 *, 0x7F) = 1;
+            M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(arg0, u16 **, 0x88)[2];
+            M2C_FIELD(arg0, s16 *, 0x96) = 4;
+            M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 1, M2C_FIELD(arg0, s16 *, 0x24), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s16 *, 0x2C), M2C_FIELD(arg0, s16 *, 0x48), M2C_FIELD(arg0, s16 *, 0x4A));
+        }
+        break;
+    case 2:
+        if ((s16)func_800563E0(arg0, 0) == 0) {
+            M2C_FIELD(arg0, u8 *, 0x80) = 3;
+            M2C_FIELD(arg0, u8 *, 0x7F) = 2;
+            M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(arg0, u16 **, 0x88)[4];
+            Object_PlaySound_801403E0(arg0, 0xA2);
+        }
+        M2C_FIELD(arg0, s16 *, 0x96) += 6;
+        if (M2C_FIELD(arg0, u8 *, 0x7F) == 1 && M2C_FIELD(arg0, u16 *, 0x5C) == M2C_FIELD(arg0, u16 **, 0x88)[M2C_FIELD(arg0, u8 *, 0x7F) * 2 + 1]) {
+            M2C_FIELD(arg0, u8 *, 0x7F) = 2;
+            M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(arg0, u16 **, 0x88)[4];
+        }
+        break;
+    case 3:
+        func_8014033C(arg0);
+        func_801401E0(arg0);
+        func_801402BC(arg0);
+        break;
+    case 4:
+        if (M2C_FIELD(arg0, u16 *, 0x5C) >= M2C_FIELD(arg0, u16 **, 0x88)[M2C_FIELD(arg0, u8 *, 0x7F) * 2 + 1]) {
+            M2C_FIELD(arg0, u8 *, 0x80) = 3;
+            M2C_FIELD(arg0, u8 *, 0x7F) = 2;
+            M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(arg0, u16 **, 0x88)[4];
+        }
+        break;
+    }
+}
 
 s32 Math_Atan2(s32, s32);
 

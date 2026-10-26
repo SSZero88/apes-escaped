@@ -11,7 +11,6 @@ s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, void *);
 M2C_UNK func_80088120(s8);
 s32 Object_DetachLink(void *, M2C_UNK);
 M2C_UNK func_8006F274(M2C_UNK, M2C_UNK *, u16);
-M2C_UNK func_8013E310(void *, M2C_UNK *, M2C_UNK, M2C_UNK);
 extern M2C_UNK D_801418F8;
 extern u16 g_Game;
 M2C_UNK Math_WithinSquare(s32, s32, M2C_UNK);
@@ -350,7 +349,19 @@ void func_8013E2A4(void *arg0, s32 arg1) {
     M2C_FIELD(M2C_FIELD(arg0, void **, 0x78), s16 *, 0xA) = 0xD9;
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013E310);
+void Fx_DrawFadeRing_8013E310(void *, s32, s32, s32) asm("Fx_DrawFadeRing");
+void *Object_AddAttackSphereAt_8013E310(void *, void *, s16) asm("Object_AddAttackSphereAt");
+
+M2C_UNK func_8013E310(void *arg0, M2C_UNK *arg1, M2C_UNK arg2, M2C_UNK arg3) {
+    Fx_DrawFadeRing_8013E310(arg1, arg2, 4, 0x645050);
+    if (arg3 != 0) {
+        M2C_FIELD(arg1, u16 *, 2) += 0x80;
+        M2C_FIELD(arg0, void **, 0xB4) = Object_AddAttackSphereAt_8013E310(arg0, arg1, arg3);
+        M2C_FIELD(M2C_FIELD(arg0, void **, 0xB4), s16 *, 0x18) = -M2C_FIELD(arg0, u16 *, 0x60);
+        M2C_FIELD(M2C_FIELD(arg0, void **, 0xB4), s16 *, 0x1C) = -M2C_FIELD(arg0, u16 *, 0x64);
+        M2C_FIELD(arg1, u16 *, 2) -= 0x80;
+    }
+}
 
 typedef struct { s16 x, y, z; s16 dx, dy, dz; } V_8013E3B4;
 extern V_8013E3B4 D_801418F8_8013E3B4 asm("D_801418F8");
@@ -1297,7 +1308,90 @@ s32 func_80140548(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_801405CC);
+typedef struct { u32 b0 : 3; u32 init : 1; u32 b4 : 20; u32 mode : 2; u32 b26 : 6; } Flags_801405CC;
+typedef struct { u16 start; u16 end; } Rng_801405CC;
+extern struct { u8 pad_0[0x24]; u16 x; u16 p26; u16 y; u16 p2A; u16 z; } g_Spike_801405CC asm("g_Spike");
+void Object_ClampAnimFrame_801405CC(void *, s32) asm("Object_ClampAnimFrame");
+void Object_PlaySound_801405CC(void *, s32) asm("Object_PlaySound");
+void func_80058134_801405CC(void *, s32) asm("func_80058134");
+s32 func_80057140_801405CC(void *, s32, s32) asm("func_80057140");
+void func_801400D4(void *arg0);
+void func_80140110(void *arg0);
+void func_8014015C(void *arg0);
+void func_801401DC(void *arg0);
+void func_801402B4(void *arg0);
+void func_80140300(void *arg0);
+void func_80140320(void *arg0);
+void func_801403E4(void *arg0);
+s32 func_80140548(void *arg0);
+
+void func_801405CC(u8 *o) {
+    if (!M2C_FIELD(o, Flags_801405CC *, 0xE0).init) {
+        M2C_FIELD(o, s16 *, 0xA0) = 0x64;
+        M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(o, s16 *, 0x46) = 0x64;
+        M2C_FIELD(o, s16 *, 0x44) = 0x3C;
+        M2C_FIELD(o, s16 *, 0x48) = 0x201;
+        M2C_FIELD(o, s16 *, 0x4A) = -0x7EFD;
+        M2C_FIELD(o, u8 *, 0xCD) = 1;
+        M2C_FIELD(o, u8 *, 0xDC) = 1;
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, s16 *, 0x9C) -= 0xC8;
+        M2C_FIELD(o, s32 *, 0x28) = M2C_FIELD(o, s16 *, 0x9C);
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x1000;
+        M2C_FIELD(o, Flags_801405CC *, 0xE0).mode = 2;
+        M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, Rng_801405CC **, 0x88)[0].start;
+        M2C_FIELD(o, u32 *, 0xE0) |= 0x2000;
+        M2C_FIELD(o, s32 *, 0x74) = func_80057140_801405CC(o, 0xA, 0x9C);
+        M2C_FIELD(o, s32 *, 0x78) = func_80057140_801405CC(o, 6, 0x70);
+        func_80055F1C(o, 8);
+        M2C_FIELD(o, Flags_801405CC *, 0xE0).init = 1;
+    }
+    func_80058134_801405CC(o, M2C_FIELD(o, s16 *, 0x44));
+    if (func_80140548(o) == 0) {
+        switch (M2C_FIELD(o, u8 *, 0x80)) {
+        case 1:
+            func_80055E6C(o, 8);
+            Object_SeekHeight(o, 8);
+            func_80140300(o);
+            if (func_8005588C(o, -1) == 0 && Object_SpikeInFront(o, 0x168, -0x1000, 0x400)) {
+                func_801402B4(o);
+            }
+            break;
+        case 2:
+            Object_ClampAnimFrame_801405CC(o, M2C_FIELD(o, Rng_801405CC **, 0x88)[M2C_FIELD(o, u8 *, 0x7F)].end);
+            Object_TurnToward(o, g_Spike_801405CC.x - M2C_FIELD(o, u16 *, 0x24), g_Spike_801405CC.z - M2C_FIELD(o, u16 *, 0x2C), 0, 0x1000);
+            func_801401DC(o);
+            func_8014015C(o);
+            if (func_8005588C(o, -1) == 0) {
+                M2C_FIELD(o, u8 *, 0x80) = 3;
+                M2C_FIELD(o, s16 *, 0xA8) = 0;
+                M2C_FIELD(o, u32 *, 0xE0) |= 0x10000;
+                M2C_FIELD(o, u16 *, 0xBC) = g_Spike_801405CC.x;
+                M2C_FIELD(o, u16 *, 0xC0) = g_Spike_801405CC.z;
+                M2C_FIELD(o, u16 *, 0xBE) = g_Spike_801405CC.y - 0xC8;
+                M2C_FIELD(o, u8 *, 0x8F) = 0;
+                func_801400D4(o);
+            }
+            break;
+        case 3:
+            Object_ClampAnimFrame_801405CC(o, M2C_FIELD(o, Rng_801405CC **, 0x88)[M2C_FIELD(o, u8 *, 0x7F)].end);
+            if (M2C_FIELD(o, u8 *, 0x8F) < 3) {
+                if (++M2C_FIELD(o, u8 *, 0x8F) == 3) {
+                    Object_PlaySound_801405CC(o, 0xA6);
+                }
+            }
+            func_801403E4(o);
+            func_801401DC(o);
+            func_8014015C(o);
+            func_80140110(o);
+            break;
+        case 4:
+            func_80140320(o);
+            break;
+        }
+    }
+}
 
 extern struct S_g_Game_801408E0 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_801408E0 asm("g_Game");
 extern u8 *D_800B4D64;

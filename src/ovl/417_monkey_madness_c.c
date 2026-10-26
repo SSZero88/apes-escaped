@@ -19,7 +19,51 @@ M2C_UNK func_80052864(void *);
 extern s32 D_80140D40;
 extern void *D_80140D4C;
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D000);
+/* 4 diffs (hand): near-camera branch - constant 1 should be hoisted into a0 before the -0xD2 store (scheduling); uses register asm("s0") for the 0x12E0 multiplier */
+typedef struct { SVECTOR at; SVECTOR eye; SVECTOR tgt; } Scr_8013D000;
+typedef struct { u8 pad0[0x34]; s16 f34; s16 f36; u8 pad38[7]; u8 f3F; u8 f40; u8 pad41; u8 f42; } Cam_8013D000;
+extern Cam_8013D000 D_800E68D0;
+s32 VectorNormalSS_8013D000(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
+void func_8004637C(void *);
+void func_80047464(void *, s32, s32, s32);
+void func_80047558(void *, s32, s32, s32);
+void func_8004B8F4(void *, s32, void *);
+#define SCR_8013D000 ((Scr_8013D000 *)0x1F800000)
+
+void func_8013D000(void *arg0) {
+    SVECTOR p;
+    SVECTOR d;
+    s32 m[8];
+    register s32 k asm("s0");
+
+    func_8004B8F4(arg0, 2, &p);
+    d.vx = p.vx - SCR_8013D000->tgt.vx;
+    d.vy = 0;
+    d.vz = p.vz - SCR_8013D000->tgt.vz;
+    if (VectorNormalSS_8013D000(&d, &d) <= 0x63FFFF) {
+        D_800E68D0.f42 = 1;
+        D_800E68D0.f34 = -0xD2;
+        D_800E68D0.f3F = 1;
+        D_800E68D0.f40 = 1;
+        D_800E68D0.f36 = 0x5E0;
+        return;
+    }
+    D_800E68D0.f42 = 0;
+    D_800E68D0.f3F = 0;
+    D_800E68D0.f40 = 0;
+    SCR_8013D000->eye.vx = SCR_8013D000->tgt.vx;
+    SCR_8013D000->eye.vy = SCR_8013D000->tgt.vy + 0x1E;
+    SCR_8013D000->eye.vz = SCR_8013D000->tgt.vz;
+    func_80047558(arg0, 2, 0x14, 2);
+    func_8004637C(m);
+    RotMatrixY(0x2D, m);
+    ApplyMatrixSV(m, &d, &d);
+    k = 0x12E0;
+    SCR_8013D000->at.vy = SCR_8013D000->eye.vy - 0x348;
+    SCR_8013D000->at.vx = p.vx - (d.vx * k >> 12);
+    SCR_8013D000->at.vz = p.vz - (d.vz * k >> 12);
+    func_80047464(arg0, 2, 0x20, 2);
+}
 
 extern u16 g_RandSeed;
 void Effect_SpawnAt(s32, SVECTOR *);
@@ -787,7 +831,38 @@ s32 func_8013EC70(u8 *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013ED4C);
+extern s32 D_80140D48;
+extern struct { u8 pad[0x20]; s16 f20, f22, f24, f26; } D_80140D00_8013ED4C asm("D_80140D00");
+extern u8 D_80140D38_8013ED4C[] asm("D_80140D38");
+void func_8005866C(void *, s32);
+typedef struct { u8 p0[0x44]; s16 f44, f46, f48, f4A; u8 p4C[0x31]; u8 f7D; u8 p7E[3]; u8 f81; u8 p82[0xA]; u16 f8C; u8 p8E[0x12]; s16 fA0; u8 pA2[0xE]; s16 fB0; u8 pB2[0x16]; u8 fC8; u8 pC9[4]; u8 fCD; u8 pCE[0x12]; u32 fE0; } Obj_8013ED4C;
+
+void func_8013ED4C(Obj_8013ED4C *a) {
+    a->fA0 = 0xB4;
+    a->f48 = 1;
+    a->f4A = 0x8103;
+    a->f44 = 0xDC;
+    a->f46 = 0x28;
+    a->fB0 = 0x38;
+    a->f7D = 10;
+    a->f81 = 0x18;
+    a->fC8 = 0xF;
+    a->fCD = 1;
+    D_80140D40 = 1;
+    D_80140D44 = 0;
+    D_80140D48 = 0;
+    a->fE0 = (a->fE0 & ~0x1000) | 0x200000;
+    D_80140D00_8013ED4C.f20 = 0xA0;
+    D_80140D00_8013ED4C.f22 = 0x168;
+    D_80140D00_8013ED4C.f24 = 1;
+    D_80140D00_8013ED4C.f26 = 0x8103;
+    func_8013EC24(a);
+    Collision_Set(4, &D_80140D00_8013ED4C, a);
+    func_8007CD88(D_80140D38_8013ED4C);
+    if (a->f8C != 0) {
+        func_8005866C(a, 1);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013EE4C);
 
@@ -832,7 +907,31 @@ void func_8013F4D4(void *arg0, s32 arg1) {
     M2C_FIELD(arg0, s8 *, 0x7C) = Sound_ReserveSlot(arg1 | 0x7000, 0x1000, arg0 + 0x24);
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013F528);
+void func_8013F4D4(void *arg0, s32 arg1);
+typedef struct { u8 p0[0x44]; s16 f44, f46, f48, f4A; u8 p4C[0x10]; u16 f5C; u8 p5E[0x1E]; s8 f7C; u8 f7D, p7E, f7F, f80, f81; u8 p82[6]; u8 *f88; u8 p8C[0x14]; s16 fA0; u8 pA2[0xE]; s16 fB0; u8 pB2[0x16]; u8 fC8; u8 pC9[4]; u8 fCD; u8 pCE[0x12]; u32 fE0; } Obj_8013F528;
+
+void func_8013F528(Obj_8013F528 *e) {
+
+    e->fA0 = 0xB4;
+    e->fB0 = 0x2D;
+    e->f48 = 1;
+    e->f4A = -0x7EFD;
+    e->f44 = 0x8C;
+    e->f46 = 0x168;
+    e->f7D = 0xA;
+    e->f81 = 0xE;
+    e->fCD = 3;
+    e->fC8 = 0xF;
+    e->f7C = -1;
+    D_80140D40 = 1;
+    D_80140D48 = 1;
+    e->fE0 &= ~0x1000;
+    func_8013F4D4(e, 0xB1);
+    e->f80 = 1;
+    e->f7F = 3;
+    e->f5C = M2C_FIELD(e->f88, u16 *, 0xC);
+    D_80140D4C = e;
+}
 
 void func_80052038(void *, s32);
 
@@ -911,11 +1010,19 @@ void func_8013FEB0(void *arg0) {
     Effect_SpawnAt(4, &v);
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013FEF0);
+void func_8013FEF0(void *arg0) {
+    s32 a = M2C_FIELD(arg0, s16 *, 0x9A);
+    s32 x = M2C_FIELD(arg0, s32 *, 0x24);
+    void *d = D_80140D4C;
+    s32 z = M2C_FIELD(arg0, s32 *, 0x2C);
+    s32 t = (a - x) * (M2C_FIELD(d, s32 *, 0x2C) - z);
+    s32 b = M2C_FIELD(arg0, s16 *, 0x9E) - z;
+    s32 c = M2C_FIELD(d, s32 *, 0x24) - x;
+    M2C_FIELD(arg0, u32 *, 0xE0) = (M2C_FIELD(arg0, u32 *, 0xE0) & 0xFFF7FFFF) | ((u32)(t - c * b) >> 31 << 19);
+}
 
 s32 Math_Atan2(s32, s32);
 M2C_UNK func_8005588C(void *, M2C_UNK);
-M2C_UNK func_8013FEF0(void *);
 void func_80055F1C(void *, s32);
 
 void func_8013FF58(void *arg0) {

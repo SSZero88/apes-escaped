@@ -250,7 +250,51 @@ void func_8013DA0C(SVECTOR *p) {
     Effect_SpawnAt(0x108, &v);
 }
 
-INCLUDE_ASM("asm/ovl/396/nonmatchings/396_primordial_ooze", func_8013DA94);
+typedef struct { u8 pad0[0x28]; s32 y; u8 pad2C[0x88]; s32 fB4; u8 padB8[0x2C]; } Obj_8013DA94;
+extern Obj_8013DA94 g_Objects_8013DA94[] asm("g_Objects");
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x30]; SVECTOR dir; } Mdl_8013DA94;
+extern Mdl_8013DA94 D_8013F340_8013DA94 asm("D_8013F340");
+void VectorNormalSS(void *, void *);
+void Object_PlaySound(void *, s32);
+
+void func_8013DA94(void) {
+    Drip_396 *p;
+    Obj_8013DA94 *o;
+    s32 i;
+    Mdl_8013DA94 *m;
+
+    m = &D_8013F340_8013DA94;
+    for (i = 7; i >= 0; i--) {
+        p = &D_8013F2A0_s[i];
+        if (p->active != 0) {
+            p->active++;
+            p->vy += 4;
+            o = &g_Objects_8013DA94[p->unkE];
+            func_8013D9CC((SVECTOR *)p);
+            p->x += p->vx;
+            p->y += p->vy;
+            p->z += p->vz;
+            if (Object_DetachLink(o, 0) == 6) {
+                p->active = 0;
+                func_8013DA0C((SVECTOR *)p);
+                Object_PlaySound(o, 0x6B);
+            } else if (func_8013D990(p) != 0 || o->y + 0x600 < p->y) {
+                p->active = 0;
+                func_8013DA0C((SVECTOR *)p);
+            } else {
+                m->x = p->x;
+                m->y = p->y;
+                m->z = p->z;
+                m->dir.vx = p->vx;
+                m->dir.vy = p->vy;
+                m->dir.vz = p->vz;
+                VectorNormalSS(&m->dir, &m->dir);
+                func_8013D700(0, 3);
+                o->fB4 = Object_AddAttackSphere(o, 0x1E, p->x, p->y, p->z, 1, 0x203);
+            }
+        }
+    }
+}
 
 void Object_SpawnEffect(void *, s32, s32, s32, s32);
 

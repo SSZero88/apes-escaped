@@ -349,7 +349,53 @@ void func_80138B0C(void)
 
 }
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80138C24);
+typedef struct { u32 xy; u32 c; } Cell_80138C24;
+extern Cell_80138C24 *D_80139E28_80138C24 asm("D_80139E28");
+extern s32 g_Game_80138C24 asm("g_Game");
+
+void func_80138C24(void) {
+    Cell_80138C24 *p;
+    Cell_80138C24 *r;
+    Cell_80138C24 *l;
+    s32 i;
+    s32 j;
+    s32 a0;
+    s32 a1;
+    s32 a2;
+
+    p = D_80139E28_80138C24 + 11 * 16;
+    for (i = 12; i >= 2; i--, p -= 32) {
+        for (j = 0; j < 16; p++, j++) {
+            r = p + 1;
+            if (j == 15) {
+                r = p - 15;
+            }
+            l = p - 1;
+            if (j == 0) {
+                l = p + 15;
+            }
+            ((u8 *)&p->c)[0] = (((u8 *)&r[-16].c)[0] + ((u8 *)&l[-16].c)[0] + ((u8 *)&p[-16].c)[0] * 2) >> 2;
+            ((u8 *)&p->c)[1] = (((u8 *)&r[-16].c)[1] + ((u8 *)&l[-16].c)[1] + ((u8 *)&p[-16].c)[1] * 2) >> 2;
+            ((u8 *)&p->c)[2] = (((u8 *)&r[-16].c)[2] + ((u8 *)&l[-16].c)[2] + ((u8 *)&p[-16].c)[2] * 2) >> 2;
+        }
+    }
+    p = D_80139E28_80138C24;
+    for (i = 15; i >= 0; i--) {
+        p[i].c = 0;
+    }
+    a0 = g_Game_80138C24;
+    if (a0 & 0xFF) {
+        for (i = 0; i < 16; i++) {
+            p[i].c += ((rsin((a0 << 5) + i * 0x100) + 0x1000) * 4) & 0xFF00;
+        }
+        for (i = 0, a1 = (g_Game_80138C24 << 5) + 0x555; i < 16; a1 += 0x100, i++) {
+            p[i].c += ((rsin(a1) + 0x1000) >> 6) & 0xFF;
+        }
+        for (i = 0, a2 = (g_Game_80138C24 << 5) + 0xAAA; i < 16; a2 += 0x100, i++) {
+            p[i].c += (((rsin(a2) + 0x1000) >> 6) & 0xFF) << 16;
+        }
+    }
+}
 
 typedef struct { u32 xy; u32 c; } GridPt_391;
 typedef struct { u32 tag; u32 c0; u32 xy0; u32 c1; u32 xy1; u32 c2; u32 xy2; u32 c3; u32 xy3; } PolyG4_391;

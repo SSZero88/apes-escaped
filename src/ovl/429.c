@@ -198,7 +198,6 @@ s32 func_80096580(s32);
 s32 func_80138ABC(void);
 s32 Save_SumStageMonkeys(u8 *);
 void func_8013734C(s16, u8 *);
-void func_80136FF0(void);
 void func_8008C01C(void);
 u8 *func_8008C09C(s32);
 void Model_BindMesh(void *, u32 *);
@@ -275,12 +274,93 @@ s32 func_80136CC4(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80136FF0);
+typedef struct { u8 f_0; u8 f_1; u8 pad2[14]; } Ent_80136FF0;
+typedef struct { u16 id; u8 pad2[0x86]; } Mk_80136FF0;
+typedef struct { s16 f_0; u16 f_2; u8 *f_4; } Slot_80136FF0;
+extern Slot_80136FF0 D_80139368_80136FF0[] asm("D_80139368");
+extern s16 D_801391B4;
+s32 World_FirstStage(s32);
+u8 *func_800962A4_80136FF0(void) asm("func_800962A4");
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_801371C0);
+s32 func_80136FF0(void) {
+    s32 i, j, n, base, k;
+    u8 *types;
+    u8 *mk;
+    Mk_80136FF0 *mks;
+
+    D_801391B0 = 0;
+    D_801391B2 = 0;
+    D_801391B4 = 0;
+    for (i = 0; i < 32; i++) {
+        D_80139368_80136FF0[i].f_4 = 0;
+        D_80139368_80136FF0[i].f_0 = 0;
+        D_80139368_80136FF0[i].f_2 = 0;
+    }
+    n = ((Ent_80136FF0 *)0x80102400)[D_80139200[D_801391BA]].f_0;
+    if (D_80139200[D_801391BA] == 0x18) {
+        for (i = 0x19; i < 0x1E; i++) {
+            n += ((Ent_80136FF0 *)0x80102400)[i].f_0;
+        }
+    }
+    mks = (Mk_80136FF0 *)0x80158000;
+    base = World_FirstStage(D_80139200[D_801391BA]);
+    types = func_800962A4_80136FF0();
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < 8; j++) {
+            k = (base + i) * 8 + j;
+            mk = (u8 *)(k * 0x88 + (s32)mks);
+            if (*(u16 *)mk == 0x7B) {
+                break;
+            }
+            if ((u32)(types[k] - 2) < 2) {
+                D_80139368_80136FF0[D_801391B4].f_0 = 1;
+            }
+            D_80139368_80136FF0[D_801391B4].f_2 = *(u16 *)mk;
+            D_80139368_80136FF0[D_801391B4].f_4 = mk;
+            if (++D_801391B4 >= 0x19) {
+                D_801391B4 = 0x18;
+            }
+        }
+    }
+    return 0;
+}
+
+typedef struct { u8 f_0; u8 f_1; u8 pad2[14]; } Ent_801371C0;
+typedef struct { u16 f_0; u8 pad2[0x86]; } Stage_801371C0;
+
+s32 func_801371C0(s32 base) {
+    Ent_801371C0 *ent = (Ent_801371C0 *)0x80102400;
+    Stage_801371C0 *st = (Stage_801371C0 *)0x80158000;
+    s32 total = 0;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 n;
+    s32 first;
+    s32 c;
+
+    for (i = 0; i < D_801391BA; i++) {
+        c = D_80139200[i];
+        n = ent[c].f_0;
+        if (c == 0x18) {
+            for (j = 0x19; j < 0x1E; j++) {
+                n += ent[j].f_0;
+            }
+        }
+        first = World_FirstStage(D_80139200[i]);
+        for (j = 0; j < n; j++) {
+            for (k = 0; k < 8; k++) {
+                if (st[(first + j) * 8 + k].f_0 == 0x7B) {
+                    break;
+                }
+                total++;
+            }
+        }
+    }
+    return total + base;
+}
 
 M2C_UNK Cd_ReadFilePart(M2C_UNK, s32, M2C_UNK, s32);
-s32 func_801371C0(void *);
 extern s16 D_801391B6;
 extern s32 D_80139478;
 
@@ -579,7 +659,37 @@ s32 func_80138AEC(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138C44);
+s32 func_80138C44(void) {
+    u8 *p = G_DRAW.prim;
+    u8 c;
+    s32 tpage = 0x40;
+
+    if (D_801391B6 == 3 || D_801391B6 == 4) {
+        c = D_801391B8 * 17;
+        p[6] = c;
+        p[5] = c;
+        p[4] = c;
+    } else {
+        c = D_801391B8 * 255 / 30;
+        p[6] = c;
+        p[5] = c;
+        p[4] = c;
+    }
+    p[3] = 3;
+    p[7] = 0x62;
+    M2C_FIELD(p, s16 *, 0xC) = 0x180;
+    M2C_FIELD(p, s16 *, 0x8) = 0;
+    M2C_FIELD(p, s16 *, 0xA) = 0;
+    M2C_FIELD(p, s16 *, 0xE) = 0xF0;
+    ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$4", "$3");
+    p += 0x10;
+    p[3] = 1;
+    M2C_FIELD(p, u32 *, 4) = 0xE1000000 | 0x200 | (tpage & 0x9FF);
+    ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$4", "$3");
+    p += 8;
+    G_DRAW.prim = p;
+    return 0;
+}
 
 typedef struct { s16 x, y, w, h; } RECT_80138D7C;
 extern char D_80138EDC[];

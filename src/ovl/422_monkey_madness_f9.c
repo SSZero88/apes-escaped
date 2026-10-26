@@ -1278,7 +1278,29 @@ void func_80142310(s32 c)
   ((struct Game_414 *)&g_Game)->prim = (u8 *) (m + 1);
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_801423E8);
+typedef struct { s16 x, y, z; u8 pad6[2]; u8 f_8; u8 pad9[3]; } Pt_801423E8;
+extern Pt_801423E8 D_80145430_801423E8[3] asm("D_80145430");
+
+void func_801423E8(void) {
+    s32 i;
+    u8 *q;
+
+    for (i = 0; i < 3; i++) {
+        D_80145430_801423E8[i].f_8 = 1;
+        Link_SendEvent(9, i + 1, 0);
+    }
+    M2C_FIELD(D_80145430_801423E8, s16 *, 0) = 0;
+    M2C_FIELD(D_80145430_801423E8, s16 *, 2) = -0x3000;
+    M2C_FIELD(D_80145430_801423E8, s16 *, 4) = 0x8FC;
+    M2C_FIELD(D_80145430_801423E8, s16 *, 0xC) = -0x708;
+    q = (u8 *)D_80145430_801423E8 + 0xC;
+    M2C_FIELD(q, s16 *, 2) = -0x3000;
+    M2C_FIELD(q, s16 *, 4) = 0xCD0;
+    M2C_FIELD(D_80145430_801423E8, s16 *, 0x18) = 0x708;
+    q = (u8 *)D_80145430_801423E8 + 0x18;
+    M2C_FIELD(q, s16 *, 2) = -0x3000;
+    M2C_FIELD(q, s16 *, 4) = 0xCD0;
+}
 
 s32 func_801424A0(s16 x, s32 a)
 {

@@ -345,7 +345,26 @@ void func_8013DD5C(void *arg0)
 
 INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013DE5C);
 
-INCLUDE_ASM("asm/ovl/405/nonmatchings/405_hot_springs", func_8013E7B8);
+extern struct { u8 pad0[0x24]; s32 x, y, z; } g_Spike_8013D000 asm("g_Spike");
+s32 Vec_Length(s32, s32, s32);
+
+void func_8013E7B8(void *arg0) {
+    s32 v;
+
+    M2C_FIELD(arg0, s16 *, 0x96) = -(M2C_FIELD(arg0, s16 *, 0xA8) + 7) * 0xB;
+    if (M2C_FIELD(arg0, s16 *, 0xA8) != 0) {
+        v = Vec_Length(g_Spike_8013D000.x - M2C_FIELD(arg0, s32 *, 0x24), 0,
+                       g_Spike_8013D000.z - M2C_FIELD(arg0, s32 *, 0x2C)) / 22;
+    } else {
+        v = 0x11;
+    }
+    M2C_FIELD(arg0, s16 *, 0xAE) = 0;
+    M2C_FIELD(arg0, u8 *, 0xDD) = 0;
+    M2C_FIELD(arg0, u32 *, 0xE0) = (M2C_FIELD(arg0, u32 *, 0xE0) | 0x400) & ~0x20;
+    M2C_FIELD(arg0, s16 *, 0x94) = (M2C_FIELD(arg0, s16 *, 0x60) * v) >> 12;
+    M2C_FIELD(arg0, s16 *, 0x98) = (M2C_FIELD(arg0, s16 *, 0x64) * v) >> 12;
+    Object_PlaySound(arg0, 0x68);
+}
 
 s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
 
@@ -406,7 +425,6 @@ void func_8013EA34(void *arg0) {
 s32 func_8013E9C8(void *arg0);
 s32 func_8013E9F8(void *arg0);
 void func_8013EA34(void *arg0);
-void func_8013E7B8(void *);
 void func_8013E8A4(void *arg0);
 void Object_TurnTowardSpike(void *);
 void Object_TurnToward(void *, s16, s16, s32, s32);

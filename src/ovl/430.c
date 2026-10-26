@@ -202,4 +202,43 @@ void func_80137374(void)
 
 INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_8013748C);
 
-INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_801376EC);
+typedef struct { u32 xy; u32 col; } Vtx_801376EC;
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_801376EC;
+typedef struct { Tag_801376EC tag; u32 c0; u32 xy0; u32 c1; u32 xy1; u32 c2; u32 xy2; u32 c3; u32 xy3; } PolyG4_801376EC;
+extern struct { u32 frame; PolyG4_801376EC *prim; u32 *ot; } g_Game_801376EC asm("g_Game");
+extern PolyG4_801376EC *D_800EC354_801376EC asm("D_800EC354");
+extern Vtx_801376EC *D_801387B8_801376EC asm("D_801387B8");
+void func_8013748C();
+
+void func_801376EC(void) {
+    PolyG4_801376EC *p = g_Game_801376EC.prim;
+    Vtx_801376EC *v = D_801387B8_801376EC;
+    Tag_801376EC *ot = (Tag_801376EC *)(g_Game_801376EC.ot + 0xFFF);
+    Vtx_801376EC *n;
+    s32 i, j;
+
+    func_8013748C();
+    for (j = 0; j < 11; j++) {
+        for (i = 0; i < 16; i++) {
+            n = v + 1;
+            if (i == 15) {
+                n = v - 15;
+            }
+            p->c0 = v->col;
+            p->c1 = n->col;
+            p->c2 = v[16].col;
+            p->c3 = n[16].col;
+            ((u8 *)p)[3] = 8;
+            ((u8 *)p)[7] = 0x38;
+            p->xy0 = v->xy;
+            p->xy1 = n->xy;
+            p->xy2 = v[16].xy;
+            p->xy3 = n[16].xy;
+            p->tag.addr = ot->addr;
+            ot->addr = (u32)p;
+            p++;
+            v++;
+        }
+    }
+    D_800EC354_801376EC = p;
+}

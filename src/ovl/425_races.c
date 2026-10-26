@@ -110,7 +110,63 @@ s32 func_8013D290(s32 type, s32 idx) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/425/nonmatchings/425_races", func_8013D424);
+extern GameDraw g_Game_8013D424 asm("g_Game");
+extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013D424 asm("g_Spike");
+extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Monkeys_8013D424 asm("g_Monkeys");
+extern SprtTp *D_800EC354_8013D424 asm("D_800EC354");
+
+void func_8013D424(s32 flag) {
+    SprtTp *p = (SprtTp *)g_Game_8013D424.prim;
+    u32 *ot = g_Game_8013D424.db[g_Game_8013D424.cur].hud;
+    s32 x0, y0, bx, by;
+
+    if (flag == 0) {
+        x0 = 0x124;
+        y0 = 0x64;
+        bx = 0x140;
+        by = 0xA4;
+    } else {
+        x0 = 0x104;
+        y0 = 0x64;
+        bx = 0x128;
+        by = 0x88;
+    }
+    ((u8 *)p)[3] = 5;
+    p->tpage = 0xE1000226;
+    p->code = 0x65;
+    *(u32 *)&p->w = 0x80008;
+    *(u16 *)&p->u0 = 0xF860;
+    p->clut = 0x3F9B;
+    p->x0 = bx + (g_Spike_8013D424.x >> 8);
+    p->y0 = by - (g_Spike_8013D424.z >> 8);
+    ADD_PRIM_R(ot, p, "$3", "$2");
+    p++;
+    ((u8 *)p)[3] = 5;
+    p->tpage = 0xE1000226;
+    p->code = 0x65;
+    *(u32 *)&p->w = 0x80008;
+    *(u16 *)&p->u0 = 0xF868;
+    p->clut = 0x3F9B;
+    p->x0 = bx + (g_Monkeys_8013D424.x >> 8);
+    p->y0 = by - (g_Monkeys_8013D424.z >> 8);
+    ADD_PRIM_R(ot, p, "$3", "$2");
+    p++;
+    *(u32 *)&p->x0 = (y0 << 16) | x0;
+    ((u8 *)p)[3] = 5;
+    p->tpage = 0xE1000226;
+    p->code = 0x65;
+    p->clut = 0x3FDB;
+    if (flag == 0) {
+        *(u32 *)&p->w = 0x800040;
+        *(u16 *)&p->u0 = 0x8000;
+    } else {
+        *(u32 *)&p->w = 0x600060;
+        *(u16 *)&p->u0 = 0xA000;
+    }
+    ADD_PRIM_R(ot, p, "$2", "$3");
+    p++;
+    D_800EC354_8013D424 = p;
+}
 
 typedef struct { SVECTOR at; SVECTOR eye; SVECTOR spike; u8 pad18[0x30]; SVECTOR dir; } Scr_401;
 void func_80047464(void *, s32, s32, s32);

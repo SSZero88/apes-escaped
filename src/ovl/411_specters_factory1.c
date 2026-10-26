@@ -385,7 +385,94 @@ s32 func_8013E0CC(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/411/nonmatchings/411_specters_factory1", func_8013E150);
+typedef struct { u32 b0 : 3; u32 init : 1; u32 b4 : 20; u32 mode : 2; u32 b26 : 6; } Flags_8013E150;
+typedef struct { u16 start; u16 end; } Rng_8013E150;
+extern struct { u8 pad_0[0x24]; u16 x; u16 p26; u16 y; u16 p2A; u16 z; } g_Spike_8013E150 asm("g_Spike");
+void Object_ClampAnimFrame_8013E150(void *, s32) asm("Object_ClampAnimFrame");
+void Object_PlaySound_8013E150(void *, s32) asm("Object_PlaySound");
+void Object_TurnToward_8013E150(void *, s16, s16, s16, s16) asm("Object_TurnToward");
+s32 Object_SpikeInFront(void *, s32, s32, s32);
+void func_80055E6C(void *, s16);
+void func_80055F1C(void *, s32);
+void func_80058134_8013E150(void *, s32) asm("func_80058134");
+s32 func_80057140_8013E150(void *, s32, s32) asm("func_80057140");
+void func_8013DC58(void *arg0);
+void func_8013DC94(void *arg0);
+void func_8013DCE0(void *arg0);
+void func_8013DD60(void *arg0);
+void func_8013DE38(void *arg0);
+void func_8013DE84(void *arg0);
+void func_8013DEA4(void *arg0);
+void func_8013DF68(void *arg0);
+s32 func_8013E0CC(void *arg0);
+
+void func_8013E150(u8 *o) {
+    if (!M2C_FIELD(o, Flags_8013E150 *, 0xE0).init) {
+        M2C_FIELD(o, s16 *, 0xA0) = 0x64;
+        M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(o, s16 *, 0x46) = 0x64;
+        M2C_FIELD(o, s16 *, 0x44) = 0x3C;
+        M2C_FIELD(o, s16 *, 0x48) = 0x201;
+        M2C_FIELD(o, s16 *, 0x4A) = -0x7EFD;
+        M2C_FIELD(o, u8 *, 0xCD) = 1;
+        M2C_FIELD(o, u8 *, 0xDC) = 1;
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, s16 *, 0x9C) -= 0xC8;
+        M2C_FIELD(o, s32 *, 0x28) = M2C_FIELD(o, s16 *, 0x9C);
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x1000;
+        M2C_FIELD(o, Flags_8013E150 *, 0xE0).mode = 2;
+        M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, Rng_8013E150 **, 0x88)[0].start;
+        M2C_FIELD(o, u32 *, 0xE0) |= 0x2000;
+        M2C_FIELD(o, s32 *, 0x74) = func_80057140_8013E150(o, 0xA, 0x9C);
+        M2C_FIELD(o, s32 *, 0x78) = func_80057140_8013E150(o, 6, 0x70);
+        func_80055F1C(o, 8);
+        M2C_FIELD(o, Flags_8013E150 *, 0xE0).init = 1;
+    }
+    func_80058134_8013E150(o, M2C_FIELD(o, s16 *, 0x44));
+    if (func_8013E0CC(o) == 0) {
+        switch (M2C_FIELD(o, u8 *, 0x80)) {
+        case 1:
+            func_80055E6C(o, 8);
+            Object_SeekHeight(o, 8);
+            func_8013DE84(o);
+            if (func_8005588C(o, -1) == 0 && Object_SpikeInFront(o, 0x168, -0x1000, 0x400)) {
+                func_8013DE38(o);
+            }
+            break;
+        case 2:
+            Object_ClampAnimFrame_8013E150(o, M2C_FIELD(o, Rng_8013E150 **, 0x88)[M2C_FIELD(o, u8 *, 0x7F)].end);
+            Object_TurnToward_8013E150(o, g_Spike_8013E150.x - M2C_FIELD(o, u16 *, 0x24), g_Spike_8013E150.z - M2C_FIELD(o, u16 *, 0x2C), 0, 0x1000);
+            func_8013DD60(o);
+            func_8013DCE0(o);
+            if (func_8005588C(o, -1) == 0) {
+                M2C_FIELD(o, u8 *, 0x80) = 3;
+                M2C_FIELD(o, s16 *, 0xA8) = 0;
+                M2C_FIELD(o, u32 *, 0xE0) |= 0x10000;
+                M2C_FIELD(o, u16 *, 0xBC) = g_Spike_8013E150.x;
+                M2C_FIELD(o, u16 *, 0xC0) = g_Spike_8013E150.z;
+                M2C_FIELD(o, u16 *, 0xBE) = g_Spike_8013E150.y - 0xC8;
+                M2C_FIELD(o, u8 *, 0x8F) = 0;
+                func_8013DC58(o);
+            }
+            break;
+        case 3:
+            Object_ClampAnimFrame_8013E150(o, M2C_FIELD(o, Rng_8013E150 **, 0x88)[M2C_FIELD(o, u8 *, 0x7F)].end);
+            if (M2C_FIELD(o, u8 *, 0x8F) < 3) {
+                if (++M2C_FIELD(o, u8 *, 0x8F) == 3) {
+                    Object_PlaySound_8013E150(o, 0xA6);
+                }
+            }
+            func_8013DF68(o);
+            func_8013DD60(o);
+            func_8013DCE0(o);
+            func_8013DC94(o);
+            break;
+        case 4:
+            func_8013DEA4(o);
+            break;
+        }
+    }
+}
 
 extern u8 D_80141788_8013E464[] asm("D_80141788");
 

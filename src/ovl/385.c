@@ -1,7 +1,96 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-INCLUDE_ASM("asm/ovl/385/nonmatchings/385", func_80136000);
+typedef struct { s16 x, y, w, h; } Rect_80136000;
+extern Rect_80136000 D_80136910_80136000 asm("D_80136910");
+extern u8 D_80136920_80136000[] asm("D_80136920");
+extern u8 D_800E52D0[2][0x22];
+extern struct { u8 pad0[0x10]; DrawBuf db[2]; u8 pad8100[0x20]; s16 mode; u8 pad8122[0x38]; s16 f_815A; s16 f_815C; u8 pad815E[6]; s16 f_8164; } g_Game_80136000 asm("g_Game");
+extern GameDraw g_Draw_80136000 asm("g_Game");
+s32 VSync(s32 mode);
+s32 func_80011194(void *);
+s32 func_800116C0(void);
+void Cd_Update(void);
+void SetDispMask(s32 mask);
+s32 ResetGraph(s32 mode);
+s32 SetGraphDebug(s32 level);
+s32 ClearImage2(void *rect, u8 r, u8 g, u8 b);
+void DrawSync(s32);
+s32 func_80136424(void);
+s32 Sound_ResumeStreams(void);
+s32 func_801362A4(void);
+s32 func_80136528(void);
+s32 func_801366EC(void);
+s32 Sound_UnloadBanks(s32);
+s32 Gfx_InitDisplay(void);
+void *PutDrawEnv(void *env);
+void *PutDispEnv(void *env);
+s32 Cd_StartFileLoad(s32, s32);
+
+s32 func_80136000(void) {
+    Rect_80136000 r = D_80136910_80136000;
+    s32 t;
+
+    VSync(0);
+    t = VSync(-1);
+    func_80011194(D_80136920_80136000);
+    while (func_800116C0() == 0) {
+        Cd_Update();
+        VSync(2);
+    }
+    while (VSync(-1) - t < 0xF0) {
+        VSync(0);
+    }
+    VSync(0);
+    SetDispMask(0);
+    ResetGraph(0);
+    SetGraphDebug(0);
+    r.x = 0;
+    r.y = 0;
+    r.w = 0x280;
+    r.h = 0x100;
+    ClearImage(&r, 0, 0, 0);
+    r.x = 0;
+    r.y = 0x100;
+    r.w = 0x280;
+    r.h = 0x100;
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    VSync(0);
+    g_Game_80136000.f_8164 = 0;
+    r.x = 0;
+    r.y = 0;
+    r.w = 0x280;
+    r.h = 0x200;
+    func_80136424();
+    Sound_ResumeStreams();
+    if (func_801362A4() < 0) {
+        return 0;
+    }
+    if (func_80136528() < 0) {
+        return 0;
+    }
+    if (D_800E52D0[0][0] != 0 || (D_800E52D0[0][1] >> 4) != 7) {
+        if (func_801366EC() < 0) {
+            return 0;
+        }
+    }
+    Sound_UnloadBanks(1);
+    ClearImage2(&r, 0, 0, 0);
+    DrawSync(0);
+    Gfx_InitDisplay();
+    PutDispEnv(&g_Draw_80136000.db[g_Draw_80136000.cur].env[0x5C]);
+    PutDrawEnv(&g_Draw_80136000.db[g_Draw_80136000.cur]);
+    Cd_StartFileLoad(0, 0xC);
+    while (func_800116C0() == 0) {
+        Cd_Update();
+        VSync(2);
+    }
+    g_Game_80136000.mode = 0x1A;
+    g_Game_80136000.f_815A = 2;
+    g_Game_80136000.f_815C = 4;
+    return 0;
+}
 
 typedef struct { s16 x, y, w, h; } Rect_801362A4;
 extern struct { u8 pad0[0x20]; s32 f_20; } D_800E3890;

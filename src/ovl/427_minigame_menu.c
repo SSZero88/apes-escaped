@@ -29,7 +29,28 @@ extern M2C_UNK D_8013EB60;
 extern M2C_UNK D_8013EB6C;
 extern M2C_UNK D_8013EFC8;
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_80136000);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x44]; } Obj_80136000;
+typedef struct { s32 active; Obj_80136000 o; } Pop_80136000;
+extern Pop_80136000 D_8013F418_80136000[16] asm("D_8013F418");
+void Effect_SpawnAt(s32, void *);
+
+void func_80136000(void) {
+    SVECTOR v;
+    s32 i;
+    Pop_80136000 *e;
+    Obj_80136000 *o;
+
+    for (i = 0; i < 16; i++) {
+        if (D_8013F418_80136000[i].active != 0) {
+            o = &D_8013F418_80136000[i].o;
+            v.vx = o->x >> 1;
+            v.vy = o->y >> 1;
+            v.vz = o->z >> 1;
+            Effect_SpawnAt(0x105, &v);
+            D_8013F418_80136000[i].active = 0;
+        }
+    }
+}
 
 void func_8013609C(void) {
     D_8013F3E0.f_2C = 0xC350;
@@ -43,7 +64,66 @@ void func_801360C8(void) {
     M2C_FIELD(D_8013FD60, s32 *, 8) = (s32) D_8013F3E0.f_30;
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801360F0);
+typedef struct { s32 f_0; s32 f_4; s32 f_8; s32 f_C; u8 *pad; u8 pad14[0x24]; } Ctl_801360F0;
+extern Ctl_801360F0 D_8013FBF8_801360F0[2] asm("D_8013FBF8");
+extern u8 D_800E52D0[];
+extern u8 *D_8013FC08_801360F0 asm("D_8013FC08");
+void func_8013E8D0(void);
+
+void func_801360F0(void) {
+    s32 i;
+    u8 *p;
+    u8 *p2;
+    u8 *q;
+    u32 b;
+    u32 old;
+    s32 a;
+    Ctl_801360F0 *c;
+
+    for (i = 1; i >= 0; i--) {
+        D_8013FBF8_801360F0[i].pad = D_800E52D0 + i * 0x22;
+    }
+
+    p = D_8013FC08_801360F0;
+    b = ~((p[2] << 8) | p[3]);
+    if (p[0] != 0xFF) {
+        a = p[6] - 0x80;
+        if (a > 0x78) {
+            b |= 0x2000;
+        } else if (a < -0x78) {
+            b |= 0x8000;
+        }
+        a = p[7] - 0x80;
+        if (a > 0x78) {
+            b |= 0x4000;
+        } else if (a < -0x78) {
+            b |= 0x1000;
+        }
+    }
+    old = D_8013FBF8_801360F0[0].f_0;
+    D_8013FBF8_801360F0[0].f_0 = b;
+    D_8013FBF8_801360F0[0].f_4 = old ^ b;
+
+    p2 = D_8013FBF8_801360F0[1].pad;
+    b = ~((p2[2] << 8) | p2[3]);
+    if (p2[0] != 0xFF) {
+        a = p2[6] - 0x80;
+        if (a > 0x78) {
+            b |= 0x2000;
+        } else if (a < -0x78) {
+            b |= 0x8000;
+        }
+        a = p2[7] - 0x80;
+        if (a > 0x78) {
+            b |= 0x4000;
+        } else if (a < -0x78) {
+            b |= 0x1000;
+        }
+    }
+    D_8013FBF8_801360F0[0].f_C = D_8013FBF8_801360F0[0].f_8 ^ b;
+    D_8013FBF8_801360F0[0].f_8 = b;
+    func_8013E8D0();
+}
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013626C);
 
@@ -81,7 +161,30 @@ void func_801365A8(void) {
 
 INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EA90);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_801365D0);
+extern struct { u32 f_0; u32 f_4; u32 f_8; u32 f_C; u8 pad10[0xD]; u8 f_1D; u8 pad1E[0x37]; u8 f_55; } D_8013FBF8_801365D0 asm("D_8013FBF8");
+extern u8 D_8013EA90_801365D0[] asm("D_8013EA90");
+extern u8 D_8013EAAC_801365D0[] asm("D_8013EAAC");
+extern u8 D_8013EAB0_801365D0[] asm("D_8013EAB0");
+extern u32 g_Game_801365D0 asm("g_Game");
+
+void func_801365D0(void) {
+    func_80138350(0);
+    func_80138368(0x60, 0x3C, (M2C_UNK *)D_8013EA90_801365D0, 0x808080);
+    if (D_8013FBF8_801365D0.f_1D == 0) {
+        func_80138368(0x50, 0x7E, (M2C_UNK *)"PRESS", 0x808080);
+        func_80138368(0x26, 0x8A, (M2C_UNK *)"START BUTTON", 0x808080);
+    }
+    func_80138350(1);
+    func_80138368(0x108, 0x3C, (M2C_UNK *)D_8013EAAC_801365D0, 0x808080);
+    if (D_8013FBF8_801365D0.f_55 == 0) {
+        func_80138368(0xFC, 0x7E, (M2C_UNK *)"PRESS", 0x808080);
+        func_80138368(0xD2, 0x8A, (M2C_UNK *)"START BUTTON", 0x808080);
+    }
+    if (g_Game_801365D0 & 0x20) {
+        func_80138350(2);
+        func_801384CC(0x78, 0xC8, (M2C_UNK *)D_8013EAB0_801365D0, 0x808080);
+    }
+}
 
 typedef struct { u8 pad0[0x14]; s16 *mat; u8 pad18[0xC]; s32 x; s32 y; s32 z; u8 pad30[0x30]; s16 rot[3]; u8 pad66[0xE]; } Mdl_80136704;
 extern Mdl_80136704 D_8013FD70_80136704[] asm("D_8013FD70");

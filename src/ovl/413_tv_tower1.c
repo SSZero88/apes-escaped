@@ -375,7 +375,42 @@ s32 func_8013DBF0(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013DC5C);
+typedef struct { s16 f_0; s16 f_2; s16 f_4; u8 pad[0x12]; } S18_8013DC5C;
+extern struct { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x11C]; S18_8013DC5C *f_8220; } g_Game_8013DC5C asm("g_Game");
+s32 Sound_Play(s32, s32);
+void Sound_Stop(s32, s32);
+
+s32 func_8013DC5C(s16 *p) {
+    s32 s;
+    S18_8013DC5C *t;
+
+    if (p[4] >= 0) {
+        switch (p[1]) {
+        case 0:
+            t = &g_Game_8013DC5C.f_8220[p[4]];
+            s = t->f_2;
+            if (s == 1) {
+                p[9] = Sound_Play(0, 0xB9);
+                CamFlyby_StartSegment(p[6] - 1);
+                g_Game_8013DC5C.f_8100 = 7;
+                D_800EC238 = -1;
+                p[1] = s;
+                p[3] = 0;
+            }
+            break;
+        case 1:
+            if (++p[3] >= 0x3D) {
+                Sound_Stop(0xB9, p[9]);
+                p[1] = 2;
+            }
+            break;
+        case 2:
+            break;
+        }
+        return 0;
+    }
+    return 0;
+}
 
 typedef struct { u8 pad_0[0x16]; s16 f_16; } S18_8013DD64;
 extern struct { u8 pad_0[0x8220]; S18_8013DD64 *f_8220; } g_Game_8013DD64 asm("g_Game");
@@ -522,7 +557,25 @@ s32 func_8013E120(s16 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/413/nonmatchings/413_tv_tower1", func_8013E20C);
+typedef struct { s16 f_0; s16 f_2; s16 f_4; u8 pad[0x12]; } S18_8013E20C;
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; S18_8013E20C *f_8220; } g_Game_8013E20C asm("g_Game");
+extern u8 *D_800B4D64_8013E20C asm("D_800B4D64");
+
+s32 func_8013E20C(s16 *p) {
+    u8 *e = g_Game_8013E20C.f_820C + p[2] * 0x38;
+    s32 n;
+    S18_8013E20C *t;
+
+    if (p[1] == 0 && (t = &g_Game_8013E20C.f_8220[p[4]])->f_2 != 0) {
+        p[1] = 1;
+        n = M2C_FIELD(e, s16 *, 0xE);
+        M2C_FIELD(e, u16 *, 0x18) &= 0x7FFF;
+        if (n >= 0) {
+            M2C_FIELD(D_800B4D64_8013E20C + n * 32, u16 *, 0x16) = 0xFFFF;
+        }
+    }
+    return 0;
+}
 
 typedef struct { s16 f_0; s16 f_2; s16 f_4; u8 pad[0x12]; } S18_8013E2A8;
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; S18_8013E2A8 *f_8220; } g_Game_8013E2A8 asm("g_Game");

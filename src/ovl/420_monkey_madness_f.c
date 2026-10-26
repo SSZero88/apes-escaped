@@ -296,7 +296,94 @@ s32 func_8013DFA8(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/420/nonmatchings/420_monkey_madness_f", func_8013E02C);
+typedef struct { u32 b0 : 3; u32 init : 1; u32 b4 : 20; u32 mode : 2; u32 b26 : 6; } Flags_801405CC;
+typedef struct { u16 start; u16 end; } Rng_801405CC;
+void Object_TurnToward(void *, s16, s16, s16, s16);
+void func_80055F1C(void *, s32);
+s32 Object_SpikeInFront(void *, s32, s32, s32);
+void func_80055E6C(void *, s16);
+extern struct { u8 pad_0[0x24]; u16 x; u16 p26; u16 y; u16 p2A; u16 z; } g_Spike_801405CC asm("g_Spike");
+void Object_ClampAnimFrame_801405CC(void *, s32) asm("Object_ClampAnimFrame");
+void Object_PlaySound_801405CC(void *, s32) asm("Object_PlaySound");
+void func_80058134_801405CC(void *, s32) asm("func_80058134");
+s32 func_80057140_801405CC(void *, s32, s32) asm("func_80057140");
+void func_8013DB34(void *arg0);
+void func_8013DB70(void *arg0);
+void func_8013DBBC(void *arg0);
+void func_8013DC3C(void *arg0);
+void func_8013DD14(void *arg0);
+void func_8013DD60(void *arg0);
+void func_8013DD80(void *arg0);
+void func_8013DE44(void *arg0);
+s32 func_8013DFA8(void *arg0);
+
+void func_8013E02C(u8 *o) {
+    if (!M2C_FIELD(o, Flags_801405CC *, 0xE0).init) {
+        M2C_FIELD(o, s16 *, 0xA0) = 0x64;
+        M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
+        M2C_FIELD(o, s16 *, 0x46) = 0x64;
+        M2C_FIELD(o, s16 *, 0x44) = 0x3C;
+        M2C_FIELD(o, s16 *, 0x48) = 0x201;
+        M2C_FIELD(o, s16 *, 0x4A) = -0x7EFD;
+        M2C_FIELD(o, u8 *, 0xCD) = 1;
+        M2C_FIELD(o, u8 *, 0xDC) = 1;
+        M2C_FIELD(o, u8 *, 0x7F) = 0;
+        M2C_FIELD(o, s16 *, 0x9C) -= 0xC8;
+        M2C_FIELD(o, s32 *, 0x28) = M2C_FIELD(o, s16 *, 0x9C);
+        M2C_FIELD(o, u32 *, 0xE0) &= ~0x1000;
+        M2C_FIELD(o, Flags_801405CC *, 0xE0).mode = 2;
+        M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, Rng_801405CC **, 0x88)[0].start;
+        M2C_FIELD(o, u32 *, 0xE0) |= 0x2000;
+        M2C_FIELD(o, s32 *, 0x74) = func_80057140_801405CC(o, 0xA, 0x9C);
+        M2C_FIELD(o, s32 *, 0x78) = func_80057140_801405CC(o, 6, 0x70);
+        func_80055F1C(o, 8);
+        M2C_FIELD(o, Flags_801405CC *, 0xE0).init = 1;
+    }
+    func_80058134_801405CC(o, M2C_FIELD(o, s16 *, 0x44));
+    if (func_8013DFA8(o) == 0) {
+        switch (M2C_FIELD(o, u8 *, 0x80)) {
+        case 1:
+            func_80055E6C(o, 8);
+            Object_SeekHeight(o, 8);
+            func_8013DD60(o);
+            if (func_8005588C(o, -1) == 0 && Object_SpikeInFront(o, 0x168, -0x1000, 0x400)) {
+                func_8013DD14(o);
+            }
+            break;
+        case 2:
+            Object_ClampAnimFrame_801405CC(o, M2C_FIELD(o, Rng_801405CC **, 0x88)[M2C_FIELD(o, u8 *, 0x7F)].end);
+            Object_TurnToward(o, g_Spike_801405CC.x - M2C_FIELD(o, u16 *, 0x24), g_Spike_801405CC.z - M2C_FIELD(o, u16 *, 0x2C), 0, 0x1000);
+            func_8013DC3C(o);
+            func_8013DBBC(o);
+            if (func_8005588C(o, -1) == 0) {
+                M2C_FIELD(o, u8 *, 0x80) = 3;
+                M2C_FIELD(o, s16 *, 0xA8) = 0;
+                M2C_FIELD(o, u32 *, 0xE0) |= 0x10000;
+                M2C_FIELD(o, u16 *, 0xBC) = g_Spike_801405CC.x;
+                M2C_FIELD(o, u16 *, 0xC0) = g_Spike_801405CC.z;
+                M2C_FIELD(o, u16 *, 0xBE) = g_Spike_801405CC.y - 0xC8;
+                M2C_FIELD(o, u8 *, 0x8F) = 0;
+                func_8013DB34(o);
+            }
+            break;
+        case 3:
+            Object_ClampAnimFrame_801405CC(o, M2C_FIELD(o, Rng_801405CC **, 0x88)[M2C_FIELD(o, u8 *, 0x7F)].end);
+            if (M2C_FIELD(o, u8 *, 0x8F) < 3) {
+                if (++M2C_FIELD(o, u8 *, 0x8F) == 3) {
+                    Object_PlaySound_801405CC(o, 0xA6);
+                }
+            }
+            func_8013DE44(o);
+            func_8013DC3C(o);
+            func_8013DBBC(o);
+            func_8013DB70(o);
+            break;
+        case 4:
+            func_8013DD80(o);
+            break;
+        }
+    }
+}
 
 void func_80058134(void *, s32);
 s32 Spike_WithinRadiusXZ(s16, s16, M2C_UNK);

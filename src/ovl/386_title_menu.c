@@ -326,7 +326,6 @@ void func_80136AC0(u8 *b) {
 
 extern s32 D_80137810;
 s32 func_80136D00(void);
-void func_80136F54(void);
 
 s32 func_80136C5C(void) {
     switch (D_80137810) {
@@ -439,7 +438,124 @@ s32 func_80136D00(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/386/nonmatchings/386_title_menu", func_80136F54);
+typedef struct { s8 f0, f1, f2, f3; } PadPort_80136F54;
+extern struct { PadPort_80136F54 ports[0x56]; u32 f_158; u8 pad15C[4]; u32 f_160; u8 pad164[0xC]; s32 port; u8 pad174[0x4C]; s32 stick_mode; } g_Pad_80136F54 asm("g_Pad");
+extern struct { u8 pad0[0x8138]; u8 vibration; u8 remote_vib; u16 stereo; } g_Game_80136F54 asm("g_Game");
+extern s32 D_80137814;
+extern s32 D_800E54E0;
+s32 Sound_SetStereo(s32);
+void Pad_Vibrate(s32, s32, s32);
+void func_8008CBFC(s32, ...);
+void func_8008CC60(s32, s32);
+void Debug_DrawSticks(void);
+void Debug_DrawPadGraph(void);
+
+s32 func_80136F54(void) {
+    u32 btn;
+    s32 pow;
+
+    btn = g_Pad_80136F54.f_160 & g_Pad_80136F54.f_158;
+    if (btn & 0x900) {
+        Sound_PlayFixed(2);
+        D_80137810 = 0;
+        return 0;
+    }
+    if (btn & 0x1000) {
+        Sound_PlayFixed(0);
+        D_80137814--;
+    }
+    if ((g_Pad_80136F54.f_160 & g_Pad_80136F54.f_158) & 0x4000) {
+        Sound_PlayFixed(0);
+        D_80137814++;
+    }
+    D_80137814 = (D_80137814 + 5) % 5;
+    switch (D_80137814) {
+    case 0:
+        if ((g_Pad_80136F54.f_160 & g_Pad_80136F54.f_158) & 0xA000) {
+            Sound_PlayFixed(1);
+            if (g_Pad_80136F54.stick_mode == 0) {
+                g_Pad_80136F54.stick_mode = 1;
+            } else {
+                g_Pad_80136F54.stick_mode = 0;
+            }
+        }
+        break;
+    case 1:
+        if ((g_Pad_80136F54.f_160 & g_Pad_80136F54.f_158) & 0xA000) {
+            Sound_PlayFixed(1);
+            g_Game_80136F54.stereo ^= 1;
+            Sound_SetStereo(g_Game_80136F54.stereo);
+        }
+        break;
+    case 2:
+        if ((g_Pad_80136F54.f_160 & g_Pad_80136F54.f_158) & 0x8000) {
+            Sound_PlayFixed(1);
+            g_Game_80136F54.vibration = !g_Game_80136F54.vibration;
+        }
+        if ((g_Pad_80136F54.f_160 & g_Pad_80136F54.f_158) & 0x2000) {
+            Sound_PlayFixed(1);
+            g_Game_80136F54.vibration = !g_Game_80136F54.vibration;
+        }
+        break;
+    case 3:
+        if (g_Pad_80136F54.ports[g_Pad_80136F54.port].f3 > 0x28) {
+            Pad_Vibrate(0, 1, 2);
+        }
+        if (g_Game_80136F54.vibration) {
+            pow = g_Pad_80136F54.ports[g_Pad_80136F54.port].f1;
+            if (pow > 10) {
+                pow *= 2;
+                Pad_Vibrate(1, pow, 2);
+                func_8008CC60(0xC8, 0xC8);
+                func_8008CBFC((s32)"VibPow = %d\n", pow);
+            }
+        }
+        break;
+    case 4:
+        if ((g_Pad_80136F54.f_160 & g_Pad_80136F54.f_158) & 0xA000) {
+            Sound_PlayFixed(1);
+            g_Game_80136F54.remote_vib ^= 1;
+        }
+        break;
+    }
+    func_8008CC60(0x64, 0x3C);
+    func_8008CBFC((s32)"--- OPTION MENU ---\n");
+    func_8008CC60(0x64, 0x5A);
+    func_8008CBFC((s32)"%c Action Stick", D_80137814 == 0 ? '>' : ' ');
+    func_8008CC60(0xFA, 0x5A);
+    func_8008CBFC((s32)"%s", D_800E54E0 ? "Subjective" : "Objective");
+    func_8008CC60(0x64, 0x69);
+    func_8008CBFC((s32)"%c Stereo Type", D_80137814 == 1 ? '>' : ' ');
+    func_8008CC60(0xFA, 0x69);
+    if (g_Game_80136F54.stereo == 0) {
+        func_8008CBFC((s32)"OFF");
+    } else {
+        func_8008CBFC((s32)"ON");
+    }
+    func_8008CC60(0x64, 0x78);
+    func_8008CBFC((s32)"%c VIBRATION", D_80137814 == 2 ? '>' : ' ');
+    func_8008CC60(0xFA, 0x78);
+    if (g_Game_80136F54.vibration) {
+        func_8008CBFC((s32)"ON");
+    } else {
+        func_8008CBFC((s32)"OFF");
+    }
+    func_8008CC60(0x64, 0x87);
+    func_8008CBFC((s32)"%c Vibration TEST", D_80137814 == 3 ? '>' : ' ');
+    func_8008CC60(0xFA, 0x87);
+    func_8008CC60(0x64, 0x96);
+    func_8008CBFC((s32)"%c Remote VIB", D_80137814 == 4 ? '>' : ' ');
+    func_8008CC60(0xFA, 0x96);
+    if (g_Game_80136F54.remote_vib) {
+        func_8008CBFC((s32)"ON");
+    } else {
+        func_8008CBFC((s32)"OFF");
+    }
+    Debug_DrawSticks();
+    Debug_DrawPadGraph();
+    return 0;
+}
+__asm__(".section .rodata\n\t.align 3\n.section .text");
 
 extern s16 D_80137818;
 extern s16 D_8013781A;

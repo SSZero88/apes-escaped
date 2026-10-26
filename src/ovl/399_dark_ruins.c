@@ -329,7 +329,28 @@ s32 func_8013DC3C(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013DC78);
+typedef struct { SVECTOR a; SVECTOR b; u8 f_10; u8 f_11; u8 f_12; u8 f_13; } Spark_8013DC78;
+extern Spark_8013DC78 D_80141418_8013DC78[] asm("D_80141418");
+s32 func_8013DC3C(void);
+
+void func_8013DC78(void *a_, void *b_, s32 c) {
+    SVECTOR *a = a_;
+    SVECTOR *b = b_;
+    s32 i = func_8013DC3C();
+    Spark_8013DC78 *p;
+
+    if (i != -1) {
+        p = &D_80141418_8013DC78[i];
+        p->a.vx = a->vx;
+        p->a.vy = a->vy;
+        p->a.vz = a->vz;
+        p->b.vx = b->vx;
+        p->b.vy = b->vy;
+        p->b.vz = b->vz;
+        p->f_10 = 6;
+        p->f_12 = c;
+    }
+}
 
 M2C_UNK Object_AddAttackSphere(void *, M2C_UNK, s16, s16, s32, s32, s32);
 s32 Spike_WithinRadiusXZ(s16, s16, M2C_UNK);
@@ -396,7 +417,6 @@ void func_8013DF08(void) {
     Link_SendEvent(7, 0x11, 0);
 }
 
-void func_8013DC78(void *, void *, s32);
 
 void func_8013DF40(u8 *o) {
     SVECTOR p;
@@ -613,7 +633,37 @@ void func_8013E600(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/399/nonmatchings/399_dark_ruins", func_8013E680);
+extern u8 D_800E77A1;
+void Object_PlaySound_8013E680(void *, s32) asm("Object_PlaySound");
+void Object_DisableCollision(void *);
+void func_8013E5BC(void *arg0);
+void func_8013E600(void);
+
+void func_8013E680(void *arg0) {
+    if (D_801413F0_8013E020.f14 != 0) {
+        D_801413F0_8013E020.f14 = 0;
+        switch (D_801413F0_8013E020.f0) {
+        case 1:
+            M2C_FIELD(arg0, u8 *, 0x80) = 4;
+            func_8005588C(arg0, 0x14);
+            Object_PlaySound_8013E680(arg0, 0xB1);
+            func_8013E5BC(arg0);
+            break;
+        case 2:
+            M2C_FIELD(arg0, u8 *, 0x80) = 5;
+            if (D_800E77A1 == 0) {
+                func_8005588C(arg0, 0x50);
+                Object_DisableCollision(arg0);
+            } else {
+                func_8005588C(arg0, 5);
+                M2C_FIELD(arg0, u8 *, 0x8F) = 0;
+                func_8013E600();
+            }
+            func_8013E5BC(arg0);
+            break;
+        }
+    }
+}
 
 extern u8 D_800E77A0[];
 u8 *func_80056BC4(s32, s32 *, s32);
@@ -651,7 +701,6 @@ void func_8005866C(void *, s32);
 void func_8013DBF8(void);
 void func_8013DF08(void);
 void func_8013E57C(void *arg0);
-void func_8013E680(void *);
 void func_8013E74C(u8 *o);
 void func_8013E810_8013E86C(void *) asm("func_8013E810");
 

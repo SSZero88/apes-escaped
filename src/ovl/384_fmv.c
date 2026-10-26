@@ -1,13 +1,11 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-M2C_UNK func_8013973C(s32, s32, M2C_UNK);
 M2C_UNK func_8013B9B0(void *, M2C_UNK *, s32, M2C_UNK *);
 extern M2C_UNK D_800E7D00;
 extern struct S_D_8013C550 { u8 pad_0[0x4]; s32 f_4; } D_8013C550;
 extern struct S_D_8013C558 { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } D_8013C558;
 extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; } g_Game;
-M2C_UNK func_8013980C(s32, s32);
 
 M2C_UNK StSetRing(s32, s32);
 M2C_UNK StSetStream(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32);
@@ -662,7 +660,26 @@ void func_80138344(void) {
 void func_8013834C(void) {
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138354);
+extern GameDraw g_Game_80138354 asm("g_Game");
+
+void func_80138354(void *arg0, u8 *c) {
+    u8 *p = g_Game_80138354.prim;
+    u32 code;
+
+    ADD_PRIM_R(g_Game_80138354.db[g_Game_80138354.cur].ot, p, "$6", "$3");
+    code = ((c[3] & 3) << 5) | 0xE1000000;
+    p[3] = 4;
+    *(u32 *)(p + 4) = code;
+    p += 4;
+    *(s16 *)(p + 0xC) = 0x180;
+    *(s32 *)(p + 8) = 0;
+    *(s16 *)(p + 0xE) = 0xF0;
+    p[4] = c[0];
+    p[5] = c[1];
+    p[6] = c[2];
+    p[7] = 0x63;
+    g_Game_80138354.prim = p + 0x10;
+}
 
 void func_801383FC(void) {
 }
@@ -811,7 +828,21 @@ void func_80138980(void) {
     G_DRAW.prim = (u8 *)(p + 1);
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138A6C);
+void Effect_SpawnAt(s32, void *);
+
+void func_80138A6C(void *arg0, s16 *e) {
+    s16 *p = e;
+    switch (e[0]) {
+    case 0:
+        Effect_SpawnAt(e[1] + 4, e + 2);
+        break;
+    case 1:
+        Effect_SpawnAt(0x106, p + 2);
+        break;
+    case 2:
+        break;
+    }
+}
 
 void SetDrawStp(void *, s32);
 
@@ -850,11 +881,53 @@ void func_80138CE4(void *arg0, s16 *src)
   func_8006F274(&v, &w, ((g_RandSeed = (g_RandSeed * 5) + 1) >> 4) & 0xFF0);
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138D60);
+void func_80138D60(void *arg0, u16 *arg1) {
+    s32 key;
+    s32 model;
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138E1C);
+    key = (s32)(arg1 + 2);
+    model = func_801398D0(M2C_FIELD(arg0, u8 *, 3));
+    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = func_80137F64;
+    D_8013C550.f_4 = key;
+    func_8013973C(key, model, 1);
+    D_8013C558.f_0 = 0;
+    D_8013C558.f_2 = *arg1 << 6;
+    D_8013C558.f_4 = 2;
+    D_8013C558.f_6 = 0;
+    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, model, &D_8013C558);
+}
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80138ED8);
+void func_80138E1C(void *arg0, u16 *arg1) {
+    s32 key;
+    s32 model;
+
+    key = (s32)(arg1 + 2);
+    model = func_801398D0(M2C_FIELD(arg0, u8 *, 3));
+    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = func_80137F64;
+    D_8013C550.f_4 = key;
+    func_8013973C(key, model, 0);
+    D_8013C558.f_0 = 0;
+    D_8013C558.f_2 = *arg1 << 6;
+    D_8013C558.f_4 = 2;
+    D_8013C558.f_6 = 0;
+    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, model, &D_8013C558);
+}
+
+void func_80138ED8(void *arg0, u16 *arg1) {
+    s32 key;
+    s32 model;
+
+    key = (s32)(arg1 + 2);
+    model = func_801398D0(M2C_FIELD(arg0, u8 *, 3));
+    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = func_801385CC;
+    D_8013C550.f_4 = key;
+    func_8013980C(key, model);
+    D_8013C558.f_0 = 0;
+    D_8013C558.f_2 = *arg1 << 6;
+    D_8013C558.f_4 = 2;
+    D_8013C558.f_6 = 0;
+    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, model, &D_8013C558);
+}
 
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_80138F90;
 extern Mat_80138F90 D_800E78C0_80138F90 asm("D_800E78C0");
@@ -892,7 +965,28 @@ void func_80138F90(u8 *arg0, s16 *arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139124);
+void SetFarColor(s32, s32, s32);
+void DpqColor(void *, s32, void *);
+
+void func_80139124(u8 *arg0, u8 *col) {
+    s32 i;
+    s32 *model;
+    s32 n;
+    u32 *src;
+    u32 *dst;
+    s32 p;
+
+    i = 0;
+    model = (s32 *)func_801398D0(arg0[3]);
+    n = *(u16 *)(model[0] + 8);
+    SetFarColor(col[0], col[1], col[2]);
+    src = (u32 *)model[6];
+    dst = (u32 *)model[1];
+    p = *(s32 *)(col + 4);
+    for (; i < n; i++) {
+        DpqColor(src++, p, dst++);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801391C8);
 
@@ -930,9 +1024,33 @@ void func_8013972C(void) {
 void func_80139734(void) {
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013973C);
+extern Mat_80139668 D_800E9C80_8013973C[] asm("D_800E9C80");
+void Model_ProjectBonedVerts(void *);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013980C);
+M2C_UNK func_8013973C(key, model, n) s16 *key; u8 **model; M2C_UNK n; {
+    s32 i;
+    s32 step = n * 3 + 6;
+
+    for (i = 0; i < *(u16 *)(*model + 4); i++, key += step) {
+        func_80139668(&D_800E9C80_8013973C[i], key, n);
+        CompMatrix(&D_800E78C0, &D_800E9C80_8013973C[i], &D_800E9C80_8013973C[i]);
+    }
+    Model_ProjectBonedVerts(model);
+}
+
+extern Mat_384 D_800E9C80_8013980C[] asm("D_800E9C80");
+
+M2C_UNK func_8013980C(s32 arg0, s32 arg1) {
+    s32 i;
+    u8 **model = (u8 **)arg1;
+
+    for (i = 0; i < *(u16 *)(*model + 4); i++) {
+        CompMatrix(&D_800E78C0, &((Mat_384 *)arg0)[i], &D_800E9C80_8013980C[i]);
+    }
+    Model_ProjectBonedVerts(model);
+}
+
+__asm__(".section .text\n.balign 16");
 
 extern s32 D_8013C56C;
 extern s32 D_8013C570;
@@ -1196,7 +1314,6 @@ extern Sub_8013AAF0 *D_8013C758_AAF0 asm("D_8013C758");
 s32 func_8013AC98(u32 x);
 s32 func_8008DE68(u8 *, u16);
 void func_8008DDB0(s16, s16);
-void func_8013AD40(u8 *, s32);
 void Msg_PutChar(u16, s32, s32);
 
 void func_8013AAF0(u32 frame) {
@@ -1275,7 +1392,15 @@ s32 func_8013AD04(u8 *arg0) {
     return var_v1;
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013AD40);
+u8 *Msg_ReadChar(u8 *, u16 *);
+
+void func_8013AD40(u8 *s, s32 color) {
+    u16 c;
+
+    while (s = Msg_ReadChar(s, &c), c != 0) {
+        Msg_PutChar(c, color, 0);
+    }
+}
 
 typedef struct { u8 loc[4]; u32 size; } Req_8013ADA0;
 extern volatile s32 D_8013C760_ADA0 asm("D_8013C760");
