@@ -504,7 +504,95 @@ void func_8013E068(SVECTOR *v, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/398/nonmatchings/398_thick_jungle", func_8013E1E0);
+#include "gte.h"
+#define gte_ldv3c_8013E1E0(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(v))
+#define gte_rtpt_8013E1E0() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxy3c_8013E1E0(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
+#define gte_stszotz_8013E1E0(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+void *RotMatrixZYX(void *r, void *m);
+void SetRotMatrix(void *m);
+void SetTransMatrix(void *m);
+void CompMatrix();
+typedef struct { s16 m[3][3]; s32 t[3]; } MAT_8013E1E0;
+typedef struct { u8 active; u8 age; s16 life; SVECTOR pos; s16 vx, vy, vz; s16 f12; SVECTOR rot; s16 f1C, f1E, f20; s16 f22; } Leaf_8013E1E0;
+typedef struct { s32 pad0; s32 otz; s32 sxy[4]; MAT_8013E1E0 view; MAT_8013E1E0 m; } Scr_8013E1E0;
+typedef struct { u32 tag; u32 code; s32 xy0; u32 uv0; s32 xy1; u32 uv1; s32 xy2; u16 uv2; u16 pad2; s32 xy3; u16 uv3; u16 pad3; } Ft4_8013E1E0;
+extern Leaf_8013E1E0 D_80142860_8013E1E0[64] asm("D_80142860");
+extern MAT_8013E1E0 D_800E78C0_8013E1E0 asm("D_800E78C0");
+extern SVECTOR D_801426D8_8013E1E0[3] asm("D_801426D8");
+extern SVECTOR D_801426F0_8013E1E0 asm("D_801426F0");
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; } g_Game_8013E1E0 asm("g_Game");
+
+void func_8013E1E0(void) {
+    MAT_8013E1E0 m;
+    Scr_8013E1E0 *sc = (Scr_8013E1E0 *)0x1F800000;
+    Leaf_8013E1E0 *e;
+    Ft4_8013E1E0 *p;
+    u32 *ot;
+    s32 i;
+    s32 x;
+    s32 xy;
+    s32 y;
+    u16 vy;
+    MAT_8013E1E0 *mm;
+    register u32 mask asm("$21");
+
+    p = (Ft4_8013E1E0 *)g_Game_8013E1E0.prim;
+    ot = (u32 *)(g_Game_8013E1E0.cur * 0x4078 + (u8 *)&g_Game_8013E1E0 + 0x80);
+    sc->view = D_800E78C0_8013E1E0;
+    for (i = 0, e = D_80142860_8013E1E0, mm = &sc->m, mask = 0xFFFFFF; i < 64; i++, e++) {
+        e->age++;
+        e->pos.vx += e->vx;
+        e->pos.vy += e->vy;
+        e->pos.vz += e->vz;
+        vy = ++e->vy;
+        if (vy >= 12 && vy < 16) {
+            e->vy = 12;
+        }
+        if (e->pos.vy > e->life) {
+            e->active = 0;
+            continue;
+        }
+        e->rot.vx = (e->rot.vx + e->f1C) & 0xFFF;
+        e->rot.vy = (e->rot.vy + e->f1E) & 0xFFF;
+        e->rot.vz = (e->rot.vz + e->f20) & 0xFFF;
+        RotMatrixZYX(&e->rot, &m);
+        m.t[0] = e->pos.vx;
+        m.t[1] = e->pos.vy;
+        m.t[2] = e->pos.vz;
+        CompMatrix(&sc->view, &m, mm);
+        SetRotMatrix(mm);
+        SetTransMatrix(mm);
+        gte_ldv3c_8013E1E0(D_801426D8_8013E1E0);
+        gte_rtpt_8013E1E0();
+        gte_stsxy3c_8013E1E0(&sc->sxy[0]);
+        gte_stszotz_8013E1E0(&sc->otz);
+        if ((u32)(sc->otz - 1) < 0xFFF) {
+            xy = sc->sxy[0];
+            x = (s16)xy;
+            y = xy >> 16;
+            if ((u32)(x + 0x20) < 0x1C1 && y >= -0x20 && y < 0x111) {
+                gte_ldv0(&D_801426F0_8013E1E0);
+                gte_rtps();
+                gte_stsxy(&sc->sxy[3]);
+                ((u8 *)p)[3] = 9;
+                p->code = 0x2D000000;
+                p->xy0 = sc->sxy[0];
+                p->xy1 = sc->sxy[1];
+                p->xy2 = sc->sxy[2];
+                p->xy3 = sc->sxy[3];
+                p->uv0 = 0x7DEDC0E0;
+                p->uv1 = 0x1BC0F7;
+                p->uv2 = 0xE7E0;
+                p->uv3 = 0xE7F7;
+                p->tag = (p->tag & 0xFF000000) | (ot[sc->otz] & mask);
+                ot[sc->otz] = (ot[sc->otz] & 0xFF000000) | ((u32)p & mask);
+                p++;
+            }
+        }
+    }
+    g_Game_8013E1E0.prim = (u8 *)p;
+}
 
 s32 Object_SpikeInFront(void *, s32, s32, s32);
 void Effect_Spawn(s32, s16 *, u32 *, s16 **);

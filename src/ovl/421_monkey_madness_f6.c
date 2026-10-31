@@ -114,7 +114,41 @@ void func_8013D1AC(void) {
     func_8013D804();
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D324);
+#include "gte.h"
+typedef struct { u8 pad0[0x8]; u16 n; u8 padA[2]; s32 rgb[1]; } MdlHdr_8013D324;
+typedef struct { MdlHdr_8013D324 *hdr; s32 *f_4; u8 *prims; } Mdl_8013D324;
+typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } Scr_8013D324;
+extern struct { u8 pad0[0x24]; u16 f_24; u8 pad26[2]; u16 f_28; } D_800EBFA0_8013D324 asm("D_800EBFA0");
+void Model_DrawPrims(s32, u8 *, s32);
+
+void func_8013D324(void *ot, void *arg1, void *mp, s32 add) {
+    Mdl_8013D324 *m = mp;
+    s32 i;
+    u8 *c;
+    s32 *src;
+    Scr_8013D324 *sc = (Scr_8013D324 *)0x1F800000;
+
+    c = m->prims;
+    if (add == 0) {
+        src = m->hdr->rgb;
+        for (i = 0; i < m->hdr->n; i++) {
+            gte_ldIR(0x1000, 0, 0);
+            gte_ldRGB(&src[i]);
+            gte_cc();
+            gte_stRGB2_mem(&sc->rgb[i]);
+        }
+    } else {
+        for (i = 0; i < m->hdr->n; i++) {
+            sc->rgb[i] = add;
+        }
+    }
+    sc->f_3C6 = 0;
+    sc->f_3C4 = 0;
+    sc->f_3F4 = 6;
+    sc->f_3C0 = D_800EBFA0_8013D324.f_24;
+    sc->f_3C2 = D_800EBFA0_8013D324.f_28;
+    Model_DrawPrims((s32)ot, c, (s32)arg1);
+}
 
 extern struct { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013D43C asm("g_Game");
 extern u8 D_800E78C0[];
@@ -126,7 +160,6 @@ void *ScaleMatrix(void *m, void *v);
 void Matrix_FromDirection(void *, void *);
 void func_80015780(void *, s32);
 void Model_ProjectBonedVerts(void *);
-void func_8013D324(void *, void *, void *, s32);
 
 s32 func_8013D43C(u8 *a, void *scale, s32 c) {
     SVECTOR v;
@@ -623,7 +656,133 @@ void func_8013E8E4(void) {
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013E97C);
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013EE04);
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_8013EE04;
+typedef struct { s32 f_0; s32 f_4; u8 pad8[4]; s32 f_C; s32 f_10; s16 f_14; s16 f_16; s16 f_18; s16 f_1A; u8 pad1C[0x18]; s32 f_34; } Boss_8013EE04;
+extern Boss_8013EE04 D_801408C0_8013EE04 asm("D_801408C0");
+typedef struct { u8 u, v, w, h; s16 x, y; } Icon_8013EE04;
+extern Icon_8013EE04 D_80140450_8013EE04[] asm("D_80140450");
+extern SVECTOR D_801408E4_8013EE04 asm("D_801408E4");
+extern struct { u8 pad_0[0x4]; u32 *f_4; u8 pad_8[4]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013EE04 asm("g_Game");
+typedef struct { u8 pad0[0x2C]; s32 sxy; } Scr_8013EE04;
+#define ADDP_8013EE04(ot, p) { ((Tag_8013EE04 *)(p))->addr = ((Tag_8013EE04 *)(ot))->addr; ((Tag_8013EE04 *)(ot))->addr = (u32)(p); }
+
+void func_8013EE04(void) {
+    Scr_8013EE04 *sc = (Scr_8013EE04 *)0x1F800000;
+    u32 *p;
+    u32 *ot;
+    s32 i;
+    s32 c;
+    u32 col;
+    s16 x;
+    s16 y;
+    Icon_8013EE04 *e;
+
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    i = D_801408C0_8013EE04.f_0 % 3;
+    p = g_Game_8013EE04.f_4;
+    ot = (u32 *)(g_Game_8013EE04.f_80 + g_Game_8013EE04.f_C * 0x4078);
+    for (; i < 0xB8; i += 3) {
+        ((u8 *)p)[3] = 2;
+        p[1] = 0x69FFFFFF;
+        p[2] = (u16)i | 0x780000;
+        ADDP_8013EE04(&ot[1], p);
+        p += 3;
+        ((u8 *)p)[3] = 2;
+        p[1] = 0x69FFFFFF;
+        p[2] = (u16)(0x180 - i) | 0x780000;
+        ADDP_8013EE04(&ot[1], p);
+        p += 3;
+    }
+    for (i = D_801408C0_8013EE04.f_0 % 3; i < 0x70; i += 3) {
+        ((u8 *)p)[3] = 2;
+        p[1] = 0x69FFFFFF;
+        p[2] = (i << 16) | 0xC0;
+        ADDP_8013EE04(&ot[1], p);
+        p += 3;
+        ((u8 *)p)[3] = 2;
+        p[1] = 0x69FFFFFF;
+        p[2] = ((0xF0 - i) << 16) | 0xC0;
+        ADDP_8013EE04(&ot[1], p);
+        p += 3;
+    }
+    for (i = 0; i >= 0; i--) {
+        e = &D_80140450_8013EE04[i];
+        if ((D_801408C0_8013EE04.f_4 & 7) < 5) {
+            ((u8 *)p)[3] = 5;
+            p[1] = 0xE1000208;
+            p[2] = 0x67000000;
+            p[3] = (e->y << 16) | (u16)e->x;
+            p[5] = (e->h << 16) | e->w;
+            p[4] = (e->v << 8) | e->u | 0x38770000;
+            ADDP_8013EE04(&ot[1], p);
+            p += 6;
+        }
+    }
+    ((u8 *)p)[3] = 5;
+    p[1] = 0xE1000208;
+    p[2] = 0x67000000;
+    p[3] = ((D_801408C0_8013EE04.f_16 - 0x20) << 16) | ((D_801408C0_8013EE04.f_14 - 0x40) & 0xFFFF);
+    p[5] = 0x100030;
+    p[4] = 0x3877A830;
+    ADDP_8013EE04(&ot[1], p);
+    p += 6;
+    if (D_801408C0_8013EE04.f_34 < 0x47C && (D_801408C0_8013EE04.f_0 & 7) < 3) {
+        ((u8 *)p)[3] = 9;
+        p[1] = 0x2E000040;
+        p[2] = 0x380058;
+        p[4] = 0x380128;
+        p[6] = 0xB80058;
+        p[8] = 0xB80128;
+        p[3] = 0x3877C000;
+        p[5] = 0x28C068;
+        ((u16 *)p)[14] = 0xD300;
+        ((u16 *)p)[18] = 0xD368;
+        ADDP_8013EE04(&ot[1], p);
+        p += 10;
+    }
+    c = D_801408C0_8013EE04.f_C;
+    col = ((0xAA - c * 4) << 16) | ((0x3C - c * 2) << 8) | (c * 6 + 0x28);
+    if (D_80140900.f_44 == 2) {
+        c = D_80140900.f_46 & 0xF;
+        if (c >= 8) {
+            c = 15 - c;
+        }
+        col = ((0xAA - c * 8) << 16) | ((0x40 - c * 4) << 8) | (c * 12 + 0x28);
+    }
+    ((u8 *)p)[3] = 8;
+    p[1] = 0x3A000000;
+    p[4] = 0x180;
+    p[8] = 0xF00180;
+    p[2] = 0;
+    p[3] = col;
+    p[5] = col;
+    p[6] = 0xF00000;
+    p[7] = 0;
+    ADDP_8013EE04(&ot[1], p);
+    p += 9;
+    ((u8 *)p)[3] = 1;
+    p[1] = 0xE1000220;
+    ADDP_8013EE04(&ot[1], p);
+    p += 2;
+    gte_ldv0(&D_801408E4_8013EE04);
+    gte_rtps();
+    gte_stsxy(&sc->sxy);
+    y = (sc->sxy >> 16) - 0x20;
+    x = sc->sxy;
+    if (y < 0x82) {
+        y = 0x82;
+    }
+    ((u8 *)p)[3] = 5;
+    p[1] = 0xE1000286;
+    p[2] = 0x65000000;
+    p[3] = ((y + D_801408C0_8013EE04.f_10 + D_801408C0_8013EE04.f_18) << 16) | ((x - 0x2E + D_801408C0_8013EE04.f_10 * 4) & 0xFFFF);
+    p[5] = 0x71005C;
+    p[4] = 0x3FE04852;
+    ADDP_8013EE04(&ot[1], p);
+    p += 6;
+    g_Game_8013EE04.f_4 = p;
+}
 
 extern struct { s32 f_0; s32 f_4; u8 pad8[0x12]; u8 f_1A[18]; } D_80140D30;
 
@@ -830,7 +989,118 @@ void func_8013FC8C(void) {
     func_8013E650();
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013FD74);
+void func_8013E97C(void);
+void func_8013EE04(void);
+typedef struct { s32 f_0; s32 f_4; u8 pad8[4]; s32 f_C; s32 f_10; s16 f_14; s16 f_16; s16 f_18; s16 f_1A; u8 pad1C[8]; s16 f_24; s16 f_26; s16 f_28; u8 pad2A[0xA]; s32 f_34; s16 f_38; u8 f_3A; u8 f_3B; } Boss_8013FD74;
+extern Boss_8013FD74 D_801408C0_8013FD74 asm("D_801408C0");
+typedef struct { u8 pad0[0x24]; s16 x; u8 pad26[2]; s16 y; u8 pad2A[2]; s16 z; u8 pad2E[0x22]; union { u32 w; u16 h; } f_50; } Obj_8013FD74;
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013FD74 asm("g_Spike");
+typedef struct { u8 pad0[0x20]; SVECTOR v; u8 pad28[4]; s32 sxy; } Scr_8013FD74;
+typedef struct { u8 pad0[0x24]; s16 f_24; } Shape_8013FD74;
+s32 VectorNormalSS_8013FD74(void *, void *) asm("VectorNormalSS");
+Shape_8013FD74 *Collision_GetShape_8013FD74(s32) asm("Collision_GetShape");
+s32 Collision_GetId_8013FD74(s32) asm("Collision_GetId");
+
+void func_8013FD74(void) {
+    SVECTOR v;
+    SVECTOR w;
+    s32 i;
+    s32 id;
+    Shape_8013FD74 *sh;
+    Scr_8013FD74 *sc = (Scr_8013FD74 *)0x1F800000;
+    Obj_8013FD74 *o = (Obj_8013FD74 *)D_80140470;
+    Boss_8013FD74 *b = &D_801408C0_8013FD74;
+
+    if (b->f_3A != 0) {
+        func_8013FC8C();
+        return;
+    }
+    v.vx = g_Spike_8013FD74.x;
+    v.vy = 0;
+    v.vz = g_Spike_8013FD74.z - 0x1000;
+    if (VectorNormalSS_8013FD74(&v, &v) > 0xE10000) {
+        g_Spike_8013FD74.x = (v.vx * 15) >> 4;
+        g_Spike_8013FD74.z = ((v.vz * 15) >> 4) + 0x1000;
+    }
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    sc->v.vx = g_Spike_8013FD74.x;
+    sc->v.vy = g_Spike_8013FD74.y - 0x80;
+    sc->v.vz = g_Spike_8013FD74.z;
+    gte_ldv0(&sc->v);
+    gte_rtps();
+    gte_stsxy(&sc->sxy);
+    b->f_14 = sc->sxy;
+    b->f_16 = sc->sxy >> 16;
+    if (b->f_4 == 0 && b->f_14 > 0xA0 && b->f_14 < 0xE0 && b->f_16 > 0x60 && b->f_16 < 0x90 && g_Spike_8013FD74.z > 0) {
+        func_8013E8E4();
+        b->f_4 = 0xF;
+    }
+    if ((o->f_50.w >> 28) == 0xB && D_801408C0_8013FD74.f_C == 0) {
+        sh = Collision_GetShape_8013FD74(o->f_50.h & 0xFFF);
+        id = Collision_GetId_8013FD74(o->f_50.h & 0xFFF);
+        if ((sh->f_24 & 0xFF00) != 0xD00 && (sh->f_24 & 0xFF00) != 0xF00 && id != 2) {
+            D_801408C0_8013FD74.f_C = 0x20;
+            func_8013E8C0();
+            if ((sh->f_24 & 0xFF00) != 0xE00) {
+                func_8013F694((u8 *)o, 0xC);
+            }
+            Camera_StartShake(1);
+            Sound_PlayFixed(0x79);
+            func_8013D000();
+            if (--D_801408C0_8013FD74.f_3B == 0) {
+                D_800E69BE = 1;
+                D_801408C0_8013FD74.f_3A = 1;
+            }
+        }
+    }
+    D_801408C0_8013FD74.f_0++;
+    if (D_801408C0_8013FD74.f_4 != 0) {
+        D_801408C0_8013FD74.f_4--;
+    }
+    if (D_801408C0_8013FD74.f_18 != 0) {
+        D_801408C0_8013FD74.f_18 = D_801408C0_8013FD74.f_18 * 7 / 8;
+    }
+    D_801408C0_8013FD74.f_10 = 0;
+    if (D_801408C0_8013FD74.f_C != 0) {
+        D_801408C0_8013FD74.f_C--;
+    }
+    if (D_801408C0_8013FD74.f_C > 0x10) {
+        D_801408C0_8013FD74.f_10 = (D_801408C0_8013FD74.f_C - 0x14) * (((D_801408C0_8013FD74.f_C - 0x14) & 2) - 1);
+    }
+    v.vx = g_Spike_8013FD74.x - o->x;
+    v.vy = 0;
+    v.vz = g_Spike_8013FD74.z - o->z;
+    VectorNormalSS_8013FD74(&v, &v);
+    D_801408C0_8013FD74.f_26 = o->y + D_801408C0_8013FD74.f_38;
+    w.vx = g_Spike_8013FD74.x - o->x;
+    w.vy = 0;
+    w.vz = g_Spike_8013FD74.z - o->z;
+    D_801408C0_8013FD74.f_24 = o->x + v.vx / 22;
+    D_801408C0_8013FD74.f_28 = o->z + v.vz / 22;
+    D_801408C0_8013FD74.f_34 = SquareRoot0(w.vx * w.vx + w.vz * w.vz);
+    if (D_801408C0_8013FD74.f_1A == 0 && D_801408C0_8013FD74.f_34 < 0x300) {
+        func_8013F694((u8 *)o, 0x18);
+        func_8013E8C0();
+        Camera_StartShake(0);
+        w.vy = 0;
+        w.vx = o->x - 0x800;
+        w.vz = o->z - 0x384;
+        for (i = 0; i < 6; i++) {
+            w.vy = o->y - ((g_RandSeed = g_RandSeed * 5 + 1) >> 5 & 0x7F8) - 0x100;
+            func_8013E500(&w, (s32)&D_801408EC, 1, 0x10, 0x80);
+            w.vx = -w.vx;
+        }
+    }
+    func_8013F520();
+    func_8013E97C();
+    func_8013DEEC();
+    func_8013E650();
+    func_8013D860();
+    func_8013F848();
+    func_8013EE04();
+}
+__asm__(".align 4");
 
 INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_80140280);
 
@@ -863,7 +1133,126 @@ void func_80140D88(SVECTOR *arg0, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_80140F78);
+#define gte_ldv3c_(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(v))
+#define gte_rtpt_n() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxy3c_(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
+#define gte_stszotz(r0) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(r0) : "$12", "memory")
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mtx_80140F78;
+typedef struct { SVECTOR v[3]; u8 pad[8]; } Tri_80140F78;
+typedef struct { Mtx_80140F78 m; Mtx_80140F78 cam; SVECTOR rot; Tri_80140F78 tri[4]; s32 sxy[3]; s32 otz; } Scr_80140F78;
+typedef struct { s16 x, y, z, floor; s8 vx, vy, vz; u8 life; } Rock_80140F78;
+extern Rock_80140F78 D_80141880_80140F78[] asm("D_80141880");
+extern Mtx_80140F78 D_800E78C0_80140F78 asm("D_800E78C0");
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_80140F78;
+typedef struct { u32 tag; u32 rgb0; s32 xy0; u32 rgb1; s32 xy1; u32 rgb2; s32 xy2; } PolyG3_80140F78;
+extern struct { u8 pad_0[0x4]; u32 *f_4; u8 pad_8[4]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_80140F78 asm("g_Game");
+void *RotMatrixZYX(void *r, void *m);
+void *CompMatrix(void *m0, void *m1, void *m2);
+
+s32 func_80140F78(void) {
+    Scr_80140F78 *sc = (Scr_80140F78 *)0x1F800000;
+    Rock_80140F78 *p;
+    PolyG3_80140F78 *g;
+    u32 *ot;
+    s32 i;
+
+    sc->cam = D_800E78C0_80140F78;
+    sc->tri[0].v[0].vx = -0x1C;
+    sc->tri[0].v[0].vy = -0x1C;
+    sc->tri[0].v[0].vz = 0;
+    sc->tri[0].v[1].vx = 0x1C;
+    sc->tri[0].v[1].vy = -0x1C;
+    sc->tri[0].v[1].vz = 0;
+    sc->tri[0].v[2].vx = 0;
+    sc->tri[0].v[2].vy = 0x1C;
+    sc->tri[0].v[2].vz = 0;
+    sc->tri[1].v[0].vx = -0x38;
+    sc->tri[1].v[0].vy = -0x38;
+    sc->tri[1].v[0].vz = 0;
+    sc->tri[1].v[1].vx = 0x38;
+    sc->tri[1].v[1].vy = -0x38;
+    sc->tri[1].v[1].vz = 0;
+    sc->tri[1].v[2].vx = 0;
+    sc->tri[1].v[2].vy = 0x38;
+    sc->tri[1].v[2].vz = 0;
+    sc->tri[2].v[0].vx = -9;
+    sc->tri[2].v[0].vy = -0x38;
+    sc->tri[2].v[0].vz = 0;
+    sc->tri[2].v[1].vx = 9;
+    sc->tri[2].v[1].vy = -0x38;
+    sc->tri[2].v[1].vz = 0;
+    sc->tri[2].v[2].vx = 0;
+    sc->tri[2].v[2].vy = 0x54;
+    sc->tri[2].v[2].vz = 0;
+    sc->tri[3].v[0].vx = -0xE;
+    sc->tri[3].v[0].vy = -0xE;
+    sc->tri[3].v[0].vz = 0;
+    sc->tri[3].v[1].vx = 0xE;
+    sc->tri[3].v[1].vy = -0xE;
+    sc->tri[3].v[1].vz = 0;
+    sc->tri[3].v[2].vx = 0;
+    sc->tri[3].v[2].vy = 0xE;
+    sc->tri[3].v[2].vz = 0;
+    g = (PolyG3_80140F78 *)g_Game_80140F78.f_4;
+    ot = (u32 *)(g_Game_80140F78.f_80 + g_Game_80140F78.f_C * 0x4078);
+    for (i = 15; i >= 0; i--) {
+        p = &D_80141880_80140F78[i];
+        if (p->life == 0) {
+            continue;
+        }
+        p->life--;
+        p->x += p->vx;
+        p->y += p->vy;
+        p->z += p->vz;
+        p->vy += 4;
+        if (p->y > p->floor) {
+            p->y = p->floor;
+            p->vy = -p->vy / 3;
+            Effect_SpawnAt(4, (SVECTOR *)p);
+            if ((RAND() >> 8 & 3) == 0) {
+                Sound_PlayFixed(0x67);
+            }
+            if (p->vy >= -0xB) {
+                p->life = 0;
+                continue;
+            }
+        }
+        sc->rot.vx = (p->life << 7) & 0xFFF;
+        sc->rot.vy = (p->life << 7) & 0xFFF;
+        sc->rot.vz = (p->life << 7) & 0xFFF;
+        RotMatrixZYX(&sc->rot, &sc->m);
+        sc->m.t[0] = p->x;
+        sc->m.t[1] = p->y;
+        sc->m.t[2] = p->z;
+        CompMatrix(&sc->cam, &sc->m, &sc->m);
+        SetRotMatrix(&sc->m);
+        SetTransMatrix(&sc->m);
+        gte_ldv3c_(&sc->tri[i & 3]);
+        gte_rtpt_n();
+        gte_stsxy3c_(sc->sxy);
+        gte_stszotz(&sc->otz);
+        if ((u32)(sc->otz - 1) >= 0xFFF) {
+            continue;
+        }
+        ((u8 *)g)[3] = 6;
+        g->rgb0 = 0x323C8028;
+        g->rgb1 = 0x1E4014;
+        g->rgb2 = 0xA1C00;
+        g->xy0 = sc->sxy[0];
+        g->xy1 = sc->sxy[1];
+        g->xy2 = sc->sxy[2];
+        ((Tag_80140F78 *)g)->addr = ((Tag_80140F78 *)&ot[sc->otz])->addr;
+        ((Tag_80140F78 *)&ot[sc->otz])->addr = (u32)g;
+        g++;
+        ((u8 *)g)[3] = 1;
+        ((u32 *)g)[1] = 0xE1000220;
+        ((Tag_80140F78 *)g)->addr = ((Tag_80140F78 *)&ot[sc->otz])->addr;
+        ((Tag_80140F78 *)&ot[sc->otz])->addr = (u32)g;
+        g = (PolyG3_80140F78 *)((u8 *)g + 8);
+    }
+    g_Game_80140F78.f_4 = (u32 *)g;
+    return 0;
+}
 
 void Effect_SpawnAt(s32, SVECTOR *);
 void Fx_SpawnFadeRing(SVECTOR *, s32, s32, s32);

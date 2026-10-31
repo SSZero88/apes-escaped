@@ -1906,7 +1906,6 @@ void Model_DrawLit();
 s32 rsin(s32 a);
 s32 rcos(s32 a);
 s32 func_800463A4(s32, s32, s32);
-void func_8013A804();
 
 s32 func_80139A68(void) {
     MAT_80139A68 m;
@@ -2265,4 +2264,50 @@ s32 func_8013A70C(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_8013A804);
+#include "gte.h"
+void Model_DrawPrims(s32, u8 *, s32);
+void *RotMatrix(void *r, void *m);
+void *ScaleMatrix(void *m, void *v);
+typedef struct { s16 m[3][3]; s32 t[3]; } MAT_8013A804;
+typedef struct { s32 vx, vy, vz, pad; } VEC_8013A804;
+typedef struct { u8 pad0[0xE]; u16 n; } Hdr_8013A804;
+typedef struct { Hdr_8013A804 *f_0; s32 *f_4; u8 *f_8; } Mdl_8013A804;
+typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } Scr_8013A804;
+extern VEC_8013A804 D_8013ADD8_8013A804 asm("D_8013ADD8");
+extern struct { u8 pad0[0xC]; s32 cur; } g_Game_8013A804 asm("g_Game");
+extern MAT_8013A804 D_800E78C0_8013A804 asm("D_800E78C0");
+
+void func_8013A804(pos, rot, m, light)
+    SVECTOR *pos; SVECTOR *rot; Mdl_8013A804 *m; s32 light;
+{
+    MAT_8013A804 mat;
+    VEC_8013A804 scale;
+    Scr_8013A804 *sc = (Scr_8013A804 *)0x1F800000;
+    u8 *c = m->f_8;
+    s32 i;
+    s32 n;
+    s32 *src;
+
+    sc->f_3F4 = 0;
+    sc->f_3C6 = 0;
+    sc->f_3C4 = 0;
+    func_8004637C(&mat);
+    RotMatrix(rot, &mat);
+    scale = D_8013ADD8_8013A804;
+    ScaleMatrix(&mat, &scale);
+    mat.t[2] = pos->vz;
+    mat.t[0] = pos->vx;
+    mat.t[1] = pos->vy;
+    CompMatrix(&D_800E78C0_8013A804, &mat, &mat);
+    Model_ProjectVertsAlt(m, &mat, D_800E7D00);
+    n = m->f_0->n;
+    src = m->f_4;
+    for (i = 0; i < n; i++) {
+        gte_ldIR(light, 0, 0);
+        gte_ldRGB(&src[i]);
+        gte_cc();
+        gte_stRGB2(&sc->rgb[i]);
+    }
+    Model_DrawPrims((s32)(g_Game_8013A804.cur * 0x4078 + (u8 *)&g_Game_8013A804 + 0x80), c, (s32)D_800E7D00);
+}
+__asm__(".section .text\n.balign 16");

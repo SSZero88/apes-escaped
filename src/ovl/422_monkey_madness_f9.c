@@ -179,7 +179,112 @@ void func_8013D4A4(SVECTOR *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013D60C);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_8013D6BC;
+typedef struct { Mat_8013D6BC m; Mat_8013D6BC w; SVECTOR rot; SVECTOR v[4][4]; s32 sxy[3]; s32 z; } Scr_8013D6BC;
+typedef struct { s16 x, y, z, vy; s8 vx, vz; u8 life; u8 pad; } Part_8013D6BC;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013D6BC;
+extern Part_8013D6BC D_80143F08_8013D6BC[] asm("D_80144C18");
+extern Mat_8013D6BC D_800E78C0_8013D6BC asm("D_800E78C0");
+extern GameDraw g_Game_8013D6BC asm("g_Game");
+void SetRotMatrix_8013D6BC(Mat_8013D6BC *) asm("SetRotMatrix");
+void SetTransMatrix_8013D6BC(Mat_8013D6BC *) asm("SetTransMatrix");
+void RotMatrixZYX_8013D6BC(SVECTOR *, Mat_8013D6BC *) asm("RotMatrixZYX");
+void CompMatrix_8013D6BC(Mat_8013D6BC *, Mat_8013D6BC *, Mat_8013D6BC *) asm("CompMatrix");
+#define ADDPRIM_BF_8013D6BC(ot, p) (((PTag_8013D6BC *)(p))->addr = ((PTag_8013D6BC *)(ot))->addr, ((PTag_8013D6BC *)(ot))->addr = (u32)(p))
+#define gte_ldv3c_8013D6BC(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(v))
+#define gte_rtpt_8013D6BC() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxy3c_8013D6BC(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
+#define gte_stszotz_8013D6BC(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+#define SCR_8013D6BC ((Scr_8013D6BC *)0x1F800000)
+
+void func_8013D60C(void) {
+    s32 i;
+    Part_8013D6BC *e;
+    u32 *p;
+    u32 *ot;
+    Scr_8013D6BC *sc;
+
+    sc = SCR_8013D6BC;
+    ot = g_Game_8013D6BC.db[g_Game_8013D6BC.cur].ot;
+    p = (u32 *)g_Game_8013D6BC.prim;
+    sc->w = D_800E78C0_8013D6BC;
+    sc->v[0][0].vx = -0x18;
+    sc->v[0][0].vy = -0x18;
+    sc->v[0][0].vz = 0;
+    sc->v[0][1].vx = 0x18;
+    sc->v[0][1].vy = -0x18;
+    sc->v[0][1].vz = 0;
+    sc->v[0][2].vx = 0;
+    sc->v[0][2].vy = 0x18;
+    sc->v[0][2].vz = 0;
+    sc->v[1][0].vx = -0x30;
+    sc->v[1][0].vy = -0x30;
+    sc->v[1][0].vz = 0;
+    sc->v[1][1].vx = 0x30;
+    sc->v[1][1].vy = -0x30;
+    sc->v[1][1].vz = 0;
+    sc->v[1][2].vx = 0;
+    sc->v[1][2].vy = 0x30;
+    sc->v[1][2].vz = 0;
+    sc->v[2][0].vx = -8;
+    sc->v[2][0].vy = -0x30;
+    sc->v[2][0].vz = 0;
+    sc->v[2][1].vx = 8;
+    sc->v[2][1].vy = -0x30;
+    sc->v[2][1].vz = 0;
+    sc->v[2][2].vx = 0;
+    sc->v[2][2].vy = 0x48;
+    sc->v[2][2].vz = 0;
+    sc->v[3][0].vx = -0xC;
+    sc->v[3][0].vy = -0xC;
+    sc->v[3][0].vz = 0;
+    sc->v[3][1].vx = 0xC;
+    sc->v[3][1].vy = -0xC;
+    sc->v[3][1].vz = 0;
+    sc->v[3][2].vx = 0;
+    sc->v[3][2].vy = 0xC;
+    sc->v[3][2].vz = 0;
+    for (i = 79; i >= 0; i--) {
+        e = &D_80143F08_8013D6BC[i];
+        if (e->life != 0) {
+            e->life--;
+            e->x += e->vx;
+            e->y += e->vy;
+            e->z += e->vz;
+            e->vy += 3;
+            sc->rot.vx = e->life << 7;
+            sc->rot.vy = e->life << 7;
+            sc->rot.vz = e->life << 7;
+            RotMatrixZYX_8013D6BC(&sc->rot, &sc->m);
+            sc->m.t[0] = e->x;
+            sc->m.t[1] = e->y;
+            sc->m.t[2] = e->z;
+            CompMatrix_8013D6BC(&sc->w, &sc->m, &sc->m);
+            SetRotMatrix_8013D6BC(&sc->m);
+            SetTransMatrix_8013D6BC(&sc->m);
+            gte_ldv3c_8013D6BC(sc->v[i & 3]);
+            gte_rtpt_8013D6BC();
+            gte_stsxy3c_8013D6BC(sc->sxy);
+            gte_stszotz_8013D6BC(&sc->z);
+            if ((u32)(sc->z - 1) < 0xFFF) {
+                ((u8 *)p)[3] = 6;
+                p[1] = 0x32808080;
+                p[3] = 0x404040;
+                p[5] = 0;
+                p[2] = sc->sxy[0];
+                p[4] = sc->sxy[1];
+                p[6] = sc->sxy[2];
+                ADDPRIM_BF_8013D6BC(ot + sc->z, p);
+                p += 7;
+            }
+        }
+    }
+    ((u8 *)p)[3] = 1;
+    p[1] = 0xE1000200;
+    ADDPRIM_BF_8013D6BC(ot, p);
+    p += 2;
+    g_Game_8013D6BC.prim = (u8 *)p;
+}
 
 void func_8013D9DC(void) {
     Pad_Vibrate(1, 0xC8, 0xA);
@@ -407,7 +512,76 @@ void func_8013E098(SVECTOR *src) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_8013E22C);
+#define gte_stszotz(r0) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(r0) : "$12", "memory")
+typedef struct { s16 x, y, z; u8 f_6; u8 f_7; s16 vx, vy, vz; u8 padE[2]; } Pt_8013E22C;
+extern Pt_8013E22C D_80144FD8_8013E22C[] asm("D_80144FD8");
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_8013E22C;
+typedef struct { u32 tag; u32 mode; u32 rgb0; s32 xy0; u32 rgb1; s32 xy1; } Line_8013E22C;
+extern struct { u8 pad_0[0x4]; Line_8013E22C *f_4; u8 pad_8[4]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013E22C asm("g_Game");
+
+void func_8013E22C(void) {
+    SVECTOR v;
+    s32 sxy0[1];
+    s32 z;
+    s32 sxy1[1];
+    Pt_8013E22C *p;
+    Line_8013E22C *l;
+    u32 *ot;
+    s32 i;
+    u32 c;
+    u32 md;
+    s32 t;
+
+    for (i = 31; i >= 0; i--) {
+        p = &D_80144FD8_8013E22C[i];
+        if (p->f_6 != 0) {
+            if (p->f_7 != 0) {
+                p->f_7--;
+            } else {
+                p->f_6--;
+                p->x += p->vx;
+                p->y += p->vy;
+                p->z += p->vz;
+            }
+        }
+    }
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    l = g_Game_8013E22C.f_4;
+    ot = (u32 *)(g_Game_8013E22C.f_80 + g_Game_8013E22C.f_C * 0x4078);
+    for (i = 31; i >= 0; i--) {
+        p = &D_80144FD8_8013E22C[i];
+        if (p->f_6 == 0 || p->f_7 != 0) {
+            continue;
+        }
+        gte_ldv0(p);
+        gte_rtps();
+        gte_stsxy(sxy0);
+        gte_stszotz(&z);
+        if ((u32)(z - 1) >= 0xFFF) {
+            break;
+        }
+        v.vx = p->x - p->vx * 2;
+        v.vy = p->y - p->vy * 2;
+        v.vz = p->z - p->vz * 2;
+        gte_ldv0(&v);
+        gte_rtps();
+        gte_stsxy(sxy1);
+        c = (u8)(-0x80 - p->f_6 * 8);
+        ((u8 *)l)[3] = 5;
+        md = 0xE100023C;
+        l->rgb0 = (c << 16) | (c << 7) | c | 0x52000000;
+        l->xy0 = sxy0[0];
+        l->rgb1 = 0;
+        t = sxy1[0];
+        l->mode = md;
+        l->xy1 = t;
+        ((Tag_8013E22C *)l)->addr = ((Tag_8013E22C *)&ot[z])->addr;
+        ((Tag_8013E22C *)&ot[z])->addr = (u32)l;
+        l++;
+    }
+    g_Game_8013E22C.f_4 = l;
+}
 
 void func_8013E4A8(void) {
     M2C_UNK *var_v0;

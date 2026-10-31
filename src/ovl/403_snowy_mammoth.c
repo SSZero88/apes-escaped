@@ -1012,7 +1012,130 @@ void func_8013F2E0(u8 *o) {
 }
 __asm__(".section .rodata\n\t.align 3\n\t.section .text");
 
-INCLUDE_ASM("asm/ovl/403/nonmatchings/403_snowy_mammoth", func_8013F678);
+#include "gte.h"
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_8013F678;
+typedef struct { u8 pad0[8]; s32 sx; s32 sy; s32 z; s32 sxy; u8 pad18[4]; u16 seed0; u16 seed1; SVECTOR v; SVECTOR cam; } Scr_8013F678;
+typedef struct { s16 x, y, z; s8 active; u8 speed; } Flake_8013F678;
+typedef struct { s16 dx, dz; } Wind_8013F678;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013F678;
+#define ADDPRIM_BF_8013F678(ot, p) (((PTag_8013F678 *)(p))->addr = ((PTag_8013F678 *)(ot))->addr, ((PTag_8013F678 *)(ot))->addr = (u32)(p))
+#define gte_stszotz_8013F678(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+extern Wind_8013F678 D_80141B38_8013F678 asm("D_80141B38");
+extern Flake_8013F678 D_80141408_8013F678[] asm("D_80141408");
+extern Mat_8013F678 D_800E78C0_8013F678 asm("D_800E78C0");
+extern GameDraw g_Game_8013F678 asm("g_Game");
+extern struct { u8 pad0[0x8258]; SVECTOR camA; SVECTOR camB; } g_GameCam_8013F678 asm("g_Game");
+void SetRotMatrix_8013F678(Mat_8013F678 *) asm("SetRotMatrix");
+void SetTransMatrix_8013F678(Mat_8013F678 *) asm("SetTransMatrix");
+s32 SquareRoot0_8013F678(s32) asm("SquareRoot0");
+#define SCR_8013F678 ((Scr_8013F678 *)0x1F800000)
+
+s32 func_8013F678(void) {
+    Scr_8013F678 *sc;
+    s16 dx;
+    s16 dz;
+    s32 fall;
+    s32 dx8;
+    s32 dz8;
+    s32 i;
+    Flake_8013F678 *f;
+    u32 *p;
+    u32 *ot;
+    s32 w;
+    s32 xy;
+    s32 t3;
+    s16 lim;
+    s32 x2;
+    s16 t;
+    s16 c;
+    s32 h;
+
+    sc = SCR_8013F678;
+    dx = D_80141B38_8013F678.dx;
+    dz = D_80141B38_8013F678.dz;
+    sc->cam = g_GameCam_8013F678.camA;
+    if (dx != -3 && dz != -3) {
+        fall = SquareRoot0_8013F678(dx * dx + dz * dz) * 2;
+        if (fall < 12) {
+            fall = 12;
+        }
+        t = dx * 4;
+        c = t < -0x40 ? -0x40 : (t > 0x40 ? 0x40 : t);
+        dx = c;
+        t = dz * 4;
+        c = t < -0x40 ? -0x40 : (t > 0x40 ? 0x40 : t);
+        dz = c;
+        sc->cam = g_GameCam_8013F678.camB;
+    } else {
+        fall = 12;
+    }
+    D_80141B38_8013F678.dz = -3;
+    D_80141B38_8013F678.dx = -3;
+    sc->seed0 = g_RandSeed;
+    sc->seed1 = D_800AE8F2;
+    SetRotMatrix_8013F678(&D_800E78C0_8013F678);
+    SetTransMatrix_8013F678(&D_800E78C0_8013F678);
+    p = (u32 *)g_Game_8013F678.prim;
+    ot = g_Game_8013F678.db[g_Game_8013F678.cur].ot;
+    i = 229;
+    f = D_80141408_8013F678;
+    dx8 = dx * 8;
+    dz8 = dz * 8;
+    for (; i >= 0; i--, f++) {
+        if (f->active == 0) {
+            f->active = 1;
+            f->x = ((((u16)(sc->seed0 = sc->seed0 * 5 + 1) >> 8) - 0x80) << 4) + (((u16)(sc->seed1 = sc->seed1 * 5 + 1) >> 8) << 2) - dx8;
+            f->z = ((((u16)(sc->seed1 = sc->seed1 * 5 + 1) >> 8) - 0x80) << 4) + (((u16)(sc->seed0 = sc->seed0 * 5 + 1) >> 8) << 2) - dz8;
+            f->y = -0x464;
+            f->speed = ((u16)(sc->seed1 = sc->seed1 * 5 + 1) >> 8) & 0xF;
+        }
+        f->x += dx;
+        f->y += f->speed + fall;
+        f->z += dz;
+        lim = sc->cam.vy + 0x200;
+        if (sc->cam.vy + f->y > lim) {
+            f->active = 0;
+        } else {
+            sc->v.vx = sc->cam.vx + f->x;
+            sc->v.vy = sc->cam.vy + f->y;
+            sc->v.vz = sc->cam.vz + f->z;
+            gte_ldv0(&sc->v);
+            gte_rtps();
+            gte_stsxy(&sc->sxy);
+            gte_stszotz_8013F678(&sc->z);
+            xy = sc->sxy;
+            x2 = xy;
+            xy = xy >> 16;
+            __asm__("" : "=r"(xy) : "0"(xy));
+            sc->sx = x2 & 0xFFFF;
+            sc->sy = xy;
+            if ((u32)(sc->sx + 0x20) < 0x1C1 && sc->sy >= -0x20 && sc->sy < 0x111) {
+                if ((u32)(sc->z - 1) >= 0xFFF) {
+                    f->active = 0;
+                } else {
+                    w = 0x11F0 / sc->z;
+                    h = 0xF60 / sc->z;
+                    ((u8 *)p)[3] = 9;
+                    p[1] = 0x2F000000;
+                    p[2] = sc->sxy;
+                    p[4] = (sc->sy << 16) | ((sc->sx + w) & 0xFFFF);
+                    p[6] = ((sc->sy + h) << 16) | (sc->sx & 0xFFFF);
+                    p[8] = ((sc->sy + h) << 16) | ((sc->sx + w) & 0xFFFF);
+                    p[3] = 0x7CAC00C0;
+                    p[5] = 0x7C00EF;
+                    ((u16 *)p)[14] = 0x2FC0;
+                    ((u16 *)p)[18] = 0x2FEF;
+                    ADDPRIM_BF_8013F678(ot + 2, p);
+                    p += 10;
+                }
+            }
+        }
+    }
+    g_Game_8013F678.prim = (u8 *)p;
+    g_RandSeed = sc->seed0;
+    D_800AE8F2 = sc->seed1;
+    return 0;
+}
 
 void func_8013FC18(s16 arg0, s16 arg1) {
     M2C_FIELD(&D_80141B38, s16 *, 0) = arg0;

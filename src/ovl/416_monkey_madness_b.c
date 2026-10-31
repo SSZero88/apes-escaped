@@ -292,7 +292,112 @@ void func_8013D8E4(SVECTOR *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013DA4C);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_8013DA4C;
+typedef struct { Mat_8013DA4C m; Mat_8013DA4C w; SVECTOR rot; SVECTOR v[4][4]; s32 sxy[3]; s32 z; } Scr_8013DA4C;
+typedef struct { s16 x, y, z, vy; s8 vx, vz; u8 life; u8 pad; } Part_8013DA4C;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013DA4C;
+#define ADDPRIM_BF_8013DA4C(ot, p) (((PTag_8013DA4C *)(p))->addr = ((PTag_8013DA4C *)(ot))->addr, ((PTag_8013DA4C *)(ot))->addr = (u32)(p))
+#define gte_ldv3c_8013DA4C(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(v))
+#define gte_rtpt_8013DA4C() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxy3c_8013DA4C(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
+#define gte_stszotz_8013DA4C(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+extern Part_8013DA4C D_80142368_8013DA4C[] asm("D_80142368");
+extern Mat_8013DA4C D_800E78C0_8013DA4C asm("D_800E78C0");
+extern GameDraw g_Game_8013DA4C asm("g_Game");
+void SetRotMatrix_8013DA4C(Mat_8013DA4C *) asm("SetRotMatrix");
+void SetTransMatrix_8013DA4C(Mat_8013DA4C *) asm("SetTransMatrix");
+void RotMatrixZYX_8013DA4C(SVECTOR *, Mat_8013DA4C *) asm("RotMatrixZYX");
+void CompMatrix_8013DA4C(Mat_8013DA4C *, Mat_8013DA4C *, Mat_8013DA4C *) asm("CompMatrix");
+#define SCR_8013DA4C ((Scr_8013DA4C *)0x1F800000)
+
+void func_8013DA4C(void) {
+    s32 i;
+    Part_8013DA4C *e;
+    u32 *p;
+    u32 *ot;
+    Scr_8013DA4C *sc;
+
+    sc = SCR_8013DA4C;
+    ot = g_Game_8013DA4C.db[g_Game_8013DA4C.cur].ot;
+    p = (u32 *)g_Game_8013DA4C.prim;
+    sc->w = D_800E78C0_8013DA4C;
+    sc->v[0][0].vx = -0x18;
+    sc->v[0][0].vy = -0x18;
+    sc->v[0][0].vz = 0;
+    sc->v[0][1].vx = 0x18;
+    sc->v[0][1].vy = -0x18;
+    sc->v[0][1].vz = 0;
+    sc->v[0][2].vx = 0;
+    sc->v[0][2].vy = 0x18;
+    sc->v[0][2].vz = 0;
+    sc->v[1][0].vx = -0x30;
+    sc->v[1][0].vy = -0x30;
+    sc->v[1][0].vz = 0;
+    sc->v[1][1].vx = 0x30;
+    sc->v[1][1].vy = -0x30;
+    sc->v[1][1].vz = 0;
+    sc->v[1][2].vx = 0;
+    sc->v[1][2].vy = 0x30;
+    sc->v[1][2].vz = 0;
+    sc->v[2][0].vx = -8;
+    sc->v[2][0].vy = -0x30;
+    sc->v[2][0].vz = 0;
+    sc->v[2][1].vx = 8;
+    sc->v[2][1].vy = -0x30;
+    sc->v[2][1].vz = 0;
+    sc->v[2][2].vx = 0;
+    sc->v[2][2].vy = 0x48;
+    sc->v[2][2].vz = 0;
+    sc->v[3][0].vx = -0xC;
+    sc->v[3][0].vy = -0xC;
+    sc->v[3][0].vz = 0;
+    sc->v[3][1].vx = 0xC;
+    sc->v[3][1].vy = -0xC;
+    sc->v[3][1].vz = 0;
+    sc->v[3][2].vx = 0;
+    sc->v[3][2].vy = 0xC;
+    sc->v[3][2].vz = 0;
+    for (i = 79; i >= 0; i--) {
+        e = &D_80142368_8013DA4C[i];
+        if (e->life != 0) {
+            e->life--;
+            e->x += e->vx;
+            e->y += e->vy;
+            e->z += e->vz;
+            e->vy += 3;
+            sc->rot.vx = e->life << 7;
+            sc->rot.vy = e->life << 7;
+            sc->rot.vz = e->life << 7;
+            RotMatrixZYX_8013DA4C(&sc->rot, &sc->m);
+            sc->m.t[0] = e->x;
+            sc->m.t[1] = e->y;
+            sc->m.t[2] = e->z;
+            CompMatrix_8013DA4C(&sc->w, &sc->m, &sc->m);
+            SetRotMatrix_8013DA4C(&sc->m);
+            SetTransMatrix_8013DA4C(&sc->m);
+            gte_ldv3c_8013DA4C(sc->v[i & 3]);
+            gte_rtpt_8013DA4C();
+            gte_stsxy3c_8013DA4C(sc->sxy);
+            gte_stszotz_8013DA4C(&sc->z);
+            if ((u32)(sc->z - 1) < 0xFFF) {
+                ((u8 *)p)[3] = 6;
+                p[1] = 0x32808080;
+                p[3] = 0x404040;
+                p[5] = 0;
+                p[2] = sc->sxy[0];
+                p[4] = sc->sxy[1];
+                p[6] = sc->sxy[2];
+                ADDPRIM_BF_8013DA4C(ot + sc->z, p);
+                p += 7;
+            }
+        }
+    }
+    ((u8 *)p)[3] = 1;
+    p[1] = 0xE1000200;
+    ADDPRIM_BF_8013DA4C(ot, p);
+    p += 2;
+    g_Game_8013DA4C.prim = (u8 *)p;
+}
 
 void func_8013DE1C(void) {
     Pad_Vibrate(1, 0xC8, 0xA);

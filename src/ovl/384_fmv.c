@@ -1,7 +1,6 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-M2C_UNK func_8013B9B0(void *, M2C_UNK *, s32, M2C_UNK *);
 extern M2C_UNK D_800E7D00;
 extern struct S_D_8013C550 { u8 pad_0[0x4]; s32 f_4; } D_8013C550;
 extern struct S_D_8013C558 { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } D_8013C558;
@@ -2410,7 +2409,35 @@ s32 func_8013B8D0(void *arg0, s32 arg1, void *arg2) {
 
 /* an original object file starts at 0x8013B9B0 (16-byte aligned) */
 __asm__(".section .text\n.balign 16");
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013B9B0);
+#include "gte.h"
+void Model_DrawPrims(s32, u8 *, s32);
+typedef struct { u16 *f_0; s32 *f_4; u8 *f_8; } Mdl_8013B9B0;
+typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } Scr_8013B9B0;
+extern struct { u8 pad0[0x24]; u16 f_24; u8 pad26[2]; u16 f_28; } D_800EBFA0_8013B9B0 asm("D_800EBFA0");
+
+M2C_UNK func_8013B9B0(void *arg0, M2C_UNK *arg1, s32 arg2, M2C_UNK *arg3) {
+    Mdl_8013B9B0 *m = (Mdl_8013B9B0 *)arg2;
+    u16 *q = (u16 *)arg3;
+    s32 i;
+    s32 *src;
+    u8 *c;
+    Scr_8013B9B0 *sc = (Scr_8013B9B0 *)0x1F800000;
+
+    c = m->f_8;
+    src = m->f_4;
+    for (i = 0; i < m->f_0[4]; i++) {
+        gte_ldIR(0x1000, 0, 0);
+        gte_ldRGB(&src[i]);
+        gte_cc();
+        gte_stRGB2_mem(&sc->rgb[i]);
+    }
+    sc->f_3C0 = D_800EBFA0_8013B9B0.f_24;
+    sc->f_3C2 = D_800EBFA0_8013B9B0.f_28;
+    sc->f_3C6 = q[0];
+    sc->f_3C4 = q[1];
+    sc->f_3F4 = ((u8 *)q)[4];
+    Model_DrawPrims((s32)arg0, c, (s32)arg1);
+}
 
 typedef struct { s16 x, y, w, h; } Rect_8013BA80;
 extern Rect_8013BA80 D_8013C7B0_8013BA80[] asm("D_8013C7B0");

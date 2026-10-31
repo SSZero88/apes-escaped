@@ -55,7 +55,130 @@ void func_8013D028(SVECTOR *arg0, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/423/nonmatchings/423_monkey_madness_f4", func_8013D218);
+#define gte_ldv3c_(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(v))
+#define gte_rtpt_n() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxy3c_(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
+#define gte_stszotz(r0) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(r0) : "$12", "memory")
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mtx_8013D218;
+typedef struct { SVECTOR v[3]; u8 pad[8]; } Tri_8013D218;
+typedef struct { Mtx_8013D218 m; Mtx_8013D218 cam; SVECTOR rot; Tri_8013D218 tri[4]; s32 sxy[3]; s32 otz; } Scr_8013D218;
+typedef struct { s16 x, y, z, floor; s8 vx, vy, vz; u8 life; } Rock_8013D218;
+extern Rock_8013D218 D_8013FAD0_8013D218[] asm("D_8013FAD0");
+extern Mtx_8013D218 D_800E78C0_8013D218 asm("D_800E78C0");
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_8013D218;
+typedef struct { u32 tag; u32 rgb0; s32 xy0; u32 rgb1; s32 xy1; u32 rgb2; s32 xy2; } PolyG3_8013D218;
+extern struct { u8 pad_0[0x4]; u32 *f_4; u8 pad_8[4]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013D218 asm("g_Game");
+void *RotMatrixZYX(void *r, void *m);
+void *CompMatrix(void *m0, void *m1, void *m2);
+void SetRotMatrix(void *m);
+void SetTransMatrix(void *m);
+void Effect_SpawnAt(s32, SVECTOR *);
+void Sound_PlayFixed(s32);
+
+s32 func_8013D218(void) {
+    Scr_8013D218 *sc = (Scr_8013D218 *)0x1F800000;
+    Rock_8013D218 *p;
+    PolyG3_8013D218 *g;
+    u32 *ot;
+    s32 i;
+
+    sc->cam = D_800E78C0_8013D218;
+    sc->tri[0].v[0].vx = -0x1C;
+    sc->tri[0].v[0].vy = -0x1C;
+    sc->tri[0].v[0].vz = 0;
+    sc->tri[0].v[1].vx = 0x1C;
+    sc->tri[0].v[1].vy = -0x1C;
+    sc->tri[0].v[1].vz = 0;
+    sc->tri[0].v[2].vx = 0;
+    sc->tri[0].v[2].vy = 0x1C;
+    sc->tri[0].v[2].vz = 0;
+    sc->tri[1].v[0].vx = -0x38;
+    sc->tri[1].v[0].vy = -0x38;
+    sc->tri[1].v[0].vz = 0;
+    sc->tri[1].v[1].vx = 0x38;
+    sc->tri[1].v[1].vy = -0x38;
+    sc->tri[1].v[1].vz = 0;
+    sc->tri[1].v[2].vx = 0;
+    sc->tri[1].v[2].vy = 0x38;
+    sc->tri[1].v[2].vz = 0;
+    sc->tri[2].v[0].vx = -9;
+    sc->tri[2].v[0].vy = -0x38;
+    sc->tri[2].v[0].vz = 0;
+    sc->tri[2].v[1].vx = 9;
+    sc->tri[2].v[1].vy = -0x38;
+    sc->tri[2].v[1].vz = 0;
+    sc->tri[2].v[2].vx = 0;
+    sc->tri[2].v[2].vy = 0x54;
+    sc->tri[2].v[2].vz = 0;
+    sc->tri[3].v[0].vx = -0xE;
+    sc->tri[3].v[0].vy = -0xE;
+    sc->tri[3].v[0].vz = 0;
+    sc->tri[3].v[1].vx = 0xE;
+    sc->tri[3].v[1].vy = -0xE;
+    sc->tri[3].v[1].vz = 0;
+    sc->tri[3].v[2].vx = 0;
+    sc->tri[3].v[2].vy = 0xE;
+    sc->tri[3].v[2].vz = 0;
+    g = (PolyG3_8013D218 *)g_Game_8013D218.f_4;
+    ot = (u32 *)(g_Game_8013D218.f_80 + g_Game_8013D218.f_C * 0x4078);
+    for (i = 15; i >= 0; i--) {
+        p = &D_8013FAD0_8013D218[i];
+        if (p->life == 0) {
+            continue;
+        }
+        p->life--;
+        p->x += p->vx;
+        p->y += p->vy;
+        p->z += p->vz;
+        p->vy += 4;
+        if (p->y > p->floor) {
+            p->y = p->floor;
+            p->vy = -p->vy / 3;
+            Effect_SpawnAt(4, (SVECTOR *)p);
+            if ((RAND() >> 8 & 3) == 0) {
+                Sound_PlayFixed(0x67);
+            }
+            if (p->vy >= -0xB) {
+                p->life = 0;
+                continue;
+            }
+        }
+        sc->rot.vx = (p->life << 7) & 0xFFF;
+        sc->rot.vy = (p->life << 7) & 0xFFF;
+        sc->rot.vz = (p->life << 7) & 0xFFF;
+        RotMatrixZYX(&sc->rot, &sc->m);
+        sc->m.t[0] = p->x;
+        sc->m.t[1] = p->y;
+        sc->m.t[2] = p->z;
+        CompMatrix(&sc->cam, &sc->m, &sc->m);
+        SetRotMatrix(&sc->m);
+        SetTransMatrix(&sc->m);
+        gte_ldv3c_(&sc->tri[i & 3]);
+        gte_rtpt_n();
+        gte_stsxy3c_(sc->sxy);
+        gte_stszotz(&sc->otz);
+        if ((u32)(sc->otz - 1) >= 0xFFF) {
+            continue;
+        }
+        ((u8 *)g)[3] = 6;
+        g->rgb0 = 0x323C8028;
+        g->rgb1 = 0x1E4014;
+        g->rgb2 = 0xA1C00;
+        g->xy0 = sc->sxy[0];
+        g->xy1 = sc->sxy[1];
+        g->xy2 = sc->sxy[2];
+        ((Tag_8013D218 *)g)->addr = ((Tag_8013D218 *)&ot[sc->otz])->addr;
+        ((Tag_8013D218 *)&ot[sc->otz])->addr = (u32)g;
+        g++;
+        ((u8 *)g)[3] = 1;
+        ((u32 *)g)[1] = 0xE1000220;
+        ((Tag_8013D218 *)g)->addr = ((Tag_8013D218 *)&ot[sc->otz])->addr;
+        ((Tag_8013D218 *)&ot[sc->otz])->addr = (u32)g;
+        g = (PolyG3_8013D218 *)((u8 *)g + 8);
+    }
+    g_Game_8013D218.f_4 = (u32 *)g;
+    return 0;
+}
 
 void Effect_SpawnAt(s32, SVECTOR *);
 void Fx_SpawnFadeRing(SVECTOR *, s32, s32, s32);

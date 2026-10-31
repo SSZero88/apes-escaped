@@ -21,9 +21,86 @@ s32 func_80136000(void) {
 
 INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_8013606C);
 
-INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_801375C0);
+#include "gte.h"
+void Model_DrawPrims(s32, u8 *, s32);
+void Model_ProjectVertsAlt(void *, void *, void *);
+typedef struct { s16 m[3][3]; s32 t[3]; } MAT_801375C0;
+typedef struct { u8 pad0[0xE]; u16 n; } Hdr_801375C0;
+typedef struct { Hdr_801375C0 *f_0; s32 *f_4; u8 *f_8; } Mdl_801375C0;
+typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } Scr_801375C0;
+extern u8 D_800E7D00_801375C0[] asm("D_800E7D00");
+extern struct { u8 pad0[0xC]; s32 cur; } g_Game_801375C0 asm("g_Game");
+extern MAT_801375C0 D_800E78C0_801375C0 asm("D_800E78C0");
 
-INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_80137714);
+void func_801375C0(pos, rot, m, light)
+    SVECTOR *pos; SVECTOR *rot; Mdl_801375C0 *m; s32 light;
+{
+    MAT_801375C0 mat;
+    Scr_801375C0 *sc = (Scr_801375C0 *)0x1F800000;
+    u8 *c = m->f_8;
+    s32 i;
+    s32 n;
+    s32 *src;
+
+    sc->f_3F4 = 0;
+    sc->f_3C6 = 0;
+    sc->f_3C4 = 0;
+    func_8004637C(&mat);
+    mat.t[2] = pos->vz;
+    mat.t[0] = pos->vx;
+    mat.t[1] = pos->vy;
+    RotMatrix(rot, &mat);
+    CompMatrix(&D_800E78C0_801375C0, &mat, &mat);
+    Model_ProjectVertsAlt(m, &mat, D_800E7D00_801375C0);
+    n = m->f_0->n;
+    src = m->f_4;
+    for (i = 0; i < n; i++) {
+        gte_ldIR(light, 0, 0);
+        gte_ldRGB(&src[i]);
+        gte_cc();
+        gte_stRGB2(&sc->rgb[i]);
+    }
+    Model_DrawPrims((s32)(g_Game_801375C0.cur * 0x4078 + (u8 *)&g_Game_801375C0 + 0x80), c, (s32)D_800E7D00_801375C0);
+}
+
+typedef struct { s16 m[3][3]; s32 t[3]; } MAT_80137714;
+typedef struct { u8 pad0[0xE]; u16 n; } Hdr_80137714;
+typedef struct { Hdr_80137714 *f_0; s32 *f_4; u8 *f_8; } Mdl_80137714;
+typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } Scr_80137714;
+extern u8 D_800E7D00_80137714[] asm("D_800E7D00");
+extern struct { u8 pad0[0xC]; s32 cur; } g_Game_80137714 asm("g_Game");
+extern MAT_80137714 D_800E78C0_80137714 asm("D_800E78C0");
+
+void func_80137714(pos, rot, m, light)
+    SVECTOR *pos; SVECTOR *rot; Mdl_80137714 *m; s32 light;
+{
+    MAT_80137714 mat;
+    Scr_80137714 *sc = (Scr_80137714 *)0x1F800000;
+    u8 *c = m->f_8;
+    s32 i;
+    s32 n;
+    s32 *src;
+
+    sc->f_3F4 = 1;
+    sc->f_3C6 = 0;
+    sc->f_3C4 = 0;
+    func_8004637C(&mat);
+    mat.t[2] = pos->vz;
+    mat.t[0] = pos->vx;
+    mat.t[1] = pos->vy;
+    RotMatrix(rot, &mat);
+    CompMatrix(&D_800E78C0_80137714, &mat, &mat);
+    Model_ProjectVertsAlt(m, &mat, D_800E7D00_80137714);
+    n = m->f_0->n;
+    src = m->f_4;
+    for (i = 0; i < n; i++) {
+        gte_ldIR(light, 0, 0);
+        gte_ldRGB(&src[i]);
+        gte_cc();
+        gte_stRGB2(&sc->rgb[i]);
+    }
+    Model_DrawPrims((s32)(g_Game_80137714.cur * 0x4078 + (u8 *)&g_Game_80137714 + 0x80), c, (s32)D_800E7D00_80137714);
+}
 
 extern u8 g_Game[];
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_8013786C;

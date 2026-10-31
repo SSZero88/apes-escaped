@@ -2303,4 +2303,57 @@ void func_8013AABC(void) {
     G_DRAW.prim = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_8013ABD4);
+#include "gte.h"
+#define gte_stsxy2_8013ABD4(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+#define gte_stsxy1_8013ABD4(p) __asm__ volatile ("swc2 $13, 0(%0)" : : "r"(p) : "memory")
+void SetRotMatrix(void *m);
+void SetTransMatrix(void *m);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; s16 x1, y1; } Line_8013ABD4;
+extern struct { s32 frame; u8 *prim; u32 *ot; } g_Game_8013ABD4 asm("g_Game");
+extern u8 D_800AF0A0_8013ABD4[] asm("D_800AF0A0");
+
+void func_8013ABD4(void) {
+    SVECTOR v0;
+    SVECTOR v1;
+    s32 z;
+    u8 *p;
+    u32 *ot;
+    s32 k;
+    s32 s;
+    s32 a;
+    s32 dx;
+    s32 dy;
+
+    p = g_Game_8013ABD4.prim;
+    ot = g_Game_8013ABD4.ot + 0xFFF;
+    SetRotMatrix(D_800AF0A0_8013ABD4);
+    SetTransMatrix(D_800AF0A0_8013ABD4);
+    for (z = ~(g_Game_8013ABD4.frame * 24) & 0xFF; z < 0x1FFF; z += 0x100) {
+        s = rsin(z >> 2);
+        a = z >> 1;
+        dx = (rcos(a) * s) >> 17;
+        dy = (rsin(a) * s) >> 17;
+        v0.vx = (rcos(0) >> 4) + dx;
+        v0.vy = (rsin(0) >> 4) + dy;
+        v0.vz = z;
+        gte_ldv0(&v0);
+        gte_rtps();
+        for (k = 0x20; k < 0x1001; k += 0x20) {
+            v1.vx = (rcos(k) >> 4) + dx;
+            v1.vy = (rsin(k) >> 4) + dy;
+            v1.vz = z;
+            gte_ldv0(&v1);
+            gte_rtps();
+            *(u32 *)&((Line_8013ABD4 *)p)->r0 = 0x8000;
+            ((u8 *)p)[3] = 3;
+            ((Line_8013ABD4 *)p)->code = 0x40;
+            gte_stsxy2_8013ABD4(&((Line_8013ABD4 *)p)->x1);
+            gte_stsxy1_8013ABD4(&((Line_8013ABD4 *)p)->x0);
+            ADD_PRIM_ASM(ot, p);
+            p += 0x10;
+        }
+        __asm__ volatile("" : : "r"(z), "r"(z));
+    }
+    g_Game_8013ABD4.prim = p;
+}
+__asm__(".section .text\n.balign 16");
