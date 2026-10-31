@@ -460,7 +460,72 @@ s32 func_8013E044(void *arg0) {
     return var_s0;
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E0D0);
+typedef struct { u32 b0 : 3; u32 init : 1; u32 b4 : 18; u32 mode : 2; u32 b24 : 8; } Flags_8013E0D0;
+typedef struct { u16 start; u16 end; } Rng_8013E0D0;
+typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; u8 pad30[0x2C]; u16 anim; u16 pad5E; u16 f60; u16 pad62; u16 f64; u8 pad66[0x19]; u8 seg; u8 state; u8 pad81[7]; Rng_8013E0D0 *rng; u8 pad8C[2]; u8 f8E; u8 pad8F; s16 *path; u8 pad94[0xC]; s16 fA0; u8 padA2[0xC]; s16 fAE; s16 fB0; u8 padB2[0x2E]; Flags_8013E0D0 fl; } Obj_8013E0D0;
+extern s32 D_80141BA8[];
+void Object_TurnToward(void *, s16, s16, s16, s16);
+s32 func_8013E044(void *arg0);
+void func_8013DE8C(u8 *o);
+
+void func_8013E0D0(u8 *arg0) {
+    Obj_8013E0D0 *o = (Obj_8013E0D0 *)arg0;
+    if (!o->fl.init) {
+        register s16 *pp asm("$2");
+        Rng_8013E0D0 *rg;
+        rg = o->rng;
+        o->fA0 = 0x32;
+        o->fB0 = 0x16;
+        __asm__ volatile("");
+        pp = o->path;
+        __asm__("" : : "r"(pp));
+        o->f8E = 0;
+        o->seg = 0;
+        o->anim = rg[0].start;
+        o->x = pp[0];
+        o->y = pp[1];
+        o->z = pp[2];
+        { s16 *pp = *(s16 * volatile *)&o->path; Object_TurnToward(o, pp[4] - (u16)o->x, pp[6] - (u16)o->z, 0, o->fB0); }
+        o->fl.init = 1;
+    }
+    switch (o->state) {
+    case 1:
+        if (func_8013E044(o)) {
+            o->state = 2;
+            o->seg = 1;
+            o->anim = o->rng[1].start;
+        }
+        break;
+    case 2:
+        if (o->anim >= o->rng[o->seg].end) {
+            o->state = 3;
+            o->seg = 2;
+            o->anim = o->rng[2].start;
+        }
+        break;
+    case 3:
+        func_8013DE8C((u8 *)o);
+        func_8013DF50((u8 *)o);
+        if (!func_8005588C(o, -1)) {
+            Object_PlaySound(o, D_80141BA8[((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 1]);
+            func_8005588C(o, (((g_RandSeed = g_RandSeed * 5 + 1) >> 11)) + 0x1E);
+        }
+        break;
+    case 4:
+        if (o->anim >= o->rng[o->seg].end) {
+            o->state = 5;
+            o->seg = 0;
+            o->anim = o->rng[0].start;
+            Object_TurnToward(o, -o->f60, -o->f64, 0, o->fB0);
+        }
+        break;
+    case 5:
+        if (o->fAE == 0) {
+            o->state = 1;
+        }
+        break;
+    }
+}
 
 void func_8013E358(void *arg0) {
     if ((Spike_WithinRadiusXZ(M2C_FIELD(arg0, s32 *, 0x24), M2C_FIELD(arg0, s32 *, 0x2C), 0x800) != 0) && !(g_Game & 3)) {

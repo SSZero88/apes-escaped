@@ -43,7 +43,170 @@ s32 func_80136120(u8 *s) {
     return w;
 }
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80136160);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; u8 r1, g1, b1, p1; s16 x1, y1; u8 u1, v1; u16 tpage; u8 r2, g2, b2, p2; s16 x2, y2; u8 u2, v2; u16 pad2; u8 r3, g3, b3, p3; s16 x3, y3; u8 u3, v3; u16 pad3; } PolyGT4_80136160;
+extern struct { u32 frame; PolyGT4_80136160 *prim; u32 *ot; } g_Game_80136160 asm("g_Game");
+extern PolyGT4_80136160 *D_800EC354_80136160 asm("D_800EC354");
+
+s32 func_80136160(s32 x, s32 y, s32 w, s32 h) {
+    PolyGT4_80136160 *p;
+    u32 *ot;
+    s32 i;
+
+    p = g_Game_80136160.prim;
+    ot = g_Game_80136160.ot;
+    for (i = 0; i < 6; i++) {
+        ((u8 *)p)[3] = 0xC;
+        p->code = 0x3E;
+        if (i < 3) {
+            s32 c;
+            c = 0x640 / (h + 8);
+            p->b0 = 0xC8;
+            p->b1 = 0xC8;
+            p->r0 = 0;
+            p->g0 = 0;
+            p->r1 = 0;
+            p->g1 = 0;
+            p->r2 = 0;
+            p->g2 = 0;
+            p->r3 = 0;
+            p->g3 = 0;
+            p->b2 = 0xC8 - c;
+            p->b3 = 0xC8 - c;
+        } else {
+            s32 c, c2;
+            c = 0xC8 / (h + 8);
+            c2 = (h - 0x10) * 0xC8 / (h + 8);
+            p->r0 = 0;
+            p->g0 = 0;
+            p->r1 = 0;
+            p->g1 = 0;
+            p->r2 = 0;
+            p->g2 = 0;
+            p->r3 = 0;
+            p->g3 = 0;
+            p->b0 = 0xC8 - c;
+            p->b1 = 0xC8 - c;
+            p->b2 = 0xC8 - c2;
+            p->b3 = 0xC8 - c2;
+        }
+        switch (i) {
+        case 0:
+            p->x0 = x;
+            p->y0 = y;
+            p->x1 = x + 8;
+            p->y1 = y;
+            p->x2 = x;
+            p->y2 = y + 8;
+            p->x3 = x + 8;
+            p->y3 = y + 8;
+            p->u0 = 0x80;
+            p->v0 = 0xA0;
+            p->u1 = 0x88;
+            p->v1 = 0xA0;
+            p->u2 = 0x80;
+            p->v2 = 0xA8;
+            p->u3 = 0x88;
+            p->v3 = 0xA8;
+            break;
+        case 1:
+            p->x0 = x + w - 8;
+            p->y0 = y;
+            p->x1 = x + w;
+            p->y1 = y;
+            p->x2 = x + w - 8;
+            p->y2 = y + 8;
+            p->x3 = x + w;
+            p->y3 = y + 8;
+            p->u0 = 0x90;
+            p->v0 = 0xA0;
+            p->u1 = 0x98;
+            p->v1 = 0xA0;
+            p->u2 = 0x90;
+            p->v2 = 0xA8;
+            p->u3 = 0x98;
+            p->v3 = 0xA8;
+            break;
+        case 2:
+            p->x0 = x + 8;
+            p->y0 = y;
+            p->x1 = x + (s16)(w - 8);
+            p->y1 = y;
+            p->x2 = x + 8;
+            p->y2 = y + 8;
+            p->x3 = x + (s16)(w - 8);
+            p->y3 = y + 8;
+            p->u0 = 0x88;
+            p->v0 = 0xA0;
+            p->u1 = 0x90;
+            p->v1 = 0xA0;
+            p->u2 = 0x88;
+            p->v2 = 0xA8;
+            p->u3 = 0x90;
+            p->v3 = 0xA8;
+            break;
+        case 3:
+            p->x0 = x;
+            p->y0 = y + 8;
+            p->x1 = x + 8;
+            p->y1 = y + 8;
+            p->x2 = x;
+            p->y2 = y + (s16)(h - 8);
+            p->x3 = x + 8;
+            p->y3 = y + (s16)(h - 8);
+            p->u0 = 0x80;
+            p->v0 = 0xA8;
+            p->u1 = 0x88;
+            p->v1 = 0xA8;
+            p->u2 = 0x80;
+            p->v2 = 0xB0;
+            p->u3 = 0x88;
+            p->v3 = 0xB0;
+            break;
+        case 4:
+            p->x0 = x + w - 8;
+            p->y0 = y + 8;
+            p->x1 = x + w;
+            p->y1 = y + 8;
+            p->x2 = x + w - 8;
+            p->y2 = y + (s16)(h - 8);
+            p->x3 = x + w;
+            p->y3 = y + (s16)(h - 8);
+            p->u0 = 0x90;
+            p->v0 = 0xA8;
+            p->u1 = 0x98;
+            p->v1 = 0xA8;
+            p->u2 = 0x90;
+            p->v2 = 0xB0;
+            p->u3 = 0x98;
+            p->v3 = 0xB0;
+            break;
+        case 5:
+            p->x0 = x + 8;
+            p->y0 = y + 8;
+            p->x1 = x + (s16)(w - 8);
+            p->y1 = y + 8;
+            p->x2 = x + 8;
+            p->y2 = y + (s16)(h - 8);
+            p->x3 = x + (s16)(w - 8);
+            p->y3 = y + (s16)(h - 8);
+            p->u0 = 0x88;
+            p->v0 = 0xA8;
+            p->u1 = 0x90;
+            p->v1 = 0xA8;
+            p->u2 = 0x88;
+            p->v2 = 0xB0;
+            p->u3 = 0x90;
+            p->v3 = 0xB0;
+            break;
+        }
+        p->clut = 0x77AB;
+        p->tpage = 0x3A;
+        { u32 _t1; __asm__ volatile("lwl %0, %1\n\tsll $2, %3, 8\n\tswl $2, %1\n\tswl %0, %2" : "=&r"(_t1) : "m"(*((u8 *)(ot) + 2)), "m"(*((u8 *)(p) + 2)), "r"(p), "m"(*((u8 *)(ot) + 2)) : "$2"); }
+        p++;
+    }
+    D_800EC354_80136160 = p;
+    return 0;
+}
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad2; s16 x3, y3; u8 u3, v3; u16 pad3; } PolyFT4_80136554;
 extern struct { u32 frame; PolyFT4_80136554 *prim; u32 *ot; } g_Game_80136554 asm("g_Game");
@@ -510,7 +673,6 @@ s32 func_80136120(u8 *s);
 s32 func_80137C04(void);
 s32 func_80137D40(void);
 s32 func_80137EF8(void);
-s32 func_80136160(s32, s32, s32, s32);
 s32 func_80138978(void);
 s32 func_80137308(void *obj);
 s32 Sound_PlayFixed(s32);
@@ -762,7 +924,137 @@ s32 func_80137D40(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80137EF8);
+typedef struct { s16 f_0; s16 f_2; u8 *f_4; } Slot_80137EF8;
+extern Slot_80137EF8 D_80139368_80137EF8[] asm("D_80139368");
+extern u8 *D_800EC354;
+
+s32 func_80137EF8(void) {
+    u8 *p;
+    s32 off;
+    s32 xo, xj;
+    s32 i, j, k;
+    Slot_80137EF8 *s;
+
+    p = D_800EC354;
+    if (D_801391BE == 0) {
+        off = 0;
+    } else if (D_801391BE >= 16) {
+        off = (D_801391BE - 30) * 24;
+    } else if (D_801391BE < -15) {
+        off = (30 - abs(D_801391BE)) * 24;
+    } else {
+        off = D_801391BE * 24;
+    }
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 8; j++) {
+            k = i * 8 + j;
+            if (k >= D_801391B4) {
+                goto done;
+            }
+            M2C_FIELD(p, s16 *, 0xA) = 0x49 + i * 0x30;
+            M2C_FIELD(p, s16 *, 0x10) = 0x20;
+            M2C_FIELD(p, s16 *, 0x12) = 0x1E;
+            s = &D_80139368_80137EF8[k];
+            p[3] = 4;
+            p[7] = 0x65;
+            M2C_FIELD(p, u16 *, 0xE) = 0x3FDC;
+            xj = j * 0x2A;
+            xo = off + 0x18;
+            M2C_FIELD(p, s16 *, 0x8) = xj + xo;
+            if (s->f_0 == 0) {
+                s32 f = *(volatile s32 *)g_Game;
+                p[0xD] = 0x3C;
+                p[0xC] = ((f & 1) << 5) + 0x40;
+            } else {
+                switch (s->f_2) {
+                case 0:
+                    p[0xC] = 0x60;
+                    p[0xD] = 0;
+                    break;
+                case 0x40:
+                    p[0xC] = 0x20;
+                    p[0xD] = 0x1E;
+                    break;
+                case 0x80:
+                    p[0xC] = 0x20;
+                    p[0xD] = 0;
+                    break;
+                case 0xC0:
+                    p[0xC] = 0x40;
+                    p[0xD] = 0;
+                    break;
+                case 0x100:
+                    p[0xC] = 0x20;
+                    p[0xD] = 0x3C;
+                    break;
+                case 0x140:
+                    p[0xC] = 0x40;
+                    p[0xD] = 0x1E;
+                    break;
+                case 0x180:
+                    p[0xC] = 0x60;
+                    p[0xD] = 0x1E;
+                    break;
+                }
+            }
+            { register u32 *ot asm("$2") = G_DRAW.db[G_DRAW.cur].ot; ADD_PRIM_R(ot, p, "$4", "$3"); }
+            p += 0x14;
+        }
+    }
+done:
+    p[3] = 1;
+    M2C_FIELD(p, u32 *, 4) = 0xE1000287;
+    ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$4", "$3");
+    p += 8;
+    if (D_801391BE == 0) {
+        p[3] = 4;
+        p[7] = 0x65;
+        {
+            s32 b0 = D_801391B0;
+            M2C_FIELD(p, u16 *, 0xE) = 0x3F9D;
+            M2C_FIELD(p, s16 *, 0x8) = (s16)(b0 % 8) * 42 + 0xF;
+            M2C_FIELD(p, s16 *, 0xA) = (b0 / 8) * 48 + 0x3C;
+        }
+        M2C_FIELD(p, s16 *, 0x10) = 0x30;
+        M2C_FIELD(p, s16 *, 0x12) = 0x30;
+        p[0xC] = 0;
+        p[0xD] = 0x80;
+        ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$4", "$3");
+        p += 0x14;
+    }
+    if (D_801391BA > 0) {
+        p[3] = 4;
+        p[7] = 0x65;
+        M2C_FIELD(p, u16 *, 0xE) = 0x3F9E;
+        M2C_FIELD(p, s16 *, 0x8) = 0x12;
+        M2C_FIELD(p, s16 *, 0xA) = 0xD0;
+        M2C_FIELD(p, s16 *, 0x10) = 0x20;
+        M2C_FIELD(p, s16 *, 0x12) = 0x10;
+        p[0xC] = 0;
+        p[0xD] = 0x40;
+        ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$4", "$3");
+        p += 0x14;
+    }
+    if (D_80139200[D_801391BA] < D_801391BC) {
+        p[3] = 4;
+        p[7] = 0x65;
+        M2C_FIELD(p, u16 *, 0xE) = 0x3F9E;
+        M2C_FIELD(p, s16 *, 0x8) = 0x146;
+        M2C_FIELD(p, s16 *, 0xA) = 0xD0;
+        M2C_FIELD(p, s16 *, 0x10) = 0x20;
+        M2C_FIELD(p, s16 *, 0x12) = 0x10;
+        p[0xC] = 0;
+        p[0xD] = 0x30;
+        ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$4", "$3");
+        p += 0x14;
+    }
+    p[3] = 1;
+    M2C_FIELD(p, u32 *, 4) = 0xE1000207;
+    ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$5", "$3");
+    p += 8;
+    G_DRAW.prim = p;
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138428);
 

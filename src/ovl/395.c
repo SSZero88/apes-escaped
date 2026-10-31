@@ -831,4 +831,111 @@ void func_80138468(void) {
     Cd_PlayXaTrack(D_80138CEC);
 }
 
-INCLUDE_ASM("asm/ovl/395/nonmatchings/395", func_80138490);
+typedef struct { s16 x, y, w, h; } Rect_80138490;
+extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; } g_Game_80138490 asm("g_Game");
+extern s32 D_80138C90;
+extern u32 D_800EC35C;
+extern u16 g_RandSeed;
+int abs(int);
+#define ADD_PRIM_RR_80138490(ot, p) { unsigned int _t1, _t2; __asm__ volatile("lwl %0, 2(%2)\n\tsll %1, %3, 8\n\tswl %1, 2(%2)\n\tswl %0, 2(%3)" : "=&r"(_t1), "=&r"(_t2) : "r"(ot), "r"(p) : "memory"); }
+
+void func_80138490(void) {
+    Rect_80138490 r;
+    u8 *p;
+    u32 *ot;
+    s32 k;
+    s32 y;
+    s32 n;
+    s32 amp;
+    s32 w;
+    s32 one;
+    s32 off;
+    s32 i;
+    s32 ofs;
+    s32 half;
+    s32 t;
+
+    p = g_Game_80138490.prim;
+    ot = g_Game_80138490.ot;
+    k = 0x104 - g_Game_80138490.frame % 300;
+    for (y = 1; y < 0xF0; y += 2) {
+        if (abs(k - y) < 0x1A) {
+            *(u32 *)(p + 0xC) = 0x101010;
+            *(u32 *)(p + 4) = 0x202020;
+        } else {
+            *(u32 *)(p + 4) = 0x101010;
+            *(u32 *)(p + 0xC) = 0x202020;
+        }
+        p[3] = 4;
+        p[7] = 0x52;
+        *(s16 *)(p + 8) = 0;
+        *(s16 *)(p + 0xA) = y;
+        *(s16 *)(p + 0x10) = 0x180;
+        *(s16 *)(p + 0x12) = y;
+        ADD_PRIM_ASM(ot, p);
+        p += 0x78;
+        p[3] = 1;
+        *(u32 *)(p + 4) = 0xE1000240;
+        ADD_PRIM_ASM(ot, p);
+        p += 0x30;
+    }
+    D_800EC354 = p;
+    n = D_80138C90--;
+    if (n > 10) {
+        amp = 0;
+        w = 4;
+    } else {
+        amp = 10;
+        w = 4;
+        if (n <= 0) {
+            D_80138C90 = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 200 + 20;
+        }
+    }
+    i = 0;
+    ofs = ((u32)i < D_800EC35C) << 8;
+    for (; i < 0xF0; i += 2) {
+        t = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 100;
+        half = (u32)w >> 1;
+        one = 1;
+        __asm__("" : : "r"(one), "r"(one), "r"(one), "r"(one), "r"(w), "r"(w), "r"(w), "r"(w));
+        if (t <= amp) {
+            off = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % w + half;
+            if (off < 0) {
+                r.x = -off;
+                r.y = 0xFE;
+                r.w = off + 0x180;
+                r.h = one;
+                SetDrawMove(p, &r, 0, (i + ofs));
+                ADD_PRIM_RR_80138490(ot, p);
+                p += 0x18;
+                r.x = 0;
+                r.y = (i + ofs);
+                r.w = 0x180;
+                r.h = one;
+                SetDrawMove(p, &r, 0, 0xFE);
+                ADD_PRIM_RR_80138490(ot, p);
+                p += 0x18;
+            }
+            if (off > 0) {
+                r.x = 0;
+                r.y = 0xFE;
+                r.w = 0x180 - off;
+                r.h = one;
+                SetDrawMove(p, &r, off, (i + ofs));
+                ADD_PRIM_RR_80138490(ot, p);
+                p += 0x18;
+                r.x = 0;
+                r.y = (i + ofs);
+                r.w = 0x180;
+                r.h = one;
+                SetDrawMove(p, &r, 0, 0xFE);
+                ADD_PRIM_RR_80138490(ot, p);
+                p += 0x18;
+            }
+        }
+    }
+    D_800EC354 = p;
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop\n\tnop\n\tnop");

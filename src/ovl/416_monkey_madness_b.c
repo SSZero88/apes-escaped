@@ -868,7 +868,38 @@ void func_8013F544(void) {
     } while (var_s2 < 8);
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013F5A8);
+typedef struct { u8 pad_0[0x24]; s32 x, y, z; u8 pad_30[0x54]; u8 active; u8 pad_85[3]; s16 vx, vy, vz; u8 pad_8E[2]; } Rock_8013F5A8;
+extern Rock_8013F5A8 D_801418A0_8013F5A8[] asm("D_801418A0");
+extern u8 D_80141640_8013F5A8[] asm("D_80141640");
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013F5A8 asm("g_Spike");
+void Effect_Spawn_8013F5A8(s32, void *, void *, s32) asm("Effect_Spawn");
+s32 Sound_PlayFixed_8013F5A8(s32) asm("Sound_PlayFixed");
+
+void func_8013F5A8(SVECTOR *pos) {
+    Rock_8013F5A8 *o = D_801418A0_8013F5A8;
+    s32 i;
+    s32 j;
+    s32 r;
+    s32 d;
+
+    for (i = 0; i < 8; i++, o++) {
+        if (o->active == 0) {
+            o->active = 1;
+            o->x = pos->vx;
+            o->y = pos->vy;
+            o->z = pos->vz;
+            o->vx = (g_Spike_8013F5A8.x - pos->vx) / 24 + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x1F) - 0xF;
+            o->vy = -0x10;
+            o->vz = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0xF) + 0x1E;
+            Effect_Spawn_8013F5A8(0xCA, pos, D_80141640_8013F5A8, 0);
+            for (j = 8; j > 0; j--) {
+                Effect_Spawn_8013F5A8(0xCB, pos, D_80141640_8013F5A8, 0);
+            }
+            Sound_PlayFixed_8013F5A8(0x4B);
+            return;
+        }
+    }
+}
 
 typedef struct { u8 pad_0[0x24]; s32 x, y, z; u8 pad_30[0x2C]; s16 f_5C; u8 pad_5E[2]; SVECTOR dir; u8 pad_68[8]; u8 f_70[4]; s16 f_74, f_76, f_78; u8 pad_7A[0xA]; u8 active; u8 pad_85[3]; s16 vx, vy, vz; u8 pad_8E[2]; } Rock_8013F6F8;
 extern Rock_8013F6F8 D_801418A0_8013F6F8[8] asm("D_801418A0");

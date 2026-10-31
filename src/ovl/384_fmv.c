@@ -2011,7 +2011,118 @@ void func_8013AE90(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013AF50);
+typedef struct { s16 x, y, w, h; } Rect_8013AF50;
+extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; } g_Game_8013AF50 asm("g_Game");
+extern s32 D_8013C780;
+extern u8 *D_800EC354;
+extern u32 D_800EC35C;
+int abs(int);
+#define ADD_PRIM_RR_8013AF50(ot, p) { unsigned int _t1, _t2; __asm__ volatile("lwl %0, 2(%2)\n\tsll %1, %3, 8\n\tswl %1, 2(%2)\n\tswl %0, 2(%3)" : "=&r"(_t1), "=&r"(_t2) : "r"(ot), "r"(p) : "memory"); }
+
+void func_8013AF50(void) {
+    Rect_8013AF50 r;
+    u8 *p;
+    u32 *ot;
+    s32 k;
+    s32 y;
+    s32 n;
+    s32 amp;
+    s32 w;
+    s32 off;
+    s32 i;
+    s32 ofs;
+    s32 half;
+    s32 ofs2;
+    s32 j;
+
+    p = g_Game_8013AF50.prim;
+    r.x = 0;
+    r.w = 0x180;
+    r.h = 1;
+    ofs = ((u32)(i = 0) < g_Game_8013AF50.cur) << 8;
+    r.y = ofs + 0xFE;
+    ot = g_Game_8013AF50.ot;
+    SetDrawMove(p, &r, i, ofs | 0xFF);
+    ADD_PRIM_RR_8013AF50(ot, p);
+    p += 0x18;
+    k = 0x104 - g_Game_8013AF50.frame % 300;
+    for (y = 1; y < 0xF0; y += 2) {
+        if (abs(k - y) < 0x1A) {
+            *(u32 *)(p + 4) = 0x202020;
+            *(u32 *)(p + 0xC) = 0x101010;
+        } else {
+            *(u32 *)(p + 4) = 0x101010;
+            *(u32 *)(p + 0xC) = 0x202020;
+        }
+        p[3] = 4;
+        p[7] = 0x52;
+        *(s16 *)(p + 8) = 0;
+        *(s16 *)(p + 0xA) = y;
+        *(s16 *)(p + 0x10) = 0x180;
+        *(s16 *)(p + 0x12) = y;
+        ADD_PRIM_ASM(ot, p);
+        p += 0x78;
+        p[3] = 1;
+        *(u32 *)(p + 4) = 0xE1000240;
+        ADD_PRIM_ASM(ot, p);
+        p += 0x30;
+    }
+    D_800EC354 = p;
+    n = D_8013C780--;
+    if (n > 10) {
+        amp = 0;
+        w = 4;
+    } else {
+        amp = 10;
+        w = 4;
+        if (n <= 0) {
+            D_8013C780 = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 200 + 20;
+        }
+    }
+    __asm__ volatile("" : : "r"(w));
+    ofs2 = ((u32)(j = 0) < D_800EC35C) << 8;
+    for (; j < 0xF0; j += 2) {
+        if (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % 100 <= amp) {
+            half = (u32)w >> 1;
+            off = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) % w + half;
+            if (off < 0) {
+                r.x = -off;
+                r.y = (ofs + 0xFF);
+                r.w = off + 0x180;
+                r.h = 1;
+                SetDrawMove(p, &r, 0, (j + ofs2));
+                ADD_PRIM_RR_8013AF50(ot, p);
+                p += 0x18;
+                r.x = 0;
+                r.y = (j + ofs2);
+                r.w = 0x180;
+                r.h = 1;
+                SetDrawMove(p, &r, 0, (ofs + 0xFF));
+                ADD_PRIM_RR_8013AF50(ot, p);
+                p += 0x18;
+            }
+            if (off > 0) {
+                r.x = 0;
+                r.y = (ofs + 0xFF);
+                r.w = 0x180 - off;
+                r.h = 1;
+                SetDrawMove(p, &r, off, (j + ofs2));
+                ADD_PRIM_RR_8013AF50(ot, p);
+                p += 0x18;
+                r.x = 0;
+                r.y = (j + ofs2);
+                r.w = 0x180;
+                r.h = 1;
+                SetDrawMove(p, &r, 0, (ofs + 0xFF));
+                ADD_PRIM_RR_8013AF50(ot, p);
+                p += 0x18;
+            }
+        }
+    }
+    D_800EC354 = p;
+}
+
+__asm__(".section .text\n.balign 16");
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013B390);
 

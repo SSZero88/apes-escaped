@@ -742,8 +742,8 @@ s32 func_8013E22C(void) {
     return 0;
 }
 
-void func_8013E438(void);
-void func_8013E604(void);
+s32 func_8013E438(void);
+s32 func_8013E604(void);
 s32 func_8013FEA0(void);
 void func_80136160(s32, s32, s32, s32);
 void func_80139A68(void);
@@ -804,9 +804,160 @@ s32 func_8013E30C(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013E438);
+typedef struct { s16 id; s16 tpx, tpy; u16 cx, cy; s16 x, y, w, h; u8 u, pad13, v, pad15; } Elem_8013E438;
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8013E438;
+extern Elem_8013E438 D_8013F29C_8013E438[] asm("D_8013F29C");
+extern GameDraw g_Game_8013E438 asm("g_Game");
+extern u8 *D_800EC354;
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013E604);
+s32 func_8013E438(void) {
+    u8 *p;
+    u32 *ot;
+    s32 i;
+
+    p = g_Game_8013E438.prim;
+    for (i = 0; i < 20; i++) {
+        if (D_8013F29C_8013E438[i].id == D_8013F288 && D_8013AF56 == 0x1D) {
+            p[3] = 4;
+            ((Sprt_8013E438 *)p)->code = 0x65;
+        } else {
+            p[3] = 4;
+            ((Sprt_8013E438 *)p)->code = 0x64;
+            ((Sprt_8013E438 *)p)->r0 = 0x30;
+            ((Sprt_8013E438 *)p)->g0 = 0x30;
+            ((Sprt_8013E438 *)p)->b0 = 0x30;
+        }
+        ((Sprt_8013E438 *)p)->clut = (D_8013F29C_8013E438[i].cy << 6) | ((D_8013F29C_8013E438[i].cx >> 4) & 0x3F);
+        ((Sprt_8013E438 *)p)->x0 = D_8013F29C_8013E438[i].x;
+        ((Sprt_8013E438 *)p)->y0 = D_8013F29C_8013E438[i].y;
+        ((Sprt_8013E438 *)p)->w = D_8013F29C_8013E438[i].w;
+        ((Sprt_8013E438 *)p)->h = D_8013F29C_8013E438[i].h;
+        ((Sprt_8013E438 *)p)->u0 = D_8013F29C_8013E438[i].u;
+        ((Sprt_8013E438 *)p)->v0 = D_8013F29C_8013E438[i].v;
+        ot = &g_Game_8013E438.db[g_Game_8013E438.cur].ot[0];
+        ADD_PRIM_R(ot, p, "$4", "$3");
+        __asm__ volatile("");
+        __asm__ volatile("");
+        __asm__ volatile("");
+        __asm__ volatile("");
+        __asm__ volatile("");
+        p += 0x14;
+        p[3] = 1;
+        ((u32 *)p)[1] = (((D_8013F29C_8013E438[i].tpy & 0x100) >> 4) | ((D_8013F29C_8013E438[i].tpx & 0x3FF) >> 6) | ((D_8013F29C_8013E438[i].tpy & 0x200) << 2)) | 0xE1000200;
+        ot = &g_Game_8013E438.db[g_Game_8013E438.cur].ot[0];
+        ADD_PRIM_R(ot, p, "$4", "$3");
+        p += 8;
+    }
+    D_800EC354 = p;
+    func_8013EB14(1);
+    return 0;
+}
+
+typedef struct { s16 id; u16 tpx, tpy, cx, cy; s16 x, y, w, h; u8 u, pad13, v, pad15; } Elem_8013E604;
+typedef struct { u8 u, pad1, v, pad3; s16 w; } Glyph_8013E604;
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8013E604;
+extern Elem_8013E604 D_8013F454_8013E604[] asm("D_8013F454");
+extern Glyph_8013E604 D_8013F594_8013E604[] asm("D_8013F594");
+extern s16 D_8013F5E4_8013E604[] asm("D_8013F5E4");
+extern GameDraw g_Game_8013E604 asm("g_Game");
+
+s32 func_8013E604(void) {
+    u8 *p;
+    u32 *ot;
+    Elem_8013E604 *e;
+    s32 i, j, k, x;
+    s32 d[3];
+    s16 n;
+
+    p = g_Game_8013E604.prim;
+    for (i = 0; i < 12; i++) {
+        e = &D_8013F454_8013E604[i];
+        if (e->id == D_8013F288 && D_8013AF56 == 0x1D) {
+            p[3] = 4;
+            ((Sprt_8013E604 *)p)->code = 0x65;
+        } else {
+            p[3] = 4;
+            ((Sprt_8013E604 *)p)->code = 0x64;
+            ((Sprt_8013E604 *)p)->r0 = 0x30;
+            ((Sprt_8013E604 *)p)->g0 = 0x30;
+            ((Sprt_8013E604 *)p)->b0 = 0x30;
+        }
+        ((Sprt_8013E604 *)p)->clut = (e->cy << 6) | ((e->cx >> 4) & 0x3F);
+        ((Sprt_8013E604 *)p)->x0 = e->x;
+        if (e->id == 0) {
+            ((Sprt_8013E604 *)p)->y0 = e->y + 3;
+            ((Sprt_8013E604 *)p)->w = D_8013F594_8013E604[12].w;
+            ((Sprt_8013E604 *)p)->h = 9;
+            ((Sprt_8013E604 *)p)->u0 = e->u + D_8013F594_8013E604[12].u;
+            ((Sprt_8013E604 *)p)->v0 = e->v + D_8013F594_8013E604[12].v;
+        } else {
+            ((Sprt_8013E604 *)p)->y0 = e->y;
+            ((Sprt_8013E604 *)p)->w = D_8013F594_8013E604[10].w;
+            ((Sprt_8013E604 *)p)->h = 0xF;
+            ((Sprt_8013E604 *)p)->u0 = e->u + D_8013F594_8013E604[10].u;
+            ((Sprt_8013E604 *)p)->v0 = e->v + D_8013F594_8013E604[10].v;
+        }
+        { register s32 c asm("$3"); c = g_Game_8013E604.cur; ot = g_Game_8013E604.db[c].ot; }
+        ADD_PRIM_R(ot, p, "$4", "$3");
+        p += 0x14;
+        n = D_8013F5E4_8013E604[i];
+        if (i == 1) {
+            n--;
+        }
+        d[0] = (s16)(n % 10);
+        if (d[0] == 0) {
+            d[0] = 10;
+        }
+        d[0]--;
+        d[1] = (s16)((s16)(n % 100) / 10);
+        if (d[1] == 0) {
+            d[1] = 10;
+        }
+        d[1]--;
+        d[2] = (s16)(n / 100);
+        if (d[2] == 0) {
+            d[2] = 10;
+        }
+        d[2]--;
+        if (i == 0 || i == 6) {
+            k = 3;
+            x = e->x + 0x34;
+        } else {
+            k = 2;
+            x = e->x + 0x26;
+        }
+        for (j = 0; j < k; j++) {
+            if (D_8013F454_8013E604[i].id == D_8013F288 && D_8013AF56 == 0x1D) {
+                p[3] = 4;
+                ((Sprt_8013E604 *)p)->code = 0x65;
+            } else {
+                p[3] = 4;
+                ((Sprt_8013E604 *)p)->code = 0x64;
+                ((Sprt_8013E604 *)p)->r0 = 0x30;
+                ((Sprt_8013E604 *)p)->g0 = 0x30;
+                ((Sprt_8013E604 *)p)->b0 = 0x30;
+            }
+            ((Sprt_8013E604 *)p)->clut = (D_8013F454_8013E604[i].cy << 6) | ((D_8013F454_8013E604[i].cx >> 4) & 0x3F);
+            ((Sprt_8013E604 *)p)->x0 = x - D_8013F594_8013E604[d[j]].w;
+            ((Sprt_8013E604 *)p)->y0 = D_8013F454_8013E604[i].y;
+            ((Sprt_8013E604 *)p)->w = D_8013F594_8013E604[d[j]].w;
+            ((Sprt_8013E604 *)p)->h = 0xF;
+            ((Sprt_8013E604 *)p)->u0 = D_8013F454_8013E604[i].u + D_8013F594_8013E604[d[j]].u;
+            ((Sprt_8013E604 *)p)->v0 = D_8013F454_8013E604[i].v + D_8013F594_8013E604[d[j]].v;
+            ot = &g_Game_8013E604.db[g_Game_8013E604.cur].ot[0];
+            ADD_PRIM_R(ot, p, "$4", "$3");
+            p += 0x14;
+            { s32 t = x - 2; x = t - D_8013F594_8013E604[d[j]].w; }
+        }
+    }
+    p[3] = 1;
+    ((u32 *)p)[1] = 0xE1000209;
+    ot = &g_Game_8013E604.db[g_Game_8013E604.cur].ot[0];
+    ADD_PRIM_R(ot, p, "$5", "$3");
+    p += 8;
+    g_Game_8013E604.prim = p;
+    return 0;
+}
 
 typedef struct { s16 f0; u16 f2; s16 f4; s16 f6; s16 f8; s16 fA; u16 fC; } Anim_8013EB14;
 typedef struct { u8 pad[0x14]; u16 f14; } Elem_8013EB14;
@@ -870,4 +1021,50 @@ s32 func_8013EBD0(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013ED0C);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8013ED0C;
+extern GameDraw g_Game_8013ED0C asm("g_Game");
+
+s32 func_8013ED0C(void) {
+    u8 *p;
+    u32 *ot;
+    s32 i;
+    s32 now;
+    s32 v;
+
+    p = g_Game_8013ED0C.prim;
+    now = VSync(-1);
+    for (i = 0; i < 10; i++) {
+        v = 0;
+        if (now - D_8013F298 > (i + 1) * 0x96 && D_8013AF56 == 0x15) {
+            p[3] = 4;
+            ((Sprt_8013ED0C *)p)->code = 0x65;
+            v = (now % 40 >= 0x15) ? 0x20 : 0;
+        } else {
+            p[3] = 4;
+            ((Sprt_8013ED0C *)p)->code = 0x64;
+            ((Sprt_8013ED0C *)p)->r0 = 0x30;
+            ((Sprt_8013ED0C *)p)->g0 = 0x30;
+            ((Sprt_8013ED0C *)p)->b0 = 0x30;
+        }
+        ((Sprt_8013ED0C *)p)->clut = 0x3E27;
+        ((Sprt_8013ED0C *)p)->y0 = 0xBE;
+        ((Sprt_8013ED0C *)p)->x0 = i * 0x1E + 0x2A;
+        ((Sprt_8013ED0C *)p)->w = 0x20;
+        ((Sprt_8013ED0C *)p)->h = 0x20;
+        ((Sprt_8013ED0C *)p)->u0 = 0x78;
+        ((Sprt_8013ED0C *)p)->v0 = v;
+        ot = &g_Game_8013ED0C.db[g_Game_8013ED0C.cur].ot[0];
+        ADD_PRIM_R(ot, p, "$4", "$3");
+        p += 0x14;
+        p[3] = 1;
+        ((u32 *)p)[1] = 0xE1000209;
+        ot = &g_Game_8013ED0C.db[g_Game_8013ED0C.cur].ot[0];
+        ADD_PRIM_R(ot, p, "$4", "$3");
+        p += 8;
+    }
+    D_800EC354 = p;
+    return 0;
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop\n\tnop");

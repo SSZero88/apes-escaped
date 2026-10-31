@@ -496,7 +496,45 @@ void func_8013E090(void *arg0) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/401/nonmatchings/401_crabby_beach", func_8013E0F4);
+extern struct { u8 pad_0[0x812C]; u8 f_812C; u8 pad_812D[0x12B]; u16 f_8258; } g_Game_8013E0F4 asm("g_Game");
+extern u8 D_800E6908;
+extern s32 D_800EC204;
+extern s16 D_8013E9A4;
+extern s16 D_8013E9A6;
+void Sound_PlayAt(s32, void *);
+
+s32 func_8013E0F4(void) {
+    SVECTOR v;
+
+    if (g_Game_8013E0F4.f_812C == 0x18 || D_800E6908 == 1) {
+        v.vx = g_Game_8013E0F4.f_8258;
+    } else {
+        v.vx = D_800EC204;
+    }
+    v.vy = -0x800;
+    v.vz = -0x1200;
+    if (D_8013E9A4 == 0) {
+        if (D_8013E9A6 == 0x78) {
+            Sound_PlayAt(0xAC, &v);
+            D_8013E9A4 = 1;
+            D_8013E9A6 = 0;
+        }
+    } else {
+        if (D_8013E9A6 == 0x46) {
+            Sound_PlayAt(0xAD, &v);
+            D_8013E9A4 = 0;
+            D_8013E9A6 = 0;
+        }
+    }
+    {
+        s16 *c = &D_8013E9A6;
+        s32 r = 0;
+        __asm__("" : "+r"(r));
+        __asm__("" : : "r"(r), "r"(r));
+        *c += 1;
+        return r;
+    }
+}
 
 extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game;
 s16 func_80092324(s16 *, u16 *);
