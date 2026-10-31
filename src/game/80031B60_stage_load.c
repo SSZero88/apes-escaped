@@ -38,10 +38,320 @@ void TimeNet_Init(u32 *);
 struct g_Spike_80032D38 { u8 pad0[0x1C]; s16 f_1C; s16 f_1E; s16 f_20; u8 pad22[2]; s32 f_24; s32 f_28; s32 f_2C; u8 pad30[0x30]; s16 f_60; s16 f_62; s16 f_64; u8 pad66[0xC6]; s32 f_12C; };
 #define G_SPIKE_80032D38 ((struct g_Spike_80032D38 *)&g_Spike)
 
-INCLUDE_ASM("asm/nonmatchings/game/80031B60_stage_load", func_80031B60);
+typedef struct { u8 b[4]; } C4_31B60;
+typedef struct { s16 x, y, w, h; } C8_31B60;
+typedef struct { u32 frame; u8 pad4[0x80FC]; s32 f_8100; u8 pad8104[0x1E]; s16 f_8122; s16 f_8124; u16 f_8126; u8 pad8128[2]; u16 f_812A; u8 f_812C; u8 pad812D; u16 f_812E; u8 pad8130[8]; u8 f_8138; u8 pad8139[0x17]; s16 f_8150; s16 f_8152; u8 pad8154[0x40]; u32 *f_8194; u32 *f_8198; u8 pad819C[0x6C]; void *f_8208; void *f_820C; void *f_8210; void *f_8214; void *f_8218; void *f_821C; void *f_8220; u32 *f_8224; u32 *f_8228; u8 pad822C[4]; u32 *f_8230; void *f_8234; void *f_8238; u8 pad823C[4]; void *f_8240; void *f_8244; void *f_8248; void *f_824C; void *f_8250; void *f_8254; u8 pad8258[0x10]; s16 f_8268; u8 pad826A[0x16]; s32 f_8280; u16 f_8284; u8 pad8286[2]; s32 f_8288; s32 f_828C; u8 pad8290[0x10]; s32 f_82A0; s32 f_82A4; s32 f_82A8; s32 f_82AC; u8 pad82B0[8]; s16 f_82B8; s16 f_82BA; u8 pad82BC[4]; C4_31B60 f_82C0; } Game_31B60;
+typedef struct { u32 f_0, f_4, f_8, f_C, f_10; u8 pad14[0xC]; C4_31B60 f_20; C4_31B60 f_24; u16 f_28, f_2A, f_2C, f_2E; u8 pad30[4]; u32 f_34[8]; } Sd_31B60;
+typedef struct { u8 pad0[0x18]; u8 *f_18; C4_31B60 f_1C; u8 pad20[4]; s32 f_24; s32 f_28; s32 f_2C; } Ter_31B60;
+extern Game_31B60 g_Game_31B60 asm("g_Game");
+extern Ter_31B60 D_800EBFA0_31B60 asm("D_800EBFA0");
+extern s32 D_800A8A54;
+extern s32 D_800A8A58;
+extern u16 g_RandSeed;
+extern u16 D_800AE8F2;
+extern s32 D_800E38E4;
+extern struct { s32 v; } D_800F4DD0_s asm("D_800F4DD0");
+extern u8 D_800E9C60_31B60[][0x20] asm("D_800E9C60");
+extern u8 D_800F4730[][0x20];
+extern u8 D_800E78C0[];
+extern u8 D_800EC330[];
+extern C4_31B60 D_800AE914[];
+extern struct { u32 f_0; } g_GadgetState;
+void func_8008C01C(void);
+void func_8008C058(s32);
+s16 func_80010CA4(s32);
+s16 Stage_GetWorld(s32);
+void func_8004637C(void *);
+void func_8007AFB8(void);
+void func_800690E8(void *);
+void Zone_SetTable(void *);
+void func_800715A0(void);
+void func_8009B7C8(void *);
+void func_8009B7E4(void *);
+void func_8009B7F0(void *);
+void Spike_CreateModel(void *, s32);
+void func_8007163C(void *);
+void func_80071694(void *);
+s32 func_80086F00(s32, s32);
+s32 func_80087388(void);
+void func_8008745C(void);
+void Stage_ApplyFog(void);
+void Light_SetColorMode(s32, s32, s32, s32);
+void func_80086540(void);
+s32 func_8003244C(void);
+u8 *Grid_BuildHalfResMap(void);
+void func_8007D0F0(void);
+void func_8005CB1C(void);
+void func_8005CC58(void);
+void func_8005CCDC(void);
+void func_8008DEE0(void);
+void Collision_Init(void);
+s32 Spike_SpawnAtStageStart(void);
+void func_8007CD60(void);
+void func_800505C8(void);
+void Monkey_InitAll(void);
+void func_8007BCB4(void);
+void Projectile_InitAll(void);
+void EnemyShot_InitAll(void);
+void func_80069500(void);
+void func_80088670(void);
+void Link_InitArea(void);
+void func_8005AB90(void);
+void Pickup_SpawnArea(void);
+void Gadget_SetupForMode(void);
+void Tex_MakeFogLevels_31B60(C8_31B60 *, s32, C4_31B60) asm("Tex_MakeFogLevels");
+void RcCar_Remove(void);
 
-INCLUDE_RODATA("asm/nonmatchings/game/80031B60_stage_load", D_800A47F0);
-INCLUDE_RODATA("asm/nonmatchings/game/80031B60_stage_load", jtbl_800A47F8);
+s32 func_80031B60(s32 stage, s32 mode)
+{
+  u16 prev;
+  u32 *dir;
+  u32 *dsz;
+  Sd_31B60 *sd;
+  u8 type;
+  u8 *e;
+  s32 i;
+  u32 *dst;
+  u32 *src;
+  u8 *sub;
+  u32 o0;
+  u32 o2;
+  u32 o3;
+  u32 o4;
+  s32 w;
+  s32 h;
+  u8 *m1;
+  u8 *m2;
+  D_800A8A54 = 0;
+  if (stage < 0x68)
+  {
+    if (stage >= 0x63)
+    {
+      D_800A8A58 = 1;
+      g_Game_31B60.frame = 0;
+      g_RandSeed = 12345;
+      D_800AE8F2 = 0xD432;
+      g_Game_31B60.f_8138 = 0;
+    }
+    else
+    {
+      D_800A8A58 = 0;
+    }
+  }
+  else
+  {
+    D_800A8A58 = 0;
+  }
+  if (g_Game_31B60.f_812E == 2)
+  {
+    g_RandSeed = 12345;
+    g_Game_31B60.frame = 0;
+    D_800AE8F2 = 0xD432;
+  }
+  if (g_Game_31B60.f_812C == 1)
+  {
+    g_Game_31B60.f_8100 = 1;
+  }
+  else
+  {
+    g_Game_31B60.f_8100 = 0;
+  }
+  func_8008C01C();
+  dir = (u32 *) 0x801544C4;
+  dsz = (u32 *) 0x80154504;
+  func_8008C058(D_800E38E4);
+  i = 0;
+  prev = g_Game_31B60.f_8126;
+  g_Game_31B60.f_8194 = (u32 *) (dir[3] + 0x80154000);
+  sd = (Sd_31B60 *) g_Game_31B60.f_8194;
+  g_Game_31B60.f_8122 = func_80010CA4(stage);
+  g_Game_31B60.f_8124 = Stage_GetWorld(stage);
+  g_Game_31B60.f_8126 = stage;
+  g_Game_31B60.f_812A = mode;
+  g_Game_31B60.f_8150 = 0;
+  g_Game_31B60.f_8152 = 0;
+  g_Game_31B60.f_82B8 = 0;
+  g_Game_31B60.f_82BA = 0;
+  g_Game_31B60.f_8268 = 0;
+  D_800F4DD0_s.v = 50;
+  for (; i < 32; i++)
+  {
+    func_8004637C(D_800E9C60_31B60[i]);
+    func_8004637C(D_800F4730[i]);
+  }
+
+  func_8004637C(D_800E78C0);
+  func_8004637C(D_800EC330);
+  func_8007AFB8();
+  func_800690E8(0);
+  Zone_SetTable(0);
+  func_800715A0();
+  func_8009B7C8(0);
+  for (i = 0; i < 8; i++)
+  {
+    type = *((u8 *) (&sd->f_34[i]));
+    if (type != 0)
+    {
+      { u8 *sb = ((u8 *) sd) + ((sd->f_34[i] >> 8) * 4);
+      switch (type)
+      {
+        case 0x40:
+          Spike_CreateModel(sb, 1);
+          g_GadgetState.f_0 |= 1;
+          break;
+
+        case 0x41:
+          Spike_CreateModel(sb, 2);
+          g_GadgetState.f_0 |= 2;
+          break;
+
+        case 0x20:
+          func_800690E8(sb);
+          break;
+
+        case 0x10:
+          func_8007163C(sb);
+          break;
+
+        case 0x11:
+          func_80071694(sb);
+          break;
+
+        case 0x8:
+          Zone_SetTable(sb);
+          break;
+
+        case 0x30:
+          func_8009B7C8(sb);
+          break;
+
+        case 0x31:
+          func_8009B7E4(sb);
+          break;
+
+        case 0x32:
+          func_8009B7F0(sb);
+          break;
+
+      } }
+
+    }
+  }
+
+  g_Game_31B60.f_8244 = (void *) (dir[7] + 0x80154000);
+  g_Game_31B60.f_8248 = (void *) (dir[6] + 0x80154000);
+  g_Game_31B60.f_8250 = (void *) (dir[5] + 0x80154000);
+  g_Game_31B60.f_824C = (void *) (dir[9] + 0x80154000);
+  g_Game_31B60.f_8240 = (void *) (dir[8] + 0x80154000);
+  g_Game_31B60.f_8254 = (void *) 0x80102800;
+  if (func_80086F00(stage, (s16) prev))
+  {
+    dst = g_Game_31B60.f_8230;
+    src = (u32 *) (dir[0] + 0x80154000);
+    for (i = 0; i < (((*dsz) + 3) >> 2); i++)
+    {
+      *(dst++) = *(src++);
+    }
+
+    if (g_Game_31B60.f_812C == 2)
+    {
+      if (((((((((((stage == 0x4B) || (stage == 4)) || (stage == 3)) || (stage == 0x21)) || (stage == 0x22)) || (stage == 0x1E)) || (stage == 0x20)) || (stage == 6)) || (stage == 8)) || (stage == 9)) || (stage == 0xA))
+      {
+        func_80087388();
+        func_8008745C();
+      }
+      else
+        if (stage == 0x48)
+      {
+        func_80087388();
+      }
+    }
+  }
+  g_Game_31B60.f_8234 = (void *) 0x80154000;
+  g_Game_31B60.f_828C = *(s32 *)0x80154240;
+  if (*(s32 *)0x80154240 == 0)
+  {
+    g_Game_31B60.f_8238 = 0;
+  }
+  else
+  {
+    g_Game_31B60.f_8238 = (void *) 0x80154244;
+  }
+  g_Game_31B60.f_8198 = ((u32 *) ((u8 *) sd)) + ((u32 *) ((u8 *) sd))[1];
+  sub = (u8 *) (sd->f_10 * 4 + (u32) sd);
+  o0 = ((u32 *) sub)[0];
+  o2 = ((u32 *) sub)[2];
+  o3 = ((u32 *) sub)[3];
+  o4 = ((u32 *) sub)[4];
+  g_Game_31B60.f_8208 = (sub + ((u32 *) sub)[1]) + 2;
+  g_Game_31B60.f_8210 = ((((u8 *) sd) + (((u32 *) ((u8 *) sd))[4] * 4)) + o0) + 4;
+  w = *((s16 *) ((((u8 *) sd) + (((u32 *) ((u8 *) sd))[4] * 4)) + o0));
+  g_Game_31B60.f_82A0 = w;
+  h = *((s16 *) (((((u8 *) sd) + (((u32 *) ((u8 *) sd))[4] * 4)) + o0) + 2));
+  g_Game_31B60.f_82A8 = w << 8;
+  g_Game_31B60.f_82A4 = h;
+  g_Game_31B60.f_82AC = h << 8;
+  g_Game_31B60.f_820C = ((((u8 *) sd) + (((u32 *) ((u8 *) sd))[4] * 4)) + o2) + 2;
+  g_Game_31B60.f_8284 = *((u16 *) ((((u8 *) sd) + (((u32 *) ((u8 *) sd))[4] * 4)) + o2));
+  g_Game_31B60.f_8214 = ((((u8 *) sd) + (((u32 *) ((u8 *) sd))[4] * 4)) + o3) + 2;
+  g_Game_31B60.f_8218 = ((((u8 *) sd) + (((u32 *) ((u8 *) sd))[4] * 4)) + o4) + 2;
+  g_Game_31B60.f_8224 = ((u32 *) ((u8 *) sd)) + ((u32 *) ((u8 *) sd))[2];
+  g_Game_31B60.f_8228 = (((u32 *) ((u8 *) sd)) + ((u32 *) ((u8 *) sd))[3]) + 1;
+  g_Game_31B60.f_8280 = *(((u32 *) ((u8 *) sd)) + ((u32 *) ((u8 *) sd))[3]);
+  g_Game_31B60.f_821C = (void *) (dir[4] + 0x80154004);
+  g_Game_31B60.f_8288 = *((s32 *) (dir[4] + 0x80154000));
+  g_Game_31B60.f_8220 = (void *) (dir[4] + 0x80154004 + g_Game_31B60.f_8288 * 8);
+  g_Game_31B60.f_82C0 = D_800AE914[stage % 9];
+  D_800EBFA0_31B60.f_1C = *((C4_31B60 *) (((u8 *) sd) + 0x20));
+  if ((*((u16 *) (((u8 *) sd) + 0x28))) != 0)
+  {
+    i = (*((u16 *) (((u8 *) sd) + 0x2E))) - (*((u16 *) (((u8 *) sd) + 0x2C)));
+    if (i <= 0)
+    {
+      i = 1;
+    }
+    D_800EBFA0_31B60.f_24 = 0x1000000 / i;
+    D_800EBFA0_31B60.f_28 = *((u16 *) (((u8 *) sd) + 0x2C));
+  }
+  else
+  {
+    D_800EBFA0_31B60.f_28 = 0x4B0;
+    D_800EBFA0_31B60.f_24 = 0;
+  }
+  D_800EBFA0_31B60.f_24 = 0xF000;
+  D_800EBFA0_31B60.f_2C = (D_800EBFA0_31B60.f_28 * 4) + 0x400;
+  Stage_ApplyFog();
+  Light_SetColorMode(0, 0, 0, 0);
+  func_80086540();
+  func_8003244C();
+  D_800EBFA0_31B60.f_18 = Grid_BuildHalfResMap();
+  func_8007D0F0();
+  func_8005CB1C();
+  func_8005CC58();
+  func_8005CCDC();
+  func_8008DEE0();
+  Collision_Init();
+  Spike_SpawnAtStageStart();
+  func_8007CD60();
+  func_800505C8();
+  Monkey_InitAll();
+  func_8007BCB4();
+  Projectile_InitAll();
+  EnemyShot_InitAll();
+  func_80069500();
+  func_80088670();
+  Link_InitArea();
+  func_8005AB90();
+  Pickup_SpawnArea();
+  Gadget_SetupForMode();
+  if ((*((u16 *) (((u8 *) sd) + 0x2A))) != 0)
+  {
+    C8_31B60 tmp = {0x370, 0x80, 0x10, 0x80}; Tex_MakeFogLevels_31B60(&tmp, 0, sd->f_24);
+  }
+  RcCar_Remove();
+  return 0;
+}
+
 
 
 void Stage_ApplyFog(void) {

@@ -562,7 +562,137 @@ void func_80047720(s32 arg0, s32 arg1, s32 arg2) {
     D_800E68D0.f_14 = (u16) (D_800E68D0.f_14 + arg2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80046670_camera", func_80047754);
+/* Level camera init: clears the camera state, binds the level's "CAM" camera file (falls back to a built-in default), matches each camera area's 32-byte name to the name table ("CameraName Error" if missing), allocates the 12 camera slots and picks the start settings around Spike. */
+typedef struct { s16 f_0; u16 f_2; SVECTOR f_4; u8 padC[4]; u32 key[8]; } Area_47754;
+typedef struct { u16 id; u8 pad2[6]; u32 name[8]; } Name_47754;
+typedef struct { u16 magic; u8 m; u8 pad3; u16 f_4; u16 f_6; u16 f_8; u16 f_A; u16 f_C; u16 f_E; } Hdr_47754;
+typedef struct { s16 vx, vy, vz; } V3_47754;
+typedef struct { u16 f_0; u16 f_2; u8 pad4[8]; u8 f_C; u8 f_D; u8 f_E; u8 padF; V3_47754 f_10; u8 pad16[2]; u8 f_18; u8 f_19; u8 f_1A; u8 f_1B; u8 pad1C[0x10]; u16 f_2C; u8 f_2E; u8 f_2F; u16 f_30; u8 f_32; u8 f_33; u8 pad34[4]; u8 f_38; u8 pad39[5]; u8 f_3E; u8 f_3F; u8 f_40; u8 f_41; u8 f_42; u8 f_43; u8 f_44; u8 pad45[7]; Area_47754 *f_4C; u8 *f_50; u16 *f_54; u8 *f_58; Name_47754 *f_5C; u8 *f_60; u8 *f_64; u16 f_68; u16 f_6A; u8 pad6C[0x10]; } Cam_47754;
+extern struct { u8 pad0[0x8250]; u8 *f_8250; u8 *f_8254; SVECTOR f_8258; } g_Game_47754 asm("g_Game");
+extern Cam_47754 D_800E68D0_47754 asm("D_800E68D0");
+extern Hdr_47754 D_800AF120;
+extern char D_800A4CC0[];
+extern u8 g_CameraTarget[];
+extern MAT_80046670_80046670 D_800E78C0_47754 asm("D_800E78C0");
+extern MAT_80046670_80046670 D_800EC330_47754 asm("D_800EC330");
+void *Mem_Alloc(s32);
+void bios_printf(const char *, ...);
+void func_8004BAD8(s32, s32, s8, s32);
+void Camera_StopShake(void);
+void func_8004D0F0(void);
+
+void func_80047754(void) {
+    s32 i;
+    u8 *p;
+    Hdr_47754 *hdr;
+    u8 *base;
+    u16 *names;
+    Name_47754 *nm0;
+    s32 j;
+    Area_47754 *a;
+    Area_47754 *a2;
+    Name_47754 *nm;
+    Cam_47754 *c;
+    SVECTOR tmp;
+    s32 r;
+
+    for (p = (u8 *)&D_800E68D0_47754, i = 0; i < sizeof(Cam_47754); i++) {
+        *p++ = 0;
+    }
+    {
+        V3_47754 *v = &D_800E68D0_47754.f_10;
+        v->vx = 0;
+        v->vy = 0;
+        v->vz = 0;
+    }
+    D_800E68D0_47754.f_0 = 0;
+    D_800E68D0_47754.f_1B = 0xFF;
+    D_800E68D0_47754.f_D = 0xFF;
+    D_800E68D0_47754.f_43 = 0;
+    D_800E68D0_47754.f_44 = 0;
+    D_800E68D0_47754.f_32 = 0;
+    D_800E68D0_47754.f_33 = 0;
+    D_800E68D0_47754.f_3E = 0;
+    D_800E68D0_47754.f_41 = 0;
+    D_800E68D0_47754.f_42 = 0;
+    D_800E68D0_47754.f_3F = 0;
+    D_800E68D0_47754.f_40 = 0;
+    D_800E68D0_47754.f_2F = 0;
+    D_800E68D0_47754.f_38 = 0;
+    D_800E68D0_47754.f_C = 0;
+    D_800E68D0_47754.f_2C = 0x148;
+    func_80046D80(0x148);
+    D_800E68D0_47754.f_30 = 0;
+    D_800E68D0_47754.f_2E = 0;
+    Camera_ExitAim();
+    hdr = (Hdr_47754 *)g_Game_47754.f_8250;
+    D_800E68D0_47754.f_50 = g_Game_47754.f_8254;
+    D_800E68D0_47754.f_58 = g_Game_47754.f_8254 + 8;
+    base = (u8 *)hdr;
+    if (hdr != (Hdr_47754 *)0x80154000 && hdr->magic == 0x4143 && hdr->m == 'M') {
+        *(u8 *)hdr = 'x';
+    } else {
+        hdr = &D_800AF120;
+    }
+    c = &D_800E68D0_47754;
+    {
+        u16 n = hdr->f_4;
+        c->f_4C = (Area_47754 *)(base + 0x10);
+        D_800E68D0_47754.f_0 = n;
+    }
+    c->f_54 = (u16 *)(base + hdr->f_E);
+    c->f_5C = (Name_47754 *)(c->f_54 + 4);
+    c->f_68 = hdr->f_8;
+    c->f_60 = g_Game_47754.f_8250 + hdr->f_C;
+    c->f_6A = hdr->f_6;
+    c->f_64 = g_Game_47754.f_8250 + hdr->f_A;
+    names = c->f_54;
+    nm0 = c->f_5C;
+    a = c->f_4C;
+    for (i = 0; i < D_800E68D0_47754.f_0; i++) {
+        u32 *ka = a[i].key;
+        for (j = 0; j < *names; j++) {
+            u32 *kb;
+            nm = &nm0[j];
+            kb = nm->name;
+            if (ka[0] != kb[0] || ka[1] != kb[1] || ka[2] != kb[2] || ka[3] != kb[3]
+                || ka[4] != kb[4] || ka[5] != kb[5] || ka[6] != kb[6] || ka[7] != kb[7]) {
+                if (j == *names - 1) {
+                    bios_printf(D_800A4CC0, ka);
+                }
+            } else {
+                a[i].f_0 = j;
+                a[i].f_2 = nm->id;
+                break;
+            }
+        }
+    }
+    D_800E68D0_47754.f_2 = 0;
+    D_800B4D40 = Mem_Alloc(0x840);
+    for (i = 0; i < 12; i++) {
+        D_800B4D40[i].f_0 = 0;
+    }
+    tmp = g_Game_47754.f_8258;
+    a2 = D_800E68D0_47754.f_4C;
+    D_800E68D0_47754.f_18 = func_800471E4(1, &tmp);
+    D_800E68D0_47754.f_19 = func_800471E4(2, &tmp);
+    D_800E68D0_47754.f_1A = func_800471E4(3, &tmp);
+    for (i = 0; i < D_800E68D0_47754.f_0; i++) {
+        u16 fl = a2[i].f_2;
+        a2[i].f_2 = fl & 0xFFF0;
+        if ((fl & 0x6000) == 0x2000) {
+            r = func_800471E4(5, &a2[i].f_4);
+            { s32 lo = r & 0xF; a2[i].f_2 = (a2[i].f_2 & 0xFFF0) | lo; }
+            func_8004BAD8(r, a2[i].f_0, (a2[i].f_2 >> 13) & 3, 1);
+        }
+    }
+    D_800E68D0_47754.f_E = D_800E68D0_47754.f_18;
+    Camera_SetSetting(D_800E68D0_47754.f_18);
+    Camera_LookAt((void *)g_CameraTarget, (void *)(g_CameraTarget + 8), &D_800E78C0_47754, &D_800EC330_47754, 0);
+    g_RadarLiveTarget = 0;
+    Camera_StopShake();
+    func_8004D0F0();
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/80046670_camera", D_800A4CC0);
 

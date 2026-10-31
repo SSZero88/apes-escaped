@@ -380,10 +380,255 @@ void func_8004C2E4(void *arg0) {
     D_800AF131 = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8004B880_camera3", func_8004C318);
+typedef struct { u8 pad0[2]; u8 f_2; u8 f_3; u8 pad4[6]; s16 x; s16 y; s16 z; u8 pad10[2]; SVEC tgt; u8 pad1A[0x1E]; s32 f_38; u8 pad3C[4]; s32 f_40; u8 pad44[0x40]; u16 *script; s16 f_88; s16 f_8A; s16 f_8C; u8 pad8E[2]; u8 f_90; u8 f_91; u8 f_92; u8 pad93; SVEC f_94; s16 f_9C; s16 f_9E; s16 f_A0; u8 padA2[2]; s16 f_A4; s16 f_A6; SVEC f_A8; } Cam_4C318;
+typedef struct { u8 pad0[0x34]; s16 f_34; s16 f_36; u8 pad38[7]; u8 f_3F; u8 f_40; } S_E68D0_4C318;
+typedef struct { u8 pad0[0x258]; s16 f_258; u8 pad25A[2]; s16 f_25C; } S_F4350_4C318;
+extern S_E68D0_4C318 D_800E68D0_4C318 asm("D_800E68D0");
+extern S_F4350_4C318 D_800F4350_4C318 asm("D_800F4350");
+extern SVEC g_CameraTarget_4C318 asm("g_CameraTarget");
+void func_8004B880_4C318(Cam_4C318 *a0, s32 mode, SVEC *out) asm("func_8004B880");
+void func_8004B8F4_4C318(Cam_4C318 *o, s32 mode, SVEC *out) asm("func_8004B8F4");
+s32 Math_Atan2(s32, s32);
+void Camera_ResetToStart(void);
+void bios_printf(char *, ...);
 
-INCLUDE_RODATA("asm/nonmatchings/game/8004B880_camera3", D_800A4D04);
-INCLUDE_RODATA("asm/nonmatchings/game/8004B880_camera3", jtbl_800A4D28);
+void func_8004C318(Cam_4C318 *c) {
+    SVEC a;
+    SVEC d;
+    SVEC b;
+    SVEC e;
+    SVEC f;
+    SVEC g;
+    u16 *p;
+    s32 done;
+    u16 op;
+    s32 t;
+    s32 k;
+    s32 t2;
+    SVEC *sp;
+    u16 n;
+    s32 r;
+    s32 r2;
+    s32 ang;
+    u16 v;
+
+    done = 0;
+    sp = (SVEC *)0x1F800000;
+    if (c->script == 0 || c->f_88 != 0) {
+        return;
+    }
+    p = c->script;
+    do {
+        op = *p++;
+        k = (s16)op;
+        switch (k) {
+        default:
+            bios_printf("camera script error!! ..(%d)\n", k);
+            done = 1;
+            break;
+        case 1:
+            done = 1;
+            p = (u16 *)((u8 *)p + *(s16 *)p);
+            break;
+        case 10:
+            c->f_91 = 0;
+            goto clear;
+        case 11:
+            c->f_91 = 1;
+            goto clear;
+        case 12:
+            c->f_91 = 2;
+        clear:
+            c->f_A6 = 0;
+            c->f_A4 = 0;
+            break;
+        case 13:
+            c->f_A4 = *p++;
+            c->f_A6 = *p++;
+            break;
+        case 14:
+            c->f_92 = 0;
+            break;
+        case 15:
+            c->f_92 = 1;
+            break;
+        case 22:
+            ang = *(s16 *)p;
+            p++;
+            c->script = p;
+            CamScript_Event(ang);
+            p = c->script;
+            break;
+        case 3:
+            t2 = *p++;
+            D_800E68D0_4C318.f_3F = 1;
+            D_800E68D0_4C318.f_34 = t2;
+            break;
+        case 4:
+            t2 = *p++;
+            D_800E68D0_4C318.f_40 = 1;
+            D_800E68D0_4C318.f_36 = t2;
+            break;
+        case 21:
+            sp->vx += *p++;
+            sp->vy += *p++;
+            sp->vz += *p++;
+            break;
+        case 26:
+            ang = *(s16 *)p;
+            func_8004B8F4_4C318(c, c->f_91, &a);
+            d.vy = 0;
+            d.vx = D_800F4350_4C318.f_258 - a.vx;
+            d.vz = D_800F4350_4C318.f_25C - a.vz;
+            VectorNormalSS(&d, &d);
+            p++;
+            t2 = Math_Atan2(d.vx, d.vz);
+            if (c->f_91 == 0) {
+                c->f_40 = t2;
+                c->f_38 = ang;
+            }
+            c->x = a.vx + ((d.vx * ang) >> 12);
+            c->y = a.vy + *p;
+            c->z = a.vz + ((d.vz * ang) >> 12);
+            c->tgt = a;
+            p++;
+            break;
+        case 16:
+            ang = (*(s16 *)p << 12) / 360;
+            p++;
+            { register s32 k asm("$5") = c->f_91;
+            r = *(s16 *)p;
+            func_8004B8F4_4C318(c, k, &b); }
+            func_8004B880_4C318(c, c->f_91, &e);
+            p++;
+            r2 = ang + 0x1000;
+            ang = (Math_Atan2(e.vx, e.vz) + r2) % 4096;
+            if (c->f_91 == 0) {
+                c->f_40 = ang;
+                c->f_38 = r;
+            }
+            c->x = b.vx + ((rcos(ang) * r) >> 12);
+            c->y = b.vy + *p;
+            c->z = b.vz + ((rsin(ang) * r) >> 12);
+            c->tgt = b;
+            p++;
+            break;
+        case 17:
+            ang = (*(s16 *)p << 12) / 360;
+            p++;
+            { register s32 k asm("$5") = c->f_91;
+            r = *(s16 *)p;
+            func_8004B8F4_4C318(c, k, &f); }
+            p++;
+            if (c->f_91 == 0) {
+                c->f_38 = r;
+            }
+            c->f_40 = ang;
+            c->x = f.vx + ((rcos(ang) * r) >> 12);
+            c->y = f.vy + *p;
+            p++;
+            c->z = f.vz + ((rsin(ang) * r) >> 12);
+            func_8004B8F4_4C318(c, c->f_91, &c->tgt);
+            break;
+        case 5:
+            func_8004B8F4_4C318(c, c->f_91, sp);
+            break;
+        case 2:
+            done = 1;
+            func_80047290(c->f_2);
+            break;
+        case 19:
+            v = *p++;
+            c->f_90 = 5;
+            c->f_8A = v;
+            c->f_88 = v;
+            done = 1;
+            c->f_8C = (*(s16 *)p << 12) / 360;
+            p++;
+            c->f_9C = *p++;
+            c->f_9E = *p++;
+            break;
+        case 18:
+            { register s32 k asm("$5") = c->f_91;
+            v = *p;
+            c->f_90 = 7;
+            c->f_8A = v;
+            c->f_88 = v;
+            func_8004B8F4_4C318(c, k, &g); }
+            p++;
+            g.vx -= c->x;
+            g.vy -= c->y;
+            g.vz -= c->z;
+            VectorNormalSS(&g, &g);
+            c->f_94 = g;
+            ang = *(s16 *)p;
+            c->f_9C = (g.vx * ang) >> 12;
+            c->f_9E = (g.vy * ang) >> 12;
+            c->f_A0 = (g.vz * ang) >> 12;
+            done = 1;
+            p++;
+            break;
+        case 23:
+            n = *p++;
+            done = 1;
+            c->f_8A = n;
+            c->f_88 = n;
+            c->f_3 = *(u8 *)p;
+            p++;
+            break;
+        case 6:
+            c->f_90 = 2;
+            n = *p++;
+            done = 1;
+            c->f_8A = n;
+            c->f_88 = n;
+            break;
+        case 7:
+        case 8:
+            t = *p++;
+            done = 1;
+            c->f_90 = 3;
+            c->f_8A = t;
+            c->f_88 = t;
+            break;
+        case 9:
+            n = *p++;
+            c->f_90 = 1;
+            done = 1;
+            c->f_8A = n;
+            c->f_88 = n;
+            break;
+        case 20:
+        case 25:
+            v = *p;
+            c->f_90 = 8;
+            c->f_8A = v;
+            c->f_88 = v;
+            p++;
+            if ((s16)op != 20) {
+                c->f_90 = 9;
+            }
+            c->x = *p++;
+            done = 1;
+            c->y = *p++;
+            c->z = *p++;
+            c->f_94.vx = *p++;
+            c->f_94.vy = *p++;
+            c->f_94.vz = *p;
+            c->f_A8 = *(SVEC *)&c->x;
+            p++;
+            break;
+        case 24:
+            g_CameraTarget_4C318.vx = *p++;
+            g_CameraTarget_4C318.vy = *p++;
+            g_CameraTarget_4C318.vz = *p++;
+            Camera_ResetToStart();
+            break;
+        }
+    } while (!done);
+    c->script = p;
+}
+
 
 
 /* Camera point object update (pos +0xA, look +0x12). Runs while the timer +0x88 is non-zero

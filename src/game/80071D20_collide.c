@@ -788,7 +788,100 @@ s32 Body_FallToFloor(Act_80072DCC *o, s32 who, s32 g) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", func_8007304C);
+typedef struct { s16 x, y, z, f_6, f_8, f_A; s16 *f_C; } Probe_7304C;
+typedef struct { s32 vx, vy, vz, pad, f_10; } Pos_7304C;
+typedef struct { u8 pad0[0x12]; u16 f_12; u8 pad14[4]; u16 f_18; u8 pad1A[0x18]; s16 f_32; u8 pad34[4]; } Obj_7304C;
+typedef struct { u8 pad0[0x820C]; Obj_7304C *f_820C; u8 pad8210[0x74]; u16 f_8284; u8 pad8286[0x22]; s32 f_82A8; s32 f_82AC; } Game_7304C;
+typedef struct { u8 pad0[0x2A8]; u16 f_2A8; u8 pad2AA[2]; u16 f_2AC; } G8_7304C;
+extern Game_7304C g_Game_7304C asm("g_Game");
+extern G8_7304C D_800F4350_7304C asm("D_800F4350");
+extern Probe_7304C *D_800B20B0_7304C asm("D_800B20B0");
+extern u8 *D_800B20C0;
+s16 *func_8004F6E8(Probe_7304C *);
+
+s32 func_8007304C(s32 mode, Pos_7304C *pos) {
+    Probe_7304C *t;
+    s16 *r;
+    s16 i;
+    s32 x;
+    s32 q;
+    u16 y;
+
+    D_800B20B0_7304C->x = pos->vx;
+    { u16 y0 = pos->vy;
+    D_800B20B0_7304C->y = y0;
+    i = 1;
+    if (pos->f_10 > 0) {
+        D_800B20B0_7304C->y = y0 + pos->f_10;
+    }}
+    D_800B20B0_7304C->z = pos->vz;
+    t = D_800B20B0_7304C;
+    for (; i < 8; i++) {
+        Probe_7304C *e;
+        e = (Probe_7304C *)((i << 4) + (s32)t);
+        e->x = t->x;
+        y = t->y;
+        e->y = y;
+        if (i >= 4) {
+            e->y = y - 0x200;
+        }
+        e->z = t->z;
+    }
+    x = ((((pos->vx + g_Game_7304C.f_82A8) % 0x200 - 0x100) >> 31) & 2);
+    q = (pos->vz + g_Game_7304C.f_82AC) % 0x200 - 0x100;
+    q = (u32)q >> 31;
+    q |= x;
+    switch (q) {
+    case 0:
+        Probe_ShiftCorners(0x200, 0x200);
+        break;
+    case 1:
+        Probe_ShiftCorners(0x200, -0x200);
+        break;
+    case 2:
+        Probe_ShiftCorners(-0x200, 0x200);
+        break;
+    case 3:
+        Probe_ShiftCorners(-0x200, -0x200);
+        break;
+    }
+    for (i = 7; i >= 0; i--) {
+        r = func_8004F6E8(&D_800B20B0_7304C[i]);
+        {
+        Probe_7304C *e;
+        e = (Probe_7304C *)((i << 4) + (s32)D_800B20B0_7304C);
+        e->f_C = r;
+        if (r != 0) {
+            e->f_6 = r[3];
+            e->f_8 = r[4];
+            e->f_A = r[5];
+            { s32 a = r[0]; a = (a << 9) - D_800F4350_7304C.f_2A8 + 0x100; e->x = a; }
+            { s32 a = r[1]; a = -(a << 9); e->y = a; }
+            { s32 a = r[2]; a = (a << 9) - D_800F4350_7304C.f_2AC + 0x100; e->z = a; }
+        }
+        }
+    }
+    for (i = g_Game_7304C.f_8284 - 1; i >= 0; i--) {
+        Obj_7304C *o;
+        D_800B20C0[i] = 0;
+        o = (Obj_7304C *)(i * 56 + (s32)g_Game_7304C.f_820C);
+        if (o->f_18 & 0x8000) {
+            D_800B20C0[i] = 1;
+            continue;
+        }
+        { u16 k = o->f_12;
+        if (k == 0xE) {
+            continue;
+        }
+        if ((s16)mode == 1 && k == (s16)mode) {
+            o->f_32 = -1;
+        }
+        if (Box_NearPoint((s16 *)&g_Game_7304C.f_820C[i], (s32 *)pos) != 0) {
+            D_800B20C0[i] = 1;
+        }}
+    }
+    return 0;
+}
 
 s32 Probe_ShiftCorners(s32 arg0, s32 arg1) {
     M2C_FIELD(D_800B20B0, u16 *, 0x14) = (u16) (M2C_FIELD(D_800B20B0, u16 *, 0x14) + arg1);

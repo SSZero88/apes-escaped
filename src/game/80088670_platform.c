@@ -68,7 +68,7 @@ void RotMatrixZYX(SVECTOR *, void *);
 struct S_D_800F4350_8008B7F8 { u8 pad0[0x20C]; S_820C_8008B7F8_8008B7F8 *f_20C; u8 pad210[4]; S_8214_8008B7F8_8008B7F8 *f_214; S_Ev_8008B7F8_8008B7F8 *f_218; };
 extern M2C_UNK D_800F4350;
 s32 Vec_Length(s32, s32, s32);
-void Platform_RunTrigger(S_P_8008B7F8_8008B7F8 *, S_Ev_8008B7F8_8008B7F8 *, s32, s16);
+s32 Platform_RunTrigger(S_P_8008B7F8_8008B7F8 *, S_Ev_8008B7F8_8008B7F8 *, s32, s16);
 struct S_D_800EC1E0_8008B7F8 { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; };
 
 typedef struct { s16 vx, vy, vz, pad; } SV_88670;
@@ -968,9 +968,126 @@ s32 Platform_ProcessEvents(p, id)
 
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80088670_platform", Platform_RunTrigger);
+typedef struct { s16 f_0, f_2, f_4; u8 pad6[0xC]; u16 f_12; u8 pad14[4]; u16 f_18; u8 pad1A[2]; s16 f_1C; u8 pad1E[0x14]; s16 f_32; s16 f_34; } Plat_8008B980;
+typedef struct { u8 pad0[2]; u16 f_2; s16 f_4; s16 f_6; u16 f_8; s16 f_A; } Cmd_8008B980;
+typedef struct { s16 x, y, z; u8 pad6[0x12]; u16 f_18; u8 pad1A[0x1E]; } Obj_8008B980;
+struct Game_8008B980 { u8 pad0[0x820C]; Obj_8008B980 *f_820C; };
+extern struct Game_8008B980 g_Game_8008B980 asm("g_Game");
+typedef struct { u8 pad0[0x58]; s16 f_58; u8 pad5A[0x16]; s32 f_70; } Spk_8008B980;
+extern Spk_8008B980 g_Spike_8008B980 asm("g_Spike");
+s32 func_8008BDB4();
 
-INCLUDE_RODATA("asm/nonmatchings/game/80088670_platform", jtbl_800A62D0);
+s32 Platform_RunTrigger(S_P_8008B7F8_8008B7F8 *op, S_Ev_8008B7F8_8008B7F8 *cp, s32 dist, s16 id) {
+    Plat_8008B980 *o = (Plat_8008B980 *)op;
+    Cmd_8008B980 *c = (Cmd_8008B980 *)cp;
+    s16 mode = o->f_12 & 0xFF;
+    s32 kind = o->f_12 & 0xF00;
+    s32 st;
+    s16 n;
+    s32 h;
+    Obj_8008B980 *obj;
+    __asm__ volatile("");
+    switch ((s16)c->f_2) {
+    case 'M':
+        if (g_Spike_8008B980.f_58 == id) {
+            u16 f = o->f_18;
+            if ((f & 0xF) == 1 && (g_Spike_8008B980.f_70 & 0xF0) != 0x60) {
+                o->f_18 = (f & 0x8000) | 2;
+                if (mode == 0) {
+                    o->f_1C = 0x20;
+                    o->f_32 = c->f_4;
+                    o->f_34 = f & 0xF;
+                }
+            } else if ((f & 0xF) == ({ register s32 two asm("$2"); __asm__("" : "=r"(two) : "0"(2)); two; }) && o->f_34 == 0 && mode == 0) {
+                o->f_18 = (f & 0x8000) | 1;
+                o->f_1C = 0;
+                o->f_34 = 0;
+            }
+            break;
+        }
+        st = o->f_18 & 0xF;
+        goto check;
+    case 'T':
+        if (c->f_4 >= 0) {
+            dist = Vec_Length(g_Game_8008B980.f_820C[c->f_4].x - o->f_0, g_Game_8008B980.f_820C[c->f_4].y - o->f_2, g_Game_8008B980.f_820C[c->f_4].z - o->f_4);
+        }
+        if (dist < c->f_6) {
+            u16 f = o->f_18;
+            if ((f & 0xF) == 1) {
+                o->f_18 = (f & 0x8000) | 2;
+                if (mode == 0) {
+                    o->f_1C = 0x20;
+                    o->f_32 = 0;
+                    o->f_34 = f & 0xF;
+                }
+                o->f_18 |= 0x100;
+            }
+            break;
+        }
+        st = o->f_18 & 0x10F;
+    check:
+        if (st == 2 && (mode == st || mode == 8 || mode == 0xC) && o->f_32 == 0) {
+            o->f_18 = (o->f_18 & 0x8000) | 1;
+        }
+        break;
+    case 'C':
+        if (c->f_4 < dist) {
+            func_8008BDB4(o);
+        }
+        break;
+    case 'S': {
+    u16 f;
+    s32 t;
+        f = o->f_18;
+        t = f & 0xF;
+        if (t == 1 && (g_Game_8008B980.f_820C[c->f_4].f_18 & 0xF) == 2) {
+            o->f_18 = (f & 0x8000) | 2;
+            if (mode == 0) {
+                o->f_1C = 0x20;
+                o->f_32 = c->f_6;
+                o->f_34 = t;
+            }
+        }
+        break;
+    }
+    case 'Z':
+        if ((o->f_18 & 0xF) != 2) {
+            break;
+        }
+        if (c->f_6 != 0 && (o->f_12 & 0xF00) != 0x600) {
+            n = ++o->f_32;
+            if (o->f_34 == 0) {
+                if (n > c->f_A) {
+                    o->f_32 = 0;
+                    o->f_34 = 1;
+                }
+            zero1c:
+                o->f_1C = 0;
+                break;
+            }
+            if (n > (s16)c->f_8) {
+                o->f_32 = 0;
+                o->f_34 = 0;
+                goto zero1c;
+            }
+            if (kind == 0x300) {
+                h = (s16)c->f_8 / 2;
+                if (n < h) {
+                    o->f_1C = c->f_4 * n / h;
+                } else {
+                    o->f_1C = c->f_4 - c->f_4 * (n - h) / h;
+                }
+                break;
+            }
+        }
+        o->f_1C = c->f_4;
+        break;
+    case 'A':
+        break;
+    }
+    return 0;
+}
+
 INCLUDE_RODATA("asm/nonmatchings/game/80088670_platform", jtbl_800A62D0_pad);
 
 

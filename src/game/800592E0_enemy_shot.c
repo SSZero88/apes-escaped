@@ -39,9 +39,213 @@ void EnemyShot_InitAll(void) {
     } while (var_v1 >= 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/800592E0_enemy_shot", func_80059304);
+typedef struct { s16 vx, vy, vz, pad; } SV_59304;
+typedef struct { s16 x, y, z; } P3_59304;
+typedef struct { u8 pad0[8]; s32 f_8; u8 padC[0x16]; u8 f_22; u8 pad23[7]; s16 f_2A; } Proj_59304;
+typedef struct { SV_59304 v; u8 f_8; u8 f_9; u8 padA[2]; } Aim_59304;
+typedef struct { void *col; s32 f_4; Proj_59304 *obj; u8 state; u8 f_D; u8 delay; u8 f_F; u8 f_10; u8 f_11; u8 f_12; u8 hidden; u8 f_14; u8 f_15; u8 f_16; u8 f_17; u16 f_18; u16 f_1A; SV_59304 pos; s16 vx; s16 vy; s16 vz; s16 ground; u8 pad2C[2]; u16 timer; } Shot_59304;
+extern Shot_59304 D_800B8D30_59304[] asm("D_800B8D30");
+extern Aim_59304 D_800AF800[];
+void func_80014804(void *, void *);
+void ApplyMatrixSV(void *, void *, void *);
+Proj_59304 *Projectile_Alloc(void);
+void func_80084BB8(Proj_59304 *, s32);
+void func_80084B48(Proj_59304 *, SV_59304 *, SV_59304 *, s32);
+void func_80084B74(Proj_59304 *, s32);
+void func_80084C78(Proj_59304 *, s32, s32, s32);
 
-INCLUDE_RODATA("asm/nonmatchings/game/800592E0_enemy_shot", jtbl_800A5310);
+s32 func_80059304(P3_59304 *p, s32 owner, s32 type, s32 arg) {
+    Shot_59304 *s;
+    s32 i;
+    s32 n;
+    s16 h;
+    SV_59304 v6;
+    u8 mat[0x20];
+    SV_59304 d;
+    SV_59304 tmp;
+    Aim_59304 *t;
+    s32 a;
+    s16 a16;
+    s32 q;
+    s32 k;
+    s32 k2;
+    s32 fx;
+
+    if (type == 6) {
+        n = 0;
+        for (i = 15, s = D_800B8D30_59304; i >= 0; i--, s++) {
+            if (s->state == 6) {
+                n++;
+            }
+        }
+        if (n >= 4) {
+            return 1;
+        }
+    }
+    h = Floor_GetHeight(p->x, p->y, p->z);
+    for (i = 15, s = D_800B8D30_59304; i >= 0; i--, s++) {
+        if (s->state != 0) {
+            continue;
+        }
+        s->timer = 0;
+        s->col = 0;
+        s->f_4 = owner;
+        s->pos.vx = p->x;
+        s->pos.vy = p->y;
+        s->pos.vz = p->z;
+        s->f_12 = 1;
+        s->f_D = 0;
+        s->ground = h;
+        s->f_11 = 0;
+        s->hidden = 0;
+        s->pos.pad = 0;
+        s->delay = 0;
+        s->f_F = 0;
+        switch (type) {
+        case 6:
+            k = arg;
+            if ((u8)k >= 5) {
+                k = 0;
+            }
+            v6.vx = g_Spike.x - p->x;
+            v6.vy = 0;
+            v6.vz = g_Spike.z - p->z;
+            t = &D_800AF800[(u8)k];
+            VectorNormalSS(&v6, &v6);
+            func_80014804(&v6, mat);
+            ApplyMatrixSV(mat, t, &v6);
+            s->vx = v6.vx;
+            s->vy = v6.vy;
+            s->vz = v6.vz;
+            s->delay = t->f_8;
+            s->f_D = t->f_9;
+            s->f_10 = 1;
+            Sound_PlayFixed(0x4C);
+            s->state = type;
+            goto done;
+        case 7:
+            s->f_10 = 3;
+            q = (g_Spike.y - p->y) / 3;
+            if ((s16)q < -0x400) {
+                a16 = -0x400;
+            } else if ((s16)q > 0x400) {
+                a16 = 0x400;
+            } else {
+                a16 = q;
+            }
+            d.vx = g_Spike.x + g_Spike.vx * 16 - p->x;
+            d.vy = 0;
+            d.vz = g_Spike.z + g_Spike.vz * 16 - p->z;
+            d.vx = d.vx * (0x400 - a16) >> 10;
+            d.vz = d.vz * (0x400 - a16) >> 10;
+            s->vx = d.vx / 24;
+            s->vz = d.vz / 24;
+            s->vy = -0x30;
+            break;
+        case 8:
+            s->f_10 = 4;
+            memset(&tmp, 0, 8);
+            tmp.vx = g_Spike.x - p->x;
+            tmp.vz = g_Spike.z - p->z;
+            d = tmp;
+            s->vx = d.vx / 128;
+            s->vz = d.vz / 128;
+            s->vy = -6;
+            break;
+        case 9:
+            s->f_10 = 4;
+            memset(&tmp, 0, 8);
+            tmp.vx = g_Spike.x - p->x;
+            tmp.vz = g_Spike.z - p->z;
+            d = tmp;
+            s->vx = d.vx / 32;
+            s->vz = d.vz / 32;
+            s->vy = -15;
+            break;
+        case 5:
+            s->vy = -0x14;
+            s->f_1A = 0x5B;
+            s->f_18 = 0x7CAD;
+            s->f_12 = 3;
+            s->vx = 0;
+            s->vz = 0;
+            s->f_16 = 0x1F;
+            s->f_17 = 0x1F;
+            break;
+        case 1:
+            d.vx = ((SV_59304 *)arg)->vx;
+            d.vy = ((SV_59304 *)arg)->vy;
+            d.vz = ((SV_59304 *)arg)->vz;
+            if ((s->obj = Projectile_Alloc()) == 0) {
+                return 1;
+            }
+            func_80084BB8(s->obj, 0x38);
+            func_80084B48(s->obj, &s->pos, &d, 0);
+            func_80084B74(s->obj, 1);
+            func_80084C78(s->obj, 0x10A, 0x6B, 0x59);
+            fx = 0x10B;
+            goto spawn;
+        case 10:
+            s->f_10 = 12;
+            memset(&tmp, 0, 8);
+            tmp.vx = g_Spike.x - s->pos.vx;
+            tmp.vz = g_Spike.z - s->pos.vz;
+            d = tmp;
+            VectorNormalSS(&d, &d);
+            switch (arg) {
+            case 0:
+            default:
+                d.vx /= 128;
+                { s32 t = d.vz; if (t < 0) t += 127; k2 = 0x21; d.vz = t >> 7; }
+                break;
+            case 1:
+                d.vx /= 128;
+                { s32 t = d.vz; if (t < 0) t += 127; k2 = 0x41; d.vz = t >> 7; }
+                break;
+            }
+            d.vy = 0x2E;
+            __asm__ volatile("");
+            s->vx = d.vx;
+            s->vy = d.vy;
+            s->vz = d.vz;
+            if ((s->obj = Projectile_Alloc()) == 0) {
+                return 1;
+            }
+            func_80084B48(s->obj, &s->pos, &d, k2);
+            s->obj->f_8 = s->f_4;
+            s->obj->f_22 = 8;
+            s->obj->f_2A = 0xC01;
+            break;
+        case 2:
+            tmp.vx = ((SV_59304 *)arg)->vx;
+            tmp.vy = ((SV_59304 *)arg)->vy;
+            tmp.vz = ((SV_59304 *)arg)->vz;
+            if ((s->obj = Projectile_Alloc()) == 0) {
+                return 1;
+            }
+            func_80084B48(s->obj, &s->pos, &tmp, 0);
+            func_80084B74(s->obj, 2);
+            func_80084C78(s->obj, 0x112, 0x5A, 0xFF);
+            fx = 0x118;
+        spawn:
+            s->obj->f_8 = s->f_4;
+            Effect_SpawnAt(fx, &s->pos);
+            s->state = type;
+            goto done;
+        case 3:
+        case 4:
+            s->vx = 0;
+            s->vy = 0;
+            s->vz = 0;
+            break;
+        }
+        s->state = type;
+    done:
+        return 0;
+    }
+    return 1;
+}
+
 
 
 void EnemyShot_SetHitbox(void *arg0, s16 arg1, s16 arg2, s16 arg3) {
