@@ -1,7 +1,66 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013C5E0);
+typedef struct { s16 x, y, w, h; } Rect_8013C5E0;
+typedef struct { u8 pad0[0x19]; u8 r0, g0, b0; } DrawEnv_8013C5E0;
+extern Rect_8013C5E0 D_8013C7C0;
+extern u8 D_8013C7C8[];
+extern u8 D_8013C7D8[];
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_8013C5E0 asm("g_Game");
+extern struct { u8 pad0[0x158]; u32 held; } g_Pad_8013C5E0 asm("g_Pad");
+void Gfx_InitDisplay(void);
+s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
+void DrawSync(s32);
+s32 VSync(s32 mode);
+void func_8001325C(s32);
+void Gfx_BeginFrame(void);
+void func_8008C390(void);
+void func_8008CC60(s32, s32);
+void func_8008CBFC(u8 *);
+void *PutDrawEnv(void *env);
+void *PutDispEnv(void *env);
+void DrawOTag(u32 *p);
+s32 Sound_PlayFixed(s32);
+
+s32 func_8013C5E0(void) {
+    Rect_8013C5E0 r;
+
+    r = D_8013C7C0;
+    Gfx_InitDisplay();
+    ResetGraph(1);
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    g_Game_8013C5E0.db[1].env[0x18] = 1;
+    g_Game_8013C5E0.db[0].env[0x18] = 1;
+    ((DrawEnv_8013C5E0 *)&g_Game_8013C5E0.db[0])->r0 = 0;
+    ((DrawEnv_8013C5E0 *)&g_Game_8013C5E0.db[0])->g0 = 0;
+    ((DrawEnv_8013C5E0 *)&g_Game_8013C5E0.db[0])->b0 = 0x7F;
+    ((DrawEnv_8013C5E0 *)&g_Game_8013C5E0.db[1])->r0 = 0;
+    ((DrawEnv_8013C5E0 *)&g_Game_8013C5E0.db[1])->g0 = 0;
+    ((DrawEnv_8013C5E0 *)&g_Game_8013C5E0.db[1])->b0 = 0x7F;
+    g_Game_8013C5E0.cur = 0;
+    while (1) {
+        func_8001325C(0);
+        Gfx_BeginFrame();
+        func_8008C390();
+        func_8008CC60(0x8C, 0x6E);
+        func_8008CBFC(D_8013C7C8);
+        func_8008CC60(0x82, 0xB4);
+        func_8008CBFC(D_8013C7D8);
+        if (g_Pad_8013C5E0.held & PAD_START) {
+            break;
+        }
+        DrawSync(0);
+        VSync(0);
+        g_Game_8013C5E0.frame++;
+        PutDispEnv(&g_Game_8013C5E0.db[g_Game_8013C5E0.cur].env[0x5C]);
+        PutDrawEnv(g_Game_8013C5E0.db[g_Game_8013C5E0.cur].env);
+        DrawOTag(&g_Game_8013C5E0.db[g_Game_8013C5E0.cur].ot[0xFFF]);
+    }
+    Sound_PlayFixed(2);
+    return 0;
+}
+__asm__(".section .text\n\t.balign 16\n\t.globl D_8013C7C0\nD_8013C7C0:\n\t.word 0x00000000");
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013C7C4);
 
@@ -321,7 +380,249 @@ s32 func_8013D218(void) {
     return func_8013D238() != 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390c", func_8013D238);
+extern struct { s16 f_0; s16 f_2; s16 f_4; } D_800E3880_8013D238 asm("D_800E3880");
+s32 func_8013CD1C(s32 msg, s32 arg);
+void func_80139A3C(s32);
+void func_80139A68(void);
+void func_8013FEFC(s32);
+s32 func_8014016C(void);
+s32 func_80139F08(void);
+s32 func_80136554(s32 x, s32 y, s32 w, s32 h);
+s32 func_8013E290(void);
+s32 func_8013E30C(void);
+s32 func_8013A400(void);
+s32 func_8013ED0C(void);
+s32 func_8013D834(void);
+s32 func_8013D92C(void);
+s32 func_8013DA00(void);
+s32 func_8013DA7C(void);
+s32 func_8013DB48(void);
+s32 func_8013DBF0(void);
+s32 func_8013DC78(void);
+s32 func_8013DDF0(void);
+s32 func_8013DEB4(void);
+s32 func_8013DF40(void);
+
+s32 func_8013D238(void) {
+    s32 r;
+    s32 i;
+    s32 n;
+
+    switch (D_8013AF56) {
+    case 19:
+    case 28:
+        func_8013FEFC(0);
+        goto show;
+    case 14:
+        func_80139A3C(4);
+        func_80139A68();
+        return 1;
+    case 29:
+        func_8013E290();
+        if (func_8013E30C() == 0) {
+            break;
+        }
+        return 1;
+    case 31:
+    case 40:
+        func_8014016C();
+        r = func_80139F08();
+        func_80136554(0x60, 0x50, 0xC0, 0x84);
+        func_8013E290();
+        if (r == 0) {
+            break;
+        }
+        if (r == 2) {
+            goto back;
+        }
+        func_8013CD1C(0x20, 0);
+        return 0;
+    case 49:
+        func_8014016C();
+        func_80136554(0x60, 0x50, 0xC0, 0x84);
+        func_8013E290();
+        if (func_8013A400() == 0) {
+            return 0;
+        }
+        Sound_PlayFixed(3);
+    back:
+        func_8013CD1C(0x1D, 1);
+        return 0;
+    case 34:
+        if (++D_8013F294 >= 0x5B) {
+            func_8013CD1C(0x1D, 1);
+        } else if (D_8013F288 == 0) {
+            D_8013F5E4_8013CD1C[6] = D_8013F5E4_8013CD1C[0] * D_8013F294 / 90;
+        } else {
+            for (i = 1; i < 6; i++) {
+                D_8013F5E4_8013CD1C[i] = D_8013F614[i] + D_8013F5FC[i] * D_8013F294 / 90;
+            }
+            for (i = 7; i < 12; i++) {
+                D_8013F5E4_8013CD1C[i] = D_8013F614[i] - D_8013F5FC[i] * D_8013F294 / 90;
+            }
+        }
+    case 32:
+    case 33:
+        func_8014016C();
+        func_80136554(0x60, 0x50, 0xC0, 0x84);
+        func_8013E290();
+        return 0;
+    case 18:
+    case 30:
+        if (D_800E3884 != 0xB) {
+            func_8013FEFC(0);
+        } else {
+            func_8014016C();
+        }
+        func_80139A3C(4);
+        func_80139A68();
+        if (D_800E3884 == 0xB) {
+            if (func_8013A400() == 0) {
+                return 0;
+            }
+            Sound_PlayFixed(3);
+            return 1;
+        }
+        return 0;
+    case 21:
+    case 48:
+        func_8014016C();
+        func_8013ED0C();
+        goto show;
+    case 20:
+    case 23:
+    case 36:
+    case 38:
+    case 41:
+    case 42:
+    case 46:
+    case 47:
+        func_8014016C();
+        func_80139A3C(4);
+        func_80139A68();
+        if (func_8013A400() == 0) {
+            return 0;
+        }
+        Sound_PlayFixed(3);
+        return 1;
+    case 24:
+        func_8014016C();
+        r = func_80139F08();
+        func_80139A3C(4);
+        func_80139A68();
+        if (r == 0) {
+            break;
+        }
+        if (r == 2) {
+            return 1;
+        }
+        func_8013CD1C(0x19, 0);
+        return 0;
+    case 26:
+    case 37:
+    case 39:
+        func_8014016C();
+        r = func_80139F08();
+        func_80139A3C(4);
+        func_80139A68();
+        if (r == 0) {
+            break;
+        }
+        if (D_8013F290 != 0) {
+            return 0;
+        }
+        if (r == 2) {
+            return 1;
+        }
+        D_8013F290 = 1;
+        break;
+    case 25:
+        func_8014016C();
+    show:
+        func_80139A3C(4);
+        func_80139A68();
+        break;
+    }
+    return 0;
+}
+
+void MemCard_SaveThread_8013D688(void) asm("D_8013D688");
+void MemCard_SaveThread_8013D688(void) {
+    while (1) {
+        switch (D_8013AF56) {
+        case 19:
+            func_8013D834();
+            if (D_800E3880_8013D238.f_4 == 0xD) {
+                break;
+            }
+            MemCard_Request(0xB, 0);
+            break;
+        case 14:
+        case 20:
+        case 23:
+        case 24:
+        case 36:
+            func_8013DA00();
+            MemCard_Request(0xB, 0);
+            break;
+        case 26:
+        case 37:
+        case 39:
+        case 48:
+            func_8013DC78();
+            MemCard_Request(0xB, 0);
+            break;
+        case 18:
+            func_8013DA7C();
+            if (D_800E3880_8013D238.f_4 == 0xD) {
+                break;
+            }
+            MemCard_Request(0xB, 0);
+            break;
+        case 21:
+            func_8013DBF0();
+            break;
+        case 25:
+            func_8013DF40();
+            break;
+        }
+    }
+}
+
+void MemCard_LoadThread_8013D764(void) asm("D_8013D764");
+void MemCard_LoadThread_8013D764(void) {
+    while (1) {
+        switch (D_8013AF56) {
+        case 19:
+            func_8013D92C();
+            if (D_800E3880_8013D238.f_4 == 0xD) {
+                break;
+            }
+            MemCard_Request(0xB, 0);
+            break;
+        case 32:
+            func_8013DDF0();
+            break;
+        case 33:
+            func_8013DEB4();
+            break;
+        case 18:
+            func_8013DB48();
+            MemCard_Request(0xB, 0);
+            break;
+        case 29:
+        case 30:
+        case 31:
+        case 34:
+        case 36:
+        case 40:
+        case 49:
+            func_8013DA00();
+            MemCard_Request(0xB, 0);
+            break;
+        }
+    }
+}
 
 extern s16 D_800E3880_8013D834 asm("D_800E3880");
 extern s16 D_800E3884;

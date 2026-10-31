@@ -556,11 +556,27 @@ s32 func_8013E43C(s32 v, s32 lim) {
     return -lim;
 }
 
-INCLUDE_ASM("asm/ovl/407/nonmatchings/407_wabi_sabi_wall", func_8013E46C);
+s32 func_8013E43C(s32 v, s32 lim);
+
+void func_8013E46C(void *pos, void *out, s32 v, s32 lim, s32 step) {
+    s16 n;
+
+    n = *(s16 *)pos += func_8013E43C(v, step);
+    if (lim < n) {
+        *(s16 *)pos = lim;
+    } else if (n < -lim) {
+        *(s16 *)pos = -lim;
+    }
+    *(s16 *)out = *(s16 *)pos;
+    if (*(s16 *)pos < 0) {
+        (*(s16 *)pos)++;
+    } else if (*(s16 *)pos > 0) {
+        (*(s16 *)pos)--;
+    }
+}
 
 extern u32 g_Game_8013E51C asm("g_Game");
 s32 rsin(s32);
-void func_8013E46C(void *, void *, s32, s32, s32);
 
 void func_8013E51C(u8 *a, s32 y) {
     s32 s = rsin(((g_Game_8013E51C % 60) << 12) / 60);

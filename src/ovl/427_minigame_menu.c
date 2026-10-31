@@ -1216,7 +1216,6 @@ void func_8013B4B4(void);
 void func_8013B890(void);
 void func_8013B92C();
 void func_80138934(void);
-void func_8013A548();
 void func_80139A74();
 void func_801380E0(s16 arg0, s16 arg1, s32 arg2, s16 arg3);
 
@@ -1537,7 +1536,62 @@ void func_8013A29C(void) {
 
 INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013A2C8);
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013A548);
+typedef struct { s32 f_0; u8 m[0x74]; } Pop_8013A548;
+extern Pop_8013A548 D_8013F418_8013A548[] asm("D_8013F418");
+extern struct { s32 f_0; s32 f_4; s32 f_8; } g_Game_8013A548 asm("g_Game");
+extern s32 D_800E7D00;
+void func_8013A2C8(Pop_8013A548 *);
+void func_8013A8C0(s32, s32, u8 *);
+void func_80017EFC(s32, s32, void *, s32);
+
+void func_8013A548(void) {
+    s32 i;
+    Pop_8013A548 *e;
+    u8 *m;
+
+    for (e = D_8013F418_8013A548, i = 0; i < 16; i++, e++) {
+        if (e->f_0 == 0) {
+            continue;
+        }
+        m = e->m;
+        switch (e->f_0) {
+        case 1:
+            func_8013BC28(m);
+            break;
+        case 2:
+            func_8013BE5C(m);
+            break;
+        case 3:
+            func_8013C0E4(m);
+            break;
+        case 5:
+            func_8013C5F0(m);
+            break;
+        case 4:
+            func_8013C368(m);
+            break;
+        }
+        func_8013A2C8(e);
+        if (m[0x4A] != 0 && m[0x4B] == 0) {
+            m[0x4A] = 0;
+            m[0x4B] = 1;
+            func_8013A8C0(g_Game_8013A548.f_8, (s32)&D_800E7D00, m);
+        } else {
+            m[0x4B] = 0;
+            switch (M2C_FIELD(m, s32 *, 0x50)) {
+            case 0:
+                func_80017CD4(g_Game_8013A548.f_8, (s32)&D_800E7D00, m);
+                break;
+            case 1:
+                func_80017EFC(g_Game_8013A548.f_8, (s32)&D_800E7D00, m, 6);
+                break;
+            }
+        }
+    }
+}
+
+/* the original pads the read-only data after this jump table to 8 bytes */
+__asm__(".section .rodata\n\t.align 3\n\t.section .text");
 
 extern s32 *D_8013FBD8_8013A6CC[] asm("D_8013FBD8");
 extern s32 D_8013FBE0_8013A6CC[] asm("D_8013FBE0");

@@ -379,7 +379,116 @@ u8 *func_80136A88(u8 *arg0, s32 arg1)
 
 INCLUDE_RODATA("asm/ovl/390/nonmatchings/390", D_8013A9CC);
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390", func_80136AB8);
+typedef struct { s16 x, y, w, h; } Rect_80136AB8;
+extern Rect_80136AB8 D_8013A9CC_80136AB8 asm("D_8013A9CC");
+extern struct { u8 pad[0x8120]; u16 f_8120; } g_Game_80136AB8 asm("g_Game");
+extern struct { u8 pad[0x120]; u16 f_120; } D_800F4350;
+extern u8 D_800E52D0[];
+extern s32 D_800E54E0;
+extern u8 D_8013AF7C[];
+extern u8 D_8013AF84[];
+extern void *D_8013B210;
+extern s16 D_8013AF6A;
+void PadStopCom(void);
+void PadStartCom(void);
+void PadInitDirect(u8 *, u8 *);
+void func_80141B90(void);
+void func_80141C00(void);
+void func_8002F1F0(s32);
+void func_80012CA0(s32);
+s32 func_80086408(void);
+s32 func_80011194(void *);
+s32 func_800116C0(void);
+void Cd_Update(void);
+s32 VSync(s32 mode);
+void func_80141AF0(void);
+void *VSyncCallback(void (*func)(void));
+void func_80136D58(void);
+s32 ResetGraph(s32);
+s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
+void DrawSync(s32);
+s32 Sound_ResumeStreams(void);
+s32 Sound_UnloadBanks(s32);
+s32 func_80136D90(void);
+s32 func_80136ED8(void);
+s32 func_80137104(void);
+s32 func_8013C7F0(void);
+
+s32 func_80136AB8(void) {
+    Rect_80136AB8 r;
+
+    r = D_8013A9CC_80136AB8;
+    PadStopCom();
+    func_80141B90();
+    PadInitDirect(D_800E52D0, D_800E52D0 + 0x22);
+    PadStartCom();
+    func_8002F1F0(0);
+    func_80012CA0(0);
+    D_800E54E0 = 0;
+    if (func_80086408() < 0) {
+        func_80011194(D_8013AF7C);
+    } else {
+        func_80011194(D_8013AF84);
+    }
+    while (func_800116C0() >= 0) {
+        Cd_Update();
+        VSync(2);
+    }
+    func_80141AF0();
+    D_8013B210 = VSyncCallback(func_80136D58);
+    ResetGraph(1);
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    Sound_ResumeStreams();
+    func_80136D90();
+    if (g_Game_80136AB8.f_8120 == 0x15) {
+        D_8013AF6A = 0x15;
+        func_80136ED8();
+    } else if (g_Game_80136AB8.f_8120 == 0x23) {
+        D_8013AF6A = 0x23;
+        func_80137104();
+    }
+    while (1) {
+        switch (D_800F4350.f_120) {
+        case 0:
+        case 3:
+        case 13:
+        case 28:
+            goto end;
+        case 14:
+            func_8013758C(D_8013AF6A);
+            break;
+        case 22:
+            func_8013C7F0();
+            break;
+        case 21:
+            func_80136ED8();
+            break;
+        case 35:
+            func_80137104();
+            break;
+        }
+    }
+end:
+    PadStopCom();
+    func_80141C00();
+    PadInitDirect(D_800E52D0, D_800E52D0 + 0x22);
+    PadStartCom();
+    func_8002F1F0(0);
+    func_80012CA0(0);
+    D_800E54E0 = 0;
+    if (g_Game_80136AB8.f_8120 != 0x1C) {
+        if (g_Game_80136AB8.f_8120 == 0) {
+            Sound_UnloadBanks(0);
+        } else {
+            Sound_UnloadBanks(1);
+        }
+    }
+    VSyncCallback(D_8013B210);
+    ClearImage(&r, 0, 0, 0);
+    DrawSync(0);
+    return 0;
+}
 
 void func_80136D58(void) {
     func_8001300C();

@@ -224,7 +224,91 @@ void func_8013D684(u8 *arg0) {
     M2C_FIELD(arg0, s16 *, 0x5C) = *M2C_FIELD(arg0, u16 **, 0x88);
 }
 
-INCLUDE_ASM("asm/ovl/417/nonmatchings/417_monkey_madness_c", func_8013D738);
+void Object_ClampAnimFrame(void *, s32);
+M2C_UNK Object_OrbitAround(void *, s16, s16, s16, s32);
+s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s16);
+s32 Spike_WithinRadiusXZ_8013D738(s32, s32, s32) asm("Spike_WithinRadiusXZ");
+M2C_UNK func_8005588C(void *, M2C_UNK);
+M2C_UNK func_80058134(void *, s16);
+
+void func_8013D738(void *arg0)
+{
+  s32 temp_v0;
+  s32 new_var;
+  s32 temp_v1_2;
+  u8 temp_v0_2;
+  u8 temp_v1;
+  if (!((((u32) (*((u32 *) (((s8 *) arg0) + 0xE0)))) >> 3) & 1))
+  {
+    func_8013D684(arg0);
+    *((u32 *) (((s8 *) arg0) + 0xE0)) = (u32) ((*((u32 *) (((s8 *) arg0) + 0xE0))) | 8);
+  }
+  func_80058134(arg0, *((s16 *) (((s8 *) arg0) + 0x44)));
+  if (Spike_WithinRadiusXZ_8013D738(*((s32 *) (((s8 *) arg0) + 0x24)), *((s32 *) (((s8 *) arg0) + 0x2C)), 0x800) != 0)
+  {
+    *((s8 *) (((s8 *) arg0) + 0xC8)) = 5;
+  }
+  else
+  {
+    *((s8 *) (((s8 *) arg0) + 0xC8)) = 0;
+  }
+  temp_v1 = *((u8 *) (((s8 *) arg0) + 0x80));
+  switch (temp_v1)
+  {
+    case 1:
+      func_8013D4D8(arg0);
+      Object_OrbitAround(arg0, *((s16 *) (((s8 *) arg0) + 0x9A)), *((s16 *) (((s8 *) arg0) + 0x9E)), *((s16 *) (((s8 *) arg0) + 0xA6)), 6);
+      if (Object_SpikeOutOfRange(arg0, *((s32 *) (((s8 *) arg0) + 0x24)), *((s32 *) (((s8 *) arg0) + 0x28)), *((s32 *) (((s8 *) arg0) + 0x2C)), 0x400) == 0)
+    {
+      new_var = D_800EC208;
+      temp_v1_2 = *((s32 *) (((s8 *) arg0) + 0x28));
+      temp_v0 = new_var - temp_v1_2;
+      if (temp_v0 >= 0)
+      {
+        if (temp_v0 < 0x200)
+        {
+          goto block_14;
+        }
+      }
+      else
+        if ((temp_v1_2 - new_var) < 0x200)
+      {
+        block_14:
+        *((u8 *) (((s8 *) arg0) + 0x80)) = 2U;
+
+        *((u8 *) (((s8 *) arg0) + 0x7F)) = 1U;
+        *((u16 *) (((s8 *) arg0) + 0x5C)) = (u16) (*((u16 *) (((s8 *) (*((void **) (((s8 *) arg0) + 0x88)))) + 4)));
+        func_8005588C(arg0, 0x46);
+        func_8013D374(arg0);
+        *((u32 *) (((s8 *) arg0) + 0xE0)) = (u32) ((*((u32 *) (((s8 *) arg0) + 0xE0))) | 0x2000);
+        return;
+      }
+    }
+    else
+    {
+      return;
+    }
+      break;
+
+    case 2:
+      Object_ClampAnimFrame(arg0, *((u16 *) (((s8 *) (((*((u8 *) (((s8 *) arg0) + 0x7F))) * 4) + (*((void **) (((s8 *) arg0) + 0x88))))) + 2)));
+      temp_v0_2 = *((u8 *) (((s8 *) arg0) + 0xC9));
+      if (temp_v0_2 != 0)
+    {
+      *((u8 *) (((s8 *) arg0) + 0xC9)) = (u8) (temp_v0_2 - 1);
+    }
+    else
+    {
+      func_8013D43C(arg0);
+    }
+      func_8013D538(arg0);
+      func_8013D62C(arg0);
+      func_8013D4D8(arg0);
+      break;
+
+  }
+
+}
 
 void func_8013D8F0(void *arg0, s32 a) {
     M2C_FIELD(arg0, u8 *, 0x71) = a;

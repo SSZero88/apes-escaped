@@ -580,7 +580,6 @@ void func_80138118(void);
 void func_80136000(SVECTOR *eye, SVECTOR *at);
 void func_80016F34(void);
 s32 Sound_PlayFixed(s32);
-void func_8013A10C();
 void Sound_UnloadBanks(s32);
 void func_80136EAC(void);
 void func_8013A3C4(void);
@@ -1927,7 +1926,130 @@ void func_80139FB8(s32 w, s32 h) {
     g_Game_80139FB8.prim = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/ovl/392/nonmatchings/392", func_8013A10C);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad1; s16 x3, y3; u8 u3, v3; u16 pad2; } PolyFT4_8013A10C;
+typedef struct { u32 tag; u32 code; s16 x, y, w, h; } Tile_8013A10C;
+extern struct { u8 pad0[0x2C]; s16 f_2C; } D_8013B998_8013A10C asm("D_8013B998");
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_8013A10C asm("g_Game");
+
+void func_8013A10C(s32 w, s32 h) {
+    PolyFT4_8013A10C *p;
+    Tile_8013A10C *t;
+    u32 *ot;
+    s32 left;
+    s32 top;
+    s32 bot;
+    s32 right;
+    s32 tp;
+    u32 *base;
+    u8 *cfg;
+    s32 tp2;
+    s32 kx;
+    register u8 uc asm("$11");
+
+    tp = 0x180;
+    kx = 0xC0;
+    left = kx - w;
+    top = 0x80 - h;
+    bot = h + 0x80;
+    base = g_Game_8013A10C.db[g_Game_8013A10C.cur].ot;
+    cfg = (u8 *)&D_8013B998_8013A10C;
+    p = (PolyFT4_8013A10C *)g_Game_8013A10C.prim;
+    ((u8 *)p)[3] = 9;
+    p->code = 0x2D;
+    p->x0 = left;
+    p->y0 = top;
+    p->x1 = 0xC0;
+    p->y1 = top;
+    p->x2 = left;
+    p->y2 = bot;
+    p->x3 = 0xC0;
+    p->y3 = bot;
+    uc = 0xC0;
+    if (M2C_FIELD(cfg, s16 *, 0x2C)) {
+        tp = 0x190;
+    }
+    p->tpage = tp;
+    p->u0 = 0;
+    p->v0 = 0;
+    p->u1 = uc;
+    p->v1 = 0;
+    p->u2 = 0;
+    p->v2 = 0xFF;
+    p->u3 = uc;
+    p->v3 = 0xFF;
+    ot = base + 0xFFF;
+    __asm__("" : : "r"(kx));
+    ADD_PRIM_R(ot, p, "$2", "$3");
+    p++;
+    right = w + 0xC0;
+    ((u8 *)p)[3] = 9;
+    p->code = 0x2D;
+    p->x0 = 0xC0;
+    p->y0 = top;
+    p->x1 = right;
+    p->y1 = top;
+    p->x2 = 0xC0;
+    p->y2 = bot;
+    p->x3 = right;
+    p->y3 = bot;
+    if (D_8013B998_8013A10C.f_2C) {
+        tp2 = 0x193;
+    } else {
+        tp2 = 0x183;
+    }
+    p->tpage = tp2;
+    p->u0 = 0;
+    p->v0 = 0;
+    p->u1 = uc;
+    p->v1 = 0;
+    p->u2 = 0;
+    p->v2 = 0xFF;
+    p->u3 = uc;
+    p->v3 = 0xFF;
+    ADD_PRIM_R(ot, p, "$3", "$2");
+    p++;
+    t = (Tile_8013A10C *)p;
+    t->code = 0;
+    ((u8 *)t)[3] = 3;
+    ((u8 *)t)[7] = 0x60;
+    t->x = 0;
+    t->y = 0;
+    t->w = 0x180;
+    t->h = top;
+    ADD_PRIM_R(ot, t, "$3", "$2");
+    p++;
+    t = (Tile_8013A10C *)p;
+    t->code = 0;
+    ((u8 *)t)[3] = 3;
+    ((u8 *)t)[7] = 0x60;
+    t->x = 0;
+    t->y = h + 0x70;
+    t->w = 0x180;
+    t->h = top;
+    ADD_PRIM_R(ot, t, "$3", "$2");
+    p++;
+    t = (Tile_8013A10C *)p;
+    t->code = 0;
+    ((u8 *)t)[3] = 3;
+    ((u8 *)t)[7] = 0x60;
+    t->x = 0;
+    t->y = 0;
+    t->w = left;
+    t->h = 0xF0;
+    ADD_PRIM_R(ot, t, "$3", "$2");
+    p++;
+    t = (Tile_8013A10C *)p;
+    t->code = 0;
+    ((u8 *)t)[3] = 3;
+    ((u8 *)t)[7] = 0x60;
+    t->x = right;
+    t->y = 0;
+    t->w = left;
+    t->h = 0xF0;
+    ADD_PRIM_R(ot, t, "$3", "$2");
+    p++;
+    g_Game_8013A10C.prim = (u8 *)p;
+}
 
 /* 6 diffs (hand) */
 s32 Text_GetWidth2(u8 *);

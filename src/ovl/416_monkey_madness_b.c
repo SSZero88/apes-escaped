@@ -37,7 +37,76 @@ s32 func_8013D000(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013D06C);
+extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013D06C asm("g_Game");
+extern u8 *D_800B4D64_8013D06C asm("D_800B4D64");
+extern s32 D_800EC204;
+extern u16 D_800E69BE_8013D06C asm("D_800E69BE");
+s32 Overlay_GetState_8013D06C(void) asm("Overlay_GetState");
+void Overlay_Request(s8);
+s32 Sound_UnloadBanks(s32);
+s32 func_800863B0(s32, s32);
+void func_8013EEB8(void);
+extern void *D_8013D3F0_8013D06C[] asm("func_8013D3F0");
+
+s32 func_8013D06C(s16 *p) {
+    u8 *e;
+
+    {
+        s32 st = p[1];
+        if ((u32)st >= 6) goto done;
+        goto *D_8013D3F0_8013D06C[st];
+    }
+case0:
+        if (D_800EC204 >= -0x1BF) {
+            p[1] = 1;
+            p[3] = 0;
+            e = g_Game_8013D06C.f_820C + p[2] * 0x38;
+            M2C_FIELD(e, u16 *, 0x18) &= 0x7FFF;
+            if (p[6] >= 0) {
+                M2C_FIELD(D_800B4D64_8013D06C + p[6] * 32, u16 *, 0x16) = 0xFFFF;
+            }
+            func_800863B0(2, 0x28);
+            Overlay_Request(7);
+        }
+        goto done;
+case1:
+        if (Overlay_GetState_8013D06C() == 0) {
+            func_800863B0(0, 0);
+            p[1] = 3;
+            func_8013EEB8();
+        }
+        goto done;
+case2:
+        if (D_800EC204 >= -0x1BF) {
+            p[1] = 3;
+            e = g_Game_8013D06C.f_820C + p[2] * 0x38;
+            M2C_FIELD(e, u16 *, 0x18) &= 0x7FFF;
+            if (p[6] >= 0) {
+                M2C_FIELD(D_800B4D64_8013D06C + p[6] * 32, u16 *, 0x16) = 0xFFFF;
+            }
+            func_8013EEB8();
+        }
+        goto done;
+case3:
+        if (D_800E69BE_8013D06C == 1) {
+            p[1] = 4;
+            e = g_Game_8013D06C.f_820C + p[2] * 0x38;
+            M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
+            if (p[6] >= 0) {
+                M2C_FIELD(D_800B4D64_8013D06C + p[6] * 32, u16 *, 0x16) = 0;
+            }
+            Sound_UnloadBanks(2);
+            Overlay_Request(8);
+        }
+        goto done;
+case4:
+        if (Overlay_GetState_8013D06C() == 0) {
+            p[1] = 5;
+        }
+done:
+    __asm__ volatile("" : : "i"(&&case0), "i"(&&case1), "i"(&&case2), "i"(&&case3), "i"(&&case4));
+    return 0;
+}
 
 int abs(int);
 extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013D2A0 asm("g_Spike");

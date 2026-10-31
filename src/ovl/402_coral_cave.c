@@ -1,7 +1,6 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-M2C_UNK func_8013D770(void *);
 s16 rcos(s16);
 s16 rsin(s16);
 s32 func_80055AA0(void *, s16, s16, s16);
@@ -52,7 +51,24 @@ s32 func_8013D000(void) {
 
 INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013D15C);
 
-INCLUDE_ASM("asm/ovl/402/nonmatchings/402_coral_cave", func_8013D770);
+s32 rcos_8013D770(s32) asm("rcos");
+s32 rsin_8013D770(s32) asm("rsin");
+
+M2C_UNK func_8013D770(void *o) {
+    u16 *t;
+    s32 a;
+
+    if (M2C_FIELD(o, u16 *, 0x8C) != 0) {
+        M2C_FIELD(o, u8 *, 0x8E) ^= 1;
+        t = (u16 *)(M2C_FIELD(o, u8 **, 0x90) + M2C_FIELD(o, u8 *, 0x8E) * 8);
+        M2C_FIELD(o, u16 *, 0xBC) = t[0];
+        M2C_FIELD(o, u16 *, 0xC0) = t[2];
+    } else {
+        a = (M2C_FIELD(o, s16 *, 0xAC) + 0x100) % 0x1000;
+        M2C_FIELD(o, u16 *, 0xBC) = M2C_FIELD(o, u16 *, 0x9A) + (rcos_8013D770(a) * M2C_FIELD(o, s16 *, 0xA6) >> 12);
+        M2C_FIELD(o, u16 *, 0xC0) = M2C_FIELD(o, u16 *, 0x9E) + (rsin_8013D770(a) * M2C_FIELD(o, s16 *, 0xA6) >> 12);
+    }
+}
 
 void func_8013D850(void *arg0) {
     s16 temp_a0;

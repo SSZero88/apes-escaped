@@ -26,7 +26,6 @@ extern s8 D_80142322;
 extern M2C_UNK D_80142338;
 M2C_UNK Puff_Spawn(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK);
 void func_8013DFB0(s32 arg0);
-M2C_UNK func_8013EEC0(void *, M2C_UNK);
 
 extern struct { u8 pad_0[0x8244]; u8 *f_8244; } g_Game_8013D000 asm("g_Game");
 typedef struct { u8 pad0[0x18]; s32 f18, f1C; } AnimEnt_8013D000;
@@ -520,7 +519,6 @@ extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013E4B4 asm("g_S
 extern s8 g_CurrentGadget;
 extern u8 D_800E6916;
 s32 rcos(s32);
-s32 func_8013E8A8();
 void func_80047464(void *, s32, s32, s32);
 void func_80047558(void *, s32, s32, s32);
 void func_8004CEA8(s8);
@@ -596,7 +594,45 @@ s32 func_8013E4B4(void *cam) {
     return 1;
 }
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013E8A8);
+typedef struct { SVECTOR at; SVECTOR eye; } Scr_8013E8A8;
+typedef struct { u8 f_0; u8 f_1; u8 pad2[6]; u8 f_8; } St_8013E8A8;
+typedef struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } Ent_8013E8A8;
+extern St_8013E8A8 D_80142320_8013E8A8 asm("D_80142320");
+extern Ent_8013E8A8 D_80142338_8013E8A8 asm("D_80142338");
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013E8A8 asm("g_Spike");
+
+s32 func_8013E8A8(void *cam) {
+    SVECTOR v;
+    s32 dx, dz;
+    Scr_8013E8A8 *s = (Scr_8013E8A8 *)0x1F800000;
+    Ent_8013E8A8 *b = &D_80142338_8013E8A8;
+    St_8013E8A8 *st = &D_80142320_8013E8A8;
+
+    if (st->f_8 != 0) {
+        func_8013EA9C(cam);
+        return 1;
+    }
+    v.vx = b->x - g_Spike_8013E8A8.x;
+    v.vy = b->y - g_Spike_8013E8A8.y;
+    v.vz = b->z - g_Spike_8013E8A8.z;
+    VectorNormalSS(&v, &v);
+    dx = v.vx;
+    dz = v.vz;
+    s->at.vx = g_Spike_8013E8A8.x - ((dx * 381) >> 10);
+    s->at.vy = g_Spike_8013E8A8.y - 0x52C;
+    s->at.vz = g_Spike_8013E8A8.z - ((dz * 381) >> 10);
+    s->eye.vx = b->x;
+    s->eye.vy = b->y;
+    s->eye.vz = b->z;
+    if ((u8)(st->f_1 - 0x16) < 5) {
+        s->at.vx = g_Spike_8013E8A8.x - ((dx * 32) >> 8);
+        s->at.vy = g_Spike_8013E8A8.y - 0x12C;
+        s->at.vz = g_Spike_8013E8A8.z - ((dz * 32) >> 8);
+    }
+    func_80047558(cam, 0xC, 0x10, 0xC);
+    func_80047464(cam, 0xC, 0x10, 0xC);
+    return 1;
+}
 
 extern struct { u8 pad0[8]; u8 f_8; s8 f_9; s16 f_A; } D_80142320_8013EA24 asm("D_80142320");
 M2C_UNK Collision_Remove(void *);
@@ -718,7 +754,31 @@ void func_8013EE9C(void) {
     } while (var_v1 >= 0);
 }
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013EEC0);
+typedef struct { s16 x; s16 y; s16 z; u8 f_6; u8 f_7; u8 f_8; u8 pad9; s16 f_A; } Pt_8013EEC0;
+typedef struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } Ent_8013EEC0;
+extern Pt_8013EEC0 D_801427C0_8013EEC0[] asm("D_801427C0");
+
+M2C_UNK func_8013EEC0(void *arg0, M2C_UNK arg1) {
+    Pt_8013EEC0 *p;
+    s32 i;
+
+    for (i = 0x1F, p = D_801427C0_8013EEC0; i >= 0; i--, p++) {
+        p->f_6 = 0x20;
+        p->f_7 = (g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 1;
+        p->f_8 = (g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 0xF;
+        if (arg1 != 0) {
+            p->x = ((Ent_8013EEC0 *)arg0)->x + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 16;
+            p->y = ((Ent_8013EEC0 *)arg0)->y + (s16)(((g_RandSeed = g_RandSeed * 5 + 1) >> 4 & 0xFF0) - 0xA4E);
+            p->z = ((Ent_8013EEC0 *)arg0)->z + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 16;
+            p->f_A = -0x24E;
+        } else {
+            p->x = ((Ent_8013EEC0 *)arg0)->x + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 8;
+            p->y = ((Ent_8013EEC0 *)arg0)->y - ((g_RandSeed = g_RandSeed * 5 + 1) >> 6 & 0x3FC);
+            p->z = ((Ent_8013EEC0 *)arg0)->z + (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * 8;
+            { register s32 k asm("$2") = -0x40; p->f_A = k; }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013F06C);
 

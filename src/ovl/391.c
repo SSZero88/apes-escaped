@@ -665,7 +665,45 @@ void func_80137D20(s32 row)
   (*((GameDraw *) (&g_Game))).prim = new_var;
 }
 
-INCLUDE_ASM("asm/ovl/391/nonmatchings/391", func_80137DC4);
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_80137DC4;
+typedef struct { s16 x, y; } Pos_80137DC4;
+extern Pos_80137DC4 D_80139B20_80137DC4 asm("D_80139B20");
+extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x66]; s16 f_8166; } g_Game_80137DC4 asm("g_Game");
+extern Sprt_80137DC4 *D_800EC354_80137DC4 asm("D_800EC354");
+
+void func_80137DC4(void) {
+    Sprt_80137DC4 *p;
+    u32 *ot;
+    s32 i;
+    s32 n;
+    s32 x, y;
+
+    i = 0;
+    ot = g_Game_80137DC4.db[g_Game_80137DC4.cur].hud;
+    p = (Sprt_80137DC4 *)g_Game_80137DC4.prim;
+    n = g_Game_80137DC4.f_8166;
+    for (; i < n; i++) {
+        __asm__ volatile("" : : "r"(i), "r"(i), "r"(i), "r"(i), "r"(i), "r"(i));
+        { s32 bx = D_80139B20_80137DC4.x; __asm__("" : : "r"(bx), "r"(bx)); x = bx + (i % 8) * 24; }
+        y = D_80139B20_80137DC4.y + (i / 8) * 24;
+        ((u8 *)p)[3] = 4;
+        p->code = 0x67;
+        p->x0 = x;
+        p->y0 = y;
+        p->w = 0x20;
+        p->h = 0x20;
+        p->v0 = (g_Game_80137DC4.frame % 10 >= 6) ? 0x40 : 0x60;
+        p->u0 = 0xA0;
+        p->clut = 0x3A7F;
+        ADD_PRIM_ASM2(ot, p);
+        p++;
+    }
+    ((u8 *)p)[3] = 1;
+    ((u32 *)p)[1] = 0xE100024F;
+    ADD_PRIM_ASM(ot, p);
+    p++;
+    D_800EC354_80137DC4 = p;
+}
 
 extern GameDraw g_Game_80137F4C asm("g_Game");
 extern struct { u8 pad0[0x48]; s32 hidden; } D_80139B20_80137F4C asm("D_80139B20");

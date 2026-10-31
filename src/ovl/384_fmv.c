@@ -309,7 +309,6 @@ extern Col_801369E0 D_8013C49C_801369E0 asm("D_8013C49C");
 extern u8 D_8013C150[];
 void StUnSetRing(void);
 void func_801364B0(u8 *pos, u8 *end, u8 mode, s32 seek);
-void func_80136FF0();
 void func_80139DAC(void);
 s32 func_8002FAF0(s32);
 void func_8013AA70(void);
@@ -513,7 +512,73 @@ void func_80136EA8(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136FF0);
+typedef struct { u8 pad0[3]; u8 f_3; u8 pad4[0xC]; u32 f_10; } Fmv_80136FF0;
+extern Fmv_80136FF0 *D_8013C484_80136FF0 asm("D_8013C484");
+extern GameDraw g_Game_80136FF0 asm("g_Game");
+extern void *jtbl_8013C058[];
+s32 VSync_80136FF0(s32) asm("VSync");
+void func_80138354(void *arg0, u8 *c);
+
+void func_80136FF0(s32 arg0) {
+    u8 col[4];
+    u8 rec[8];
+    s32 i;
+    s32 n;
+    u32 k;
+
+    n = 0x100;
+    if (!((D_8013C484_80136FF0->f_10 >> 3) & 1)) {
+        n = (arg0 != 0) << 8;
+    }
+    k = D_8013C484_80136FF0->f_3;
+    __asm__("" : : "i"(&&c1), "i"(&&c2), "i"(&&c0));
+    if (k >= 9) {
+        goto start;
+    }
+    goto *jtbl_8013C058[k];
+c1:
+    __asm__ volatile(".L80137068:");
+    col[3] = 1;
+    goto start;
+c2:
+    __asm__ volatile(".L80137074:");
+    col[3] = 2;
+    goto start;
+c0:
+    __asm__ volatile(".L80137080:");
+    n = 1;
+    col[3] = 0;
+start:
+    DrawSync(0);
+    i = 0;
+    VSync_80136FF0(D_8013C4B4);
+    PutDispEnv(&g_Game_80136FF0.db[g_Game_80136FF0.cur].env[0x5C]);
+    PutDrawEnv(g_Game_80136FF0.db[g_Game_80136FF0.cur].env);
+    func_801367DC();
+    SetDefDrawEnv(&g_Game_80136FF0.db[0], i, i, 0x180, 0xF0);
+    SetDefDrawEnv(&g_Game_80136FF0.db[1], i, 0x100, 0x180, 0xF0);
+    g_Game_80136FF0.db[1].env[0x18] = 0;
+    g_Game_80136FF0.db[0].env[0x18] = 0;
+    Gfx_BeginFrame();
+    DrawSync(i);
+    for (; i < n; i += 4) {
+        col[2] = i;
+        col[1] = i;
+        col[0] = i;
+        func_80138354(rec, col);
+        DrawSync(0);
+        VSync_80136FF0(D_8013C4B4);
+        PutDispEnv(&g_Game_80136FF0.db[g_Game_80136FF0.cur].env[0x5C]);
+        PutDrawEnv(g_Game_80136FF0.db[g_Game_80136FF0.cur].env);
+        DrawOTag(&g_Game_80136FF0.db[g_Game_80136FF0.cur].ot[0xFFF]);
+        if (col[3] == 0) {
+            return;
+        }
+        Gfx_BeginFrame();
+    }
+    g_Game_80136FF0.db[1].env[0x18] = 1;
+    g_Game_80136FF0.db[0].env[0x18] = 1;
+}
 
 typedef struct { s32 name; s32 f4; u32 flags; s32 fC; u8 file[0x18]; } FmvEnt_80137248;
 typedef struct { u32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x26]; u16 f_8126; u8 pad8128[0x158]; s32 f_8280; } Game_80137248;
@@ -798,7 +863,72 @@ INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C4B0);
 
 INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C4B4);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80137AC0);
+extern struct { u8 pad0[0x8120]; u16 f_8120; u8 pad8122[4]; u16 f_8126; u8 pad8128[0x32]; u16 f_815A; } g_Game_80137AC0 asm("g_Game");
+s32 func_80136074(s32);
+s32 Cd_StartFileLoad(s32, s32);
+s32 func_800116C0(void);
+void Cd_Update(void);
+s32 func_80096540(s32);
+s32 SaveByte_Set(s32, s32);
+
+s32 func_80137AC0(void) {
+    VSync(2);
+    func_80136074(g_Game_80137AC0.f_815A);
+    Cd_StartFileLoad(0, 0xC);
+    while (func_800116C0() == 0) {
+        Cd_Update();
+        VSync(2);
+    }
+    switch (g_Game_80137AC0.f_815A) {
+    case 0:
+        g_Game_80137AC0.f_8120 = 8;
+        g_Game_80137AC0.f_8126 = 1;
+        break;
+    case 1:
+        g_Game_80137AC0.f_8120 = 0xD;
+        func_80096540(1);
+        break;
+    case 2:
+        g_Game_80137AC0.f_8120 = 3;
+        break;
+    case 3:
+        g_Game_80137AC0.f_8120 = 0xB;
+        g_Game_80137AC0.f_8126 = 0x4E;
+        Cd_StartFileLoad(1, 0x4E);
+        while (func_800116C0() == 0) {
+            Cd_Update();
+            VSync(2);
+        }
+        break;
+    case 4:
+        g_Game_80137AC0.f_8120 = 0x1D;
+        func_80096540(4);
+        break;
+    case 5:
+        g_Game_80137AC0.f_8120 = 0xD;
+        func_80096540(5);
+        break;
+    case 6:
+        g_Game_80137AC0.f_8120 = 0x23;
+        break;
+    case 7:
+        SaveByte_Set(0xB, 5);
+        g_Game_80137AC0.f_8120 = 0xA;
+        g_Game_80137AC0.f_8126 = 6;
+        break;
+    case 8:
+        g_Game_80137AC0.f_8120 = 0xB;
+        g_Game_80137AC0.f_8126 = 0x56;
+        Cd_StartFileLoad(1, 0x56);
+        while (func_800116C0() == 0) {
+            Cd_Update();
+            VSync(2);
+        }
+        break;
+    }
+    return 0;
+}
+__asm__(".section .rodata\n\t.align 3\n\t.section .text\n\t.balign 16");
 
 void func_80137D20(void) {
     s32 sp10;

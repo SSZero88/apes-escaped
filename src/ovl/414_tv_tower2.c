@@ -27,7 +27,67 @@ s32 func_8013D000(void *arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013D014);
+extern struct { u8 pad_0[0x8120]; u16 f_8120; u8 pad_8122[4]; u16 f_8126; u8 pad_8128[2]; u16 f_812A; } g_Game_8013D014 asm("g_Game");
+extern s32 D_800EC20C;
+extern u16 D_800E69BE_8013D014 asm("D_800E69BE");
+extern void *D_8013D1A0_8013D014[] asm("func_8013D1A0");
+void Overlay_Request(s32);
+s32 Overlay_GetState(void);
+void func_80140760(void);
+void func_8008745C(void);
+void Sound_UnloadBanks(s32);
+void Game_SetMode(s32, s32, s32);
+
+s32 func_8013D014(s16 *p) {
+    if (g_Game_8013D014.f_8120 == 0x13) {
+        return 0;
+    }
+    {
+        s32 st = p[1];
+        if ((u32)st >= 6) goto done;
+        goto *D_8013D1A0_8013D014[st];
+    }
+case0:
+        if (D_800EC20C < -0x7FF) {
+            return 0;
+        }
+        Overlay_Request(0);
+        p[1] = 1;
+        Sound_UnloadBanks(2);
+        goto done;
+case1:
+        if (Overlay_GetState() != 0) {
+            return 0;
+        }
+        p[1] = 3;
+        func_80140760();
+        func_8008745C();
+        return 0;
+case2:
+        if (D_800EC20C < -0x7FF) {
+            return 0;
+        }
+        p[1] = 3;
+        func_80140760();
+        return 0;
+case3:
+        if (D_800E69BE_8013D014 == 1) {
+            Overlay_Request(1);
+            p[1] = 4;
+            Sound_UnloadBanks(2);
+        }
+        goto done;
+case4:
+        if (Overlay_GetState() != 0) {
+            return 0;
+        }
+        p[1] = 5;
+        func_8008745C();
+        Game_SetMode(0x12, g_Game_8013D014.f_8126, g_Game_8013D014.f_812A);
+    __asm__ volatile("" : : "i"(&&case0), "i"(&&case1), "i"(&&case2), "i"(&&case3), "i"(&&case4));
+done:
+    return 0;
+}
 
 s32 func_8013D174(void) {
     return M2C_FIELD(g_Game.f_8220, s16 *, 0x1A) >= 4;

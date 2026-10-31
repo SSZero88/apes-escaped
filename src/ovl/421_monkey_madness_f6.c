@@ -897,7 +897,82 @@ s32 func_8014149C(s16 *p)
   return 0;
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_801414F8);
+typedef struct { s32 type; s32 x; s32 y; s32 z; s32 f_10; s32 f_14; s32 f_18; s32 f_1C; s32 f_20; s32 f_24; } Obj_801414F8;
+extern struct { u8 pad_0[0x8126]; u16 f_8126; u8 pad_8128[2]; u16 f_812A; u8 pad_812C[0x10C]; Obj_801414F8 *f_8238; u8 pad_823C[0x50]; s32 f_828C; } g_Game_801414F8 asm("g_Game");
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_801414F8 asm("g_Spike");
+extern s16 D_800EC238;
+extern u16 D_800E69BE_801414F8 asm("D_800E69BE");
+void func_800863B0(s32, s32);
+void Overlay_Request(s32);
+s32 Overlay_GetState(void);
+void func_8013FC74(void);
+void Spike_SetPlayMode(s32);
+void Game_SetMode(s32, s32, s32);
+
+s32 func_801414F8(s16 *p) {
+    s32 i;
+    Obj_801414F8 *o;
+
+    switch (p[1]) {
+    case 0:
+        if (D_800EC238 == p[2]) {
+            p[1] = 1;
+            func_800863B0(2, 0x28);
+            Overlay_Request(9);
+        }
+        break;
+    case 1:
+        if (Overlay_GetState() == 0) {
+            func_800863B0(0, 0);
+            p[1] = 3;
+            func_8013FC74();
+        }
+        break;
+    case 2:
+        if (D_800EC238 == p[2]) {
+            p[1] = 3;
+            func_8013FC74();
+        }
+        break;
+    case 3:
+        if (D_800E69BE_801414F8 == 1) {
+            p[1] = 5;
+            Spike_SetPlayMode(0xB);
+            Game_SetMode(0x1F, g_Game_801414F8.f_8126, g_Game_801414F8.f_812A);
+        }
+        break;
+    case 4:
+        if (Overlay_GetState() == 0) {
+            p[1] = 5;
+            func_800863B0(0, 0);
+            Spike_SetPlayMode(0xB);
+            o = g_Game_801414F8.f_8238;
+            for (i = 0; i < g_Game_801414F8.f_828C; i++) {
+                if (o[i].type == 3) {
+                    o = &o[i];
+                    o->type = 0;
+                    o->x = g_Spike_801414F8.x;
+                    o->y = g_Spike_801414F8.y;
+                    o->z = g_Spike_801414F8.z;
+                    o->f_10 = 0x800;
+                    o->f_14 = 0x200;
+                    o->f_18 = 0x200;
+                    o->f_1C = 0x200;
+                    o->f_20 = 0x56;
+                    o->f_24 = 0;
+                    break;
+                }
+            }
+        }
+        break;
+    case 5:
+        break;
+    }
+    return 0;
+}
+
+/* the original pads the read-only data after this jump table to 16 bytes (D_80141850 is 16-aligned) */
+__asm__(".section .rodata\n\t.align 4\n\t.section .text");
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_801416D8 asm("g_Game");
 extern s16 D_800EC238;

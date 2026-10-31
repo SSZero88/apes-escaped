@@ -116,7 +116,37 @@ s32 func_8013F808(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013F9F8);
+extern u8 g_Game[];
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8013F9F8;
+typedef struct { u32 tag; u32 code; } Tpage_8013F9F8;
+typedef struct { u32 frame; } Frame_8013F9F8;
+
+s32 func_8013F9F8(s32 n) {
+    u8 *p;
+    u32 *ot;
+
+    p = G_DRAW.prim;
+    p[3] = 4;
+    ((Sprt_8013F9F8 *)p)->code = 0x65;
+    ((Sprt_8013F9F8 *)p)->x0 = 0x4C;
+    ((Sprt_8013F9F8 *)p)->y0 = n * 25 + 0x51 - ((((Frame_8013F9F8 *)g_Game)->frame >> 2) % 3);
+    ((Sprt_8013F9F8 *)p)->clut = 0x7DEB;
+    ((Sprt_8013F9F8 *)p)->u0 = 0xA0;
+    ((Sprt_8013F9F8 *)p)->v0 = 0xA0;
+    ((Sprt_8013F9F8 *)p)->w = 0x20;
+    ((Sprt_8013F9F8 *)p)->h = 0x20;
+    ot = &G_DRAW.db[G_DRAW.cur].ot[0];
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    p += 0x14;
+    p[3] = 1;
+    ((Tpage_8013F9F8 *)p)->code = 0xE100023A;
+    ot = &G_DRAW.db[G_DRAW.cur].ot[0];
+    ADD_PRIM_R(ot, p, "$4", "$3");
+    p += 8;
+    G_DRAW.prim = p;
+    return 0;
+}
+__asm__(".section .text\n\t.balign 16\n\t.globl D_8013FB10\nD_8013FB10:\n\t.word 0x00000000");
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8013FB14);
 
@@ -291,7 +321,51 @@ s32 func_801400F4(s32 n) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", func_8014016C);
+typedef struct { s16 x, y; u8 body[0x20]; } Item_8014016C;
+typedef struct { s16 start, count; } Range_8014016C;
+extern Item_8014016C D_80140470_8014016C[] asm("D_80140470");
+extern Range_8014016C D_80141940[];
+extern s16 D_8013AF56;
+extern struct { u8 pad_0[6]; s16 f_6; } D_800E3880_8014016C asm("D_800E3880");
+extern u8 D_800E1A18[];
+extern struct { u32 frame; } g_Game_8014016C asm("g_Game");
+s32 func_80136120(u8 *);
+extern void *jtbl_801403B0[];
+
+s32 func_8014016C(void) {
+    s32 start;
+    s32 i;
+    s32 k;
+    s32 w;
+    s32 x;
+    s32 idx;
+
+    idx = (s16)(D_8013AF56 - 2);
+    if ((u32)idx >= 0x30) {
+        goto end;
+    }
+    __asm__("" : : "i"(&&body), "i"(&&end));
+    goto *jtbl_801403B0[idx];
+body:
+        start = D_80141940[D_8013AF56].start;
+        for (i = 0; i < D_80141940[D_8013AF56].count; i++) {
+            k = start + i;
+            if (D_80140470_8014016C[k].x == -2 && g_Game_8014016C.frame % 20 >= 11) {
+                continue;
+            }
+            if (D_80140470_8014016C[k].x == -3) {
+                w = (func_80136120(D_800E1A18 + D_800E3880_8014016C.f_6 * 0x7A0) + func_80136120(D_80140470_8014016C[k].body)) / 2;
+                x = 0xC0 - w;
+                func_80136000(D_800E1A18 + D_800E3880_8014016C.f_6 * 0x7A0, x, D_80140470_8014016C[k].y, 0);
+                func_80136000(D_80140470_8014016C[k].body, x + func_80136120(D_800E1A18 + D_800E3880_8014016C.f_6 * 0x7A0), D_80140470_8014016C[k].y, 0);
+            } else {
+                func_80136000(D_80140470_8014016C[k].body, D_80140470_8014016C[k].x, D_80140470_8014016C[k].y, 0);
+            }
+        }
+end:
+    return 0;
+}
+__asm__(".section .text\n\t.balign 16");
 
 INCLUDE_ASM("asm/ovl/390/nonmatchings/390d", jtbl_801403B0);
 
