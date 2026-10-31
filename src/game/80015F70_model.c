@@ -352,7 +352,74 @@ void func_80017E5C(s32 arg0, s32 arg1, S_Model_17E5C *arg2) {
     Model_DrawPrims(arg0, c, arg1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", func_80017EFC);
+typedef struct { u32 flags; u16 nFrames; u8 pad6[6]; u16 timesOfs; u16 nColors; } CHdr_17EFC;
+typedef struct { CHdr_17EFC *hdr; u32 *colors; u8 *prims; u8 padC[0xC]; u16 frame; } CMdl_17EFC;
+typedef struct { u32 rgb[0xF0]; u16 f_3C0; u16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } Scr_17EFC;
+extern struct { u8 pad0[0x1C]; u8 f_1C; u8 f_1D; u8 f_1E; u8 pad1F[5]; u16 f_24; u8 pad26[2]; u16 f_28; } D_800EBFA0_17EFC asm("D_800EBFA0");
+#define gte_ldFCR_17EFC(r) __asm__ volatile ("ctc2 %0, $21" : : "r"(r))
+#define gte_ldFCG_17EFC(r) __asm__ volatile ("ctc2 %0, $22" : : "r"(r))
+#define gte_ldFCB_17EFC(r) __asm__ volatile ("ctc2 %0, $23" : : "r"(r))
+#define gte_ldRGBw_17EFC(p) __asm__ volatile ("lw $15, 0(%0); nop; mtc2 $15, $6" : : "r"(p) : "$15")
+#define gte_dpcs_17EFC(t) __asm__ volatile ("nop; mtc2 %0, $8; nop; nop; dpcs" : : "r"(t))
+
+void func_80017EFC(s32 ot, s32 arg, CMdl_17EFC *m, s32 mode) {
+    u8 *prims = m->prims;
+    CHdr_17EFC *h = m->hdr;
+    Scr_17EFC *sc = (Scr_17EFC *)0x1F800000;
+    u32 *a, *b, *src, *out;
+    u16 *times;
+    u32 t, c, fr, fg, fb;
+    s32 f, i, n;
+    u32 idx;
+
+    sc->f_3F4 = mode;
+    sc->f_3C6 = 0;
+    sc->f_3C4 = 0;
+    if (h->flags & 0x100000) {
+        times = (u16 *)((u8 *)h + h->timesOfs * 4);
+        idx = m->frame;
+        if (h->flags & 0x2000) {
+            t = idx;
+        } else {
+            t = times[idx + 1];
+        }
+        f = t >> 12;
+        a = &m->colors[f * h->nColors];
+        if (f == h->nFrames - 1) {
+            b = m->colors;
+        } else {
+            b = a + h->nColors;
+        }
+        t &= 0xFFF;
+        __asm__("" : : "r"(t));
+        for (i = 0; i < h->nColors; i++) {
+            c = *b;
+            gte_ldRGBw_17EFC(a);
+            fr = (c << 4) & 0xFF0;
+            gte_ldFCR_17EFC(fr);
+            fr = (c >> 4) & 0xFF0;
+            gte_ldFCG_17EFC(fr);
+            fr = (c >> 12) & 0xFF0;
+            gte_ldFCB_17EFC(fr);
+            gte_dpcs_17EFC(t);
+            a++; b++;
+            gte_stRGB2(&sc->rgb[i]);
+        }
+        gte_ldFCR_17EFC(D_800EBFA0_17EFC.f_1C);
+        gte_ldFCG_17EFC(D_800EBFA0_17EFC.f_1D);
+        gte_ldFCB_17EFC(D_800EBFA0_17EFC.f_1E);
+    } else {
+        n = h->nColors;
+        src = m->colors;
+        for (i = 0; i < n; i++) {
+            { register s32 one asm("$15") = 0x1000; gte_ldIR(one, 0, 0); }
+            gte_ldRGB(&src[i]);
+            gte_cc();
+            gte_stRGB2(&sc->rgb[i]);
+        }
+    }
+    Model_DrawPrims(ot, prims, arg);
+}
 
 /* Draws a model's primitives, grouped by type: the textured types (FT3, FT4, GT3, GT4)
  * with the GTE far colour set to 0, then the far colour from D_800EBFA0 for F3, F4, G3

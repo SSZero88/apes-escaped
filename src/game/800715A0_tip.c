@@ -153,4 +153,131 @@ void Mailbox_OpenTip(s32 slot, s32 sector) {
     Sound_PlayFixed(0xF);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/800715A0_tip", Tip_DrawAll);
+typedef struct { s16 kind; s16 pad2; SVECTOR pos; SVECTOR rot; u16 frame; u16 state; } TipBox_71A28;
+typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x2C]; u16 frame; u8 pad5E[0x12]; } TipMdl_71A28;
+typedef struct { s32 n; TipMdl_71A28 mdlA; TipMdl_71A28 mdlB; u8 pad[0xE4 - 4 - 0xE0]; TipBox_71A28 box[4]; u8 *buf; u32 f_148; } TipState_71A28;
+extern TipState_71A28 g_TipState_71A28 asm("g_TipState");
+extern struct { u8 pad0[8]; void *ot; u8 padC[0x80F4]; s32 f_8100; } g_Game_71A28 asm("g_Game");
+extern u8 D_800E78C0[];
+extern TipMdl_71A28 D_800BBC54_71A28 asm("D_800BBC54");
+extern TipMdl_71A28 D_800BBCC4_71A28 asm("D_800BBCC4");
+extern u8 D_800E7D00[];
+void SetRotMatrix(void *);
+void SetTransMatrix(void *);
+void func_80014804(SVECTOR *, void *);
+void func_80015780(void *, s32);
+void Model_ProjectBonedVerts(void *);
+void func_80017D94(void *, void *, void *, s32);
+void Shadow_Draw(void *, s32, s32, s32);
+s32 func_800715FC(void);
+void func_8007BC9C(void);
+void func_800715B4(void);
+void func_8008DF20(s32);
+
+/* Draws the tip boxes (g_TipState: count, then up to 4 boxes at +0xE4). Each box is projected through
+   the GTE (depth cue registers DQA 0x40 / DQB 0 give its screen radius in MAC0) and steps its
+   animation: kinds 0/1 drive model A's frame (+0x60; state 0 loops 0x1D frames, state 1 plays 0x59
+   frames once then returns to state 0), kind 2 model B's (+0xD0; 0x3A / 0x58) and counts down its timer
+   +0xA. On screen, it draws model A (kind 1 shaded 0x40) or B at the box, with a shadow. Afterwards
+   finishes an opening tip (f_149 == 2) and shows a pending message once its file has loaded. */
+void Tip_DrawAll(void) {
+    s32 n = g_TipState_71A28.n;
+    TipBox_71A28 *b;
+    TipMdl_71A28 *m;
+    s32 i;
+    s32 f;
+    register s32 r asm("$3"); s32 sz, sxy, x, y;
+    s32 shade;
+
+    if (n == 0) {
+        return;
+    }
+    for (i = 0; i < n; i++) {
+        b = &g_TipState_71A28.box[i];
+        SetRotMatrix(D_800E78C0);
+        SetTransMatrix(D_800E78C0);
+        __asm__ volatile("lwc2 $0, 4(%0); lwc2 $1, 8(%0)" : : "r"(b));
+        __asm__ volatile("li $8, 0x40; ctc2 $8, $27; addu $8, $0, $0; ctc2 $8, $28; nop; nop; rtps" : : : "$8");
+        f = b->frame + 1;
+        switch (b->kind) {
+        case 0:
+        case 1:
+            switch (b->state) {
+            case 0:
+                if (f >= 0x1D) {
+                    f = 0;
+                }
+                break;
+            case 1:
+                if (f >= 0x59) {
+                    f = 0;
+                    b->state = 0;
+                }
+                break;
+            }
+            g_TipState_71A28.mdlA.frame = f;
+            break;
+        case 2:
+            switch (b->state) {
+            case 0:
+                if (f >= 0x3A) {
+                    f = 0;
+                }
+                break;
+            case 1:
+                if (f >= 0x58) {
+                    f = 0;
+                    b->state = 0;
+                }
+                break;
+            }
+            g_TipState_71A28.mdlB.frame = f;
+            if (b->pos.pad > 0) {
+                b->pos.pad--;
+            }
+            break;
+        }
+        b->frame = f;
+        __asm__ volatile("mfc2 %0, $24" : "=r"(r));
+        __asm__ volatile("mfc2 %0, $19" : "=r"(sz));
+        __asm__ volatile("mfc2 %0, $14" : "=r"(sxy));
+        r >>= 16;
+        if ((u32)(sz - 1) >= 0xF60) {
+            continue;
+        }
+        x = (s16)sxy;
+        y = sxy >> 16;
+        if (x + r < 0 || x - r >= 0x181 || y + r < 0 || y - r >= 0xF1) {
+            continue;
+        }
+        __asm__("" : : "r"(r));
+        shade = 0;
+        switch (b->kind) {
+        case 1:
+            shade = 0x40;
+        case 0:
+            m = &D_800BBC54_71A28;
+            break;
+        default:
+            m = &D_800BBCC4_71A28;
+            break;
+        }
+        m->x = b->pos.vx;
+        m->y = b->pos.vy;
+        m->z = b->pos.vz;
+        func_80014804(&b->rot, m->mat);
+        func_80015780(m, 1);
+        Model_ProjectBonedVerts(m);
+        func_80017D94(g_Game_71A28.ot, D_800E7D00, m, shade);
+        Shadow_Draw(&m->x, b->pos.vy, 0x40, 0);
+    }
+    if (D_800BBD99 == 2 && func_800715FC() == 1) {
+        func_8007BC9C();
+        func_800715B4();
+        g_Game_71A28.f_8100 = 0;
+    }
+    if ((g_TipState_71A28.f_148 & 0xFFFF00) == 0x10100) {
+        func_8008DF20((s32)g_TipState_71A28.buf);
+        ((u8 *)&g_TipState_71A28.f_148)[1] = 2;
+    }
+}

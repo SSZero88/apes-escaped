@@ -250,7 +250,122 @@ s32 Zone_FindBoxContaining(V_8004BD98_8004BD98 *p)
   return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8004B880_camera3", Camera_UpdateZoneBox);
+typedef struct { s16 vx, vy, vz, pad; } SV_8004BF20;
+typedef struct { s16 f_0; u16 f_2; s16 f_4, f_6, f_8, f_A, f_C, f_E; u8 pad10[0x20]; } Box_8004BF20;
+typedef struct { u8 pad0[0xC]; u8 f_C; u8 f_D; u8 padE[0xD]; u8 f_1B; u8 pad1C[0x23]; u8 f_3F; u8 f_40; u8 pad41; u8 f_42; u8 pad43[9]; Box_8004BF20 *f_4C; } C_8004BF20;
+typedef struct { s16 x, y, z, pad; s16 f_8, f_A, f_C; } P_8004BF20;
+typedef struct { u8 pad0[0xA]; SV_8004BF20 f_A; SV_8004BF20 f_12; u8 pad1A[0x6E]; u16 f_88; u16 f_8A; u8 pad8C[7]; u8 f_93; u8 pad94[0x1C]; } Set_8004BF20;
+typedef struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; } Spk_8004BF20;
+typedef struct { u8 pad0[0x8258]; SV_8004BF20 f_8258; SV_8004BF20 f_8260; } Game_8004BF20;
+extern C_8004BF20 D_800E68D0_BF20 asm("D_800E68D0");
+extern u8 D_800E68DD;
+extern P_8004BF20 D_800E68C0_BF20 asm("D_800E68C0");
+extern Set_8004BF20 *D_800B4D40_BF20 asm("D_800B4D40");
+extern Spk_8004BF20 g_Spike_BF20 asm("g_Spike");
+extern Game_8004BF20 g_Game_BF20 asm("g_Game");
+void memset(void *, s32, s32);
+s32 Zone_FindBoxContaining_BF20(SV_8004BF20 *) asm("Zone_FindBoxContaining");
+void func_80047290(s32);
+void Camera_SelectSetting(void);
+
+void Camera_UpdateZoneBox(void) {
+    SV_8004BF20 q;
+    SV_8004BF20 p;
+    s32 b;
+    s32 k;
+    s32 i;
+    s32 c;
+    u16 f;
+    C_8004BF20 *d;
+    Box_8004BF20 *boxes;
+    Box_8004BF20 *bx;
+    Set_8004BF20 *s;
+    memset(&p, 0, 8);
+    p.vx = g_Spike_BF20.x;
+    p.vy = g_Spike_BF20.y - 0x80;
+    p.vz = g_Spike_BF20.z;
+    d = &D_800E68D0_BF20;
+    q = p;
+    boxes = d->f_4C;
+    if (d->f_C != 0) {
+        d->f_C--;
+    }
+    b = Zone_FindBoxContaining_BF20(&q);
+    if (b == -1) {
+        b = 0xFF;
+    }
+    if (b == d->f_D) {
+        return;
+    }
+    if (d->f_C == 0) {
+        d->f_C = 1;
+    }
+    if (d->f_C != 1) {
+        return;
+    }
+    d->f_C = 0;
+    if (b == 0xFF) {
+        if (d->f_D != 0xFF) {
+            i = d->f_D;
+            bx = &boxes[i];
+            f = bx->f_2;
+            c = f & 0xF;
+            if (c && ((f & 0x6000) == 0 || (f & 0x6000) == 0x6000)) {
+                func_80047290(c);
+            }
+            D_800E68D0_BF20.f_1B = 0xFF;
+            D_800E68D0_BF20.f_3F = 0;
+            D_800E68D0_BF20.f_40 = 0;
+            D_800E68D0_BF20.f_42 = 0;
+            Camera_SelectSetting();
+        }
+    } else {
+        if (d->f_D != 0xFF) {
+            i = d->f_D;
+            bx = &boxes[i];
+            f = bx->f_2;
+            c = f & 0xF;
+            if (c && !(f & 0x6000)) {
+                func_80047290(c);
+            }
+        }
+        D_800E68D0_BF20.f_3F = 0;
+        D_800E68D0_BF20.f_40 = 0;
+        D_800E68D0_BF20.f_42 = 0;
+        D_800E68D0_BF20.f_1B = 0xFF;
+        if (b >= 0) {
+            D_800E68C0_BF20.x = boxes[b].f_4;
+            D_800E68C0_BF20.y = boxes[b].f_6;
+            D_800E68C0_BF20.z = boxes[b].f_8;
+            D_800E68C0_BF20.f_8 = boxes[b].f_A / 2;
+            D_800E68C0_BF20.f_A = boxes[b].f_C / 2;
+            D_800E68C0_BF20.f_C = boxes[b].f_E / 2;
+        }
+        if (!(boxes[b].f_2 & 0x8000)) {
+            boxes[b].f_2 |= 0x8000;
+        }
+        k = boxes[b].f_2 & 0xF;
+        if (k != 0) {
+            D_800E68D0_BF20.f_1B = k;
+            s = &D_800B4D40_BF20[D_800E68D0_BF20.f_1B];
+            s->f_88 = s->f_8A;
+            if (!(boxes[b].f_2 & 0x6000)) {
+                s->f_A = g_Game_BF20.f_8258;
+                s->f_12 = g_Game_BF20.f_8260;
+            }
+        } else {
+            s32 r;
+            if ((boxes[b].f_2 & 0x6000) == 0x4000) {
+                r = Camera_StartEventCam(boxes[b].f_0, 1, 1);
+            } else {
+                r = Camera_StartEventCam(boxes[b].f_0, 0, 1);
+            }
+            boxes[b].f_2 = (boxes[b].f_2 & 0xFFF0) | (r & 0xF);
+            D_800B4D40_BF20[r].f_93 = b;
+        }
+    }
+    D_800E68DD = b;
+}
 
 void func_8004C2E4(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x90) = 0;

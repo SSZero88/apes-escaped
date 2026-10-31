@@ -40,7 +40,7 @@ s16 func_800A1DB0(s16, s32);
 extern struct S_D_800EC350 { u8 pad_0[0x8120]; u16 f_8120; u8 pad_8122[0x10E]; s32 f_8230; } g_Game;
 M2C_UNK func_800A2F54(s16, M2C_UNK, M2C_UNK);
 
-s32 Sound_Play(s16 arg0, s16 arg1);
+s32 Sound_Play(s32 arg0, s32 arg1);
 struct S_D_800BF370 *Sound_AllocSlot(void);
 M2C_UNK bios_printf(char *, ...);
 extern M2C_UNK D_800A627C;
@@ -298,7 +298,7 @@ s32 func_80086540(void) {
             bios_printf(D_800A6200, (s16)list[i].id);
             continue;
         }
-        s->voice = Sound_Play(1, list[i].id);
+        s->voice = Sound_Play(1, (s16)list[i].id);
         s->id = list[i].id;
         s->f_4 = list[i].f_4;
         s->f_6 = list[i].f_6;
@@ -670,7 +670,45 @@ INCLUDE_RODATA("asm/nonmatchings/game/80086040_sound", D_800A622C);
 /* Plays sound effect `id & 0xFFF` from the sound table; unless `id` has flag bits
  * set, records the voice in a slot so it can be stopped. Returns the voice or -1.
  */
-INCLUDE_ASM("asm/nonmatchings/game/80086040_sound", Sound_Play);
+extern char D_800A6240[];
+extern char D_800A625C[];
+s16 func_800A3158_878E0(s32, s32, s32) asm("func_800A3158");
+typedef struct { s16 bank; s16 a; s16 b; s16 pad; } SndEnt_878E0;
+extern SndEnt_878E0 g_SoundTable_878E0[] asm("g_SoundTable");
+extern s16 g_SoundState_878E0[] asm("g_SoundState");
+
+s32 Sound_Play(s32 mode, s32 id) {
+    s16 i = id & 0xFFF;
+    s32 bank = g_SoundState_878E0[g_SoundTable_878E0[i].bank];
+    SndEnt_878E0 *e = &g_SoundTable_878E0[i];
+    s32 h;
+    struct S_D_800BF370 *s;
+    if (bank < 0) {
+        return -1;
+    }
+    if (mode == 0) {
+        h = func_800A3158_878E0(bank, e->a, e->b);
+    } else {
+        h = func_800A31B8(bank, e->a, e->b, 1, 1, 0x1000);
+    }
+    if (h < 0) {
+        bios_printf(D_800A6240, i, g_SoundTable_878E0[i].a, g_SoundTable_878E0[i].b);
+        return -1;
+    }
+    if (!(id & ~0xFFF)) {
+        s = Sound_AllocSlot();
+        if (s != 0) {
+            s->f_0 = id;
+            s->f_2 = h;
+            s->f_12 = 1;
+            s->f_16 = mode;
+        } else {
+            bios_printf(D_800A625C);
+            return -1;
+        }
+    }
+    return h;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/80086040_sound", D_800A6240);
 INCLUDE_RODATA("asm/nonmatchings/game/80086040_sound", D_800A625C);
@@ -925,7 +963,39 @@ s32 func_80088280(s16 a) {
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80086040_sound", func_800882C4);
+typedef struct { s16 bank; s16 a; s16 b; s16 pad; } SndEnt_882C4;
+extern SndEnt_882C4 g_SoundTable_882C4[] asm("g_SoundTable");
+extern s16 g_SoundState_882C4[] asm("g_SoundState");
+s16 func_800A3158_882C4(s32, s32, s32) asm("func_800A3158");
+
+s32 func_800882C4(s32 mode, s32 id, s32 tag) {
+    s16 i = id & 0xFFF;
+    SndEnt_882C4 *e;
+    struct S_D_800BF370 *p;
+    s32 h;
+    if (g_SoundState_882C4[g_SoundTable_882C4[i].bank] >= 0) {
+        e = &g_SoundTable_882C4[i];
+        p = Sound_AllocSlot();
+        if (p == 0) {
+            bios_printf((char *)&D_800A627C, i);
+            return -1;
+        }
+        if (mode == 0) {
+            h = func_800A3158_882C4(g_SoundState_882C4[e->bank], e->a, e->b);
+        } else {
+            h = func_800A31B8(g_SoundState_882C4[e->bank], e->a, e->b, 1, 1, 0x1000);
+        }
+        if (h >= 0) {
+            p->f_0 = id;
+            p->f_10 = tag;
+            p->f_2 = h;
+            p->f_12 = 1;
+            return h;
+        }
+        bios_printf(D_800A6240, i, g_SoundTable_882C4[i].a, g_SoundTable_882C4[i].b);
+    }
+    return -1;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/80086040_sound", D_800A627C);
 

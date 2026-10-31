@@ -226,7 +226,45 @@ void Tex_MakeFogLevels(Rect_5E7EC *r, s32 idx, CVec_5E7EC fog) {
 INCLUDE_RODATA("asm/nonmatchings/game/8005E0F0_hud", D_800A5A00);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/8005E0F0_hud", Tex_DrawFogLevels);
+typedef struct { u8 pad0[0x30]; u16 z0; u16 z1; } Cam_Tex_DrawFogLevels;
+typedef struct { u8 pad0[4]; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x94]; Cam_Tex_DrawFogLevels *cam; } G_Tex_DrawFogLevels;
+extern G_Tex_DrawFogLevels g_Game_Tex_DrawFogLevels asm("g_Game");
+extern Rect_5E7EC D_800A5A08;
+void SetDrawMove(void *p, void *r, s32 x, s32 y);
+/* addPrim with hard a0/v1 temps where only a0 is declared: a declared $3 would be an "explicitly used" register, which reload refuses for the /6 quotient (mfhi) */
+#define ADDP_TDFL(ot, p) __asm__ volatile("lwl $4, 2(%0)\n\tsll $3, %2, 8\n\tswl $3, 2(%0)\n\tswl $4, %1" : : "r"(ot), "m"(*((u8 *)(p) + 2)), "r"(p) : "$4")
+#define G_TDFL g_Game_Tex_DrawFogLevels
+
+void Tex_DrawFogLevels(s32 idx) {
+    Rect_5E7EC r;
+    u8 *p = G_TDFL.prim;
+    Cam_Tex_DrawFogLevels *c = G_TDFL.cam;
+    s32 i;
+    u32 z, zz;
+    s32 z0, z1, iy;
+
+    r = D_800A5A08;
+    iy = idx * 32;
+    z0 = c->z0;
+    z1 = c->z1;
+    r.x = 0x270;
+    r.y = iy + 0x180;
+    SetDrawMove(p, &r, D_800B98D0[idx].x, D_800B98D0[idx].y);
+    { register u32 *b asm("$5") = G_TDFL.db[0].ot; ADDP_TDFL((u32 *)((u8 *)b + G_TDFL.cur * sizeof(DrawBuf)) + 0xFFF, p); }
+    p += 0x18;
+    for (i = 0; i < 7; i++) {
+        __asm__("" : : "r"(iy), "r"(iy), "r"(iy), "r"(iy), "r"(iy));
+        __asm__("" : : "r"(iy), "r"(iy), "r"(iy), "r"(iy), "r"(iy), "r"(iy));
+        r.x = (i % 4) * 16 + 0x240;
+        { s32 t = (i / 4) * 128 + 0x100; r.y = iy + t; }
+        SetDrawMove(p, &r, D_800B98D0[idx].x, D_800B98D0[idx].y);
+        zz = i * (z1 - z0) / 6 + z0;
+        z = (zz > 0x1000) ? 0x1000 : zz;
+        ADDP_TDFL(&G_TDFL.db[G_TDFL.cur].ot[z], p);
+        p += 0x18;
+    }
+    G_TDFL.prim = p;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/8005E0F0_hud", D_800A5A08);
 

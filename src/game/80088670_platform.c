@@ -71,7 +71,94 @@ s32 Vec_Length(s32, s32, s32);
 void Platform_RunTrigger(S_P_8008B7F8_8008B7F8 *, S_Ev_8008B7F8_8008B7F8 *, s32, s16);
 struct S_D_800EC1E0_8008B7F8 { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; };
 
-INCLUDE_ASM("asm/nonmatchings/game/80088670_platform", func_80088670);
+typedef struct { s16 vx, vy, vz, pad; } SV_88670;
+typedef struct { s16 x, y, z; u8 pad6[6]; s16 f_C; s16 f_E; u8 pad10[2]; u8 type; u8 pad13[5]; u16 f_18; u8 pad1A[2]; s16 f_1C; u8 pad1E[2]; s16 f_20; u8 pad22[8]; s16 f_2A; s16 f_2C; s16 f_2E; u8 pad30[2]; s16 f_32; s16 f_34; s16 f_36; } Zone_88670;
+typedef struct { u8 pad0[0x10]; s16 f_10; s16 f_12; s16 f_14; u8 pad16[6]; void *f_1C; } Mdl_88670;
+struct Game_88670 { u8 pad0[0x820C]; Zone_88670 *f_820C; u8 pad8210[0x74]; s16 f_8284; };
+extern struct Game_88670 g_Game_88670 asm("g_Game");
+extern Mdl_88670 *D_800B4D64_88670 asm("D_800B4D64");
+s16 func_800889EC_88670(Zone_88670 *) asm("func_800889EC");
+void func_800147D0_88670(SV_88670 *, void *) asm("func_800147D0");
+void func_8013FC00(s32);
+#define Z_88670 (*(Zone_88670 *)(i * 0x38 + (s32)g_Game_88670.f_820C))
+
+/* Platform setup pass over the stage objects g_Game+0x820C (0x38 each, last to first): state word
+   +0x20 (0 when flag 0x8000, func_800889EC for types 0/9, else 0x1111), copy the position to the
+   model, then per type: 3..6 scale angle/period (5: also /5 copies, 3: double the axis), 8/12/14
+   copy +0xC to +0x32 (12: reset its model), 13 calls the overlay hook and is remembered in
+   D_800B3384, 2 doubles the axis. "k = 3" is shared with the later type-3 test as in the original. */
+s32 func_80088670(void) {
+    s32 i;
+    s32 k;
+    s16 r;
+    s32 t;
+    s32 a;
+    s32 c;
+    SV_88670 v;
+    Mdl_88670 *m;
+
+    D_800B3388 = 0;
+    for (i = g_Game_88670.f_8284 - 1; i >= 0; i--) {
+        if (Z_88670.f_18 & 0x8000) {
+            r = 0;
+        } else if (Z_88670.type == 0 || Z_88670.type == 9) {
+            __asm__ volatile("" ::: "memory");
+            r = func_800889EC_88670(&g_Game_88670.f_820C[i]);
+        } else {
+            r = 0x1111;
+        }
+        Z_88670.f_20 = r;
+        k = 3;
+        if ((Z_88670.f_18 & 0xF) == k) {
+            continue;
+        }
+        if (Z_88670.f_E >= 0) {
+            { s32 mm = (s32)D_800B4D64_88670; s32 o = Z_88670.f_E * 32; m = (Mdl_88670 *)(o + mm); }
+            m->f_10 = Z_88670.x;
+            m->f_12 = Z_88670.y;
+            m->f_14 = Z_88670.z;
+        }
+        t = Z_88670.type;
+        if ((u32)(t - 3) < 4) {
+            a = Z_88670.f_1C;
+            c = Z_88670.f_C * a / 180;
+            Z_88670.f_C = c;
+            Z_88670.f_1C = a * 2;
+            if (t == 5) {
+                Z_88670.f_32 = c / 5;
+                Z_88670.f_34 = (a * 2) / 5;
+            } else if (t == k) {
+                Z_88670.f_2A *= 2;
+                Z_88670.f_2C *= 2;
+                Z_88670.f_2E *= 2;
+                Z_88670.f_36 = 0;
+            }
+            continue;
+        }
+        if (t == 8 || t == 12 || t == 14) {
+            Z_88670.f_32 = Z_88670.f_C;
+            if (t == 12) {
+                v.vx = 0;
+                v.vy = 0;
+                v.vz = 0;
+                func_800147D0_88670(&v, D_800B4D64_88670[Z_88670.f_E].f_1C);
+            }
+            continue;
+        }
+        if (t == 0xD) {
+            func_8013FC00(i);
+            D_800B3384 = i;
+            continue;
+        }
+        if (t == 2) {
+            Z_88670.f_2A *= 2;
+            Z_88670.f_2C *= 2;
+            Z_88670.f_2E *= 2;
+            Z_88670.f_36 = 0;
+        }
+    }
+    return 0;
+}
 
 s32 func_800889A4(void) {
     return D_800B3384;

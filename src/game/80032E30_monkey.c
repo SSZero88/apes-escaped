@@ -874,7 +874,84 @@ void func_80033DF0(void) {
     M2C_FIELD(g_CurMonkey, u8 *, 0x222) = (u8) (M2C_FIELD(g_CurMonkey, u8 *, 0x222) - 1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80032E30_monkey", func_80033E4C);
+typedef struct { s16 vx, vy, vz, pad; } SV_80033E4C;
+typedef struct { u16 start; u16 end; u8 pad[4]; } AE_80033E4C;
+typedef struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; u8 pad2E[0x2E]; u16 frame; u8 pad5E[2]; SV_80033E4C dir; u8 pad68[0x10]; u8 state; u8 pad79[5]; u16 f_7E; u8 pad80[0x16]; u16 f_96; u8 pad98[0xD4]; AE_80033E4C *anims; u8 pad170[0xB2]; u8 f_222; } M_80033E4C;
+extern M_80033E4C *g_CurMonkey_33E4C asm("g_CurMonkey");
+extern M_80033E4C *g_MonkeyTarget_33E4C asm("g_MonkeyTarget");
+#define MG_33E4C g_CurMonkey_33E4C
+#define TG_33E4C g_MonkeyTarget_33E4C
+void VectorNormalSS_33E4C(SV_80033E4C *, SV_80033E4C *) asm("VectorNormalSS");
+void Monkey_QueueSound(s32, s32);
+void func_80059304_33E4C(SV_80033E4C *, M_80033E4C *, s32, SV_80033E4C *) asm("func_80059304");
+int abs(int);
+
+void func_80033E4C(mode)
+    s16 mode;
+{
+    SV_80033E4C pos;
+    SV_80033E4C dir;
+    s16 k;
+    s32 n;
+    s32 n2;
+    M_80033E4C *m;
+    dir.vx = TG_33E4C->x + (s16)(rcos((D_800AEB60 << 12) / 100) * 400 / 4096) - MG_33E4C->x;
+    dir.vz = TG_33E4C->z + (s16)(rsin((D_800AEB60 << 12) / 100) * 400 / 4096) - MG_33E4C->z;
+    if (mode == 0) {
+        dir.vy = TG_33E4C->y + 0x7D - MG_33E4C->y;
+    } else {
+        dir.vy = TG_33E4C->y - MG_33E4C->y;
+    }
+    VectorNormalSS_33E4C(&dir, &dir);
+    dir.vx /= 64;
+    dir.vy /= 64;
+    dir.vz /= 64;
+    pos.vx = MG_33E4C->x;
+    pos.vy = MG_33E4C->y;
+    pos.vz = MG_33E4C->z;
+    if (MG_33E4C->state == 0x1E) {
+        pos.vy = pos.vy + 0x14;
+    } else {
+        pos.vx = pos.vx + dir.vx * 3;
+        pos.vy = (s16)(pos.vy - 100) + dir.vy * 2;
+        pos.vz = pos.vz + dir.vz * 3;
+    }
+    m = MG_33E4C;
+    k = abs(dir.vy << 6);
+    if (m->state != 0x1E) {
+        if ((s16)k < 0x424) {
+            n = 4;
+        } else if ((s16)k < 0xB50) {
+            n = dir.vy > 0 ? 2 : 6;
+        } else {
+            n = (dir.vy < 1) << 3;
+        }
+        MG_33E4C->frame = MG_33E4C->f_7E = MG_33E4C->anims[Monkey_CurAnimIndex()].start + n;
+        MG_33E4C->dir.vx = dir.vx;
+        MG_33E4C->dir.vz = dir.vz;
+        VectorNormalSS_33E4C(&MG_33E4C->dir, &MG_33E4C->dir);
+    }
+    if ((mode == 0 && !(D_800AEB60 & 3)) || (mode == 5 && D_800AEB60 % 5 == 0)) {
+        MG_33E4C->f_96++;
+        if (mode == 5) {
+            dir.vx = dir.vx * 180 / 100;
+            dir.vy = dir.vy * 180 / 100;
+            dir.vz = dir.vz * 180 / 100;
+            n2 = 2;
+            Monkey_QueueSound(0x4F, 3);
+        } else {
+            __asm__("" : "=r"(n2) : "0"(1));
+            dir.vx <<= n2;
+            dir.vy <<= n2;
+            dir.vz <<= n2;
+            Monkey_QueueSound(100, n2);
+            Monkey_QueueSound(100, 3);
+        }
+        func_80059304_33E4C(&pos, MG_33E4C, n2, &dir);
+        MG_33E4C->frame = MG_33E4C->f_7E + 1;
+        MG_33E4C->f_222--;
+    }
+}
 
 void func_8003429C(s16 k) {
     s16 v[4];
@@ -2750,7 +2827,144 @@ void func_80039530(s32 *arg0, u16 *arg1, u16 *arg2) {
 /* Sets up the monkey records for the area (max 4; prints an error if it asks
  * for more).
  */
-INCLUDE_ASM("asm/nonmatchings/game/80032E30_monkey", Monkey_InitAll);
+typedef struct { u8 pad0[0x7A]; u8 f_7A; u8 pad7B[0x5B]; u8 f_D6; u8 f_D7; u8 padD8[2]; u8 f_DA[8]; u8 padE2[0x16E]; } MI_39588;
+typedef struct { u8 pad0[0xA]; u8 f_A; u8 padB; u16 *f_C; u8 pad10[8]; } U4D00_39588;
+typedef struct { u8 pad0[8]; s16 g[8][8]; s16 t[8][8][8]; } T_39588;
+typedef struct { u8 pad0[0x8184]; s16 f_8184; u8 pad8186[0x1E]; u8 *f_81A4; u8 *f_81A8; u8 *f_81AC; u8 *f_81B0; u8 *f_81B4; u8 *f_81B8; u8 pad81BC[0x84]; u8 *f_8240; } G_39588;
+extern G_39588 g_Game_39588 asm("g_Game");
+extern MI_39588 g_Monkeys_39588[] asm("g_Monkeys");
+extern MI_39588 *g_ActiveMonkeys_39588[] asm("g_ActiveMonkeys");
+extern MI_39588 *g_CurMonkey_39588 asm("g_CurMonkey");
+extern void *g_MonkeyTarget_39588 asm("g_MonkeyTarget");
+extern u8 g_Spike_39588[] asm("g_Spike");
+extern s32 D_800A8A58;
+extern s32 *D_800B4D14_39588 asm("D_800B4D14");
+extern u8 *g_MonkeyKinds_39588 asm("g_MonkeyKinds");
+extern s16 D_800AEB64;
+extern T_39588 *D_800B4D0C_39588 asm("D_800B4D0C");
+extern U4D00_39588 *D_800B4D00_39588 asm("D_800B4D00");
+extern s16 D_800B4D18;
+extern u8 *D_800B4D1C_39588 asm("D_800B4D1C");
+extern char D_800A4930[];
+void Monkey_ClearQueuedSounds(void);
+void Mem_ZeroWords(void *, s32);
+s32 VSync(s32);
+void Monkey_InitDebugMenu(void);
+void Debug_MonkeyParamMenu(s32);
+void Monkey_Spawn(s32, s32, s32);
+void Monkey_RestoreStates(void);
+
+void Monkey_InitAll(void) {
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 n;
+    u8 *base;
+    u8 *data;
+    u16 *buf;
+
+    D_800AEB5C = 0;
+    Monkey_ClearQueuedSounds();
+    g_MonkeyTarget_39588 = g_Spike_39588;
+    for (i = 0; i < 8; i++) {
+        Mem_ZeroWords(&g_Monkeys_39588[i], 0x94);
+    }
+    for (i = 3; i >= 0; i--) {
+        g_ActiveMonkeys_39588[i] = 0;
+    }
+    if (D_800A8A58 != 0 || func_800339EC() != 0) {
+        D_800B4D10 = 0;
+    } else {
+        D_800B4D10 = VSync(-1) * 8991;
+    }
+    D_800B4D14_39588 = (s32 *)g_Game_39588.f_8240;
+    g_MonkeyKinds_39588 = (u8 *)D_800B4D14_39588 + 0x2A;
+    { s32 two; __asm__("" : "=r"(two) : "0"(2));
+    for (i = 7; i >= 0; i--) {
+        g_Monkeys_39588[i].f_7A = two;
+    } }
+    if (*D_800B4D14_39588 != 0x11) {
+        g_Game_39588.f_8184 = 0;
+        D_800AEB66 = 0;
+        D_800B4CF4 = 1;
+        return;
+    }
+    D_800B4CF4 = 0;
+    if (((s16 *)D_800B4D14_39588)[0x14] >= 5) {
+        bios_printf(D_800A4930, 4);
+        D_800AEB66 = 4;
+    } else {
+        D_800AEB66 = ((s16 *)D_800B4D14_39588)[0x14];
+    }
+    base = g_Game_39588.f_8240;
+    g_Game_39588.f_81A4 = base + D_800B4D14_39588[2];
+    g_Game_39588.f_81A8 = base + D_800B4D14_39588[3];
+    g_Game_39588.f_81AC = base + D_800B4D14_39588[4];
+    g_Game_39588.f_81B0 = base + D_800B4D14_39588[5];
+    g_Game_39588.f_81B4 = base + D_800B4D14_39588[8];
+    g_Game_39588.f_81B8 = base + D_800B4D14_39588[9];
+    D_800AEB64 = D_800AEB66;
+    data = base + D_800B4D14_39588[1];
+    if (data != 0) {
+        D_800B4D0C_39588 = (T_39588 *)data;
+        D_800B4D00_39588 = (U4D00_39588 *)(data + 0x488);
+        D_800B4D18 = (u32)(((s16 *)data)[1] - 0x488) / 24;
+        buf = (u16 *)(data + ((s16 *)data)[1]);
+        D_800B4D20 = ((u16 *)data)[2];
+        D_800B4D1C_39588 = data + ((s16 *)data)[3];
+    }
+    for (i = 0; i < 8; i++) {
+        if (D_800B4D0C_39588->g[i][0] == -1) {
+            break;
+        }
+    }
+    g_Game_39588.f_8184 = n = (i < 0) ? 0 : i;
+    g_MonkeyCount = n;
+    { s32 two; __asm__("" : "=r"(two) : "0"(2));
+    for (i = 7; i >= 0; i--) {
+        g_Monkeys_39588[i].f_7A = two;
+    } }
+    for (i = 0; i < g_MonkeyCount; i++) {
+        for (j = 0; j < 8; j++) {
+            if (D_800B4D0C_39588->g[i][j] == -1) {
+                break;
+            }
+        }
+        g_Monkeys_39588[i].f_D6 = j;
+    }
+    for (i = 0; i < g_MonkeyCount; i++) {
+        for (j = 0; j < 8; j++) {
+            if (D_800B4D0C_39588->t[i][j][0] == -1) {
+                g_Monkeys_39588[i].f_D7 = j;
+                break;
+            }
+            for (k = 0; i < 8; k++) {
+                if (D_800B4D0C_39588->t[i][j][k] == -1) {
+                    break;
+                }
+            }
+            g_Monkeys_39588[i].f_DA[j] = k;
+        }
+        if (j == 8) {
+            g_Monkeys_39588[i].f_D7 = j;
+        }
+    }
+    Monkey_InitDebugMenu();
+    Debug_MonkeyParamMenu(0);
+    if (g_Game_39588.f_8184 > 0) {
+        for (i = 0; i < D_800B4D18; i++) {
+            D_800B4D00_39588[i].f_C = buf;
+            buf += D_800B4D00_39588[i].f_A;
+        }
+        for (i = 0; i < g_MonkeyCount; i++) {
+            g_CurMonkey_39588 = &g_Monkeys_39588[i];
+            Monkey_Spawn((s16)i, 0, 0);
+        }
+        Monkey_RestoreStates();
+        D_800AEB66 = D_800AEB66 < g_Game_39588.f_8184 ? D_800AEB66 : g_Game_39588.f_8184;
+        Monkey_SelectActive();
+    }
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", D_800A4930);
 
@@ -3134,7 +3348,63 @@ void Monkey_ScoreLinks(s16 k) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80032E30_monkey", func_8003AD9C);
+typedef struct { u8 pad0[0x7B]; u8 f_7B; u8 kind; u8 pad7D[0x5A]; u8 ngroups; u8 group; u8 count; u8 sizes[0xC]; s16 spot; s16 used; u8 padEA[4]; s16 f_EE; } MP_8003AD9C;
+extern u8 D_800AEB59;
+extern char D_800A4964[];
+extern char D_800A4988[];
+typedef struct { u8 pad[0x88]; s16 t[1][8][8]; } T_8003AD9C;
+#define MP_3AD9C ((MP_8003AD9C *)g_CurMonkey)
+
+void func_8003AD9C(void) {
+    s16 r;
+    u8 n;
+    s32 i;
+    s32 t;
+    s16 u;
+
+    if (D_800AEB59 != 0) {
+        bios_printf(D_800A4964, MP_3AD9C->kind, MP_3AD9C->spot, MP_3AD9C->group);
+    }
+    func_800407F0();
+    if (MP_3AD9C->ngroups != 0) {
+        if (MP_3AD9C->count < MP_3AD9C->sizes[MP_3AD9C->group]) {
+            MP_3AD9C->count++;
+        } else {
+            MP_3AD9C->count = 1;
+            MP_3AD9C->group = (MP_3AD9C->group + 1) % MP_3AD9C->ngroups;
+            MP_3AD9C->used = 0;
+        }
+        if (MP_3AD9C->sizes[MP_3AD9C->group] != 0) {
+            t = (u16)Monkey_Rand();
+            n = MP_3AD9C->sizes[MP_3AD9C->group];
+            t = t % n;
+            r = t;
+            if ((MP_3AD9C->used >> t) & 1) {
+                u = MP_3AD9C->used;
+                for (i = 0; i < n; i++) {
+                    if (!((u >> i) & 1)) {
+                        break;
+                    }
+                }
+                r = i;
+                if (i == MP_3AD9C->sizes[MP_3AD9C->group]) {
+                    r = 0;
+                }
+            }
+            MP_3AD9C->spot = ((T_8003AD9C *)D_800B4D0C)->t[MP_3AD9C->kind][MP_3AD9C->group][r];
+            MP_3AD9C->used |= 1 << (s16)r;
+        } else {
+            MP_3AD9C->spot = (u16)Monkey_Rand() % D_800B4D18;
+        }
+    } else {
+        MP_3AD9C->spot = (u16)Monkey_Rand() % D_800B4D18;
+    }
+    D_800B4D00[MP_3AD9C->spot].f_14[MP_3AD9C->f_7B] = 1;
+    MP_3AD9C->f_EE = 1;
+    if (D_800AEB59 != 0) {
+        bios_printf(D_800A4988, MP_3AD9C->spot, MP_3AD9C->group);
+    }
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", D_800A4964);
 INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", D_800A4988);

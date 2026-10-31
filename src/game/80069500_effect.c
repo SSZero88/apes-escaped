@@ -168,7 +168,77 @@ void Effect_SpawnXYZ(s32 a0, s16 a1, s16 a2, s16 a3) {
     Effect_Spawn(a0, v, (u32 *)&D_800B175C, (s16 **)&D_800B1828);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80069500_effect", func_80069920);
+typedef struct { u8 active; u8 pad1[0x11]; u8 sx; u8 sy; SVECTOR pos; u8 pad1C[8]; u32 uv0; u32 uv1; u16 uv2; u16 uv3; u32 code; } Spr_69920;
+typedef struct { u16 x; s16 y; u32 z; } Scr_69920;
+typedef struct { u32 tag; u32 code; u32 xy0; u32 uv0; u32 xy1; u32 uv1; u32 xy2; u16 uv2; u16 pad1E; u32 xy3; u16 uv3; u16 pad26; } FT4_69920;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_69920;
+#define ADDPRIM_BF_69920(ot, p) (((PTag_69920 *)(p))->addr = ((PTag_69920 *)(ot))->addr, ((PTag_69920 *)(ot))->addr = (u32)(p))
+extern Spr_69920 D_800B9900_69920[] asm("D_800B9900");
+extern u8 g_Game;
+extern u8 *D_800EC354;
+extern u8 D_800E78C0[];
+#define gte_ldv0_69920(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
+#define gte_rtps_69920() __asm__ volatile ("nop; nop; rtps")
+#define gte_stsxy_69920(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+#define gte_stszotz_69920(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+
+/* Draws the 100 billboard sprites in D_800B9900 (0x34 each): every active, sized one is projected
+   and, when its centre is on screen (with a 0x20 margin), drawn as an FT4 sx x sy units across at
+   the projected size (sy corrected by 19/24), with its own colour/code and texture words. */
+void func_80069920(void) {
+    void SetRotMatrix(void *m); void SetTransMatrix(void *m);
+    Scr_69920 *scr = (Scr_69920 *)0x1F800000;
+    Spr_69920 *e;
+    FT4_69920 *p;
+    u32 *ot;
+    s32 i, h; s16 y;
+    u32 x, w;
+    s16 x0, y0;
+    u32 xa, xb, ya, yb;
+
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    ot = G_DRAW.db[G_DRAW.cur].ot;
+    p = (FT4_69920 *)G_DRAW.prim;
+    for (i = 99, e = D_800B9900_69920; i >= 0; i--, e++) {
+        if (e->active == 0 || e->sx == 0) {
+            continue;
+        }
+        gte_ldv0_69920(&e->pos);
+        gte_rtps_69920();
+        gte_stsxy_69920(scr);
+        x = scr->x;
+        y = *(s32 *)scr >> 16;
+        if ((u16)(x + 0x20) >= 0x1C1 || y < -0x20 || y >= 0x111) {
+            continue;
+        }
+        gte_stszotz_69920(&scr->z);
+        if (scr->z - 1 >= 0xFFF) {
+            continue;
+        }
+        w = e->sx * 0x148 / scr->z;
+        h = (u32)(e->sy * 0x148 * 0x11D00) / 0x16800 / scr->z;
+        { s32 n; __asm__ volatile("" : "=r"(n) : "0"(9)); ((u8 *)p)[3] = n; }
+        p->code = e->code;
+        x0 = x - (w >> 1);
+        xa = x0 & 0xFFFF;
+        xb = (x0 + w) & 0xFFFF;
+        y0 = y - h / 2;
+        ya = y0 << 16;
+        yb = (y0 + h) << 16;
+        p->xy0 = ya | xa;
+        p->xy1 = ya | xb;
+        p->xy2 = yb | xa;
+        p->xy3 = yb | xb;
+        p->uv0 = e->uv0;
+        p->uv1 = e->uv1;
+        p->uv2 = e->uv2;
+        p->uv3 = e->uv3;
+        ADDPRIM_BF_69920(ot + scr->z, p);
+        p++;
+    }
+    D_800EC354 = (u8 *)p;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/80069500_effect", func_80069BEC);
 

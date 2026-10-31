@@ -618,7 +618,106 @@ s32 func_80095E4C(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80094F20_stage", func_80095E80);
+typedef struct { u8 f_0[2]; s16 f_2; s32 f_4; s32 f_8; u32 f_C; u8 f_10; u8 f_11; u8 pad12[2]; union { u32 w; u8 b[4]; } f_14; u8 pad18[0x10]; u8 f_28[32]; u8 f_48[32]; u16 f_68[128]; u8 pad168[0x18C]; u8 f_2F4[0x2F0]; u32 f_5E4[32]; u32 f_664; u32 f_668; u32 f_66C[8]; u32 f_68C; s32 f_690[32]; u16 f_710; u8 pad712[2]; u32 f_714w; u32 f_718; u8 pad71C[0x84]; } Save_95E80;
+typedef struct { u8 hdr[0x180]; Save_95E80 slots[4]; } Card_95E80;
+struct Game_95E80 { u8 pad0[0x8138]; u8 f_8138; u8 pad8139; u16 f_813A; u16 f_813C; u8 pad813E[0x16]; u16 f_8154; u16 f_8156; u16 f_8158; u8 pad815A[0xE]; u16 f_8168; u16 f_816A; u8 pad816C[0x160]; u8 f_82CC; u8 f_82CD; };
+typedef struct { u8 pad0[0x88]; s32 f_88; u8 pad8C[0x15]; u8 f_A1; u8 f_A2; u8 padA3; s32 f_A4; } GS_95E80;
+extern Card_95E80 D_800E1880_95E80 asm("D_800E1880");
+extern s16 D_800E3886_95E80 asm("D_800E3886");
+extern Save_95E80 g_SaveBlock_95E80 asm("g_SaveBlock");
+extern struct Game_95E80 g_Game_95E80 asm("g_Game");
+extern GS_95E80 g_GadgetState_95E80 asm("g_GadgetState");
+extern u32 D_800E002C_95E80 asm("D_800E002C");
+extern u8 D_800DF820_95E80[] asm("D_800DF820");
+extern u8 D_800DFC70_95E80[] asm("D_800DFC70");
+extern u8 D_800DFC98_95E80[] asm("D_800DFC98");
+extern s32 g_BestTimes_95E80[] asm("g_BestTimes");
+extern u16 D_800DFB70_95E80[] asm("D_800DFB70");
+extern u32 D_800DFCC0_95E80[] asm("D_800DFCC0");
+extern u32 D_800DFDD8_95E80[] asm("D_800DFDD8");
+extern u32 D_800DFDCC_95E80 asm("D_800DFDCC");
+extern u32 D_800DFDD0_95E80 asm("D_800DFDD0");
+extern u32 D_800DFDF8_95E80 asm("D_800DFDF8");
+extern u32 D_800DFDFC_95E80 asm("D_800DFDFC");
+s32 Gadget_Select(s32, s32);
+typedef struct { s32 a; s32 b; } Vol_95E80;
+s32 Sound_SetVolumes_95E80() asm("Sound_SetVolumes");
+s32 SpecterCoin_Count(void);
+
+/* Load the save slot D_800E3886 from the memory-card image D_800E1880 into g_SaveBlock and spread
+   it out: lives/+0x8168 bytes, gadget state, current gadget, flags, sound volumes (passed as a
+   two-word struct: the stack copy at 0x10/0x14 is part of the original), per-stage tables, best
+   times, Specter coin count (+5 for each of two bonus flags in D_800DFDD0). Inverse of func_80095D44. */
+s32 func_80095E80(void) {
+    Save_95E80 *sb;
+    u32 w;
+    s32 i;
+    u8 *p;
+    s32 n;
+    u32 t;
+    Vol_95E80 vol;
+
+    g_SaveBlock_95E80 = D_800E1880_95E80.slots[D_800E3886_95E80];
+    sb = &g_SaveBlock_95E80;
+    w = sb->f_C;
+    g_Game_95E80.f_813C = sb->f_2 & 0xFF;
+    g_Game_95E80.f_8168 = (u32)(sb->f_2 << 16) >> 24;
+    g_GadgetState_95E80.f_A4 = sb->f_4;
+    g_GadgetState_95E80.f_88 = sb->f_8;
+    g_GadgetState_95E80.f_A1 = w >> 8;
+    g_GadgetState_95E80.f_A2 = *(u8 *)&sb->f_C;
+    g_Game_95E80.f_8154 = sb->f_11;
+    g_Game_95E80.f_8156 = sb->f_10;
+    Gadget_Select((w >> 16) & 0xFF, -1);
+    if (sb->f_14.w & 1) {
+        g_Game_95E80.f_813A = 1;
+    } else {
+        g_Game_95E80.f_813A = 0;
+    }
+    if (D_800E002C_95E80 & 2) {
+        g_Game_95E80.f_8138 = 1;
+    } else {
+        g_Game_95E80.f_8138 = 0;
+    }
+    t = g_SaveBlock_95E80.f_14.w;
+    vol.a = g_SaveBlock_95E80.f_14.b[2];
+    vol.b = t >> 24;
+    Sound_SetVolumes_95E80(vol);
+    g_Game_95E80.f_8158 = g_SaveBlock_95E80.f_710;
+    g_Game_95E80.f_82CC = g_SaveBlock_95E80.f_714w >> 16;
+    g_Game_95E80.f_82CD = g_SaveBlock_95E80.f_714w & 0xFFFF;
+    p = D_800DF820_95E80;
+    for (i = 0; i < 0x2F0; i++) {
+        p[i] = g_SaveBlock_95E80.f_2F4[i];
+    }
+    for (i = 0; i < 32; i++) {
+        D_800DFC70_95E80[i] = g_SaveBlock_95E80.f_28[i];
+        D_800DFC98_95E80[i] = g_SaveBlock_95E80.f_48[i];
+        g_BestTimes_95E80[i] = g_SaveBlock_95E80.f_690[i];
+    }
+    for (i = 0; i < 128; i++) {
+        D_800DFB70_95E80[i] = g_SaveBlock_95E80.f_68[i];
+    }
+    for (i = 0; i < 32; i++) {
+        D_800DFCC0_95E80[i] = g_SaveBlock_95E80.f_5E4[i];
+    }
+    for (i = 0; i < 8; i++) {
+        D_800DFDD8_95E80[i] = g_SaveBlock_95E80.f_66C[i];
+    }
+    D_800DFDCC_95E80 = g_SaveBlock_95E80.f_664;
+    D_800DFDD0_95E80 = g_SaveBlock_95E80.f_668;
+    D_800DFDF8_95E80 = g_SaveBlock_95E80.f_68C;
+    D_800DFDFC_95E80 = g_SaveBlock_95E80.f_718;
+    n = SpecterCoin_Count();
+    g_Game_95E80.f_816A = n;
+    if (D_800DFDD0_95E80 & 0x10) {
+        g_Game_95E80.f_816A = n + 5;
+    }
+    if (D_800DFDD0_95E80 & 0x1000) {
+        g_Game_95E80.f_816A += 5;
+    }
+    return 0;
+}
 
 /* Keeps the best time for the current stage (stages 0x18..0x1D share one entry)
  * and leaves the previous record for the results screen.
@@ -1250,7 +1349,40 @@ s32 Tutorial_SetNextStage(void) {
 INCLUDE_RODATA("asm/nonmatchings/game/80094F20_stage", jtbl_800A67D0_pad);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80094F20_stage", Stage_IsCleared);
+typedef struct { u8 pad_0[0x8120]; u16 f_8120; u8 pad_8122[2]; u16 f_8124; u8 pad_8126[8]; u16 f_812E; u8 pad_8130[0x36]; s16 f_8166; u8 pad_8168[0x1E]; s16 f_8186; s16 f_8188; } Game_97A60;
+extern Game_97A60 g_Game_97A60 asm("g_Game");
+s32 SaveByte_Get(s32);
+
+/* 1 when the stage counts as cleared: the count at +0x8166 has reached the target (+0x8188, or
+   +0x8186 for modes 1/2 of +0x812E); stages 0x16/0x11/0x18-0x1D also need save byte 0/1/3 == 5. */
+s32 Stage_IsCleared(void) {
+    u16 k;
+    if (g_Game_97A60.f_8120 == 0x13) {
+        return g_Game_97A60.f_8166 >= g_Game_97A60.f_8188;
+    }
+    switch (g_Game_97A60.f_8124) {
+    case 0x16:
+        if (SaveByte_Get(0) != 5) return 0;
+        if (g_Game_97A60.f_8166 >= g_Game_97A60.f_8188) goto ok;
+        return 0;
+    case 0x11:
+        if (SaveByte_Get(1) != 5) return 0;
+        if (g_Game_97A60.f_8166 >= g_Game_97A60.f_8188) goto ok;
+        return 0;
+    case 0x18:
+    case 0x19:
+    case 0x1A:
+    case 0x1B:
+    case 0x1C:
+    case 0x1D:
+        if (SaveByte_Get(3) != 5 || g_Game_97A60.f_8166 < g_Game_97A60.f_8188) return 0;
+    ok:
+        return 1;
+    }
+    k = g_Game_97A60.f_812E;
+    if ((k == 0 && g_Game_97A60.f_8166 >= g_Game_97A60.f_8188) || (k == 1 && g_Game_97A60.f_8166 >= g_Game_97A60.f_8186) || (k == 2 && g_Game_97A60.f_8166 >= g_Game_97A60.f_8186)) goto ok;
+    return 0;
+}
 
 s32 func_80097BFC(void) {
     if ((g_Game.f_8120 != 0xB) || (g_Game.f_8122 == 3)) {

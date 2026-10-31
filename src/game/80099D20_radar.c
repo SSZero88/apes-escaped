@@ -160,7 +160,101 @@ s32 func_8009A17C(void *arg0) {
     return var_a1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80099D20_radar", Radar_GetSignal);
+typedef struct { u8 pad0[0x24]; u16 x; u8 pad26[6]; u16 z; u8 pad2E[0x4C]; u8 f_7A; u8 pad7B[0x1D5]; } Mky_9A1A4;
+typedef struct { s32 type; s32 x, y, z; u8 pad10[0x10]; s32 dest; s32 sub; } Zone_9A1A4;
+typedef struct { s16 vx, vy, vz, pad; } SV_9A1A4;
+extern Mky_9A1A4 g_Monkeys_9A1A4[8] asm("g_Monkeys");
+extern struct { u8 pad0[0x24]; u16 x; u8 pad26[6]; u16 z; u8 pad2E[0x32]; s16 dx; u8 pad62[2]; s16 dz; } g_Spike_9A1A4 asm("g_Spike");
+extern struct { u8 pad0[4]; s16 dx; u8 pad6[2]; s16 dz; u8 padA[0xE]; Mky_9A1A4 *target; s32 f_1C; } g_GadgetState_9A1A4 asm("g_GadgetState");
+extern struct { u8 pad0[0x8238]; Zone_9A1A4 *zones; u8 pad823C[0x50]; s32 nzones; } g_Game_9A1A4 asm("g_Game");
+s32 VectorNormalSS_9A1A4(SV_9A1A4 *, SV_9A1A4 *) asm("VectorNormalSS");
+s32 Math_ISqrt(s32);
+u8 *func_80097E88_9A1A4(s32, s32 *) asm("func_80097E88");
+
+/* Monkey Radar signal strength (0..0x20): for each active monkey (state not 0/2/3), the cosine
+   between the radar heading and the direction to it, scaled by distance; strongest one becomes the
+   radar target. With no monkeys around, 1 if some zone (g_Game+0x8238) points
+   at a stage whose monkey list still has uncaught monkeys and lies in the radar heading. */
+s32 Radar_GetSignal(void) {
+    SV_9A1A4 v;
+    s32 n;
+    s32 sum = 0;
+    s32 count = 0;
+    s32 best = 0;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 c;
+    s32 d;
+    s32 s;
+    Mky_9A1A4 *m;
+    Zone_9A1A4 *z;
+    Zone_9A1A4 *zs;
+    u8 *list;
+
+    for (i = 0; i < 8; i++) {
+        m = &g_Monkeys_9A1A4[i];
+        if ((u8)(m->f_7A - 2) < 2) {
+            continue;
+        }
+        if (m->f_7A == 0) {
+            continue;
+        }
+        v.vx = m->x - g_Spike_9A1A4.x + (g_Spike_9A1A4.dx >> 5);
+        v.vy = 0;
+        v.vz = m->z - g_Spike_9A1A4.z + (g_Spike_9A1A4.dz >> 5);
+        k = Math_ISqrt(VectorNormalSS_9A1A4(&v, &v));
+        c = v.vx * g_GadgetState_9A1A4.dx + v.vz * g_GadgetState_9A1A4.dz;
+        c >>= 12;
+        d = k;
+        count++;
+        if (c < 0xDDC) {
+            continue;
+        }
+        if (d > 0x200) {
+            c -= 0xDDB;
+            s = (c << 12) / (d * 549 / 4 + 1) + 2;
+        } else {
+            s = 0x1000 / (d / 4 + 1) + 2;
+        }
+        sum += s;
+        if (best < s) {
+            best = s;
+            g_GadgetState_9A1A4.f_1C = 1;
+            g_GadgetState_9A1A4.target = m;
+        }
+    }
+    if (count == 0) {
+        zs = g_Game_9A1A4.zones;
+        for (i = 0; i < g_Game_9A1A4.nzones; i++) {
+            z = &zs[i];
+            list = func_80097E88_9A1A4(z->dest, &n);
+            if (list == 0) {
+                break;
+            }
+            k = 0;
+            for (j = 0; j < 8; j++) {
+                if ((u8)(list[j] - 2) < 2) {
+                    k++;
+                }
+            }
+            if (k < n) {
+                v.vx = z->x - g_Spike_9A1A4.x;
+                v.vy = 0;
+                v.vz = z->z - g_Spike_9A1A4.z;
+                Math_ISqrt(VectorNormalSS_9A1A4(&v, &v));
+                c = (v.vx * g_GadgetState_9A1A4.dx + v.vz * g_GadgetState_9A1A4.dz) >> 12;
+                if (c >= 0xDDC) {
+                    sum = 1;
+                }
+            }
+        }
+    }
+    if (sum > 0x20) {
+        sum = 0x20;
+    }
+    return sum;
+}
 
 void func_8009A4E8(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 v = D_800EC23E;

@@ -54,9 +54,153 @@ void func_80085230(void) {
     } while (var_v1 >= 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80085230_projectile2", func_80085254);
+typedef struct { u8 pad0[3]; u8 f_3; u8 pad4[4]; void *f_8; u8 padC[0x12]; s16 f_1E; u8 pad20[0xA]; s16 f_2A; s16 f_2C; } Proj_85254;
+typedef struct { u8 pad0[4]; Proj_85254 *f_4; s32 f_8; P3_856FC_800856FC pos; u8 f_12; u8 f_13; u8 pad14[8]; } Shot_85254;
+typedef struct { u8 pad0[0x46]; u8 f_46; } S_E68D0_85254;
+typedef struct { u8 pad0[0x258]; s16 f_258; s16 f_25A; s16 f_25C; } S_F4350_85254;
+extern Shot_85254 D_800BF300_85254[] asm("D_800BF300");
+extern S_E68D0_85254 D_800E68D0_85254 asm("D_800E68D0");
+extern S_F4350_85254 D_800F4350_85254 asm("D_800F4350");
+Proj_85254 *Projectile_Alloc_85254(void) asm("Projectile_Alloc");
+void func_80084BB8_85254(Proj_85254 *, s32) asm("func_80084BB8");
+void func_80084B48_85254(Proj_85254 *, P3_856FC_800856FC *, SV_856FC_800856FC *, s32) asm("func_80084B48");
+void func_80084C78_85254(Proj_85254 *, s32, s32, s32) asm("func_80084C78");
+void func_80084B74_85254(Proj_85254 *, s32) asm("func_80084B74");
+void Fx_SpawnFadeRing_85254(P3_856FC_800856FC *, s32, s32, s32) asm("Fx_SpawnFadeRing");
+void Sound_PlayFixed_85254(s32) asm("Sound_PlayFixed");
+void Camera_StartShake_85254(s32) asm("Camera_StartShake");
+void Pad_Vibrate_85254(s32, s32, s32) asm("Pad_Vibrate");
 
-INCLUDE_RODATA("asm/nonmatchings/game/80085230_projectile2", jtbl_800A61E0);
+s32 func_80085254(void *pos, SVECTOR *dir, s32 type, s32 arg) {
+    SV_856FC_800856FC v;
+    Shot_85254 *s;
+    Proj_85254 *p;
+    s32 i;
+
+    s = D_800BF300_85254;
+    for (i = 3; i >= 0; i--, s++) {
+        if (s->f_12 != 0) {
+            continue;
+        }
+        p = Projectile_Alloc_85254();
+        if (p == 0) {
+            break;
+        }
+        s->f_4 = p;
+        s->f_8 = arg;
+        s->f_12 = type;
+        func_80084BB8_85254(p, 0x1E);
+        s->pos.x = ((P3_856FC_800856FC *)pos)->x;
+        s->pos.y = ((P3_856FC_800856FC *)pos)->y;
+        s->pos.z = ((P3_856FC_800856FC *)pos)->z;
+        if (D_800E68D0_85254.f_46 == 1) {
+            s->pos.x = D_800F4350_85254.f_258;
+            s->pos.z = D_800F4350_85254.f_25C;
+            s->pos.y = D_800F4350_85254.f_25A;
+            if (type == 5) {
+                s->pos.y = D_800F4350_85254.f_25A + 0x20;
+            }
+        }
+        VectorNormalSS((SV_856FC_800856FC *)dir, &v);
+        v.vx = v.vx / 20;
+        v.vy = v.vy / 20;
+        v.vz = v.vz / 20;
+        func_80084B48_85254(p, &s->pos, &v, 0);
+        switch (type) {
+        case 4:
+            Sound_PlayFixed_85254(0x76);
+            if (D_800E68D0_85254.f_46 != 1) {
+                Effect_SpawnAt(0x10B, &s->pos);
+            }
+            p->f_2A = 0xD04;
+            p->f_2C = 0x201;
+            func_80084C78_85254(p, 0x111, 0x5F, 0x22);
+            Pad_Vibrate_85254(1, 0x6E, 4);
+            break;
+        default:
+        case 1:
+            p->f_2A = 0xD02;
+            p->f_2C = 0x201;
+            func_80084C78_85254(p, 0x111, 0x5F, 0x22);
+            Pad_Vibrate_85254(1, 0x6E, 4);
+            break;
+        case 5:
+            p->f_2A = 0x836;
+            p->f_2C = 0x203;
+            Sound_PlayFixed_85254(0x77);
+            Camera_StartShake_85254(0);
+            Pad_Vibrate_85254(1, 0xF0, 5);
+            func_80084C78_85254(p, 4, 0x79, 0x79);
+            func_80084BB8_85254(p, 0x1E);
+            p->f_1E -= 0x20;
+            break;
+        case 2:
+            p->f_2A = 0xE36;
+            p->f_2C = 0x203;
+            func_80084C78_85254(p, 4, 0x79, 0x79);
+            Pad_Vibrate_85254(1, 0x6E, 4);
+            break;
+        case 3:
+            p->f_2A = 0xF24;
+            p->f_2C = 0x202;
+            func_80084C78_85254(p, 0x112, 0x4F, 0x4F);
+            if (arg != 0) {
+                p->f_1E = -0x3C;
+                func_80084BB8_85254(p, 0x5A);
+            }
+            Pad_Vibrate_85254(1, 0x6E, 4);
+            break;
+        case 6:
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            __asm__ volatile("");
+            p->f_2A = 0xE36;
+            p->f_2C = 0x203;
+            func_80084C78_85254(p, 0, 0xFF, 0xFF);
+            s->f_13 = 0;
+            Fx_SpawnFadeRing_85254((P3_856FC_800856FC *)pos, 0, 0x1D6, 0);
+            break;
+        }
+        if (D_800E68D0_85254.f_46 != 1) {
+            func_80084B74_85254(p, 0);
+        }
+        __asm__("" : : "r"(pos), "r"(pos), "r"(pos), "r"(pos));
+        p->f_8 = &g_Spike;
+        p->f_3 = 2;
+        return 1;
+    }
+    return 0;
+}
+
 INCLUDE_RODATA("asm/nonmatchings/game/80085230_projectile2", jtbl_800A61E0_pad);
 
 

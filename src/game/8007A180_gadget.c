@@ -286,10 +286,183 @@ void func_8007A48C(s32 x) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8007A180_gadget", Club_SwingUpdate);
+typedef struct { s16 vx, vy, vz, pad; } SV_8007A514;
+typedef struct { s32 x, y, z; u8 padC[0xC]; SV_8007A514 dir; s16 f_20; s16 pad22; s16 f_24; s16 f_26; s32 f_28; u32 f_2C; } Col_8007A514;
+typedef struct { u8 pad0[4]; s16 f_4; s16 f_6; s16 f_8; u8 padA[2]; s16 f_C; s16 f_E; s16 f_10; u8 pad12[2]; Col_8007A514 *f_14; Col_8007A514 *f_18; } GS_8007A514;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x2C]; u16 f_5C; u16 f_5E; SV_8007A514 f_60; u8 pad68[8]; s32 f_70; } Sp_8007A514;
+typedef struct { u8 pad0[0x17A]; u16 f_17A; u8 pad17C[6]; volatile u16 f_182; u8 pad184[0x28]; s16 f_1AC; } Pad_8007A514;
+typedef struct { s16 m[3][3]; s32 t[3]; } MAT_8007A514;
+extern Pad_8007A514 g_Pad_7A514 asm("g_Pad");
+extern s32 D_800F4E34;
+extern MAT_8007A514 D_800F4750;
+extern GS_8007A514 g_GadgetState_7A514 asm("g_GadgetState");
+#define GS_7A514M ((GS_8007A514 *)&g_GadgetState)
+#define SP_7A514M ((Sp_8007A514 *)&g_Spike)
+#define PAD_7A514M ((Pad_8007A514 *)&g_Pad_7A514)
+typedef struct { u8 pad0[0x28]; MAT_8007A514 m; s32 f_48; } Scr_8007A514;
+#define SCR_7A514M ((Scr_8007A514 *)0x1F800000)
+void func_8007CD0C(s32);
+void Club_Draw_7A514(void *, s32, s32) asm("Club_Draw");
+Col_8007A514 *CollShape_Alloc_7A514(void) asm("CollShape_Alloc");
 
-INCLUDE_RODATA("asm/nonmatchings/game/8007A180_gadget", D_800A5EF0);
-INCLUDE_RODATA("asm/nonmatchings/game/8007A180_gadget", jtbl_800A5EF8);
+void Club_SwingUpdate(void) {
+    u8 dummy[0x50];
+    SV_8007A514 unused = { 0, 0, -0x200 };
+    s32 snd;
+    Col_8007A514 *c;
+    register MAT_8007A514 *m asm("$4");
+    Scr_8007A514 *sc;
+    s32 t;
+
+    sc = SCR_7A514M;
+    sc->f_48 = D_800F4E34;
+    if (GS_7A514M->f_8 == 2) {
+        GS_7A514M->f_4 = 0x400;
+        if (PAD_7A514M->f_17A == 0) {
+            GS_7A514M->f_8 = 0;
+        }
+        if (SP_7A514M->f_5E == 0x82) {
+            Spike_SetState(1);
+        }
+    } else {
+        switch (SP_7A514M->f_5E) {
+        case 0x80:
+            switch (SP_7A514M->f_5C) {
+            case 0:
+                if (PAD_7A514M->f_182 < 0x79) {
+                    GS_7A514M->f_8 = 0;
+                    GS_7A514M->f_4 = 0x400;
+                } else {
+                    GS_7A514M->f_8 = 1;
+                    GS_7A514M->f_4 = PAD_7A514M->f_182 << 5;
+                }
+                break;
+            case 0xD:
+                if (GS_7A514M->f_8 != 0) {
+                    GS_7A514M->f_8 = 0;
+                    GS_7A514M->f_4 = (PAD_7A514M->f_182 << 3) + 0x400;
+                    if (PAD_7A514M->f_17A != 0) {
+                        SP_7A514M->f_5C--;
+                    }
+                }
+                break;
+            }
+            break;
+        case 0x82:
+            GS_7A514M->f_8 = 0;
+            GS_7A514M->f_4 = (((u16 *)&g_Pad_7A514)[0x182/2] << 3) + 0x400;
+            break;
+        case 0x81:
+            {
+            s32 d = SP_7A514M->f_5C - 0x13;
+            if (d == 0) {
+                GS_7A514M->f_8 = 1;
+                GS_7A514M->f_4 = 0x1000;
+            } else if (d >= 0xE) {
+                __asm__("" : : "r"(d));
+                GS_7A514M->f_8 = 0;
+                GS_7A514M->f_4 = 0x400;
+            }
+            }
+            break;
+        default:
+            GS_7A514M->f_4 = 0x400;
+            GS_7A514M->f_8 = 0;
+            GS_7A514M->f_14 = 0;
+            break;
+        }
+    }
+    snd = 0;
+    if (GS_7A514M->f_14 != 0) {
+        if ((GS_7A514M->f_14->f_2C >> 28) == 0xA) {
+            snd = 0x1C;
+            GS_7A514M->f_4 = 0x400;
+            GS_7A514M->f_8 = 2;
+            Pad_Vibrate(1, 200, 4);
+        }
+        GS_7A514M->f_14 = 0;
+    }
+    if (GS_7A514M->f_18 != 0) {
+        if ((GS_7A514M->f_14->f_2C >> 28) == 0xA) {
+            snd = 0x1C;
+            GS_7A514M->f_4 = 0x400;
+            GS_7A514M->f_8 = 2;
+            Pad_Vibrate(1, 200, 4);
+        }
+        GS_7A514M->f_18 = 0;
+    }
+    if (snd != 0) {
+        Sound_PlayFixed(snd);
+    }
+    GS_7A514M->f_6 = (GS_7A514M->f_6 + GS_7A514M->f_4) / 2;
+    switch (SP_7A514M->f_5E) {
+    case 14:
+    case 15:
+    case 49:
+    case 50:
+    case 51:
+    case 56:
+    case 57:
+    case 58:
+    case 59:
+    case 60:
+    case 61:
+    case 62:
+    case 63:
+    case 64:
+    case 65:
+        func_8007CD0C(0);
+        break;
+    default:
+        func_8007CD0C(1);
+        if ((SP_7A514M->f_70 & 0xF0) == 0x80) {
+            func_8004637C(&sc->m);
+            sc->m.t[2] = -0x30;
+            sc->m.t[1] = 0x20;
+            CompMatrix(&D_800F4750, &sc->m, &sc->m);
+            m = &sc->m;
+        } else {
+            m = &D_800F4750;
+        }
+        Club_Draw_7A514(m, g_GadgetState_7A514.f_6, 1);
+        if (GS_7A514M->f_8 == 1 || (SP_7A514M->f_5E == 0x82 && PAD_7A514M->f_182 >= 0x79 && PAD_7A514M->f_1AC < 0xE10)) {
+            c = CollShape_Alloc_7A514();
+            if (c != 0) {
+                c->dir = SP_7A514M->f_60;
+                c->x = GS_7A514M->f_C;
+                t = GS_7A514M->f_E;
+                if (SP_7A514M->f_5E == 0x81) {
+                    t -= 0x40;
+                }
+                c->y = t;
+                c->z = GS_7A514M->f_10;
+                c->f_20 = 150;
+                c->f_24 = 0x836;
+                c->f_26 = 0x202;
+                GS_7A514M->f_14 = c;
+                Collision_Set(0xD, c, SP_7A514M);
+            }
+            c = CollShape_Alloc_7A514();
+            if (c != 0) {
+                c->dir = SP_7A514M->f_60;
+                c->x = (SP_7A514M->x + GS_7A514M->f_C) >> 1;
+                t = GS_7A514M->f_E;
+                if (SP_7A514M->f_5E == 0x81) {
+                    t -= 0x40;
+                }
+                c->y = t;
+                c->z = (SP_7A514M->z + GS_7A514M->f_10) >> 1;
+                c->f_20 = 150;
+                c->f_24 = 0x836;
+                c->f_26 = 0x202;
+                GS_7A514M->f_18 = c;
+                Collision_Set(0xC, c, SP_7A514M);
+            }
+        }
+        break;
+    }
+}
+
 
 
 void func_8007AA1C(void) {
