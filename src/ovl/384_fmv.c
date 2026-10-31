@@ -515,7 +515,191 @@ void func_80136EA8(void) {
 
 INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136FF0);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80137248);
+typedef struct { s32 name; s32 f4; u32 flags; s32 fC; u8 file[0x18]; } FmvEnt_80137248;
+typedef struct { u32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x26]; u16 f_8126; u8 pad8128[0x158]; s32 f_8280; } Game_80137248;
+typedef struct { u32 *f_0; u8 pad4[0x1C]; } Ent_80137248;
+extern Game_80137248 g_Game_80137248 asm("g_Game");
+extern struct { u8 pad0[0x158]; u16 f_158; u8 pad15A[2]; s32 f_15C; } g_Pad_80137248 asm("g_Pad");
+extern struct { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } D_800EBFA0_80137248 asm("D_800EBFA0");
+extern struct { u8 pad0[8]; void *f_8; s32 f_C; s32 f_10; } D_800F5AA0_80137248 asm("D_800F5AA0");
+extern Ent_80137248 *D_800B4D64_80137248 asm("D_800B4D64");
+extern FmvEnt_80137248 D_8013C244_80137248[] asm("D_8013C244");
+extern void (*D_8013C1AC_80137248[])(u8 *, u8 *) asm("D_8013C1AC");
+extern void *D_8013C1B8_80137248 asm("D_8013C1B8");
+extern u32 D_8013C250_80137248 asm("D_8013C250");
+extern char D_8013C07C_80137248[] asm("D_8013C07C");
+extern u8 D_800EC3D0_80137248[] asm("D_800EC3D0");
+#define G2_80137248 (*(Game_80137248 *)(D_800EC3D0_80137248 - 0x80))
+extern s32 D_8013C4A0;
+extern s32 D_8013C4A4;
+s32 VSync_80137248(s32) asm("VSync");
+void Gfx_WaitFlip(void);
+void bios_printf(char *, ...);
+void bios_exit(s32);
+void *Cd_GetFileEntry(void *, s32);
+void func_80137878(void);
+void func_80136000(s32, s32);
+void func_8013A8A0(s32 *);
+void func_80138094();
+void func_80136E68(u8);
+void func_80136454(s32, s32);
+s32 func_80136E00(void *, void *);
+void func_80137A64(void);
+void func_80016F34(void);
+void Hud_Draw(void);
+void func_8005ACE8(void);
+void func_80069BEC(void);
+void Fx_UpdateAll(void);
+void Tex_UpdateAnims(void);
+u32 StFreeRing(u32 *base);
+s32 StRingStatus(s16 *, s16 *);
+void func_801378F0(s32, u8 *);
+
+s32 func_80137248(s32 idx) {
+    s16 st0;
+    s16 st1;
+    u32 *head;
+    u8 *ring;
+    u8 *rec;
+    register u8 *tbl asm("$22");
+    s32 unk;
+    s32 mode;
+    s32 i;
+    u32 pad;
+    s32 now;
+    u32 lag;
+    register s32 skip asm("$23");
+    u32 old;
+    s32 n;
+
+    skip = 0;
+    tbl = 0;
+    pad = 0;
+    lag = 0;
+    Gfx_WaitFlip();
+    __asm__("" : "=r"(unk));
+    D_8013C48C = func_800315D0();
+    if (D_800F5AA0_80137248.f_8 == 0) {
+        bios_printf(D_8013C07C_80137248);
+        bios_exit(1);
+    }
+    Cd_GetFileEntry(D_8013C244_80137248[idx].file, D_8013C244_80137248[idx].name);
+    mode = 0x120;
+    func_80137878();
+    func_80136000(0, 0);
+    func_8013990C(D_800F5AA0_80137248.f_8);
+    switch (idx) {
+    case 1:
+    case 3:
+    case 8:
+        D_800F5AA0_80137248.f_C = D_800F5AA0_80137248.f_10;
+        break;
+    case 12:
+        tbl = (u8 *)func_8008C09C(g_Game_80137248.f_8280);
+        for (i = g_Game_80137248.f_8280 - 1; i >= 0; i--) {
+            tbl[i] = (*D_800B4D64_80137248[i].f_0 & 0xF0000) >> 16;
+            *D_800B4D64_80137248[i].f_0 |= 0xF0000;
+        }
+        break;
+    }
+    if (D_800F5AA0_80137248.f_C != 0) {
+        func_8013A8A0((s32 *)D_800F5AA0_80137248.f_C);
+    }
+    if (idx == 6) {
+        D_8013C1B8_80137248 = func_80138094;
+    }
+    if ((D_8013C244_80137248[idx].flags >> 1) & 1) {
+        mode |= 0x48;
+        func_80136E68(1);
+    }
+    func_80086248(-1);
+    while (CdControlB(0xC, 0, 0) == 0) {
+    }
+    func_80136454((s32)CdIntToPos(CdPosToInt(D_8013C244_80137248[idx].file) + 5, D_8013C244_80137248[idx].file), mode);
+    if (func_80136E00(&ring, &head) != 0) {
+        goto fail;
+    }
+    {
+        s32 a = D_800EBFA0_80137248.f_24;
+        s32 b = D_800EBFA0_80137248.f_28;
+        D_800EBFA0_80137248.f_24 = 0xF000;
+        D_800EBFA0_80137248.f_28 = 0x1000;
+        D_800EBFA0_80137248.f_2C = 0x4400;
+        D_8013C4A0 = a;
+        D_8013C4A4 = b;
+    }
+    func_80137A64();
+    D_8013C4B4 = 2;
+    now = VSync_80137248(-1);
+    g_Game_80137248.frame = 1;
+    do {
+        Gfx_BeginFrame();
+        for (rec = ring; *(u16 *)rec != 0; rec += *(u16 *)rec * 2) {
+            D_8013C1AC_80137248[rec[2]](rec, rec + 4);
+        }
+        func_80016F34();
+        Hud_Draw();
+        if (g_Game_80137248.f_8126 != 0x46) {
+            func_8005ACE8();
+        }
+        func_80069BEC();
+        Fx_UpdateAll();
+        Tex_UpdateAnims();
+        if (*(u16 *)(rec + 2) == 0xFFFF) {
+            goto done;
+        }
+        if (D_8013C250_80137248 != 0 && g_Game_80137248.frame >= D_8013C250_80137248) {
+            goto fail;
+        }
+        StFreeRing((u32 *)ring);
+        g_Game_80137248.frame++;
+        while (func_80136E00(&ring, &head) != 0) {
+        }
+        if (skip) {
+            n = lag >> 1;
+            skip = 0;
+    __asm__("" : "=r"(unk));
+            lag -= n * 2;
+            do {
+                StRingStatus(&st0, &st1);
+                if (st1 >= 4) {
+                    StFreeRing((u32 *)ring);
+                    while (func_80136E00(&ring, &head) != 0) {
+                    }
+                }
+            } while (--n);
+        }
+        DrawSync(0);
+        {
+        register s32 then asm("$16") = now;
+        VSync_80137248(D_8013C4B4);
+        PutDispEnv(&g_Game_80137248.db[g_Game_80137248.cur].env[0x5C]);
+        PutDrawEnv(g_Game_80137248.db[g_Game_80137248.cur].env);
+        now = VSync_80137248(-1);
+        { register s32 d asm("$2") = now - then; lag += d; }
+        }
+        if (lag >= 3) {
+            skip = 1;
+        }
+        DrawOTag(&g_Game_80137248.db[g_Game_80137248.cur].ot[0xFFF]);
+        func_8001325C(0);
+        old = pad;
+        pad = g_Pad_80137248.f_158 | (g_Pad_80137248.f_15C << 16);
+    } while (old == pad || !(pad & 0x860));
+fail:
+    func_801378F0(unk, tbl);
+    return 1;
+done:
+    DrawSync(0);
+    VSync_80137248(D_8013C4B4);
+    PutDispEnv(&G2_80137248.db[G2_80137248.cur].env[0x5C]);
+    PutDrawEnv(G2_80137248.db[G2_80137248.cur].env);
+    DrawOTag(&G2_80137248.db[G2_80137248.cur].ot[0xFFF]);
+    G2_80137248.cur ^= 1;
+    func_801378F0(unk, tbl);
+    Gfx_BeginFrame();
+    return 0;
+}
 
 typedef struct { u8 pad0[8]; s16 x; s16 y; u8 padC[0x406C]; } Buf_80137878;
 extern struct { u8 pad0[0x10]; Buf_80137878 db[2]; } g_Game_80137878 asm("g_Game");
