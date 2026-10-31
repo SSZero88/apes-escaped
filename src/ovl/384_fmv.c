@@ -103,7 +103,132 @@ INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C250);
 
 INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C254);
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136074);
+typedef struct { u8 pad0[0x14]; u32 f_14; u8 pos[4]; } Fmv_80136074;
+extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_80136074 asm("g_Game");
+extern struct { u8 pad0[0x158]; u16 f_158; u8 pad15A[2]; s32 f_15C; } g_Pad_80136074 asm("g_Pad");
+extern Fmv_80136074 *D_8013C484_80136074 asm("D_8013C484");
+extern void (*D_8013C1AC_80136074[])(u8 *, u8 *) asm("D_8013C1AC");
+extern DrawBuf D_800F03D0_80136074[] asm("D_800F03D0");
+extern s32 D_8013C4B0_80136074 asm("D_8013C4B0");
+extern s32 D_8013C4B4_80136074 asm("D_8013C4B4");
+s32 func_8013668C(s32 *mode, s32 idx);
+s32 CdPosToInt(void *p);
+void *CdIntToPos(s32 i, void *p);
+void func_80136454(s32, s32);
+s32 func_80136E00(void *, void *);
+void func_801369E0(s32 arg0);
+void SetDispMask(s32 mask);
+s32 VSync_80136074(s32) asm("VSync");
+void Gfx_BeginFrame(void);
+void func_80139E00(void);
+void func_80069BEC(void);
+void Fx_UpdateAll(void);
+u32 StFreeRing(u32 *base);
+s32 StRingStatus(s16 *, s16 *);
+void DrawSync(s32);
+void *PutDispEnv(void *env);
+void *PutDrawEnv(void *env);
+void DrawOTag(u32 *p);
+void func_8001325C(s32);
+__asm__(".section .rodata\n\t.globl D_8013C480\nD_8013C480:\n\t.word 0x00000000\n\t.section .text");
+extern s32 D_8013C480;
+
+s32 func_80136074(s32 idx) {
+    u8 *ring;
+    u32 *head;
+    s16 st0;
+    s16 st1;
+    u8 *rec;
+    s32 skip;
+    u32 pad;
+    u32 old;
+    register u32 lag asm("$18");
+    s32 now;
+    s32 n;
+    s32 code;
+
+    skip = 0;
+    pad = 0;
+    lag = 0;
+    while (func_8013668C(&D_8013C480, idx) != 0) {
+    }
+    CdIntToPos(CdPosToInt(D_8013C484_80136074->pos) + 5, D_8013C484_80136074->pos);
+    func_80136454((s32)D_8013C484_80136074->pos, D_8013C480);
+    if (func_80136E00(&ring, &head) != 0) {
+        code = 2;
+fail:
+        func_801369E0(code);
+        return 1;
+    }
+    SetDispMask(1);
+    now = VSync_80136074(-1);
+    g_Game_80136074.frame = 1;
+    while (1) {
+        Gfx_BeginFrame();
+        for (rec = ring; *(u16 *)rec != 0; rec += *(u16 *)rec * 2) {
+            D_8013C1AC_80136074[rec[2]](rec, rec + 4);
+        }
+        func_80139E00();
+        func_80069BEC();
+        Fx_UpdateAll();
+        if (*(u16 *)(rec + 2) == 0xFFFF) {
+            break;
+        }
+        if (D_8013C484_80136074->f_14 != 0 && g_Game_80136074.frame >= D_8013C484_80136074->f_14) {
+            code = 0;
+            goto fail;
+        }
+        StFreeRing((u32 *)ring);
+        if (old != pad && (pad & 0x860)) {
+            code = 1;
+            goto fail;
+        }
+        g_Game_80136074.frame++;
+        if (func_80136E00(&ring, &head) != 0) {
+            code = 1;
+            goto fail;
+        }
+        if (skip) {
+            skip = 0;
+            n = lag >> 1;
+            lag -= n * 2;
+            do {
+                StRingStatus(&st0, &st1);
+                if (st1 >= 4) {
+                    StFreeRing((u32 *)ring);
+                    if (func_80136E00(&ring, &head) != 0) {
+                        code = 1;
+                        goto fail;
+                    }
+                }
+            } while (--n);
+        }
+        DrawSync(0);
+        VSync_80136074(D_8013C4B4_80136074);
+        D_8013C4B4_80136074 = D_8013C4B0_80136074;
+        PutDispEnv(&g_Game_80136074.db[g_Game_80136074.cur].env[0x5C]);
+        PutDrawEnv(g_Game_80136074.db[g_Game_80136074.cur].env);
+        {
+        register s32 then asm("$16") = now;
+        now = VSync_80136074(-1);
+        { register s32 d asm("$2") = now - then; lag += d; }
+        }
+        if (lag >= 3) {
+            skip = 1;
+        }
+        DrawOTag(&g_Game_80136074.db[g_Game_80136074.cur].ot[0xFFF]);
+        { register DrawBuf *b asm("$6") = D_800F03D0_80136074; DrawOTag(b[g_Game_80136074.cur].env); }
+        func_8001325C(0);
+        old = pad;
+        pad = g_Pad_80136074.f_158 | (g_Pad_80136074.f_15C << 16);
+    }
+    DrawSync(0);
+    VSync_80136074(D_8013C4B4_80136074);
+    PutDispEnv(&g_Game_80136074.db[g_Game_80136074.cur].env[0x5C]);
+    PutDrawEnv(g_Game_80136074.db[g_Game_80136074.cur].env);
+    func_801369E0(0);
+    return 0;
+}
 
 void func_80136454(s32 arg0, M2C_UNK arg1) {
     do {
