@@ -2240,7 +2240,65 @@ void func_80057BF4(void) {
     p->f_6 = ((((u16)(D_800AE8F2 = D_800AE8F2 * 5 + 1)) >> 8) * 5U >> 5) + 40;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80052D70_object", func_80057CB0);
+typedef struct { u8 pad0[0x24]; u16 x; u8 pad26[6]; u16 z; } Spk_80057CB0;
+extern Spk_80057CB0 g_Spike_80057CB0 asm("g_Spike");
+typedef struct { u8 pad0[0x86]; u16 f_86; u8 pad88[0x12]; u16 f_9A; s16 f_9C; u16 f_9E; u8 padA0[4]; s16 f_A4; s16 f_A6; u8 padA8[0x38]; u32 f_E0; } O_80057CB0;
+extern O_80057CB0 g_Objects_80057CB0[] asm("g_Objects");
+typedef struct { u8 pad0; u8 f_1; u8 f_2; u8 f_3; u8 f_4; u8 f_5; u16 f_6; } S77A0_80057CB0;
+extern S77A0_80057CB0 D_800E77A0_80057CB0 asm("D_800E77A0");
+typedef struct { u8 pad0[0x12]; u8 f_12; } S77D0_80057CB0;
+extern S77D0_80057CB0 D_800E77D0_80057CB0 asm("D_800E77D0");
+void *func_80056BC4_80057CB0(s16 id, void *b, s16 c) asm("func_80056BC4");
+s32 Floor_GetHeight_80057CB0(s32, s32, s32) asm("Floor_GetHeight");
+static inline s32 Rand_Mod_80057CB0(s16 n) { return ((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) % n; }
+
+void func_80057CB0(void) {
+    struct { s32 vx, vy, vz, pad; } pos;
+    O_80057CB0 *o;
+    s16 ang;
+    s16 r;
+    u16 x;
+    u16 z;
+    if (D_800E77D0_80057CB0.f_12 == 1) {
+        if (D_800E77A0_80057CB0.f_4 == 0) {
+            D_800E77A0_80057CB0.f_3 = Rand_Mod_80057CB0(2);
+            D_800E77A0_80057CB0.f_6 = 0;
+            D_800E77A0_80057CB0.f_4 = 2;
+        }
+        D_800E77D0_80057CB0.f_12 = 0;
+    }
+    if (D_800E77A0_80057CB0.f_4 == 0) {
+        return;
+    }
+    if (D_800E77A0_80057CB0.f_6 == 0) {
+        ang = (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) << 12) / 255 % 4096;
+        o = &g_Objects_80057CB0[D_800E77A0_80057CB0.f_2];
+        x = o->f_9A;
+        z = o->f_9E;
+        if (D_800E77A0_80057CB0.f_4 != D_800E77A0_80057CB0.f_3) {
+            r = ((u16)(D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) + 800;
+        } else if (Spike_WithinRadiusXZ((s16)x, (s16)z, o->f_A6)) {
+            r = o->f_A6;
+        } else if (Spike_WithinRadiusXZ((s16)o->f_9A, (s16)o->f_9E, o->f_A4)) {
+            x = g_Spike_80057CB0.x;
+            z = g_Spike_80057CB0.z;
+            r = ((u16)(D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) + 100;
+        } else {
+            r = o->f_A4 / 2;
+        }
+        pos.vx = (s16)x + ((rsin(ang) * r) >> 12);
+        pos.vz = (s16)z + ((rcos(ang) * r) >> 12);
+        pos.vy = Floor_GetHeight_80057CB0(pos.vx, o->f_9C, pos.vz);
+        o->f_86 = pos.vy;
+        o->f_E0 |= 0x100;
+        if (func_80056BC4_80057CB0(0x3D, &pos, D_800E77A0_80057CB0.f_2)) {
+            D_800E77A0_80057CB0.f_1++;
+        }
+        D_800E77A0_80057CB0.f_6 = 10;
+        D_800E77A0_80057CB0.f_4--;
+    }
+    D_800E77A0_80057CB0.f_6--;
+}
 
 void func_80057FD0(S_O_80057FD0_80057FD0 *o, s32 k, s32 v) {
     o->f_E0 |= 0x40000;

@@ -510,9 +510,182 @@ void func_80081144(s32 arg0, s8 arg1)
 
 INCLUDE_ASM("asm/nonmatchings/game/8007D0F0_menu", Hud_DrawAirMeter);
 
-INCLUDE_ASM("asm/nonmatchings/game/8007D0F0_menu", Hud_DrawSlingAmmo);
+typedef struct { u8 pad0[0x98]; s16 x; s16 f_9A; s16 f_9C; u8 pad9E[2]; u8 sel; u8 n1; u8 n2; } SlingHud_813D8;
+extern SlingHud_813D8 g_GadgetState_813D8 asm("g_GadgetState");
+#define SH_813D8 g_GadgetState_813D8
+typedef struct { u32 tag; u32 tpage; u8 r0, g0, b0, code; s16 x0, y0; u32 uvclut; u32 wh; } SprtTpU_813D8;
+typedef struct { u32 tag; u32 tpage; u8 r0, g0, b0, code; s16 x0, y0; u16 uv, clut; u32 wh; } SprtTpV_813D8;
+extern u32 D_800B2728[3];
+extern s16 D_800F51BC;
+SprtTpU_813D8 *Hud_DrawSmallNumber_813D8(s32 x, s32 y, s32 n, SprtTpU_813D8 *p) asm("Hud_DrawSmallNumber");
 
-INCLUDE_ASM("asm/nonmatchings/game/8007D0F0_menu", Hud_DrawGadgets);
+void Hud_DrawSlingAmmo(void) {
+    u32 *ot = G_HUD_OT;
+    SprtTpU_813D8 *p = (SprtTpU_813D8 *)G_DRAW.prim;
+    s32 x = SH_813D8.x;
+    s32 y;
+    s32 i;
+    s32 n;
+
+    for (i = 0, y = 0x5A; i < 3; i++, y += 12) {
+        p->code = 0x65;
+        ((u8 *)p)[3] = 5;
+        p->tpage = 0xE100021A;
+        p->x0 = x + 0x15;
+        p->y0 = y;
+        p->uvclut = D_800B2728[i];
+        p->wh = 0x100010;
+        ADD_PRIM_ASM(ot, p);
+        p++;
+        switch (i) {
+        case 1:
+            n = SH_813D8.n1;
+            break;
+        case 2:
+            n = SH_813D8.n2;
+            break;
+        default:
+            n = -1;
+            break;
+        }
+        p = Hud_DrawSmallNumber_813D8(x + 0x25, y + 3, n, p);
+        if (i == SH_813D8.sel) {
+            ((SprtTpV_813D8 *)p)->uv = 0xA040;
+            ((u8 *)p)[3] = 5;
+            p->tpage = 0xE100021A;
+            p->code = 0x67;
+            p->x0 = x + 0xE;
+            p->y0 = y;
+            p->wh = 0x100030;
+            ((SprtTpV_813D8 *)p)->clut = 0x786B;
+            ADD_PRIM_ASM(ot, p);
+            p++;
+            p->tpage = 0xE100025A;
+            ((SprtTpV_813D8 *)p)->uv = 0xB040;
+            ((u8 *)p)[3] = 5;
+            p->code = 0x67;
+            p->x0 = x + 0xE;
+            p->y0 = y;
+            p->wh = 0x100030;
+            ((SprtTpV_813D8 *)p)->clut = 0x78AB;
+            ADD_PRIM_ASM(ot, p);
+            p++;
+        }
+    }
+    if (SH_813D8.f_9C > 0) {
+        SH_813D8.x = x - 10;
+        if (x < 0x136) {
+            SH_813D8.x = 0x12C;
+        }
+    } else {
+        SH_813D8.x += 10;
+        SH_813D8.x += x;
+        if (x > 0x190) {
+            SH_813D8.x = 0x190;
+            SH_813D8.f_9C = 0;
+        }
+    }
+    if (g_CurrentGadget != 3) {
+        D_800F51BC = -1;
+    }
+    if (SH_813D8.f_9A > 0) {
+        SH_813D8.f_9A--;
+    }
+    D_800EC354 = (s32)p;
+}
+
+extern struct { u8 pad0[0xF2]; s8 gadget; } g_Spike_81664 asm("g_Spike");
+typedef struct { u8 pad0[0x88]; s8 slots[4]; u8 pad8C[8]; s16 cursorX; s16 cursorY; } GadgetHud_81664;
+typedef struct { s16 x, y; } HudPos_81664;
+extern HudPos_81664 D_800B2234_81664[] asm("D_800B2234");
+typedef struct { u8 u, v; u16 clut; } GadgetIcon_81664;
+extern GadgetIcon_81664 D_800B2254[];
+typedef struct { u32 tag; u32 tpage; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } SprtTp_81664;
+s32 Spike_IsUnderwater(void);
+s32 func_80066F50(void);
+extern GadgetHud_81664 g_GadgetState_81664 asm("g_GadgetState");
+#define GH_81664 g_GadgetState_81664
+
+void Hud_DrawGadgets(void) {
+    s32 cur = g_Spike_81664.gadget;
+    u32 *ot = G_HUD_OT;
+    SprtTp_81664 *p;
+    s32 i;
+    s32 ty, tx;
+    s32 h;
+    s32 off;
+
+    if (Spike_IsUnderwater() != 0) {
+        Hud_DrawAirMeter();
+        return;
+    }
+    if (func_80066F50() == 0 || g_Spike_81664.gadget == 9) {
+        return;
+    }
+    if (g_Spike_81664.gadget == 3) {
+        Hud_DrawSlingAmmo();
+    }
+    p = (SprtTp_81664 *)G_DRAW.prim;
+    tx = 0;
+    ty = 0;
+    for (i = 0; i < 4; i++) {
+        if (GH_81664.slots[i] != -1) {
+            p->tpage = 0xE100021E;
+            ((u8 *)p)[3] = 5;
+            p->code = 0x65;
+            p->clut = D_800B2254[GH_81664.slots[i]].clut;
+            p->x0 = D_800B2234_81664[i].x - 16;
+            off = -17;
+            if (GH_81664.slots[i] == cur) {
+                off = -14;
+            }
+            p->y0 = D_800B2234_81664[i].y + off;
+            p->w = 0x20;
+            p->h = 0x20;
+            p->u0 = D_800B2254[GH_81664.slots[i]].u;
+            p->v0 = D_800B2254[GH_81664.slots[i]].v;
+            ADD_PRIM_ASM(ot, p);
+            p++;
+        }
+        p->tpage = 0xE100021D;
+        p->code = 0x67;
+        ((u8 *)p)[3] = 5;
+        p->clut = (0x7840 + i * 0x40) | 0x37;
+        p->x0 = D_800B2234_81664[i].x - 16;
+        p->y0 = D_800B2234_81664[i].y - 16;
+        p->w = 0x20;
+        p->h = 0x20;
+        p->v0 = (i / 2) * 32 + 0x40;
+        if (GH_81664.slots[i] == cur) {
+            p->u0 = (i % 2) * 64 + 0x20;
+        } else {
+            p->u0 = (i % 2) * 64;
+        }
+        ADD_PRIM_ASM2(ot, p);
+        p++;
+        if (GH_81664.slots[i] == cur) {
+            tx = D_800B2234_81664[i].x - 0x18;
+            ty = D_800B2234_81664[i].y - 0x17;
+        }
+    }
+    if (tx != 0 && ty != 0) {
+        tx = (GH_81664.cursorX + tx) >> 1;
+        ty = (GH_81664.cursorY + ty) >> 1;
+        ((u8 *)p)[3] = 5;
+        p->code = 0x67;
+        p->tpage = 0xE100023D;
+        p->x0 = tx;
+        p->y0 = ty;
+        GH_81664.cursorX = tx;
+        GH_81664.cursorY = ty;
+        *(u16 *)&p->u0 = 0x50C0;
+        *(u32 *)&p->w = 0x300030;
+        p->clut = 0x363F;
+        ADD_PRIM_ASM(ot, p);
+        p++;
+    }
+    D_800EC354 = (s32)p;
+}
 
 /* Places the HUD cursor on the slot that holds the current gadget.
  */
@@ -650,7 +823,41 @@ void func_80081B9C(s32 mode) {
 
 
 
-INCLUDE_ASM("asm/nonmatchings/game/8007D0F0_menu", func_80081D54);
+typedef struct { u32 tag; u32 rgbc; u32 xy; u32 uvclut; u32 wh; } SprtW_81D54;
+typedef struct { u32 tag; u32 code; } DrTpage_81D54;
+s32 Game_IsTimed(void);
+
+void func_80081D54(void) {
+    u32 *ot = G_HUD_OT;
+    SprtW_81D54 *p = (SprtW_81D54 *)G_DRAW.prim;
+    s32 i;
+    u32 c;
+
+    if (Game_IsTimed() && D_800BEF74.f_0 != 2) {
+        return;
+    }
+    for (i = 0; i < 4; i++) {
+        if (func_80082030(i)) {
+            ((u8 *)p)[3] = 4;
+            p->rgbc = 0x64808080;
+        } else {
+            ((u8 *)p)[3] = 4;
+            p->rgbc = 0x64202020;
+        }
+        D_800B264C[i].x2 = (D_800B264C[i].x2 * 2 + D_800B264C[i].x) / 3;
+        D_800B264C[i].y2 = (D_800B264C[i].y2 * 2 + D_800B264C[i].y) / 3;
+        p->xy = ((u32 *)D_800B264C)[i * 3 + 1];
+        p->uvclut = ((u32 *)D_800B264C)[i * 3 + 2];
+        p->wh = 0x100080;
+        ADD_PRIM_ASM(ot, p);
+        p++;
+    }
+    ((u8 *)p)[3] = 1;
+    ((DrTpage_81D54 *)p)->code = 0xE100021A;
+    ADD_PRIM_ASM(ot, p);
+    p = (SprtW_81D54 *)((u8 *)p + 8);
+    D_800EC354 = (s32)p;
+}
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; } Sprt8_81F18;
 typedef struct { u32 tag; u32 code; } DrTpage_81F18;
@@ -914,9 +1121,154 @@ void func_80082D40(void) {
     func_800864B4((void *)((u8 *)&D_800BEF90 + 4));
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8007D0F0_menu", OptionsMenu_Update);
+typedef struct { s32 sel; s32 se; s32 bgm; } Opt_82D6C;
+#define OPT_82D6C (*(Opt_82D6C *)&D_800BEF90)
+typedef struct { u32 f_0; u8 pad4[0x8134]; u8 vibration; u8 pad8139; u16 stereo; } GameOpt_82D6C;
+#define GO_82D6C (*(GameOpt_82D6C *)&g_Game)
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u32 uvclut; s16 w, h; } Sprt_82D6C;
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u32 uvclut; } Sprt16_82D6C;
+typedef struct { u32 tag; u32 code; } DrTpage_82D6C;
+extern u32 D_800B2858;
+extern u32 D_800B2840[5];
+extern u8 D_800B2864[];
+void Menu_DrawVolumeBar(s32, s32, s32);
+void Menu_DrawCaps(s32, s32, s32);
+u8 *Str_GetNth(u8 *, s32);
+s32 Sound_SetVolumes(s32, s32);
+s32 func_80086428(s32);
+s32 Sound_SetStereo(s32);
 
-INCLUDE_RODATA("asm/nonmatchings/game/8007D0F0_menu", jtbl_800A6140);
+/* Options menu: vibration, stereo/mono, music and effects volume (D-pad left/right, steps of 8)
+   and reset to defaults; up/down picks the row, Start leaves (returns -1) */
+s32 OptionsMenu_Update(void) {
+    s32 sel = OPT_82D6C.sel;
+    u32 *ot = G_DRAW.ot;
+    union { Sprt_82D6C *p; Sprt16_82D6C *q; DrTpage_82D6C *t; u8 *b; } u;
+    s32 k, i, y, y1;
+    u32 btn;
+    s32 v;
+
+    Menu_DrawWindow(0x1E, 0x1E, 0x130, 0xB0);
+    u.b = G_DRAW.prim;
+    u.b[3] = 4;
+    u.p->code = 0x65;
+    k = (GO_82D6C.f_0 >> 2) % 3;
+    if (sel < 5) {
+        u.p->x0 = 0x1C;
+        u.p->y0 = sel * 26 - (s16)(k - 0x1C);
+    } else {
+        u.p->x0 = 0xDC;
+        u.p->y0 = 0x9E - k;
+    }
+    u.p->w = 0x20;
+    u.p->h = 0x20;
+    u.p->uvclut = D_800B2858;
+    ADD_PRIM_ASM(ot, u.p);
+    u.p++;
+    for (i = 0; i < 5; i++) {
+        u.b[3] = 3;
+        u.q->code = 0x7D;
+        u.q->x0 = 0x34;
+        u.q->y0 = i * 26 + 0x34;
+        u.q->uvclut = D_800B2840[i];
+        ADD_PRIM_ASM(ot, u.q);
+        u.q++;
+    }
+    G_DRAW.prim = u.b;
+    Menu_DrawVolumeBar(0xA8, 0x68, OPT_82D6C.bgm);
+    Menu_DrawVolumeBar(0xA8, 0x82, OPT_82D6C.se);
+    u.b = G_DRAW.prim;
+    u.b[3] = 1;
+    u.t->code = 0xE100023A;
+    ADD_PRIM_ASM(ot, u.t);
+    u.t++;
+    G_DRAW.prim = u.b;
+    for (i = 0; i < 5; i++) {
+        Text_Draw(Str_GetNth(D_800B2864, i), 0x54, i * 26 + 0x34, 2);
+    }
+    Text_Draw(Str_GetNth(D_800B2864, 5), 0xB4, 0x34, 1);
+    Text_Draw(Str_GetNth(D_800B2864, 6), 0xF0, 0x34, 1);
+    Menu_DrawCaps(GO_82D6C.vibration ? 0xC4 : 0x100, 0x34, 0x40);
+    Text_Draw(Str_GetNth(D_800B2864, 7), 0xB4, 0x4E, 1);
+    Text_Draw(Str_GetNth(D_800B2864, 8), 0x104, 0x4E, 1);
+    Menu_DrawCaps(GO_82D6C.stereo ? 0xD4 : 0x124, 0x4E, 0x58);
+    Text_Draw(Str_GetNth(D_800B2864, 9), 0x104, 0xB6, 0);
+    func_8008DDB0(0xE4, 0xB6);
+    func_8008DDC8(Str_GetNth(D_800B2864, 0xB));
+    btn = g_Pad.f_158 & g_Pad.f_160;
+    switch (sel) {
+    case 0:
+        if (btn & 0xA0F0) {
+            GO_82D6C.vibration ^= 1;
+            Sound_PlayFixed(3);
+        }
+        break;
+    case 1:
+        if (btn & 0xA0F0) {
+            GO_82D6C.stereo ^= 1;
+            Sound_SetStereo(GO_82D6C.stereo);
+            Sound_PlayFixed(3);
+        }
+        break;
+    case 2:
+        v = OPT_82D6C.bgm;
+        if (btn & 0x2000) {
+            v += 8;
+        }
+        if (btn & 0x8000) {
+            v -= 8;
+        }
+        if (btn & 0xA000) {
+            Sound_PlayFixed(0x10);
+        }
+        v = (v < 0) ? 0 : (v >= 0x80) ? 0x7F : v;
+        OPT_82D6C.bgm = v;
+        Sound_SetVolumes(OPT_82D6C.se, v);
+        break;
+    case 3:
+        v = OPT_82D6C.se;
+        if (btn & 0x2000) {
+            v += 8;
+        }
+        if (btn & 0x8000) {
+            v -= 8;
+        }
+        if (btn & 0xA000) {
+            Sound_PlayFixed(0x10);
+        }
+        v = (v < 0) ? 0 : (v >= 0x80) ? 0x7F : v;
+        OPT_82D6C.se = v;
+        Sound_SetVolumes(v, OPT_82D6C.bgm);
+        break;
+    case 4:
+        if (btn & 0xF0) {
+            func_80086428(1);
+            func_800864B4(&OPT_82D6C.se);
+            GO_82D6C.vibration = 1;
+            GO_82D6C.stereo = 1;
+            Sound_SetStereo(1);
+            Sound_PlayFixed(3);
+        }
+        break;
+    }
+    if (btn & 0x1000) {
+        sel--;
+        Sound_PlayFixed(0);
+    }
+    if (btn & 0x4000) {
+        Sound_PlayFixed(0);
+        sel++;
+    }
+    sel = (sel + 5) % 5;
+    if (btn & 0x800) {
+        Sound_PlayFixed(1);
+        return -1;
+    }
+    OPT_82D6C.sel = sel;
+    func_80081D54();
+    return 0;
+}
+
 INCLUDE_RODATA("asm/nonmatchings/game/8007D0F0_menu", jtbl_800A6140_pad);
 
 

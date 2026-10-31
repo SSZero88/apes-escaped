@@ -151,7 +151,59 @@ INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", func_80016294);
 
 INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_ProjectMorphFrame);
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_ProjectBonedVerts);
+typedef struct { u8 pad0[4]; u16 nBones; } MdlHdr_16A6C;
+typedef struct { u16 count; u16 start; u8 pad4[8]; } Bone_16A6C;
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_16A6C;
+typedef struct { MdlHdr_16A6C *hdr; u8 pad4[8]; Bone_16A6C *bones; SVECTOR *verts; MAT_16A6C *mats; } Mdl_16A6C;
+typedef struct { u32 sxy; s32 sz; } Proj_16A6C;
+extern Proj_16A6C D_800E7D00_16A6C[] asm("D_800E7D00");
+
+/* Projects a boned model's vertices into D_800E7D00: each bone's run of vertices (count, start)
+   goes through that bone's matrix (mats[bone + 1]), three at a time as in Model_ProjectVerts. */
+void Model_ProjectBonedVerts(Mdl_16A6C *mdl) {
+    Proj_16A6C *proj;
+    MAT_16A6C *mats;
+    s32 nb;
+    SVECTOR *vs;
+    Bone_16A6C *bones;
+    s32 k, i, a, b, c;
+    register s32 end asm("$10");
+
+    mats = mdl->mats;
+    vs = mdl->verts;
+    nb = mdl->hdr->nBones;
+    bones = mdl->bones;
+    proj = D_800E7D00_16A6C;
+
+    for (k = 0; k < nb; k++) {
+        gte_SetRotMatrix_(&mats[k + 1]);
+        gte_SetTransMatrix_(&mats[k + 1]);
+        i = bones[k].start;
+        { register s32 cnt asm("$2") = bones[k].count; end = i + cnt; }
+        {
+        register SVECTOR *v asm("$3") = (SVECTOR *)(i * 8 + (s32)vs);
+        register Proj_16A6C *pp asm("$4");
+        a = *(s32 *)&v[0];
+        b = *(s32 *)&v[1];
+        c = *(s32 *)&v[2];
+        if (i < end) {
+            pp = (Proj_16A6C *)(i * 8 + (s32)proj);
+            do {
+                gte_ldVXY3_(a, b, c);
+                gte_ldVZ3_(v);
+                gte_rtpt_n();
+                a = *(s32 *)&v[3];
+                b = *(s32 *)&v[4];
+                c = *(s32 *)&v[5];
+                gte_stsxyz3_(pp);
+                pp += 3;
+                i += 3;
+                v += 3;
+            } while (i < end);
+        }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_CalcEnvMapUVs);
 

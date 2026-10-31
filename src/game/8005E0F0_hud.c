@@ -603,7 +603,72 @@ s32 func_8005FD80(void)
 INCLUDE_RODATA("asm/nonmatchings/game/8005E0F0_hud", D_800A5A10);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/8005E0F0_hud", func_8005FFD4);
+extern SV_5FD80_8005FD80 D_800A5A20;
+extern struct S_D_800A5A10 D_800A5A28;
+typedef struct { u32 tag; u32 c0; u32 xy0; u32 xy1; u32 xy2; u32 end; } LineF3_5FFD4;
+extern GameDraw g_GameD_5FFD4 asm("g_Game");
+typedef struct { u32 tag; u32 c0; u32 xy0; u32 c1; u32 xy1; u32 c2; u32 xy2; u32 c3; u32 xy3; } PolyG4_5FFD4;
+
+void func_8005FFD4(s32 n) {
+    SV_5FD80_8005FD80 pos;
+    SV_5FD80_8005FD80 rot;
+    SV_5FD80_8005FD80 r2;
+    struct S_D_800A5A10 m;
+    LineF3_5FFD4 *p = (LineF3_5FFD4 *)g_GameD_5FFD4.prim;
+    u32 *ot = g_GameD_5FFD4.db[g_GameD_5FFD4.cur].hud;
+    s32 w = n * 42 / 60;
+    u32 c = 0xFF;
+    u32 xy;
+    u32 xy2;
+
+    if (w > 0x60) {
+        w = 0x60;
+        c = 0xFFFF;
+    }
+    p->c0 = c | 0x808080;
+    ((u8 *)p)[3] = 5;
+    ((u8 *)p)[7] = 0x48;
+    p->end = 0x55555555;
+    p->xy0 = 0x3C00A0;
+    p->xy1 = 0x3400A0;
+    xy = (w + 0xA0) | 0x340000;
+    p->xy2 = xy;
+    ADD_PRIM_R(ot, p, "$3", "$2");
+    p++;
+    p->c0 = c & 0x7F7F;
+    xy2 = (w + 0xA0) | 0x3C0000;
+    ((u8 *)p)[3] = 5;
+    ((u8 *)p)[7] = 0x48;
+    p->end = 0x55555555;
+    p->xy0 = 0x3C00A0;
+    p->xy1 = xy2;
+    p->xy2 = xy;
+    ADD_PRIM_R(ot, p, "$3", "$2");
+    p++;
+    {
+        PolyG4_5FFD4 *q = (PolyG4_5FFD4 *)p;
+        q->c0 = c | 0x202020;
+        q->c1 = c | 0x101010;
+        q->c2 = c | 0x101010;
+        ((u8 *)q)[3] = 8;
+        q->c3 = c;
+        q->xy0 = 0x3400A0;
+        q->xy1 = xy;
+        q->xy2 = 0x3C00A0;
+        q->xy3 = xy2;
+        ((u8 *)q)[7] = 0x38;
+        ADD_PRIM_R(ot, q, "$3", "$2");
+        p = (LineF3_5FFD4 *)(q + 1);
+        G_DRAW.prim = (u8 *)p;
+    }
+    pos = D_800A5A20;
+    memset(&r2, 0, 8);
+    *((s32 *)0x1F8003C8) = 2;
+    r2.vy = (*(struct Game_5FD80 *)&g_Game).f_0 << 6;
+    rot = r2;
+    m = D_800A5A28;
+    Model_DrawOnScreen(D_800F4D20, &pos, &rot, &m);
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/8005E0F0_hud", D_800A5A20);
 INCLUDE_RODATA("asm/nonmatchings/game/8005E0F0_hud", D_800A5A28);

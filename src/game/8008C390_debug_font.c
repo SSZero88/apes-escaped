@@ -242,7 +242,37 @@ void DebugFont_DrawWord(s16 word) {
 
 INCLUDE_ASM("asm/nonmatchings/game/8008C390_debug_font", DebugFont_DrawIcon);
 
-INCLUDE_ASM("asm/nonmatchings/game/8008C390_debug_font", func_8008D064);
+extern void *D_800DF7A0[8];
+extern s16 D_800DF7C0[8];
+extern u8 D_800DF7D0[8];
+extern u8 D_800B35C4;
+void DebugFont_Printf_8D064(void *fmt, s16 v) asm("DebugFont_Printf");
+
+/* Timed debug messages: a == -1 clears the 8-slot ring; p == NULL ages every queued message one frame
+   (saturating at 255) and prints those younger than 80 frames; otherwise queues format p with value a. */
+void func_8008D064(void *p, s32 a) {
+    s32 i;
+    if (a == -1) {
+        for (i = 7; i >= 0; i--) {
+            D_800DF7A0[i] = 0;
+        }
+        D_800B35C4 = 0;
+    } else if (p == 0) {
+        for (i = 0; i < D_800B35C4; i++) {
+            if (D_800DF7A0[i] != 0) {
+                { u8 *q = &D_800DF7D0[i]; *q = *q + (*q ? *q < 0xFF : 0); }
+                if (D_800DF7D0[i] < 0x50) {
+                    DebugFont_Printf_8D064(D_800DF7A0[i], D_800DF7C0[i]);
+                }
+            }
+        }
+    } else {
+        D_800DF7A0[D_800B35C4] = p;
+        D_800DF7C0[D_800B35C4] = a;
+        D_800DF7D0[D_800B35C4] = 1;
+        D_800B35C4 = (D_800B35C4 + 1) % 8;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/8008C390_debug_font", MinigameMenu_Main);
 

@@ -2951,7 +2951,171 @@ void Monkey_UpdateLod(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80032E30_monkey", Monkey_Spawn);
+typedef struct { u8 pad0[0x18]; s32 f_18; u8 pad1C[0x8]; s32 x; s32 y; s32 z; s32 f_30; s32 f_34; s32 f_38; u8 pad3C[0x8]; s16 f_44; s16 f_46; s16 f_48; s16 f_4A; u8 pad4C[0x2]; s16 f_4E; s32 f_50; u8 pad54[0xC]; s16 f_60; s16 f_62; s16 f_64; s16 f_66; s16 f_68; s16 f_6A; s16 f_6C; u8 pad6E[0xA]; u8 state; u8 f_79; u8 f_7A; u8 f_7B; u8 f_7C; u8 pad7D[0x7]; s16 f_84; s16 f_86; s16 f_88; u8 pad8A[0x2]; s16 f_8C; s16 f_8E; s16 f_90; s16 f_92; u8 pad94[0x28]; VEC_80040CFC_80034EF8 f_BC; u8 padCC[0x9]; u8 f_D5; u8 f_D6; u8 padD7[0x1]; u8 f_D8; u8 f_D9; u8 padDA[0x10]; s16 f_EA; s16 f_EC; s16 f_EE; s16 f_F0; u16 node[6]; u8 padFE[0x56]; s32 f_154; s16 f_158; u8 pad15A[0x2]; s32 f_15C; s32 f_160; u8 pad164[0x2]; s16 f_166; s16 f_168; u8 pad16A[0x2]; s32 f_16C; u8 pad170[0xB0]; s16 f_220; u8 pad222[0x6]; u32 f_228; u8 pad22C[0x1C]; u32 f_248; } M_3A414;
+typedef struct { u8 pad0[8]; s16 f_8[4]; } Spawn_3A414;
+extern struct { u8 pad0[0x816C]; u8 f_816C[0x48]; s32 f_81B4; u8 pad81B8[0x88]; s32 f_8240; } g_Game_3A414 asm("g_Game");
+extern struct { u8 pad0[0x18]; s32 f_18; } *D_800B4D14_3A414 asm("D_800B4D14");
+extern Spawn_3A414 *D_800B4D0C;
+#define CM_3A414 ((M_3A414 *)g_CurMonkey)
+
+void Monkey_Spawn(spawn, mode, sub)
+    s32 spawn;
+    u8 mode;
+    u8 sub;
+{
+    M_3A414 *m1, *m2, *m3, *m4, *m5, *m6, *m7, *m8, *m9;
+    s32 node;
+    s32 i;
+    s32 n;
+    s32 j;
+    VEC_80040CFC_80034EF8 v;
+
+    CM_3A414->f_7C = spawn;
+    CM_3A414->f_7B = sub;
+    m1 = CM_3A414;
+    if (m1->f_7A == 1) {
+        m1->f_7A = mode;
+        if (!((CM_3A414->f_248 >> 30) & 1) && mode == 4) {
+            Monkey_EnableCollision();
+        }
+        return;
+    }
+    m1->f_7A = mode;
+    if (mode == 2) {
+        return;
+    }
+    m2 = CM_3A414;
+    m2->f_154 = -1;
+    m2->f_158 = 0;
+    m2->f_15C = -1;
+    m2->f_160 = -1;
+    m2->f_220 = 200;
+    m2->f_4E = 0;
+    m2->f_79 = 0;
+    m2->f_248 &= ~0x200000;
+    m3 = CM_3A414;
+    m3->f_8C = 100;
+    m3->f_8E = 1000;
+    m3->f_60 = 0x1000;
+    m3->f_68 = 0x1000;
+    m3->f_168 = 0x50;
+    *(s16 *)((u8 *)m3 + 0x62) = 0;
+    *(s16 *)((u8 *)m3 + 0x64) = 0;
+    *(s16 *)((u8 *)m3 + 0x6A) = 0;
+    *(s16 *)((u8 *)m3 + 0x6C) = 0;
+    *(s16 *)((u8 *)m3 + 0x84) = 0;
+    *(s16 *)((u8 *)m3 + 0x86) = 0;
+    *(s16 *)((u8 *)m3 + 0x88) = 0;
+    m3->f_D8 = 0;
+    m3->f_166 = 200;
+    CM_3A414->f_D9 = 0;
+    CM_3A414->f_16C = g_Game_3A414.f_8240 + D_800B4D14_3A414->f_18;
+    if (CM_3A414->f_D6 == 0) {
+        node = (u16)Monkey_Rand() % D_800B4D18;
+    } else {
+        i = (u16)Monkey_Rand() % CM_3A414->f_D6;
+        node = *(s16 *)((u8 *)D_800B4D0C + ((s16)spawn % g_MonkeyCount * 16 + i * 2) + 8);
+    }
+    if (node == -1) {
+        node = (u16)Monkey_Rand() % D_800B4D18;
+    }
+    for (j = 5; j >= 0; j--) {
+        CM_3A414->node[j] = node;
+    }
+    Monkey_NodeEvents(CM_3A414->node[0]);
+    Node_GetPosition(node, &v);
+    m4 = CM_3A414;
+    if (!(D_800B4D00[m4->node[1]].f_0 & 0x400) || g_Game_3A414.f_816C[m4->f_7C] != 5) {
+        m4->x = v.vx;
+        m4->y = v.vy;
+        m4->z = v.vz;
+    }
+    for (j = 5; j >= 0; j--) {
+        CM_3A414->node[j] = node;
+    }
+    if (func_800339EC()) {
+        CM_3A414->node[0] = Node_GetLink(CM_3A414->node[0], (u16)Monkey_Rand() % D_800B4D00[CM_3A414->node[0]].f_B);
+    }
+    if (!((CM_3A414->f_248 >> 30) & 1) && mode == 4) {
+        Monkey_EnableCollision();
+    }
+    m5 = CM_3A414;
+    m5->f_50 = 0;
+    m5->f_18 = g_Game_3A414.f_81B4;
+    m5->f_90 = 1;
+    m5->f_66 = 2;
+    Monkey_RestartAnim();
+    m6 = CM_3A414;
+    m6->f_44 = 0x40;
+    m6->f_30 = 0;
+    m6->f_34 = 0;
+    m6->f_38 = 0;
+    if (((D_800AE940[m6->state].f_4 >> 4) & 1) && !func_800339EC()) {
+        CM_3A414->f_46 = -0x100;
+    } else {
+        CM_3A414->f_46 = 0x100;
+    }
+    if (func_800339EC() || (CM_3A414->f_228 & 0x2000000)) {
+        CM_3A414->f_4A = -0x4000;
+    } else {
+        CM_3A414->f_4A = -0x8000;
+    }
+    m7 = CM_3A414;
+    m7->f_48 = 0;
+    m7->f_92 = 0;
+    m7->f_EA = 0;
+    m7->f_EE = 0;
+    m7->f_F0 = 0;
+    m7->f_248 &= ~0x10000000;
+    m7->f_248 &= ~0x20000000;
+    m7->f_EC = -1;
+    m7->f_248 &= ~0x40000000;
+    m7->f_248 &= ~0x80000000;
+    m7->f_248 &= ~0x30000;
+    if (D_800B4D00[m7->node[0]].f_0 & 0x400) {
+        if (D_800B4D00[m7->node[1]].f_B == 1) {
+            CM_3A414->node[0] = Node_GetLink(m7->node[0], 0);
+            Node_GetPosition(CM_3A414->node[0], &v);
+        } else {
+            v.vx += 100;
+            v.vy += 100;
+            v.vz += 100;
+        }
+        CM_3A414->f_BC = v;
+        func_80039B30();
+    } else {
+        Node_GetPosition(m7->node[0], &v);
+        CM_3A414->f_BC = v;
+        m8 = CM_3A414;
+        m8->x -= 2;
+        m8->z -= 2;
+        if (D_800B4D00[m8->node[0]].f_0 & 0x40) {
+            m8->f_BC.vx = m8->x + 500;
+            m8->f_BC.vy = m8->y;
+            m8->f_BC.vz = m8->z + 500;
+            func_80039B30();
+        } else {
+            func_80039B30();
+            Monkey_ChooseRoute(0, 1);
+        }
+    }
+    Monkey_NodeEvents(CM_3A414->node[1]);
+    Monkey_StartLink(CM_3A414->node[1], CM_3A414->node[0]);
+    Monkey_PickIdleAction();
+    m9 = CM_3A414;
+    if (!(m9->f_228 & 2) && !(D_800B4D00[m9->node[0]].f_0 & 0x400)) {
+        CM_3A414->y = Floor_GetHeight(m9->x, m9->y - 200, m9->z);
+    }
+    Monkey_TurnToGoal();
+    CM_3A414->f_D5 = 0xFF;
+    Monkey_UpdateLod();
+    if (D_800B4D00[CM_3A414->node[0]].f_0 & 0x40) {
+        Monkey_SetState(0xB);
+    }
+    if (func_800339EC()) {
+        Monkey_SetState(0xB);
+    }
+}
 
 void Monkey_ScoreLinks(s16 k) {
     VEC_80040CFC_8003AC54 t;
@@ -4351,7 +4515,117 @@ void func_80040CFC(s16 flag) {
     func_80040BDC(&a, &b);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80032E30_monkey", Monkey_NodeEvents);
+extern Monkey *g_CurMonkey_NE asm("g_CurMonkey");
+
+s32 Monkey_NodeEvents(s16 node)
+{
+  s16 out[3];
+  s16 r = 0;
+  u8 keep;
+  u16 v;
+  s32 w;
+  if (g_CurMonkey->f_7A != 4)
+  {
+    return 0;
+  }
+  {
+    if (D_800B4D00[node].f_0 & 0x20)
+    {
+      g_CurMonkey->f_248 |= 0x4000000;
+    }
+    else
+    {
+      g_CurMonkey->f_248 &= ~0x4000000;
+    }
+    g_CurMonkey->f_248 &= ~0x400000;
+    if ((g_CurMonkey->f_79 == 1) && (D_800B4D00[node].f_0 & 0x1000))
+    {
+      g_CurMonkey->f_96 = 0;
+      g_CurMonkey->f_128 = 30;
+      g_CurMonkey->f_24C |= 1;
+      Monkey_QueueSound(0x27, 0);
+    }
+    if (D_800B4D00[node].f_0 & 0x4000)
+    {
+      Object_SetFlagCF((s16) D_800B4D00[node].f_10, 1);
+    }
+    if (D_800B4D00[node].f_0 & 0x800)
+    {
+      Link_SendEvent(0, (s16) D_800B4D00[node].f_10, 0);
+    }
+    if (D_800B4D00[node].f_0 & 0x20000)
+    {
+      Link_SendEvent(1, (s16) D_800B4D00[node].f_10, 0);
+    }
+    if (D_800B4D00[node].f_0 & 0x40000)
+    {
+      Link_SendEvent(2, (s16) D_800B4D00[node].f_10, 0);
+    }
+    if (D_800B4D00[node].f_0 & 0x400)
+    {
+      Node_GetJointRef(node, &out[0], &out[1], &out[2]);
+      Monkey_SetState(0x29);
+      r = 1;
+    }
+    if ((g_CurMonkey->f_79 == 0) && (D_800B4D00[node].f_0 & 0x80000))
+    {
+      func_80035918(node);
+      r = 1;
+    }
+    if (D_800B4D00[node].f_0 & 4)
+    {
+      v = D_800B4D00[node].f_10;
+      keep = g_CurMonkey->f_79;
+      if (((s16) D_800B4D00[node].f_10) < 0)
+      {
+        v = 0;
+      }
+      g_CurMonkey->f_22C = v;
+      g_CurMonkey->f_248 |= 0x400000;
+      Monkey_SetState(0x42);
+      r = 1;
+      g_CurMonkey->f_79 = keep;
+    }
+    else
+      if ((D_800B4D00[node].f_0 & 8) && func_800339EC())
+    {
+      w = g_CurMonkey->f_126;
+      Monkey_SetState((w == func_800392E4(g_CurMonkey)) ? (0x26) : (0x16));
+      r = 1;
+      g_CurMonkey_NE->f_248 |= 0x400000;
+      g_CurMonkey_NE->f_79 = 0;
+    }
+    else
+      if ((D_800B4D00[node].f_0 & 8) && (((s16) D_800B4D00[node].f_10) < g_CurMonkey->f_20C))
+    {
+      func_800363E4();
+      r = 1;
+      g_CurMonkey->f_248 |= 0x400000;
+      g_CurMonkey->f_79 = 0;
+    }
+    else
+      if ((D_800B4D00[node].f_0 & 0x8000) && (g_CurMonkey->f_20C < 1500))
+    {
+      g_CurMonkey->f_248 |= 0x400000;
+      Monkey_SetState(0x42);
+      r = 1;
+      g_CurMonkey->f_79 = 0;
+    }
+    else
+      if ((D_800B4D00[node].f_0 & 0x10000) && (func_80052C4C(((s16) D_800B4D00[g_CurMonkey->f_F4].f_10) / 100) != 2))
+    {
+      g_CurMonkey->f_248 |= 0x400000;
+      Monkey_SetState(0);
+      r = 1;
+      g_CurMonkey->f_79 = 0;
+    }
+    if (r)
+    {
+      g_CurMonkey->f_248 |= 0x100000;
+    }
+    return r;
+  }
+}
 
 s32 func_80041280(void) {
     return M2C_FIELD(Collision_GetShape(M2C_FIELD(g_CurMonkey, s32 *, 0x50) & 0xFFF), u16 *, 0x24) & 0xF0;

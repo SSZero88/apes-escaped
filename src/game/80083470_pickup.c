@@ -178,9 +178,129 @@ s32 func_80083790(void) {
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80083470_pickup", Pickup_Spawn);
+typedef struct { s32 f_0; s16 x, y, z; u8 kind; u8 f_B; s16 vx, vy, vz; u8 pad12[2]; u8 f_14; u8 f_15; u8 pad16; u8 f_17; } Pk_80083844;
+extern Pk_80083844 D_800BEFA0_83844[] asm("D_800BEFA0");
 
-INCLUDE_ASM("asm/nonmatchings/game/80083470_pickup", Pickup_Drop);
+void Pickup_Spawn(s32 kind, Pos_83470_80083470 *pos, s32 mode, s32 slot) {
+    Pk_80083844 *p;
+    s32 i;
+    i = 0x1F;
+    p = D_800BEFA0_83844;
+    for (; i >= 0; i--, p++) {
+        if (slot >= 0) {
+            p = &D_800BEFA0_83844[slot];
+        } else if (p->kind != 0) {
+            continue;
+        }
+        p->kind = kind;
+        p->f_15 = 0;
+        p->f_0 = 0;
+        p->f_B = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x1F;
+        p->f_14 = 0;
+        p->f_17 = 0;
+        switch (mode) {
+        case 0:
+        default:
+            p->x = pos->x;
+            p->y = pos->y;
+            p->z = pos->z;
+            p->vz = 0;
+            p->vy = 0;
+            p->vx = 0;
+            p->f_14 = 1;
+            return;
+        case 1:
+            p->x = pos->x + rcos(((g_RandSeed = g_RandSeed * 5 + 1) >> 4) & 0xFF0) / 16;
+            p->y = pos->y;
+            p->z = pos->z + rsin(((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 4) & 0xFF0) / 16;
+            p->vy = 0xC;
+            p->vz = 0;
+            p->vx = 0;
+            return;
+        case 2:
+            p->x = pos->x;
+            p->y = pos->y;
+            p->z = pos->z;
+            p->vz = 0;
+            p->vx = 0;
+            p->vy = -0x3E;
+            return;
+        case 3:
+            p->x = pos->x;
+            p->y = pos->y;
+            p->z = pos->z;
+            p->vx = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x1F) - 0x10;
+            p->vz = (((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) & 0x1F) - 0x10;
+            p->vy = 0xFFE1 - (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x1F);
+            return;
+        }
+    }
+}
+
+extern u8 D_800B28A2_83AA8[][25] asm("D_800B28A2");
+extern u8 D_800B28B4[];
+extern s16 g_SpikeHealth;
+s32 Game_IsTimed(void);
+
+void Pickup_Drop(s32 type, Pos_83470_80083470 *pos, s32 mode, s32 table) {
+    s32 kind;
+    u8 cum[5];
+    s32 n = 1;
+    s32 i;
+    u8 sum;
+    u8 *t;
+    u8 *c;
+    u16 r;
+    if (table == 0) {
+        kind = type;
+        if (D_800B28B1 == 0 && Game_IsTimed()) {
+            kind = 3;
+        }
+    } else {
+        sum = 0;
+        if (table == 1) {
+            table = D_800BF2F8;
+        }
+        i = 0;
+        c = cum;
+        {
+            u8 *row = D_800B28A2_83AA8[table];
+            t = &row[g_SpikeHealth];
+        }
+        for (; i < 5; i++) {
+            sum += *t;
+            c[i] = sum;
+            t += 5;
+        }
+        kind = 1;
+        r = D_800AE8F2 * 5 + 1;
+        sum = ((u32)((r >> 8) * 25) >> 6) + 1;
+        D_800AE8F2 = r;
+        for (i = 0; i < 5; i++) {
+            if (sum < cum[i]) {
+                kind = D_800B28B4[i];
+                break;
+            }
+        }
+        if (kind == 7) {
+            kind = func_8008373C();
+        } else if (kind == 2) {
+            kind = func_80083790();
+        } else if (kind == 3) {
+            n = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 1) + 2;
+        }
+        if (D_800B28B0 != 0) {
+            D_800B28B0--;
+        }
+        if (Game_IsTimed()) {
+            kind = 3;
+            n = 2;
+        }
+    }
+    for (; n > 0; n--) {
+        Pickup_Spawn(kind, pos, mode, -1);
+    }
+}
 
 s32 Floor_GetHeight_PU() asm("Floor_GetHeight");
 typedef struct { s16 vx, vy, vz, pad; } SV_80083CB8;

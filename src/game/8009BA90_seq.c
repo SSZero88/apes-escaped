@@ -113,7 +113,7 @@ void func_800A2184(u8);
 struct S_D_800F75C0_800A048C { u8 f_0; u8 pad1[0xC]; u8 f_D; u8 padE[0x10]; u8 f_1E; };
 s32 func_800A1378(s32 arg0);
 void Seq_ReleaseFinishedVoices(void);
-void func_8009D7C8(u8);
+u8 *func_8009D7C8(u8);
 s32 SeqDriver_ReadEvent(u8);
 u8 func_8009D870(u8);
 void Seq_EndOfTrack(u8 ch);
@@ -301,7 +301,37 @@ void Sound_BusyWait(s32 n) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8009BA90_seq", func_8009D7C8);
+typedef struct { u8 pad0[0x10]; s32 unk10; u8 pad14[0xC]; u8 unk20; u8 pad21[6]; u8 unk27; u8 pad28[0xF8]; } SeqCh_9D7C8;
+typedef struct { s32 unk0; u8 *unk4; s32 unk8; } Bank_9D7C8;
+typedef struct { u8 pad0[8]; u8 *f_8; } Snd_9D7C8;
+extern SeqCh_9D7C8 g_SeqChannels_9D7C8[] asm("g_SeqChannels");
+extern Bank_9D7C8 g_SoundBanks_9D7C8[] asm("g_SoundBanks");
+extern Snd_9D7C8 D_800F75C0_9D7C8 asm("D_800F75C0");
+extern u8 *D_800E1870_9D7C8 asm("D_800E1870");
+extern u8 *D_800E1864;
+extern u8 *D_800E1868;
+extern u8 *D_800E1858;
+extern u8 *D_800E185C;
+
+/* Loads sound bank `p->unk20` of sequence channel i: sets the bank header pointer and its section
+   pointers (offsets at +0x14/+0x18 and the program table entry unk27 at +0x10); returns the bank. */
+u8 *func_8009D7C8(u8 i) {
+    SeqCh_9D7C8 *p;
+    u8 *h;
+    u8 *e;
+    p = g_SeqChannels_9D7C8;
+    p += i;
+    h = g_SoundBanks_9D7C8[p->unk20].unk4;
+    D_800F75C0_9D7C8.f_8 = h;
+    D_800E1870_9D7C8 = h;
+    D_800E1854 = p->unk10;
+    D_800E1868 = (D_800E1864 = h + *(s32 *)(h + 0x18));
+    e = (u8 *)((s32)(p->unk27 * 16) + (s32)h) + 0x10;
+    D_800E1860 = h + *(s32 *)(h + 0x14);
+    D_800E1858 = h + *(s32 *)e;
+    D_800E185C = D_800E1858;
+    return h;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/8009BA90_seq", func_8009D870);
 

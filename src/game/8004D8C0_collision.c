@@ -56,7 +56,229 @@ s32 SquareRoot0(s32);
 int abs(int);
 struct S_D_800EC350_8004E8F8 { u8 pad_0[0x8296]; s16 f_8296; };
 
-INCLUDE_ASM("asm/nonmatchings/game/8004D8C0_collision", func_8004D8C0);
+/* 0x14-byte collision cell */
+typedef struct { s16 f_0; s16 f_2; s16 pad4; SV_8004F884_8004F884 f_6; u16 f_C; u16 f_E; s16 f_10; u16 f_12; } Cell_4D8C0;
+/* 0x38-byte collision object */
+typedef struct { s16 f_0; s16 f_2; u8 pad4[0xC]; u16 f_10; u16 f_12; u16 f_14; u16 f_16; u16 f_18; u8 pad1A[6]; u16 f_20; u8 pad22[0x16]; } Obj_4D8C0;
+typedef struct { s16 f_0; s16 f_2; u16 f_4; u16 f_6; u16 f_8; u16 f_A; u16 f_C; u16 f_E; } Res_4D8C0;
+typedef struct { u8 pad0[0xA]; s16 f_A; u8 padC[4]; s16 f_10; } Water_4D8C0;
+struct Game_4D8C0 { u8 pad0[0x8208]; Cell_4D8C0 *f_8208; Obj_4D8C0 *f_820C; s16 *f_8210; u8 pad8214[0x70]; u16 f_8284; u8 pad8286[0xA]; s16 f_8290; u8 pad8292[2]; s16 f_8294; s16 f_8296; s16 f_8298; u8 pad829A[6]; s32 f_82A0; u8 pad82A4[4]; s32 f_82A8; s32 f_82AC; };
+extern struct Game_4D8C0 g_Game_4D8C0 asm("g_Game");
+extern Res_4D8C0 *D_800AF2E4;
+extern Water_4D8C0 *D_800AF2E8;
+extern s16 *D_800B8CF0;
+extern Cell_4D8C0 *D_800B8CF4;
+s32 Collision_TickCounter(void);
+s32 func_800889B4(s16, s16);
+s32 func_8004DF38();
+s32 Water_Query(s32, s32, s32);
+
+s32 func_8004D8C0(s32 x, s32 y, s32 z)
+{
+  W_8004F884_8004F884 h;
+  int new_var;
+  V_8004F884_8004F884 pos;
+  s32 best;
+  s16 cellHit;
+  s32 cnx;
+  s32 cnz;
+  s32 onx;
+  s32 onz;
+  s32 gx;
+  s32 gz;
+  s32 cx;
+  s32 cz;
+  s32 cy;
+  s32 i;
+  s32 lvl;
+  s32 h2;
+  s32 prev;
+  s32 objBest;
+  s16 objHit;
+  s32 mask;
+  s16 j;
+  s32 r;
+  s32 t;
+  s16 step;
+  Cell_4D8C0 *c;
+  Collision_TickCounter();
+  cellHit = -1;
+  if (((((-g_Game_4D8C0.f_82A8) >= x) || (x >= g_Game_4D8C0.f_82A8)) || ((-g_Game_4D8C0.f_82AC) >= z)) || (z >= g_Game_4D8C0.f_82AC))
+  {
+    g_Game_4D8C0.f_8296 = 0;
+    g_Game_4D8C0.f_8298 = 0;
+    return 0x7FFF;
+  }
+  best = 0x7FFF;
+  if (y <= 0)
+  {
+    gx = x + g_Game_4D8C0.f_82A8;
+    D_800AF2F0 = 0;
+    cnz = 0;
+    cnx = 0;
+    onz = 0;
+    onx = 0;
+    D_800AF2EC = 0;
+    D_800B8CF4 = g_Game_4D8C0.f_8208;
+    D_800B8CF0 = g_Game_4D8C0.f_8210;
+    cx = gx / 512;
+    gz = z + g_Game_4D8C0.f_82AC;
+    cz = gz / 512;
+    cy = (-y) / 512;
+    pos.vy = y;
+    pos.vx = (gx - (cx * 512)) + -0x100;
+    pos.vz = (gz - (cz * 512)) - 0x100;
+    if (D_800B8CF0[(g_Game_4D8C0.f_82A0 * cz) + cx] >= 0)
+    {
+      i = D_800B8CF0[(g_Game_4D8C0.f_82A0 * cz) + cx];
+      lvl = -1;
+      h2 = 0x200;
+      if (cy >= g_Game_4D8C0.f_8208[i].f_2)
+      {
+        for (;;)
+        {
+          for (;;)
+          {
+            new_var = D_800B8CF4[i].f_12 & 0xFF;
+            h.a = -(D_800B8CF4[i].f_2 << 9);
+            if (D_800AF180[new_var](new_var, &D_800B8CF4[i].f_6, &pos, &h) == 0)
+            {
+              if (D_800B8CF4[i].f_2 < cy)
+              {
+                goto next;
+              }
+              goto out;
+            }
+            h2 = h.a;
+            cellHit = i;
+            lvl = D_800B8CF4[i].f_2;
+            if (D_800B8CF4[i].f_10 < 0)
+            {
+              break;
+            }
+            step = 1;
+            if (h2 >= 0x200)
+            {
+              step = h2 / 512;
+            }
+            if (((lvl + step) != D_800B8CF4[D_800B8CF4[i].f_10].f_2) || (h2 <= 0x100))
+            {
+              break;
+            }
+            i = D_800B8CF4[i].f_10;
+          }
+          next:
+          i = D_800B8CF4[i].f_10;
+          if ((i < 0) || (cy < D_800B8CF4[i].f_2))
+          {
+            break;
+          }
+        }
+      }
+      out:
+      if (lvl >= 0)
+      {
+        best = (-(lvl << 9)) - h2;
+        cnx = D_800AF2EC;
+        cnz = D_800AF2F0;
+      }
+    }
+  }
+  prev = 0x7FFF;
+  objBest = prev;
+  if ((lvl >= 0) && (best < y))
+  {
+    y = best;
+  }
+  objHit = -1;
+  mask = func_800889B4(x, z);
+  for (;;)
+  {
+    for (j = g_Game_4D8C0.f_8284 - 1; j >= 0; j--)
+    {
+      if (((g_Game_4D8C0.f_820C[j].f_20 & mask) && (g_Game_4D8C0.f_8290 != j)) && (!(g_Game_4D8C0.f_820C[j].f_18 & 0x8000)))
+      {
+        r = func_8004DF38(&g_Game_4D8C0.f_820C[j], x, y, z);
+        if ((r != 0) && ((r = g_Game_4D8C0.f_820C[j].f_2 - r) < objBest))
+        {
+          onx = D_800AF2EC;
+          onz = D_800AF2F0;
+          objHit = j;
+          objBest = r;
+          if (objBest < y)
+          {
+            y = objBest - 0x20;
+          }
+          break;
+        }
+      }
+    }
+
+    if (objBest == prev)
+    {
+      break;
+    }
+    prev = objBest;
+  }
+
+  if (g_Game_4D8C0.f_8298 == 0)
+  {
+    Water_Query(x, y, z);
+    if (g_Game_4D8C0.f_8294 >= 0)
+    {
+      t = g_Game_4D8C0.f_820C[g_Game_4D8C0.f_8294].f_12 & 0xF00;
+      if ((t == 0x400) || (t == 0x500))
+      {
+        r = D_800AF2E8->f_A - D_800AF2E8->f_10;
+        if (r < objBest)
+        {
+          objHit = g_Game_4D8C0.f_8294;
+          objBest = r;
+          onx = 0;
+          onz = 0;
+        }
+      }
+    }
+  }
+  g_Game_4D8C0.f_8296 = 0;
+  g_Game_4D8C0.f_8298 = 0;
+  if (objBest < best)
+  {
+    if (objHit < 0)
+    {
+      goto fail;
+    }
+    {
+      D_800AF2E4->f_0 = 1;
+      D_800AF2E4->f_2 = objHit;
+      D_800AF2E4->f_4 = g_Game_4D8C0.f_820C[objHit].f_10;
+      D_800AF2E4->f_6 = g_Game_4D8C0.f_820C[objHit].f_12;
+      D_800AF2E4->f_8 = g_Game_4D8C0.f_820C[objHit].f_14;
+      D_800AF2E4->f_A = g_Game_4D8C0.f_820C[objHit].f_16;
+      D_800AF2E4->f_C = onx;
+      D_800AF2E4->f_E = onz;
+      return objBest;
+    }
+  }
+  else
+  {
+    if (cellHit < 0)
+    {
+      fail:
+      return 0x7FFF;
+
+    }
+    D_800AF2E4->f_0 = 0;
+    D_800AF2E4->f_2 = cellHit;
+    D_800AF2E4->f_4 = D_800B8CF4[cellHit].f_12;
+    D_800AF2E4->f_6 = 0;
+    D_800AF2E4->f_8 = D_800B8CF4[cellHit].f_C;
+    D_800AF2E4->f_A = D_800B8CF4[cellHit].f_E;
+    D_800AF2E4->f_C = cnx;
+    D_800AF2E4->f_E = cnz;
+    return best;
+  }
+}
 
 typedef struct { s16 x, y, z, w, h, d; u8 padC[4]; u16 f_10; u8 pad12[2]; u16 f_14; } O_4DF38_8004DF38;
 extern s32 (*D_800AF180_DF38[])(s32, s16 *, s32 *, s32 *) asm("D_800AF180");

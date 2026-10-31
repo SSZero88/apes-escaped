@@ -75,7 +75,7 @@ extern s32 D_800E38B4;
 s16 Sound_LoadBank(void *src, void *h, u32 size);
 s16 SsGetNck(void);
 s32 func_80087388(void);
-void func_8008745C(void);
+s32 func_8008745C(void);
 struct S_D_800EC350_80086CAC { u8 pad_0[0x822C]; s32 *f_822C; s32 f_8230; };
 s16 func_800A3158(s16, s16, s16);
 extern struct S_D_800BF688 { s16 f_0; s16 f_2; s16 f_4; } D_800BF688;
@@ -502,7 +502,42 @@ s32 func_8008740C(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80086040_sound", func_8008745C);
+s32 SaveByte_Get(s32);
+void func_800A2E3C(s32, s32, s32);
+void func_800A2ACC(s32);
+
+/* Starts the stage music voice (g_SoundState.f_6) with the volume for the current level: special-cased
+   when func_8008740C() is set (level 0x46 with save byte 8 == 5 plays at a third), otherwise by
+   g_Game.f_8120. Remembers the voice in f_16. Returns 0. */
+s32 func_8008745C(void) {
+    struct S_D_800BF670 *ss = &g_SoundState;
+    u16 m;
+    if (ss->f_6 < 0) {
+        return 0;
+    }
+    if (func_8008740C() != 0) {
+        if (D_800E38B4 == 0x46 && SaveByte_Get(8) == 5) {
+            func_800A2E3C(g_SoundState.f_6, 0x5A, (s16)(g_SoundState.f_E / 3));
+        } else {
+            func_800A2E3C(g_SoundState.f_6, 0x5A, g_SoundState.f_E);
+        }
+    } else {
+        m = g_Game.f_8120;
+        if (m == 3) {
+            func_800A2E3C(g_SoundState.f_6, 0x5A, 0x6E);
+        } else if (m == 8 || m == 0x10 || (m == 0x1D || m == 0x1E)) {
+            func_800A2ACC(ss->f_6);
+            func_800A2428(ss->f_6, 0x4B);
+        } else if (m == 9 || m == 10 || m == 0x12 || m == 0x17 || m == 0xC || m == 0x14 || m == 0x19) {
+            func_800A2ACC(g_SoundState.f_6);
+            func_800A2428(g_SoundState.f_6, g_SoundState.f_E);
+        } else {
+            func_800A2E3C(g_SoundState.f_6, 0x5A, 0x4B);
+        }
+    }
+    g_SoundState.f_16 = g_SoundState.f_6;
+    return 0;
+}
 
 s32 func_8008760C(void) {
     if (g_SoundState.f_6 >= 0) {

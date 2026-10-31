@@ -2018,9 +2018,129 @@ void Spike_StateClimb(void) {
 INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5B70_pad);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80060780_spike", func_800681E4);
+typedef struct { s16 vx, vy, vz, pad; } SV_681E4;
+typedef struct { s32 a, b; } W2_681E4;
+typedef struct { u8 pad0[0x14]; s32 f_14; s32 f_18; s32 f_1C; } Body_681E4;
+typedef struct {
+    u8 pad0[0x14]; Body_681E4 *f_14; u8 pad18[0xC]; s32 f_24; s32 f_28; s32 f_2C; u8 pad30[0x2C];
+    u16 f_5C; u16 f_5E; SV_681E4 f_60; u8 pad68[0xC]; SV_681E4 f_74; u8 pad7C[0x44];
+    s16 f_C0; s16 f_C2; s16 f_C4; s16 f_C6; s16 f_C8; s16 f_CA; s16 f_CC; s16 f_CE; s16 f_D0; s16 f_D2; s16 f_D4;
+    u8 padD6[0xA]; u32 f_E0; u8 padE4[0xE]; s8 f_F2; u8 padF3[0x25]; s32 f_118; u8 pad11C[4]; s32 f_120; s32 f_124; s32 f_128;
+} Sp_681E4;
+typedef struct { void *f_0; void *f_4; void *f_8; void *f_C; } AnimSet_681E4;
+typedef struct { u8 pad0[0x48]; void *f_48; void *f_4C; void *f_50; u32 f_54; u32 f_58; u8 pad5C[8]; u16 f_64; u8 pad66[0x1A]; s32 f_80; } Spad_681E4;
+typedef struct { u8 pad0[0x180]; u16 f_180; u8 pad182[0x12]; SV_681E4 f_194; } Pad_681E4;
+extern Sp_681E4 g_Spike_681E4 asm("g_Spike");
+extern AnimSet_681E4 g_SpikeAnimSets_681E4[] asm("g_SpikeAnimSets");
+extern Pad_681E4 g_Pad_681E4 asm("g_Pad");
+extern u16 D_800E5498;
+void func_80066C90_681E4(SV_681E4 *a, SV_681E4 *b, s32 ang) asm("func_80066C90");
 
-INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5B88);
+void func_800681E4(void) {
+    Spad_681E4 *sp = (Spad_681E4 *)0x1F800000;
+    void *anim;
+    s32 w;
+    s32 iw;
+    s32 v;
+    s32 d;
+    s16 t;
+    Sp_681E4 *p;
+
+    if (g_Spike_681E4.f_5E < 0x80) {
+        anim = g_SpikeAnimSets_681E4[0].f_4;
+    } else {
+        anim = g_SpikeAnimSets_681E4[g_Spike_681E4.f_F2 + 1].f_4;
+    }
+    sp->f_48 = anim;
+    sp->f_4C = g_SpikeAnimSets_681E4[g_Spike_681E4.f_F2 + 1].f_8;
+    sp->f_50 = g_SpikeAnimSets_681E4[g_Spike_681E4.f_F2 + 1].f_C;
+    g_Spike_681E4.f_128 = 0;
+    g_Spike_681E4.f_120 = 0;
+    g_Spike_681E4.f_124 = 0;
+    v = (g_Spike_681E4.f_C0 * g_Spike_681E4.f_CC + g_Spike_681E4.f_C6 * (0x1000 - g_Spike_681E4.f_CC)) / 4096;
+    if (g_Spike_681E4.f_24 != v) {
+        g_Spike_681E4.f_24 = (g_Spike_681E4.f_24 + v) / 2;
+    }
+    v = (g_Spike_681E4.f_C2 * g_Spike_681E4.f_CC + g_Spike_681E4.f_C8 * (0x1000 - g_Spike_681E4.f_CC)) / 4096;
+    if (g_Spike_681E4.f_28 != v) {
+        g_Spike_681E4.f_28 = (g_Spike_681E4.f_28 + v) / 2;
+    }
+    v = (g_Spike_681E4.f_C4 * g_Spike_681E4.f_CC + g_Spike_681E4.f_CA * (0x1000 - g_Spike_681E4.f_CC)) / 4096;
+    if (g_Spike_681E4.f_2C != v) {
+        g_Spike_681E4.f_2C = (g_Spike_681E4.f_2C + v) / 2;
+    }
+    g_Spike_681E4.f_5C++;
+    if (D_800E6916 == 1) {
+        Camera_ExitAim();
+    }
+    if (sp->f_80 == 0 && g_Pad_681E4.f_180 != 0) {
+        func_80066C90_681E4(&g_Pad_681E4.f_194, &g_Spike_681E4.f_60, 0x155);
+    }
+    d = 0;
+    switch (g_Spike_681E4.f_5E) {
+    case 0x40:
+    case 0x41:
+        d = g_Spike_681E4.f_60.vx * g_Spike_681E4.f_D0 + g_Spike_681E4.f_60.vz * g_Spike_681E4.f_D4;
+        d /= g_Spike_681E4.f_CE;
+        d = (d * sp->f_64) >> 15;
+        break;
+    case 0x3F:
+        if (sp->f_64 != 0) {
+            Spike_SetState(0x41);
+        }
+        break;
+    case 0x3E:
+        if (sp->f_64 != 0) {
+            Spike_SetState(0x40);
+        }
+        break;
+    case 0x3D:
+        break;
+    default:
+        Spike_SetState(0x3D);
+        break;
+    }
+    {
+    s32 c;
+    c = (u16)g_Spike_681E4.f_CC - d;
+    g_Spike_681E4.f_CC = c;
+    p = &g_Spike_681E4;
+    if ((s16)c >= 0) {
+        if ((s16)c > 0x1000) {
+            c = 0x1000;
+        }
+    } else {
+        c = 0;
+    }
+    p->f_CC = c;
+    }
+    func_800649D8(g_SpikeAnimSets_681E4[0].f_8);
+    func_800649D8(sp->f_4C);
+    if ((sp->f_54 & sp->f_58 & 0xA) && g_Spike_681E4.f_5E != 0x3D) {
+        Spike_SetState(0x35);
+        if (D_800E5498 == 0) {
+            g_Spike_681E4.f_120 = 0;
+            g_Spike_681E4.f_128 = 0;
+        } else {
+            g_Spike_681E4.f_120 = g_Spike_681E4.f_60.vx << 4;
+            g_Spike_681E4.f_128 = g_Spike_681E4.f_60.vz << 4;
+        }
+        g_Spike_681E4.f_124 = 0xFFFC0000;
+        g_Spike_681E4.f_118 = 0xFFFC0000;
+        ((s32 *)&g_Spike_681E4.f_74)[0] = ((s32 *)&g_Spike_681E4.f_60)[0];
+        ((s32 *)&g_Spike_681E4.f_74)[1] = ((s32 *)&g_Spike_681E4.f_60)[1];
+        Spike_SetPlayMode(0);
+    } else {
+        if (!(g_Spike_681E4.f_E0 & 4)) {
+            Spike_SetPlayMode(0);
+            Spike_SetState(0x24);
+        }
+        g_Spike_681E4.f_14->f_18 = -0x100;
+        g_Spike_681E4.f_14->f_14 = 0;
+        g_Spike_681E4.f_14->f_1C = 0;
+    }
+}
+
 INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5B88_pad);
 
 

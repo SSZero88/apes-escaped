@@ -2012,7 +2012,70 @@ s32 Zone_FindIndexAt(P_792C8_800792C8 *p, s16 mode) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", Water_Query);
+typedef struct { s16 x, y, z, f_6, f_8, f_A; u8 padC[6]; u16 f_12; u16 f_14; u16 f_16; u16 f_18; u8 pad1A[2]; u16 f_1C; u8 pad1E[0xC]; s16 f_2A; s16 f_2C; s16 f_2E; u8 pad30[8]; } A_79828;
+typedef struct { u16 f_0; u16 f_2; u16 f_4; u16 f_6; s16 x; s16 y; s16 z; s16 f_E; s16 f_10; s16 f_12; s16 f_14; s16 f_16; s16 f_18; } W_79828;
+extern struct { u8 pad0[0x820C]; A_79828 *f_820C; u8 pad8210[0x74]; u16 f_8284; u8 pad8286[0xE]; s16 f_8294; } g_Game_79828 asm("g_Game");
+
+s32 Water_Query(s32 x, s32 y, s32 z)
+{
+    W_79828 *w = (W_79828 *)0x1F8003D4;
+    A_79828 *a;
+    s16 i;
+    s16 s;
+    s16 mode;
+    u32 t2e;
+    u16 fl;
+    u16 k;
+    u16 ret = 0;
+    w->f_0 = 0;
+    w->f_2 = 0;
+    w->f_4 = 0;
+    w->f_6 = 0;
+    w->x = 0;
+    w->y = 0;
+    w->z = 0;
+    w->f_E = 0;
+    w->f_10 = 0;
+    w->f_12 = 0;
+    w->f_14 = 0;
+    w->f_16 = 0;
+    w->f_18 = 0;
+    g_Game_79828.f_8294 = -1;
+    for (i = g_Game_79828.f_8284 - 1; i >= 0; i--) {
+        a = &g_Game_79828.f_820C[i];
+        fl = a->f_12;
+        if ((u8)fl != 9) continue;
+        if (x < a->x - a->f_6 || a->x + a->f_6 < x || z < a->z - a->f_A || a->z + a->f_A < z) continue;
+        if (y < a->y - a->f_8 || a->y < y) continue;
+        k = (fl & 0xF00) << 4;
+        s = a->y - a->f_8;
+        w->f_10 = a->f_8;
+        if (y >= s && y - 0x40 < s) {
+            mode = 2;
+        } else if (y - 0x40 >= s && y - 0xC0 < s) {
+            mode = 1;
+        } else {
+            mode = 0;
+        }
+        w->f_0 = k | mode;
+        w->f_2 = a->f_1C;
+        w->f_4 = a->f_14;
+        w->f_6 = a->f_16;
+        w->x = a->x;
+        w->y = a->y;
+        w->z = a->z;
+        w->f_E = a->f_6;
+        w->f_12 = a->f_A;
+        w->f_14 = a->f_2A * 4096;
+        ret = w->f_0;
+        w->f_16 = a->f_2C * 4096;
+        t2e = a->f_2E;
+        g_Game_79828.f_8294 = i;
+        w->f_18 = t2e * 4096;
+        break;
+    }
+    return ret;
+}
 
 struct Game_79A28 { u8 pad0[0x8296]; s16 f_8296; };
 #define GM_79A28 ((struct Game_79A28 *)&g_Game)
