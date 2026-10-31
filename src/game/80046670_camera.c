@@ -567,9 +567,91 @@ INCLUDE_ASM("asm/nonmatchings/game/80046670_camera", func_80047754);
 INCLUDE_RODATA("asm/nonmatchings/game/80046670_camera", D_800A4CC0);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80046670_camera", func_80047BD0);
+typedef struct { s16 x, y, z, pad; s16 x2, y2, z2; } Tgt_80047BD0;
+extern Tgt_80047BD0 g_CameraTarget_47BD0 asm("g_CameraTarget");
+extern MAT_80046670_80046670 D_800E78C0_47BD0 asm("D_800E78C0");
+extern MAT_80046670_80046670 D_800EC330_47BD0 asm("D_800EC330");
+void func_80047DA4(void);
+void Camera_UpdateZoneBox(void);
+void func_8004C318(void *);
+void CamPoint_Update(void *);
+void Camera_UpdateMode(void *cam);
+void Camera_HandleViewButtons(Cam_80048454_80048454 *cam);
+void Camera_UpdateRadarLive(Cam_8004875C_8004875C *cam);
+void Camera_BlendToSetting(void);
+void Camera_UpdateShake(void);
+void CamFlyby_StepSegments(void);
+void CamFlyby_Update(void);
+void Screen_DrawAfterimage(void);
 
-INCLUDE_RODATA("asm/nonmatchings/game/80046670_camera", jtbl_800A4CD8);
+void func_80047BD0(void) {
+    S_B4D40_80047290 *p;
+    s32 i;
+    s16 ox, oy, oz;
+    s16 *o;
+
+    func_80047DA4();
+    if (D_800E68D0.f_3E == 0) {
+        Camera_UpdateZoneBox();
+    }
+    Camera_SelectSetting();
+    p = D_800B4D40;
+    ((u8 *)&D_800E68D0)[0x47] = 0;
+    for (i = 11; i >= 0; i--, p++) {
+        if (p->f_0 == 4 || p->f_0 == 5) {
+            func_8004C318(p);
+            CamPoint_Update(p);
+        }
+    }
+    i = 11;
+    p = D_800B4D40;
+    for (; i >= 0; i--, p++) {
+        if (p->f_0 != 0) {
+            switch (p->f_0) {
+            default:
+            case 1:
+                Camera_UpdateMode(p);
+                break;
+            case 2:
+                Camera_HandleViewButtons((Cam_80048454_80048454 *)p);
+                break;
+            case 3:
+                Camera_UpdateRadarLive((Cam_8004875C_8004875C *)p);
+                break;
+            case 4:
+            case 5:
+                break;
+            }
+        }
+    }
+    Camera_BlendToSetting();
+    Camera_UpdateShake();
+    CamFlyby_StepSegments();
+    CamFlyby_Update();
+    Screen_DrawAfterimage();
+    {
+        Tgt_80047BD0 *t = &g_CameraTarget_47BD0;
+        s16 *t2 = &g_CameraTarget_47BD0.x2;
+        s16 tx;
+        o = (s16 *)&D_800E68D0.f_10;
+        tx = t->x;
+        ox = o[0];
+        oy = o[1];
+        oz = o[2];
+        o[0] = 0;
+        o[1] = 0;
+        o[2] = 0;
+        t->x = tx + ox;
+        t->y += oy;
+        t->z += oz;
+        t->x2 += ox;
+        t2[1] += oy;
+        t2[2] += oz;
+        Camera_LookAt((SV_80046670_80046670 *)t, (SV_80046670_80046670 *)t2, &D_800E78C0_47BD0, &D_800EC330_47BD0, *(s16 *)((u8 *)D_800E68D0.f_8 + 0x2C));
+    }
+    func_80046A78();
+}
+
 INCLUDE_RODATA("asm/nonmatchings/game/80046670_camera", jtbl_800A4CD8_pad);
 
 

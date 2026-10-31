@@ -353,4 +353,69 @@ void func_8004CEA8(s8 arg0) {
     g_AfterimageFrames = arg0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8004B880_camera3", Screen_DrawAfterimage);
+extern u8 g_AfterimageFrames_u asm("g_AfterimageFrames");
+typedef struct { u32 addr : 24; u32 len : 8; } P_TAG_4CEB4;
+typedef struct { P_TAG_4CEB4 tag; u32 code; u32 pad; } DrStp_4CEB4;
+typedef struct { P_TAG_4CEB4 tag; u32 rgbc; u32 xy0; u32 uv0clut; u32 xy1; u32 uv1tp; u32 xy2; u16 uv2, pad2; u32 xy3; u16 uv3, pad3; } PolyFT4_4CEB4;
+
+void Screen_DrawAfterimage(void) {
+    u8 n;
+    u8 *p;
+    P_TAG_4CEB4 *ot;
+    u32 y;
+    u32 tp;
+    u32 yb;
+
+    n = g_AfterimageFrames_u;
+    if (n == 0) {
+        return;
+    }
+    {
+    register u32 two asm("$16");
+    __asm__("" : "=r"(two) : "0"(2));
+    g_AfterimageFrames_u = n - 1;
+    p = G_DRAW.prim;
+    { s32 off = G_DRAW.cur * sizeof(DrawBuf); u8 *g = (u8 *)&G_DRAW; y = *(u16 *)(off + g + 0x12); ot = (P_TAG_4CEB4 *)(off + (u8 *)&G_DRAW + 0x80); }
+    ((DrStp_4CEB4 *)p)->code = 0xE6000000;
+    ((DrStp_4CEB4 *)p)->tag.len = two;
+    ((DrStp_4CEB4 *)p)->pad = 0;
+    ((DrStp_4CEB4 *)p)->tag.addr = ot->addr;
+    ot->addr = (u32)p;
+    p += sizeof(DrStp_4CEB4);
+    y ^= 0x100;
+    tp = (y & 0x100) >> 4;
+    ((PolyFT4_4CEB4 *)p)->tag.len = 9;
+    ((PolyFT4_4CEB4 *)p)->rgbc = 0x2F000000;
+    ((PolyFT4_4CEB4 *)p)->xy0 = 0xFFE0FFE0;
+    ((PolyFT4_4CEB4 *)p)->xy1 = 0xFFE000C0;
+    ((PolyFT4_4CEB4 *)p)->xy2 = 0x110FFE0;
+    ((PolyFT4_4CEB4 *)p)->xy3 = 0x11000C0;
+    ((PolyFT4_4CEB4 *)p)->uv0clut = 0;
+    ((PolyFT4_4CEB4 *)p)->uv1tp = ((u16)(tp | 0x100) | ((y & 0x200) * 4)) << 16 | 0xBF;
+    ((PolyFT4_4CEB4 *)p)->uv2 = 0xEF00;
+    ((PolyFT4_4CEB4 *)p)->uv3 = 0xEFBF;
+    ((PolyFT4_4CEB4 *)p)->tag.addr = ot->addr;
+    ot->addr = (u32)p;
+    p += sizeof(PolyFT4_4CEB4);
+    ((PolyFT4_4CEB4 *)p)->tag.len = 9;
+    ((PolyFT4_4CEB4 *)p)->rgbc = 0x2F000000;
+    ((PolyFT4_4CEB4 *)p)->xy0 = 0xFFE000C0;
+    ((PolyFT4_4CEB4 *)p)->xy1 = 0xFFE001A0;
+    ((PolyFT4_4CEB4 *)p)->xy2 = 0x11000C0;
+    ((PolyFT4_4CEB4 *)p)->xy3 = 0x11001A0;
+    ((PolyFT4_4CEB4 *)p)->uv0clut = 0;
+    ((PolyFT4_4CEB4 *)p)->uv1tp = ((u16)(tp | 0x103) | ((y & 0x200) * 4)) << 16 | 0xBF;
+    ((PolyFT4_4CEB4 *)p)->uv2 = 0xEF00;
+    ((PolyFT4_4CEB4 *)p)->uv3 = 0xEFBF;
+    ((PolyFT4_4CEB4 *)p)->tag.addr = ot->addr;
+    ot->addr = (u32)p;
+    p += sizeof(PolyFT4_4CEB4);
+    ((DrStp_4CEB4 *)p)->tag.len = two;
+    ((DrStp_4CEB4 *)p)->code = 0xE6000001;
+    ((DrStp_4CEB4 *)p)->pad = 0;
+    ((DrStp_4CEB4 *)p)->tag.addr = ot->addr;
+    ot->addr = (u32)p;
+    p += sizeof(DrStp_4CEB4);
+    G_DRAW.prim = p;
+    }
+}

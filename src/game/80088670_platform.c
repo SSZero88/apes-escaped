@@ -735,7 +735,54 @@ s32 Platform_TurnStep(s16 period, s16 t) {
     return cur - p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80088670_platform", func_8008B060);
+typedef struct { u8 pad0[0xE]; s16 f_E; u16 f_10; u8 pad12[0x18]; s16 f_2A; s16 f_2C; s16 f_2E; u8 pad30[6]; s16 f_36; } Plat_8008B060;
+typedef struct { u32 *f_0; u8 pad4[0x18]; void *f_1C; } Mdl_8008B060;
+extern Mdl_8008B060 *D_800B4D64_8008B060 asm("D_800B4D64");
+
+s32 func_8008B060(Plat_892C4_800892C4 *arg) {
+    Plat_8008B060 *o = (Plat_8008B060 *)arg;
+    SVECTOR r;
+    Mdl_8008B060 *m = D_800B4D64_8008B060;
+    s32 q;
+    if ((*m[o->f_E].f_0 & 0xF) != 3) {
+        return -1;
+    }
+    if ((o->f_10 & 0xF000) != 0x3000) {
+        return 0;
+    }
+    if (o->f_2C != 0) {
+        q = (o->f_36 << 12) / o->f_2C;
+        r.vy = q;
+        if (o->f_2C > 0) {
+            __asm__ volatile("");
+            r.vy = -q;
+        }
+        r.vx = 0;
+        r.vz = 0;
+    } else if (o->f_2A != 0) {
+        q = (o->f_36 << 12) / o->f_2A;
+        r.vx = q;
+        if (o->f_2A > 0) {
+            __asm__ volatile("");
+            r.vx = -q;
+        }
+        r.vy = 0;
+        r.vz = 0;
+    } else if (o->f_2E != 0) {
+        q = (o->f_36 << 12) / o->f_2E;
+        r.vz = q;
+        if (o->f_2E < 0) {
+            __asm__ volatile("");
+            r.vz = -q;
+        }
+        r.vx = 0;
+        r.vy = 0;
+    } else {
+        return 0;
+    }
+    RotMatrixZYX(&r, m[o->f_E].f_1C);
+    return 1;
+}
 
 s32 func_8008B228(S_P_8008B228_8008B228 *p) {
     s16 t;

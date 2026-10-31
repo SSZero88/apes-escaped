@@ -257,7 +257,66 @@ s32 Sound_RestoreVolumes(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80086040_sound", func_80086540);
+typedef struct { u16 id; s16 voice; u16 f_4, f_6, f_8, f_A, f_C, f_E, f_10; s16 f_12; s16 f_14; s16 f_16; s32 f_18; } Slot_80086540;
+typedef struct { u16 id; u16 f_2; u16 f_4, f_6, f_8, f_A, f_C, f_E; } Amb_80086540;
+struct Game_80086540 { u8 pad0[0x8126]; u16 stage; };
+extern Slot_80086540 g_SoundSlots_80086540[24] asm("g_SoundSlots");
+extern struct { Amb_80086540 *list; s32 f_4; } D_800B29B0[];
+extern char D_800A6200[];
+
+s32 func_80086540(void) {
+    s16 i;
+    Slot_80086540 *s;
+    Amb_80086540 *list;
+    Amb_80086540 *a;
+    for (i = 0; i < 24; i++) {
+        s = &g_SoundSlots_80086540[i];
+        if ((s16)((s16)s->id & -0x1000) == 0x5000 || (s16)s->id < 0) {
+            continue;
+        }
+        if (s->voice >= 0) {
+            func_800A329C(s->voice);
+        }
+        if ((s16)((s16)s->id & -0x1000) == 0x7000) {
+            *(s16 *)&s->id = -1;
+            s->voice = -1;
+            s->f_12 = 0;
+            s->f_14 = -1;
+            s->f_16 = 0;
+        } else {
+            func_8008820C(s->id, s->voice);
+        }
+    }
+    list = D_800B29B0[((struct Game_80086540 *)&g_Game)->stage].list;
+    if (list == 0) {
+        return 0;
+    }
+    for (i = 0; (s16)list[i].id >= 0; i++) {
+        list[i].id |= list[i].f_2;
+        s = (Slot_80086540 *)Sound_AllocSlot();
+        if (s == 0) {
+            bios_printf(D_800A6200, (s16)list[i].id);
+            continue;
+        }
+        s->voice = Sound_Play(1, list[i].id);
+        s->id = list[i].id;
+        s->f_4 = list[i].f_4;
+        s->f_6 = list[i].f_6;
+        s->f_8 = list[i].f_8;
+        s->f_A = list[i].f_A;
+        s->f_C = list[i].f_C;
+        s->f_E = list[i].f_E;
+        s->f_10 = list[i].f_A;
+        s->f_18 = 0;
+        if (s->voice >= 0) {
+            s->f_12 = 1;
+        } else {
+            s->f_12 = 0;
+        }
+    }
+    func_80088578();
+    return 0;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/80086040_sound", D_800A6200);
 

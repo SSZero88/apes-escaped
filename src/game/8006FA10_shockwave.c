@@ -156,7 +156,56 @@ void func_80070284(void *arg0, s32 *arg1, s32 arg2, s32 arg3, s32 arg4) {
     func_80070130(arg0, arg1, arg2, arg3, 6, arg4);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8006FA10_shockwave", func_800702B0);
+typedef struct { s16 x; s16 y; s16 z; u8 state; u8 size; u8 dx; u8 dz; s16 dy; u16 f_C; u16 f_E; s32 f_10; s16 f_14; s16 f_16; s16 f_18; u8 pad1A[2]; s16 ground; u8 f_1E; u8 f_1F; } Debris_800702B0;
+typedef struct { u8 count; u8 spread; u8 smin; u8 smax; u16 f_4; u16 f_6; s32 f_8; } DebrisDef_800702B0;
+typedef struct { s16 vx, vy, vz, pad; } SV_800702B0;
+extern Debris_800702B0 D_800BB440[];
+s32 Floor_GetHeight(s32, s32, s32);
+void VectorNormalSS(void *in, void *out);
+#define RAND_702B0() (g_RandSeed = g_RandSeed * 5 + 1)
+
+void func_800702B0(SV_800702B0 *pos, DebrisDef_800702B0 *p) {
+    SV_800702B0 d;
+    s32 ground;
+    s32 n;
+    s32 i;
+    s32 r;
+    Debris_800702B0 *s;
+
+    ground = Floor_GetHeight(pos->vx, pos->vy, pos->vz);
+    s = D_800BB440;
+    n = p->count;
+    for (i = 31; i >= 0; i--, s++) {
+        if (s->state != 0) {
+            continue;
+        }
+        s->state = 2;
+        s->f_1E = (RAND_702B0() >> 7) & 0xFE;
+        s->f_1F = (RAND_702B0() >> 8 & 0x7F) | 0x80;
+        s->f_14 = 0;
+        s->f_16 = 0;
+        s->f_18 = 0;
+        r = RAND_702B0() >> 8;
+        s->size = (p->smin * r + p->smax * (0xFF - r)) >> 8;
+        s->ground = ground - s->size / 2;
+        s->x = pos->vx + ((((RAND_702B0() >> 8) - 0x80) * p->spread) >> 5);
+        s->y = pos->vy - (s16)((((RAND_702B0() >> 8) * p->spread) >> 5) + 0x80);
+        s->z = pos->vz + ((((RAND_702B0() >> 8) - 0x80) * p->spread) >> 5);
+        d.vx = s->x - pos->vx;
+        d.vy = (s16)(s->y + 0x80) - pos->vy;
+        d.vz = s->z - pos->vz;
+        VectorNormalSS(&d, &d);
+        s->dx = (u16)d.vx >> 7;
+        s->dy = d.vy >> 6;
+        s->dz = (u16)d.vz >> 7;
+        s->f_C = p->f_4;
+        s->f_E = p->f_6;
+        s->f_10 = p->f_8;
+        if (--n == 0) {
+            break;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/8006FA10_shockwave", func_80070560);
 
@@ -265,7 +314,52 @@ void func_800710F8(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8006FA10_shockwave", func_80071120);
+typedef struct { s16 vx, vy, vz, pad; } SV_71120;
+typedef struct { SV_71120 rot; SV_71120 spin; s16 x, y, z; s16 vx, vy, vz; u8 state; u8 f_1D; s16 ground; s16 f_20; s16 pad22; } Deb_71120;
+typedef struct { u8 m[0x20]; Deb_71120 d; } Piece_71120;
+typedef struct { s16 x, y, z, rx, ry, rz; } Off_71120;
+extern Piece_71120 D_800BB920_71120[] asm("D_800BB920");
+extern Off_71120 D_800B2060[];
+extern u8 D_800B205D;
+extern u16 D_800AE8F2;
+void func_800147D0_71120(SV_71120 *, void *) asm("func_800147D0");
+#define RAND_71120() (g_RandSeed = g_RandSeed * 5 + 1)
+#define RAND2_71120() (D_800AE8F2 = D_800AE8F2 * 5 + 1)
+
+void func_80071120(SV_71120 *pos, s32 kind) {
+    s32 i;
+    s32 g;
+    Piece_71120 *p;
+    Deb_71120 *d;
+    Off_71120 *o;
+    SV_71120 r;
+
+    g = Floor_GetHeight(pos->vx, pos->vy, pos->vz);
+    p = D_800BB920_71120;
+    for (i = 0; i < 6; i++, p++) {
+        d = &p->d;
+        o = &D_800B2060[i];
+        d->state = 3;
+        d->f_1D = 0;
+        d->x = pos->vx + o->x;
+        d->y = pos->vy + o->y;
+        d->z = pos->vz + o->z;
+        d->vx = (RAND2_71120() >> 8 & 0x3F) - 0x20;
+        d->vy = (RAND_71120() >> 8 & 0x3F) - 0x5A;
+        d->vz = (RAND2_71120() >> 8 & 0x3F) - 0x20;
+        d->ground = g;
+        d->f_20 = kind;
+        d->spin.vx = (RAND_71120() >> 8) - 0x80;
+        d->spin.vy = (RAND2_71120() >> 8) - 0x80;
+        d->spin.vz = (RAND_71120() >> 8) - 0x80;
+        d->rot = d->spin;
+        r.vx = o->rx;
+        r.vy = o->ry;
+        r.vz = o->rz;
+        func_800147D0_71120(&r, p->m);
+        D_800B205D = (D_800B205D + 1) % 12;
+    }
+}
 
 /* Updates and draws the 12 debris pieces at D_800BB920: each spins by its rotation speed,
  * moves, falls (vy += 10) and on passing its floor height bounces with effect 5 (vy = -vy / 3)

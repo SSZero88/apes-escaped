@@ -508,7 +508,66 @@ void func_80081144(s32 arg0, s8 arg1)
   while (var_a2 < 4);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8007D0F0_menu", Hud_DrawAirMeter);
+typedef struct { u32 tag; u32 c0; s16 x0, y0, x1, y1, x2, y2, x3, y3; } PolyF4_81180;
+extern s16 g_AirTimer;
+
+void Hud_DrawAirMeter(void) {
+    union { SprtTp *s; PolyF4_81180 *q; u8 *b; } p;
+    u32 *ot = G_HUD_OT;
+    s32 n;
+    u32 col;
+    register s32 a asm("$17");
+    s32 s;
+    s32 c;
+    s32 t; s32 u;
+    s32 i;
+
+    p.b = G_DRAW.prim;
+    ((u8 *)p.s)[3] = 5;
+    p.s->code = 0x67;
+    p.s->x0 = 0x118;
+    p.s->y0 = 0x1C;
+    p.s->v0 = 0xC0;
+    p.s->w = 0x40;
+    p.s->h = 0x40;
+    p.s->clut = 0x766B;
+    p.s->tpage = 0xE100023A;
+    p.s->u0 = 0;
+    ADD_PRIM_ASM(ot, p.s);
+    n = g_AirTimer;
+    __asm__ volatile("");
+    p.s++;
+    col = 0xFF;
+    if (n >= 150) {
+        col = 0xFF3030;
+        if (n < 300) {
+            col = 0xFFFF;
+        }
+    }
+    a = -0x800;
+    s = rsin(a);
+    c = rcos(a);
+    for (i = 0; i < n; i += 15) {
+        a += 0x40;
+        ((u8 *)p.q)[3] = 5;
+        p.q->c0 = col;
+        ((u8 *)p.q)[7] = 0x28;
+        p.q->y0 = 0x3C - ((s * 28) >> 12);
+        p.q->y1 = 0x3C - ((s * 12) >> 12);
+        p.q->x0 = ((c * 28) >> 12) + 0x138;
+        p.q->x1 = ((c * 12) >> 12) + 0x138;
+        u = rsin(a);
+        p.q->y2 = 0x3C - ((u * 28) >> 12);
+        p.q->y3 = 0x3C - ((u * 12) >> 12);
+        t = rcos(a);
+        p.q->x2 = ((t * 28) >> 12) + 0x138;
+        p.q->x3 = ((t * 12) >> 12) + 0x138;
+        ADD_PRIM_ASM(ot, p.q);
+        p.q++;
+        c = t; s = u;
+    }
+    D_800EC354 = (s32)p.b;
+}
 
 typedef struct { u8 pad0[0x98]; s16 x; s16 f_9A; s16 f_9C; u8 pad9E[2]; u8 sel; u8 n1; u8 n2; } SlingHud_813D8;
 extern SlingHud_813D8 g_GadgetState_813D8 asm("g_GadgetState");
@@ -1023,7 +1082,127 @@ void Text_Draw(u8 *s, s32 x, s32 y, s32 col) {
     G_DRAW.prim = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8007D0F0_menu", PauseMenu_DrawStageInfo);
+typedef struct { u32 frame; u8 pad4[0x8120]; u16 stage; u8 pad8126[8]; u16 f_812E; u8 pad8130[0x14]; s32 time; s32 best; s32 f_814C; u8 pad8150[0x16]; s16 caught; u8 pad8168[0x1E]; s16 total; s16 present; s16 f_818A; u8 pad818C[0x140]; s8 f_82CC; s8 f_82CD; } GameP_82398;
+#define GP (*(GameP_82398 *)&g_Game)
+typedef struct { u32 tag; u32 rgbc; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_82398;
+typedef struct { u32 tag; u32 code; } DrTpage_82398;
+extern u8 D_800B26A8[];
+extern u8 D_800B26B0[];
+extern u8 D_800B26C4[];
+extern u8 D_800B26F4[];
+extern u8 D_800B2640[];
+extern u8 D_800F4458[];
+s32 func_800964B0(s32);
+s32 func_80097FB0(s32);
+void Menu_DrawSpinningModel(s32, s32);
+void Hud_DrawTime(s32, s32, u32);
+void Hud_DrawTimeMedal(s32, s32, u32, s16 *);
+s16 *Stage_GetTargetTimes(u32);
+
+/* Pause screen stage info: grid of monkey heads (caught lit, the rest dimmed or dark when not in
+   this area), spinning model, caught / total counter, stage name, record and best times */
+void PauseMenu_DrawStageInfo(void) {
+    Sprt_82398 *p = (Sprt_82398 *)G_DRAW.prim;
+    u32 *ot = G_DRAW.ot;
+    s32 i;
+    s32 v;
+    s32 cl;
+    s32 a, b;
+    u8 *s;
+    u8 *s2;
+    s32 c;
+
+    for (i = 0; i < GP.total; i++) {
+        p->x0 = (i % 8) * 24 + 0x1E;
+        p->y0 = (i / 8) * 24 + 0x66;
+        p->w = 0x20;
+        p->h = 0x20;
+        if (i < GP.caught) {
+            ((u8 *)p)[3] = 4;
+            ((u8 *)p)[7] = 0x67;
+            v = (GP.frame % 10 >= 6) ? 0x40 : 0x60;
+            p->u0 = 0x80;
+            cl = 0x3A3F;
+        } else {
+            if (i >= GP.present && (func_80096580(GP.stage) <= 0 || GP.f_812E == 2)) {
+                p->rgbc = 0x101010;
+                ((u8 *)p)[3] = 4;
+                ((u8 *)p)[7] = 0x64;
+            } else {
+                ((u8 *)p)[3] = 4;
+                ((u8 *)p)[7] = 0x67;
+            }
+            v = (GP.frame % 10 >= 6) ? 0x40 : 0x60;
+            p->u0 = 0xA0;
+            cl = 0x3A7F;
+        }
+        p->v0 = v;
+        p->clut = cl;
+        ADD_PRIM_ASM2(ot, p);
+        p++;
+    }
+    ((u8 *)p)[3] = 1;
+    ((DrTpage_82398 *)p)->code = 0xE100020F;
+    ADD_PRIM_ASM(ot, p);
+    p = (Sprt_82398 *)((DrTpage_82398 *)p + 1);
+    G_DRAW.prim = (u8 *)p;
+    Menu_DrawSpinningModel(0x114, 0xB4);
+    s = (u8 *)0x1F800000;
+    switch (GP.stage) {
+    case 7:
+        b = 5;
+        a = (func_800964B0(0x13) & 0x10) ? b : 0;
+        break;
+    case 14:
+        b = 5;
+        a = (func_800964B0(0x24) & 0x10) ? b : 0;
+        break;
+    default:
+        a = func_80097FB0(GP.stage);
+        b = GP.f_818A;
+        break;
+    }
+    c = a / 10;
+    s[0] = c + 0x6A;
+    c = a % 10;
+    s[1] = (c < 6) ? c + 0x6A : c + 0x74;
+    s[2] = 0x8D;
+    c = b / 10;
+    s[3] = c + 0x6A;
+    c = b % 10;
+    s[4] = (c < 6) ? c + 0x6A : c + 0x74;
+    s[5] = 0;
+    Text_Draw(s, 0xF1, 0xAC, 1);
+    Menu_DrawWindow(0x1E, 0x1E, 0x130, 0xB0);
+    Text_Draw(D_800B269C + 2, 0x4A, 0xB4, 2);
+    Text_Draw(D_800B26A8, 0x36, 0x40, 2);
+    Text_Draw(D_800B26B0, 0xE6, 0x40, 2);
+    s2 = (u8 *)0x1F800000;
+    s2[0] = D_800B2640[GP.f_82CC + 1];
+    s2[1] = 0x8B;
+    s2[2] = D_800B2640[GP.f_82CD + 1];
+    s2[3] = 0;
+    Text_Draw(s2, 0x7C, 0x40, 2);
+    s2[0] = 10;
+    s2[1] = 9;
+    s2[2] = 0;
+    func_8008DDB0(0x36, 0xB4);
+    func_8008DDC8(s2);
+    if (GP.best != -1) {
+        Text_Draw(D_800B26C4, 0xD6, 0x72, 2);
+        Hud_DrawTime(0xF6, 0x8C, GP.best);
+        Hud_DrawTimeMedal(0xDE, 0x84, GP.best, Stage_GetTargetTimes(GP.stage));
+    } else if (GP.f_814C != -1) {
+        Text_Draw(D_800B26F4, 0xD6, 0x72, 2);
+        Hud_DrawTime(0xF6, 0x8C, GP.f_814C);
+    }
+    Text_Draw(D_800F4458, 0x36, 0x52, 1);
+    Hud_DrawTime(0xF6, 0x5A, GP.time);
+    if (GP.stage != 7 && GP.stage != 14) {
+        Hud_DrawTimeMedal(0xDE, 0x52, GP.time, Stage_GetTargetTimes(GP.stage));
+    }
+    __asm__ volatile("" : : : "$8");
+}
 
 /* Status screen icon: moves the GTE screen offset to (x, y), draws model D_800F4D00 at depth
  * 0x800 rotating with the frame counter, then restores the offset to the screen centre (0xC0, 0x78). */
