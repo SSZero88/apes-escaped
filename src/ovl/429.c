@@ -719,7 +719,48 @@ s32 func_80137C04(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80137D40);
+extern volatile u8 D_80139200_x[] asm("D_80139200");
+
+s32 func_80137D40(void) {
+    u8 *p = G_DRAW.prim;
+
+    if (func_80096580(D_80139200_x[D_801391BA]) < 2) {
+        return 0;
+    }
+    if (*(u32 *)g_Game % 40 > 20) {
+        return 0;
+    }
+    {
+        p[3] = 4;
+        p[7] = 0x65;
+        M2C_FIELD(p, u16 *, 0xE) = 0x3F9C;
+        M2C_FIELD(p, s16 *, 0x8) = 0x32;
+        M2C_FIELD(p, s16 *, 0xA) = 0x10;
+        M2C_FIELD(p, s16 *, 0x10) = 0x30;
+        M2C_FIELD(p, s16 *, 0x12) = 0x30;
+        p[0xC] = 0;
+        p[0xD] = 0;
+        ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$4", "$3");
+        p += 0x14;
+        p[3] = 4;
+        p[7] = 0x65;
+        M2C_FIELD(p, u16 *, 0xE) = 0x3F9C;
+        M2C_FIELD(p, s16 *, 0x8) = 0x11E;
+        M2C_FIELD(p, s16 *, 0xA) = 0x10;
+        M2C_FIELD(p, s16 *, 0x10) = 0x30;
+        M2C_FIELD(p, s16 *, 0x12) = 0x30;
+        p[0xC] = 0;
+        p[0xD] = 0;
+        ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$4", "$3");
+        p += 0x14;
+        p[3] = 1;
+        M2C_FIELD(p, u32 *, 4) = 0xE1000207;
+        ADD_PRIM_R(G_DRAW.db[G_DRAW.cur].ot, p, "$4", "$3");
+        p += 8;
+        G_DRAW.prim = p;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80137EF8);
 

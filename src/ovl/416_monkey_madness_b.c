@@ -946,4 +946,674 @@ void func_8013F954(s32 c)
   ((struct Game_414 *)&g_Game)->prim = (u8 *) (m + 1);
 }
 
-INCLUDE_ASM("asm/ovl/416/nonmatchings/416_monkey_madness_b", func_8013FA2C);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_8013FA2C;
+typedef struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; u8 pad_30[0x20]; u32 f_50; u8 pad_54[0xC]; s16 f_60; s16 f_62; s16 f_64; u8 pad_66[0x12]; u16 f_78; u8 f_7A; u8 f_7B; s32 f_7C; s32 f_80; u8 f_84; u8 pad_85; u8 f_86; u8 pad_87; s16 f_88; s16 f_8A; s16 f_8C; s16 f_8E; u8 f_90; u8 f_91; u8 f_92; u8 f_93; } Boss_8013FA2C;
+typedef struct { u8 f_0; u8 f_1; u16 f_2; s16 f_4; s16 f_6; s16 f_8; u8 pad_A[2]; s32 f_C; s32 f_10; s32 f_14; s32 f_18; u8 f_1C; u8 f_1D; u8 f_1E; u8 pad_1F; } St_8013FA2C;
+typedef struct { u8 pad_0[0x24]; s16 f_24; } Shape_8013FA2C;
+typedef struct { void *shape; s16 x, y, z; } Coll_8013FA2C;
+extern Boss_8013FA2C D_80142260_8013FA2C asm("D_80142260");
+extern Boss_8013FA2C D_801422F8_8013FA2C asm("D_801422F8");
+extern St_8013FA2C D_80141880_8013FA2C asm("D_80141880");
+extern Coll_8013FA2C D_80142730_8013FA2C asm("D_80142730");
+extern u8 D_80141881_8013FA2C asm("D_80141881");
+extern s32 D_8014188C;
+extern s32 D_80141890;
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013FA2C asm("g_Spike");
+extern u8 D_80141640_8013FA2C[] asm("D_80141640");
+extern u8 D_800B4D88_8013FA2C[] asm("D_800B4D88");
+extern u8 D_80141660[];
+extern u8 D_801416B4[];
+extern u8 D_80141708[];
+extern u8 D_8014175C[];
+extern u8 D_80141804[];
+extern u8 D_80141858[];
+extern struct { s32 x, y, z; } D_800EC204_8013FA2C asm("D_800EC204");
+void Effect_Spawn_8013FA2C(s32, void *, void *, s32) asm("Effect_Spawn");
+s32 Sound_PlayFixed_8013FA2C(s32) asm("Sound_PlayFixed");
+void Fx_SpawnFadeRing_8013FA2C(void *, s32, s32, s32) asm("Fx_SpawnFadeRing");
+void func_80070284_8013FA2C(void *, void *, s32, s32, void *) asm("func_80070284");
+void func_8006F3D0_8013FA2C(void *, s32, void *, s32) asm("func_8006F3D0");
+void Fx_DebrisExplosion_8013FA2C(s32, s32, s32) asm("Fx_DebrisExplosion");
+void Fx_GroundBlast_8013FA2C(s16, s16, s16) asm("Fx_GroundBlast");
+Shape_8013FA2C *Collision_GetShape_8013FA2C(s32) asm("Collision_GetShape");
+s32 Collision_GetId_8013FA2C(s32) asm("Collision_GetId");
+void Collision_Remove_8013FA2C(void *) asm("Collision_Remove");
+void Spike_SetPlayMode_8013FA2C(s32) asm("Spike_SetPlayMode");
+void func_8006D548_8013FA2C(void *) asm("func_8006D548");
+void func_8004637C_8013FA2C(void *) asm("func_8004637C");
+void *RotMatrixY_8013FA2C(s32, void *) asm("RotMatrixY");
+void *ApplyMatrixSV_8013FA2C(void *, void *, void *) asm("ApplyMatrixSV");
+void func_8013DF60_8013FA2C(s32) asm("func_8013DF60");
+void func_8013E1D0_8013FA2C(void *, s32, s32) asm("func_8013E1D0");
+void func_8013D8E4(SVECTOR *arg0);
+void func_8013DA4C_8013FA2C(void) asm("func_8013DA4C");
+void func_8013DE1C(void);
+void func_8013DE44(void);
+void func_8013DE6C(void);
+void func_8013DF38(s32 arg0);
+void func_8013E1AC(void);
+void func_8013E2BC(void);
+void func_8013EC94(s16 x, s16 y, s16 z);
+void func_8013ECD4(void);
+void func_8013EE74(void);
+void func_8013EF44(void *arg0);
+void func_8013EFCC(u8 *a);
+void func_8013F0E0(void);
+void func_8013F5A8_8013FA2C(SVECTOR *) asm("func_8013F5A8");
+void func_8013F6F8(void);
+#define RAND_8013FA2C() (g_RandSeed = g_RandSeed * 5 + 1)
+
+void func_8013FA2C(void) {
+    SVECTOR s18;
+    SVECTOR s20;
+    SVECTOR s28;
+    SVECTOR s30;
+    SVECTOR s38;
+    SVECTOR s40;
+    SVECTOR s48;
+    SVECTOR s50;
+    SVECTOR s58;
+    SVECTOR s60;
+    SVECTOR s68;
+    SVECTOR s70;
+    SVECTOR s78;
+    SVECTOR s80;
+    SVECTOR s88;
+    SVECTOR s90;
+    SVECTOR s98;
+    Mat_8013FA2C m;
+    Boss_8013FA2C *b = &D_80142260_8013FA2C;
+    s32 t;
+    s32 dx;
+
+    if (b->f_84 == 0) {
+        return;
+    }
+    if (D_80141880_8013FA2C.f_0 == 0 && g_Spike_8013FA2C.z >= -0x11F7 && g_Spike_8013FA2C.x >= -0x180
+        && (D_80141880_8013FA2C.f_1 == 1 || D_80141880_8013FA2C.f_1 == 0xC)) {
+        D_80141880_8013FA2C.f_10++;
+    } else {
+        D_80141890 = 0;
+    }
+    switch (D_80141881_8013FA2C) {
+    case 0:
+        break;
+    case 1:
+        b->f_64 = 0x1000;
+        b->f_7C = 0;
+        b->f_60 = 0;
+        b->f_62 = 0;
+        b->z = -0x1B40;
+        if (D_80141880_8013FA2C.f_10 >= 0x32 && D_80141880_8013FA2C.f_18 > 0) {
+            func_8013EF00(0xC);
+            D_80141880_8013FA2C.f_C = 0x3C;
+            func_8013EF0C(b, 1);
+            b->f_7B = 1;
+            s18.vx = b->x;
+            s18.vy = b->y - 0xC4;
+            s18.vz = b->z - 0x1CC;
+            func_80070284_8013FA2C(&s18, D_80141708, 1, 0, &b->f_60);
+            Sound_PlayFixed_8013FA2C(0xAC);
+        }
+        if (D_80141880_8013FA2C.f_14 == 0 || --D_80141880_8013FA2C.f_14 == 0) {
+            if (D_80141880_8013FA2C.f_18 == 0) {
+                goto s7;
+            }
+            if (D_80141880_8013FA2C.f_10 < 0x19) {
+                if (!((RAND_8013FA2C() >> 8) & 3)) {
+                s7:
+                    func_8013EF00(7);
+                    func_8013EF0C(b, 0x11);
+                    Sound_PlayFixed_8013FA2C(0xB3);
+                } else {
+                    func_8013EF00(2);
+                    func_8013EF0C(b, 0xB);
+                    Sound_PlayFixed_8013FA2C(0xB4);
+                }
+                D_80141880_8013FA2C.f_14 = 0x1E;
+                D_80141880_8013FA2C.f_1C = 0;
+                D_80141880_8013FA2C.f_18++;
+            }
+        }
+        break;
+    case 2:
+        if (b->f_7A == 0) {
+            func_8013EF00(3);
+            func_8013EF0C(b, 0xE);
+        }
+        break;
+    case 3:
+        if (b->f_7A == 0) {
+            func_8013EF0C(b, 0xF);
+            b->f_7B = 1;
+            func_8013EF00(4);
+            D_8014188C = 0x5A;
+        }
+        break;
+    case 4:
+        D_80141880_8013FA2C.f_C--;
+        b->z = -0x1B40;
+        if (D_80141880_8013FA2C.f_C % 10 == 0) {
+            s16 x = b->x;
+            s20.vx = x - 0xDC;
+            s20.vy = b->y - 0x240;
+            s20.vz = b->z - 0x40;
+            if (D_80141880_8013FA2C.f_C & 8) {
+                s20.vx = x + 0xDC;
+            }
+            func_8013F5A8_8013FA2C(&s20);
+            b->f_90 = b->f_91 = 0x20;
+        }
+        if (D_8014188C == 0) {
+            func_8013EF00(5);
+            func_8013EF0C(b, 0x10);
+        }
+        break;
+    case 5:
+        b->z = -0x1B40;
+        if (b->f_7A == 0) {
+            func_8013EF00(6);
+            func_8013EF0C(b, 0xD);
+            Sound_PlayFixed_8013FA2C(0xB4);
+        }
+        break;
+    case 7:
+        if (b->f_7A == 0) {
+            func_8013EF0C(b, 0x12);
+            func_8013EF00(8);
+            D_8014188C = 0xF0;
+        }
+        break;
+    case 8:
+        D_80141880_8013FA2C.f_C--;
+        b->z = -0x1B40;
+        if (D_80141880_8013FA2C.f_C == 0xE4) {
+            s28.vy = -0xA00;
+            s28.vx = b->x;
+            s28.vz = b->z + 0x320;
+            func_8013E1D0_8013FA2C(&s28, 1, 0);
+            func_8013E1D0_8013FA2C(&s28, 0, 0x20);
+            func_8013E1D0_8013FA2C(&s28, 4, 0x40);
+            func_8013E1D0_8013FA2C(&s28, 4, 0x60);
+        }
+        if (D_80141880_8013FA2C.f_C == 0) {
+            func_8013EF00(9);
+            func_8013EF0C(b, 0x13);
+            Sound_PlayFixed_8013FA2C(0xB3);
+        }
+        break;
+    case 6:
+    case 9:
+        if (b->f_7A == 0) {
+            func_8013EE74();
+        }
+        break;
+    case 12:
+        if (D_80141880_8013FA2C.f_10 == 0) {
+            func_8013EF00(1);
+            func_8013EF0C(b, 3);
+            b->f_7B = 1;
+            break;
+        }
+        if (--D_80141880_8013FA2C.f_C == 0) {
+            s30.vx = b->x - 0x80;
+            s30.vy = b->y - 0xA4;
+            s30.vz = b->z - 0x200;
+            {
+                s32 i;
+                for (i = 0; i < 2; i++) {
+                    Fx_SpawnFadeRing_8013FA2C(&s30, 1, 0x400, 0);
+                    Effect_SpawnAt(0x112, &s30);
+                    s30.vx += 0x100;
+                }
+            }
+            func_8013EF00(0xD);
+            b->f_88 = 0;
+            b->f_8C = 0x20;
+            Camera_StartShake(1);
+            D_8014188C = 0;
+            func_8013EF0C(b, 4);
+            func_8013DF60_8013FA2C(0xB1);
+            func_8013DF38(0xB2);
+            Sound_PlayFixed_8013FA2C(0xAD);
+        }
+        s38.vx = b->x - 0x80;
+        s38.vy = b->y - 0x40;
+        s38.vz = b->z - 0x200;
+        {
+            s32 i;
+            for (i = 0; i < 2; i++) {
+                Effect_Spawn_8013FA2C(0xC8, &s38, D_80141640_8013FA2C, 0);
+                Effect_Spawn_8013FA2C(0xC9, &s38, D_80141640_8013FA2C, 0);
+                s38.vx += 0x100;
+            }
+        }
+        Camera_StartShake(0);
+        break;
+    case 13:
+        D_80141880_8013FA2C.f_C++;
+        VectorNormalSS(&b->f_88, &b->f_60);
+        s58.vx = 0;
+        s58.vy = 0;
+        s58.vz = -0x1000;
+        s40.vx = b->x - 0x80;
+        s40.vy = b->y - 0xA4;
+        s40.vz = b->z - 0x200;
+        s48.vx = b->x - 0x80;
+        s48.vy = b->y - 0xA4;
+        s48.vz = b->z - 0x5E8;
+        s50.vx = b->x - 0x100;
+        s50.vy = b->y - 0x40;
+        s50.vz = b->z - 0x5E8;
+        s48.vx -= b->f_88;
+        {
+            s32 i;
+            for (i = 0; i < 2; i++) {
+                SVECTOR *p = &s40;
+                Effect_SpawnAt(4, &s50);
+                Effect_SpawnAt(5, &s50);
+                if ((D_80141880_8013FA2C.f_C & 3) == 1) {
+                    func_80070284_8013FA2C(p, D_80141660, 1, 0, &s58);
+                }
+                func_8006F3D0_8013FA2C(p, 2, D_80141858, 0x20 - D_80141880_8013FA2C.f_C);
+                s40.vx += 0x100;
+                s48.vx += 0x100;
+                s50.vx += 0x200;
+            }
+        }
+        b->x += b->f_88;
+        b->z += b->f_8C - (5 - b->f_86) * 2;
+        dx = (D_800EC204_8013FA2C.x - b->x) / 256;
+        if ((s16)dx >= -3) {
+            if ((s16)dx >= 4) {
+                dx = 3;
+            }
+        } else {
+            dx = -3;
+        }
+        { s16 t = dx; b->f_88 = t + b->f_88; }
+        if (b->z >= -0x127F) {
+            b->f_8C -= 2;
+        } else {
+            b->f_8C += 4;
+        }
+        if (b->z >= -0xE7F) {
+            b->z = -0xE80;
+            Camera_StartShake(1);
+            func_8013EF00(0xE);
+            D_8014188C = 0x28;
+            s60.vx = b->x;
+            s60.vy = b->y - 0x80;
+            s60.vz = b->z + 0x200;
+            func_8013D8E4(&s60);
+            func_80070284_8013FA2C(&s60, D_801416B4, 1, 0, &b->f_60);
+            {
+                s32 i;
+                for (i = 0x10; i > 0; i--) {
+                    Effect_Spawn_8013FA2C(0xCD, &s60, D_80141640_8013FA2C, 0);
+                }
+            }
+            func_8013EF0C(b, 2);
+            b->f_60 = 0;
+            b->f_62 = 0;
+            b->f_64 = 0x1000;
+            func_8013DF60_8013FA2C(0xB2);
+            func_8013DF38(0xB1);
+            Sound_PlayFixed_8013FA2C(0xAE);
+            Sound_PlayFixed_8013FA2C(0x4D);
+        }
+        D_80142730_8013FA2C.x = b->x;
+        D_80142730_8013FA2C.y = b->y + 0x100;
+        D_80142730_8013FA2C.z = b->z + 0x200;
+        func_8013D890(&D_80142730_8013FA2C, (s32)b, 0x200, 0x200);
+        break;
+    case 14:
+        if (--D_80141880_8013FA2C.f_C == 0) {
+            func_8013EF00(0x10);
+            func_8013EF0C(b, 3);
+            b->f_7B = 1;
+            D_80141880_8013FA2C.f_C = 0x1E;
+        }
+        break;
+    case 16:
+        if (--D_80141880_8013FA2C.f_C == 0) {
+            func_8013DF60_8013FA2C(0xB1);
+            func_8013DF38(0xB2);
+            func_8013EF00(0x11);
+            if (b->x > 0x600) {
+                b->f_7C = 0x2D;
+                func_8013EF0C(b, 6);
+            } else {
+                b->f_7C = -0x2D;
+                func_8013EF0C(b, 5);
+            }
+            b->f_7B = 1;
+            D_8014188C = 0x16;
+            b->f_8E = 0x10;
+            b->f_80 = b->f_7C;
+            Sound_PlayFixed_8013FA2C(0xAF);
+        }
+        break;
+    case 17:
+        if (b->f_7A == 0) {
+            func_8013EF0C(b, b->f_78 + 2);
+        }
+        if (--D_80141880_8013FA2C.f_C == 0) {
+            func_8013EF00(0x12);
+            func_8013EF0C(b, b->f_78 + 2);
+            b->f_7B = 1;
+            D_80141880_8013FA2C.f_C = 0xF;
+            func_8013DF60_8013FA2C(0xB2);
+            func_8013DF38(0xB1);
+        }
+        b->x -= (b->f_60 * b->f_8E) >> 12;
+        b->z -= (b->f_64 * b->f_8E) >> 12;
+        if (b->f_8E < 0x40) {
+            b->f_8E += 4;
+        }
+        s68.vx = b->x + b->f_60 / 8 + ((RAND_8013FA2C() >> 8) - 0x80) * 2;
+        s68.vy = b->y - 0x20;
+        s68.vz = b->z + b->f_64 / 8 + ((RAND_8013FA2C() >> 8) - 0x80) * 2;
+        Effect_SpawnAt(6, &s68);
+        break;
+    case 18:
+        b->f_7C = 0;
+        if (--D_80141880_8013FA2C.f_C == 0) {
+            func_8013EF00(0x13);
+            D_80141880_8013FA2C.f_C = 0x16;
+            b->f_8E = 0x10;
+            if (b->x < 0x600) {
+                func_8013EF0C(b, 5);
+            } else {
+                func_8013EF0C(b, 6);
+            }
+            b->f_7B = 1;
+            b->f_7C = b->f_80;
+            func_8013DF60_8013FA2C(0xB1);
+            func_8013DF38(0xB2);
+        }
+        break;
+    case 19:
+        if (--D_80141880_8013FA2C.f_C == 0) {
+            func_8013EF00(0x14);
+            func_8013EF0C(b, 4);
+            b->f_88 = (0x600 - b->x) / 32;
+            b->f_8C = -0x20;
+            b->f_7C = 0;
+        }
+        b->x += (b->f_60 * b->f_8E) >> 12;
+        b->z += (b->f_64 * b->f_8E) >> 12;
+        if (b->f_8E < 0x40) {
+            b->f_8E += 4;
+        }
+        break;
+    case 20:
+        b->x += b->f_88;
+        b->z += b->f_8C;
+        if (b->z < -0x15D8) {
+            {
+                s32 i;
+                for (i = 0; i < 4; i++) {
+                    s70.vx = b->x + ((RAND_8013FA2C() >> 8) - 0x80) * 4;
+                    s70.vy = b->y - 0x80;
+                    s70.vz = b->z;
+                    Effect_SpawnAt(6, &s70);
+                }
+            }
+            b->f_7C = 0x44;
+            b->f_8C += 3;
+            Camera_StartShake(0);
+            if (b->f_78 != 0) {
+                Sound_PlayFixed_8013FA2C(0xAF);
+            }
+            func_8013EF0C(b, 0);
+        } else {
+            b->f_8C -= 0xA;
+        }
+        if (b->z < -0x1CB0) {
+            b->f_8C = 0;
+            b->f_88 = 0;
+            func_8013EF00(0x15);
+            b->f_7C = 0;
+            s78.vx = b->x;
+            s78.vy = b->y - 0x60;
+            s78.vz = b->z;
+            func_80070284_8013FA2C(&s78, D_801416B4, 1, 0, NULL);
+            Sound_PlayFixed_8013FA2C(0xAF);
+        }
+        break;
+    case 21:
+        b->x += b->f_88;
+        b->z += b->f_8C;
+        b->f_8C++;
+        if (b->z >= -0x1B3F) {
+            D_80141880_8013FA2C.f_C = 0x3C;
+            b->z = -0x1B40;
+            b->f_7C = 0;
+            func_8013EE74();
+            D_80141880_8013FA2C.f_18 = 0;
+            func_8013DF60_8013FA2C(0xB2);
+            func_8013DF38(0xB1);
+        }
+        b->x += b->f_60 >> 8;
+        b->z += b->f_64 >> 8;
+        break;
+    case 24:
+        b->x += b->f_88;
+        b->f_88 = b->f_88 * 3 / 4;
+        if (b->f_88 != 0) {
+            Camera_StartShake(1);
+        }
+        if (--D_80141880_8013FA2C.f_C == 0) {
+            func_8013EF00(0x10);
+            D_80141880_8013FA2C.f_C = 0x14;
+            func_8013DF60_8013FA2C(0xB1);
+        }
+        break;
+    case 25:
+        if (--D_80141880_8013FA2C.f_C == 0) {
+            D_800E69BE = 1;
+            b->f_84 = 0;
+        }
+        if (D_80141880_8013FA2C.f_C == 0x76) {
+            Fx_DebrisExplosion_8013FA2C((s16)b->x, (s16)b->y, (s16)b->z);
+            Sound_PlayFixed_8013FA2C(0xB0);
+        }
+        if (D_80141880_8013FA2C.f_C == 0x5A) {
+            memset(&s88, 0, 8);
+            s88.vx = b->x;
+            s88.vy = b->y - 0x100;
+            s88.vz = b->z;
+            s80 = s88;
+            Effect_SpawnAt(0x112, &s80);
+            func_8013EC94(b->x, b->y - 0x100, b->z);
+            Fx_GroundBlast_8013FA2C(b->x, b->y - 0x100, b->z);
+            Sound_PlayFixed_8013FA2C(0xA8);
+            Sound_PlayFixed_8013FA2C(0x6E);
+        }
+        if (D_80141880_8013FA2C.f_C == 0x62) {
+            Sound_PlayFixed_8013FA2C(0x94);
+            Sound_PlayFixed_8013FA2C(0x95);
+        }
+        if ((u32)(D_80141880_8013FA2C.f_C - 0x44) < 5) {
+            func_8013F954(0xE6F0FF);
+            D_80141880_8013FA2C.f_1D = 1;
+            D_80141880_8013FA2C.f_1E = 0xDC;
+        }
+        if (D_80141880_8013FA2C.f_C == 0x50) {
+            memset(&s90, 0, 8);
+            s90.vy = -0xA00;
+            s90.vx = b->x;
+            s90.vz = b->z;
+            s88 = s90;
+            {
+                s32 i;
+                for (i = 0; i < 0x18; i++) {
+                    Effect_Spawn_8013FA2C(0xCF, &s88, D_80141640_8013FA2C, 0);
+                }
+            }
+            func_8013DF60_8013FA2C(0xB1);
+            Sound_PlayFixed_8013FA2C(0xB0);
+        }
+        if (D_80141880_8013FA2C.f_C < 0x48) {
+            u32 cc = D_80141880_8013FA2C.f_1E;
+            if (cc != 0) {
+                func_8013F954(((cc >> 2) << 16) | ((cc >> 1) << 8) | cc);
+                D_80141880_8013FA2C.f_1E -= 4;
+            }
+        }
+        if (D_8014188C == 0x48) {
+            memset(&s98, 0, 8);
+            s98.vy = -0xA00;
+            s98.vx = b->x;
+            s98.vz = b->z;
+            s90 = s98;
+            {
+                s32 i;
+                for (i = 0; i < 0x1E; i++) {
+                    Effect_Spawn_8013FA2C(0xCF, &s90, D_80141640_8013FA2C, 0);
+                }
+            }
+            func_8013D8E4(&s90);
+            Fx_SpawnFadeRing_8013FA2C(&s90, 0, 0x800, 5);
+            Fx_SpawnFadeRing_8013FA2C(&s90, 0, 0x52C, 8);
+            func_80070284_8013FA2C(&s90, D_80141804, 3, 0, NULL);
+            s90.vy = -0xA40;
+            func_80070284_8013FA2C(&s90, D_80141804 - 0x54, 1, 6, NULL);
+            s90.vy = -0xBA4;
+            func_80070284_8013FA2C(&s90, D_80141804 - 0x54, 1, 0xD, NULL);
+            s90.vy = -0xD20;
+            func_80070284_8013FA2C(&s90, D_80141804 - 0x54, 1, 0x16, NULL);
+            Sound_PlayFixed_8013FA2C(0x6C);
+            Sound_PlayFixed_8013FA2C(0x82);
+            Collision_Remove_8013FA2C(&b->x);
+            Collision_Remove_8013FA2C(&D_801422F8_8013FA2C.x);
+        }
+        if ((u32)(D_80141880_8013FA2C.f_C - 0x2F) < 0x15) {
+            if (!(D_80141880_8013FA2C.f_C & 7)) {
+                Sound_PlayFixed_8013FA2C(0x6C);
+            }
+            if ((D_80141880_8013FA2C.f_C & 7) == 3) {
+                Sound_PlayFixed_8013FA2C(0x95);
+            }
+        }
+        if (D_8014188C >= 0x1F) {
+            Camera_StartShake(2);
+            func_8013DE6C();
+        } else {
+            Camera_StartShake(0);
+            func_8013DE44();
+        }
+        break;
+    }
+    b->x = b->x < 0x80 ? 0x80 : b->x > 0xB80 ? 0xB80 : b->x;
+    if ((u32)(D_80141881_8013FA2C - 0xE) < 3 || (u32)(b->f_86 - 1) < 3) {
+        {
+            s32 i;
+            for (i = 2; i >= 0; i--) {
+                s80.vx = b->x + ((RAND_8013FA2C() >> 8) - 0x80) * 2;
+                s80.vy = b->y - (((RAND_8013FA2C() >> 8) & 0x7F) + 0x80);
+                s80.vz = b->z + ((RAND_8013FA2C() >> 8) - 0x80) * 2;
+                if (i == 0 && b->f_86 < 3) {
+                    func_8006D548_8013FA2C(&s80);
+                } else {
+                    Effect_SpawnAt(7, &s80);
+                }
+            }
+        }
+    }
+    if (D_80141880_8013FA2C.f_1 == 0x19) {
+        if (D_80141880_8013FA2C.f_1D == 0) {
+            func_8013EFCC((u8 *)b);
+        }
+    } else {
+        func_8013EF44(b);
+        func_8004637C_8013FA2C(&m);
+        RotMatrixY_8013FA2C(b->f_7C, &m);
+        ApplyMatrixSV_8013FA2C(&m, &b->f_60, &b->f_60);
+        VectorNormalSS(&b->f_60, &b->f_60);
+        func_8013EFCC((u8 *)b);
+        D_801422F8_8013FA2C.x = b->x;
+        D_801422F8_8013FA2C.y = b->y - 0x80;
+        D_801422F8_8013FA2C.z = b->z - 0x200;
+        if (b->f_93 != 0) {
+            b->f_93--;
+        }
+        if (b->f_92 != 0) {
+            b->f_92--;
+        }
+    }
+    if (D_80141880_8013FA2C.f_1 != 0x19 && (D_801422F8_8013FA2C.f_50 >> 28) == 0xB && b->f_93 == 0) {
+        Shape_8013FA2C *sh = Collision_GetShape_8013FA2C(M2C_FIELD(b, u16 *, 0x50) & 0xFFF);
+        s88.vx = D_801422F8_8013FA2C.x;
+        s88.vy = D_801422F8_8013FA2C.y - 0x80;
+        s88.vz = D_801422F8_8013FA2C.z - 0x80;
+        if ((D_80141880_8013FA2C.f_1 == 0xE || D_80141880_8013FA2C.f_1 == 0x10)
+            && (sh->f_24 & 0xFF00) != 0xD00 && (sh->f_24 & 0xFF00) != 0xF00) {
+            func_8013D8E4(&s88);
+            Camera_StartShake(0);
+            Effect_SpawnAt(0x102, &s88);
+            Fx_SpawnFadeRing_8013FA2C(&s88, 0, 0x300, 0);
+            func_8013EF00(0x18);
+            func_8013EF0C(b, 3);
+            b->f_7B = 1;
+            D_80141880_8013FA2C.f_C = 0x14;
+            if (b->x > D_800EC204_8013FA2C.x) {
+                b->f_88 = 0x80;
+            } else {
+                b->f_88 = -0x80;
+            }
+            Sound_PlayFixed_8013FA2C(0x4D);
+            Sound_PlayFixed_8013FA2C(0x82);
+            if (--b->f_86 == 0) {
+                func_8013E1AC();
+                func_8013EF00(0x19);
+                D_8014188C = 0x82;
+                Spike_SetPlayMode_8013FA2C(0xE);
+            }
+        } else {
+            Effect_SpawnAt(0x117, &s88);
+            Camera_StartShake(0);
+            Sound_PlayFixed_8013FA2C(0x60);
+        }
+        func_8013DE1C();
+        b->f_93 = 0x10;
+    }
+    if (D_80141880_8013FA2C.f_1 != 0x19 && (b->f_50 >> 28) == 0xB && !(M2C_FIELD(b, u32 *, 0x90) & 0xFFFF0000)
+        && D_80141880_8013FA2C.f_1 != 0xE && D_80141880_8013FA2C.f_1 != 0x18) {
+        Shape_8013FA2C *sh = Collision_GetShape_8013FA2C(M2C_FIELD(b, u16 *, 0x50) & 0xFFF);
+        s32 id = Collision_GetId_8013FA2C(M2C_FIELD(b, u16 *, 0x50) & 0xFFF);
+        s32 c;
+        s90.vy = -0xA00;
+        s90.vx = b->x;
+        s90.vz = b->z;
+        func_80070284_8013FA2C(&s90, D_8014175C, 1, 0, NULL);
+        c = sh->f_24 & 0xFF00;
+        if (c != 0xD00 && c != 0xE00 && c != 0xF00 && id != 2) {
+            s98.vy = 0;
+            s98.vx = g_Spike_8013FA2C.x - b->x;
+            s98.vz = g_Spike_8013FA2C.z - b->z;
+            VectorNormalSS(&s98, &s98);
+            D_80141880_8013FA2C.f_2 = 0x14;
+            D_80141880_8013FA2C.f_4 = s98.vx / 32;
+            D_80141880_8013FA2C.f_6 = 0;
+            D_80141880_8013FA2C.f_8 = s98.vz / 32;
+            Effect_SpawnAt(0x112, D_800B4D88_8013FA2C);
+        }
+        Camera_StartShake(0);
+        Sound_PlayFixed_8013FA2C(0x82);
+        Sound_PlayFixed_8013FA2C(0x4B);
+        func_8013DE1C();
+        b->f_92 = 0x10;
+    }
+    func_8013DA4C_8013FA2C();
+    func_8013ECD4();
+    if (D_80141881_8013FA2C != 0x19) {
+        func_8013F6F8();
+        func_8013E2BC();
+        func_8013F0E0();
+    }
+}
+
+/* the original text ends with padding words after the last function */
+__asm__(".section .text\n\tnop\n\tnop");

@@ -238,7 +238,119 @@ void func_8013D810(SVECTOR *v) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013D860);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_8013D860;
+typedef struct { s32 x, y, z; u8 padC[0x14]; s16 f_20; s16 f_22; u16 f_24; u16 f_26; u8 pad28[4]; u32 f_2C; } Coll_8013D860;
+typedef struct { s16 x, y, z, pad6; s16 f_8, f_A, f_C; u8 f_E; u8 padF; s16 f_10, f_12, f_14, f_16; u32 f_18; u32 f_1C; Mat_8013D860 mat; Coll_8013D860 *coll; u8 state; u8 armed; s16 timer; } Wave_8013D860;
+extern Wave_8013D860 D_80140900_8013D860 asm("D_80140900");
+extern Mat_8013D860 D_800B1BB0_8013D860 asm("D_800B1BB0");
+extern s32 D_801408C4;
+extern u8 D_80140394[];
+s32 Sound_PlayFixed_8013D860(s32) asm("Sound_PlayFixed");
+s32 Camera_StartShake_8013D860(s32) asm("Camera_StartShake");
+void Effect_Spawn_8013D860(s32, SVECTOR *, void *, s32) asm("Effect_Spawn");
+Coll_8013D860 *CollShape_Alloc_8013D860(void) asm("CollShape_Alloc");
+void Shockwave_Draw_8013D860(void *) asm("Shockwave_Draw");
+s32 rcos(s32);
+int abs(int);
+s32 rsin(s32);
+#define RAND_8013D860() (g_RandSeed = g_RandSeed * 5 + 1)
+
+void func_8013D860(void) {
+    Wave_8013D860 *s = &D_80140900_8013D860;
+    Wave_8013D860 *w;
+    SVECTOR v;
+    s32 i;
+    s32 ang;
+    s32 d;
+    s16 dd;
+    s32 r10;
+    s32 r12;
+    u32 c;
+
+    if (s->state == 1) {
+        if (--s->timer == 0) {
+            s->state = 2;
+            Sound_PlayFixed_8013D860(0x8E);
+            Sound_PlayFixed_8013D860(0x92);
+            Sound_PlayFixed_8013D860(0x95);
+        }
+    }
+    if (s->state == 2) {
+        if (++s->timer >= 0x1F) {
+            s->state = 3;
+            s->armed = 1;
+            s->f_E = 0x20;
+            s->f_14 = 0x38E;
+            s->f_16 = 0x7C2C;
+            s->timer = 0;
+            s->f_C = 0;
+            s->f_A = 0;
+            s->f_18 = 0x3F2F0008;
+            s->f_1C = 0x909090;
+            s->mat = D_800B1BB0_8013D860;
+            Camera_StartShake_8013D860(1);
+            func_8013E8C0();
+            D_801408C4 = 0x3C;
+            Sound_PlayFixed_8013D860(0x94);
+            Sound_PlayFixed_8013D860(0x95);
+        } else {
+            s32 i;
+            for (i = 0; i < 4; i++) {
+                v.vx = ((RAND_8013D860() >> 8) - 0x80) * 4;
+                v.vy = -0x3800;
+                v.vz = 0x10B8;
+                Effect_Spawn_8013D860(i / 2 + 0xC9, &v, D_80140394, 0);
+            }
+            Camera_StartShake_8013D860(0);
+        }
+    }
+    if (s->state == 3) {
+        s->f_8 = -0x200;
+        s->f_10 = s->timer * 0x60 + (s16)(((RAND_8013D860() >> 8) - 0x80) / 2 + 0x100);
+        s->f_12 = s->timer * 0x60 + ((RAND_8013D860() >> 8) - 0x80) / 2;
+        s->mat = D_800B1BB0_8013D860;
+        s->f_1C += 0xFFFDFDFE;
+        w = s;
+        if (s->coll != NULL && (s->coll->f_2C >> 28) == 6) {
+            s->armed = 0;
+        } else if (s->armed != 0 && (s->coll = CollShape_Alloc_8013D860()) != NULL) {
+            dd = w->f_10 - w->f_12;
+            s->coll->x = w->x;
+            s->coll->y = w->y - 0x80;
+            s->coll->z = w->z;
+            s->coll->f_20 = w->f_10;
+            s->coll->f_22 = abs(dd);
+            s->coll->f_24 = 0x201;
+            s->coll->f_26 = 0x200;
+            Collision_Set(0x10, s->coll, 0);
+        }
+        Shockwave_Draw_8013D860(w);
+        r10 = w->f_10;
+        c = w->f_1C;
+        r12 = w->f_12;
+        w->f_10 = (s16)(w->f_10 - 0x100) + ((RAND_8013D860() >> 8) - 0x80) / 2;
+        w->f_1C = (w->f_1C & 0xFEFEFE) >> 1;
+        w->f_12 = (s16)(w->f_12 - 0x100) + ((RAND_8013D860() >> 8) - 0x80) / 2;
+        Shockwave_Draw_8013D860(w);
+        w->f_10 = r10;
+        w->f_12 = r12;
+        w->f_1C = c;
+        ang = (RAND_8013D860() >> 8) * 8 + 0x800;
+        for (i = 0; i < 8; i++) {
+            v.vx = (rcos(ang) * w->f_10) >> 12;
+            v.vy = -0x3680;
+            v.vz = ((rsin(ang) * w->f_10) >> 12) + 0x12B8;
+            Effect_Spawn_8013D860(i / 4 + 0xC9, &v, D_80140394, 0);
+        }
+        if (((RAND_8013D860() >> 8) & 0x1F) == 0) {
+            Sound_PlayFixed_8013D860(0x95);
+            Camera_StartShake_8013D860(0);
+        }
+        if (++s->timer >= 0x29) {
+            s->state = 0;
+        }
+    }
+}
 
 typedef struct { u8 pad0[0x54]; u8 f_54; u8 pad55[7]; } Slot_421;
 extern Slot_421 D_80140948[4];

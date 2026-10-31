@@ -2631,7 +2631,106 @@ void func_8013D528(void) {
     D_8013F402 = 1;
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013D578);
+typedef struct { s32 vx; s32 vy; s32 vz; s32 pad; } Vec_8013D578;
+typedef struct { u8 pad0[0x20]; SVECTOR sv; u8 pad28[0x18]; Vec_8013D578 v; } Scr_8013D578;
+extern struct { u32 frame; } g_Game_8013D578 asm("g_Game");
+extern struct { u8 pad0[0x20]; s8 f_20; s8 f_21; s8 f_22; s8 f_23; u8 pad24[8]; SVECTOR f_2C; u8 pad34[2]; s16 f_36; } D_8013FBF8_8013D578 asm("D_8013FBF8");
+extern s8 D_8013F3D7;
+extern s8 D_8013F3D8;
+extern s8 D_8013F3D9;
+extern s8 D_8013F3DA;
+void func_8013D044();
+
+void func_8013D578(void) {
+    register s32 a asm("$17") = 0;
+    register s32 b asm("$19") = 0;
+    register s32 c asm("$21") = 0;
+    register s32 d asm("$20") = 0;
+    s32 n;
+    s32 m;
+    s32 t;
+    s32 t2;
+    Scr_8013D578 *s = (Scr_8013D578 *)0x1F800000;
+
+    do {
+    if (g_Game_8013D578.frame < 0x80) goto L80;
+    if (g_Game_8013D578.frame < 0x100) goto L100;
+    if (g_Game_8013D578.frame < 0x280) goto L280;
+    if (g_Game_8013D578.frame < 0x380) goto L380;
+    if (g_Game_8013D578.frame == 0x3A0 || g_Game_8013D578.frame == 0x460) {
+        s->v.vx = 0x600;
+        s->sv.vx = 0x1000;
+        s->sv.vy = 0;
+        s->sv.vz = 0;
+        s->v.vy = D_8013FD70_80136704[0].y;
+        s->v.vz = D_8013FD70_80136704[0].z;
+        func_8013B8B8(1, &s->v, &s->sv);
+    }
+    if (g_Game_8013D578.frame < 0x480) goto L3;
+    func_8013D044(0);
+    if (g_Game_8013D578.frame < 0x680) {
+        c = rsin(g_Game_8013D578.frame << 5) >> 5;
+        d = rcos(g_Game_8013D578.frame << 5) >> 5;
+    }
+CLAMP:
+    if (b < -0x7F) {
+        t = -0x7F;
+    } else if (b < 0x80) {
+        t = b;
+    } else {
+        t = 0x7F;
+    }
+    goto REST;
+L3:
+    func_8013D044(3);
+    goto CLAMP;
+L380:
+    c = rsin(g_Game_8013D578.frame << 5) >> 5;
+    d = rcos(g_Game_8013D578.frame << 5) >> 5;
+    func_8013D044(2);
+    goto CLAMP;
+L280:
+    a = rsin(g_Game_8013D578.frame << 5) >> 5;
+    b = rcos(g_Game_8013D578.frame << 5) >> 5;
+    goto L1;
+L100:
+    a = rsin(g_Game_8013D578.frame << 5) >> 5;
+    goto L1;
+L80:
+    b = rsin(g_Game_8013D578.frame << 5) >> 5;
+L1:
+    func_8013D044(1);
+    goto CLAMP;
+REST:
+    b = t;
+    t2 = (a < -0x7F) ? -0x7F : (a >= 0x80) ? 0x7F : a;
+    D_8013F3D7 = D_8013FBF8_8013D578.f_22 = func_800463A4(D_8013F3D7, t2, 0x20);
+    D_8013F3D8 = D_8013FBF8_8013D578.f_23 = func_800463A4(D_8013F3D8, b, 0x20);
+    if (d < -0x7F) {
+        t = -0x7F;
+    } else if (d < 0x80) {
+        t = d;
+    } else {
+        t = 0x7F;
+    }
+    d = t;
+    t2 = (c < -0x7F) ? -0x7F : (c >= 0x80) ? 0x7F : c;
+    D_8013F3D9 = D_8013FBF8_8013D578.f_20 = func_800463A4(D_8013F3D9, t2, 0x20);
+    D_8013F3DA = D_8013FBF8_8013D578.f_21 = func_800463A4(D_8013F3DA, d, 0x20);
+    s->sv.vy = D_8013F3DA;
+    s->sv.vz = 0;
+    s->sv.vx = D_8013F3D9;
+    n = VectorNormalSS(&s->sv, &D_8013FBF8_8013D578.f_2C) / 128;
+    n = (n < 21) ? 0 : n - 21;
+    n = n * 127 / 106;
+    if (n < 0x80) {
+        m = n;
+    } else {
+        m = 0x7F;
+    }
+    D_8013FBF8_8013D578.f_36 = m;
+    } while (0);
+}
 
 void func_8013D8B8(void) {
     D_8013FE60.f_24 = 0x600;
@@ -2721,7 +2820,6 @@ extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100
 extern struct { u32 f_0; u32 f_4; u32 f_8; u32 f_C; } D_8013FBF8_8013DB7C asm("D_8013FBF8");
 extern struct { u8 pad0[0x28]; s32 y; } D_8013FD70_8013DB7C asm("D_8013FD70");
 void func_8013D044();
-void func_8013D578();
 void func_8013D8B8(void);
 void func_8013D910(void);
 void func_8013DAF0(s32 arg0, s32 arg1);

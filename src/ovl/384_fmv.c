@@ -115,7 +115,53 @@ loop_1:
     } while (CdRead2(arg1) == 0);
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801364B0);
+extern struct { u8 pad0[0x158]; u16 f_158; u8 pad15A[2]; s32 f_15C; } g_Pad_801364B0 asm("g_Pad");
+s32 CdControlB(s32, void *, void *);
+s32 CdReady(s32 mode, u8 *result);
+s32 CdPosToInt(void *p);
+void func_8001325C(s32);
+
+void func_801364B0(u8 *pos, u8 *end, u8 mode, s32 seek) {
+    u8 result[8];
+    u8 loc[8];
+    u8 param[4];
+    s32 last;
+    u32 i;
+    s32 r;
+
+    __asm__ volatile("");
+    param[0] = 1;
+    param[1] = mode;
+    *(u16 *)&param[2] = 0;
+    CdPosToInt(pos);
+    last = CdPosToInt(end);
+    do {
+        if (seek) {
+            i = 0;
+            do {
+                CdControl(0xD, param, 0);
+                CdControl(0x15, pos, 0);
+                CdControl(0x1B, 0, 0);
+                r = CdSync(0, 0);
+                i++;
+                if (r == 2) {
+                    break;
+                }
+            } while (i < 100);
+            CdReady(0, 0);
+            seek = 0;
+        }
+        CdControl(0x10, 0, result);
+        loc[0] = result[0];
+        loc[1] = result[1];
+        loc[2] = result[2];
+        if ((u32)last < (u32)CdPosToInt(loc)) {
+            seek = 1;
+        }
+        func_8001325C(0);
+    } while ((g_Pad_801364B0.f_158 | (g_Pad_801364B0.f_15C << 16)) == 0);
+    CdControlB(9, 0, 0);
+}
 
 typedef struct { u8 r, g, b, cd; } Col_384b;
 extern s32 D_8013C488;
@@ -312,7 +358,84 @@ void func_801369E0(s32 arg0) {
     DrawSync(0);
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80136BD4);
+typedef struct { s16 x, y, w, h; } Rect_80136BD4;
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_80136BD4;
+typedef struct { u8 pad0[0x10]; u32 b0 : 1; u32 b1 : 1; u32 b2 : 1; u32 b3 : 1; u32 rest : 28; } Fmv_80136BD4;
+typedef struct { Rect_80136BD4 clip; s16 ofs[2]; Rect_80136BD4 tw; u16 tpage; u8 dtd, dfe, isbg, r0, g0, b0; u32 dr_env[16]; } DrawEnv_80136BD4;
+typedef struct { Rect_80136BD4 disp; Rect_80136BD4 screen; u8 isinter, isrgb24, pad0, pad1; } DispEnv_80136BD4;
+typedef struct { DrawEnv_80136BD4 draw; DispEnv_80136BD4 disp; u32 ot[0x1000]; u32 hud; u8 *primbase; } Db_80136BD4;
+extern struct { u8 pad0[0x10]; Db_80136BD4 db[2]; } g_Game_80136BD4 asm("g_Game");
+extern Rect_80136BD4 D_8013C050;
+extern Fmv_80136BD4 *D_8013C484_80136BD4 asm("D_8013C484");
+extern struct { u8 pad0[0x1C]; s32 f_1C; u8 f_20, f_21, f_22, f_23; s32 f_24; s32 f_28; } D_800EBFA0_80136BD4 asm("D_800EBFA0");
+void *memset(void *, s32, s32);
+void SetGeomOffset(s32 ofx, s32 ofy);
+void SetDefDrawEnv(void *, s32, s32, s32, s32);
+void *SetDefDispEnv(void *env, s32 x, s32 y, s32 w, s32 h);
+void SetBackColor(s32, s32, s32);
+void SetColorMatrix(void *);
+
+void func_80136BD4(void) {
+    s32 o[2];
+    Rect_80136BD4 r;
+    Mat_80136BD4 cm;
+    u16 *scr;
+    s32 f;
+    Db_80136BD4 *d0;
+    Db_80136BD4 *d1;
+
+    r = D_8013C050;
+    memset(&cm, 0, 0x20);
+    func_8002FAF0(0x148);
+    SetGeomOffset(0xC0, 0x78);
+    scr = (u16 *)0x1F800000;
+    if (D_8013C484_80136BD4->b3 == 1) {
+        o[0] = 0x1E;
+        o[1] = 0x3C;
+    } else {
+        o[1] = 0;
+        o[0] = 0;
+    }
+    d0 = &g_Game_80136BD4.db[0];
+    SetDefDrawEnv(&d0->draw, 0, o[0], 0x180, 0xF0 - o[1]);
+    SetDefDispEnv(&d0->disp, 0, 0x100, 0x180, 0xF0);
+    d1 = &g_Game_80136BD4.db[1];
+    g_Game_80136BD4.db[0].draw.ofs[1] = 0;
+    g_Game_80136BD4.db[0].draw.ofs[0] = 0;
+    SetDefDrawEnv(&d1->draw, 0, o[0] + 0x100, 0x180, 0xF0 - o[1]);
+    SetDefDispEnv(&g_Game_80136BD4.db[1].disp, 0, 0, 0x180, 0xF0);
+    g_Game_80136BD4.db[1].draw.ofs[1] = 0x100;
+    g_Game_80136BD4.db[1].draw.ofs[0] = 0;
+    g_Game_80136BD4.db[0].primbase = (u8 *)0x801C6000;
+    g_Game_80136BD4.db[1].primbase = (u8 *)0x801DF000;
+    g_Game_80136BD4.db[1].draw.dtd = 1;
+    g_Game_80136BD4.db[0].draw.dtd = 1;
+    g_Game_80136BD4.db[1].draw.dfe = 0;
+    g_Game_80136BD4.db[0].draw.dfe = 0;
+    f = D_8013C484_80136BD4->b2;
+    g_Game_80136BD4.db[1].disp.isinter = 0;
+    g_Game_80136BD4.db[0].disp.isinter = 0;
+    d0->draw.r0 = 0;
+    d0->draw.g0 = 0;
+    d0->draw.b0 = 0;
+    d1->draw.r0 = 0;
+    d1->draw.g0 = 0;
+    d1->draw.b0 = 0;
+    D_800EBFA0_80136BD4.f_23 = 0;
+    D_800EBFA0_80136BD4.f_22 = 0xFF;
+    D_800EBFA0_80136BD4.f_21 = 0xFF;
+    D_800EBFA0_80136BD4.f_20 = 0xFF;
+    g_Game_80136BD4.db[1].draw.isbg = f;
+    g_Game_80136BD4.db[0].draw.isbg = f;
+    SetBackColor(0xFF, 0xFF, 0xFF);
+    SetColorMatrix(&cm);
+    D_800EBFA0_80136BD4.f_24 = 0;
+    D_800EBFA0_80136BD4.f_28 = 0x2000;
+    scr[0x1E0] = D_800EBFA0_80136BD4.f_24;
+    scr[0x1E1] = D_800EBFA0_80136BD4.f_28;
+    D_800EBFA0_80136BD4.f_1C = 0;
+    DrawSync(0);
+}
 
 s32 StGetNext(void *, void *);
 
@@ -1076,7 +1199,125 @@ void func_80139124(u8 *arg0, u8 *col) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_801391C8);
+typedef struct { s16 x, y, w, h; } Rect_801391C8;
+typedef struct { s16 m[3][3]; s32 t[3]; } Mat_801391C8;
+typedef struct { SVECTOR v[4]; SVECTOR b[4]; } Quads_801391C8;
+typedef struct { u8 tag[3]; u8 len; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad1; s16 x3, y3; u8 u3, v3; u16 pad2; } PolyFT4_801391C8;
+typedef struct { u8 tag[3]; u8 len; u8 r0, g0, b0, code; s16 x0, y0; s16 x1, y1; s16 x2, y2; s16 x3, y3; } PolyF4_801391C8;
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_801391C8 asm("g_Game");
+extern Quads_801391C8 D_8013C4F0_801391C8 asm("D_8013C4F0");
+extern Mat_801391C8 D_800AF0A0_801391C8 asm("D_800AF0A0");
+extern s32 D_8013C534;
+void *MulMatrix0(void *, void *, void *);
+void ApplyMatrixSV(void *, void *, void *);
+#define ADDPRIM1_801391C8(ot, p) __asm__ volatile("addiu %0, %0, 4\n\tlwl $4, 2(%0)\n\tsll $3, %2, 8\n\tswl $3, 2(%0)\n\tswl $4, %1" : : "r"(ot), "m"(*((u8 *)(p) + 2)), "r"(p) : "$3", "$4")
+
+void func_801391C8(u8 *arg0, s32 *arg1) {
+    Rect_801391C8 r;
+    Rect_801391C8 r2;
+    Mat_801391C8 m;
+    Quads_801391C8 q;
+    PolyFT4_801391C8 *p;
+    PolyF4_801391C8 *f;
+    u8 *d;
+    s32 s;
+    s32 i;
+
+    s = *arg1;
+    __asm__ volatile("");
+    r2.x = 0;
+    { register u8 *e asm("$2") = (u8 *)(g_Game_801391C8.cur * 0x4078) + (s32)&g_Game_801391C8; r2.y = *(s16 *)(e + 0x6E); }
+    r2.w = 0x180;
+    r2.h = 0xF0;
+    r = r2;
+    m.m[0][0] = s;
+    m.m[0][1] = 0;
+    m.m[0][2] = 0;
+    m.m[1][0] = 0;
+    m.m[1][1] = s;
+    m.m[1][2] = 0;
+    m.m[2][0] = 0;
+    m.m[2][1] = 0;
+    m.m[2][2] = s;
+    memset(m.t, 0, 12);
+    q = D_8013C4F0_801391C8;
+    MulMatrix0(&D_800AF0A0_801391C8, &m, &m);
+    for (i = 3; i >= 0; i--) {
+        ApplyMatrixSV(&m, &q.v[i], &q.v[i]);
+        q.v[i].vx += 0xC0;
+        q.v[i].vy += 0x78;
+    }
+    p = (PolyFT4_801391C8 *)g_Game_801391C8.prim;
+    p->len = 9;
+    p->code = 0x2D;
+    p->x0 = q.v[0].vx;
+    p->y0 = q.v[0].vy;
+    p->x1 = q.v[1].vx;
+    p->y1 = q.v[1].vy;
+    p->x2 = q.v[2].vx;
+    p->y2 = q.v[2].vy;
+    p->x3 = q.v[3].vx;
+    p->y3 = q.v[3].vy;
+    p->u0 = 0;
+    p->v0 = 0x1E;
+    p->u1 = 0xBF;
+    p->v1 = 0x1E;
+    p->u2 = 0;
+    p->v2 = 0xD1;
+    p->u3 = 0xBF;
+    p->v3 = 0xD1;
+    p->tpage = 0x10A;
+    ADD_PRIM_R(&g_Game_801391C8.db[g_Game_801391C8.cur].ot[1], p, "$3", "$2");
+    p++;
+    for (i = 3; i >= 0; i--) {
+        ApplyMatrixSV(&m, &q.b[i], &q.b[i]);
+        q.b[i].vx += 0xC0;
+        q.b[i].vy += 0x78;
+    }
+    p->len = 9;
+    p->code = 0x2D;
+    p->x0 = q.b[0].vx;
+    p->y0 = q.b[0].vy;
+    p->x1 = q.b[1].vx;
+    p->y1 = q.b[1].vy;
+    p->x2 = q.b[2].vx;
+    p->y2 = q.b[2].vy;
+    p->x3 = q.b[3].vx;
+    p->y3 = q.b[3].vy;
+    p->u0 = 0;
+    p->v0 = 0x1E;
+    p->u1 = 0xBF;
+    p->v1 = 0x1E;
+    p->u2 = 0;
+    p->v2 = 0xD1;
+    p->u3 = 0xBF;
+    p->v3 = 0xD1;
+    p->tpage = 0x10D;
+    ADDPRIM1_801391C8((u32 *)(g_Game_801391C8.cur * 0x4078 + ((u8 *)&g_Game_801391C8 + 0x80)), p);
+    p++;
+    f = (PolyF4_801391C8 *)p;
+    f->len = 5;
+    f->code = 0x28;
+    f->r0 = 1;
+    f->g0 = 1;
+    f->b0 = 1;
+    f->x0 = 0;
+    f->y0 = 0;
+    f->x1 = 0x180;
+    f->y1 = 0;
+    f->x2 = 0;
+    f->y2 = 0xF0;
+    f->x3 = 0x180;
+    f->y3 = 0xF0;
+    ADDPRIM1_801391C8((u32 *)(g_Game_801391C8.cur * 0x4078 + ((u8 *)&g_Game_801391C8 + 0x80)), f);
+    d = (u8 *)(f + 1);
+    g_Game_801391C8.prim = d;
+    if (D_8013C534 != 0) {
+        D_8013C534 = 0;
+        SetDrawMove(d, &r, 0x280, 0);
+        ADDPRIM1_801391C8((u32 *)(g_Game_801391C8.cur * 0x4078 + ((u8 *)&g_Game_801391C8 + 0x80)), d);
+    }
+}
 
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_80139668;
 typedef struct { s32 vx, vy, vz, pad; } Vec_80139668;
@@ -1324,7 +1565,50 @@ void func_8013A460(Pt_8013A460 *pos, s16 a, s16 b) {
     D_8013C6FC = 1;
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013A684);
+extern SVECTOR D_8013C590_8013A684[4][15] asm("D_8013C590");
+void gteMIMefunc(void *, void *, s32, s32);
+
+u8 *func_8013A684(u32 *ot, u8 *p, s16 *c, s32 n) {
+    Pt_8013A460 pos;
+    s32 i;
+    s32 k;
+    SVECTOR *v;
+
+    v = D_8013C590_8013A684[0];
+    if (*(s32 *)&v[45].vz == 0) {
+        memset(&pos, 0, 4);
+        func_8013A460(&pos, 0x180, 0xF0);
+    }
+    for (i = 0; i < 15; i++) {
+        *(s32 *)&v[i] = *(s32 *)c;
+    }
+    gteMIMefunc(D_8013C590_8013A684[0], D_8013C590_8013A684[1], 15, n);
+    ((u8 *)&D_8013C590_8013A684[3][0])[3] = 0x29;
+    for (i = 0; i < 14; i++) {
+        p[3] = 5;
+        *(s32 *)(p + 4) = *(s32 *)&D_8013C590_8013A684[3][0];
+        *(s32 *)(p + 8) = *(s32 *)&D_8013C590_8013A684[0][i + 1];
+        *(s32 *)(p + 0xC) = *(s32 *)&D_8013C590_8013A684[0][i];
+        *(s16 *)(p + 0x10) = D_8013C590_8013A684[2][i + 1].vx + c[0];
+        *(s16 *)(p + 0x12) = D_8013C590_8013A684[2][i + 1].vy + c[1];
+        *(s16 *)(p + 0x14) = D_8013C590_8013A684[2][i].vx + c[0];
+        *(s16 *)(p + 0x16) = D_8013C590_8013A684[2][i].vy + c[1];
+        ADD_PRIM_R(ot, p, "$3", "$2");
+        p += 0x18;
+    }
+    p[3] = 5;
+    *(s32 *)(p + 4) = *(s32 *)&D_8013C590_8013A684[3][0];
+    *(s32 *)(p + 8) = *(s32 *)&D_8013C590_8013A684[0][0];
+    *(s32 *)(p + 0xC) = *(s32 *)&D_8013C590_8013A684[0][i];
+    *(s16 *)(p + 0x10) = D_8013C590_8013A684[2][0].vx + c[0];
+    *(s16 *)(p + 0x12) = D_8013C590_8013A684[2][0].vy + c[1];
+    *(s16 *)(p + 0x14) = D_8013C590_8013A684[2][i].vx + c[0];
+    *(s16 *)(p + 0x16) = D_8013C590_8013A684[2][i].vy + c[1];
+    ADD_PRIM_R(ot, p, "$3", "$2");
+    return p + 0x18;
+}
+
+__asm__(".section .text\n.balign 16");
 
 typedef struct { u16 lo, hi, off, n; } Sub_8013A8A0;
 typedef struct { s16 x, y, w, h; } Rect_8013A8A0;
