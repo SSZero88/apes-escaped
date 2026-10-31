@@ -240,7 +240,41 @@ void DebugFont_DrawWord(s16 word) {
     G_DRAW_8CC80.prim = (void *)t;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8008C390_debug_font", DebugFont_DrawIcon);
+typedef struct { u16 x, px, y, py; } Con16_8CF04;
+#define C16 (*(Con16_8CF04 *)&D_800DF7D8)
+typedef struct { u32 addr : 24; u32 len : 8; } P_TAG_8CF04;
+typedef struct { P_TAG_8CF04 tag; u32 rgbc; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8CF04;
+typedef struct { P_TAG_8CF04 tag; u32 code; } DrTpage_8CF04;
+
+void DebugFont_DrawIcon(s16 n) {
+    Sprt_8CF04 *p = (Sprt_8CF04 *)G_DRAW.prim;
+    u32 *ot = G_HUD_OT;
+    s32 r;
+    s16 col;
+
+    p->rgbc = 0x808080;
+    p->tag.len = 4;
+    ((u8 *)p)[7] = 0x64;
+    p->clut = 0x3FDC;
+    p->w = 0x18;
+    p->h = 0x18;
+    p->u0 = (n % 5) * 24;
+    p->v0 = (n / 5) * 24 - 0x80;
+    p->x0 = C16.x;
+    p->y0 = C16.y;
+    p->tag.addr = ((P_TAG_8CF04 *)ot)->addr;
+    ((P_TAG_8CF04 *)ot)->addr = (u32)p;
+    p++;
+    {
+        DrTpage_8CF04 *t = (DrTpage_8CF04 *)p;
+        t->tag.len = 1;
+        t->code = 0xE100028D;
+        t->tag.addr = ((P_TAG_8CF04 *)ot)->addr;
+        ((P_TAG_8CF04 *)ot)->addr = (u32)t;
+        t++;
+        G_DRAW.prim = (u8 *)t;
+    }
+}
 
 extern void *D_800DF7A0[8];
 extern s16 D_800DF7C0[8];
@@ -279,7 +313,124 @@ INCLUDE_ASM("asm/nonmatchings/game/8008C390_debug_font", MinigameMenu_Main);
 INCLUDE_RODATA("asm/nonmatchings/game/8008C390_debug_font", D_800A6464);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/8008C390_debug_font", MinigameMenu_Update);
+/* entry 0 (the back) of the current buffer's world OT, addressed from g_Game + 0x80 */
+#define OT_8D514 (*(PT_8D514 *)(G_DRAW.cur * 0x4078 + ((u8 *)&G_DRAW + 0x80)))
+#define P_8D514 ((PolyG4_8D514 *)G_DRAW.prim)
+typedef struct { u32 addr : 24; u32 len : 8; } PT_8D514;
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, p1; s16 x1, y1; u8 r2, g2, b2, p2; s16 x2, y2; u8 r3, g3, b3, p3; s16 x3, y3; } PolyG4_8D514;
+typedef struct { u8 pad0[0x158]; s32 held; u8 pad15C[4]; s32 pressed; } Pad_8D514;
+extern Pad_8D514 g_Pad_8D514 asm("g_Pad");
+extern char D_800A646C[];
+extern char D_800A647C[];
+extern s32 D_800B35D0;
+extern s32 D_800B35D4[];
+extern s32 D_800B3600[];
+extern s32 D_800B3618;
+extern s32 D_800B361C;
+extern s32 D_800B3620[];
+extern s32 D_800B362C;
+extern s32 D_800B3630;
+void func_8008CC60(s32, s32);
+s32 Sound_PlayFixed(s32);
+
+/* The minigame menu (two rows of D_800B3620 text under the D_800A646C title, a translucent Gouraud
+   bar behind the selected row). Start returns the row (MinigameMenu_Main runs that minigame),
+   Select returns 999 (back), up/down move the cursor. Returns -1 while nothing is chosen. The cursor
+   only reaches rows 0-1, so the left/right selectors for rows 3 and 4 (D_800B35D4 / D_800B3600 lists)
+   never run. */
+s32 MinigameMenu_Update(void) {
+    s32 i;
+    s32 btn;
+
+    func_8008CC60(0x82, 0x46);
+    func_8008CBFC(D_800A646C);
+    for (i = 0; i < 2; i++) {
+        func_8008CC60(0xA0, i * 0xF + 0x6C);
+        func_8008CBFC(D_800A647C, D_800B3620[i]);
+    }
+
+    ((u8 *)P_8D514)[3] = 8;
+    P_8D514->code = 0x38;
+    P_8D514->code |= 2;
+    P_8D514->x0 = 0x90;
+    {s32 by = D_800B35D0 * 0xF;
+    P_8D514->y0 = by + 0x6E;
+    P_8D514->x1 = 0x108;
+    P_8D514->y1 = by + 0x6E;
+    P_8D514->x2 = 0x90;
+    P_8D514->y2 = by + 0x75;
+    P_8D514->x3 = 0x108;
+    P_8D514->y3 = by + 0x75;}
+    P_8D514->r0 = 0xF5;
+    P_8D514->g0 = 0xDC;
+    P_8D514->b0 = 0xC8;
+    P_8D514->r1 = 0xE6;
+    P_8D514->g1 = 0x46;
+    P_8D514->b1 = 0x28;
+    P_8D514->r2 = 0xC4;
+    P_8D514->g2 = 0x46;
+    P_8D514->b2 = 0x3C;
+    P_8D514->r3 = 0x5F;
+    P_8D514->g3 = 0xA;
+    P_8D514->b3 = 8;
+    ((PT_8D514 *)P_8D514)->addr = OT_8D514.addr;
+    OT_8D514.addr = (u32)P_8D514;
+    G_DRAW.prim = (u8 *)(P_8D514 + 1);
+    if ((g_Pad_8D514.pressed & g_Pad_8D514.held) & 0x800) {
+        Sound_PlayFixed(2);
+        if (D_800B35D0 < 2) {
+            return D_800B35D0;
+        }
+    } else if ((g_Pad_8D514.pressed & g_Pad_8D514.held) & 0x100) {
+        Sound_PlayFixed(2);
+        return 999;
+    } else if ((g_Pad_8D514.pressed & g_Pad_8D514.held) & 0x1000) {
+        Sound_PlayFixed(0);
+        if (--D_800B35D0 < 0) {
+            D_800B35D0 = 1;
+        }
+    } else if ((g_Pad_8D514.pressed & g_Pad_8D514.held) & 0x4000) {
+        Sound_PlayFixed(0);
+        if (++D_800B35D0 >= 2) {
+            D_800B35D0 = 0;
+        }
+    }
+    if (D_800B35D0 == 3) {
+        for (i = 0; D_800B35D4[i] != 0; i++) {
+        }
+        btn = g_Pad_8D514.pressed & g_Pad_8D514.held;
+        i--;
+        if (btn & 0x8000) {
+            D_800B3618--;
+        } else if (btn & 0x2000) {
+            D_800B3618++;
+        }
+        if (D_800B3618 < 0) {
+            D_800B3618 = 0;
+        } else if (i < D_800B3618) {
+            D_800B3618 = i;
+        }
+        D_800B362C = D_800B35D4[D_800B3618];
+    }
+    if (D_800B35D0 == 4) {
+        for (i = 0; D_800B3600[i] != 0; i++) {
+        }
+        btn = g_Pad_8D514.pressed & g_Pad_8D514.held;
+        i--;
+        if (btn & 0x8000) {
+            D_800B361C--;
+        } else if (btn & 0x2000) {
+            D_800B361C++;
+        }
+        if (D_800B361C < 0) {
+            D_800B361C = 0;
+        } else if (i < D_800B361C) {
+            D_800B361C = i;
+        }
+        D_800B3630 = D_800B3600[D_800B361C];
+    }
+    return -1;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/8008C390_debug_font", D_800A646C);
 INCLUDE_RODATA("asm/nonmatchings/game/8008C390_debug_font", D_800A647C);

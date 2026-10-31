@@ -205,7 +205,66 @@ void Model_ProjectBonedVerts(Mdl_16A6C *mdl) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_CalcEnvMapUVs);
+typedef struct { u8 pad0[4]; u16 nBones; u16 nVerts; } Hdr_16B98;
+typedef struct { u16 count; u16 start; u8 pad4[8]; } Bone_16B98;
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_16B98;
+typedef struct { Hdr_16B98 *hdr; u8 pad4[8]; Bone_16B98 *bones; SVECTOR *verts; MAT_16B98 *mats; } Mdl_16B98;
+typedef struct { u8 pad0[6]; u16 uv; } Out_16B98;
+s32 abs(s32);
+/* Model_CalcEnvMapUVs64 for a boned model: each bone's normals (stored after the vertices) are
+   turned by that bone's matrix before the same 64x64 environment-map UVs are worked out. */
+#define m ((Mdl_16B98 *)mv)
+
+M2C_UNK Model_CalcEnvMapUVs(void **mv) {
+    Out_16B98 *base = (Out_16B98 *)D_800EA060;
+    SVECTOR *nrms = &m->verts[m->hdr->nVerts];
+    MAT_16B98 *mats = m->mats;
+    s32 b, i, end;
+    s32 x, y, z, w, r, hi;
+    register s32 u asm("$2");
+    register s32 t asm("$3");
+
+    for (b = 0; b < m->hdr->nBones; b++) {
+        gte_SetRotMatrix_(&mats[b + 1]);
+        gte_SetTransMatrix_(&mats[b + 1]);
+        t = m->bones[b].start;
+        for (i = t, end = t + m->bones[b].count; i < end; i++) {
+            __asm__ volatile("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(&nrms[i]));
+            __asm__ volatile("nop; nop; rtv0");
+            __asm__ volatile("mfc2 %0, $27" : "=r"(z));
+            __asm__ volatile("mfc2 %0, $26" : "=r"(y));
+            __asm__ volatile("mfc2 %0, $25" : "=r"(x));
+            z = abs(z);
+            u = ((z * -(y * 40)) >> 24) + 0x1F;
+            __asm__("addu %0,%1,$0" : "=r"(t) : "r"(u));
+            r = u;
+            if (t >= 0) {
+                register s32 c asm("$2") = t < 0x40;
+                if (!c) {
+                    r = 0x3F;
+                }
+            } else {
+                r = 0;
+            }
+            w = x * 40; u = ((z * w) >> 24) + 0x1F;
+            __asm__("addu %0,%1,$0" : "=r"(t) : "r"(u));
+            if (t >= 0) {
+                register s32 c asm("$2");
+                hi = r;
+                r = u;
+                c = t < 0x40;
+                if (!c) {
+                    r = 0x3F;
+                }
+            } else {
+                hi = r;
+                r = 0;
+            }
+            base[i].uv = r | (hi << 8);
+        }
+    }
+}
+#undef m
 
 int abs(int);
 typedef struct { u16 f_0; u8 pad2[4]; u16 f_6; } S_Hdr_16D60;

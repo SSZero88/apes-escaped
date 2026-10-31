@@ -895,7 +895,135 @@ s32 Probe_ShiftCorners(s32 arg0, s32 arg1) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", func_80073450);
+typedef struct { s32 x, y, z, vx, vy, vz; u8 pad18[8]; s16 f_20; s16 f_22; u8 pad24[4]; u16 f_28; u8 pad2A[2]; s32 f_2C; } Act_73450;
+typedef struct { s16 x, y, z, w, h, d; u8 padC[2]; s16 f_E; u16 f_10; u16 f_12; u8 pad14[2]; u16 f_16; u8 pad18[0x1A]; u16 f_32; u8 pad34[4]; } Obj_73450;
+typedef struct { u8 pad0[0x12]; u16 f_12; } Cell_73450;
+typedef struct { u8 pad0[0xC]; Cell_73450 *f_C; } Hit_73450;
+typedef struct { s32 x, y, z; } P_73450;
+typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } Rc_73450;
+typedef struct { u8 pad0[0x820C]; Obj_73450 *f_820C; u8 pad8210[0x74]; u16 f_8284; } Game_73450;
+extern Game_73450 g_Game_73450 asm("g_Game");
+extern Rc_73450 g_RcCar_73450 asm("g_RcCar");
+extern Hit_73450 *D_800B20B0_73450 asm("D_800B20B0");
+extern P_73450 *D_800B20B4_73450 asm("D_800B20B4");
+extern s16 D_800B20C6;
+extern s32 (*D_800B20E0[])(void *, s32 *, s32 *);
+extern s32 (*D_800B2108[])(void *, s32 *, s32 *);
+s32 Coll_HeightRangeHit(s16, s16, s16, s16);
+void Effect_SpawnAt_73450(s32, s16 *) asm("Effect_SpawnAt");
+
+s32 func_80073450(s32 mode, void *a) {
+    s32 *box = (s32 *)0x1F8000F0;
+    s32 *res = (s32 *)0x1F800100;
+    s32 *acc;
+    s32 flags;
+    s16 i;
+    s32 best = 0;
+    Obj_73450 *o;
+    s16 sv[3];
+    s32 k;
+    s32 z = 0;
+    __asm__("" : "=r"(res) : "0"(res));
+    acc = (s32 *)0x1F800118;
+    flags = 0;
+    i = 0;
+
+    acc[0] = 0;
+    ((Act_73450 *)a)->x += ((Act_73450 *)a)->vx;
+    ((Act_73450 *)a)->z += ((Act_73450 *)a)->vz;
+    acc[2] = 0;
+    acc[1] = 0;
+    D_800B20C6 = -999;
+    box[0] = ((Act_73450 *)a)->f_20;
+    box[2] = ((Act_73450 *)a)->f_22;
+    for (; i < 8; i++) {
+        if (D_800B20B0_73450[i].f_C == 0) {
+            continue;
+        }
+        *(s32 *)D_800B20B4_73450 = ((Act_73450 *)a)->x + acc[0];
+        D_800B20B4_73450->y = ((Act_73450 *)a)->y + ((Act_73450 *)a)->vy + acc[1];
+        D_800B20B4_73450->z = ((Act_73450 *)a)->z + acc[2];
+        box[1] = (s16)D_800B20B0_73450[i].f_C->f_12;
+        k = D_800B20B0_73450[i].f_C->f_12 & 0xF000;
+        res[0] = 0;
+        res[5] = 0;
+        res[4] = 0;
+        res[3] = 0;
+        res[2] = 0;
+        res[1] = 0;
+        if (D_800B20E0[k >> 12](&D_800B20B0_73450[i], box, res) == 0) {
+            continue;
+        }
+        if (i != 7 || (((Act_73450 *)a)->vy += res[3], res[3] == 0)) {
+            acc[2] += res[2];
+            acc[0] += res[0];
+            flags = ((Obj_73450 *)D_800B20B0_73450[i].f_C)->f_E | 0xA0000000;
+        } else if (best < res[3]) {
+            best = res[3];
+        }
+    }
+    for (i = g_Game_73450.f_8284 - 1; i >= 0; i--) {
+        D_800B20C6 = i;
+        if (D_800B20C0[i] != 0) {
+            continue;
+        }
+        D_800B20C4++;
+        *(s32 *)D_800B20B4_73450 = ((Act_73450 *)a)->x + acc[0];
+        D_800B20B4_73450->y = ((Act_73450 *)a)->y + ((Act_73450 *)a)->vy + acc[1];
+        D_800B20B4_73450->z = ((Act_73450 *)a)->z + acc[2];
+        box[1] = g_Game_73450.f_820C[i].f_10;
+        k = g_Game_73450.f_820C[i].f_10 & 0xF000;
+        res[0] = 0;
+        res[5] = 0;
+        res[4] = 0;
+        res[3] = 0;
+        res[2] = 0;
+        res[1] = 0;
+        if (D_800B2108[k >> 12](&g_Game_73450.f_820C[i], box, res) == 0) {
+            continue;
+        }
+        if (res[3] > z && Coll_HeightRangeHit(*(s16 *)&D_800B20B4_73450->y, ((Act_73450 *)a)->f_22, g_Game_73450.f_820C[i].y + res[4], g_Game_73450.f_820C[i].h + res[5])) {
+            ((Act_73450 *)a)->vy += res[3];
+        } else {
+            acc[0] += res[0];
+            acc[2] += res[2];
+        }
+        o = (Obj_73450 *)(i * sizeof(Obj_73450) + (s32)g_Game_73450.f_820C);
+        flags = o->f_16 | 0xA0000000;
+        if ((o->f_12 & 0xFF) == 1) {
+            flags |= 0x8000000;
+        }
+        if (o->f_12 == 1) {
+            o->f_32 = ((Act_73450 *)a)->f_28;
+            ((Act_73450 *)a)->f_2C = flags | 0xA0000000;
+        }
+    }
+    ((Act_73450 *)a)->x += acc[0];
+    ((Act_73450 *)a)->z += acc[2];
+    if (acc[0] != 0 || acc[2] != 0 || flags != 0) {
+        if (mode == 2 && (abs(acc[0]) > 0x60 || abs(acc[2]) > 0x60)) {
+            acc[2] = 0;
+            acc[0] = 0;
+            RcCar_Remove();
+            Sound_PlayFixed(0x79);
+            sv[0] = g_RcCar_73450.x;
+            sv[1] = g_RcCar_73450.y;
+            sv[2] = g_RcCar_73450.z;
+            Effect_SpawnAt_73450(0x102, sv);
+        }
+        ((Act_73450 *)a)->f_2C = flags;
+        if (acc[0] != 0) {
+            ((Act_73450 *)a)->vx += acc[0];
+        }
+        if (acc[2] != 0) {
+            ((Act_73450 *)a)->vz += acc[2];
+        }
+    }
+    if (best < z) {
+        return z;
+    }
+    return best;
+}
 
 /* Vertical overlap test of a body (top a, height b) against a solid (top c, height d). */
 s32 Coll_HeightRangeHit(s16 a, s16 b, s16 c, s16 d) {

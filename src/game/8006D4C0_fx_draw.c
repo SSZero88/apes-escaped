@@ -397,4 +397,165 @@ void func_8006F274(SVEC_8006F274_8006F274 *a, SVEC_8006F274_8006F274 *b, u16 see
     func_8006F3D0(pts, 16, &D_800B1B90, 16);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8006D4C0_fx_draw", func_8006F3D0);
+typedef struct { u16 clut; u16 tpage; u8 u; u8 v; u8 du; u8 dv; } Tex_6F3D0;
+typedef struct { SVEC_8006F274_8006F274 dir; s32 sxy; s32 otz[16]; s32 w[16]; s16 sx[16]; s16 sy[16]; s16 edge[64]; } Scr_6F3D0;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_6F3D0;
+#define ADDPRIM_BF_6F3D0(ot, p) (((PTag_6F3D0 *)(p))->addr = ((PTag_6F3D0 *)(ot))->addr, ((PTag_6F3D0 *)(ot))->addr = (u32)(p))
+#define gte_stszotz_6F3D0(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+s32 VectorNormalSS_6F3D0(void *, void *) asm("VectorNormalSS");
+
+/* Draws a textured ribbon through up to 16 points: each point is projected (repeats of the same
+   screen position are dropped), its half-width is `width` * 0xA4 / depth (0 when off-screen or too
+   near), and the strip edges are offset across the screen-space direction of travel. One
+   semi-transparent quad per segment, with u stepping from tex->u by tex->du over the strip. */
+void func_8006F3D0(SVEC_8006F274_8006F274 *pts, s32 n, void *vtex, s32 width) {
+    Scr_6F3D0 *sc = (Scr_6F3D0 *)0x1F800000;
+    s32 i, prev, a, b;
+    s32 *pz, *pw, *qw;
+    s16 *px, *py, *pe, *qe;
+    u8 *prim;
+    u32 *ot;
+    s32 u0, acc, q;
+    u8 nu, u;
+    u16 du;
+    u32 v, dv, clut, tpage;
+
+    if (n < 2) {
+        return;
+    }
+    if (n > 16) {
+        n = 16;
+    }
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    width *= 0xA4;
+    {
+        s32 *qz = sc->otz;
+        s16 *qx = sc->sx;
+        s16 *qy = sc->sy;
+        SVEC_8006F274_8006F274 *p;
+
+        prev = 0;
+        for (i = n, p = pts; i > 0; i--, p++) {
+        gte_ldv0(p);
+        gte_rtps();
+        gte_stsxy(&sc->sxy);
+        if (sc->sxy == prev) {
+            n--;
+            if (n < 2) {
+                return;
+            }
+        } else {
+            *qx++ = sc->sxy;
+            *qy++ = sc->sxy >> 16;
+            gte_stszotz_6F3D0(qz);
+            qz++;
+        }
+        prev = sc->sxy;
+        }
+    }
+    {
+        s32 *qz = sc->otz;
+        s32 *qw = sc->w;
+        s16 *qx = sc->sx;
+        s16 *qy = sc->sy;
+
+        for (i = 0; i < n; i++, qx++, qy++, qw++, qz++) {
+            if (*qz >= 0x1000) {
+                return;
+            }
+            if ((u16)(*qx + 0x20) > 0x1C0 || *qy < -0x20 || *qy > 0x110 || *qz < 2) {
+                *qw = 0;
+            } else {
+                *qw = width / *qz;
+            }
+        }
+    }
+    px = sc->sx;
+    py = sc->sy;
+    sc->dir.vz = 0;
+    sc->dir.vx = px[1] - sc->sx[0];
+    sc->dir.vy = py[1] - sc->sy[0];
+    VectorNormalSS_6F3D0(&sc->dir, &sc->dir);
+    {
+        s32 a, b;
+        a = (sc->dir.vy * sc->w[0]) >> 12;
+        b = (sc->dir.vx * sc->w[0]) >> 12;
+        pw = &sc->w[1];
+        pe = sc->edge;
+        *pe++ = sc->sx[0] - a;
+        *pe++ = sc->sy[0] + b;
+        *pe++ = sc->sx[0] + a;
+        *pe++ = sc->sy[0] - b;
+    }
+    if (n >= 3) {
+        for (i = 0; i < n - 2; i++) {
+            sc->dir.vx = px[2] - px[0];
+            sc->dir.vy = py[2] - py[0];
+            if (VectorNormalSS_6F3D0(&sc->dir, &sc->dir) == 0) {
+                sc->dir.vx = px[2] - px[1];
+                sc->dir.vy = py[2] - py[1];
+                VectorNormalSS_6F3D0(&sc->dir, &sc->dir);
+            }
+            {
+                s32 a, b;
+                a = (sc->dir.vy * *pw) >> 12;
+                b = (sc->dir.vx * *pw) >> 12;
+                px++;
+                py++;
+                pw++;
+                *pe++ = *px - a;
+                *pe++ = *py + b;
+                *pe++ = *px + a;
+                *pe++ = *py - b;
+            }
+        }
+    }
+    sc->dir.vx = px[1] - px[0];
+    sc->dir.vy = py[1] - py[0];
+    VectorNormalSS_6F3D0(&sc->dir, &sc->dir);
+    {
+        s32 a, b;
+        a = (sc->dir.vy * *pw) >> 12;
+        b = (sc->dir.vx * *pw) >> 12;
+        px++;
+        py++;
+        *pe++ = *px - a;
+        *pe++ = *py + b;
+        *pe++ = *px + a;
+        *pe = *py - b;
+    }
+
+    prim = G_DRAW.prim;
+    ot = G_DRAW.db[G_DRAW.cur].ot;
+    u0 = ((Tex_6F3D0 *)vtex)->u;
+    v = ((Tex_6F3D0 *)vtex)->v;
+    du = ((Tex_6F3D0 *)vtex)->du;
+    dv = ((Tex_6F3D0 *)vtex)->dv;
+    clut = ((Tex_6F3D0 *)vtex)->clut;
+    tpage = ((Tex_6F3D0 *)vtex)->tpage;
+    u = u0;
+    qe = sc->edge;
+    qw = sc->w;
+    pz = sc->otz;
+    for (i = 0; i < n - 1; i++, qe += 4, qw++, pz++) {
+        if (*qw != 0) {
+            q = du * (i + 1) / (n - 1);
+            prim[3] = 9;
+            ((u32 *)prim)[1] = 0x2F000000;
+            ((u32 *)prim)[2] = *(u32 *)&qe[0];
+            ((u32 *)prim)[4] = *(u32 *)&qe[4];
+            ((u32 *)prim)[6] = *(u32 *)&qe[2];
+            ((u32 *)prim)[8] = *(u32 *)&qe[6];
+            ((u32 *)prim)[3] = (v << 8) | (u & 0xFF) | (clut << 16);
+            nu = u0 + q;
+            ((u32 *)prim)[5] = (v << 8) | (nu & 0xFF) | (tpage << 16);
+            ((u16 *)prim)[14] = (u8)u | ((dv + v) << 8);
+            ((u16 *)prim)[18] = (u8)nu | ((dv + v) << 8);
+            ADDPRIM_BF_6F3D0(&ot[*pz], prim);
+            prim += 0x28;
+            u = nu;
+        }
+    }
+    G_DRAW.prim = prim;
+}

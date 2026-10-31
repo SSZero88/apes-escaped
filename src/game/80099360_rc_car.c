@@ -62,7 +62,48 @@ void RcCar_Remove(void) {
 
 INCLUDE_ASM("asm/nonmatchings/game/80099360_rc_car", RcCar_Update);
 
-INCLUDE_ASM("asm/nonmatchings/game/80099360_rc_car", func_80099AE0);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_80099AE0;
+extern struct S_D_800F5A20_80099360 g_RcCar_80099AE0 asm("g_RcCar");
+extern MAT_80099AE0 D_800E78C0;
+extern struct S_D_800EC060 D_800EC110;
+extern s8 g_CurrentGadget;
+void Matrix_LookAt(SVEC_80099360_80099360 *, SVEC_80099360_80099360 *, MAT_80099AE0 *, s32);
+void CompMatrix(MAT_80099AE0 *, MAT_80099AE0 *, MAT_80099AE0 *);
+void Model_CycleVertexColors(u8 *, u16);
+void Model_DrawCycledColors(Db_99C44_80099C44 *, u8 *, struct S_D_800EC060 *);
+void func_8006D044(void);
+
+void func_80099AE0(void) {
+    struct S_D_800F5A20_80099360 *o = &g_RcCar_80099AE0;
+    MAT_80099AE0 m;
+    struct S_D_800EC060 *obj;
+    u8 *buf;
+    if (o->f_70 == 0) {
+        return;
+    }
+    Matrix_LookAt(&o->f_60, &o->f_68, &m, 0);
+    m.t[0] = o->f_24;
+    m.t[1] = o->f_28;
+    m.t[2] = o->f_2C;
+    CompMatrix(&D_800E78C0, &m, &m);
+    obj = &D_800EC110;
+    buf = D_800E7D00;
+    Model_ProjectVerts(obj, (Mat_99C44_80099C44 *)&m, buf);
+    __asm__("" :: "r"(buf), "r"(buf), "r"(buf), "r"(o), "r"(o), "r"(o));
+    if (o->f_78 > 0) {
+        __asm__("" : "=r"(obj) : "0"(obj));
+        Model_CycleVertexColors(buf, ((u16 *)obj->hdr)[3]);
+        Model_DrawCycledColors(&g_Game.db[g_Game.cur], buf, obj);
+    } else {
+        func_80017CD4(&g_Game.db[g_Game.cur], buf, obj);
+    }
+    if (g_CurrentGadget != 7) {
+        g_RcCar_80099AE0.f_30 = 0;
+        g_RcCar_80099AE0.f_38 = 0;
+        g_RcCar_80099AE0.f_34 += 7;
+    }
+    func_8006D044();
+}
 
 void func_80099C44(void) {
     Model_ProjectVerts(&D_800EC060[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2], &D_800E9C60[D_800EC060[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2].hdr->f_4], D_800E7D00);
