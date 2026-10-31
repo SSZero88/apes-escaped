@@ -144,7 +144,26 @@ s32 Sound_ResumeStreams(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80086040_sound", func_80086248);
+extern s16 D_800BF680;
+
+s32 func_80086248(s32 mode) {
+    switch (mode) {
+    case 0:
+        { s32 t = D_800BF67E; mode = t * 127 / 75; __asm__("" : : "r"(t)); mode <<= 16; mode >>= 16; }
+        break;
+    case 1:
+        mode = D_800BF680;
+        break;
+    case 2:
+        mode = 0;
+        break;
+    default:
+        mode = 0x7F;
+        break;
+    }
+    func_800A2A14(mode, mode);
+    return 0;
+}
 
 /* Sets the two master volumes (clamped to 0..127) on the sound channels.
  */

@@ -448,7 +448,100 @@ void func_80136E58(void) {
     } while (var_v1 >= 0);
 }
 
-INCLUDE_ASM("asm/ovl/430/nonmatchings/430", func_80136E7C);
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_80136E7C;
+typedef struct { s16 x; s16 y; u8 active; u8 size; s8 dx; s8 dy; u8 bright; u8 pad9[3]; } Spark_80136E7C;
+extern Spark_80136E7C D_80138338_80136E7C[] asm("D_80138338");
+extern u16 D_801382F8[];
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; u16 f_8120; } g_Game_80136E7C asm("g_Game");
+
+void func_80136E7C(void) {
+    Spark_80136E7C *q;
+    s32 i;
+    u8 *p;
+    s16 w;
+    s16 t;
+    s16 sz;
+    u32 *ot;
+    u32 *otb;
+
+    for (i = 0x5F, q = D_80138338_80136E7C; i >= 0; i--, q++) {
+        if (q->active == 0) {
+            if (((g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 3) != 0) {
+                continue;
+            }
+            q->active = (g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 7;
+            q->x = ((g_RandSeed = g_RandSeed * 5 + 1) >> 7 & 0x1FE) + 0x40;
+            q->y = -0x40;
+            q->dx = 0xFF - ((g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 7);
+            q->dy = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 0xF) + 2;
+            q->size = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 0x3F) + 4;
+            q->bright = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 0x1F) + 8;
+        }
+        q->x += q->dx;
+        q->y += q->dy;
+        if (q->x < -0x20 - q->size || q->y > 0x110) {
+            q->active = 0;
+        }
+    }
+    p = g_Game_80136E7C.prim;
+    otb = g_Game_80136E7C.db[g_Game_80136E7C.cur].ot;
+    for (i = 0x5F, q = D_80138338_80136E7C; i >= 0; i--, q++) {
+        if (q->active != 0) {
+            sz = q->size;
+            w = (u32)(q->size * 0x11D00) / 0x16800;
+            p[3] = 9;
+            M2C_FIELD(p, u32 *, 4) = (q->bright << 16) | (q->bright << 8) | q->bright | 0x2E000000;
+            M2C_FIELD(p, u32 *, 8) = (q->y << 16) | (u16)q->x;
+            M2C_FIELD(p, u32 *, 0x10) = (q->y << 16) | ((q->x + sz) & 0xFFFF);
+            M2C_FIELD(p, u32 *, 0x18) = ((q->y + w) << 16) | (u16)q->x;
+            M2C_FIELD(p, u32 *, 0x20) = ((q->y + w) << 16) | ((q->x + sz) & 0xFFFF);
+            M2C_FIELD(p, u32 *, 0xC) = D_801382F8[q->active] << 16;
+            { register s32 k asm("$2") = 0x3F00; M2C_FIELD(p, u16 *, 0x1C) = k; }
+            M2C_FIELD(p, u32 *, 0x14) = 0x3B003F;
+            { register s32 k asm("$2") = 0x3F3F; M2C_FIELD(p, u16 *, 0x24) = k; }
+            ((Tag_80136E7C *)p)->addr = ((Tag_80136E7C *)&otb[0xFF0])->addr;
+            ((Tag_80136E7C *)&otb[0xFF0])->addr = (u32)p;
+            p += 0x28;
+        }
+    }
+    g_Game_80136E7C.prim = p;
+    if (g_Game_80136E7C.f_8120 == 0x1E) {
+        s32 tt = g_Game_80136E7C.frame & 0x1F;
+        u32 m;
+        if (tt >= 16) {
+            tt = 31 - tt;
+        }
+        tt = tt / 2 + 0x40;
+        {
+            u32 c1;
+            u32 c2;
+            w = (u32)(tt * 0x11D00) / 0x16800;
+            c1 = 0x7E2D80C0;
+            c2 = 0x7B80FF;
+            m = 0xFFFFFF;
+            __asm__ volatile("");
+            ot = &g_Game_80136E7C.db[g_Game_80136E7C.cur].ot[0xFF0];
+            p[3] = 9;
+            M2C_FIELD(p, u32 *, 4) = 0x2F000000;
+            M2C_FIELD(p, u16 *, 0x1C) = 0xBFC0;
+            M2C_FIELD(p, u32 *, 0xC) = c1;
+            M2C_FIELD(p, u32 *, 0x14) = c2;
+            M2C_FIELD(p, u16 *, 0x24) = 0xBFFF;
+        }
+        {
+            register s32 k120 asm("$5") = 0x78;
+            s32 k96 = 0x60;
+            register s32 ws asm("$6") = w;
+            M2C_FIELD(p, u32 *, 8) = ((k120 - ws) << 16) | ((k96 - (s16)tt) & 0xFFFF);
+            M2C_FIELD(p, u32 *, 0x10) = ((k120 - ws) << 16) | (((s16)tt + 0x60) & 0xFFFF);
+            M2C_FIELD(p, u32 *, 0x18) = ((ws + 0x78) << 16) | ((k96 - (s16)tt) & 0xFFFF);
+            M2C_FIELD(p, u32 *, 0x20) = ((ws + 0x78) << 16) | (((s16)tt + 0x60) & 0xFFFF);
+        }
+        *(u32 *)p = (*(u32 *)p & 0xFF000000) | (*ot & m);
+        *ot = (*ot & 0xFF000000) | ((u32)p & m);
+        g_Game_80136E7C.prim = p + 0x28;
+    }
+}
 
 typedef struct { s16 x, y; s32 z; } Pt_391;
 void *func_8008C09C(s32);

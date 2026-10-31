@@ -1212,7 +1212,6 @@ void func_80138110(void);
 void func_801389E4(void);
 void func_8013B4B4(void);
 void func_8013B890(void);
-void func_8013B92C();
 void func_80138934(void);
 void func_801380E0(s16 arg0, s16 arg1, s32 arg2, s16 arg3);
 
@@ -2047,7 +2046,6 @@ typedef struct { s32 f_0; u8 m[0x74]; } Pop_8013A548;
 extern Pop_8013A548 D_8013F418_8013A548[] asm("D_8013F418");
 extern struct { s32 f_0; s32 f_4; s32 f_8; } g_Game_8013A548 asm("g_Game");
 extern s32 D_800E7D00;
-void func_8013A8C0(s32, s32, u8 *);
 void func_80017EFC(s32, s32, void *, s32);
 
 void func_8013A548(void) {
@@ -2179,7 +2177,119 @@ s32 func_8013A794(s32 kind, s16 *pos) {
     return 1;
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013A8C0);
+typedef struct { u8 pad0[0x3CC]; u32 sxy[4]; s32 z; s32 opz; s32 opz2; u8 pad3E8[4]; u16 idx[4]; u8 flag; } Scr_8013A8C0;
+typedef struct { u32 sxy; s16 z; u16 pad; } Vtx_8013A8C0;
+typedef struct { u8 pad0[8]; u8 *prims; } Mdl_8013A8C0;
+typedef struct { u8 f_0, len, f_2, code; u16 idx[4]; } Prm_8013A8C0;
+extern u8 *D_800EC354_8013A8C0 asm("D_800EC354");
+#define gte_ldsxy3_8013A8C0(p) __asm__ volatile ("lwc2 $12, 0(%0); lwc2 $13, 4(%0); lwc2 $14, 8(%0)" : : "r"(p))
+#define gte_ldsxy0_8013A8C0(r) __asm__ volatile ("mtc2 %0, $12" : : "r"(r))
+#define gte_nclip_8013A8C0() __asm__ volatile ("nop; nop; nclip")
+#define gte_stopz_8013A8C0(p) __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(p) : "memory")
+#define gte_stsxy3_f3_8013A8C0(p) __asm__ volatile ("swc2 $12, %0; swc2 $13, %1; swc2 $14, %2" : "=m"(*(u32 *)((p) + 8)), "=m"(*(u32 *)((p) + 12)), "=m"(*(u32 *)((p) + 16)))
+#define gte_stsxy3_f4_8013A8C0(p) __asm__ volatile ("swc2 $12, %0; swc2 $13, %1; swc2 $14, %2" : "=m"(*(u32 *)((p) + 20)), "=m"(*(u32 *)((p) + 12)), "=m"(*(u32 *)((p) + 16)))
+
+void func_8013A8C0(s32 ot_, s32 v_, u8 *m_) {
+    Vtx_8013A8C0 *v = (Vtx_8013A8C0 *)v_;
+    Scr_8013A8C0 *sc = (Scr_8013A8C0 *)0x1F800000;
+    u8 *pr = ((Mdl_8013A8C0 *)m_)->prims;
+    u8 *prim;
+    u32 *o;
+    u32 t;
+
+    prim = D_800EC354_8013A8C0;
+    sc->flag = 2;
+    for (;;) {
+        switch (pr[3] & 0xFC) {
+        case 0x20:
+        case 0x24:
+        case 0x30:
+        case 0x34:
+            sc->idx[0] = ((Prm_8013A8C0 *)pr)->idx[0];
+            t = *(u32 *)&v[(s16)sc->idx[0]];
+            sc->idx[1] = ((Prm_8013A8C0 *)pr)->idx[1];
+            *(u32 *)&sc->sxy[0] = t;
+            t = *(u32 *)&v[(s16)sc->idx[1]];
+            sc->idx[2] = ((Prm_8013A8C0 *)pr)->idx[2];
+            *(u32 *)&sc->sxy[1] = t;
+            *(u32 *)&sc->sxy[2] = *(u32 *)&v[(s16)sc->idx[2]];
+            gte_ldsxy3_8013A8C0(sc->sxy);
+            gte_nclip_8013A8C0();
+            if ((((s16 *)&sc->sxy[0])[0] > SCREEN_W & ((s16 *)&sc->sxy[1])[0] > SCREEN_W & ((s16 *)&sc->sxy[2])[0] > SCREEN_W)
+                || (((s16 *)&sc->sxy[0])[1] > SCREEN_H & ((s16 *)&sc->sxy[1])[1] > SCREEN_H & ((s16 *)&sc->sxy[2])[1] > SCREEN_H)) {
+                pr += pr[1] * 4;
+            } else {
+                gte_stopz_8013A8C0(&sc->opz);
+                if (sc->opz < 0 || v[(s16)sc->idx[0]].z < 0x1B) {
+                    pr += pr[1] * 4;
+                } else {
+                    register u32 *o3 asm("$4");
+                    sc->z = ((v[(s16)sc->idx[0]].z >> 2) + (v[(s16)sc->idx[1]].z >> 2) + (v[(s16)sc->idx[2]].z >> 2)) / 3;
+                    sc->z = (sc->z < 0) ? 0 : ((sc->z >= OT_MAX_Z) ? OT_MAX_Z - 1 : sc->z);
+                    o3 = (sc->flag & 1) ? ((u32 *)ot_) : &((u32 *)ot_)[sc->z];
+                    ADD_PRIM_R(o3, prim, "$3", "$2");
+                    *(u32 *)(prim + 4) = 0xFFFFFF;
+                    gte_stsxy3_f3_8013A8C0(prim);
+                    prim[3] = 4;
+                    prim[7] = 0x20;
+                    prim += 0x14;
+                    pr += pr[1] * 4;
+                }
+            }
+            break;
+        case 0x28:
+        case 0x2C:
+        case 0x38:
+        case 0x3C:
+            sc->idx[0] = ((Prm_8013A8C0 *)pr)->idx[0];
+            t = *(u32 *)&v[(s16)sc->idx[0]];
+            sc->idx[1] = ((Prm_8013A8C0 *)pr)->idx[1];
+            *(u32 *)&sc->sxy[0] = t;
+            t = *(u32 *)&v[(s16)sc->idx[1]];
+            sc->idx[2] = ((Prm_8013A8C0 *)pr)->idx[2];
+            *(u32 *)&sc->sxy[1] = t;
+            t = *(u32 *)&v[(s16)sc->idx[2]];
+            sc->idx[3] = ((Prm_8013A8C0 *)pr)->idx[3];
+            *(u32 *)&sc->sxy[2] = t;
+            *(u32 *)&sc->sxy[3] = *(u32 *)&v[(s16)sc->idx[3]];
+            gte_ldsxy3_8013A8C0(sc->sxy);
+            gte_nclip_8013A8C0();
+            if ((((s16 *)&sc->sxy[0])[0] > SCREEN_W & ((s16 *)&sc->sxy[1])[0] > SCREEN_W & ((s16 *)&sc->sxy[2])[0] > SCREEN_W & ((s16 *)&sc->sxy[3])[0] > SCREEN_W)
+                || (((s16 *)&sc->sxy[0])[1] > SCREEN_H & ((s16 *)&sc->sxy[1])[1] > SCREEN_H & ((s16 *)&sc->sxy[2])[1] > SCREEN_H & ((s16 *)&sc->sxy[3])[1] > SCREEN_H)) {
+                pr += pr[1] * 4;
+            } else {
+                gte_stopz_8013A8C0(&sc->opz);
+                gte_ldsxy0_8013A8C0(sc->sxy[3]);
+                gte_nclip_8013A8C0();
+                if (v[(s16)sc->idx[0]].z < 0x1B) {
+                    pr += pr[1] * 4;
+                } else {
+                    gte_stopz_8013A8C0(&sc->opz2);
+                    if (sc->opz < 0 && sc->opz2 > 0) {
+                        pr += pr[1] * 4;
+                    } else {
+                        sc->z = (v[(s16)sc->idx[0]].z >> 4) + (v[(s16)sc->idx[1]].z >> 4) + (v[(s16)sc->idx[2]].z >> 4) + (v[(s16)sc->idx[3]].z >> 4);
+                        sc->z = (sc->z < 0) ? 0 : ((sc->z >= OT_MAX_Z) ? OT_MAX_Z - 1 : sc->z);
+                        o = (sc->flag & 1) ? ((u32 *)ot_) : &((u32 *)ot_)[sc->z];
+                        ADD_PRIM_R(o, prim, "$3", "$2");
+                        *(u32 *)(prim + 8) = sc->sxy[0];
+                        gte_stsxy3_f4_8013A8C0(prim);
+                        prim[3] = 5;
+                        *(u32 *)(prim + 4) = 0xFFFFFF;
+                        prim[7] = 0x28;
+                        prim += 0x18;
+                        pr += pr[1] * 4;
+                    }
+                }
+            }
+            break;
+        default:
+            goto done;
+        }
+    }
+done:
+    D_800EC354_8013A8C0 = prim;
+}
 
 typedef struct { u8 pad0[0xD]; u8 f_D; u8 padE[0x1A]; s32 f_28; u8 pad2C[4]; s16 f_30; u8 pad32[6]; } A_427;
 typedef struct { u8 pad0[0x54]; s32 f_54; u8 pad58[0x1C]; } B_427;
@@ -2528,9 +2638,107 @@ void func_8013B8B8(s32 kind, s16 *pos, s16 *dir) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013B92C);
+typedef struct { u32 tag; u32 tpage; u8 r0, g0, b0, code; s32 xy0; u16 uv0; u16 clut; u32 wh; } Sprt_8013B92C;
+extern struct { u32 frame; Sprt_8013B92C *prim; u32 *ot; } g_Game_8013B92C asm("g_Game");
+extern Sprt_8013B92C *D_800EC354_8013B92C asm("D_800EC354");
 
-INCLUDE_ASM("asm/ovl/427/nonmatchings/427_minigame_menu", func_8013BAC0);
+void func_8013B92C(void) {
+    SVECTOR *v = (SVECTOR *)0x1F800000;
+    Sprt_8013B92C *p;
+    u32 *ot;
+    s32 x, z, t;
+    s32 i;
+
+    p = g_Game_8013B92C.prim;
+    ot = g_Game_8013B92C.ot;
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    for (i = 0; i < 5; i++) {
+        if (D_8013FCF0_8013B8B8[i].kind != 0) {
+            x = D_8013FCF0_8013B8B8[i].x + (D_8013FCF0_8013B8B8[i].dx >> 9);
+            z = D_8013FCF0_8013B8B8[i].z + (D_8013FCF0_8013B8B8[i].dz >> 9);
+            if (x < -0x600 || x > 0x600 || z > 0x4C0 || z < -0x4C0) {
+                D_8013FCF0_8013B8B8[i].kind = 0;
+            } else {
+            v[4].vx = x - 0x80;
+            v[4].vy = z - 0x80;
+            v[4].vz = 0xA40;
+            gte_ldv0_m(&v[4]);
+            gte_rtps();
+            D_8013FCF0_8013B8B8[i].x = x;
+            D_8013FCF0_8013B8B8[i].z = z;
+            ((u8 *)&p->tag)[3] = 5;
+            p->tpage = 0xE1000238;
+            p->code = 0x65;
+            t = (g_Game_8013B92C.frame >> 2) & 0x1F;
+            if (t >= 7) {
+                t = 0;
+            }
+            p->uv0 = (t << 5) | 0x4000;
+            p->wh = 0x200020;
+            p->clut = 0x3A5F;
+            gte_stsxy_m(&p->xy0);
+            ADD_PRIM_ASM(ot, p);
+            p++;
+            }
+        }
+    }
+    D_800EC354_8013B92C = p;
+}
+
+typedef struct { s16 x, z, y, kind, dx, dz; } Shot_8013BAC0;
+extern Shot_8013BAC0 D_8013FCF0_8013BAC0[] asm("D_8013FCF0");
+typedef struct { u8 pad0[0x24]; s32 x; s32 z; u8 pad2C[0x28]; s32 hits; u8 pad58[0x1C]; } Ape_8013BAC0;
+extern Ape_8013BAC0 D_8013FD70_8013BAC0[] asm("D_8013FD70");
+typedef struct { s32 f_0; u8 pad4[0x34]; } Pl_8013BAC0;
+extern Pl_8013BAC0 D_8013FBF8_8013BAC0[] asm("D_8013FBF8");
+
+void func_8013BAC0(s32 n) {
+    register Shot_8013BAC0 *e asm("$16");
+    Shot_8013BAC0 *base;
+    Pl_8013BAC0 *pl;
+    Ape_8013BAC0 *a;
+    register s32 ax asm("$22");
+    register s32 az asm("$21");
+    register s32 dx asm("$2");
+    register s32 dz asm("$3");
+
+    { s32 n7 = n * 7; u8 *t = (u8 *)D_8013FBF8_8013BAC0; pl = (Pl_8013BAC0 *)(t + n7 * 8); }
+    base = D_8013FCF0_8013BAC0;
+    e = base;
+    a = &D_8013FD70_8013BAC0[n];
+    ax = a->x;
+    az = a->z;
+loop:
+    {
+        if (e->kind != 0) {
+            register s32 tx asm("$2") = e->x - ax;
+            register s32 tz asm("$3") = e->z - az;
+            gte_ldIR12(tx, tz);
+            gte_sqr0_n();
+            gte_stMAC1_n(dx);
+            gte_stMAC2_nn(dz);
+            {
+            register s32 dd asm("$3") = dx + dz;
+            if (dd <= 0x8FFF) {
+                if (e->kind == 1) {
+                    if (a->hits < 2) {
+                        a->hits++;
+                    } else {
+                        func_8013825C_kr((a->x >> 3) + 0xC0, (a->z >> 3) + 0x78, (s32)"500", n);
+                        pl[1].f_0 += 500;
+                        __asm__ volatile("" : : "r"(pl), "r"(pl));
+                    }
+                }
+                e->kind = 0;
+                Sound_PlayFixed(0xD);
+            }
+            }
+        }
+    }
+    e++;
+    if ((s32)e < (s32)&base[5]) goto loop;
+}
 
 typedef struct { s16 next; s16 last; } Anim_8013BC28;
 typedef struct { u8 pad0[0x14]; void *f_14; u8 pad18[0xC]; s32 x; s32 y; s32 z; s32 vx; s32 vy; u8 pad38[0xC]; s16 f_44; s16 f_46; s16 f_48; u8 pad4A[4]; u16 f_4E; u8 pad50[0xC]; u16 f_5C; u16 f_5E; SVECTOR f_60; SVECTOR f_68; Anim_8013BC28 *f_70; } Mdl_8013BC28;

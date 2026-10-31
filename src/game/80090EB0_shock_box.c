@@ -469,7 +469,47 @@ s32 func_80091A18(S_91A18_80091A18 *s) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80090EB0_shock_box", func_80091AF0);
+typedef struct { s16 vx, vy, vz, pad; } SVEC_80091AF0;
+typedef struct { u8 pad0[6]; s16 f_6; s16 f_8; s16 f_A; u8 padC[2]; s16 f_E; u8 pad10[0x22]; s16 f_32; s16 f_34; s16 f_36; } A_80091AF0;
+typedef struct { u8 pad0[6]; s16 f_6; s16 f_8; } B_80091AF0;
+typedef struct { u8 pad0[0x1C]; void *f_1C; } S_4D64_80091AF0;
+extern S_4D64_80091AF0 *D_800B4D64_91AF0 asm("D_800B4D64");
+void func_800147D0(SVEC_80091AF0 *, void *);
+
+s32 func_80091AF0(A_80091AF0 *a, B_80091AF0 *b)
+{
+  s16 new_var;
+  s32 t;
+  SVEC_80091AF0 sv;
+  if (b->f_8 == 0)
+  {
+    t = a->f_32 * b->f_6 / 4096; a->f_6 = t;
+    new_var = b->f_6;
+    sv.vz = 0x1000;
+    sv.vy = 0x1000;
+    sv.vx = new_var;
+  }
+  else
+    if (b->f_8 == 1)
+  {
+    sv.vy = 0x1000;
+    sv.vx = 0x1000;
+    sv.vz = b->f_6;
+    t = a->f_36 * b->f_6 / 4096; a->f_A = t;
+  }
+  else
+  {
+    sv.vz = 0x1000;
+    sv.vx = 0x1000;
+    sv.vy = b->f_6;
+    t = a->f_34 * b->f_6 / 4096; a->f_8 = t;
+  }
+  if (a->f_E >= 0)
+  {
+    func_800147D0(&sv, D_800B4D64_91AF0[a->f_E].f_1C);
+  }
+  return 0;
+}
 
 s32 Model_SetTurnAngle(s16 axis, s16 idx, s32 ang) {
     SVECTOR r;

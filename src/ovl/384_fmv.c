@@ -2500,4 +2500,62 @@ void func_8013BBA8(void) {
     g_Game_8013BBA8.prim = p + 0xC;
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013BD1C);
+extern Rect_8013BBA8 D_8013C7B0_8013BD1C[] asm("D_8013C7B0");
+#define getTPage_8013BD1C(tp, abr, x, y) ((((tp)&0x3)<<7)|(((abr)&0x3)<<5)|(((y)&0x100)>>4)|((((u32)(x))&0x3ff)>>6)|(((y)&0x200)<<2))
+#define getMode_8013BD1C(dfe, dtd, tpage) ((0xe1000000)|((dtd)?0x0200:0)|((dfe)?0x0400:0)|((tpage)&0x9ff))
+typedef struct { u8 tag[3]; u8 len; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8013BD1C;
+typedef struct { u8 tag[3]; u8 len; u32 code; } Tp_8013BD1C;
+typedef struct { u8 tag[3]; u8 len; u8 r0, g0, b0, code; s16 x0, y0; s16 w, h; } Tile_8013BD1C;
+
+void func_8013BD1C(u32 *ot, u8 level) {
+    Sprt_8013BD1C *p;
+    Tp_8013BD1C *tp;
+    Tile_8013BD1C *t;
+    s32 i;
+    register s16 c asm("$11");
+    s16 x;
+    Rect_8013BBA8 *r;
+
+    r = D_8013C7B0_8013BD1C;
+    __asm__("addiu %0, %1, -255" : "=r"(c) : "r"(level * 2));
+    p = (Sprt_8013BD1C *)D_800EC354;
+    for (i = 0; i < D_8013C7E0; i++) {
+        p->len = 4;
+        p->code = 0x66;
+        p->r0 = level - 0x7F;
+        p->g0 = level - 0x7F;
+        p->b0 = level - 0x7F;
+        p->x0 = i << 6;
+        p->y0 = 0;
+        p->u0 = r[i].x % 256;
+        p->v0 = 0;
+        p->w = 0x40;
+        p->h = 0x100;
+        ADD_PRIM_R(ot, p, "$3", "$2");
+        tp = (Tp_8013BD1C *)(p + 1);
+        x = r[i].x / 256 * 256;
+        tp->len = 1;
+        tp->code = getMode_8013BD1C(0, 1, getTPage_8013BD1C(2, 1, x, r[i].y));
+        ADD_PRIM_R(ot, tp, "$3", "$2");
+        p = (Sprt_8013BD1C *)(tp + 1);
+    }
+    t = (Tile_8013BD1C *)(tp + 1);
+    t->len = 3;
+    t->code = 0x62;
+    if (c < 0) {
+        c = 0;
+    }
+    t->r0 = c;
+    t->g0 = c;
+    t->b0 = c;
+    t->x0 = 0;
+    t->y0 = 0;
+    t->w = 0x180;
+    t->h = 0xF0;
+    ADD_PRIM_R(ot, t, "$3", "$2");
+    tp = (Tp_8013BD1C *)(t + 1);
+    tp->len = 1;
+    tp->code = 0xE1000354;
+    ADD_PRIM_R(ot, tp, "$3", "$2");
+    D_800EC354 = (u8 *)t;
+}

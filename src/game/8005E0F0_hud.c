@@ -288,7 +288,83 @@ void Debug_DrawPadGraph(void) {
 
 INCLUDE_ASM("asm/nonmatchings/game/8005E0F0_hud", Debug_DrawSticks);
 
-INCLUDE_ASM("asm/nonmatchings/game/8005E0F0_hud", Hud_DrawMonkeyHeads);
+typedef struct { u32 f_0; u8 pad4[0x8120]; u16 stage; u8 pad8126[8]; u16 mode; u8 pad8130[0x36]; s16 caught; u8 pad8168[0x20]; s16 total; } GameMk_Hud_DrawMonkeyHeads;
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_Hud_DrawMonkeyHeads;
+typedef struct { u32 tag; u32 code; } DrTpage_Hud_DrawMonkeyHeads;
+#define GM_HDMH (*(GameMk_Hud_DrawMonkeyHeads *)&g_Game)
+
+/* Monkey counter: one 32x32 head per monkey in the stage from x leftwards, the caught ones in
+   the caught palette, blinking; stages 17 and 22-30 show a single head */
+void Hud_DrawMonkeyHeads(s32 x, s32 y)
+{
+    u32 *ot = G_DRAW.db[G_DRAW.cur].hud;
+    int v;
+    Sprt_Hud_DrawMonkeyHeads *p = (Sprt_Hud_DrawMonkeyHeads *)G_DRAW.prim;
+    s32 step;
+    s32 i;
+
+    if (GM_HDMH.mode == 1 || GM_HDMH.total == 0) {
+        return;
+    }
+    if (GM_HDMH.mode == 2 && GM_HDMH.stage == 30) {
+        return;
+    }
+    if ((GM_HDMH.stage == 17 || (GM_HDMH.stage >= 22 && GM_HDMH.stage < 31)) && GM_HDMH.mode != 2) {
+        ((u8 *)p)[3] = 4;
+        p->code = 0x65;
+        p->x0 = x;
+        p->y0 = y;
+        v = (GM_HDMH.f_0 % 10 >= 6) ? 0x80 : 0xA0;
+        p->u0 = 0xE0;
+        p->clut = 0x37FF;
+        p->v0 = v;
+        p->w = 0x20;
+        p->h = 0x20;
+        ADD_PRIM_R(ot, p, "$3", "$2");
+        p++;
+    } else {
+        step = 200 / GM_HDMH.total;
+        if (step > 32) {
+            step = 32;
+        }
+        for (i = 0; i < GM_HDMH.total; i++) {
+            if (i < GM_HDMH.caught) {
+                ((u8 *)p)[3] = 4;
+                p->code = 0x67;
+                p->x0 = x;
+                p->y0 = y;
+                p->v0 = (GM_HDMH.f_0 % 10 >= 6) ? 0x40 : 0x60;
+                p->u0 = 0x80;
+                p->clut = 0x3A3F;
+                p->w = 0x20;
+                p->h = 0x20;
+                ADD_PRIM_R(ot, p, "$3", "$2");
+            } else {
+                ((u8 *)p)[3] = 4;
+                p->code = 0x67;
+                p->x0 = x;
+                p->y0 = y;
+                p->v0 = (GM_HDMH.f_0 % 10 >= 6) ? 0x40 : 0x60;
+                p->u0 = 0xA0;
+                p->clut = 0x3A7F;
+                p->w = 0x20;
+                p->h = 0x20;
+                ADD_PRIM_R(ot, p, "$3", "$2");
+            }
+            p++;
+            x -= step;
+        }
+    }
+    {
+        register u32 code asm("$3") = 0xE100020F;
+        ((u8 *)p)[3] = 1;
+        ((DrTpage_Hud_DrawMonkeyHeads *)p)->code = code;
+    }
+    ADD_PRIM_R(ot, p, "$3", "$2");
+    p = (Sprt_Hud_DrawMonkeyHeads *)((u8 *)p + 8);
+    G_DRAW.prim = (u8 *)p;
+    __asm__("" : : "r"(ot), "r"(ot), "r"(ot), "r"(ot), "r"(ot), "r"(ot));
+}
 
 /* Lives counter: Spike's 32x32 face icon at (x, y), semi-transparent */
 void Hud_DrawLivesIcon(s32 x, s32 y) {

@@ -348,15 +348,550 @@ void Model_DrawPrims(s32 ot, u8 *prim, s32 arg2) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_AddG3);
+extern u8 *D_800EC354_Model_AddG3 asm("D_800EC354");
+typedef struct { u32 sxy; s32 sz; } ScrVtx_Model_AddG3;
+typedef struct { u32 color[0xF0]; u16 fogScale, fogNear; u8 pad3C4[4]; u8 cidx[4]; union { u32 w; struct { s16 x, y; } s; } sxy[3]; u8 pad3D8[4]; s32 otz; s32 opz; u8 pad3E4[4]; union { u32 w; u8 b[4]; } hdr; union { u32 w; u16 h[2]; } idx01; union { u32 w; u16 h[2]; } idx2; u8 flags; } MdlScratch_Model_AddG3;
+
+/* Model Gouraud triangles (code 0x30 run): like Model_AddF3 with three vertex colours (dpct) */
+u8 *Model_AddG3(s32 otArg, u8 *primArg, s32 vtxArg)
+{
+  register u8 *prim asm("$5") = primArg;
+  u32 *ot = (u32 *)otArg;
+  ScrVtx_Model_AddG3 *vtx = (ScrVtx_Model_AddG3 *)vtxArg;
+  register MdlScratch_Model_AddG3 *MS asm("$9");
+  u8 *p;
+  u32 w0;
+  u32 w1;
+  u32 b;
+  u32 a;
+  u32 c;
+  u32 *o;
+  s32 f;
+  s32 i0;
+  p = D_800EC354_Model_AddG3;
+  __asm__("" : "=r"(MS) : "0"(0x1F800000));
+  do
+  {
+    w0 = *((u32 *) (prim + 4));
+    w1 = *((u32 *) (prim + 8));
+    MS->idx01.w = w0;
+    a = w0 & 0xFFFF;
+    a = vtx[a].sxy;
+    b = w0 >> 16;
+    b = vtx[b].sxy;
+    c = w1 & 0xFFFF;
+    MS->idx2.w = w1;
+    c = vtx[c].sxy;
+    __asm__ volatile("mtc2 %0, $12; nop; mtc2 %1, $13; nop; mtc2 %2, $14" : : "r"(a), "r"(b), "r"(c));
+    MS->sxy[0].w = a;
+    MS->sxy[1].w = b;
+    MS->sxy[2].w = c;
+    __asm__ volatile("nclip");
+    {
+      register s32 x0 asm("$4"); s32 x1, x2; register s32 hi asm("$8"); s32 lo;
+      x0 = MS->sxy[0].s.x;
+      x1 = MS->sxy[1].s.x;
+      x2 = MS->sxy[2].s.x;
+      if (x1 < x0) {
+        hi = x2;
+        if (hi < x0) hi = x0;
+        lo = x2;
+        if (x1 < x2) lo = x1;
+      } else {
+        hi = x2;
+        if (hi < x1) hi = x1;
+        lo = x2;
+        if (x0 < x2) lo = x0;
+      }
+      if (hi < 0 || lo >= 0x181) goto skip;
+    }
+    {
+      register s32 x0 asm("$4"); s32 x1, x2; register s32 hi asm("$8"); s32 lo;
+      x0 = MS->sxy[0].s.y;
+      x1 = MS->sxy[1].s.y;
+      x2 = MS->sxy[2].s.y;
+      if (x1 < x0) {
+        hi = x2;
+        if (hi < x0) hi = x0;
+        lo = x2;
+        if (x1 < x2) lo = x1;
+      } else {
+        hi = x2;
+        if (hi < x1) hi = x1;
+        lo = x2;
+        if (x0 < x2) lo = x0;
+      }
+      if (hi < 0 || lo >= 0xF1) goto skip;
+    }
+    __asm__ volatile("swc2 $24, 0(%0)" : : "r"(&MS->opz) : "memory");
+    {
+    s32 j0;
+    s32 j1;
+    s32 j2;
+    j0 = (s16)((volatile u16 *)&MS->idx01)[0];
+    j1 = (s16)((volatile u16 *)&MS->idx01)[1];
+    j2 = (s16)((volatile u16 *)&MS->idx2)[0];
+    __asm__ volatile("lwc2 $17, %0" : : "m"(vtx[j0].sz));
+    __asm__ volatile("lwc2 $18, %0" : : "m"(vtx[j1].sz));
+    __asm__ volatile("lwc2 $19, %0" : : "m"(vtx[j2].sz));
+    }
+    __asm__ volatile("nop; nop; avsz3");
+    __asm__ volatile("swc2 $7, %0" : "=m"(MS->otz));
+    if (MS->opz < 0 || MS->otz < 0x1B) {
+      goto skip;
+    }
+    if (!(MS->flags & 1) && MS->otz - MS->fogNear > 0x100) {
+    skip:
+      prim += 0x10;
+      continue;
+    }
+    MS->hdr.w = *(u32 *)prim;
+    *(u32 *)MS->cidx = *(u32 *)(prim + 12);
+    {
+      u32 c0, c1, c2;
+      c0 = MS->cidx[0];
+      c1 = MS->cidx[1];
+      c2 = MS->cidx[2];
+      __asm__ volatile("lwc2 $20, %0" : : "m"(*(MS->color + c0)));
+      __asm__ volatile("lwc2 $21, %0" : : "m"(*(MS->color + c1)));
+      __asm__ volatile("lwc2 $22, %0" : : "m"(*(MS->color + c2)));
+    }
+    if (!(MS->flags & 4) && MS->fogNear < MS->otz) {
+      MS->hdr.b[3] |= 2;
+      MS->hdr.b[2] &= 0x60;
+    }
+    if (MS->otz >= 0xFC0) {
+      MS->otz = 0xFBF;
+    }
+    o = ot;
+    if (!(MS->flags & 1)) {
+      o += MS->otz;
+    }
+    ADD_PRIM_R(o, p, "$3", "$2");
+    i0 = (MS->otz - MS->fogNear) * MS->fogScale;
+    MS->otz = i0 >> 12;
+    if (MS->otz >= 0) {
+      if (MS->otz > 0x1000) f = 0x1000;
+      else f = MS->otz;
+    } else {
+      f = 0;
+    }
+    MS->otz = f;
+    if (MS->fogScale != 0) {
+      __asm__ volatile("mtc2 %0, $8; nop; nop; dpct" : : "r"(f));
+    }
+    if (MS->hdr.b[3] & 2) {
+      *((u32 *)(p + 4)) = (MS->hdr.b[2] << 2) | 0xE1000200;
+      p[3] = 7;
+      p += 4;
+    } else {
+      p[3] = 6;
+    }
+    prim += 0x10;
+    __asm__ volatile("swc2 $20, 4(%0); swc2 $21, 12(%0); swc2 $22, 20(%0)" : : "r"(p) : "memory");
+    __asm__ volatile("swc2 $12, 8(%0); swc2 $13, 16(%0); swc2 $14, 24(%0)" : : "r"(p) : "memory");
+    p[7] = MS->hdr.b[3];
+    p += 0x1C;
+  } while ((prim[3] & 0xFC) == 0x30);
+  D_800EC354_Model_AddG3 = p;
+  return prim;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_AddG4);
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_AddF3);
+extern u8 *D_800EC354_Model_AddF3 asm("D_800EC354");
+typedef struct { u32 sxy; s32 sz; } ScrVtx_Model_AddF3;
+typedef struct { u32 color[0xF0]; u16 fogScale, fogNear; u8 pad3C4[8]; union { u32 w; struct { s16 x, y; } s; } sxy[3]; u8 pad3D8[4]; s32 otz; s32 opz; u8 pad3E4[8]; u32 idx01; u32 idx2; u8 flags; } MdlScratch_Model_AddF3;
+
+/* Model flat triangles (code 0x20 run): for each POLY_F3 of the model, fetches the three projected
+   vertices, skips it if off screen, back-facing (nclip), too near (otz < 27) or, unless scratch
+   flag bit 0, too deep past the fog start; then depth-cues its colour (dpcs) and adds it to the OT
+   (at its depth unless flag bit 0), with a texpage prefix for semi-transparent ones. Returns the
+   first primitive of the next run. */
+u8 *Model_AddF3(s32 otArg, u8 *prim, s32 vtxArg)
+{
+  u32 *ot = (u32 *)otArg;
+  ScrVtx_Model_AddF3 *vtx = (ScrVtx_Model_AddF3 *)vtxArg;
+  MdlScratch_Model_AddF3 *MS;
+  u8 *p;
+  u32 w0;
+  u32 w1;
+  u32 b;
+  u32 a;
+  u32 c;
+  u32 *o;
+  s32 f;
+  s32 i0;
+  s32 i1;
+  s32 i2;
+  __asm__("" : "=r"(MS) : "0"(0x1F800000));
+  p = D_800EC354_Model_AddF3;
+  do
+  {
+    w0 = *((u32 *) (prim + 4));
+    w1 = *((u32 *) (prim + 8));
+    MS->idx01 = w0;
+    a = w0 & 0xFFFF;
+    a = vtx[a].sxy;
+    b = w0 >> 16;
+    b = vtx[b].sxy;
+    c = w1 & 0xFFFF;
+    MS->idx2 = w1;
+    c = vtx[c].sxy;
+    __asm__ volatile("mtc2 %0, $12; nop; mtc2 %1, $13; nop; mtc2 %2, $14" : : "r"(a), "r"(b), "r"(c));
+    MS->sxy[0].w = a;
+    MS->sxy[1].w = b;
+    MS->sxy[2].w = c;
+    __asm__ volatile("nclip");
+    {
+      register s32 x0 asm("$4"); s32 x1, x2; register s32 hi asm("$8"); s32 lo;
+    x0 = MS->sxy[0].s.x;
+    x1 = MS->sxy[1].s.x;
+    x2 = MS->sxy[2].s.x;
+    if (x1 < x0)
+    {
+      hi = x2;
+      if (hi < x0)
+      {
+        hi = x0;
+      }
+      lo = x2;
+      if (x1 < x2)
+      {
+        lo = x1;
+      }
+    }
+    else
+    {
+      hi = x2;
+      if (hi < x1)
+      {
+        hi = x1;
+      }
+      lo = x2;
+      if (x0 < x2)
+      {
+        lo = x0;
+      }
+    }
+    if ((hi < 0) || (lo >= 0x181))
+    {
+      goto skip;
+    }
+    }
+    {
+      register s32 x0 asm("$4"); s32 x1, x2; register s32 hi asm("$8"); s32 lo;
+    x0 = MS->sxy[0].s.y;
+    x1 = MS->sxy[1].s.y;
+    x2 = MS->sxy[2].s.y;
+    if (x1 < x0)
+    {
+      hi = x2;
+      if (hi < x0)
+      {
+        hi = x0;
+      }
+      lo = x2;
+      if (x1 < x2)
+      {
+        lo = x1;
+      }
+    }
+    else
+    {
+      hi = x2;
+      if (hi < x1)
+      {
+        hi = x1;
+      }
+      lo = x2;
+      if (x0 < x2)
+      {
+        lo = x0;
+      }
+    }
+    if ((hi < 0) || (lo >= 0xF1))
+    {
+      goto skip;
+    }
+    }
+    __asm__ volatile("swc2 $24, 0(%0)" : : "r"(&MS->opz) : "memory");
+    i0 = (s16) ((volatile u16 *) (&MS->idx01))[0];
+    i1 = (s16) ((volatile u16 *) (&MS->idx01))[1];
+    i2 = (s16) ((volatile u16 *) (&MS->idx2))[0];
+    __asm__ volatile("lwc2 $17, %0" : : "m"(vtx[i0].sz));
+    __asm__ volatile("lwc2 $18, %0" : : "m"(vtx[i1].sz));
+    __asm__ volatile("lwc2 $19, %0" : : "m"(vtx[i2].sz));
+    __asm__ volatile("nop; nop; avsz3");
+    __asm__ volatile("swc2 $7, %0" : "=m"(MS->otz));
+    if ((MS->opz < 0) || (MS->otz < 0x1B))
+    {
+      goto skip;
+    }
+    if ((!(MS->flags & 1)) && ((MS->otz - MS->fogNear) > 0x100))
+    {
+      skip:
+      prim += 0x10;
+
+      continue;
+    }
+    if (MS->otz >= 0xFC0)
+    {
+      MS->otz = 0xFBF;
+    }
+    o = ot;
+    if (!(MS->flags & 1))
+    {
+      o += MS->otz;
+    }
+    ADD_PRIM_R(o, p, "$3", "$2");
+    i0 = (MS->otz - MS->fogNear) * MS->fogScale;
+    MS->otz = ((s32) i0) >> 12;
+    __asm__ volatile("lwc2 $6, %0" : : "m"(*(MS->color + prim[12])));
+    if (MS->otz >= 0)
+    {
+      if (MS->otz > 0x1000)
+      {
+        f = 0x1000;
+      }
+      else
+      {
+        f = MS->otz;
+      }
+    }
+    else
+    {
+      f = 0;
+    }
+    MS->otz = f;
+    __asm__ volatile("mtc2 %0, $8; nop; nop; dpcs" : : "r"(f));
+    if (prim[3] & 2)
+    {
+      *((u32 *) (p + 4)) = (prim[2] << 2) | 0xE1000200;
+      p[3] = 5;
+      p += 4;
+    }
+    else
+    {
+      p[3] = 4;
+    }
+    __asm__ volatile("swc2 $22, 0(%0)" : : "r"(p + 4) : "memory");
+    __asm__ volatile("swc2 $12, 8(%0); swc2 $13, 12(%0); swc2 $14, 16(%0)" : : "r"(p) : "memory");
+    p[7] = prim[3];
+    p += 0x14;
+    prim += 0x10;
+  }
+  while ((prim[3] & 0xFC) == 0x20);
+  D_800EC354_Model_AddF3 = p;
+  return prim;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_AddF4);
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_AddFT3);
+extern u8 *D_800EC354_Model_AddFT3 asm("D_800EC354");
+typedef struct { u32 sxy; s32 sz; } ScrVtx_Model_AddFT3;
+typedef struct { u32 color[0xF0]; u16 fogScale, fogNear; u16 clut; u8 pad3C6[2]; u8 cidx[4]; union { u32 w; struct { s16 x, y; } s; } sxy[3]; u8 pad3D8[4]; s32 otz; s32 opz; u8 pad3E4[4]; union { u32 w; u8 b[4]; } hdr; union { u32 w; u16 h[2]; } idx01; union { u32 w; u16 h[2]; } idx2; u8 flags; u8 mode; u16 tpage; } MdlScratch_Model_AddFT3;
+
+/* Model flat textured triangles (code 0x24 run). Past the fog start, unless the scratch flags
+   say otherwise, each gets per-vertex depth cueing (a POLY_GT3) and, for semi-transparent ones, a
+   second white-fogged POLY_G3 on top; nearer ones are plain POLY_FT3s. Returns the next run. */
+u8 *Model_AddFT3(s32 otArg, u8 *prim, s32 vtxArg)
+{
+    u32 *ot = (u32 *)otArg;
+    ScrVtx_Model_AddFT3 *vtx = (ScrVtx_Model_AddFT3 *)vtxArg;
+    register MdlScratch_Model_AddFT3 *MS asm("$9");
+    u8 *p;
+    u32 w0, w1, a, b, c;
+    u32 *o;
+
+    __asm__("" : "=r"(MS) : "0"(0x1F800000));
+    p = D_800EC354_Model_AddFT3;
+    do {
+        w0 = *(u32 *)(prim + 4);
+        w1 = *(u32 *)(prim + 8);
+        MS->idx01.w = w0;
+        a = w0 & 0xFFFF;
+        a = vtx[a].sxy;
+        b = w0 >> 16;
+        b = vtx[b].sxy;
+        c = w1 & 0xFFFF;
+        MS->idx2.w = w1;
+        c = vtx[c].sxy;
+        __asm__ volatile("mtc2 %0, $12; nop; mtc2 %1, $13; nop; mtc2 %2, $14" : : "r"(a), "r"(b), "r"(c));
+        MS->sxy[0].w = a;
+        MS->sxy[1].w = b;
+        MS->sxy[2].w = c;
+        __asm__ volatile("nclip");
+        {
+            register s32 x0 asm("$4"); s32 x1, x2; register s32 hi asm("$8"); s32 lo;
+            x0 = MS->sxy[0].s.x;
+            x1 = MS->sxy[1].s.x;
+            x2 = MS->sxy[2].s.x;
+            if (x1 < x0) {
+                hi = x2;
+                if (hi < x0) hi = x0;
+                lo = x2;
+                if (x1 < x2) lo = x1;
+            } else {
+                hi = x2;
+                if (hi < x1) hi = x1;
+                lo = x2;
+                if (x0 < x2) lo = x0;
+            }
+            if (hi < 0 || lo >= 0x181) goto skip;
+        }
+        __asm__ volatile("swc2 $24, 0(%0)" : : "r"(&MS->opz) : "memory");
+        if (MS->opz < 0) goto skip;
+        {
+            register s32 x0 asm("$4"); s32 x1, x2; register s32 hi asm("$8"); s32 lo;
+            x0 = MS->sxy[0].s.y;
+            x1 = MS->sxy[1].s.y;
+            x2 = MS->sxy[2].s.y;
+            if (x1 < x0) {
+                hi = x2;
+                if (hi < x0) hi = x0;
+                lo = x2;
+                if (x1 < x2) lo = x1;
+            } else {
+                hi = x2;
+                if (hi < x1) hi = x1;
+                lo = x2;
+                if (x0 < x2) lo = x0;
+            }
+            if (hi < 0 || lo >= 0xF1) goto skip;
+        }
+        {
+            s32 j0, j1, j2;
+            j0 = (s16)((volatile u16 *)&MS->idx01)[0];
+            j1 = (s16)((volatile u16 *)&MS->idx01)[1];
+            j2 = (s16)((volatile u16 *)&MS->idx2)[0];
+            __asm__ volatile("lwc2 $17, %0" : : "m"(vtx[j0].sz));
+            __asm__ volatile("lwc2 $18, %0" : : "m"(vtx[j1].sz));
+            __asm__ volatile("lwc2 $19, %0" : : "m"(vtx[j2].sz));
+        }
+        __asm__ volatile("nop; nop; avsz3");
+        __asm__ volatile("swc2 $7, %0" : "=m"(MS->otz));
+        if (MS->otz < 0x1B) {
+            goto skip;
+        }
+        {
+            s32 z0, z1, z2, fn;
+            fn = MS->fogNear << 2;
+            MS->hdr.w = *(u32 *)prim;
+            __asm__ volatile("mfc2 %0, $17" : "=r"(z0));
+            __asm__ volatile("mfc2 %0, $18" : "=r"(z1));
+            __asm__ volatile("mfc2 %0, $19" : "=r"(z2));
+            z0 = (z0 - fn) << 2;
+            z1 = (z1 - fn) << 2;
+            z2 = (z2 - fn) << 2;
+            if (z0 < 0) z0 = 0;
+            __asm__ volatile("mtc2 %0, $17" : : "r"(z0));
+            if (z1 < 0) z1 = 0;
+            __asm__ volatile("mtc2 %0, $18" : : "r"(z1));
+            if (z2 < 0) z2 = 0;
+            __asm__ volatile("mtc2 %0, $19" : : "r"(z2));
+            if ((z0 == 0 && z1 == 0 && z2 == 0) || (z0 > 0x1000 && z1 > 0x1000 && z2 > 0x1000) || (MS->flags & 1)) {
+                MS->mode = 0;
+            } else {
+                MS->mode = ((MS->flags & 4) || (MS->hdr.b[3] & 2) || MS->hdr.b[2] == 0) ? 1 : 3;
+            }
+        }
+        if (!(MS->flags & 1) && MS->fogNear < MS->otz && MS->mode == 0) {
+        skip:
+            prim += 0x1C;
+            continue;
+        }
+        if (MS->otz >= 0xFC0) {
+            MS->otz = 0xFBF;
+        }
+        MS->tpage = *(u16 *)(prim + 0x12);
+        *(u32 *)MS->cidx = *(u32 *)(prim + 0x18);
+        if (MS->mode != 0) {
+            if (!(MS->flags & 4)) {
+                u8 h = MS->hdr.b[3];
+                if (!(h & 2)) {
+                    MS->hdr.b[3] = h | 2;
+                    if (MS->flags & 8) MS->tpage = MS->tpage & 0xFF9F;
+                    else MS->tpage = (MS->tpage & 0xFF9F) | 0x20;
+                }
+            }
+            {
+                u32 c0, z;
+                c0 = MS->cidx[0];
+                __asm__ volatile("mfc2 %0, $17" : "=r"(z));
+                __asm__ volatile("lwc2 $6, %0" : : "m"(*(MS->color + c0)));
+                __asm__ volatile("nop; mtc2 %0, $8" : : "r"(z));
+                __asm__ volatile("nop; nop; dpcs");
+                __asm__ volatile("swc2 $22, %0" : "=m"(*(u32 *)(p + 4)));
+                __asm__ volatile("mfc2 %0, $18" : "=r"(z));
+                __asm__ volatile("nop; mtc2 %0, $8" : : "r"(z));
+                __asm__ volatile("nop; nop; dpcs");
+                __asm__ volatile("swc2 $22, %0" : "=m"(*(u32 *)(p + 16)));
+                __asm__ volatile("mfc2 %0, $19" : "=r"(z));
+                __asm__ volatile("swc2 $13, %0" : "=m"(*(u32 *)(p + 20)));
+                __asm__ volatile("mtc2 %0, $8" : : "r"(z));
+                __asm__ volatile("nop; nop; dpcs");
+                __asm__ volatile("swc2 $22, %0" : "=m"(*(u32 *)(p + 28)));
+                __asm__ volatile("swc2 $14, %0" : "=m"(*(u32 *)(p + 32)));
+            }
+            *(u32 *)(p + 8) = MS->sxy[0].w;
+            *(u32 *)(p + 12) = *(u32 *)(prim + 12) + (MS->clut << 16);
+            *(u32 *)(p + 24) = *(u16 *)(prim + 16) | (MS->tpage << 16);
+            *(u16 *)(p + 36) = *(u16 *)(prim + 20);
+            p[3] = 9;
+            p[7] = (MS->hdr.b[3] & 3) | 0x34;
+            ADD_PRIM_R(ot + MS->otz, p, "$4", "$3");
+            p += 0x28;
+            if (!(MS->mode & 2)) goto skip;
+            {
+                u32 z;
+                s32 white = -1;
+                __asm__ volatile("mtc2 %0, $6; nop" : : "r"(white));
+                __asm__ volatile("mfc2 %0, $17" : "=r"(z));
+                __asm__ volatile("nop; mtc2 %0, $8" : : "r"(z));
+                z = MS->sxy[0].w;
+                __asm__ volatile("nop; nop; dpcs");
+                *(u32 *)(p + 12) = z;
+                __asm__ volatile("swc2 $22, %0" : "=m"(*(u32 *)(p + 8)));
+                __asm__ volatile("mfc2 %0, $18" : "=r"(z));
+                __asm__ volatile("nop; mtc2 %0, $8" : : "r"(z));
+                z = MS->sxy[1].w;
+                __asm__ volatile("nop; nop; dpcs");
+                *(u32 *)(p + 4) = 0xE1000240;
+                p[3] = 7;
+                p[11] = 0x32;
+                *(u32 *)(p + 20) = z;
+                __asm__ volatile("swc2 $22, %0" : "=m"(*(u32 *)(p + 16)));
+                __asm__ volatile("mfc2 %0, $19" : "=r"(z));
+                __asm__ volatile("nop; mtc2 %0, $8" : : "r"(z));
+                z = MS->sxy[2].w;
+                __asm__ volatile("nop; nop; dpcs");
+                *(u32 *)(p + 28) = z;
+                __asm__ volatile("swc2 $22, %0" : "=m"(*(u32 *)(p + 24)));
+            }
+            ADD_PRIM_R(ot + MS->otz, p, "$4", "$3");
+            p += 0x20;
+        } else {
+            *(u32 *)(p + 4) = *(MS->color + prim[0x18]);
+            *(u32 *)(p + 8) = MS->sxy[0].w;
+            __asm__ volatile("swc2 $13, %0; swc2 $14, %1" : "=m"(*(u32 *)(p + 16)), "=m"(*(u32 *)(p + 24)));
+            *(u32 *)(p + 12) = *(u32 *)(prim + 12) + (MS->clut << 16);
+            *(u32 *)(p + 20) = *(u16 *)(prim + 16) | (MS->tpage << 16);
+            *(u16 *)(p + 28) = *(u16 *)(prim + 20);
+            p[3] = 7;
+            p[7] = MS->hdr.b[3];
+            o = ot;
+            if (!(MS->flags & 1)) {
+                o += MS->otz;
+            }
+            ADD_PRIM_R(o, p, "$3", "$2");
+            p += 0x20;
+        }
+        prim += 0x1C;
+    } while ((prim[3] & 0xFC) == 0x24);
+    D_800EC354_Model_AddFT3 = p;
+    return prim;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_AddGT3);
 

@@ -60,7 +60,7 @@ void Spike_UpdateWaterFx(void);
  * (most likely the electric shock: the shockwave rings and spinning arm deal type 0x200),
  * 0x400 -> kind 3. See docs/findings.md. */
 void Spike_UpdateDamageEffect(void);
-M2C_UNK Ripple_DrawAll();
+void Ripple_DrawAll(void);
 s32 Floor_GetHeight(s32, s32, s32);
 extern u16 g_RandSeed;
 extern struct S_D_800EC350 { s32 f_0; u8 pad_4[0x8122]; u16 f_8126; } g_Game;

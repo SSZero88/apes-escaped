@@ -18,7 +18,7 @@ extern s32 D_800F51C4;
 
 extern struct S_D_800BF2B8 { s32 f_0; } D_800BF2B8[];
 
-M2C_UNK Pickup_UpdateAll();
+void Pickup_UpdateAll(void);
 void Pickup_DrawAll(void);
 extern struct S_D_800EC350 { u8 pad_0[0x8100]; s32 f_8100; } g_Game;
 extern struct S_D_800BEFA0 { u8 pad0[0xA]; u8 f_A; u8 padB[0xD]; } D_800BEFA0[];

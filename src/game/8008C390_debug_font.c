@@ -171,7 +171,74 @@ void func_8008CC60(s32 arg0, s32 arg1) {
     func_8008C3C0(arg0, arg1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8008C390_debug_font", DebugFont_DrawWord);
+extern u8 g_Game_8CC80[] asm("g_Game");
+#define G_DRAW_8CC80 (*(GameDraw *)g_Game_8CC80)
+typedef struct { u32 addr : 24; u32 len : 8; } PTag_8CC80;
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8CC80;
+typedef struct { u32 tag; u32 code; } DrTpage_8CC80;
+typedef struct { u16 x; u16 pad; u16 y; } DbgCursor_8CC80;
+extern s16 D_800B34BC[][12];
+extern u8 D_800B3450[][2];
+extern DbgCursor_8CC80 D_800DF7D8_8CC80 asm("D_800DF7D8");
+#define ADD_PRIM_C_8CC80(ot, p) (((PTag_8CC80 *)(p))->addr = ((PTag_8CC80 *)(ot))->addr, ((PTag_8CC80 *)(ot))->addr = (u32)(p))
+
+/* Draws word `word` of the debug font's word table D_800B34BC (rows of glyph ids, ended by a
+   negative id) at the debug console cursor D_800DF7D8: 24x24 glyphs (id 21 is 32x16, ids >= 30
+   16x16), id 49 doesn't advance. Words 0-6 use texture page 0x298, the rest 0x20D. */
+void DebugFont_DrawWord(s16 word) {
+    Sprt_8CC80 *p = (Sprt_8CC80 *)G_DRAW_8CC80.prim;
+    u32 *ot = (G_DRAW_8CC80.db[G_DRAW_8CC80.cur].hud);
+    s16 i;
+    s32 x = 0;
+    s32 w, h;
+    s16 c;
+    DrTpage_8CC80 *t;
+
+    for (i = 0; D_800B34BC[word][i] >= 0; i++) {
+        c = D_800B34BC[word][i];
+        *(u32 *)&p->r0 = 0x808080;
+        ((u8 *)p)[3] = 4;
+        p->code = 0x64;
+        if (c < 30) {
+            if (c == 21) {
+                w = 0x20;
+                h = 0x10;
+            } else {
+                w = h = 0x18;
+            }
+            p->clut = 0x3C9C;
+        } else {
+            w = h = 0x10;
+            p->clut = 0x1874;
+        }
+        p->u0 = D_800B3450[c][0];
+        p->v0 = D_800B3450[c][1];
+        if (c == 21) {
+            p->w = w;
+            p->h = h;
+            p->x0 = D_800DF7D8_8CC80.x + x;
+            p->y0 = D_800DF7D8_8CC80.y + 8;
+        } else {
+            p->w = w;
+            p->h = h;
+            p->x0 = D_800DF7D8_8CC80.x + x;
+            p->y0 = D_800DF7D8_8CC80.y;
+        }
+        ADD_PRIM_C_8CC80(ot, p);
+        p++;
+        if (c != 49) {
+            x += w;
+        }
+    }
+    { u32 code;
+    if (word < 7) { __asm__("" : "=r"(t) : "0"(p)); code = 0xE1000298; } else { __asm__("" : "=r"(t) : "0"(p)); code = 0xE100020D; }
+    ((u8 *)t)[3] = 1;
+    t->code = code; }
+    __asm__ volatile("");
+    ADD_PRIM_C_8CC80(ot, t);
+    t++;
+    G_DRAW_8CC80.prim = (void *)t;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/8008C390_debug_font", DebugFont_DrawIcon);
 

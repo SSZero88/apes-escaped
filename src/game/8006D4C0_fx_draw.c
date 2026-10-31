@@ -299,7 +299,87 @@ void Ripple_Spawn(s16 *a) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8006D4C0_fx_draw", Ripple_DrawAll);
+typedef struct { s16 vx, vy, vz; u8 timer; u8 pad7; } Ripple_6EFAC;
+typedef struct { s32 z; s32 pad4; SVECTOR v[4]; s32 sxy[4]; } Scr_6EFAC;
+typedef struct { u32 tag; u32 code; u32 xy0; u32 uv0; u32 xy1; u32 uv1; u32 xy2; u16 uv2; u16 pad1E; u32 xy3; u16 uv3; u16 pad26; } FT4_6EFAC;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_6EFAC;
+#define ADDPRIM_BF(ot, p) (((PTag_6EFAC *)(p))->addr = ((PTag_6EFAC *)(ot))->addr, ((PTag_6EFAC *)(ot))->addr = (u32)(p))
+extern Ripple_6EFAC D_800F4E90_6EFAC[] asm("D_800F4E90");
+void SetRotMatrix(void *);
+void SetTransMatrix(void *);
+#define gte_ldv3c_6EFAC(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(v))
+#define gte_rtpt_n6EFAC() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxy3c_6EFAC(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
+#define gte_ldv0_6EFAC(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
+#define gte_rtps_n6EFAC() __asm__ volatile ("nop; nop; rtps")
+#define gte_stsxy_6EFAC(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+#define gte_stszotz_6EFAC(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+
+/* Water ripples (D_800F4E90, 8 entries set by Ripple_Spawn): each live one counts its timer down
+   and is drawn as a flat textured square on the water, half-size 0x18 + 12 * timer (so it grows as
+   it fades), its colour (8, 12, 16) * timer, additive, when on screen. */
+void Ripple_DrawAll(void) {
+    Scr_6EFAC *scr = (Scr_6EFAC *)0x1F800000;
+    Ripple_6EFAC *r;
+    FT4_6EFAC *p;
+    u32 *ot;
+    s32 i, s, x, y;
+    register s32 t asm("$3");
+
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    ot = G_DRAW.db[G_DRAW.cur].ot;
+    p = (FT4_6EFAC *)G_DRAW.prim;
+    for (i = 7; i >= 0; i--) {
+        r = &D_800F4E90_6EFAC[i];
+        { s32 c = r->timer;
+        if (c == 0) {
+            continue;
+        }
+        __asm__("" : "=r"(t) : "0"(c)); }
+        r->timer = t - 1;
+        s = t * 12 + 0x18;
+        scr->v[0].vx = r->vx - s;
+        scr->v[0].vy = r->vy;
+        scr->v[0].vz = r->vz - s;
+        scr->v[1].vx = r->vx + s;
+        scr->v[1].vy = r->vy;
+        scr->v[1].vz = r->vz - s;
+        scr->v[2].vx = r->vx - s;
+        scr->v[2].vy = r->vy;
+        scr->v[2].vz = r->vz + s;
+        scr->v[3].vx = r->vx + s;
+        scr->v[3].vy = r->vy;
+        scr->v[3].vz = r->vz + s;
+        gte_ldv3c_6EFAC(scr->v);
+        gte_rtpt_n6EFAC();
+        gte_stsxy3c_6EFAC(scr->sxy);
+        gte_ldv0_6EFAC(&scr->v[3]);
+        gte_rtps_n6EFAC();
+        gte_stsxy_6EFAC(&scr->sxy[3]);
+        gte_stszotz_6EFAC(&scr->z);
+        y = scr->sxy[3];
+        x = (s16)y;
+        y >>= 16;
+        if ((u32)(x + 0x20) >= 0x1C1 || y < -0x20 || y >= 0x111 || (u32)(scr->z - 1) >= 0xFFF) {
+            continue;
+        }
+        { s32 c = r->timer;
+        ((u8 *)p)[3] = 9;
+        p->code = (c << 20) | ((c * 3) << 10) | (c << 3) | 0x2E000000; }
+        p->xy0 = scr->sxy[0];
+        p->xy1 = scr->sxy[1];
+        p->xy2 = scr->sxy[2];
+        p->xy3 = scr->sxy[3];
+        p->uv0 = 0x7CAC00C0;
+        p->uv2 = 0x2FC0;
+        p->uv1 = 0x7C00EF;
+        p->uv3 = 0x2FEF;
+        ADDPRIM_BF(ot + scr->z, p);
+        p++;
+    }
+    D_800EC354 = (u8 *)p;
+}
 
 void func_8006F274(SVEC_8006F274_8006F274 *a, SVEC_8006F274_8006F274 *b, u16 seed) {
     SVEC_8006F274_8006F274 pts[17];

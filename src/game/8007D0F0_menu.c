@@ -360,7 +360,49 @@ void func_8007F848(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8007D0F0_menu", func_8007F8F4);
+typedef struct { s16 off; s16 shift; } S_Tap_7F8F4;
+extern S_Tap_7F8F4 D_800B2704[9];
+
+void func_8007F8F4(s32 row)
+{
+  u16 *p = ((u16 *) 0x801A8002) + (row * 0x180);
+  s32 x;
+  s32 j;
+  register s32 r asm("$8");
+  register s32 g asm("$9");
+  register s32 b asm("$10");
+  s32 ir1;
+  s32 ir2;
+  s32 ir3;
+  s32 v;
+  for (x = 0; x < 0x17E; x++)
+  {
+    r = 0;
+    g = 0;
+    b = 0;
+    for (j = 0; j < 9; j++)
+    {
+      s32 sh;
+      asm volatile("mtc2 %0, $28" : : "r"(p[D_800B2704[j].off]));
+      sh = D_800B2704[j].shift;
+      asm volatile("mfc2 %0, $9" : "=r"(ir1));
+      asm volatile("mfc2 %0, $10" : "=r"(ir2));
+      asm volatile("mfc2 %0, $11" : "=r"(ir3));
+      r += ir1 << sh;
+      g += ir2 << sh;
+      b += ir3 << sh;
+    }
+
+    r >>= 4;
+    g >>= 4;
+    b >>= 4;
+    asm volatile("mtc2 %0, $9; nop; mtc2 %1, $10; nop; mtc2 %2, $11" : : "r"(r), "r"(g), "r"(b));
+    asm volatile("nop; nop; nop; mfc2 %0, $29; nop" : "=r"(v));
+    p[0x300] = v;
+    p++;
+  }
+
+}
 
 void func_8007F9D0(void) {
     s32 i;

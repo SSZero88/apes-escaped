@@ -252,5 +252,54 @@ void Hoop_Update(void) {
     h->hit[2] = c;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/800986E0_hoop", Hoop_UpdateModel);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_98DD8;
+typedef struct { s32 vx, vy, vz, pad; } VEC_98DD8;
+typedef struct { u8 pad0[4]; u16 f_4; } Hdr_98DD8;
+typedef struct { Hdr_98DD8 *hdr; u8 pad[0x3C]; } Mdl_98DD8;
+typedef struct { u8 draw[0x5C]; u8 disp[0x14]; u32 ot[0x1000]; u8 pad[8]; } Db_98DD8;
+typedef struct { u32 frame; u8 pad4[8]; s32 cur; Db_98DD8 db[2]; } Game_98DD8;
+typedef struct { u8 pad0[4]; s16 f_4; u8 pad6[2]; s32 f_8; u8 padC[0xC]; s16 f_18; u8 pad1A[2]; s16 f_1C; } Gad_98DD8;
+extern Game_98DD8 g_Game_98DD8 asm("g_Game");
+extern Gad_98DD8 g_Hoop asm("g_GadgetState");
+extern Mdl_98DD8 D_800EC060[];
+extern MAT_98DD8 D_800E9C60[];
+extern MAT_98DD8 D_800F4730_98DD8[] asm("D_800F4730");
+extern MAT_98DD8 D_800E78C0;
+extern u8 D_800E7D00[];
+void Matrix_RotateY(s32, MAT_98DD8 *);
+void ScaleMatrixL(MAT_98DD8 *, VEC_98DD8 *);
+void Model_ProjectVerts(Mdl_98DD8 *, MAT_98DD8 *, u8 *);
+void func_80017CD4(u32 *, u8 *, Mdl_98DD8 *);
+#define SCR_MAT_98DD8 ((MAT_98DD8 *)(scr + 0x28))
+#define SCR_SCALE_98DD8 ((VEC_98DD8 *)0x1F800018)
+
+void Hoop_UpdateModel(void) {
+    Mdl_98DD8 *m;
+    u8 *scr = (u8 *)0x1F800000;
+    s32 s;
+
+    switch (g_Hoop.f_4) {
+    case 0:
+        func_8004637C(SCR_MAT_98DD8);
+        SCR_MAT_98DD8->t[1] = 0;
+        SCR_MAT_98DD8->t[0] = g_Hoop.f_18;
+        SCR_MAT_98DD8->t[2] = g_Hoop.f_1C;
+        CompMatrix(SCR_MAT_98DD8, &D_800F4730_98DD8[D_800EC060[1].hdr->f_4], SCR_MAT_98DD8);
+        m = &D_800EC060[1];
+        CompMatrix(&D_800E78C0, SCR_MAT_98DD8, SCR_MAT_98DD8);
+        break;
+    case 1:
+        *SCR_MAT_98DD8 = D_800E9C60[D_800EC060[1].hdr->f_4];
+        Matrix_RotateY(g_Game_98DD8.frame * 250, SCR_MAT_98DD8);
+        s = g_Hoop.f_8 * 4 + 0x1000;
+        *(s32 *)(scr + 0x18) = s;
+        *(s32 *)(scr + 0x1C) = s;
+        *(s32 *)(scr + 0x20) = s;
+        ScaleMatrixL(SCR_MAT_98DD8, SCR_SCALE_98DD8);
+        m = &D_800EC060[3];
+        break;
+    }
+    Model_ProjectVerts(m, SCR_MAT_98DD8, D_800E7D00);
+    func_80017CD4(g_Game_98DD8.db[g_Game_98DD8.cur].ot, D_800E7D00, m);
+}
 
