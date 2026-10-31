@@ -182,9 +182,225 @@ INCLUDE_ASM("asm/nonmatchings/game/80083470_pickup", Pickup_Spawn);
 
 INCLUDE_ASM("asm/nonmatchings/game/80083470_pickup", Pickup_Drop);
 
-INCLUDE_ASM("asm/nonmatchings/game/80083470_pickup", Pickup_UpdateAll);
+s32 Floor_GetHeight_PU() asm("Floor_GetHeight");
+typedef struct { s16 vx, vy, vz, pad; } SV_80083CB8;
+typedef struct { s32 x, y, z; u8 padC[0x20]; u32 f_2C; } Col_80083CB8;
+typedef struct { Col_80083CB8 *col; s16 x; s16 y; s16 z; u8 kind; u8 spin; s16 vx; s16 vy; s16 vz; s16 gy; u8 state; u8 age; u8 timer; u8 fade; } Item_80083CB8;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x40]; s32 f_70; } Body_80083CB8;
+extern u8 D_800BEFA0_83CB8[] asm("D_800BEFA0");
+extern u8 g_Spike_83CB8[] asm("g_Spike");
+extern u8 g_RcCar_83CB8[] asm("g_RcCar");
+Col_80083CB8 *CollShape_Alloc(void);
+void func_800836E0(void *arg0);
+s32 Collision_Set(s32, void *, void *);
+s32 CollShape_Free(void *);
+s32 Collision_Remove(void *);
+void Fx_SpawnFadeRing(void *, s32, s32, s32);
+void CenterSign_ShowSpecterCoin(void);
+s32 Floor_GetHeight(s32, s32, s32);
 
-INCLUDE_RODATA("asm/nonmatchings/game/80083470_pickup", jtbl_800A6180);
+void Pickup_UpdateAll(void)
+{
+  Item_80083CB8 *it;
+  s32 i;
+  s32 j;
+  register s32 d asm("$3");
+  s32 t;
+  s32 k80;
+  i = 31;
+  it = (Item_80083CB8 *) D_800BEFA0_83CB8;
+  for (; i >= 0; i--, it++)
+  {
+    if (it->kind == 0)
+    {
+      continue;
+    }
+    if (it->state < 2)
+    {
+      t = 0;
+      if ((((((((Body_80083CB8 *) (g_Spike_83CB8))->x - it->x) >= 0) ? (((Body_80083CB8 *) (g_Spike_83CB8))->x - it->x) : (-(((Body_80083CB8 *) (g_Spike_83CB8))->x - it->x))) < 0x200) && ((((((Body_80083CB8 *) (g_Spike_83CB8))->z - it->z) >= 0) ? (((Body_80083CB8 *) (g_Spike_83CB8))->z - it->z) : (-(((Body_80083CB8 *) (g_Spike_83CB8))->z - it->z))) < 0x200)) && (({ register s32 _t asm("$2") = it->y; d = _t + 0x80; }), ((((((Body_80083CB8 *) (g_Spike_83CB8))->y - d) >= 0) ? (((Body_80083CB8 *) (g_Spike_83CB8))->y - d) : ({ s32 _r = -(((Body_80083CB8 *) (g_Spike_83CB8))->y - d); __asm__("" : : "r"(d)); _r; })) < 0x200)))
+      {
+        t = 1;
+      }
+      if ((((Body_80083CB8 *) (g_RcCar_83CB8))->f_70 != 0) && (!t))
+      {
+        if ((((((((Body_80083CB8 *) (g_RcCar_83CB8))->x - it->x) >= 0) ? (((Body_80083CB8 *) (g_RcCar_83CB8))->x - it->x) : (-(((Body_80083CB8 *) (g_RcCar_83CB8))->x - it->x))) < 0x200) && ((((((Body_80083CB8 *) (g_RcCar_83CB8))->z - it->z) >= 0) ? (((Body_80083CB8 *) (g_RcCar_83CB8))->z - it->z) : (-(((Body_80083CB8 *) (g_RcCar_83CB8))->z - it->z))) < 0x200)) && (({ register s32 _t asm("$2") = it->y; d = _t + 0x80; }), ((((((Body_80083CB8 *) (g_RcCar_83CB8))->y - d) >= 0) ? (((Body_80083CB8 *) (g_RcCar_83CB8))->y - d) : ({ s32 _r = -(((Body_80083CB8 *) (g_RcCar_83CB8))->y - d); __asm__("" : : "r"(d)); _r; })) < 0x200)))
+        {
+          t = 1;
+        }
+      }
+      if (it->col == 0)
+      {
+        if (t)
+        {
+          Col_80083CB8 *c = CollShape_Alloc();
+          it->col = c;
+          if (c != 0)
+          {
+            func_800836E0(it);
+            if (Collision_Set(9, it->col, 0) < 0)
+            {
+              CollShape_Free(it->col);
+              it->col = 0;
+            }
+          }
+        }
+      }
+      else
+        if (!t)
+      {
+        CollShape_Free(it->col);
+        Collision_Remove(it->col);
+        it->col = 0;
+      }
+    }
+    if (it->col != 0)
+    {
+      switch (it->col->f_2C >> 28)
+      {
+        case 0:
+          break;
+
+        case 1:
+
+        case 2:
+
+        case 3:
+
+        case 4:
+
+        case 8:
+
+        case 11:
+
+        case 12:
+
+        case 13:
+          CollShape_Free(it->col);
+          Collision_Remove(it->col);
+          it->col = 0;
+          it->state = 2;
+          it->vy = -0x50;
+          it->timer = 10;
+          it->fade = 0;
+          if ((it->kind == 2) || (it->kind == 4))
+        {
+          Fx_SpawnFadeRing(&it->x, 4, 0x200, 0);
+          Effect_SpawnAt(0x113, &it->x);
+          Effect_SpawnAt(0x109, &it->x);
+          for (j = 0; j < 20; j++)
+          {
+            Effect_SpawnAt(0x25, &it->x);
+          }
+
+          if (it->kind == 4)
+          {
+            g_SpecterCoinTimer = 0x20;
+            it->kind = 0;
+            CenterSign_ShowSpecterCoin();
+          }
+        }
+        else
+        {
+          Effect_SpawnAt(0x103, &it->x);
+        }
+          break;
+
+      }
+
+    }
+    if (it->kind == 0)
+    {
+      continue;
+    }
+    switch (it->state)
+    {
+      case 0:
+        it->x += it->vx;
+        it->y += it->vy;
+        it->z += it->vz;
+        it->vy += 7;
+        it->gy = Floor_GetHeight_PU(it->x, it->y, it->z) - 0x40;
+        if (it->y >= it->gy)
+      {
+        if (((it->y - it->gy) > 0x80) && (it->vx | it->vz))
+        {
+          it->x -= it->vx;
+          it->z -= it->vz;
+          it->vx = (-it->vx) / 2;
+          it->vz = (-it->vz) / 2;
+        }
+        else
+        {
+          it->y = it->gy;
+          it->vy = (-it->vy) / 3;
+          if (it->vy >= (-14))
+          {
+            it->state = 1;
+            it->fade = 0xF0;
+          }
+        }
+        Effect_SpawnAt(4, &it->x);
+      }
+        if (it->age >= 0x5A)
+      {
+        it->state = 1;
+        it->fade = 0xF0;
+      }
+        break;
+
+      case 1:
+        if (it->fade != 0)
+      {
+        if ((--it->fade) == 0)
+        {
+          it->kind = 0;
+          if (it->col != 0)
+          {
+            CollShape_Free(it->col);
+            Collision_Remove(it->col);
+            it->col = 0;
+          }
+        }
+      }
+        break;
+
+      case 2:
+        it->y += it->vy;
+        it->vy += 0xC;
+        if ((--it->timer) == 0)
+      {
+        it->state = 3;
+        it->timer = 8;
+      }
+        break;
+
+      case 3:
+        it->spin += it->timer;
+        if ((--it->timer) == 0)
+      {
+        it->kind = 0;
+        Effect_SpawnAt(0x104, &it->x);
+      }
+        break;
+
+    }
+
+    if (it->kind != 0)
+    {
+      if ((it->state < 2) && (it->col != 0))
+      {
+        it->col->x = it->x;
+        it->col->y = it->y;
+        it->col->z = it->z;
+      }
+      it->age++;
+      it->spin++;
+    }
+  }
+
+}
+
 
 
 /* Draws every live pickup: those blinking out (timer +0x17 in 1..45) skip odd frames; culled by

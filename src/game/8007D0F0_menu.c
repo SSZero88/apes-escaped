@@ -157,7 +157,68 @@ s32 func_8007D2AC(u8 *arg0) {
     return p - arg0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8007D0F0_menu", func_8007D2D8);
+typedef struct { u16 flags; u8 pad2[2]; u8 *text; u8 pad8[0x1C]; } MenuItem_8007D2D8;
+typedef struct { s16 x; s16 y; MenuItem_8007D2D8 *items; } MenuDef_8007D2D8;
+typedef struct { MenuDef_8007D2D8 def; s16 w; s16 h; u8 f_C; u8 f_D; s8 n; s8 sel; s16 f_10; s16 f_12; s16 f_14; s16 f_16; s16 f_18; s16 f_1A; s16 f_1C; s8 f_1E; u8 f_1F; u8 pad20[2]; s16 f_22; s16 f_24; u8 pad26[6]; } Menu_8007D2D8;
+extern u16 D_800BEF60_7D2D8 asm("D_800BEF60");
+extern Menu_8007D2D8 D_800F5270[];
+s32 func_8007D2AC(u8 *arg0);
+
+s32 func_8007D2D8(MenuDef_8007D2D8 *def) {
+    MenuItem_8007D2D8 *it = def->items;
+    s32 maxw = 0;
+    s32 w;
+    Menu_8007D2D8 *m;
+
+    if (D_800BEF60_7D2D8 >= 6) {
+        return -1;
+    }
+    m = &D_800F5270[D_800BEF60_7D2D8];
+    m->def = *def;
+    m->f_C = 1;
+    m->f_D = 2;
+    m->f_18 = 0x11;
+    m->f_1A = 0xF;
+    m->f_1E = -1;
+    m->sel = -1;
+    m->f_12 = 0;
+    m->f_10 = 0;
+    m->f_1F = 0;
+    m->f_1C = 0x5C2;
+    m->n = 0;
+    while (it->flags != 0) {
+        w = func_8007D2AC(it->text);
+        if (it->flags & 0x6000) {
+            w += 5;
+        }
+        if (maxw < w) {
+            maxw = w;
+        }
+        if (m->sel == -1 && (it->flags & 0x8000)) {
+            m->sel = m->n;
+        }
+        it++;
+        m->n++;
+    }
+    if (m->sel == -1) {
+        m->f_C = 2;
+    } else {
+        m->f_18 += 0x12;
+        D_800BEF62 = D_800BEF60_7D2D8;
+    }
+    m->f_22 = m->def.x + m->f_18;
+    m->f_24 = m->def.y + m->f_1A;
+    m->w = m->f_18 + (maxw + 1) * 8;
+    m->h = (m->f_1A + m->n * 5) * 2 - 5;
+    { s16 y = m->def.y; if (m->def.y + m->h < 0xF0) m->def.y = y; else m->def.y = 0xE8 - m->h; }
+    m->f_14 = 0;
+    m->f_16 = m->h / 4;
+    if (m->f_16 < 0x10) {
+        m->f_16 = 0x10;
+    }
+    D_800BEF60_7D2D8++;
+    return D_800BEF60_7D2D8 - 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/8007D0F0_menu", func_8007D530);
 

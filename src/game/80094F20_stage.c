@@ -234,9 +234,65 @@ s32 func_80095244(s32 a) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80094F20_stage", func_8009529C);
+struct S_D_800EC350_8009529C_b { u8 pad_0[0x8124]; u16 f_8124; u8 pad_8126[0x60]; s16 f_8186; };
+extern struct S_D_800F4DB0_8009529C_b { u8 pad_0[8]; s16 f_8; s16 f_A; u8 pad_C[0x14]; s32 f_20; } D_800F4DB0_9529C asm("D_800F4DB0");
+extern struct S_D_800EC350_8009529C_b g_Game_9529C asm("g_Game");
+void Hud_DrawMonkeyHeads(s32, s32);
+extern s16 D_800F4DBA;
 
-INCLUDE_RODATA("asm/nonmatchings/game/80094F20_stage", jtbl_800A6780);
+s32 func_8009529C(void) {
+    s16 x;
+    s16 t;
+    if (g_Game_9529C.f_8124 == 0x1F) {
+        return 0;
+    }
+    x = 0;
+    switch (D_800F4DBA) {
+    case 0:
+        t = 40;
+        D_800F4DB0_9529C.f_A = 1;
+        D_800F4DB0_9529C.f_8 = t;
+        x = t;
+        break;
+    case 1:
+        t = D_800F4DB0_9529C.f_8 - 2;
+        D_800F4DB0_9529C.f_8 = t;
+        if (t < 0) {
+            D_800F4DB0_9529C.f_A = 2;
+            D_800F4DB0_9529C.f_8 = 40;
+        } else {
+            x = t;
+        }
+        break;
+    case 2:
+        D_800F4DB0_9529C.f_8--;
+        if (D_800F4DB0_9529C.f_8 < 0) {
+            D_800F4DB0_9529C.f_A = 3;
+            D_800F4DB0_9529C.f_8 = 40;
+        }
+        break;
+    case 3:
+        t = D_800F4DB0_9529C.f_8 - 2;
+        D_800F4DB0_9529C.f_8 = t;
+        if (t < 0) {
+            D_800F4DB0_9529C.f_A = 4;
+        }
+        x = 40 - t;
+        __asm__("" : : "r"((s32)x));
+        if (x < 0) {
+            x = 0;
+        }
+        break;
+    case 4:
+        D_800F4DB0_9529C.f_20 &= ~4;
+        return 0;
+    }
+    if (g_Game_9529C.f_8186 > 0) {
+        Hud_DrawMonkeyHeads(0x136, x + 0xC0);
+    }
+    return 0;
+}
+
 INCLUDE_RODATA("asm/nonmatchings/game/80094F20_stage", jtbl_800A6780_pad);
 
 

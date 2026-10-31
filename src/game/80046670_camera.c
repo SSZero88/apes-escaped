@@ -445,7 +445,35 @@ void func_80047104(S_47104_80047104 *p, s32 type) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80046670_camera", func_800471E4);
+typedef struct { u8 unk0; u8 pad1; u8 unk2; u8 pad3[7]; SVECTOR unkA; u8 pad12[0x81]; u8 unk93; u8 pad94[0x1C]; } S_B4D40_800471E4;
+typedef struct { u8 pad0[2]; u16 unk2; } C_800471E4;
+extern C_800471E4 D_800E68D0_471E4 asm("D_800E68D0");
+extern S_B4D40_800471E4 *D_800B4D40_471E4 asm("D_800B4D40");
+void func_80047104_471E4(S_B4D40_800471E4 *, s32) asm("func_80047104");
+
+/* Claim the first free one of the 12 camera slots for camera `type` looking from `pos`; returns its index (0 if none). */
+s32 func_800471E4(s32 type, SVECTOR *pos) {
+    C_800471E4 *cnt;
+    S_B4D40_800471E4 *p;
+    s32 i;
+    i = 0;
+    cnt = &D_800E68D0_471E4;
+    p = D_800B4D40_471E4;
+    for (; i < 12; i++) {
+        if (p->unk0 == 0) {
+            __asm__("" : "=r"(p) : "0"(p));
+            p->unk0 = type;
+            p->unkA = *pos;
+            p->unk2 = i;
+            p->unk93 = 0xFF;
+            func_80047104_471E4(p, type);
+            cnt->unk2++;
+            return i;
+        }
+        p++;
+    }
+    return 0;
+}
 
 void func_80047290(s32 i) {
     S_B4D40_80047290 *p = &D_800B4D40[i];

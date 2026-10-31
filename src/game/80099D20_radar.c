@@ -39,7 +39,116 @@ void func_80099D20(void) {
     g_GadgetState.f_1C = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80099D20_radar", func_80099D70);
+typedef struct { u32 addr : 24; u32 len : 8; } P_TAG_99D70;
+typedef struct { P_TAG_99D70 tag; u32 tpage; u8 r0, g0, b0, code; s16 x0, y0; u32 uvclut; u32 wh; } Spr_99D70;
+typedef struct { u8 draw[0x5C]; u8 disp[0x14]; u32 ot[0x1000]; u8 pad[8]; } Db_99D70;
+typedef struct { u32 frame; Spr_99D70 *prim; u8 pad8[4]; s32 cur; Db_99D70 db[2]; u8 padRest[0x8100 - 0x10 - 2 * sizeof(Db_99D70)]; u32 f_8100; } Game_99D70;
+typedef struct { u8 pad0[8]; void *f_8; } Mdl_99D70;
+typedef struct { u8 pad0[0x140]; u16 x; u16 y; } Scr_99D70;
+extern Game_99D70 g_Game_99D70 asm("g_Game");
+extern struct { u8 pad0[0x17A]; u16 f_17A; u8 pad17C[0x20]; SVECTOR f_19C; } g_Pad;
+extern s16 g_SpikeHealth;
+extern u8 D_800E9E40[];
+extern u8 D_800F4910[];
+extern Mdl_99D70 D_800EC170;
+extern SVECTOR D_800EC240;
+s32 func_8007CA48(s32);
+void func_80066C90(SVECTOR *, SVECTOR *, s32);
+s32 Radar_GetSignal(void);
+void func_8009A4E8(s32, s32, s32, s32);
+void func_80020A20(Mdl_99D70 *, s32, s32, s32, s32);
+void Model_DrawPrims(u32 *, void *, u8 *);
+void Sound_Stop(s32, s32);
+s16 Sound_Play(s32, s32);
+void func_80087C28(s32, s32, s32);
+void Pad_Vibrate(s32, s32, s32);
+s32 func_8009A17C(void *);
+
+void func_80099D70(void) {
+    s32 sig;
+    u32 *ot;
+    u32 c;
+    Spr_99D70 *p;
+    u32 t;
+
+    if (g_Game_99D70.f_8100 & 1) {
+        func_8009A4E8((s32)D_800E9E40, (s32)D_800F4910, (s32)&g_GadgetState.f_4, g_Game_99D70.frame << 7);
+        return;
+    }
+    if (func_8007CA48(2) && g_Pad.f_17A != 0 && g_SpikeHealth > 0) {
+        func_80066C90(&g_Pad.f_19C, &g_GadgetState.f_4, 0x155);
+        sig = Radar_GetSignal();
+        func_8009A4E8((s32)D_800E9E40, (s32)D_800F4910, (s32)&g_GadgetState.f_4, g_Game_99D70.frame << 7);
+        if (sig > 0) {
+            Scr_99D70 *scr;
+            ot = &g_Game_99D70.db[g_Game_99D70.cur].ot[1];
+            if (sig < 21) {
+                c = sig * 8 + 0x20;
+            } else {
+                c = 0xFF;
+            }
+            c |= (c >> 1) << 16 | (c >> 1) << 8;
+            func_80020A20(&D_800EC170, (g_Game_99D70.frame & 0x1F) << 8, 0, 6, c);
+            Model_DrawPrims(g_Game_99D70.db[g_Game_99D70.cur].ot, D_800EC170.f_8, (u8 *)(scr = (Scr_99D70 *)D_800E7D00));
+            __asm__("" : : "r"(scr));
+            p = g_Game_99D70.prim;
+            if (g_Game_99D70.frame % (40 - sig) < 10) {
+                p->tag.len = 5;
+                p->tpage = 0xE100023D;
+                p->code = 0x67;
+                p->x0 = scr->x - 0xF;
+                p->y0 = scr->y - 0x22;
+                p->uvclut = 0x713740A0;
+                p->wh = 0x200020;
+                {
+                    u32 t1, t2;
+                    __asm__ volatile("lwl %0, %2
+	sll %1, %4, 8
+	swl %1, %2
+	swl %0, %3"
+                                     : "=&r"(t1), "=&r"(t2)
+                                     : "m"(*((u8 *)ot + 2)), "m"(*((u8 *)p + 2)), "r"(p));
+                }
+                p++;
+            }
+            g_Game_99D70.prim = p;
+            if (g_GadgetState.f_14 != -1) {
+                Sound_Stop(0x25, g_GadgetState.f_14);
+                g_GadgetState.f_14 = -1;
+            }
+            if (g_GadgetState.f_16 == -1) {
+                g_GadgetState.f_16 = Sound_Play(0, 0x26);
+            } else {
+                func_80087C28(0x26, g_GadgetState.f_16, sig * 80 + 0x1000);
+                Pad_Vibrate(1, sig * 4 + 0x28, 2);
+            }
+        } else {
+            func_80020A20(&D_800EC170, ((g_Game_99D70.frame & 0x1F) << 8) | 0x20, 0, 6, 0x202020);
+            Model_DrawPrims(g_Game_99D70.db[g_Game_99D70.cur].ot, D_800EC170.f_8, D_800E7D00);
+            if (g_GadgetState.f_16 != -1) {
+                Sound_Stop(0x26, g_GadgetState.f_16);
+                g_GadgetState.f_16 = -1;
+            }
+            if (g_GadgetState.f_14 == -1) {
+                g_GadgetState.f_14 = Sound_Play(0, 0x25);
+            }
+        }
+    } else {
+        func_80066C90(&D_800EC240, &g_GadgetState.f_4, 0x155);
+        func_8009A4E8((s32)D_800E9E40, (s32)D_800F4910, (s32)&g_GadgetState.f_4, 0);
+        if (g_GadgetState.f_14 != -1) {
+            Sound_Stop(0x25, g_GadgetState.f_14);
+            g_GadgetState.f_14 = -1;
+        }
+        if (g_GadgetState.f_16 != -1) {
+            Sound_Stop(0x26, g_GadgetState.f_16);
+            g_GadgetState.f_16 = -1;
+        }
+    }
+    if (g_GadgetState.f_1C != 0 && !func_8009A17C((void *)g_GadgetState.f_18)) {
+        g_GadgetState.f_1C = 0;
+    }
+}
 
 s32 func_8009A17C(void *arg0) {
     s32 var_a1;

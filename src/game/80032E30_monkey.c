@@ -3807,9 +3807,120 @@ void func_8003F4B4(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80032E30_monkey", func_8003F530);
+typedef struct { u16 start; u16 end; u8 pad[4]; } AE_8003F530;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x2C]; u16 frame; u8 pad5E[0x1A]; u8 state; u8 pad79[0x1D]; s16 t; u8 pad98[0x5A]; u16 f_F2; u8 padF4[0x34]; u16 dur; u8 pad12A[2]; s32 x0, y0, z0; u8 pad138[4]; s32 vx, vy, vz; u8 pad148[0x24]; AE_8003F530 *anims; u16 f_170; u16 f_172; } MJ_8003F530;
+s32 func_80040CFC_r3F530(s32) asm("func_80040CFC");
+s32 Monkey_ChooseRoute_r3F530(s32, s32) asm("Monkey_ChooseRoute");
+#define MIN_3F530(a, b) ((a) < (b) ? (a) : (b))
+#define MJ_3F530 ((MJ_8003F530 *)g_CurMonkey)
 
-INCLUDE_ASM("asm/nonmatchings/game/80032E30_monkey", func_8003F86C);
+s32 func_8003F530(void) {
+    VEC_80040CFC_80034EF8 v;
+    s32 t = MJ_3F530->t;
+    u16 tt = MJ_3F530->t;
+    s32 n;
+    u16 f;
+    if (t < MJ_3F530->dur) {
+        if (MJ_3F530->state != 0x1D) {
+            if (t < (MJ_3F530->dur >> 1)) {
+                f = MJ_3F530->frame;
+                if (f < MJ_3F530->anims[Monkey_CurAnimIndex()].start + MJ_3F530->f_172) {
+                    MJ_3F530->frame++;
+                }
+            } else if (t >= MJ_3F530->dur - (MJ_3F530->f_170 >> 1) && Monkey_CheckStateTimer() != 0) {
+                MJ_3F530->frame++;
+            }
+            MJ_3F530->frame = MIN_3F530(MJ_3F530->frame, MJ_3F530->anims[Monkey_CurAnimIndex()].end);
+            n = (s16)tt;
+            MJ_3F530->x = MJ_3F530->x0 + (MJ_3F530->vx >> 12) * n;
+            MJ_3F530->z = MJ_3F530->z0 + (MJ_3F530->vz >> 12) * n;
+            MJ_3F530->y = MIN_3F530(func_80040CFC_r3F530(1), MJ_3F530->y0 + MJ_3F530->vy * n / 4096 + n * 300 * n / 100);
+        }
+        MJ_3F530->t++;
+        return;
+    }
+    Node_GetPosition(MJ_3F530->f_F2, &v);
+    if (MJ_3F530->state == 0x1D) {
+        MJ_3F530->x = v.vx;
+        MJ_3F530->y = v.vy;
+        MJ_3F530->z = v.vz;
+    }
+    if (Monkey_ChooseRoute_r3F530(1, 0) != 0) {
+        func_800378C0();
+        return;
+    }
+    if (func_800339EC() != 0) {
+        return;
+    }
+    if (MJ_3F530->state == 9 || MJ_3F530->state == 0x3D || MJ_3F530->state == 0x1A || MJ_3F530->state == 0x35) {
+        return;
+    }
+    if (func_80033C00() == 0) {
+        Monkey_SetState(0);
+    }
+}
+
+typedef struct { u16 start; u16 end; u8 pad[4]; } AE_8003F86C;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x2C]; u16 frame; u8 pad5E[0x1A]; u8 state; u8 pad79[0x1D]; s16 t; u8 pad98[0x5A]; u16 f_F2; u8 padF4[0x34]; u16 dur; u8 pad12A[2]; s32 x0, y0, z0; u8 pad138[4]; s32 vx, vy, vz; u8 pad148[0x24]; AE_8003F86C *anims; } MJ_8003F86C;
+s32 func_80040CFC_r3F86C(s32) asm("func_80040CFC");
+s32 Monkey_ChooseRoute_r3F86C(s32, s32) asm("Monkey_ChooseRoute");
+#define MIN_3F86C(a, b) ((a) < (b) ? (a) : (b))
+#define MJ_3F86C ((MJ_8003F86C *)g_CurMonkey)
+
+s32 func_8003F86C(void) {
+    VEC_80040CFC_80034EF8 v;
+    s32 t;
+    MJ_8003F86C *m1;
+    u16 tt = MJ_3F86C->t;
+    switch (MJ_3F86C->state) {
+    case 0x2C:
+        if (!Monkey_CheckStateTimer()) {
+            MJ_3F86C->state = 0x2D;
+        }
+        break;
+    default:
+    case 0x2D:
+        m1 = MJ_3F86C;
+        t = (s16)tt;
+        if (t >= m1->dur) {
+            m1->state = 0x2E;
+            Monkey_RestartAnim();
+            Node_GetPosition(MJ_3F86C->f_F2, &v);
+            if (MJ_3F86C->state == 0x1D) {
+                MJ_3F86C->x = v.vx;
+                MJ_3F86C->y = v.vy;
+                MJ_3F86C->z = v.vz;
+            }
+            return;
+        }
+        if (m1->frame < MJ_3F86C->anims[Monkey_CurAnimIndex()].end) {
+            Monkey_StepAnimFrame();
+        }
+        MJ_3F86C->x = MJ_3F86C->x0 + (MJ_3F86C->vx >> 12) * t;
+        MJ_3F86C->z = MJ_3F86C->z0 + (MJ_3F86C->vz >> 12) * t;
+        MJ_3F86C->y = MIN_3F86C(func_80040CFC_r3F86C(1), MJ_3F86C->y0 + MJ_3F86C->vy * t / 4096 + t * 300 * t / 100);
+        MJ_3F86C->t++;
+        break;
+    case 0x2E:
+        if (Monkey_CheckStateTimer()) {
+            return;
+        }
+        if (Monkey_ChooseRoute_r3F86C(1, 0) != 0) {
+            func_800378C0();
+            return;
+        }
+        if (func_800339EC() != 0) {
+            return;
+        }
+        if (MJ_3F86C->state == 9 || MJ_3F86C->state == 0x3D || MJ_3F86C->state == 0x1A || MJ_3F86C->state == 0x35) {
+            return;
+        }
+        if (func_80033C00() == 0) {
+            Monkey_SetState(0);
+        }
+        return;
+    }
+}
 
 s32 func_8003FB44(void) {
     if (Monkey_IsTargetInRange() != 0) {
@@ -3964,7 +4075,86 @@ void func_80040170(void)
   }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80032E30_monkey", func_800401F4);
+int abs(int);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x4C]; u8 f_7C; u8 pad7D[0x18F]; s32 f_20C; u8 pad210[0x38]; u32 f_248; } M_800401F4;
+#define ML_401F4 ((M_800401F4 *)g_CurMonkey)
+void func_800154DC(void *, SVECTOR *);
+
+s32 func_800401F4(s32 mode) {
+    SVECTOR t;
+    s32 dx;
+    s32 dz;
+    u8 flat;
+    u8 xmajor;
+    s32 mx;
+    s32 my;
+    s32 mz;
+    s32 dist;
+    s32 tx, ty, tz;
+    s32 i;
+    s32 dy;
+    s32 x, z;
+    s16 k;
+    s16 y;
+    if (ML_401F4->f_20C < 0xFA) {
+        return 1;
+    }
+    if (mode == 1 && !((D_800AEB60 + ML_401F4->f_7C) & 1)) {
+        return (ML_401F4->f_248 >> 28) & 1;
+    }
+    if (!g_MonkeyTargetIsRC) {
+        func_800154DC(g_MonkeyTarget, &t);
+    } else {
+        t.vx = ((M_800401F4 *)g_MonkeyTarget)->x;
+        t.vy = ((M_800401F4 *)g_MonkeyTarget)->y;
+        t.vz = ((M_800401F4 *)g_MonkeyTarget)->z;
+    }
+    SetRotMatrix(&D_800E78C0);
+    SetTransMatrix(&D_800E78C0);
+    dist = Vec_DistXZ_SV((VEC_800345D4 *)&ML_401F4->x, &t);
+    if (dist == 0) {
+        return 1;
+    }
+    tx = t.vx;
+    ty = t.vy;
+    tz = t.vz;
+    my = ML_401F4->y - 0x7D;
+    mx = ML_401F4->x;
+    mz = ML_401F4->z;
+    if (tx == mx && tz == mz) {
+        return 1;
+    }
+    dz = ((ML_401F4->z - t.vz) << 12) / dist;
+    flat = abs(my - ty) < 100;
+    xmajor = abs(mx - tx) > abs(mz - tz);
+    i = 1;
+    dy = my - ty;
+    dx = ((ML_401F4->x - t.vx) << 12) / dist;
+    while (1) {
+        k = i;
+        if (k >= dist / SquareRoot0(0x20000)) {
+            break;
+        }
+        x = tx + SquareRoot0(0x20000) * k * dx / 4096;
+        z = tz + SquareRoot0(0x20000) * k * dz / 4096;
+        if (flat) {
+            if (Floor_GetHeight(x, my, z) - ty < -200) {
+                return 0;
+            }
+        } else {
+            if (xmajor) {
+                y = ty + dy * (x - tx) / (mx - tx);
+            } else {
+                y = ty + dy * (z - tz) / (mz - tz);
+            }
+            if (Floor_GetHeight(x, y, z) - y < -50) {
+                return 0;
+            }
+        }
+        i++;
+    }
+    return 1;
+}
 
 s32 Monkey_CanSeeTarget(u32 dir)
 {
@@ -4057,7 +4247,71 @@ void func_800407F0(void) {
     m->f_248 &= ~0x08000000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80032E30_monkey", func_8004086C);
+typedef struct { u8 pad0[0x7B]; u8 slot; u8 pad7C[0x6E]; u16 f_EA; u8 padEC[2]; s16 f_EE; u8 padF0[2]; u16 f_F2; u16 f_F4; u8 padF6[0x152]; u32 f_248; } M_8004086C;
+#define MIN_4086C(a, b) ((a) < (b) ? (a) : (b))
+#define MP_4086C ((M_8004086C *)g_CurMonkey)
+
+void func_8004086C(void) {
+    M_8004086C *m;
+    M_8004086C *m2;
+    s32 found;
+    s32 i;
+    s32 j;
+    s32 count;
+    s32 v;
+    s16 best;
+    u16 l;
+    m = MP_4086C;
+    found = 0;
+    if ((m->f_248 >> 27) & 1) {
+        if (D_800B4D00[m->f_F2].f_14[m->slot] != 0) {
+            return;
+        }
+        if (D_800B4D00[m->f_F4].f_14[m->slot] != 0) {
+            return;
+        }
+        m->f_248 &= ~0x08000000;
+        found = 1;
+    }
+    m2 = MP_4086C;
+    m2->f_EA++;
+    m2->f_248 &= ~0x08000000;
+    if (m2->f_EA % 2 == 1 && !found) {
+        for (i = 0; i < D_800B4D18; i++) {
+            if (D_800B4D00[i].f_14[MP_4086C->slot] != 0) {
+                D_800B4D00[i].f_14[MP_4086C->slot] = MIN_4086C(D_800B4D00[i].f_14[MP_4086C->slot] + 1, 0xFF) < 1 ? 1 : MIN_4086C(D_800B4D00[i].f_14[MP_4086C->slot] + 1, 0xFF);
+            }
+        }
+        return;
+    }
+    MP_4086C->f_248 &= ~0x08000000;
+    count = 0;
+    for (i = 0; i < D_800B4D18; i++) {
+        if (D_800B4D00[i].f_14[MP_4086C->slot] != 0) {
+            continue;
+        }
+        for (j = 0; j < D_800B4D00[i].f_A; j++) {
+            l = D_800B4D00[i].f_C[j];
+            if (D_800B4D00[l & 0x3FFF].f_14[MP_4086C->slot] >= 2 && (l & 0x4000) && Monkey_CanDoAction(i, l & 0x3FFF)) {
+                count++;
+                D_800B4D00[i].f_14[MP_4086C->slot] = 1;
+            }
+        }
+    }
+    m = MP_4086C;
+    m->f_EE = count;
+    if (count == 0) {
+        m->f_248 |= 0x08000000;
+        best = 0;
+        for (i = 0; i < D_800B4D18; i++) {
+            v = D_800B4D00[i].f_14[m->slot];
+            if (v < (s16)best) {
+                v = (s16)best;
+            }
+            best = v;
+        }
+    }
+}
 
 s32 func_80040BDC(VEC_80040CFC_80040BDC *a, VEC_80040CFC_80040BDC *b) {
     s32 ax = a->vx;
@@ -4128,8 +4382,8 @@ s32 func_80040CFC_r(s32) asm("func_80040CFC");
 s16 func_80041280_s(void) asm("func_80041280");
 void func_80035BD0_i(s32) asm("func_80035BD0");
 u16 Monkey_CurAnimIndex_u(void) asm("Monkey_CurAnimIndex");
-void func_8003F530(void);
-void func_8003F86C(void);
+s32 func_8003F530(void);
+s32 func_8003F86C(void);
 void func_8003CD84(void);
 void RotMatrix(SV_412B0 *, void *);
 #undef CM

@@ -53,7 +53,76 @@ void Stage_ApplyFog(void) {
     *(u16 *)(scratch + 0x03C2) = D_800EBFA0.f_28;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80031B60_stage_load", func_8003244C);
+typedef struct { u16 f_0; u16 f_2; s32 f_4; u8 *f_8; u8 *f_C; u8 *f_10; u8 *f_14; } Grid_8003244C;
+typedef struct { u16 model; u16 rot; u16 x; u16 y; u16 z; u16 pad; } Place_8003244C;
+typedef struct { u32 *f_0; u8 pad4[0xC]; s16 x; s16 y; s16 z; u16 zone; u8 pad18[4]; s32 f_1C; } Mdl_8003244C;
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_8003244C;
+struct Game_8003244C { u8 pad0[0x8194]; u32 *f_8194; u16 *f_8198; u8 pad819C[0x88]; u8 *f_8224; Place_8003244C *f_8228; u8 pad822C[0x54]; s32 f_8280; };
+extern struct Game_8003244C g_Game_3244C asm("g_Game");
+extern Grid_8003244C D_800EBFA0_3244C asm("D_800EBFA0");
+extern Mdl_8003244C *D_800B4D64;
+extern MAT_8003244C D_800E7900[];
+extern char D_800A48E0[];
+void *Mem_Alloc(s32);
+void Model_BindMesh_3244C(Mdl_8003244C *, u8 *) asm("Model_BindMesh");
+s16 Zone_FindAt(s32, s32, s32, s32);
+void func_8004637C(void *);
+void bios_printf(char *, ...);
+void bios_exit(s32);
+
+s32 func_8003244C(void) {
+    u16 *h;
+    s32 n;
+    s32 i;
+    Mdl_8003244C *m;
+    u32 k;
+    s32 x, y, z;
+
+    h = g_Game_3244C.f_8198;
+    D_800EBFA0_3244C.f_0 = h[0];
+    D_800EBFA0_3244C.f_2 = h[1];
+    if (!(*g_Game_3244C.f_8194 & 2)) {
+        D_800EBFA0_3244C.f_4 = ((s32 *)h)[1];
+        D_800EBFA0_3244C.f_8 = (u8 *)h + 8;
+        D_800EBFA0_3244C.f_C = (u8 *)h + (D_800EBFA0_3244C.f_0 * D_800EBFA0_3244C.f_2 * 4 + 8);
+        D_800EBFA0_3244C.f_10 = (u8 *)h + (D_800EBFA0_3244C.f_0 * D_800EBFA0_3244C.f_2 * 4 + 8) + D_800EBFA0_3244C.f_4 * 4;
+        D_800EBFA0_3244C.f_14 = D_800EBFA0_3244C.f_10 + D_800EBFA0_3244C.f_0 * D_800EBFA0_3244C.f_2 * 8;
+    }
+    n = 0;
+    D_800B4D64 = Mem_Alloc(g_Game_3244C.f_8280 << 5);
+    for (i = 0; i < g_Game_3244C.f_8280; i++) {
+        Model_BindMesh_3244C(&D_800B4D64[i], g_Game_3244C.f_8224 + *(u16 *)(g_Game_3244C.f_8224 + g_Game_3244C.f_8228[i].model * 4 + 4) * 4);
+        D_800B4D64[i].x = g_Game_3244C.f_8228[i].x;
+        x = D_800B4D64[i].x;
+        D_800B4D64[i].y = g_Game_3244C.f_8228[i].y;
+        y = D_800B4D64[i].y;
+        D_800B4D64[i].z = g_Game_3244C.f_8228[i].z;
+        z = D_800B4D64[i].z;
+        k = *(u8 *)D_800B4D64[i].f_0;
+        if (k < 6) {
+            if (k >= 4) {
+                D_800B4D64[i].zone = 0xFFFF;
+                goto next;
+            }
+        }
+        D_800B4D64[i].zone = Zone_FindAt(x, y, z, 0);
+    next:
+        if ((*D_800B4D64[i].f_0 & 0xF) != 3) {
+            D_800B4D64[i].f_1C = g_Game_3244C.f_8228[i].rot;
+        } else {
+            D_800B4D64[i].f_1C = (s32)&D_800E7900[n];
+            func_8004637C(&D_800E7900[n]);
+            RotMatrixY(g_Game_3244C.f_8228[i].rot, &D_800E7900[n]);
+            n++;
+            if (n > 0x20) {
+                bios_printf(D_800A48E0);
+                bios_exit(1);
+            }
+        }
+        *D_800B4D64[i].f_0 &= 0xFFFF1FFF;
+    }
+    return 0;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/80031B60_stage_load", D_800A48E0);
 

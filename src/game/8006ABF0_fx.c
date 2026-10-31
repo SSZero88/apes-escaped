@@ -736,4 +736,100 @@ void func_8006CFBC(void *arg0) {
     D_800BAD90.f_4 = (u16) (D_800BAD90.f_4 + M2C_FIELD(arg0, u16 *, 0x1C));
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8006ABF0_fx", func_8006D044);
+typedef struct { s16 vx, vy, vz, pad; } SV_6D044;
+typedef struct { s16 vx, vy, vz; u8 pad6[3]; u8 k; } Smoke_6D044;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; } Car_6D044;
+typedef struct { s32 z; s32 sxy; } Scr_6D044;
+typedef struct { u32 tag; u32 code; u32 xy0; u32 uv0; u32 xy1; u32 uv1; u32 xy2; u16 uv2; u16 pad1E; u32 xy3; u16 uv3; u16 pad26; } FT4_6D044;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_6D044;
+extern Smoke_6D044 D_800BAD90_6D044 asm("D_800BAD90");
+extern Car_6D044 g_RcCar_6D044 asm("g_RcCar");
+extern struct { s32 frame; u8 pad4[0x814C]; u16 f_8150; } g_Game_6D044 asm("g_Game");
+extern u8 g_Game_6D044b asm("g_Game");
+extern s8 g_CurrentGadget;
+extern u8 D_800B1BA0[];
+extern u8 D_800E78C0[];
+s32 Spike_IsUnderwater(void);
+void func_8006F3D0(SV_6D044 *, s32, void *, s32);
+void SetRotMatrix(void *);
+void SetTransMatrix(void *);
+
+/* RC Car exhaust smoke. While the RC Car is the current gadget (not in menu state 0xA, not with
+   D_800E6902, func_8005DC78() true, Spike not underwater): on odd frames spawns two pairs of puffs
+   (func_8006F3D0, kind D_800B1BA0, size 2-5) on the line from the car (0x20 up) to the trailing
+   point D_800BAD90, at weights stepping by 2/16 from the cycling counter +9; on even frames draws
+   a 3-frame animated sprite at the trailing point, sized by its depth. */
+void func_8006D044(void)
+{
+  Scr_6D044 *scr = (Scr_6D044 *) 0x1F800000;
+  Smoke_6D044 *s;
+  SV_6D044 pts[2];
+  SV_6D044 *p;
+  SV_6D044 *q;
+  s32 frame;
+  s32 k;
+  s32 i;
+  s32 j;
+  s32 w;
+  register s32 hy asm("$9");
+  s32 hx;
+  short x;
+  s32 y;
+  s32 u;
+  FT4_6D044 *f;
+  u32 *ot;
+  if (((((g_CurrentGadget != 7) || (g_Game_6D044.f_8150 == 0xA)) || (D_800E6902 == 1)) || (func_8005DC78() == 0)) || (Spike_IsUnderwater() != 0))
+  {
+    return;
+  }
+  s = &D_800BAD90_6D044;
+  k = s->k;
+  s->k = (k + 1) % 12;
+  frame = g_Game_6D044.frame;
+  if (frame & 1)
+  {
+    for (i = 0; i < 2; i++)
+    {
+      for (j = 0; j < 2; j++)
+      {
+        pts[j].vx = ((g_RcCar_6D044.x * k) + (s->vx * (16 - k))) / 16;
+        pts[j].vy = (((g_RcCar_6D044.y - 0x20) * k) + (s->vy * (16 - k))) / 16;
+        pts[j].vz = ((g_RcCar_6D044.z * k) + (s->vz * (16 - k))) / 16;
+        k += 2;
+      }
+
+      func_8006F3D0(pts, 2, D_800B1BA0, (((g_RandSeed = (g_RandSeed * 5) + 1) >> 8) & 3) + 2);
+      k = (k + 5) % 14;
+    }
+
+  }
+  if (!(frame & 1))
+  {
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    asm volatile("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(s));
+    asm volatile("nop; nop; rtps");
+    asm volatile("swc2 $14, 0(%0)" : : "r"(&scr->sxy) : "memory");
+    asm volatile("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(&scr->z) : "$12", "memory");
+    if (((u32) (scr->z - 1)) < 0xFFF)
+    {
+      hy = 0x616 / scr->z;
+      u = (((frame >> 1) % 3) * 16) - 0x2F;
+      hx = 0x668 / scr->z;
+      f = (FT4_6D044 *) (*((GameDraw *) (&g_Game_6D044b))).prim;
+      x = (s16) scr->sxy;
+      y = scr->sxy >> 16;
+      ot = (*((GameDraw *) (&g_Game_6D044b))).db[(*((GameDraw *) (&g_Game_6D044b))).cur].ot;
+      ((u8 *) f)[3] = 9;
+      f->code = 0x2F000000;
+      f->uv0 = ((u8) u) | 0x7EAC3800;
+      f->uv1 = (((u8) u) + 0xE) | 0x3C3800;
+      f->uv2 = (u & 0xFF) | 0x4600;
+      f->uv3 = ((u & 0xFF) + 0xE) | 0x4600;
+      { register s32 t0 asm("$4") = (y - hy) << 16; s32 t1 = (y + hy) << 16; register s32 l0 asm("$3") = (x - hx) & 0xFFFF; s32 l1 = (x + hx) & 0xFFFF;
+      f->xy0 = t0 | l0; f->xy1 = t0 | l1; f->xy2 = t1 | l0; f->xy3 = t1 | l1; }
+      ((PTag_6D044 *) f)->addr = ((PTag_6D044 *) (ot + scr->z))->addr, ((PTag_6D044 *) (ot + scr->z))->addr = (u32) f;
+      (*((GameDraw *) (&g_Game_6D044b))).prim = (u8 *) (f + 1);
+    }
+  }
+}

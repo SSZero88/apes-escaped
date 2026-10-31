@@ -193,7 +193,15 @@ void Anim_BlendCurrentEntry(Model_14E34_80014E34 *m) {
     Anim_BlendFrameIndex(m, d, d + 1, t);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80014750_anim", func_80014EF0);
+typedef struct { u8 pad0[0x5C]; u16 unk5C; } S_14EF0_80014EF0;
+
+void func_80014EF0(S_14EF0_80014EF0 *s, u16 *a) {
+    s32 d = s->unk5C - a[0];
+    s32 frac = ((d << 12) / a[2]) % 4096;
+    register s32 n asm("$3") = d / a[2];
+    n += a[3];
+    Anim_BlendFrameIndex(s, n, n + 1, frac);
+}
 
 /* Anim_BlendFrames between frames fa and fb of the model's animation data (m+0x18; each frame is
  * n + 2 words: header, root offset, n joint rotations). */

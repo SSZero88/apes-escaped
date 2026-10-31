@@ -8,7 +8,7 @@ extern struct S_D_800E68D0 { u8 pad0[0x46]; u8 f_46; u8 pad47[0x19]; S_20_8004D3
 extern struct S_D_800B8CC0 { u8 pad_0[0x20]; s16 f_20; u8 pad_22[0x2]; s8 f_24; u8 f_25; s8 f_26; u8 pad_27[0x2]; u8 f_29; } D_800B8CC0;
 extern char D_800A4DB0[];
 void bios_printf(const char *, ...);
-void CamFlyby_SetupSegment(S_20_8004D39C *);
+void CamFlyby_SetupSegment();
 void func_8005DD28(void);
 
 M2C_UNK Game_SetMode(M2C_UNK, u16, u16);
@@ -44,7 +44,37 @@ void func_8004D114(void *arg0) {
     M2C_FIELD(arg0, s32 *, 4) = (s32) D_800B8CC0.f_26;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8004D0F0_cam_flyby", CamFlyby_SetupSegment);
+typedef struct { s16 vx, vy, vz, pad; } SV_8004D134;
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } M_8004D134;
+typedef struct { SV_8004D134 p0; s16 x1, y1, z1, frames; s16 r0x, r0y, r0z; u8 next; u8 pad17; SV_8004D134 r1; } Key_8004D134;
+typedef struct { SV_8004D134 pos; SV_8004D134 vel; SV_8004D134 at; SV_8004D134 atvel; s16 timer; s16 fade; u8 pad24[4]; u8 next; } Fly_8004D134;
+extern Fly_8004D134 D_800B8CC0_4D134 asm("D_800B8CC0");
+void RotMatrixZYX_4D134(SV_8004D134 *, M_8004D134 *) asm("RotMatrixZYX");
+#define setVector_4D134(v, _x, _y, _z) (v)->vx = _x, (v)->vy = _y, (v)->vz = _z
+
+/* Start flyby segment k: eye moves from p0 to (x1,y1,z1) over `frames`, the look direction turns
+ * from rotation r0 to r1 (z axis of each rotation matrix); `next` chains the following segment. */
+void CamFlyby_SetupSegment(Key_8004D134 *k) {
+    SV_8004D134 v;
+    M_8004D134 m;
+    s32 n;
+    n = k->frames;
+    if (n == 0) {
+        n = 1;
+    }
+    D_800B8CC0_4D134.timer = n + 1;
+    D_800B8CC0_4D134.pos = k->p0;
+    setVector_4D134(&D_800B8CC0_4D134.vel, (k->x1 - D_800B8CC0_4D134.pos.vx) / n, (k->y1 - D_800B8CC0_4D134.pos.vy) / n, (k->z1 - D_800B8CC0_4D134.pos.vz) / n);
+    RotMatrixZYX_4D134((SV_8004D134 *)&k->r0x, &m);
+    setVector_4D134(&D_800B8CC0_4D134.at, m.m[0][2], m.m[1][2], m.m[2][2]);
+    RotMatrixZYX_4D134(&k->r1, &m);
+    v.vx = m.m[0][2];
+    v.vy = m.m[1][2];
+    v.vz = m.m[2][2];
+    setVector_4D134(&D_800B8CC0_4D134.atvel, (v.vx - D_800B8CC0_4D134.at.vx) / n, (v.vy - D_800B8CC0_4D134.at.vy) / n, (v.vz - D_800B8CC0_4D134.at.vz) / n);
+    D_800B8CC0_4D134.next = k->next;
+    D_800B8CC0_4D134.fade = 4;
+}
 
 void CamFlyby_StartSegment(s32 i) {
     if (i >= D_800E68D0.f_68) {

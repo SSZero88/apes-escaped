@@ -1597,7 +1597,126 @@ s32 Dir_QuadrantIndex(s32 a) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", Collider_PushApart);
+typedef struct { s16 vx, vy, vz, pad; } SV_777AC;
+typedef struct { s32 x, y, z; u8 padC[0x14]; s16 f_20; s16 f_22; u8 pad24[2]; s16 f_26; u8 pad28[4]; s32 f_2C; } D_777AC;
+typedef struct N_777AC { s16 kind; s16 id; D_777AC *d; u8 pad8[4]; struct N_777AC *next; } N_777AC;
+extern N_777AC *g_CollisionHead_777AC asm("g_CollisionHead");
+s32 Collider_GetCentre_777AC(s16, D_777AC *, SV_777AC *) asm("Collider_GetCentre");
+void VectorNormalS(void *, void *);
+void Camera_Translate(s32, s32, s32);
+
+s32 Collider_PushApart(N_777AC *self)
+{
+  s32 *d = (s32 *) 0x1F8000F0;
+  SV_777AC *n = (SV_777AC *) 0x1F800100;
+  SV_777AC *b = (SV_777AC *) 0x1F800108;
+  SV_777AC *o = (SV_777AC *) 0x1F800110;
+  register N_777AC *c asm("$17");
+  D_777AC *od;
+  s16 px;
+  s16 pz;
+  s32 h;
+  s32 dx;
+  s32 dz;
+  if (self->d->f_2C != 0)
+  {
+    return 0;
+  }
+  for (c = g_CollisionHead_777AC; c != 0; c = c->next)
+  {
+    if ((((self == c) || (c->kind <= 0)) || (c->kind >= 6)) || (c->d->f_2C != 0))
+    {
+      continue;
+    }
+    if ((((self->kind == 3) && (c->kind != 1)) && (c->kind != 3)) && (c->kind != 2))
+    {
+      continue;
+    }
+    if (self->kind == 4)
+    {
+      if (c->kind == 3)
+      {
+        continue;
+      }
+      if (c->kind == 4)
+      {
+        continue;
+      }
+    }
+    if (self->kind == 5)
+    {
+      if (c->kind == 5)
+      {
+        continue;
+      }
+      if (c->kind == 3)
+      {
+        continue;
+      }
+    }
+    od = c->d;
+    Collider_GetCentre_777AC(c->kind, od, o);
+    for (;;)
+    {
+      Collider_GetCentre_777AC(self->kind, self->d, b);
+      d[0] = o->vx - b->vx;
+      d[1] = o->vy - b->vy;
+      d[2] = o->vz - b->vz;
+      if (Vec_Length(d[0], 0, d[2]) >= (od->f_20 + self->d->f_20))
+      {
+        break;
+      }
+      h = (((self->d->f_22 / 2) >= 0) ? (self->d->f_22 / 2) : (-(self->d->f_22 / 2))) + (((od->f_22 / 2) >= 0) ? (od->f_22 / 2) : (-(od->f_22 / 2)));
+      if ((o->vy - b->vy) >= 0)
+      {
+        if (!((o->vy - b->vy) < h))
+        {
+          break;
+        }
+        __asm__ volatile("");
+        goto body;
+      }
+      if (!((b->vy - o->vy) < h))
+      {
+        break;
+      }
+body:
+      if ((((c->kind == 5) && (self->kind == 4)) || ((c->kind == 4) && (self->kind == 5))) || (c->kind == 1))
+      {
+        c->d->f_2C = (self->kind << 28) | self->id;
+      }
+      self->d->f_2C = (c->kind << 28) | c->id;
+      if ((self->kind == 3) && (c->kind == 3))
+      {
+        break;
+      }
+      VectorNormalS(d, n);
+      px = n->vx >> 10;
+      pz = n->vz >> 10;
+      if ((((u16) (px + 3)) < 7) && (((u16) (pz + 3)) < 7))
+      {
+        px = (px < 0) ? (-4) : (4);
+        pz = (pz < 0) ? (-4) : (4);
+      }
+      if (((self->d->f_26 & 0x8000) && (((u16) (c->kind - 1)) < 2)) || ((self->kind == 5) && (c->kind == 4)))
+      {
+        c->d->x += px;
+        c->d->z += pz;
+        Collider_GetCentre_777AC(c->kind, c->d, o);
+        if (c->kind == 1)
+        {
+          Camera_Translate(px, 0, pz);
+        }
+        continue;
+      }
+      self->d->x -= px;
+      self->d->z -= pz;
+    }
+
+  }
+
+  return 0;
+}
 
 s32 Collider_GetCentre(s16 k, S_77C28_80077C28 *s, s16 *out) {
     if ((k >= 6 && k < 10) || k == 0xC || k == 0xD || k == 0x10 || k == 0x11) {
@@ -1615,7 +1734,61 @@ s32 Collider_GetCentre(s16 k, S_77C28_80077C28 *s, s16 *out) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", func_80077D18);
+typedef struct { s32 x, y, z; u8 padC[0x14]; s16 f_20; s16 f_22; s16 f_24; u8 pad26[6]; u32 f_2C; u8 pad30[0x20]; u32 f_50; } CObj_80077D18;
+typedef struct CNode_80077D18 { s16 f_0; u16 f_2; CObj_80077D18 *f_4; CObj_80077D18 *f_8; struct CNode_80077D18 *f_C; } CNode_80077D18;
+typedef struct { s16 x; u16 y; u16 z; } SPt_77D18;
+extern CNode_80077D18 *g_CollisionHead_7D18 asm("g_CollisionHead");
+s32 Collider_GetCentre_7D18(s16 k, CObj_80077D18 *o, SPt_77D18 *out) asm("Collider_GetCentre");
+s32 func_80098320(void);
+
+s32 func_80077D18(s32 unused, CNode_80077D18 *self) {
+    SPt_77D18 *scr = (SPt_77D18 *)0x1F8000F0;
+    CNode_80077D18 *n;
+    CObj_80077D18 *o;
+    s32 d;
+    s32 k; s32 e; s32 w; u32 hi; u32 t;
+
+    for (n = g_CollisionHead_7D18; n != 0; n = n->f_C) {
+        if (n->f_0 != 1) {
+            continue;
+        }
+        if (n->f_4->f_2C != 0 && (n->f_4->f_2C >> 28) != 10) {
+            continue;
+        }
+        __asm__ volatile("" ::: "memory");
+        o = n->f_4;
+        Collider_GetCentre_7D18(n->f_0, o, scr);
+        d = Vec_Length(scr->x - self->f_4->x, 0, (s16)scr->z - self->f_4->z);
+        w = self->f_4->f_22;
+        e = d - self->f_4->f_20;
+        if (e >= 0) {
+            if (!(e < w)) continue;
+            __asm__ volatile("");
+            goto body;
+        }
+        if (!(self->f_4->f_20 - d < w)) continue;
+body:
+        { register CObj_80077D18 *sp asm("$3") = self->f_4;
+        if (o->y - o->f_22 - 0x40 >= sp->y) {
+            continue;
+        }
+        if (sp->y >= o->y + 0x40) {
+            continue;
+        }
+        k = sp->f_24; }
+        k <<= 12;
+        if (func_80098320() == 0) {
+            { register CObj_80077D18 *dst asm("$4"); hi = k & 0xFFFF000; t = (self->f_2 & 0xFFF) | 0xB0000000; dst = n->f_4; hi |= t; dst->f_2C = hi; }
+            self->f_4->f_2C = 0x60000000;
+            if (self->f_8 != 0) {
+                self->f_8->f_50 = 0x60000000;
+            }
+        } else {
+            { register CObj_80077D18 *dst asm("$4"); hi = k & 0xFFFF000; t = (n->f_2 & 0xFFF) | 0xB0000000; dst = self->f_4; hi |= t; dst->f_2C = hi; }
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", func_80077EE8);
 

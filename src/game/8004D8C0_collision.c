@@ -58,7 +58,156 @@ struct S_D_800EC350_8004E8F8 { u8 pad_0[0x8296]; s16 f_8296; };
 
 INCLUDE_ASM("asm/nonmatchings/game/8004D8C0_collision", func_8004D8C0);
 
-INCLUDE_ASM("asm/nonmatchings/game/8004D8C0_collision", func_8004DF38);
+typedef struct { s16 x, y, z, w, h, d; u8 padC[4]; u16 f_10; u8 pad12[2]; u16 f_14; } O_4DF38_8004DF38;
+extern s32 (*D_800AF180_DF38[])(s32, s16 *, s32 *, s32 *) asm("D_800AF180");
+s32 func_80079A28_DF38(s16, s16) asm("func_80079A28");
+s32 Coll_PastEdge_DF38(O_4DF38_8004DF38 *, s32 *) asm("Coll_PastEdge");
+s32 func_8004F438_DF38(O_4DF38_8004DF38 *, s32 *, s32 *) asm("func_8004F438");
+s32 Coll_CurvedCorner_DF38(O_4DF38_8004DF38 *, s32 *, s32 *, s16 *) asm("Coll_CurvedCorner");
+s32 Coll_HalfCylinderHeight_DF38(s32, s16 *, s32 *, s32 *) asm("Coll_HalfCylinderHeight");
+s32 Surface_CylinderHeight_DF38(s16, s16 *, s32 *, s32 *) asm("Surface_CylinderHeight");
+s32 func_8004F514_DF38(O_4DF38_8004DF38 *, s32 *, s32 *) asm("func_8004F514");
+
+/* Floor height of collision object o under point (x,y,z): dispatches on the shape kind (+0x10) to
+ * ramps, curved corners, half-cylinders, cylinders and boxes; 0 when the point is outside or above. */
+s32 func_8004DF38(O_4DF38_8004DF38 *o, s32 x, s32 y, s32 z) {
+    s32 pos[3];
+    s32 res[2];
+    s32 q[3];
+    s16 sl[2];
+    s16 kind;
+    s32 k;
+    s32 r;
+
+    if (func_80079A28_DF38(o->f_10, o->f_14 & 0x8000) == 0) {
+        goto miss;
+    }
+    switch (o->f_10 & 0xF000) {
+    case 0x3000:
+    case 0x9000:
+        k = *(u8 *)&o->f_10;
+        kind = k;
+        if (kind == 0x36 || kind == 0x44 || (u32)(k - 0x4E) < 4) {
+            if (kind != 0x44) {
+                return 0;
+            }
+            pos[0] = x;
+            pos[1] = y;
+            pos[2] = z;
+            if ((u32)(kind - 0x4E) < 4 && Coll_PastEdge_DF38(o, pos) == 0) {
+                return 0;
+            }
+            if (func_8004F438_DF38(o, pos, res) == 0) {
+                goto miss;
+            }
+            D_800AF2EC = 0;
+            D_800AF2F0 = 0;
+            return res[0];
+        }
+        if ((u32)(k - 0x46) < 4) {
+            pos[0] = x;
+            pos[1] = y;
+            pos[2] = z;
+            q[0] = 0;
+            q[1] = 0;
+            q[2] = 0;
+            r = Coll_CurvedCorner_DF38(o, pos, q, sl);
+            if (r < 0) {
+                goto miss;
+            }
+            D_800AF2EC = sl[0];
+            D_800AF2F0 = sl[1];
+            return r;
+        }
+        if ((u32)(k - 0x24) < 2) {
+            pos[0] = x - o->x;
+            pos[2] = z - o->z;
+            pos[1] = y - o->y;
+            if (Coll_HalfCylinderHeight_DF38(kind, &o->w, pos, res)) {
+                return res[0];
+            }
+            return 0;
+        }
+        if ((u32)(k - 0x53) < 2) {
+            pos[0] = x - o->x;
+            pos[2] = z - o->z;
+            pos[1] = y - o->y;
+            if (Surface_CylinderHeight_DF38(kind, &o->w, pos, res)) {
+                return res[0];
+            }
+            return 0;
+        }
+        if (kind == 0x52) {
+            goto miss;
+        }
+        if (Vec_Length(o->x - x, 0, o->z - z) >= o->w) {
+            goto miss;
+        }
+        break;
+    case 0x1000:
+        if ((u32)((o->f_10 & 0xFF) - 0x4A) >= 4) {
+            goto miss;
+        }
+        pos[0] = x;
+        pos[1] = y;
+        pos[2] = z;
+        if (func_8004F514_DF38(o, pos, res) == 0) {
+            goto miss;
+        }
+        D_800AF2EC = 0;
+        D_800AF2F0 = 0;
+        return res[0];
+    case 0x2000:
+    case 0x4000:
+        if (o->x + o->w < x) {
+            return 0;
+        }
+        if (x < o->x - o->w) {
+            return 0;
+        }
+        if (o->z + o->d < z) {
+            return 0;
+        }
+        if (z < o->z - o->d) {
+            return 0;
+        }
+        if (o->y < y) {
+            return 0;
+        }
+        pos[0] = x - o->x;
+        pos[2] = z - o->z;
+        pos[1] = y;
+        { s32 i = o->f_10 & 0xFF;
+        res[0] = o->y;
+        if (D_800AF180_DF38[i](i, &o->w, pos, res)) {
+            return res[0];
+        }
+        return 0;
+        }
+    default:
+        if (o->x + o->w < x) {
+            return 0;
+        }
+        if (x < o->x - o->w) {
+            return 0;
+        }
+        if (o->z + o->d < z) {
+            return 0;
+        }
+        if (z < o->z - o->d) {
+            return 0;
+        }
+        break;
+    }
+    if (o->y < y) {
+        return 0;
+    }
+    D_800AF2EC = 0;
+    D_800AF2F0 = 0;
+    return o->h;
+miss:
+    return 0;
+}
 
 s32 func_8004E33C(s16 k, S_8004E33C_8004E33C *b, s32 *p, s32 *out) {
     s16 x;
@@ -332,9 +481,43 @@ miss:
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8004D8C0_collision", func_8004ED30);
+typedef struct { s32 vx, vy, vz; } VEC_8004ED30;
 
-INCLUDE_RODATA("asm/nonmatchings/game/8004D8C0_collision", jtbl_800A4EF8);
+/* Height on a sloped-step collision box (kinds 11-18): a ramp rising along +-x or +-z; also sets the slope push (D_800AF2EC/F0). */
+s32 func_8004ED30(s16 k, SVECTOR *a, VEC_8004ED30 *b, s32 *out) {
+    if (b->vx < -a->vx || a->vx < b->vx || b->vz < -a->vz || a->vz < b->vz) {
+        return 0;
+    }
+    *out = 0;
+    switch (k) {
+    case 11:
+    case 12:
+        { s32 h = b->vz / 2; s32 t = (k << 8) - 0xA80; *out = h + t; }
+        D_800AF2F0 = -0x100;
+        D_800AF2EC = 0;
+        break;
+    case 15:
+    case 16:
+        { s32 t = (k << 8) - 0xE80; *out = t - b->vz / 2; }
+        D_800AF2F0 = 0x100;
+        D_800AF2EC = 0;
+        break;
+    case 17:
+    case 18:
+        { s32 h = b->vx / 2; s32 t = (k << 8) - 0x1080; *out = h + t; }
+        D_800AF2EC = -0x100;
+        D_800AF2F0 = 0;
+        break;
+    case 13:
+    case 14:
+        { s32 t = (k << 8) - 0xC80; *out = t - b->vx / 2; }
+        D_800AF2EC = 0x100;
+        D_800AF2F0 = 0;
+        break;
+    }
+    return 1;
+}
+
 
 
 typedef struct { s32 vx, vy, vz; } VEC_8004EE94;

@@ -546,7 +546,38 @@ INCLUDE_ASM("asm/nonmatchings/game/80060780_spike", Spike_AnimEvents);
 INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5B50);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80060780_spike", func_800649D8);
+typedef struct { u8 f_0; s8 f_1; u8 f_2; u8 f_3; } E_800649D8;
+extern s32 (*D_800B0298[])(void);
+extern void (*D_800B03AC[])(void);
+void Spike_SetState(s32);
+
+void func_800649D8(void *arg) {
+    register E_800649D8 *tbl asm("$21") = arg;
+    s32 i = 0;
+    s32 k = D_800EC23E;
+    E_800649D8 *e;
+    while (1) {
+        e = (E_800649D8 *)((i << 2) + (s32)tbl);
+        if (e->f_0 > k) {
+            return;
+        }
+        if (e->f_0 == k) goto match;
+next:
+        i++;
+        continue;
+match:
+        if (e->f_1 > 0) {
+            if (D_800B0298[e->f_1]() == 0) goto next;
+        } else if (D_800B0298[-e->f_1]() != 0) {
+            goto next;
+        }
+        Spike_SetState(e->f_2);
+        if (e->f_3 != 0) {
+            D_800B03AC[e->f_3]();
+        }
+        return;
+    }
+}
 
 s32 func_80064AF0(void) {
     return 0;
