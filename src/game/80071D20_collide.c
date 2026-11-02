@@ -1146,7 +1146,120 @@ miss:
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", func_80073FD4);
+typedef struct { s16 x, y, z, w, h, d; } O_73FD4;
+typedef struct { s32 x, y, z; } P_73FD4;
+typedef struct { u16 r; u8 pad2[2]; s32 flags; s32 h; } B_73FD4;
+extern P_73FD4 *D_800B20B4_73FD4 asm("D_800B20B4");
+extern P_73FD4 *D_800B20B8_73FD4 asm("D_800B20B8");
+s32 func_8004F884_73FD4(s32, O_73FD4 *, P_73FD4 *, s32 *) asm("func_8004F884");
+s32 Box_ContainsXZ_73FD4(P_73FD4 *, O_73FD4 *) asm("Box_ContainsXZ");
+
+s32 func_80073FD4(O_73FD4 *o, B_73FD4 *b, s32 *out) {
+    s32 *top = (s32 *)0x1F800124;
+    P_73FD4 *q = (P_73FD4 *)0x1F800134;
+    s32 fl;
+    s16 ex = o->w + b->r;
+    s16 ez = o->d + b->r;
+    s16 i;
+    s32 dx;
+    s32 dz;
+    s16 side;
+    s32 t;
+    s32 y;
+    P_73FD4 *p;
+    s32 hit;
+    s32 *zp;
+
+    fl = b->flags;
+    zp = &D_800B20B4_73FD4->z;
+    if (o->x + ex < D_800B20B4_73FD4->x) {
+        goto miss;
+    }
+    if (D_800B20B4_73FD4->x < o->x - ex) {
+        return 0;
+    }
+    if (o->z + ez < D_800B20B4_73FD4->z) {
+        return 0;
+    }
+    if (*zp < o->z - ez) {
+        return 0;
+    }
+    for (i = 0; i < 3; i++) {
+        ((s32 *)q)[i] = ((s32 *)D_800B20B4_73FD4)[i];
+    }
+    if (D_800B20B4_73FD4->x >= o->x + o->w) {
+        q->x = o->x + o->w - 1;
+    } else if (!(o->x - o->w < D_800B20B4_73FD4->x)) {
+        q->x = o->x - o->w + 1;
+    }
+    if (D_800B20B4_73FD4->z >= o->z + o->d) {
+        q->z = o->z + o->d - 1;
+    } else if (!(o->z - o->d < D_800B20B4_73FD4->z)) {
+        q->z = o->z - o->d + 1;
+    }
+    if (func_8004F884_73FD4(fl & 0xFF, o, q, top) == 0) {
+        goto miss;
+    }
+    if (Coll_HeightOverlap(D_800B20B4_73FD4->y, b->h, top[0], top[1]) == 0) {
+        return 0;
+    }
+__asm__("" : : "r"(b));    dx = D_800B20B4_73FD4->x - o->x;
+    dz = D_800B20B4_73FD4->z - o->z;
+    side = ((dx * o->d / o->w < dz) << 1) | (dx * -o->d / o->w < dz);
+    if (side == 0 || side == 3) {
+        t = o->z - D_800B20B4_73FD4->z;
+        out[2] = t;
+        out[2] = D_800B20B4_73FD4->z < o->z ? t - ez : t + ez;
+    } else if (side == 1 || side == 2) {
+        out[0] = o->x - D_800B20B4_73FD4->x;
+        out[0] = D_800B20B4_73FD4->x < o->x ? out[0] - ex : out[0] + ex;
+    }
+    if ((u32)((fl & 0xFF) - 0x40) < 4) {
+        p = D_800B20B4_73FD4;
+        if (p->y - b->h < top[0] && top[0] - top[1] < p->y) {
+            if (Box_ContainsXZ_73FD4(p, o) && Box_ContainsXZ_73FD4(D_800B20B8_73FD4, o)) {
+                out[3] = top[0] - (D_800B20B4_73FD4->y - b->h);
+            }
+        }
+    } else {
+        p = D_800B20B4_73FD4;
+        if (p->y - b->h < top[0] && top[0] - top[1] < p->y - b->h && top[0] < p->y) {
+            if (Box_ContainsXZ_73FD4(p, o) && Box_ContainsXZ_73FD4(D_800B20B8_73FD4, o)) {
+                out[3] = top[0] - (D_800B20B4_73FD4->y - b->h);
+            }
+        }
+    }
+skip:
+
+    if ((u32)((fl & 0xFF) - 7) < 4) {
+        y = top[0];
+    } else {
+        y = top[0] - top[1];
+    }
+    if (D_800B20B4_73FD4->y - 0x60 < y) {
+        if ((u32)((fl & 0xFF) - 0x40) < 4) {
+            return 0;
+        }
+        if ((fl & 0xF00) == 0x800) {
+            if (side == 3) {
+                return 0;
+            }
+        } else if ((fl & 0xF00) == 0xC00) {
+            if (side == 2) {
+                return 0;
+            }
+        } else if ((fl & 0xF00) == 0x400) {
+            if (side == 1) {
+                return 0;
+            }
+        } else if (side == 0) {
+            return 0;
+        }
+    }
+    return 1;
+miss:
+    return 0;
+}
 
 /* Push Spike (D_800B20B4) out of a wedge: box o (x/z half sizes +6/+0xA, height +8 below +2) cut
  * along a 45-degree diagonal (b[1] & 0xF00, see Geo_DiagonalDistance). On the square faces he is

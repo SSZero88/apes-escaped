@@ -551,7 +551,58 @@ s32 Platform_UpdateOrbit(Plat_895F0_800895F0 *p, s16 id) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80088670_platform", func_80089B10);
+typedef struct { s16 x; s16 pad2; s16 z; u8 pad6[6]; s16 f_C; u8 padE[4]; u16 f_12; u8 pad14[8]; s16 f_1C; } Rot_80089B10;
+struct Spike_80089B10 { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x28]; s16 f_58; };
+extern struct S_D_800EC1E0 g_Spike;
+s32 ratan2(s32, s32);
+
+s32 func_80089B10(o, id)
+Rot_80089B10 *o;
+s16 id;
+{
+  s32 a;
+  s32 b;
+  s32 c;
+  s32 r;
+  s16 dx;
+  s16 dy;
+  s16 dz;
+  s32 k;
+  a = ratan2(((struct Spike_80089B10 *) (&g_Spike))->z - o->z, ((struct Spike_80089B10 *) (&g_Spike))->x - o->x);
+  if (a < 0)
+  {
+    a += 0x1000;
+  }
+  if (!(o->f_12 & 0xF000))
+  {
+    k = o->f_1C;
+    c = ((((a * k) / 4096) + o->f_C) << 12) / k;
+  }
+  else
+  {
+    k = o->f_1C;
+    c = ((((a * k) / 4096) - o->f_C) << 12) / k;
+  }
+  r = Vec_Length(((struct Spike_80089B10 *) (&g_Spike))->x - o->x, 0, ((struct Spike_80089B10 *) (&g_Spike))->z - o->z);
+  dx = ((r * rcos(a)) / 4096) - ((r * rcos(c)) / 4096);
+  dy = 0;
+  dz = ((r * rsin(a)) / 4096) - ((r * rsin(c)) / 4096);
+  if ((dx == 0) && (dz == 0))
+  {
+    o->f_C++;
+  }
+  else
+  {
+    o->f_C = 1;
+  }
+  if (((struct Spike_80089B10 *) (&g_Spike))->f_58 == ((s16) id))
+  {
+    ((struct Spike_80089B10 *) (&g_Spike))->x += dx;
+    ((struct Spike_80089B10 *) (&g_Spike))->y += dy;
+    ((struct Spike_80089B10 *) (&g_Spike))->z += dz;
+  }
+  return 0;
+}
 
 s32 func_80089D64(void) {
     return 0;

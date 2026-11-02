@@ -1758,7 +1758,283 @@ s32 func_80066F50(void) {
     return Spike_IsUnderwater() == 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80060780_spike", Spike_HandleHit);
+typedef struct { s16 vx, vy, vz, pad; } SV_67000;
+typedef struct { s32 vx, vy, vz, pad; } V_67000;
+typedef struct { u8 pad0[8]; SV_67000 n1; SV_67000 n; V_67000 d; } Scr_67000;
+typedef struct { s32 x, y, z; u8 padC[0x18]; u16 f_24; u16 f_26; } Col_67000;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x20]; u32 f_50; u8 pad54[0xA]; u16 state; s16 f_60; u8 pad62[2]; s16 f_64; u8 pad66[0xA]; s32 f_70; u8 pad74[0x74]; s16 f_E8; s16 f_EA; u8 padEC[3]; u8 f_EF; u8 f_F0; u8 f_F1; u8 padF2[0xC]; s16 f_FE; u8 pad100[8]; s32 f_108; s32 f_10C; s32 f_110; s32 f_114; s32 f_118; s32 f_11C; s32 f_120; s32 f_124; s32 f_128; s32 f_12C; u8 pad130[8]; u16 f_138; } Sp_67000;
+typedef struct { u8 pad0[0x32]; u8 f_32; u8 pad33[5]; u8 f_38; u8 pad39[0xD]; u8 f_46; } Cam_67000;
+typedef struct { u16 spd; u16 ang; } KB_67000;
+extern u8 D_800E68D0[];
+extern u8 D_800EC2CF;
+extern s32 D_800B0264[];
+extern KB_67000 D_800B0250[];
+#define SP_67000 ((Sp_67000 *)&g_Spike)
+Col_67000 *Collision_GetShape(s32);
+void VectorNormalS(void *, void *);
+void func_80048748(void);
+void func_8006C2C0(void);
+void Spike_StartDamageEffect(s32);
+void func_8006C204(void);
+s32 rsin(s32);
+void Camera_StartShake(s32);
+
+s32 Spike_HandleHit(void) {
+    Col_67000 *c;
+    Cam_67000 *cam;
+    u32 k;
+    s32 t;
+    u16 kind;
+    u16 dmg;
+    s32 sp;
+    s32 a;
+    s32 st;
+    u32 idx;
+    s32 m;
+    s32 e;
+    Scr_67000 *SC = (Scr_67000 *)0x1F800000;
+
+    t = SP_67000->f_EA - 1;
+    if (t >= 0) {
+        e = 0x96;
+        if (t < 0x97) {
+            e = t;
+        }
+    } else {
+        e = 0;
+    }
+    SP_67000->f_EA = e;
+    if (SP_67000->state == 0x4D) {
+        if (--SP_67000->f_F1 == 0) {
+            SP_67000->f_124 = 0xFFF80000;
+            Spike_SetState(0x2B);
+            func_8006896C(0xB);
+            func_8006BF84();
+        }
+        return 0;
+    }
+    if ((SP_67000->f_70 & 0xF0) == 0xD0 || SP_67000->state == 0x4C || SP_67000->state == 0x22 || D_800F4DCE > 0) {
+        SP_67000->f_F0 = 0;
+        return 0;
+    }
+    if (g_Game.f_8150 == 10) {
+        k = SP_67000->f_50 >> 28;
+        if (k >= 4 && (k < 6 || k == 0xB)) {
+            Spike_SetPlayMode(0);
+        }
+    }
+    if (SP_67000->f_E8 <= 0) {
+        return 0;
+    }
+    switch (SP_67000->f_50 >> 28) {
+    default:
+        SP_67000->f_F0 = 0;
+        return 0;
+    case 4:
+    case 5:
+        if ((SP_67000->f_138 >> 12) == 1) {
+            return 0;
+        }
+        if (SP_67000->f_12C < SP_67000->y + 0x20) {
+            return 0;
+        }
+        c = Collision_GetShape(*(u16 *)&SP_67000->f_50 & 0xFFF);
+        SC->d.vx = c->x - SP_67000->x;
+        SC->d.vy = 0;
+        SC->d.vz = c->z - SP_67000->z;
+        VectorNormalS(&SC->d, &SC->n1);
+        SP_67000->f_10C = 0;
+        SP_67000->f_108 = -(SC->n1.vx * 8);
+        SP_67000->f_110 = -(SC->n1.vz * 8);
+        if (SP_67000->state == 0x24) {
+            break;
+        }
+        SP_67000->f_124 = 0;
+        Spike_SetState(0x24);
+        return 0;
+    case 0xB:
+        c = Collision_GetShape(*(u16 *)&SP_67000->f_50 & 0xFFF);
+        cam = (Cam_67000 *)D_800E68D0;
+        kind = c->f_26;
+        dmg = c->f_24;
+        if (cam->f_38 == 1) {
+            func_80048748();
+        }
+        if (cam->f_46 == 1) {
+            Camera_ExitAim();
+        }
+        if (cam->f_32 == 1) {
+            Camera_ExitLook();
+        }
+        switch (dmg & 0xFF00) {
+        case 0x600:
+            Spike_SetState(0x2F);
+            Sound_PlayFixed(0x4A);
+            Pad_Vibrate(0, 1, 5);
+            goto ret1;
+        case 0xA00:
+            if ((SP_67000->f_70 & 0xF0) == 0xD0 || SP_67000->state == 0x4C) {
+                goto ret1;
+            }
+            SP_67000->f_FE = 60;
+            Spike_TakeDamage(1);
+            Pad_Vibrate(1, 0xF0, 5);
+            switch (g_Game.f_8150) {
+            case 6:
+                if (SP_67000->f_E8 <= 0) {
+                    func_80066434();
+                }
+                goto common;
+            case 5:
+                if (SP_67000->f_E8 <= 0) {
+                    Spike_BounceBack();
+                }
+            common:
+                func_80066018();
+                func_8006896C(8);
+                goto ret1;
+            }
+            func_8006BF84();
+            Spike_SetState(0x4B);
+            Sound_PlayFixed(0x42);
+            func_8006896C(9);
+            __asm__ volatile("");
+            goto ret1;
+        case 0xB00:
+            Spike_SetPlayMode(7);
+            goto ret1;
+        }
+        if ((kind & 0x3FFF) != 0x100) {
+            func_8006C2C0();
+        }
+        if (SP_67000->f_F0 == 0) {
+            Spike_TakeDamage(dmg & 0xF);
+        }
+        st = SP_67000->state;
+        if (st < 0x1D) {
+            if (st >= 0x1B) {
+                if (SP_67000->f_EF++ >= 6) {
+                    kind = 0x202;
+                }
+            } else {
+                D_800EC2CF = 0;
+            }
+        } else {
+            D_800EC2CF = 0;
+        }
+        switch (dmg & 0xFF00) {
+        case 0x300:
+            Spike_StartDamageEffect(1);
+            func_8006896C(0xB);
+            Sound_PlayFixed(0x34);
+            break;
+        case 0x200:
+            Spike_StartDamageEffect(2);
+            func_8006896C(0xB);
+            Sound_PlayFixed(0x33);
+            break;
+        case 0x400:
+            Spike_StartDamageEffect(3);
+            Sound_PlayFixed(0x35);
+            break;
+        }
+        SC->d.vx = c->x - SP_67000->x;
+        SC->d.vy = 0;
+        SC->d.vz = c->z - SP_67000->z;
+        if (SC->d.vx != 0 || SC->d.vz != 0) {
+            VectorNormalS(&SC->d, &SC->n);
+        }
+        switch (g_Game.f_8150) {
+        case 6:
+            if (SP_67000->f_E8 <= 0) {
+                func_80066434();
+            }
+            func_80066018();
+            func_8006896C(8);
+            Pad_Vibrate(1, 0xF0, 5);
+            Camera_StartShake(0);
+            goto ret1;
+        case 5:
+            if (SP_67000->f_E8 <= 0) {
+                Spike_BounceBack();
+            }
+            func_80066018();
+            func_8006896C(8);
+            Pad_Vibrate(1, 0xF0, 5);
+            Camera_StartShake(0);
+            goto ret1;
+        }
+        switch (kind & 0x3F00) {
+        case 0x100:
+            m = D_800B0264[idx = kind & 0xFF];
+            if ((SP_67000->f_70 & 0xF0) == 0xC0) {
+                Spike_SetState(0x4C);
+                func_8006C204();
+                SP_67000->f_120 = SP_67000->f_114 = -(SC->n.vx * 16);
+                SP_67000->f_128 = SP_67000->f_11C = -(SC->n.vz * 16);
+                func_80066018();
+                if (dmg & 0xF) {
+                    func_8006896C(8);
+                }
+            } else {
+                if (idx < 2) {
+                    Spike_SetState(0x1C);
+                } else {
+                    Spike_SetState(0x1B);
+                    func_8006896C(8);
+                }
+                SP_67000->f_120 = SP_67000->f_114 = -SC->n.vx * m;
+                SP_67000->f_128 = SP_67000->f_11C = -SC->n.vz * m;
+            }
+            SP_67000->f_60 = SC->n.vx;
+            SP_67000->f_64 = SC->n.vz;
+            if (m == 0) {
+                Sound_PlayFixed(0x5B);
+            }
+            break;
+        case 0x400:
+            sp = D_800B0250[kind & 0xFF].spd;
+            a = D_800B0250[kind & 0xFF].ang;
+            SP_67000->f_114 = -(SC->n.vx * rcos(a) / 4096) * sp;
+            SP_67000->f_11C = -(SC->n.vz * rcos(a) / 4096) * sp;
+            SP_67000->f_124 = SP_67000->f_118 = -sp * rsin(a);
+            SP_67000->f_120 = SP_67000->f_114;
+            SP_67000->f_128 = SP_67000->f_11C;
+            SP_67000->f_60 = -SC->n.vx;
+            SP_67000->f_64 = -SC->n.vz;
+            Spike_SetState(0x2B);
+            Sound_PlayFixed(0x5F);
+            break;
+        default:
+            if ((SP_67000->f_70 & 0xF0) == 0xC0) {
+                Spike_SetState(0x4C);
+                func_8006C204();
+                SP_67000->f_120 = SP_67000->f_114 = -(SC->n.vx * 16);
+                SP_67000->f_128 = SP_67000->f_11C = -(SC->n.vz * 16);
+                func_80066018();
+            } else {
+                sp = D_800B0250[kind & 0xFF].spd;
+                a = D_800B0250[kind & 0xFF].ang;
+                SP_67000->f_114 = -(SC->n.vx * rcos(a) / 4096) * sp;
+                SP_67000->f_11C = -(SC->n.vz * rcos(a) / 4096) * sp;
+                SP_67000->f_124 = SP_67000->f_118 = -sp * rsin(a);
+                SP_67000->f_120 = SP_67000->f_114;
+                SP_67000->f_128 = SP_67000->f_11C;
+                SP_67000->f_60 = SC->n.vx;
+                SP_67000->f_64 = SC->n.vz;
+                Spike_SetState(0x1D);
+                Sound_PlayFixed(0x5F);
+            }
+            func_8006896C(9);
+            break;
+        }
+        Pad_Vibrate(1, 0xF0, 5);
+        Camera_StartShake(0);
+    ret1:
+        return 1;
+    }
+    return 0;
+}
 
 /* Gadget selection: maps newly pressed face buttons (Triangle, Square, Circle,
  * Cross) to the four gadget slots and switches to that slot's gadget.

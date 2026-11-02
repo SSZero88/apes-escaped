@@ -147,7 +147,170 @@ void Model_ProjectVerts(Mdl_161C0 *mdl, void *m, Proj_161C0 *out) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", func_80016294);
+typedef struct { s16 vx, vy, vz, pad; } SV_16294;
+typedef struct { u8 pad0[0x12]; u16 nVerts; } Hdr_16294;
+typedef struct { Hdr_16294 *hdr; u8 pad4[8]; SV_16294 *verts; u8 pad10[0xC]; s32 flags; } Mdl_16294;
+typedef struct { u32 sxy; s32 sz; } Proj_16294;
+typedef struct { SV_16294 t; SV_16294 v[3]; } Scr_16294;
+typedef struct { s16 x, y; } __attribute__((aligned(4))) XY_16294;
+#define gte_ldv3m_16294(v) __asm__ volatile ("lwc2 $0, %0; lwc2 $1, %1; lwc2 $2, %2; lwc2 $3, %3; lwc2 $4, %4; lwc2 $5, %5" : : "m"(*(s32 *)&(v)[0].vx), "m"((v)[0].vz), "m"(*(s32 *)&(v)[1].vx), "m"((v)[1].vz), "m"(*(s32 *)&(v)[2].vx), "m"((v)[2].vz))
+#define gte_ldv3c_16294(p) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(p))
+#define gte_rtpt_16294() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxyz3_16294(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 8(%0); swc2 $14, 16(%0); swc2 $17, 4(%0); swc2 $18, 12(%0); swc2 $19, 20(%0)" : : "r"(p) : "memory")
+
+void func_80016294(Mdl_16294 *m, Proj_16294 *out) {
+    Scr_16294 *sc;
+    SV_16294 *p;
+    register SV_16294 *q asm("$4");
+    s32 n;
+    s32 tx, ty, tz;
+    s32 i;
+    s32 k;
+
+    sc = (Scr_16294 *)0x1F8003C8;
+    __asm__("" : "=r"(sc) : "0"(sc));
+    n = m->hdr->nVerts;
+    p = m->verts;
+    __asm__ volatile("");
+    tx = sc->t.vx;
+    ty = sc->t.vy;
+    tz = sc->t.vz;
+    __asm__ volatile("");
+    k = (m->flags >> 10) & 3;
+    switch (k) {
+    case 1:
+        {
+            s32 a, b, c, d, e, f;
+            d = p[0].vz; e = p[0].vy; f = p[0].vx;
+            a = tx + d; b = ty + e; c = tz - f;
+            sc->v[0].vx = a; sc->v[0].vy = b; sc->v[0].vz = c;
+            d = p[1].vz; e = p[1].vy; f = p[1].vx;
+            a = tx + d; b = ty + e; c = tz - f;
+            sc->v[1].vx = a; sc->v[1].vy = b; sc->v[1].vz = c;
+            d = p[2].vz; e = p[2].vy; f = p[2].vx;
+            __asm__ volatile("");
+            i = 0;
+            a = tx + d; b = ty + e; c = tz - f;
+            sc->v[2].vx = a; sc->v[2].vy = b; sc->v[2].vz = c;
+        }
+        for (; i < n; i += 3) {
+            SV_16294 *r;
+            gte_ldv3m_16294(sc->v);
+            gte_rtpt_16294();
+            q = p + 3;
+            sc->v[0].vx = q->vz + tx;
+            sc->v[0].vy = q->vy + ty;
+            sc->v[0].vz = tz - q->vx;
+            r = p + 4;
+            sc->v[1].vx = r->vz + tx;
+            sc->v[1].vy = r->vy + ty;
+            sc->v[1].vz = tz - r->vx;
+            r = p + 5;
+            sc->v[2].vx = r->vz + tx;
+            sc->v[2].vy = r->vy + ty;
+            sc->v[2].vz = tz - r->vx;
+            gte_stsxyz3_16294(out);
+            out += 3;
+            p = q;
+        }
+        break;
+    case 2:
+        sc->v[0].vx = tx - p[0].vx;
+        sc->v[0].vy = p[0].vy + ty;
+        sc->v[0].vz = tz - p[0].vz;
+        sc->v[1].vx = tx - p[1].vx;
+        sc->v[1].vy = p[1].vy + ty;
+        sc->v[1].vz = tz - p[1].vz;
+        sc->v[2].vx = tx - p[2].vx;
+        sc->v[2].vy = p[2].vy + ty;
+        sc->v[2].vz = tz - p[2].vz;
+        for (i = 0; i < n; i += 3) {
+            SV_16294 *r;
+            gte_ldv3m_16294(sc->v);
+            gte_rtpt_16294();
+            q = p + 3;
+            sc->v[0].vx = tx - q->vx;
+            sc->v[0].vy = q->vy + ty;
+            sc->v[0].vz = tz - q->vz;
+            r = p + 4;
+            sc->v[1].vx = tx - r->vx;
+            sc->v[1].vy = r->vy + ty;
+            sc->v[1].vz = tz - r->vz;
+            r = p + 5;
+            sc->v[2].vx = tx - r->vx;
+            sc->v[2].vy = r->vy + ty;
+            sc->v[2].vz = tz - r->vz;
+            gte_stsxyz3_16294(out);
+            out += 3;
+            p = q;
+        }
+        break;
+    case 3:
+        i = 0;
+        sc->v[0].vx = tx - p[0].vz;
+        sc->v[0].vy = p[0].vy + ty;
+        sc->v[0].vz = p[0].vx + tz;
+        sc->v[1].vx = tx - p[1].vz;
+        sc->v[1].vy = p[1].vy + ty;
+        sc->v[1].vz = p[1].vx + tz;
+        sc->v[2].vx = tx - p[2].vz;
+        sc->v[2].vy = p[2].vy + ty;
+        sc->v[2].vz = p[2].vx + tz;
+        for (; i < n; i += 3) {
+            SV_16294 *r;
+            gte_ldv3m_16294(sc->v);
+            gte_rtpt_16294();
+            q = p + 3;
+            sc->v[0].vx = tx - q->vz;
+            sc->v[0].vy = q->vy + ty;
+            sc->v[0].vz = q->vx + tz;
+            r = p + 4;
+            sc->v[1].vx = tx - r->vz;
+            sc->v[1].vy = r->vy + ty;
+            sc->v[1].vz = r->vx + tz;
+            r = p + 5;
+            sc->v[2].vx = tx - r->vz;
+            sc->v[2].vy = r->vy + ty;
+            sc->v[2].vz = r->vx + tz;
+            gte_stsxyz3_16294(out);
+            out += 3;
+            p = q;
+        }
+        break;
+    default:
+        i = 0;
+        {
+            XY_16294 a; s32 z, x, y;
+            a = *(XY_16294 *)&p[0]; z = p[0].vz; y = a.y; x = a.x;
+            sc->v[0].vx = tx + x; sc->v[0].vy = ty + y; sc->v[0].vz = tz + z;
+            a = *(XY_16294 *)&p[1]; z = p[1].vz; y = a.y; x = a.x;
+            sc->v[1].vx = tx + x; sc->v[1].vy = ty + y; sc->v[1].vz = tz + z;
+            a = *(XY_16294 *)&p[2]; z = p[2].vz; y = a.y; x = a.x;
+            sc->v[2].vx = tx + x; sc->v[2].vy = ty + y; sc->v[2].vz = tz + z;
+        }
+        if (i < n) {
+            SV_16294 *vv = sc->v;
+            q = p;
+            do {
+                XY_16294 a; s32 z, x, y; SV_16294 *r2;
+                gte_ldv3c_16294(vv);
+                gte_rtpt_16294();
+                r2 = q + 3;
+                a = *(XY_16294 *)r2; z = r2->vz; y = a.y; x = a.x;
+                sc->v[0].vx = x + tx; sc->v[0].vy = y + ty; sc->v[0].vz = z + tz;
+                a = *(XY_16294 *)&q[4]; z = q[4].vz; y = a.y; x = a.x;
+                sc->v[1].vx = x + tx; sc->v[1].vy = y + ty; sc->v[1].vz = z + tz;
+                a = *(XY_16294 *)&q[5]; z = q[5].vz; y = a.y; x = a.x;
+                sc->v[2].vx = x + tx; sc->v[2].vy = y + ty; sc->v[2].vz = z + tz;
+                gte_stsxyz3_16294(out);
+                out += 3;
+                q = r2;
+                i += 3;
+            } while (i < n);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_ProjectMorphFrame);
 

@@ -5,7 +5,17 @@ M2C_UNK Pad_Vibrate(M2C_UNK, M2C_UNK, M2C_UNK);
 
 extern u16 g_RandSeed;
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6_obj", func_80140D60);
+typedef struct { s16 x, y, z, floor; s8 vx, vy, vz; u8 life; } Rock_80140D60;
+extern Rock_80140D60 D_80141880_80140D60[] asm("D_80141880");
+
+s32 func_80140D60(void) {
+    s32 i;
+
+    for (i = 15; i >= 0; i--) {
+        D_80141880_80140D60[i].life = 0;
+    }
+    return 0;
+}
 
 s16 Floor_GetHeight(s16, s16, s16);
 extern struct { s16 x, y, z, floor; s8 vx, vy, vz; u8 life; } D_80144590_8013D028[] asm("D_80141880");
