@@ -37,7 +37,15 @@ segments:
     vram: 0x80136000
     subsegments:
       - [0x0, c, 385]
-      - [0x119C, data, 385]
+      - [0x910, .rodata, 385]
+      - [0x920, .data, 385]
+  - name: ovl385_exit
+    type: code
+    start: 0x940
+    vram: 0x80136940
+    subsegments:
+      - [0x940, c, 385_exit]
+      - [0x119C, data, 385_exit]
   - name: ovl385b
     type: code
     start: 0x1280

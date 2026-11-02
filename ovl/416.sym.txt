@@ -1,7 +1,6 @@
 func_8013D000 = 0x8013D000; // type:func
 func_8013D06C = 0x8013D06C; // type:func
 func_8013D2A0 = 0x8013D2A0; // type:func
-func_8013D3F0 = 0x8013D3F0; // type:func
 func_8013D440 = 0x8013D440; // type:func
 func_8013D4E0 = 0x8013D4E0; // type:func
 func_8013D63C = 0x8013D63C; // type:func

@@ -674,7 +674,7 @@ s32 func_80137104(void) {
 
 extern s16 D_8013AF68;
 extern s32 D_8013AF78;
-extern u8 D_80138370[];
+extern u8 D_80138370[] asm("func_80138370");
 s32 func_80096580(s32);
 s32 func_80137424(void);
 s32 Save_SumStageMonkeys(s32);

@@ -31,12 +31,20 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 segments:
-  - name: ovl416_monkey_madness_b
+  - name: ovl416_monkey_madness_b_obj
     type: code
     start: 0x0
     vram: 0x8013D000
     subsegments:
-      - [0x0, c, 416_monkey_madness_b]
+      - [0x0, c, 416_monkey_madness_b_obj]
+      - [0x3F0, .rodata, 416_monkey_madness_b_obj]
+      - [0x410, .data, 416_monkey_madness_b_obj]
+  - name: ovl416_monkey_madness_b
+    type: code
+    start: 0x440
+    vram: 0x8013D440
+    subsegments:
+      - [0x440, c, 416_monkey_madness_b]
       - [0x4370, .rodata, 416_monkey_madness_b]
       - [0x4410, data, 416_monkey_madness_b]
   - [0x5800]

@@ -47,22 +47,66 @@ segments:
       - [0x5400, c, 390b]
       - [0x64E0, .rodata, 390b]
       - [0x6538, data, 390b]
-  - name: ovl390c
+  - name: ovl390c_working
     type: code
     start: 0x65E0
     vram: 0x8013C5E0
     subsegments:
-      - [0x65E0, c, 390c]
+      - [0x65E0, c, 390c_working]
+      - [0x67C0, .rodata, 390c_working]
+  - name: ovl390c
+    type: code
+    start: 0x67F0
+    vram: 0x8013C7F0
+    subsegments:
+      - [0x67F0, c, 390c]
       - [0x8EE0, .rodata, 390c]
       - [0x9280, data, 390c]
-  - name: ovl390d
+  - name: ovl390d_select
     type: code
     start: 0x9630
     vram: 0x8013F630
     subsegments:
-      - [0x9630, c, 390d]
-      - [0xEFE0, .rodata, 390d]
-      - [0xF0B8, data, 390d]
+      - [0x9630, c, 390d_select]
+      - [0x9B10, .rodata, 390d_select]
+      - [0x9B20, .data, 390d_select]
+  - name: ovl390d
+    type: code
+    start: 0x9B30
+    vram: 0x8013FB30
+    subsegments:
+      - [0x9B30, c, 390d]
+      - [0xA3B0, .rodata, 390d]
+      - [0xA470, data, 390d]
+  - name: ovl390d_t1
+    type: code
+    start: 0xBA10
+    vram: 0x80141A10
+    subsegments:
+      - [0xBA10, c, 390d_t1]
+      - [0xBB70, data, 390d_t1]
+  - name: ovl390d_t2
+    type: code
+    start: 0xBB90
+    vram: 0x80141B90
+    subsegments:
+      - [0xBB90, c, 390d_t2]
+      - [0xC000, data, 390d_t2]
+  - name: ovl390d_sio
+    type: code
+    start: 0xC040
+    vram: 0x80142040
+    subsegments:
+      - [0xC040, c, 390d_sio]
+      - [0xC4C0, data, 390d_sio]
+  - name: ovl390d_t4
+    type: code
+    start: 0xC4E0
+    vram: 0x801424E0
+    subsegments:
+      - [0xC4E0, c, 390d_t4]
+      - [0xEFE0, .rodata, 390d_t4]
+      - [0xF0B8, data, 390d_t4]
   - name: ovl390e
     type: code
     start: 0xF280

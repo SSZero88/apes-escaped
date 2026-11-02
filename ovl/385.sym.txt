@@ -1,4 +1,4 @@
-func_80136914 = 0x80136914; // type:func
+func_80136940 = 0x80136940; // type:func
 func_80136000 = 0x80136000; // type:func
 func_801362A4 = 0x801362A4; // type:func
 func_80136424 = 0x80136424; // type:func
