@@ -1340,7 +1340,155 @@ s32 func_8013FFC8(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/404/nonmatchings/404_frosty_retreat", func_80140124);
+#include "gte.h"
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_80140124;
+typedef struct { s16 x, y, z, floor; s16 x0, y0, z0; u8 active; u8 state; s16 f10; s16 vy; s16 f14; u8 phase; u8 pad17; s16 delay; u16 delay0; u8 u, v, f1E, f1F; } Drip_80140124;
+typedef struct { s32 z; s32 sxy; } Scr_80140124;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_80140124;
+#define ADDPRIM_BF_80140124(ot, p) (((PTag_80140124 *)(p))->addr = ((PTag_80140124 *)(ot))->addr, ((PTag_80140124 *)(ot))->addr = (u32)(p))
+#define gte_stszotz_80140124(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+extern u8 D_801426E8_80140124 asm("D_801426E8");
+extern Drip_80140124 D_801422E8_80140124[] asm("D_801422E8");
+void Sound_PlayAt_80140124(s32, void *) asm("Sound_PlayAt");
+extern Mat_80140124 D_800E78C0_80140124 asm("D_800E78C0");
+extern GameDraw g_Game_80140124 asm("g_Game");
+void SetRotMatrix_80140124(Mat_80140124 *) asm("SetRotMatrix");
+void SetTransMatrix_80140124(Mat_80140124 *) asm("SetTransMatrix");
+#define SCR_80140124 ((Scr_80140124 *)0x1F800000)
+
+s32 func_80140124(void) {
+    Scr_80140124 *sc;
+    Drip_80140124 *e;
+    s32 i;
+    u32 *p;
+    u32 *ot;
+    u16 x;
+    s32 y;
+    s32 y2;
+    s16 w;
+    s16 h;
+    s16 x0;
+    s16 y0;
+
+    sc = SCR_80140124;
+    if (D_801426E8_80140124 == 0) {
+        return 0;
+    }
+    e = D_801422E8_80140124;
+    for (i = 0; i < D_801426E8_80140124; i++, e++) {
+        if (e->active == 0) {
+            if (--e->delay == 0) {
+                e->state = 0;
+                e->active = 1;
+                e->delay = e->delay0;
+                e->x = e->x0;
+                e->y = e->y0;
+                e->z = e->z0;
+                e->f14 = 0;
+                e->f10 = 0;
+                e->vy = 0;
+                e->phase = 0;
+                *(u32 *)&D_801422E8_80140124[i].u = 0x170F60C0;
+            }
+        }
+    }
+    e = D_801422E8_80140124;
+    for (i = 0; i < D_801426E8_80140124; i++, e++) {
+        if (e->active != 0) {
+            switch (e->phase) {
+            case 0:
+                if (e->state == 10) {
+                    e->u += 0x10;
+                }
+                if (e->state == 0x22) {
+                    e->u += 0x10;
+                }
+                if (e->state >= 0x22) {
+                    e->vy += 0xF;
+                    if (e->vy > 0x60) {
+                        e->vy = 0x60;
+                    }
+                    e->y += e->vy;
+                    if (e->y > e->floor) {
+                        e->y = e->floor;
+                        e->state = 0;
+                        *(u32 *)&e->u = 0x70F20B0;
+                        e->phase++;
+                        Sound_PlayAt_80140124(0xB3, e);
+                    }
+                }
+                break;
+            case 1:
+                e->v += 8;
+                if (e->state >= 3) {
+                    e->active = 0;
+                }
+                break;
+            }
+            e->state++;
+        }
+    }
+    SetRotMatrix_80140124(&D_800E78C0_80140124);
+    SetTransMatrix_80140124(&D_800E78C0_80140124);
+    e = D_801422E8_80140124;
+    p = (u32 *)g_Game_80140124.prim;
+    ot = g_Game_80140124.db[g_Game_80140124.cur].ot;
+    for (i = 0; i < D_801426E8_80140124; i++, e++) {
+        if (e->active == 0) {
+            continue;
+        }
+        gte_ldv0(e);
+        gte_rtps();
+        gte_stsxy(&sc->sxy);
+        gte_stszotz_80140124(&sc->z);
+        if ((u32)(sc->z - 1) >= 0x7FF) {
+            continue;
+        }
+        x = sc->sxy & 0xFFFF;
+        y = sc->sxy >> 16;
+        if ((u16)(x + 0x20) >= 0x1C1 || ({ __asm__("" : "=r"(y2) : "0"(y)); y2; }) < -0x20 || y2 >= 0x111) {
+            continue;
+        }
+        w = 0xCD0 / sc->z;
+        h = 0xC2C / sc->z;
+        x0 = x - w / 2;
+        y0 = y - h / 2;
+        switch (e->phase) {
+        case 0:
+            ((u8 *)p)[3] = 9;
+            p[1] = 0x2E5A3728;
+            p[2] = (y0 << 16) | (x0 & 0xFFFF);
+            p[4] = (y0 << 16) | ((x0 + w) & 0xFFFF);
+            p[6] = ((y0 + h) << 16) | (x0 & 0xFFFF);
+            p[8] = ((y0 + h) << 16) | ((x0 + w) & 0xFFFF);
+            p[3] = (e->v << 8 | e->u) | 0x7CAC0000;
+            p[5] = (e->v << 8 | (e->u + 0xF)) | 0x3C0000;
+            ((u16 *)p)[14] = e->u | ((e->v + 0x17) << 8);
+            ((u16 *)p)[18] = ((e->v + 0x17) << 8) | (e->u + 0xF);
+            ADDPRIM_BF_80140124(ot + sc->z, p);
+            p += 10;
+            break;
+        case 1:
+            ((u8 *)p)[3] = 9;
+            p[1] = 0x2E6E4B3C;
+            p[2] = (y0 << 16) | (x0 & 0xFFFF);
+            p[4] = (y0 << 16) | ((x0 + w) & 0xFFFF);
+            p[6] = ((y0 + h) << 16) | (x0 & 0xFFFF);
+            p[8] = ((y0 + h) << 16) | ((x0 + w) & 0xFFFF);
+            p[3] = (e->v << 8 | e->u) | 0x7CAC0000;
+            p[5] = (e->v << 8 | (e->u + 0xF)) | 0x3C0000;
+            ((u16 *)p)[14] = e->u | ((e->v + 7) << 8);
+            ((u16 *)p)[18] = ((e->v + 7) << 8) | (e->u + 0xF);
+            ADDPRIM_BF_80140124(ot + sc->z, p);
+            p += 10;
+            break;
+        default:
+            continue;
+        }
+    }
+    g_Game_80140124.prim = (u8 *)p;
+    return 0;
+}
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_80140738 asm("g_Game");
 void Sound_PlayAt_80140738(s32, void *) asm("Sound_PlayAt");

@@ -178,7 +178,90 @@ void func_8013D740(s16 *p) {
     Effect_SpawnAt(0x2B, p);
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D794);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_8013D794;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013D794;
+#define ADDPRIM_BF_8013D794(ot, p) (((PTag_8013D794 *)(p))->addr = ((PTag_8013D794 *)(ot))->addr, ((PTag_8013D794 *)(ot))->addr = (u32)(p))
+typedef struct { s16 vx, vy, vz, pad; u8 pad8[8]; s8 f10; } Slot_8013D794;
+extern GameDraw g_Game_8013D794 asm("g_Game");
+extern MAT_8013D794 D_800E78C0_8013D794 asm("D_800E78C0");
+void SetRotMatrix_8013D794(MAT_8013D794 *) asm("SetRotMatrix");
+void SetTransMatrix_8013D794(MAT_8013D794 *) asm("SetTransMatrix");
+s32 rcos_8013D794(s32) asm("rcos");
+s32 rsin_8013D794(s32) asm("rsin");
+#define gte_ldv0_8013D794(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
+#define gte_rtps_8013D794() __asm__ volatile ("nop; nop; rtps")
+#define gte_stsxy_8013D794(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+#define gte_stszotz_8013D794(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+
+void func_8013D794(Slot_8013D794 *s) {
+    s32 xy[4];
+    SVECTOR v;
+    u32 sxy;
+    s32 z;
+    s32 x;
+    s32 y;
+    s32 r;
+    s32 r2;
+    s32 i;
+    s32 t;
+    s32 a;
+    s32 c;
+    u32 col;
+    u32 md;
+    u32 *p;
+    u32 *ot;
+    u32 *o2;
+
+    SetRotMatrix_8013D794(&D_800E78C0_8013D794);
+    SetTransMatrix_8013D794(&D_800E78C0_8013D794);
+    v.vx = s->vx;
+    v.vy = s->vy;
+    v.vz = s->vz;
+    gte_ldv0_8013D794(&v);
+    gte_rtps_8013D794();
+    gte_stsxy_8013D794(&sxy);
+    gte_stszotz_8013D794(&z);
+    x = sxy & 0xFFFF;
+    y = sxy >> 16;
+    if ((u32)(z - 1) < 0xFFF) {
+        r = s->f10 << 4;
+        r2 = r + 16;
+        p = (u32 *)g_Game_8013D794.prim;
+        md = 0x3B000000;
+        col = 0x404040;
+        ot = g_Game_8013D794.db[g_Game_8013D794.cur].ot;
+        for (i = 16; i > 0; i = t) {
+            a = i << 8;
+            t = i - 1;
+            c = ((rcos_8013D794(a) * r) >> 12) + x;
+            xy[0] = (((rsin_8013D794(a) * r) >> 12) + y) << 16 | c;
+            c = ((rcos_8013D794(a) * r2) >> 12) + x;
+            xy[1] = (((rsin_8013D794(a) * r2) >> 12) + y) << 16 | c;
+            a = t * 256;
+            c = ((rcos_8013D794(a) * r) >> 12) + x;
+            xy[2] = (((rsin_8013D794(a) * r) >> 12) + y) << 16 | c;
+            c = ((rcos_8013D794(a) * r2) >> 12) + x;
+            xy[3] = (((rsin_8013D794(a) * r2) >> 12) + y) << 16 | c;
+            ((u8 *)p)[3] = 8;
+            p[1] = md;
+            p[2] = xy[0];
+            p[3] = col;
+            p[4] = xy[1];
+            p[5] = 0;
+            p[6] = xy[2];
+            p[7] = col;
+            p[8] = xy[3];
+            ADDPRIM_BF_8013D794(ot + z, p);
+            p += 9;
+        }
+        g_Game_8013D794.prim = (u8 *)p;
+        o2 = g_Game_8013D794.db[g_Game_8013D794.cur].ot;
+        ((u8 *)p)[3] = 1;
+        p[1] = 0xE1000240;
+        ADDPRIM_BF_8013D794(o2 + z, p);
+        g_Game_8013D794.prim = (u8 *)(p + 2);
+    }
+}
 
 typedef struct { u8 pad0[0x10]; s8 f; s8 g; s8 h; s8 k; } Slot_8013DAFC;
 typedef struct { u8 pad[0xE0]; u32 b0 : 2; u32 b2 : 1; u32 rest : 29; } Obj_8013DAFC;

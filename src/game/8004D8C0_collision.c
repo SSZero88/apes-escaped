@@ -920,7 +920,68 @@ s32 func_8004F548(S_O_8004F548_8004F548 *o, VEC_8004F548_8004F548 *p) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8004D8C0_collision", func_8004F6E8);
+typedef struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; s16 f_8; u8 padA[6]; s16 f_10; u8 pad12[2]; } S_Cell_8004F6E8;
+struct S_D_800EC350_8004F6E8 { u8 pad0[0x8208]; S_Cell_8004F6E8 *f_8208; u8 pad820C[4]; s16 *f_8210; u8 pad8214[0x8C]; s32 f_82A0; u8 pad82A4[4]; s32 f_82A8; s32 f_82AC; };
+extern struct S_D_800EC350_8004F6E8 g_Game_4F6E8 asm("g_Game");
+extern S_Cell_8004F6E8 *D_800B8CF4_4F6E8 asm("D_800B8CF4");
+extern s16 *D_800B8CF0_4F6E8 asm("D_800B8CF0");
+
+S_Cell_8004F6E8 *func_8004F6E8(s16 *p) {
+    S_Cell_8004F6E8 *bb;
+    struct S_D_800EC350_8004F6E8 *d = &g_Game_4F6E8;
+    s32 w = d->f_82A8;
+    s32 dd;
+    register S_Cell_8004F6E8 *cells asm("$9");
+    s16 *grid;
+    S_Cell_8004F6E8 *e;
+    S_Cell_8004F6E8 *res;
+    s32 cx, cz, y, k, h;
+
+    if (!(-w < p[0] && p[0] < w) || (dd = d->f_82AC, !(-dd < p[2] && p[2] < dd)) || p[1] > 0) {
+    zero:
+        return 0;
+    }
+    cells = d->f_8208;
+    grid = d->f_8210;
+    D_800B8CF4_4F6E8 = cells;
+    D_800B8CF0_4F6E8 = grid;
+    cx = (p[0] + w) / 512;
+    cz = (p[2] + dd) / 512;
+    y = -p[1] / 512;
+    {
+        s16 t0 = grid[d->f_82A0 * cz + cx];
+        if (t0 < 0) {
+            goto zero;
+        }
+        k = t0;
+    }
+    e = (S_Cell_8004F6E8 *)(k * 20 + (s32)cells);
+    h = e->f_2;
+    res = 0;
+    goto check;
+loop:
+    bb = D_800B8CF4_4F6E8; e = (S_Cell_8004F6E8 *)(k * 20 + (s32)bb);
+    if (y < e->f_2) {
+        goto end;
+    }
+    if (!(e->f_2 + e->f_8 / 512 - 1 < y)) {
+        goto found;
+    }
+    k = e->f_10;
+    if (k < 0) {
+        goto end;
+    }
+    e = (S_Cell_8004F6E8 *)(k * 20 + (s32)D_800B8CF4_4F6E8);
+    h = e->f_2;
+check:
+    if (y != h) {
+        goto loop;
+    }
+found:
+    res = e;
+end:
+    return res;
+}
 
 s32 func_8004F884(s32 idx, S_8004F884_8004F884 *s, V_8004F884_8004F884 *p, s32 *out) {
     SV_8004F884_8004F884 sv[2];

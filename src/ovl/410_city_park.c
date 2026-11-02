@@ -81,7 +81,153 @@ loop:
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/410/nonmatchings/410_city_park", func_8013D15C);
+#include "gte.h"
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_8013D15C;
+typedef struct { s16 x, y, z, floor; s16 x0, y0, z0; u8 active; u8 state; s16 f10; s16 vy; s16 f14; u8 phase; u8 pad17; s16 delay; u16 delay0; u8 u, v, f1E, f1F; } Drip_8013D15C;
+typedef struct { s32 z; s32 sxy; } Scr_8013D15C;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013D15C;
+#define ADDPRIM_BF_8013D15C(ot, p) (((PTag_8013D15C *)(p))->addr = ((PTag_8013D15C *)(ot))->addr, ((PTag_8013D15C *)(ot))->addr = (u32)(p))
+#define gte_stszotz_8013D15C(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+extern u8 D_801418F0_8013D15C asm("D_801418F0");
+extern Drip_8013D15C D_801414F0_8013D15C[] asm("D_801414F0");
+extern Mat_8013D15C D_800E78C0_8013D15C asm("D_800E78C0");
+extern GameDraw g_Game_8013D15C asm("g_Game");
+void SetRotMatrix_8013D15C(Mat_8013D15C *) asm("SetRotMatrix");
+void SetTransMatrix_8013D15C(Mat_8013D15C *) asm("SetTransMatrix");
+#define SCR_8013D15C ((Scr_8013D15C *)0x1F800000)
+
+s32 func_8013D15C(void) {
+    Scr_8013D15C *sc;
+    Drip_8013D15C *e;
+    s32 i;
+    u32 *p;
+    u32 *ot;
+    u16 x;
+    s32 y;
+    s32 y2;
+    s16 w;
+    s16 h;
+    s16 x0;
+    s16 y0;
+
+    sc = SCR_8013D15C;
+    if (D_801418F0_8013D15C == 0) {
+        return 0;
+    }
+    e = D_801414F0_8013D15C;
+    for (i = 0; i < D_801418F0_8013D15C; i++, e++) {
+        if (e->active == 0) {
+            if (--e->delay == 0) {
+                e->state = 0;
+                e->active = 1;
+                e->delay = e->delay0;
+                e->x = e->x0;
+                e->y = e->y0;
+                e->z = e->z0;
+                e->f14 = 0;
+                e->f10 = 0;
+                e->vy = 0;
+                e->phase = 0;
+                *(u32 *)&D_801414F0_8013D15C[i].u = 0x170F60C0;
+            }
+        }
+    }
+    e = D_801414F0_8013D15C;
+    for (i = 0; i < D_801418F0_8013D15C; i++, e++) {
+        if (e->active != 0) {
+            switch (e->phase) {
+            case 0:
+                if (e->state == 10) {
+                    e->u += 0x10;
+                }
+                if (e->state == 0x22) {
+                    e->u += 0x10;
+                }
+                if (e->state >= 0x22) {
+                    e->vy += 0xF;
+                    if (e->vy > 0x60) {
+                        e->vy = 0x60;
+                    }
+                    e->y += e->vy;
+                    if (e->y > e->floor) {
+                        e->y = e->floor;
+                        e->state = 0;
+                        *(u32 *)&e->u = 0x70F20B0;
+                        e->phase++;
+                    }
+                }
+                break;
+            case 1:
+                e->v += 8;
+                if (e->state >= 3) {
+                    e->active = 0;
+                }
+                break;
+            }
+            e->state++;
+        }
+    }
+    SetRotMatrix_8013D15C(&D_800E78C0_8013D15C);
+    SetTransMatrix_8013D15C(&D_800E78C0_8013D15C);
+    e = D_801414F0_8013D15C;
+    p = (u32 *)g_Game_8013D15C.prim;
+    ot = g_Game_8013D15C.db[g_Game_8013D15C.cur].ot;
+    for (i = 0; i < D_801418F0_8013D15C; i++, e++) {
+        if (e->active == 0) {
+            continue;
+        }
+        gte_ldv0(e);
+        gte_rtps();
+        gte_stsxy(&sc->sxy);
+        gte_stszotz_8013D15C(&sc->z);
+        if ((u32)(sc->z - 1) >= 0x7FF) {
+            continue;
+        }
+        x = sc->sxy & 0xFFFF;
+        y = sc->sxy >> 16;
+        if ((u16)(x + 0x20) >= 0x1C1 || ({ __asm__("" : "=r"(y2) : "0"(y)); y2; }) < -0x20 || y2 >= 0x111) {
+            continue;
+        }
+        w = 0xCD0 / sc->z;
+        h = 0xC2C / sc->z;
+        x0 = x - w / 2;
+        y0 = y - h / 2;
+        switch (e->phase) {
+        case 0:
+            ((u8 *)p)[3] = 9;
+            p[1] = 0x2E5A3728;
+            p[2] = (y0 << 16) | (x0 & 0xFFFF);
+            p[4] = (y0 << 16) | ((x0 + w) & 0xFFFF);
+            p[6] = ((y0 + h) << 16) | (x0 & 0xFFFF);
+            p[8] = ((y0 + h) << 16) | ((x0 + w) & 0xFFFF);
+            p[3] = (e->v << 8 | e->u) | 0x7CAC0000;
+            p[5] = (e->v << 8 | (e->u + 0xF)) | 0x3C0000;
+            ((u16 *)p)[14] = e->u | ((e->v + 0x17) << 8);
+            ((u16 *)p)[18] = ((e->v + 0x17) << 8) | (e->u + 0xF);
+            ADDPRIM_BF_8013D15C(ot + sc->z, p);
+            p += 10;
+            break;
+        case 1:
+            ((u8 *)p)[3] = 9;
+            p[1] = 0x2E6E4B3C;
+            p[2] = (y0 << 16) | (x0 & 0xFFFF);
+            p[4] = (y0 << 16) | ((x0 + w) & 0xFFFF);
+            p[6] = ((y0 + h) << 16) | (x0 & 0xFFFF);
+            p[8] = ((y0 + h) << 16) | ((x0 + w) & 0xFFFF);
+            p[3] = (e->v << 8 | e->u) | 0x7CAC0000;
+            p[5] = (e->v << 8 | (e->u + 0xF)) | 0x3C0000;
+            ((u16 *)p)[14] = e->u | ((e->v + 7) << 8);
+            ((u16 *)p)[18] = ((e->v + 7) << 8) | (e->u + 0xF);
+            ADDPRIM_BF_8013D15C(ot + sc->z, p);
+            p += 10;
+            break;
+        default:
+            continue;
+        }
+    }
+    g_Game_8013D15C.prim = (u8 *)p;
+    return 0;
+}
 
 s32 func_8013D770(void) {
     if ((g_Pad.f_1BC >= 0x641) || (g_Pad.f_1BE >= 0x641)) {

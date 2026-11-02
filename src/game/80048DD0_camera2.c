@@ -79,7 +79,7 @@ extern u16 D_800E68D6;
 void SetRotMatrix(void *);
 void SetTransMatrix(void *);
 s32 RotTransPers(SVECTOR *, s32 *, s32 *, s32 *);
-void func_800495F4(Cam_8004AA58_8004AA58 *, s32);
+void func_800495F4();
 
 void Camera_UpdateOrientation(S_C_80048DD0_80048DD0 *o) {
     S_Sc_80048DD0_80048DD0 *sc = (S_Sc_80048DD0_80048DD0 *)0x1F800000;
@@ -264,7 +264,383 @@ void Camera_ResetToStart(void)
   p->f_40 = Math_Atan2(-v.vx, -v.vz);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80048DD0_camera2", func_800495F4);
+/* scratch pad while the camera updates */
+typedef struct { SVECTOR eye;                /* 0x00 wanted eye */ SVECTOR at;                 /* 0x08 wanted look-at point */ u16 x; u16 pad12; u16 z; u8 pad16[4]; u16 y; /* 0x10 Spike (x, z, y at 0x1A) */ u8 pad1C[0x10]; s32 f_2C; u8 pad30[0x10]; u16 dx; u16 pad42; u16 dz;  /* 0x40 Spike's facing */ u8 pad46[0x1A]; s32 sx, sy;                 /* 0x60 Spike on screen */ s32 vx, vy, vz;             /* 0x68 Spike's velocity */ s32 pad74; s32 dot;                    /* 0x78 */ } CamScr_495F4;
+typedef struct { u8 pad0[4]; s16 dist;                   /* 0x04 */ s16 height;                 /* 0x06 */ s16 atHeight;               /* 0x08 */ SVECTOR eye;                /* 0x0A x, y, z (unaligned) */ SVECTOR at;                 /* 0x12 */ s16 lastX, lastY, lastZ;    /* 0x1A */ u8 pad20[0x10]; u8 still;                   /* 0x30 */ u8 moving;                  /* 0x31 */ u8 turn;                    /* 0x32 */ u8 snap;                    /* 0x33 */ u8 slow;                    /* 0x34 */ u8 probe;                   /* 0x35 */ u8 f_36; u8 f_37; s32 range;                  /* 0x38 */ u8 pad3C[4]; s32 yaw;                    /* 0x40 */ s32 lastYaw;                /* 0x44 */ s32 f_48; s32 spin;                   /* 0x4C */ u8 pad50[2]; s16 bobY;                   /* 0x52 */ u8 pad54[6]; s16 bobAt;                  /* 0x5A */ u8 pad5C[4]; s32 f_60; u8 pad64[8]; s16 f_6C; s16 f_6E; s32 f_70; s32 f_74; u8 pad78[8]; u8 rcZoom;                  /* 0x80 */ } Cam_495F4;
+extern struct { u8 pad0[0x34]; s16 f_34; s16 f_36; u8 pad38[7]; u8 f_3F; u8 f_40; u8 pad41[6]; u8 busy; u8 f_48; } D_800E68D0_495F4 asm("D_800E68D0");
+extern struct { u8 pad0[0x8100]; s32 f_8100; u8 pad8104[0x22]; u16 f_8126; u8 pad8128[0x28]; u16 f_8150; } g_Game_495F4 asm("g_Game");
+extern struct { u8 pad0[0xA2]; s8 sx; } g_Pad_495F4 asm("g_Pad");
+extern struct { u8 pad0[0x5E]; u16 state; u8 pad60[0x10]; s32 animFlags; } g_Spike_495F4 asm("g_Spike");
+extern u8 D_800E78C0_495F4[] asm("D_800E78C0");
+extern u16 D_800EC23E_495F4 asm("D_800EC23E");
+extern u8 D_800E6916_495F4 asm("D_800E6916");
+extern s8 g_CurrentGadget_495F4 asm("g_CurrentGadget");
+void SetRotMatrix_495F4(void *) asm("SetRotMatrix");
+void SetTransMatrix_495F4(void *) asm("SetTransMatrix");
+s32 RotTransPers_495F4(SVECTOR *, s32 *, s32 *, s32 *) asm("RotTransPers");
+void Camera_UpdateOrientation_495F4(Cam_495F4 *) asm("Camera_UpdateOrientation");
+void Camera_HandleManualInput_495F4(Cam_495F4 *) asm("Camera_HandleManualInput");
+s32 Camera_RcCarActive_495F4(void) asm("Camera_RcCarActive");
+void Camera_ProbeDrop_495F4(Cam_495F4 *, s32) asm("Camera_ProbeDrop");
+void Camera_KeepAboveFloor_495F4(Cam_495F4 *) asm("Camera_KeepAboveFloor");
+s32 func_8006B9F8_495F4(void) asm("func_8006B9F8");
+void VectorNormalSS_495F4(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
+s16 Floor_GetHeight_495F4(s32, s32, s32) asm("Floor_GetHeight");
+void memset_495F4(void *, s32, s32) asm("memset");
+s32 SquareRoot0_495F4(s32) asm("SquareRoot0");
+s32 rcos_495F4(s32) asm("rcos");
+s32 rsin_495F4(s32) asm("rsin");
+void func_8004AF78_495F4(Cam_495F4 *) asm("func_8004AF78");
+s32 Math_Atan2_495F4(s32, s32) asm("Math_Atan2");
+
+/* The normal follow camera (mode 0, or 1 = behind Spike). Works out how far behind and above
+   Spike to sit (the defaults in the camera, overridden by D_800E68D0 settings, when Spike is in a
+   tight spot (state group 0x80), in mode 0xA and when func_8006B9F8 says so), runs the
+   orientation and manual-control steps, damps the spin and eases the range, checks the ground
+   between Spike and the camera when the stick turns it, pulls in when something blocks the view,
+   bobs with Spike's jumps, then moves the eye and look-at points towards their goals. */
+void func_800495F4(Cam_495F4 *cam, s32 mode) {
+    CamScr_495F4 *scr = (CamScr_495F4 *)0x1F800000;
+    SVECTOR v;
+    SVECTOR d;
+    SVECTOR side;
+    SVECTOR t;
+    s32 sxy, dummy;
+    s16 h, atH;
+    s16 dist;
+    s32 blocked;
+    s32 i, k, a, b, ox, oz; s32 k1; s32 a6;
+    s16 px, py, pz;
+    s16 stepX, stepY, stepZ;
+
+    if (D_800E68D0_495F4.busy != 0) {
+        return;
+    }
+    D_800E68D0_495F4.busy = 1;
+    v.vx = scr->x;
+    v.vy = scr->y - 0x80;
+    v.vz = scr->z;
+    SetRotMatrix_495F4(D_800E78C0_495F4);
+    SetTransMatrix_495F4(D_800E78C0_495F4);
+    RotTransPers_495F4(&v, &sxy, &dummy, &dummy);
+    scr->sx = sxy & 0xFFFF;
+    scr->sy = sxy >> 16;
+    atH = cam->atHeight;
+    h = cam->height;
+    dist = cam->dist;
+    if (mode == 0) {
+        if (D_800E68D0_495F4.f_3F != 0) {
+            h = D_800E68D0_495F4.f_34;
+        }
+        if (D_800E68D0_495F4.f_40 != 0) {
+            dist = D_800E68D0_495F4.f_36;
+        }
+        if ((g_Spike_495F4.animFlags & 0xF0) == 0x80) {
+            h = -0xDC;
+            dist = 0x26C;
+        }
+        if (g_Game_495F4.f_8150 == 0xA) {
+            dist = 0x2F8;
+            atH = -0x32;
+            h = -0x64;
+        } else if (func_8006B9F8_495F4() != 0) {
+            k1 = scr->vy;
+            dist = 0x294;
+            atH = k1 << 5;
+            h = -(k1 * 8);
+        }
+    } else if (D_800E68D0_495F4.f_48 == 1) {
+        h = 0;
+        atH = -0x8C;
+    }
+    Camera_UpdateOrientation_495F4(cam);
+    if (mode == 1) {
+        if (scr->vx | scr->vy | scr->vz) {
+            cam->still = 0;
+            cam->moving += cam->moving < 0xFF;
+        } else {
+            cam->moving = 0;
+            cam->still += cam->still < 0xFF;
+        }
+    }
+    Camera_HandleManualInput_495F4(cam);
+    if ((u32)(scr->dot + 0xF9F) < 0x1EDB) {
+        if (ABS(cam->f_60) < 0x640 && cam->moving != 0 && cam->turn == 0) {
+            cam->spin = cam->spin * 0x3F / 64;
+        }
+    }
+    if (cam->rcZoom != 0 && Camera_RcCarActive_495F4() != 0) {
+        a = cam->rcZoom;
+        if (a > 0) {
+            k = 0x30;
+            if (a < 0x31) {
+                k = a;
+            }
+        } else {
+            k = 1;
+        }
+        a = 0x40 - k;
+        cam->spin = cam->spin * a / (a + 1);
+    } else if (cam->still >= 0x12 && scr->dot < 0xF3C && g_Game_495F4.f_8150 != 0xA) {
+        a = cam->still - 0x12;
+        if (a > 0) {
+            k = 0x30;
+            if (a < 0x31) {
+                k = a;
+            }
+        } else {
+            k = 1;
+        }
+        a = 0x40 - k;
+        cam->spin = cam->spin * a / (a + 1);
+    }
+    if (cam->slow != 0) {
+        cam->slow--;
+        cam->spin = cam->spin * 0xF / 16;
+        if (ABS(cam->spin) < 0xB) {
+            cam->slow = 0;
+        }
+    }
+    if (cam->turn != 0 && (g_Spike_495F4.animFlags & 0xF0) != 0x80) {
+        cam->range = (cam->range + (dist - 0x80)) / 2;
+    } else if (g_Game_495F4.f_8150 == 0xA) {
+        cam->range = (cam->range * 7 + dist) / 8;
+    } else {
+        if (cam->range > dist + 0x100) {
+            cam->range = (cam->range * 3 + (dist + 0x100)) / 4;
+        }
+        if (cam->range < dist - 0x100) {
+            cam->range = (cam->range * 3 + (dist - 0x100)) / 4;
+        }
+    }
+    { s32 s = cam->spin + 0x1000; cam->yaw = (cam->f_48 + s + cam->f_6E) % 4096; }
+    if (cam->turn != 0) {
+        cam->turn--;
+        a = cam->f_70 - cam->f_74;
+        a = (a + 0x1000) % 4096;
+        if (a > 0x800) {
+            a -= 0x1000;
+        }
+        a = (a * 8 - a) / 8;
+        if (ABS(a) < 0xB) {
+            cam->turn = 0;
+        }
+        { s32 c = a + 0x1000; cam->f_70 = (cam->f_74 + c) % 4096; }
+        cam->yaw = cam->f_70;
+    }
+    /* turning the camera with the stick: is the ground between Spike and the camera clear? */
+    blocked = 0;
+    if (scr->dot < 0x3E8) {
+        s32 dy = scr->f_2C - cam->eye.vy;
+        if ((dy >= 0 ? dy : cam->eye.vy - scr->f_2C) < 0x800) {
+            if (ABS(g_Pad_495F4.sx) >= 0x33) {
+                d.vx = cam->eye.vx - scr->x;
+                d.vy = 0;
+                d.vz = cam->eye.vz - scr->z;
+                VectorNormalSS_495F4(&d, &d);
+                if (g_Pad_495F4.sx > 0) {
+                    side.vx = -d.vz;
+                    side.vz = d.vx;
+                } else {
+                    side.vx = d.vz;
+                    side.vz = -d.vx;
+                }
+                px = scr->x + side.vx / 12;
+                py = scr->y - 0x80;
+                pz = scr->z + side.vz / 12;
+                stepX = (cam->eye.vx - (s16)scr->x) / 4;
+                stepY = (cam->eye.vy - py) / 4;
+                stepZ = (cam->eye.vz - (s16)scr->z) / 4;
+                for (i = 0; i < 3; i++) {
+                    if (Floor_GetHeight_495F4(px, py, pz) < py - 0xC0) {
+                        blocked = 1;
+                        break;
+                    }
+                    py += stepY;
+                    px += stepX;
+                    pz += stepZ;
+                }
+            }
+        }
+    }
+    if (scr->dot >= 0x7D1 && cam->moving != 0) {
+        memset_495F4(&t, 0, 8);
+        t.vx = scr->x - cam->eye.vx;
+        t.vz = scr->z - cam->eye.vz;
+        side = t;
+        VectorNormalSS_495F4(&side, &side);
+        if (Floor_GetHeight_495F4(cam->eye.vx - side.vx / 32, cam->eye.vy, cam->eye.vz - side.vz / 32) < cam->eye.vy) {
+            cam->slow = 5;
+            cam->f_36 = 0;
+            cam->probe = 0;
+            cam->f_37 = 0xFF;
+        }
+    }
+    if (blocked != 0) {
+        if (scr->dot < 0xDAC) {
+            cam->slow = 8;
+            cam->f_36 = 0;
+            cam->probe = 0;
+            cam->range -= 0x258;
+            if (cam->range < 0) {
+                cam->range = 0;
+            }
+            cam->range = cam->range * 7 / 8 + 0x258;
+        }
+    }
+    if (blocked == 0) {
+        s16 dy2 = scr->y - cam->lastY;
+        if (dy2 != 0 && ABS(dy2) < 0x60) {
+            b = g_Spike_495F4.animFlags & 0xF0;
+            if (b == 0x20 || b == 0x30 || b == 0xA0 || g_Spike_495F4.state == 6) {
+                if (scr->dot > 0 && dy2 < 0) {
+                    dy2 = -dy2 * 4;
+                }
+                cam->bobY = -dy2 / 2;
+                cam->bobAt = dy2 / 3;
+            }
+        }
+    }
+    scr->at.vy = (s16)scr->y + (s16)(atH - 0x80);
+    {
+    s32 k_;
+    s16 a_;
+    register s16 ox_ asm("$7");
+    s16 b_;
+    register s16 oz_ asm("$5");
+    k_ = SquareRoot0_495F4(scr->vx * scr->vx + scr->vz * scr->vz);
+    if (k_ > 0x20) {
+        k_ = 0x20;
+    }
+    a_ = ((s16)scr->dx / 16) * k_ / 32;
+    __asm__ volatile("");
+    ox_ = a_;
+    b_ = ((s16)scr->dz / 16) * k_ / 32;
+    oz_ = b_;
+    if (mode == 1) {
+        ox_ = -a_;
+        oz_ = -b_;
+    }
+    scr->at.vx = scr->x + ox_ + scr->vx * k_;
+    scr->at.vz = scr->z + oz_ + scr->vz * k_;
+    }
+    if ((g_Spike_495F4.animFlags & 0xF0) == 0x50) {
+        s32 vy = scr->vy;
+        if (vy > 0) {
+            scr->at.vy += vy << 6;
+        }
+    }
+    if (scr->sy > 0xD0 && scr->vy > 0x20 && (g_Spike_495F4.animFlags & 0xF0) != 0x40 && scr->dot < 0) {
+        cam->range = cam->range * 7 / 8;
+        if (cam->range < 0x200) {
+            cam->range = 0x200;
+        }
+    }
+    if (scr->at.vy > 0 && g_Game_495F4.f_8126 != 7) {
+        scr->at.vy = 0;
+    }
+    scr->eye.vx = cam->at.vx + (rcos_495F4(cam->yaw) * cam->range >> 12);
+    scr->eye.vz = cam->at.vz + (rsin_495F4(cam->yaw) * cam->range >> 12);
+    scr->eye.vy = (s16)scr->y + (s16)(h - 0x80);
+    if (g_CurrentGadget_495F4 == 3 && D_800E6916_495F4 != 1) {
+        func_8004AF78_495F4(cam);
+    }
+    if (cam->probe != 0) {
+        cam->probe--;
+    }
+    Camera_ProbeDrop_495F4(cam, 0);
+    if (cam->probe != 0) {
+        if (cam->f_36 >= 5) {
+            cam->range -= 0x30;
+            if (cam->range < 0x180) {
+                cam->range = 0x180;
+                if (cam->eye.vy < (s16)scr->y - 0x60) {
+                    cam->bobY = 8;
+                }
+            }
+            cam->dist = cam->range;
+        }
+        scr->eye.vx = cam->at.vx + (rcos_495F4(cam->yaw) * cam->range >> 12);
+        scr->eye.vz = cam->at.vz + (rsin_495F4(cam->yaw) * cam->range >> 12);
+        Camera_ProbeDrop_495F4(cam, 1);
+    }
+    if (cam->slow == 0 && cam->dist < 0x460 && cam->f_37 >= 0xD) {
+        cam->dist = (cam->dist * 3 + 0x460) / 4;
+    }
+    if (!(g_Game_495F4.f_8100 & 1) && cam->slow == 0) {
+        scr->eye.vx += scr->vx * 3 / 2;
+        scr->eye.vz += scr->vz * 3 / 2;
+    }
+    if ((g_Spike_495F4.animFlags & 0xF0) == 0x50) {
+        s32 vy = scr->vy;
+        if (vy > 0) {
+            scr->eye.vy -= vy << 6;
+        }
+    }
+    if (scr->eye.vy > 0) {
+        scr->eye.vy = 0;
+    }
+    if (D_800EC23E_495F4 == 0x2D) {
+        scr->eye.vx = scr->x - (s16)scr->dx / 64;
+        scr->eye.vz = scr->z - (s16)scr->dz / 64;
+    }
+    if (cam->snap != 0) {
+        cam->at.vx = scr->x + (s16)scr->dx / 16;
+        cam->at.vy = (s16)scr->y + (s16)(atH - 0x80);
+        cam->at.vz = scr->z + (s16)scr->dz / 16;
+    }
+    cam->at.vx = (scr->at.vx + cam->at.vx * 0x1F) / 32;
+    cam->at.vz = (scr->at.vz + cam->at.vz * 0x1F) / 32;
+    if ((g_Spike_495F4.animFlags & 0xF0) == 0x40) {
+        cam->at.vy = (scr->at.vy + cam->at.vy * 0x1F) / 32;
+    } else {
+        cam->at.vy = (scr->at.vy + cam->at.vy * 0xF) / 16;
+    }
+    a = scr->sy;
+    if ((g_Spike_495F4.animFlags & 0xF0) == 0x50 ? a < 0x30 : a < 0x20) {
+        if (scr->vy < 0) {
+            cam->bobAt = scr->vy - 8;
+        }
+    }
+    if (scr->sy > 0xD0 && scr->vy > 0) {
+        cam->bobAt += scr->vy / 2;
+        if (cam->bobAt > 0x60) {
+            cam->bobAt = 0x60;
+        }
+    }
+    cam->at.vy += cam->bobAt;
+    cam->bobAt = cam->bobAt * 7 / 8;
+    if (cam->snap != 0) {
+        cam->eye = scr->eye;
+        d.vx = cam->at.vx - cam->eye.vx;
+        d.vy = 0;
+        d.vz = cam->at.vz - cam->eye.vz;
+        VectorNormalSS_495F4(&d, &d);
+        cam->yaw = Math_Atan2_495F4(-d.vx, -d.vz);
+    } else {
+        cam->eye.vx = (scr->eye.vx + cam->eye.vx) / 2;
+        cam->eye.vz = (scr->eye.vz + cam->eye.vz) / 2;
+        if ((g_Spike_495F4.animFlags & 0xF0) == 0x40) {
+            cam->eye.vy = (scr->eye.vy + cam->eye.vy * 0x3F) / 64;
+        } else {
+            cam->eye.vy = (scr->eye.vy + cam->eye.vy * 0x1F) / 32;
+        }
+        cam->eye.vy += cam->f_6C;
+        cam->eye.vy += cam->bobY;
+        cam->bobY = cam->bobY * 7 / 8;
+    }
+    if (D_800EC23E_495F4 != 0x2D) {
+        Camera_KeepAboveFloor_495F4(cam);
+    }
+    a = (cam->at.vx - cam->eye.vx) * (cam->at.vx - cam->eye.vx);
+    b = (cam->at.vz - cam->eye.vz) * (cam->at.vz - cam->eye.vz);
+    cam->lastX = scr->x;
+    cam->lastY = scr->y;
+    cam->lastZ = scr->z;
+    cam->range = SquareRoot0_495F4(a + b);
+    cam->snap = 0;
+    cam->lastYaw = cam->yaw;
+}
 
 s32 func_8004A940(void)
 {

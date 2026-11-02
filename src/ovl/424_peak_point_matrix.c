@@ -885,7 +885,75 @@ M2C_UNK func_8013EEC0(void *arg0, M2C_UNK arg1) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/424/nonmatchings/424_peak_point_matrix", func_8013F06C);
+#define gte_stszotz(r0) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(r0) : "$12", "memory")
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_8013F06C;
+typedef struct { u32 tag; u32 mode; u32 rgb0; s32 xy0; u32 rgb1; s32 xy1; } Line_8013F06C;
+extern struct { u8 pad_0[0x4]; Line_8013F06C *f_4; u8 pad_8[4]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013F06C asm("g_Game");
+
+void func_8013F06C(Ent_8013EEC0 *o) {
+    SVECTOR v;
+    s32 sxy0[1];
+    s32 z;
+    s32 sxy1[1];
+    s32 t;
+    Pt_8013EEC0 *p;
+    Line_8013F06C *l;
+    u32 *ot;
+    s32 i;
+
+    for (i = 0x1F, p = D_801427C0_8013EEC0; i >= 0; i--, p++) {
+        if (p->f_6 != 0) {
+            if (p->f_8 != 0) {
+                p->f_8--;
+            } else {
+                p->f_6--;
+                p->x = (o->x + p->x * 7) / 8;
+                p->y = (o->y + p->f_A + p->y * 7) / 8;
+                p->z = (o->z + p->z * 7) / 8;
+            }
+        }
+    }
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    l = g_Game_8013F06C.f_4;
+    ot = (u32 *)(g_Game_8013F06C.f_80 + g_Game_8013F06C.f_C * 0x4078);
+    for (i = 0x1F, p = D_801427C0_8013EEC0; i >= 0; i--, p++) {
+        if (p->f_6 == 0 || p->f_8 != 0) {
+            continue;
+        }
+        gte_ldv0(p);
+        gte_rtps();
+        gte_stsxy(sxy0);
+        gte_stszotz(&z);
+        if ((u32)(z - 1) >= 0xFFF) {
+            break;
+        }
+        if (p->f_7 == 0) {
+            v.vx = o->x;
+            v.vy = o->y + p->f_A;
+            v.vz = o->z;
+            gte_ldv0(&v);
+            gte_rtps();
+            gte_stsxy(sxy1);
+            {
+            __asm__ volatile("lui $5,0xE100");
+            ((u8 *)l)[3] = 5;
+            l->rgb0 = 0x52A05A28;
+            l->xy0 = sxy0[0];
+            l->rgb1 = 0x1E140A;
+            t = sxy1[0];
+            __asm__ volatile("ori $5,$5,0x220; sw $5,%0" : "=m"(l->mode));
+            }
+            l->xy1 = t;
+            ((Tag_8013F06C *)l)->addr = ((Tag_8013F06C *)&ot[z])->addr;
+            ((Tag_8013F06C *)&ot[z])->addr = (u32)l;
+            l++;
+        } else {
+            Effect_Spawn(0xCF, (s32)p, (M2C_UNK *)D_80141F88_8013E120, 0);
+        }
+    }
+    g_Game_8013F06C.f_4 = l;
+}
 
 void func_8013F370(void) {
     D_80142320 = 0;

@@ -308,7 +308,104 @@ void func_8008D064(void *p, s32 a) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8008C390_debug_font", MinigameMenu_Main);
+typedef struct { s16 x, y, w, h; } RECT_8D1F0;
+typedef struct { u8 pad0[0x18]; u8 isbg; u8 pad19[0x43]; u8 disp[0x14]; } Env_8D1F0;
+typedef struct { Env_8D1F0 env; u32 ot[0x1000]; u32 hud[2]; } Db_8D1F0;
+typedef struct { u32 frame; u8 *prim; u32 *ot; s32 cur; Db_8D1F0 db[2]; u8 pad8100[0x20]; u16 mode; u8 pad8122[4]; u16 stage; u8 pad8128[0x34]; u16 f_815C; } Game_8D1F0;
+extern u32 g_GameW_8D1F0 asm("g_Game");
+#define G_8D1F0 (*(Game_8D1F0 *)&g_GameW_8D1F0)
+extern RECT_8D1F0 D_800A6464;
+extern s32 D_800B35D0;
+extern s32 D_800B35D4[];
+extern s32 D_800B3600[];
+extern s32 D_800B3618;
+extern s32 D_800B361C;
+extern s32 D_800B3620[];
+void Gfx_InitDisplay(void);
+void ResetGraph(s32);
+s32 ClearImage(void *, s32, s32, s32);
+void DrawSync(s32);
+void VSync(s32);
+void PutDispEnv(void *);
+void PutDrawEnv(void *);
+void DrawOTag(void *);
+void Gfx_BeginFrame(void);
+void func_8001325C(s32);
+void func_8008C390(void);
+s32 MinigameMenu_Update(void);
+void Minigame_Run(s32);
+void Cd_ReadFile(s32, s32);
+void Cd_WaitIdle(s32);
+void Cd_StartFileLoad(s32, s32);
+void Cd_Update(void);
+s32 func_800116C0(void);
+s32 Stage_ResetActors(s32);
+void func_80136074(s32);
+void func_80137654(void);
+
+s32 MinigameMenu_Main(void) {
+    RECT_8D1F0 r[2];
+    register s32 sel asm("$16");
+
+    r[0] = D_800A6464;
+    Gfx_InitDisplay();
+    ResetGraph(1);
+    ClearImage(&r[0], 0, 0, 0);
+    DrawSync(0);
+    G_8D1F0.db[1].env.isbg = 1;
+    G_8D1F0.db[0].env.isbg = 1;
+    G_8D1F0.cur = 0;
+    D_800B3620[3] = D_800B35D4[D_800B3618];
+    D_800B35D0 = 0;
+    D_800B3620[4] = D_800B3600[D_800B361C];
+    while (1) {
+        func_8001325C(0);
+        Gfx_BeginFrame();
+        func_8008C390();
+        sel = MinigameMenu_Update();
+        if (sel >= 0) {
+            break;
+        }
+        DrawSync(0);
+        VSync(0);
+        g_GameW_8D1F0++;
+        PutDispEnv(G_8D1F0.db[G_8D1F0.cur].env.disp);
+        PutDrawEnv(&G_8D1F0.db[G_8D1F0.cur].env);
+        DrawOTag(&G_8D1F0.db[G_8D1F0.cur].ot[0xFFF]);
+    }
+    if (sel != 999) {
+        if (sel < 2) {
+            Minigame_Run(sel);
+        } else switch (sel) {
+        case 3:
+            Cd_ReadFile(0x180, 0x80136000);
+            Cd_WaitIdle(0);
+            func_80136074(D_800B3618);
+            G_8D1F0.mode = sel;
+            break;
+        case 2:
+            Cd_ReadFile(0x1AB, 0x80136000);
+            Cd_WaitIdle(0);
+            func_80137654();
+            G_8D1F0.mode = 3;
+            break;
+        case 4:
+            G_8D1F0.stage = D_800B361C + 0x63;
+            G_8D1F0.mode = 0x24;
+            G_8D1F0.f_815C = D_800B361C;
+            Stage_ResetActors(G_8D1F0.stage);
+            Cd_StartFileLoad(1, G_8D1F0.stage);
+            while (func_800116C0() == 0) {
+                Cd_Update();
+                VSync(2);
+            }
+            break;
+        }
+    } else {
+        G_8D1F0.mode = 3;
+    }
+    return 0;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/8008C390_debug_font", D_800A6464);
 
