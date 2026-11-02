@@ -934,7 +934,117 @@ void func_8013F1B4(s16 *p) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/414/nonmatchings/414_tv_tower2", func_8013F240);
+typedef struct { s32 vx, vy, vz, pad; } Vec_8013F240;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x2C]; s16 f_5C; u8 pad5E[2]; s16 f_60, f_62, f_64; u8 pad66[0x14]; s16 f_7A, f_7C, f_7E; u8 f_80, f_81; u8 pad82[2]; } Blast_8013F240;
+extern Blast_8013F240 D_80144598_8013F240[1] asm("D_80144598");
+extern u8 D_800B1BD4[];
+extern u8 D_801439F4_8013F240[] asm("D_801439F4");
+const Vec_8013F240 D_80143260 = { 0x2000, 0x2000, 0x2000, 0 };
+s32 Sound_PlayFixed_8013F240(s32) asm("Sound_PlayFixed");
+void Shadow_Draw_8013F240(void *, s32, s32, s32) asm("Shadow_Draw");
+void Fx_SpawnFadeRing(SVECTOR *, s32, s32, s32);
+void func_80070284(SVECTOR *, void *, s32, s32, s32);
+s32 func_8013E9C8(u8 *a, void *scale, s32 c, s32 spin);
+
+void func_8013F240(void) {
+    SVECTOR v;
+    Vec_8013F240 a;
+    Blast_8013F240 *b;
+    s32 i;
+    s32 j;
+    s32 c;
+
+    for (i = 0, b = D_80144598_8013F240; i < 1; i++, b++) {
+        if (b->f_80 == 0) {
+            continue;
+        }
+        switch (b->f_80) {
+        case 1:
+            b->x += b->f_7A;
+            b->y += b->f_7C;
+            b->z += b->f_7E;
+            b->f_7C += 3;
+            v.vx = b->x;
+            v.vy = b->y;
+            v.vz = b->z;
+            Effect_SpawnAt(5, &v);
+            if (b->y >= -0x107F) {
+                b->f_7C = -0x19;
+                b->y = -0x1080;
+                b->f_80 = 2;
+                v.vy = -0x1000;
+                for (j = 0; j < 30; j++) {
+                    Effect_Spawn(0xD6, (s32)&v, &D_80143718, 0);
+                }
+                func_80070284(&v, D_800B1BD4, 1, 4, 0);
+                Camera_StartShake(1);
+                Sound_PlayFixed_8013F240(0x9C);
+            }
+            break;
+        case 2:
+            b->x += b->f_7A;
+            b->y += b->f_7C;
+            b->z += b->f_7E;
+            b->f_7C += 5;
+            v.vx = b->x;
+            v.vy = b->y;
+            v.vz = b->z;
+            if (b->y >= -0x107F) {
+                b->y = -0x1080;
+                v.vy = -0x1000;
+                for (j = 0; j < 16; j++) {
+                    Effect_Spawn(0xD6, (s32)&v, &D_80143718, 0);
+                }
+                b->f_7C = -b->f_7C / 3;
+                if (b->f_7C >= -0x13) {
+                    b->f_80 = 3;
+                    b->f_81 = 0;
+                }
+            }
+            break;
+        case 3:
+            v.vx = b->x;
+            v.vy = -0x1080;
+            v.vz = b->z;
+            if (b->f_81 >= 0x2E) {
+                for (j = 0; j < 60; j++) {
+                    Effect_Spawn(0xD5, (s32)&v, &D_80143718, 0);
+                }
+                Fx_SpawnFadeRing(&v, 0, 0x578, 0);
+                Fx_SpawnFadeRing(&v, 0, 0x384, 4);
+                func_80070284(&v, D_801439F4_8013F240, 1, 6, 0);
+                func_80070284(&v, D_801439F4_8013F240 + 0x54, 1, 0, 0);
+                Effect_SpawnAt(0x109, &v);
+                Sound_PlayFixed_8013F240(0x80);
+                Sound_PlayFixed_8013F240(0x6C);
+                Sound_PlayFixed_8013F240(0x95);
+                Camera_StartShake(2);
+                b->f_80 = 4;
+                b->f_81 = 0;
+            }
+            break;
+        case 4:
+            if (b->f_81 >= 0x29) {
+                b->f_80 = 0;
+            }
+            break;
+        }
+        b->f_81++;
+        if ((u32)(b->f_80 - 1) < 3) {
+            b->f_5C = 0;
+            a = D_80143260;
+            c = 0;
+            if (b->f_80 == 3 && (b->f_81 & 1)) {
+                c = 0x141E80;
+            }
+            b->f_60 = 0;
+            b->f_62 = 0;
+            b->f_64 = 0x1000;
+            func_8013E9C8((u8 *)b, &a, c, 0);
+            Shadow_Draw_8013F240(&b->x, -0x1010, 0x100, 0);
+        }
+    }
+}
 
 void func_8013F68C(void) {
     M2C_UNK *var_s1;
