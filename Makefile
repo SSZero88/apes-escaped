@@ -47,6 +47,17 @@ $(BUILD_DIR)/src/ovl/%.o: src/ovl/%.c
 	$(CPP) $(CPP_FLAGS) $< | $(CC1) $(CC1_FLAGS) | $(MASPSX) | $(AS) $(AS_FLAGS) -o $@
 	$(OBJCOPY) --set-section-alignment .rodata=4 --set-section-alignment .data=4 $@
 
+# overlay 390's linked-in library objects were built by a different toolchain: gcc 2.7.2 with no
+# -gcoff and no aspsx (plain gas fills the delay slots; `move` is assembled as addu)
+LIB_CC1      := /opt/cc/2.7.2-psx/cc1
+LIB_CC1_FLAGS := -quiet -mcpu=3000 -fgnu-linker -mgas -w -O2 -mhard-float -G0
+LIB_AS_FLAGS := -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O2 -G0 -EL
+LIB_O_FILES  := $(addprefix $(BUILD_DIR)/src/ovl/,390d_t2.o 390d_sio.o 390d_t4.o)
+$(LIB_O_FILES): $(BUILD_DIR)/src/ovl/%.o: src/ovl/%.c
+	@mkdir -p $(dir $@)
+	$(CPP) $(CPP_FLAGS) $< | $(LIB_CC1) $(LIB_CC1_FLAGS) | sed 's/^\tmove\t\([^,]*\),\(.*\)$$/\taddu\t\1,\2,$$0/' | $(AS) $(LIB_AS_FLAGS) -o $@
+	$(OBJCOPY) --set-section-alignment .rodata=4 --set-section-alignment .data=4 $@
+
 $(BUILD_DIR)/%.o: %.bin
 	@mkdir -p $(dir $@)
 	$(OBJCOPY) -I binary -O elf32-tradlittlemips -B mips $< $@
