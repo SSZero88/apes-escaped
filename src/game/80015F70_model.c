@@ -2443,4 +2443,227 @@ INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4778_pad);
 
 INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", func_8001DB74);
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", func_8001E828);
+/* Quad subdivider for big near textured quads (from Model_AddFT4): culls if wholly off one screen side, at depth 0 emits a POLY_FT4, otherwise splits into four perspective-weighted sub-quads (built in q[1]) and recurses with depth-1. */
+typedef struct { s16 x, y; } XY_1E828;
+typedef struct { u8 r, g, b, cd; } QC_1E828;
+typedef struct { union { u32 w; XY_1E828 s; } xy; union { u32 w; struct { s16 z, pad; } s; } zw; } QV_1E828;
+typedef struct { QV_1E828 v[4]; QC_1E828 col; u8 u0, v0; u16 clut; u8 u1, v1; u16 tpage; u8 u2, v2; u8 u3, v3; u8 code; u8 pad[3]; } Quad_1E828;
+
+u8 *func_8001E828(u32 *ot, u8 *prim, SubQuad_Model_AddFT4 *qa, s32 depth) {
+    Quad_1E828 *q = (Quad_1E828 *)qa;
+    MdlScratch_Model_AddFT4 *MS;
+    Quad_1E828 *c;
+    s32 d1;
+    s32 wa, wb, xs, ys;
+    u32 *o;
+
+    __asm__ volatile("");
+
+
+    { u32 w0 = q->v[0].xy.w; __asm__("lui %0, 0x1f80" : "=r"(MS)); MS->sxy[0].w = w0; }
+    MS->sxy[1].w = q->v[1].xy.w; __asm__ volatile("" : "=r"(prim) : "0"(prim));
+    MS->sxy[2].w = q->v[2].xy.w;
+    __asm__ volatile("lwc2 $12, 0(%0); lwc2 $13, 4(%0); lwc2 $14, 8(%0)" : : "r"((void *)0x1F8003CC));
+    __asm__ volatile("nop; nop; nclip");
+    MS->sxy[3].w = q->v[3].xy.w;
+    __asm__ volatile("" ::: "memory");
+    {
+        register s32 mn asm("$6"), mx asm("$7"); s32 x, y, hi, lo;
+        mn = MS->sxy[0].s.x;
+        mx = MS->sxy[1].s.x;
+        if (mx < mn) {
+            mx = mn;
+            __asm__ volatile("" ::: "memory");
+            mn = MS->sxy[1].s.x;
+        }
+        x = MS->sxy[2].s.x;
+        y = MS->sxy[3].s.x;
+        if (y < x) {
+            y = x;
+            __asm__ volatile("" ::: "memory");
+            x = MS->sxy[3].s.x;
+        }
+        hi = y;
+        if (hi < mx) hi = mx;
+        lo = x;
+        if (mn < lo) lo = mn;
+        if (hi < 0 || lo >= 0x181) goto end;
+    }
+    {
+        register s32 mn asm("$6"), mx asm("$7"); s32 x, y, hi, lo;
+        mn = MS->sxy[0].s.y;
+        mx = MS->sxy[1].s.y;
+        if (mx < mn) {
+            mx = mn;
+            __asm__ volatile("" ::: "memory");
+            mn = MS->sxy[1].s.y;
+        }
+        x = MS->sxy[2].s.y;
+        y = MS->sxy[3].s.y;
+        if (y < x) {
+            y = x;
+            __asm__ volatile("" ::: "memory");
+            x = MS->sxy[3].s.y;
+        }
+        hi = y;
+        if (hi < mx) hi = mx;
+        lo = x;
+        if (mn < lo) lo = mn;
+        if (hi < 0 || lo >= 0xF1) goto end;
+    }
+    __asm__ volatile("swc2 $24, 0(%0)" : : "r"(&MS->opz) : "memory");
+    if (depth == 0) {
+        s32 z = ((s16)((SubQuad_Model_AddFT4 *)q)->z0 >> 4) + ((s16)((SubQuad_Model_AddFT4 *)q)->z1 >> 4) + ((s16)((SubQuad_Model_AddFT4 *)q)->z2 >> 4) + ((s16)((SubQuad_Model_AddFT4 *)q)->z3 >> 4);
+        z = (z < 0) ? 0 : ((z > 0xFC0) ? 0xFC0 : z);
+        o = (MS->flags & 1) ? ot : &ot[z];
+        ADD_PRIM_R(o, prim, "$3", "$2");
+        {
+            u32 a, b; u16 h, h2;
+            a = q->v[0].xy.w; b = q->v[1].xy.w; ((u32 *)prim)[2] = a; ((u32 *)prim)[4] = b;
+            a = q->v[2].xy.w; b = q->v[3].xy.w; ((u32 *)prim)[6] = a; ((u32 *)prim)[8] = b;
+            a = *(u32 *)&q->col; b = *(u32 *)&q->u0; ((u32 *)prim)[1] = a; ((u32 *)prim)[3] = b;
+            a = *(u32 *)&q->u1; h = *(u16 *)&q->u2; ((u32 *)prim)[5] = a; h2 = *(u16 *)&q->u3; ((u16 *)prim)[14] = h;
+            prim[3] = 9;
+            ((u16 *)prim)[18] = h2;
+            prim[7] = q->code;
+        }
+        prim += 0x28;
+        goto end;
+    }
+
+    /* top-left quarter: v0, mid(v0,v1), mid(v2,v0), centre */
+    q[1].v[0].xy.w = q->v[0].xy.w; q[1].v[0].zw.w = q->v[0].zw.w;
+    q[1].col = q->col;
+    *(u32 *)&q[1].u0 = *(u32 *)&q->u0;
+    wa = q->v[0].zw.s.z;
+    wb = q->v[1].zw.s.z;
+    q[1].tpage = q->tpage;
+    if (wa < 0xA4) wa = 0xA4;
+    if (wb < 0xA4) wb = 0xA4;
+    { s32 xs, ys;
+    xs = q->v[0].xy.s.x * wa + q->v[1].xy.s.x * wb;
+    ys = q->v[0].xy.s.y * wa + q->v[1].xy.s.y * wb;
+    if (q->v[1].xy.s.x < q->v[0].xy.s.x) ys += wa + wb;
+    if (q->v[0].xy.s.y < q->v[1].xy.s.y) xs += wa + wb;
+    q[1].v[1].xy.s.x = xs / (wa + wb);
+    q[1].v[1].xy.s.y = ys / (wa + wb);
+    }
+    q[1].v[1].zw.s.z = (wa + wb) / 2;
+    q[1].u1 = (q->u0 + q->u1) >> 1;
+    q[1].v1 = (q->v0 + q->v1) >> 1;
+    wb = q->v[2].zw.s.z;
+    if (wb < 0xA4) wb = 0xA4;
+    { s32 xs, ys;
+    xs = q->v[0].xy.s.x * wa + q->v[2].xy.s.x * wb;
+    ys = q->v[0].xy.s.y * wa + q->v[2].xy.s.y * wb;
+    if (q->v[0].xy.s.x < q->v[2].xy.s.x) ys += wa + wb;
+    if (q->v[2].xy.s.y < q->v[0].xy.s.y) xs += wa + wb;
+    q[1].v[2].xy.s.x = xs / (wa + wb);
+    q[1].v[2].xy.s.y = ys / (wa + wb);
+    }
+    q[1].v[2].zw.s.z = (wa + wb) / 2;
+    q[1].u2 = (q->u0 + q->u2) >> 1;
+    q[1].v2 = (q->v0 + q->v2) >> 1;
+    wa = q->v[1].zw.s.z;
+    if (wa < 0xA4) wa = 0xA4;
+    xs = (q->v[1].xy.s.x * wa + q->v[2].xy.s.x * wb) / (wa + wb);
+    ys = (q->v[1].xy.s.y * wa + q->v[2].xy.s.y * wb) / (wa + wb);
+    q[1].v[3].zw.s.z = (wa + wb) / 2;
+    q[1].u3 = (q->u1 + q->u2) >> 1;
+    q[1].v3 = (q->v1 + q->v2) >> 1;
+    q[1].code = q->code;
+    q[1].v[3].xy.s.x = xs;
+    q[1].v[3].xy.s.y = ys;
+    c = q + 1;
+    d1 = depth - 1;
+    prim = func_8001E828(ot, prim, (SubQuad_Model_AddFT4 *)c, d1);
+
+    /* top-right: mid(v0,v1), v1, centre, mid(v1,v3) */
+    wa = q->v[1].zw.s.z;
+    wb = q->v[3].zw.s.z;
+    q[1].clut = q->clut;
+    q[1].tpage = q->tpage;
+    q[1].v[0].xy.w = q[1].v[1].xy.w; q[1].v[0].zw.w = q[1].v[1].zw.w;
+    q[1].u0 = q[1].u1;
+    q[1].v0 = q[1].v1;
+    q[1].v[1].xy.w = q->v[1].xy.w; q[1].v[1].zw.w = q->v[1].zw.w;
+    q[1].u1 = q->u1;
+    q[1].v1 = q->v1;
+    q[1].v[2].xy.w = q[1].v[3].xy.w; q[1].v[2].zw.w = q[1].v[3].zw.w;
+    q[1].u2 = q[1].u3;
+    q[1].v2 = q[1].v3;
+    if (wa < 0xA4) wa = 0xA4;
+    if (wb < 0xA4) wb = 0xA4;
+    { s32 xs, ys;
+    xs = q->v[1].xy.s.x * wa + q->v[3].xy.s.x * wb;
+    ys = q->v[1].xy.s.y * wa + q->v[3].xy.s.y * wb;
+    if (q->v[3].xy.s.x < q->v[1].xy.s.x) ys += wa + wb;
+    if (q->v[1].xy.s.y < q->v[3].xy.s.y) xs += wa + wb;
+    q[1].v[3].xy.s.x = xs / (wa + wb);
+    q[1].v[3].xy.s.y = ys / (wa + wb);
+    }
+    q[1].v[3].zw.s.z = (wa + wb) / 2;
+    q[1].u3 = (q->u1 + q->u3) >> 1;
+    q[1].v3 = (q->v1 + q->v3) >> 1;
+    prim = func_8001E828(ot, prim, (SubQuad_Model_AddFT4 *)c, d1);
+
+    /* bottom-right: centre, mid(v1,v3), mid(v3,v2), v3 */
+    wa = q->v[2].zw.s.z;
+    wb = q->v[3].zw.s.z;
+    q[1].clut = q->clut;
+    q[1].tpage = q->tpage;
+    q[1].v[0].xy.w = q[1].v[2].xy.w; q[1].v[0].zw.w = q[1].v[2].zw.w;
+    q[1].u0 = q[1].u2;
+    q[1].v0 = q[1].v2;
+    q[1].v[1].xy.w = q[1].v[3].xy.w; q[1].v[1].zw.w = q[1].v[3].zw.w;
+    q[1].u1 = q[1].u3;
+    q[1].v1 = q[1].v3;
+    if (wa < 0xA4) wa = 0xA4;
+    if (wb < 0xA4) wb = 0xA4;
+    { s32 xs, ys;
+    xs = q->v[2].xy.s.x * wa + q->v[3].xy.s.x * wb;
+    ys = q->v[2].xy.s.y * wa + q->v[3].xy.s.y * wb;
+    if (q->v[2].xy.s.x < q->v[3].xy.s.x) ys += wa + wb;
+    if (q->v[3].xy.s.y < q->v[2].xy.s.y) xs += wa + wb;
+    q[1].v[2].xy.s.x = xs / (wa + wb);
+    q[1].v[2].xy.s.y = ys / (wa + wb);
+    }
+    q[1].v[2].zw.s.z = (wa + wb) / 2;
+    q[1].u2 = (q->u2 + q->u3) >> 1;
+    q[1].v2 = (q->v2 + q->v3) >> 1;
+    q[1].v[3].xy.w = q->v[3].xy.w; q[1].v[3].zw.w = q->v[3].zw.w;
+    q[1].u3 = q->u3;
+    q[1].v3 = q->v3;
+    prim = func_8001E828(ot, prim, (SubQuad_Model_AddFT4 *)c, d1);
+
+    /* bottom-left: mid(v2,v0), centre, v2, mid(v3,v2) */
+    wa = q->v[0].zw.s.z;
+    q[1].clut = q->clut;
+    q[1].tpage = q->tpage;
+    q[1].v[1].xy.w = q[1].v[0].xy.w; q[1].v[1].zw.w = q[1].v[0].zw.w;
+    q[1].u1 = q[1].u0;
+    q[1].v1 = q[1].v0;
+    q[1].v[3].xy.w = q[1].v[2].xy.w; q[1].v[3].zw.w = q[1].v[2].zw.w;
+    q[1].u3 = q[1].u2;
+    q[1].v3 = q[1].v2;
+    q[1].v[2].xy.w = q->v[2].xy.w; q[1].v[2].zw.w = q->v[2].zw.w;
+    q[1].u2 = q->u2;
+    q[1].v2 = q->v2;
+    if (wa < 0xA4) wa = 0xA4;
+    wb = q->v[2].zw.s.z;
+    if (wb < 0xA4) wb = 0xA4;
+    { s32 xs, ys;
+    xs = q->v[0].xy.s.x * wa + q->v[2].xy.s.x * wb;
+    ys = q->v[0].xy.s.y * wa + q->v[2].xy.s.y * wb;
+    if (q->v[0].xy.s.x < q->v[2].xy.s.x) ys += wa + wb;
+    if (q->v[2].xy.s.y < q->v[0].xy.s.y) xs += wa + wb;
+    q[1].v[0].xy.s.x = xs / (wa + wb);
+    q[1].v[0].xy.s.y = ys / (wa + wb);
+    }
+    q[1].v[0].zw.s.z = (wa + wb) / 2;
+    q[1].u0 = (q->u0 + q->u2) >> 1;
+    q[1].v0 = (q->v0 + q->v2) >> 1;
+    prim = func_8001E828(ot, prim, (SubQuad_Model_AddFT4 *)(q + 1), depth - 1);
+end:
+    return prim;
+}

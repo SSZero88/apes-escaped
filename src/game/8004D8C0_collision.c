@@ -548,9 +548,149 @@ done:
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8004D8C0_collision", func_8004E63C);
+/* Slope-tile edge check: for collision tile kinds 0x2E-0x35 (ramps/corners) decides which axis the slope runs on and whether point p lies within the tile edge band; on success *out = b[1] (height) and returns 1. */
+struct Game_4E63C { u8 pad0[0x8296]; s16 f_8296; };
+extern struct Game_4E63C g_Game_4E63C asm("g_Game");
 
-INCLUDE_RODATA("asm/nonmatchings/game/8004D8C0_collision", jtbl_800A4DD0);
+s32 func_8004E63C(s16 kind, s16 *b, s32 *p, s32 *out) {
+    s16 dir;
+    s16 oz;
+    s16 ox;
+
+    *out = 0;
+    if (g_Game_4E63C.f_8296 != 1) {
+        return 0;
+    }
+    switch (kind) {
+    case 0x2E:
+        oz = -0x100;
+        dir = 2;
+        break;
+    case 0x2F:
+        ox = -0x100;
+        dir = 1;
+        break;
+    case 0x30:
+        oz = 0x100;
+        dir = 2;
+        break;
+    case 0x31:
+        ox = 0x100;
+        dir = 1;
+        break;
+    case 0x32:
+        ox = -0x100;
+        oz = ox;
+        if (ox + 0x40 < p[0]) {
+            goto edge1;
+        }
+        if (p[0] < ox - 0x40) {
+            goto edge1;
+        }
+        if (oz + 0x40 < p[2]) {
+            goto edge1;
+        }
+        if (p[2] < oz - 0x40) {
+            goto edge1;
+        }
+        dir = 3;
+        break;
+    edge1:
+        dir = 2;
+        if (p[2] > p[0]) {
+            dir = 1;
+        }
+        break;
+    case 0x33:
+        ox = -0x100;
+        oz = 0x100;
+        if (ox + 0x40 < p[0]) {
+            goto edge2;
+        }
+        if (p[0] < ox - 0x40) {
+            goto edge2;
+        }
+        if (oz + 0x40 < p[2]) {
+            goto edge2;
+        }
+        if (p[2] < oz - 0x40) {
+            goto edge2;
+        }
+        dir = 3;
+        break;
+    edge2:
+        dir = 1;
+        if (-p[0] < p[2]) {
+            dir = 2;
+        }
+        break;
+    case 0x34:
+        ox = 0x100;
+        oz = ox;
+        if (ox + 0x40 < p[0]) {
+            goto edge3;
+        }
+        if (p[0] < ox - 0x40) {
+            goto edge3;
+        }
+        if (oz + 0x40 < p[2]) {
+            goto edge3;
+        }
+        if (p[2] < oz - 0x40) {
+            goto edge3;
+        }
+        dir = 3;
+        break;
+    edge3:
+        dir = 1;
+        if (p[2] > p[0]) {
+            dir = 2;
+        }
+        break;
+    case 0x35:
+        ox = 0x100;
+        oz = -0x100;
+        if (ox + 0x40 < p[0]) {
+            goto edge4;
+        }
+        if (p[0] < ox - 0x40) {
+            goto edge4;
+        }
+        if (oz + 0x40 < p[2]) {
+            goto edge4;
+        }
+        if (p[2] < oz - 0x40) {
+            goto edge4;
+        }
+        __asm__ volatile("");
+        dir = 3;
+        break;
+    edge4:
+        dir = 2;
+        if (-p[0] < p[2]) {
+            dir = 1;
+        }
+        break;
+    }
+    if (dir == 1) {
+        if (ox + 0x40 < p[0] || p[0] < ox - 0x40) {
+            return 0;
+        }
+        if (b[2] < p[2] || p[2] < -b[2]) {
+            return 0;
+        }
+    } else if (dir == 2) {
+        if (oz + 0x40 < p[2] || p[2] < oz - 0x40) {
+            return 0;
+        }
+        if (b[0] < p[0] || p[0] < -b[0]) {
+            return 0;
+        }
+    }
+    *out = b[1];
+    return 1;
+}
+
 
 
 /* func_8004E8F8: floor test for a diagonal collision shape (kinds from 0x37, direction from the

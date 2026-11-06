@@ -1,7 +1,7 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-M2C_UNK Msg_Update();
+void Msg_Update(void);
 void Msg_DrawWindow(void);
 extern struct S_D_800F5A00 { u8 f_0; u8 pad_1[0x1]; u16 f_2; u32 f_4; u32 f_8; u8 pad_C[0x4]; s16 f_10; s16 f_12; s16 f_14; s8 f_16; } D_800F5A00;
 
@@ -63,7 +63,97 @@ void func_8008DF80(void)
 
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8008DEE0_msg", Msg_Update);
+typedef struct { u8 state; u8 blink; u16 pal; u8 *p; u8 *page; u8 padC[4]; u16 t; u16 wait; u16 last; s8 f_16; } MsgSt_8DFFC;
+#define MS (*(MsgSt_8DFFC *)&D_800F5A00)
+extern struct S_D_800E5320_8DFFC { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad;
+void Sound_PlayFixed(s32);
+
+void Msg_Update(void) {
+    s32 ok;
+    u8 st;
+    register u8 *q asm("$5");
+    u8 *r;
+    u16 last;
+    MsgSt_8DFFC *m;
+    u16 c;
+
+    if (MS.state == 1 || MS.state == 5) {
+        return;
+    }
+    func_8008DF80();
+    st = MS.state;
+    ok = (g_Pad.f_158 & g_Pad.f_160 & 0xEA) != 0;
+    if (st == 4) {
+        func_8008DDB0(0xB8, 0xA0);
+        Msg_PutChar(0x104, 0x1F0, 1);
+        if (MS.state == st && ok) {
+            goto close;
+        }
+    }
+    if (g_Pad.f_158 & g_Pad.f_160 & 0x800) {
+close:
+        MS.state = 5;
+        MS.t = 0x80;
+        Sound_PlayFixed(0);
+        return;
+    }
+    m = &MS;
+    if (MS.state == 3) {
+        if (!(++m->blink & 8)) {
+            func_8008DDB0(0xB8, 0xA0);
+            Msg_PutChar(0x104, 0x1F0, 1);
+        }
+        if (ok) {
+            { u8 *np = m->p + 1; MS.state = 2; m->p = np; m->page = np; }
+            Sound_PlayFixed(0);
+        }
+        return;
+    }
+    goto scan;
+end4:
+    MS.state = 4;
+    __asm__ volatile("");
+    { register u8 *t asm("$2") = q - 1; m->p = t; }
+    return;
+end3:
+    MS.state = 3;
+    __asm__ volatile("");
+    { register u8 *t asm("$2") = q - 1; m->p = t; }
+    m->blink = 0;
+    return;
+scan:
+    do {
+        u16 *pc;
+        pc = &c;
+        r = (u8 *)Msg_ReadChar((u32)m->p, pc);
+        pc = (u16 *)r;
+        m->p = r;
+        if (c == 0) break;
+    } while (c != 0xF);
+    m->p = r - 1;
+    __asm__ volatile("");
+    m = &MS;
+    if (--m->wait != 0) {
+        return;
+    }
+    m->wait = 1;
+    __asm__ volatile("");
+    {
+    q = (u8 *)Msg_ReadChar((u32)m->p, &c);
+    last = m->last;
+    m->p = q;
+    m->last = c;
+    if ((u8)c < 0x10) {
+        if (c == 0) {
+            goto end4;
+        } else if (c == 0xF) {
+            goto end3;
+        } else if (c == 0xD && last == 0xD) {
+            m->wait = 0xD;
+        }
+    }
+    }
+}
 
 extern u8 g_Game[];
 typedef struct { u8 state; u8 pad1[0xF]; u16 t; u8 pad12[4]; u8 f_16; } MsgWin_8E23C;

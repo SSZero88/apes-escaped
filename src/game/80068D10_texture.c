@@ -6,7 +6,85 @@ void *func_8008C09C(s32);
 extern struct S_D_800B98F0 { s32 f_0; E_800690E8_800690E8 *f_4; } D_800B98F0;
 void MoveImage(RECT_800690E8_800690E8 *, s32, s32);
 
-INCLUDE_ASM("asm/nonmatchings/game/80068D10_texture", func_80068D10);
+typedef struct { s16 x, y, w, h; } RECT_68D10;
+void func_8008D064(char *, s32);
+s32 LoadImage2(void *rect, u32 *p);
+s32 DrawSync(s32);
+void bios_printf(const char *, ...);
+void bios_exit(s32) __attribute__((noreturn));
+u8 *Image_DecodeNibbleRuns(u8 *src, u32 n);
+u8 *Image_DecodeRle4(u8 *src, u32 n);
+void func_8008C064(void *);
+extern char D_800A5BD0[];
+extern char D_800A5BE0[];
+
+void func_80068D10(u32 *p) {
+    s32 n = 0;
+    u32 id;
+    u32 size;
+
+    for (;;) {
+        /* asm-opaque 0x10000 keeps the lui ahead of the load (the original's loop-top order) */
+        { u32 k; __asm__ volatile("" : "=r"(k) : "0"(0x10000)); id = *p; k |= 0x10;
+          if (id == k) goto L1;
+          if (id <= k) { if (id == 0x10) goto L0; goto Ld; }
+          if (id == 0x20010) goto L1;
+          goto Ld; }
+        {
+        Ld:
+            func_8008D064(D_800A5BD0, n);
+            return;
+        L0:
+            p++;
+            n++;
+            switch (*p & 0xF) {
+            case 2:
+                p++;
+                LoadImage2(p + 1, p + 3);
+                p += *p >> 2;
+                DrawSync(0);
+                break;
+            case 8:
+            case 9:
+                p++;
+                LoadImage2(p + 1, p + 3);
+                p += *p >> 2;
+                DrawSync(0);
+                LoadImage2(p + 1, p + 3);
+                p += *p >> 2;
+                DrawSync(0);
+                break;
+            default:
+                bios_printf(D_800A5BE0, *p);
+                bios_exit(1);
+            }
+            continue;
+        L1:
+            p++;
+            n++;
+            if ((*p & 0xF) == 8) {
+                p++;
+                LoadImage2(p + 1, p + 3);
+                p += *p >> 2;
+                DrawSync(0);
+                size = ((RECT_68D10 *)(p + 1))->w * ((RECT_68D10 *)(p + 1))->h * 2;
+                if (id >> 16 == 1) {
+                    id = (u32)Image_DecodeNibbleRuns((u8 *)(p + 3), size);
+                } else {
+                    id = (u32)Image_DecodeRle4((u8 *)(p + 3), size);
+                }
+                LoadImage2(p + 1, (u32 *)id);
+                func_8008C064((void *)id);
+                p += *p >> 2;
+                DrawSync(0);
+            } else {
+                bios_printf(D_800A5BE0, *p);
+                bios_exit(1);
+            }
+            continue;
+        }
+    }
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/80068D10_texture", D_800A5BD0);
 INCLUDE_RODATA("asm/nonmatchings/game/80068D10_texture", D_800A5BE0);

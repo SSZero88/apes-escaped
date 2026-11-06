@@ -611,7 +611,38 @@ u8 func_8009E784(u8 cmd, u8 n)
   return cmd;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8009BA90_seq", func_8009E82C);
+typedef struct { u8 pad0[0x14]; s32 f_14; u8 pad18[4]; s32 f_1C; s32 f_20; } Bank_8009E82C;
+typedef struct { s32 f_0; Bank_8009E82C *f_4; s32 f_8; } Ent_8009E82C;
+typedef struct { u8 pad0[3]; u8 f_3; u8 pad4[4]; Bank_8009E82C *f_8; } S_F75C0_8009E82C;
+extern S_F75C0_8009E82C D_800F75C0_9E82C asm("D_800F75C0");
+extern Ent_8009E82C g_SoundBanks_9E82C[] asm("g_SoundBanks");
+extern Bank_8009E82C *D_800E1870_9E82C asm("D_800E1870");
+extern u16 *D_800E186C_9E82C asm("D_800E186C");
+extern u8 *D_800E1858_9E82C asm("D_800E1858");
+extern u8 *D_800E1860_9E82C asm("D_800E1860");
+
+void *func_8009E82C(u8 idx, u8 prog, u8 tone) {
+    S_F75C0_8009E82C *s = &D_800F75C0_9E82C;
+    Ent_8009E82C *e;
+    Bank_8009E82C *b;
+    u16 *t;
+    register u16 *p asm("$5");
+
+    { Ent_8009E82C *tb = g_SoundBanks_9E82C; e = &tb[(u8)idx]; }
+    b = e->f_4;
+    s->f_8 = b;
+    D_800E1870_9E82C = b;
+    D_800E186C_9E82C = t = (u16 *)((u8 *)b + b->f_1C);
+    if (b->f_20 != -1 && !(idx & 0x80) && s->f_3 != 0 && e->f_0 == 1 && t[0] >= (u8)prog) {
+        { register s32 o asm("$2") = (u8)prog * 2; p = (u16 *)(o + (s32)t); }
+        if ((u16)p[1] != 0xFFFF && t[p[1] / 2] >= (u8)tone) {
+            D_800E1858_9E82C = (u8 *)b + b->f_20;
+            { register u8 *w asm("$2") = (u8 *)b + b->f_14; D_800E1860_9E82C = w; }
+            { register u8 *r asm("$3"); register s32 h asm("$3") = p[1] / 2; register s32 k asm("$2") = (u8)tone; u16 x = t[k + h + 1]; r = (u8 *)b + b->f_1C; return r + x; }
+        }
+    }
+    return NULL;
+}
 
 /* Sequencer: claims a free channel (of 24) for a new sequence and initialises it;
  * returns its index or -1.

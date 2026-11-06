@@ -355,7 +355,69 @@ void Model_CalcJointMatrices(Model_80015504 *m, s32 flags) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80014750_anim", func_80015780);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_15780;
+typedef struct { s16 vx, vy, vz, pad; } SV_15780;
+typedef struct { s32 vx, vy, vz, pad; } V_15780;
+typedef struct { u8 pad0[4]; s16 tx, ty, tz; u16 parent; } Joint_15780;
+typedef struct { u8 pad0[4]; u16 f_4; } Hdr_15780;
+typedef struct { Hdr_15780 *hdr; u8 pad4[8]; Joint_15780 *f_C; u8 pad10[4]; MAT_15780 *f_14; u32 *f_18; s16 f_1C; s16 f_1E; s16 f_20; u8 pad22[2]; s32 x, y, z; u8 pad30[0x2C]; u16 f_5C; } Mdl_15780;
+extern MAT_15780 D_800F4730_15780[] asm("D_800F4730");
+extern MAT_15780 D_800E78C0_15780 asm("D_800E78C0");
+
+void func_80015780(Mdl_15780 *o, s32 flags) {
+    SV_15780 r;
+    V_15780 sc;
+    s32 n;
+    Joint_15780 *j;
+    MAT_15780 *mats;
+    u8 *ch;
+    s32 *key;
+    s32 i;
+
+    ch = (u8 *)(o->f_18 + 1);
+    key = (s32 *)ch + o->f_18[0] * (o->f_5C + 1);
+    mats = o->f_14;
+    n = o->hdr->f_4;
+    j = o->f_C;
+    mats[0].t[0] = o->x;
+    mats[0].t[1] = o->y;
+    mats[0].t[2] = o->z;
+    D_800F4730_15780[0] = mats[0];
+    CompMatrix_15504(&D_800E78C0_15780, mats, mats);
+    for (i = 0; i < n; j++, i++) {
+        if (ch[0] == i + 1 && ch[2] == 1) {
+            r.vx = (*key << 22) >> 20;
+            r.vy = ((*key << 10) >> 20) * 4;
+            r.vz = (*key++ >> 22) * 4;
+            RotMatrixZYX_15504(&r, &mats[i + 1]); ch += 4;
+        } else {
+            func_8004637C(&mats[i + 1]);
+        }
+        if (ch[0] == i + 1 && ch[2] == 2) {
+            mats[i + 1].t[0] = (*key << 22) >> 22;
+            ch += 4;
+            mats[i + 1].t[1] = (*key << 10) >> 20;
+            mats[i + 1].t[2] = *key++ >> 22;
+        } else {
+            mats[i + 1].t[0] = j->tx;
+            mats[i + 1].t[1] = j->ty;
+            mats[i + 1].t[2] = j->tz;
+        }
+        if (ch[0] == i + 1 && ch[2] == 3) {
+            sc.vx = (*key << 22) >> 18;
+            sc.vy = ((*key << 10) >> 20) * 16;
+            sc.vz = (*key++ >> 22) * 16;
+            ScaleMatrix(&mats[i + 1], &sc); ch += 4;
+        }
+        if (flags & 2) {
+            CompMatrix_15504(&D_800F4730_15780[j->parent], &mats[i + 1], &D_800F4730_15780[i + 1]);
+        }
+        CompMatrix_15504(&mats[j->parent], &mats[i + 1], &mats[i + 1]);
+    }
+    o->f_1C = D_800F4730_15780[1].t[0];
+    o->f_1E = D_800F4730_15780[1].t[1];
+    o->f_20 = D_800F4730_15780[1].t[2];
+}
 
 /* func_80015AC0 / func_80015B30 / func_80015BA0: bind a multi-part model (header h: +4 n4, +6 n6,
  * +8 n8, +0xA flag) to an object: +0 header, +4 data at h+0xC, +0xC after n8 words, +0x10 after
