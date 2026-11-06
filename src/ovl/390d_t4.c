@@ -49,7 +49,90 @@ inline s32 func_801424E0(s32 a0) {
     return 1;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d_t4", func_80142530);
+extern s32 D_801450CC_80142530 asm("D_801450CC");
+extern volatile s32 D_80145270_80142530 asm("D_80145270");
+extern u8 D_80145130[];
+extern u8 D_801451D0[];
+typedef struct { volatile u8 data; u8 pad[3]; volatile u16 stat; } Sio_80142530;
+extern Sio_80142530 *D_801450C0_80142530 asm("D_801450C0");
+s32 func_80142040(s32);
+s32 func_801421D4();
+
+s32 func_80142530(void) {
+    register s32 r asm("$6");
+
+    if (D_801450CC == 1) {
+        D_801450C8 = 4;
+        func_80142040(D_801450D0 >> 4);
+        func_801421D4(~((D_801450D0 & 0xF) + 0x81));
+        D_80145130[0] = (*(u8 *)&D_801450D0 & 0xF) - 0x7F;
+        D_801450DC++;
+        return 0;
+    }
+    {
+        register s32 (*fn)(void) asm("$2") = D_80145120;
+        register s32 c asm("$4");
+        register s32 *p asm("$5");
+        s32 i;
+
+        D_8014511C--;
+        c = (u8)fn();
+        p = &D_801450DC;
+        i = *p;
+
+        D_80145130[i] = c;
+        *p = i + 1;
+        r = func_801421D4(c);
+    }
+    if (r < 0) return r - 1000;
+    {
+        register s32 c asm("$4") = (u8)r;
+        register s32 *p asm("$3") = &D_801450E0;
+        register s32 i asm("$5") = *p;
+
+        s32 (*fn)(s32);
+
+        D_801451D0[i] = r;
+        fn = D_80145124;
+        *p = i + 1;
+        r = fn(c);
+    }
+    if (r != 0) return r - 2000;
+    if (D_8014511C == 0) {
+        register s32 one asm("$2");
+        __asm__("" : "=r"(one) : "0"(1));
+        return one;
+    }
+    if (D_8014511C != 1) return 0;
+    if (!((D_80145270_80142530 == 0xE || D_80145270_80142530 == 0xF) && D_801450E0 == D_80145114 + 4)) {
+        while (!(D_801450C0_80142530->stat & 2)) {
+        }
+    }
+    {
+        register s32 *p asm("$5") = &D_801450E0;
+        register s32 i asm("$3");
+        register s32 c asm("$2");
+        s32 (*fn)(s32);
+        s32 a = D_801450CC_80142530;
+        s32 b = D_8014511C;
+
+        __asm__("" : : "r"(a), "r"(b));
+        D_801450CC_80142530 = a + 1;
+        D_8014511C = b - 1;
+        c = D_801450C0_80142530->data;
+        i = *p;
+        __asm__("" : "=r"(c), "=r"(i) : "0"(c), "1"(i));
+        r = (u8)c;
+        D_801451D0[i] = r;
+        i++;
+        fn = D_80145124;
+        __asm__("");
+        *p = i;
+        r = fn(r);
+    }
+    if (r == 0) return 1;
+    return r - 3000;
+}
 
 s32 func_8014275C(s32 a0, s32 a1) {
     if (!func_801424E0(a0)) return 0;
