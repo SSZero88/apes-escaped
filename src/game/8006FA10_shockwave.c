@@ -313,7 +313,129 @@ void func_800702B0(SV_800702B0 *pos, DebrisDef_800702B0 *p) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8006FA10_shockwave", func_80070560);
+typedef struct { s16 m[3][3]; s32 t[3]; } MAT_70560;
+typedef struct { s32 vx, vy, vz, pad; } V_70560;
+typedef struct { s16 vx, vy, vz, pad; } SV_70560;
+typedef struct { s16 x, y, z; u8 life; u8 scale; s8 vx, vz; s16 vy; u16 clut; u16 tpage; u8 u, v, du, dv; SV_70560 rot; s16 floor; s8 spin1, spin0; } Rock_70560;
+typedef struct { u8 pad0[0x40]; u32 sxy[8]; s32 otz; s32 opz; MAT_70560 m; MAT_70560 cam; } Scr_70560;
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_70560;
+extern Rock_70560 D_800BB440_70560[32] asm("D_800BB440");
+extern SV_70560 D_800B1FC4_70560[8] asm("D_800B1FC4");
+extern u32 D_800B2004_70560[8] asm("D_800B2004");
+extern u8 D_800B2024_70560[12][4] asm("D_800B2024");
+extern MAT_70560 D_800E78C0_70560 asm("D_800E78C0");
+extern u32 D_800EC3D0_70560[] asm("D_800EC3D0");
+extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; u8 pad10[0x8116]; u16 f_8126; } g_Game_70560 asm("g_Game");
+void RotMatrix_70560(SV_70560 *, MAT_70560 *) asm("RotMatrix");
+void ScaleMatrix_70560(MAT_70560 *, V_70560 *) asm("ScaleMatrix");
+void CompMatrix_70560(MAT_70560 *, MAT_70560 *, MAT_70560 *) asm("CompMatrix");
+void Effect_SpawnAt_70560(s32, void *) asm("Effect_SpawnAt");
+#define gte_ldv3c_70560(p) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(p))
+#define gte_ldv01c_70560(p) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0)" : : "r"(p))
+#define gte_rtpt_70560() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxy3c_70560(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
+#define gte_stsxy01c_70560(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0)" : : "r"(p) : "memory")
+#define gte_stszotz_70560(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+#define gte_ldsxy3_70560(a, b, c) __asm__ volatile ("mtc2 %0, $12; nop; mtc2 %2, $14; nop; mtc2 %1, $13" : : "r"(a), "r"(b), "r"(c))
+#define gte_nclip_70560() __asm__ volatile ("nop; nop; nclip")
+#define gte_stopz_70560(p) __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(p) : "memory")
+
+/* Updates and draws the 32 bouncing rock fragments (D_800BB440): each active rock spins, is drawn
+   as a small 8-vertex, 12-face gouraud-textured model (semi-transparent on stage 0x23), and while
+   on screen falls under gravity; hitting its floor height halves its speed, bounces it up (at most
+   0x30) and, until its bounces run out, spawns effect 4. */
+void func_80070560(void) {
+    Scr_70560 *sc = (Scr_70560 *)0x1F800000;
+    Rock_70560 *r;
+    s32 i, f;
+    V_70560 s;
+    u32 tp;
+    s32 u, v, du, dv, clut;
+    u32 semi;
+    u32 *ot;
+    u8 *prim;
+    u8 *fp;
+    u8 *ob;
+
+    i = 31;
+    r = D_800BB440_70560;
+    sc->cam = D_800E78C0_70560;
+    semi = (g_Game_70560.f_8126 == 0x23) << 25;
+    for (; i >= 0; i--, r++) {
+        ob = (u8 *)D_800EC3D0_70560;
+        if (r->life == 0) {
+            continue;
+        }
+        r->rot.vx += r->spin0;
+        r->rot.vy += r->spin0;
+        r->rot.vz += r->spin1;
+        RotMatrix_70560(&r->rot, &sc->m);
+        s.vx = r->scale << 6;
+        s.vy = r->scale << 6;
+        s.vz = r->scale << 6;
+        ScaleMatrix_70560(&sc->m, &s);
+        sc->m.t[0] = r->x;
+        sc->m.t[1] = r->y;
+        sc->m.t[2] = r->z;
+        CompMatrix_70560(&sc->cam, &sc->m, &sc->m);
+        SetRotMatrix(&sc->m);
+        SetTransMatrix(&sc->m);
+        gte_ldv3c_70560(&D_800B1FC4_70560[0]);
+        gte_rtpt_70560();
+        gte_stsxy3c_70560(&sc->sxy[0]);
+        gte_stszotz_70560(&sc->otz);
+        if ((u32)(sc->otz - 1) >= 0xFFF) {
+            continue;
+        }
+        gte_ldv3c_70560(&D_800B1FC4_70560[3]);
+        gte_rtpt_70560();
+        gte_stsxy3c_70560(&sc->sxy[3]);
+        gte_ldv01c_70560(&D_800B1FC4_70560[6]);
+        gte_rtpt_70560();
+        gte_stsxy01c_70560(&sc->sxy[6]);
+        prim = g_Game_70560.prim;
+        ot = (u32 *)(ob + g_Game_70560.cur * 0x4078);
+        tp = r->tpage; u = r->u; v = r->v; du = r->du; dv = r->dv; clut = r->clut;
+        for (f = 12, fp = D_800B2024_70560[0]; f > 0; f--, fp += 4) {
+            gte_ldsxy3_70560(sc->sxy[fp[0]], sc->sxy[fp[1]], sc->sxy[fp[2]]);
+            gte_nclip_70560();
+            gte_stopz_70560(&sc->opz);
+            if (sc->opz >= 0) {
+                prim[3] = 9;
+                ((u32 *)prim)[1] = (tp & 0x9FF) | 0xE1000200;
+                { u32 c; u32 t; __asm__ volatile("" : "=r"(c) : "0"(0x34000000)); t = D_800B2004_70560[fp[0]] | c; ((u32 *)prim)[1] = semi | t; }
+                ((u32 *)prim)[2] = sc->sxy[fp[0]];
+                ((u32 *)prim)[3] = (v << 8) | (u16)u | (clut << 16);
+                ((u32 *)prim)[4] = D_800B2004_70560[fp[1]];
+                ((u32 *)prim)[5] = sc->sxy[fp[1]];
+                ((u32 *)prim)[6] = (v << 8) | ((u16)u + du) | (tp << 16);
+                ((u32 *)prim)[7] = D_800B2004_70560[fp[2]];
+                ((u32 *)prim)[8] = sc->sxy[fp[2]];
+                ((u16 *)prim)[18] = u | ((v + dv) << 8);
+                ((Tag_70560 *)prim)->addr = ((Tag_70560 *)&ot[sc->otz])->addr;
+                ((Tag_70560 *)&ot[sc->otz])->addr = (u32)prim;
+                prim += 0x28;
+            }
+        }
+        g_Game_70560.prim = prim;
+        r->x += r->vx;
+        r->y += r->vy;
+        r->z += r->vz;
+        r->vy += 6;
+        if (r->floor < r->y) {
+            r->y = r->floor;
+            r->vx /= 2;
+            r->vz /= 2;
+            r->vy = -r->vy / 2;
+            if (r->vy < -0x30) {
+                r->vy = -0x30;
+            }
+            if (--r->life != 0) {
+                Effect_SpawnAt_70560(4, r);
+            }
+        }
+    }
+}
 
 /* Frees all 8 puff slots and resets the next-slot index. */
 void Puff_ClearAll(void) {

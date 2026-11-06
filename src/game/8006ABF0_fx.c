@@ -106,7 +106,136 @@ extern u8 D_800B1AE0[];
 extern u8 D_800B193C[];
 extern u8 D_800B1F1C[];
 
-INCLUDE_ASM("asm/nonmatchings/game/8006ABF0_fx", Monkey_DrawHelmetLight);
+typedef struct { s16 vx, vy, vz, pad; s32 cx, cz; s32 z; s32 sxy; } Scr_6ABF0;
+typedef struct { u8 pad0[0x825A]; s16 f_825A; } Game_6ABF0;
+typedef struct { u32 tag; u32 code; u32 xy0; u32 uv0; u32 xy1; u32 uv1; u32 xy2; u16 uv2; u16 pad1E; u32 xy3; u16 uv3; u16 pad26; } FT4_6ABF0;
+extern u8 D_800E78C0[];
+#define RAND_6ABF0() (g_RandSeed = g_RandSeed * 5 + 1)
+extern Game_6ABF0 g_Game_6ABF0 asm("g_Game");
+extern u16 D_800B1890_6ABF0[] asm("D_800B1890");
+extern u8 *D_800EC354_6ABF0 asm("D_800EC354");
+#define GD_6ABF0 (*(GameDraw *)&g_Game_6ABF0)
+#define gte_ldv0_6ABF0(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
+#define gte_rtps_6ABF0() __asm__ volatile ("nop; nop; rtps")
+#define gte_stsxy_6ABF0(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+#define gte_stszotz_6ABF0(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+
+void Monkey_DrawHelmetLight(SVECTOR *pos, s32 kind, s32 near) {
+    void SetRotMatrix(void *m); void SetTransMatrix(void *m);
+    Scr_6ABF0 *scr = (Scr_6ABF0 *)0x1F800000;
+    s32 a;
+    s32 n;
+    s32 i;
+    s32 j;
+    s32 sx;
+    s16 sy;
+    s32 base;
+    s32 w;
+    s32 h;
+    u32 ww;
+    u32 hh;
+    u32 r;
+    u32 g;
+    u32 b;
+    u32 r2;
+    u32 rb;
+    u32 rc;
+    u32 top;
+    u32 bot;
+    u32 xa;
+    u32 xb;
+    u32 xy0;
+    u32 xy1;
+    u32 xy2;
+    u32 xy3;
+    FT4_6ABF0 *p;
+    u32 *ot;
+    u32 m24;
+
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    a = (*(s32 *)&g_Game_6ABF0 & 0xF) << 8;
+    scr->cx = rcos(a) * 0x30 >> 12;
+    scr->cz = rsin(a) * 0x30 >> 12;
+    if (!near || ABS(pos->vy - g_Game_6ABF0.f_825A) >= 0x335) {
+        n = 1;
+    } else {
+        n = 4;
+    }
+    p = (FT4_6ABF0 *)GD_6ABF0.prim;
+    ot = GD_6ABF0.db[GD_6ABF0.cur].ot;
+    for (i = 0; i < n; i++) {
+        for (j = -1; j < 2; j += 2) {
+            scr->vx = pos->vx + scr->cx * i * j;
+            scr->vy = pos->vy - 0xD6;
+            scr->vz = pos->vz + scr->cz * i * j;
+            gte_ldv0_6ABF0(scr);
+            gte_rtps_6ABF0();
+            gte_stsxy_6ABF0(&scr->sxy);
+            gte_stszotz_6ABF0(&scr->z);
+            sx = (u16)scr->sxy;
+            sy = scr->sxy >> 16;
+            if ((u32)(scr->z - 1) >= 0xFFF || (u16)(sx + 0x20) >= 0x1C1 || sy < -0x20 || sy >= 0x111) {
+                continue;
+            }
+            base = i * 4 + (s16)((RAND_6ABF0() >> 8 & 7) + 6);
+            w = base + (RAND_6ABF0() >> 8 & 0xF) * i / 4;
+            h = base + (RAND_6ABF0() >> 8 & 0xF) * i / 4;
+            hh = (u32)(h * 0x148 * 0x11D00) / 0x16800 / scr->z;
+            ww = (u32)(w * 0x148) / scr->z;
+            rb = RAND_6ABF0() >> 8;
+            top = (sy - (s16)hh) << 16;
+            xa = ((s16)sx - (s16)ww) & 0xFFFF;
+            xy0 = top | xa;
+            xb = (s16)sx + (s16)ww;
+            xy1 = top | xb;
+            bot = (sy + (s16)hh) << 16;
+            xy2 = bot | xa;
+            r2 = (D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8 & 0x1F;
+            xy3 = bot | xb;
+            rc = rb & 0x1F;
+            switch (kind) {
+            case 0:
+            default:
+                r = 0x18;
+                g = r2 + 0x18;
+                b = rc + 0x40;
+                break;
+            case 1:
+                r = rc + 0x28;
+                g = r2 + 0x20;
+                b = 0x10;
+                break;
+            case 2:
+                r = rc + 0x38;
+                g = 0x14;
+                b = (r2 >> 1) + 8;
+                break;
+            }
+            if (n >= 2) {
+                r = (r >> 2) + ((r * (n - i + 1)) >> 2);
+                g = (g >> 2) + ((g * (n - i + 1)) >> 2);
+                b = (b >> 2) + ((b * (n - i + 1)) >> 2);
+            }
+            m24 = 0xFFFFFF;
+            ((u8 *)p)[3] = 9;
+            p->code = (b << 16) | (g << 8) | r | 0x2E000000;
+            p->xy0 = xy0;
+            p->xy1 = xy1;
+            p->xy2 = xy2;
+            p->xy3 = xy3;
+            p->uv0 = D_800B1890_6ABF0[(i & 3) == 2] << 16;
+            p->uv1 = 0x3B003F;
+            p->uv2 = 0x3F00;
+            p->uv3 = 0x3F3F;
+            p->tag = (p->tag & 0xFF000000) | (ot[scr->z] & m24);
+            ot[scr->z] = (ot[scr->z] & 0xFF000000) | ((u32)p & m24);
+            p++;
+            __asm__("" :: "r"(m24));
+        }
+    }
+    D_800EC354_6ABF0 = (u8 *)p;
+}
 
 void Fx_UpdateExplosionSmoke(void) {
     struct S_D_800BAD68_8006B168 *e = ((struct S_D_800BAD68_8006B168 *)&D_800BAD68);

@@ -290,9 +290,340 @@ INCLUDE_RODATA("asm/nonmatchings/game/8009BA90_seq", jtbl_800A68C0_pad);
 
 INCLUDE_ASM("asm/nonmatchings/game/8009BA90_seq", func_8009BFFC);
 
-INCLUDE_ASM("asm/nonmatchings/game/8009BA90_seq", func_8009C77C);
+typedef struct { u8 f_0; u8 pad1; u8 f_2; u8 f_3; u8 pad4; u8 f_5; u8 pad6[6]; s32 f_C; u8 pad10[0x10]; u8 f_20; u8 f_21; u8 pad22; u8 f_23; u8 pad24[0xFC]; } SeqCh_C77C;
+typedef struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; s16 f_8; s16 f_A; s16 f_C; s16 f_E; s16 f_10; s16 f_12; s16 f_14; s16 f_16; s16 f_18; s16 f_1A; s16 f_1C; s16 f_1E; s16 f_20; s16 f_22; s16 pad24[2]; s16 f_28; s16 f_2A; s16 f_2C; s16 f_2E; s16 f_30; s16 f_32; s16 f_34; s16 f_36; s16 f_38; s16 f_3A; s16 f_3C; s16 f_3E; s16 f_40; s16 f_42; s16 f_44; s16 pad46[2]; s16 f_4A; s16 f_4C; s16 f_4E; s16 pad50[11]; } SeqVoice_C77C;
+typedef struct { s16 volL; s16 volR; s16 pad4; s16 pitch; u16 adsr1; u16 adsr2; u8 padC[4]; } SpuVAttr_C77C;
+typedef struct { u8 nvoice; u8 pad1[0xB]; u8 f_C; u8 pad0D[3]; u16 f_10; u16 f_12; u16 f_14; u16 f_16; u8 pad18[0x1A]; u16 f_32; } SeqState_C77C;
+extern SeqCh_C77C g_SeqChannels_C77C[] asm("g_SeqChannels");
+extern SeqVoice_C77C g_SeqVoices_[] asm("g_SeqVoices");
+extern SeqState_C77C D_800F75C0_ asm("D_800F75C0");
+extern u8 *D_800B4DE0_C77C asm("D_800B4DE0");
+extern u8 *D_800B4DE8_C77C asm("D_800B4DE8");
+extern u8 *D_800B4DF0_C77C asm("D_800B4DF0");
+extern u8 *D_800E1860_C77C asm("D_800E1860");
+extern SpuVAttr_C77C *D_800E1874_ asm("D_800E1874");
+extern u8 D_800B4190_C77C[] asm("D_800B4190");
+extern s32 g_SoundBanks_C77C[][3] asm("g_SoundBanks");
+u8 Seq_NoteOff_C77C(u8 ch) asm("Seq_NoteOff");
+s32 Seq_AllocVoice_C77C(void) asm("Seq_AllocVoice");
+void func_8009E434_C77C(s32, s32) asm("func_8009E434");
+u8 func_8009E534_C77C(u8, u8, u8) asm("func_8009E534");
+u16 func_8009E594_C77C(u8, u8, s8, u8, u8) asm("func_8009E594");
+u8 func_8009E784_C77C(u8 cmd, u8 n) asm("func_8009E784");
+u16 Seq_NoteVolume_C77C(u8, u8, u8) asm("Seq_NoteVolume");
+s16 Math_MaxS16_C77C(s16, s16) asm("Math_MaxS16");
 
-INCLUDE_ASM("asm/nonmatchings/game/8009BA90_seq", func_8009CE18);
+void func_8009C77C(u8 ch) {
+    SeqCh_C77C *c = (SeqCh_C77C *)g_SeqChannels_C77C;
+    SeqState_C77C *st = &D_800F75C0_;
+    s16 k;
+    s32 v;
+    s32 j;
+    SeqVoice_C77C *vo;
+    SpuVAttr_C77C *a;
+    u8 t;
+    u8 prio;
+    s16 l, r;
+
+    c += ch;
+    if (c->f_3 == 0) {
+        Seq_NoteOff_C77C(ch);
+        return;
+    }
+    if (D_800B4DE0_C77C[3] != 0) {
+        t = D_800B4DE8_C77C[0];
+        if (t == 0xFF) {
+            c->f_21 = c->f_23 = c->f_2 - D_800B4DE8_C77C[6];
+        } else {
+            if (t & 0x80) {
+                c->f_23 = t + 0x80;
+                st->f_C = 0;
+            } else {
+                c->f_23 = t;
+                st->f_C = 1;
+            }
+            c->f_21 = 0;
+        }
+        for (k = c->f_21; k < c->f_23 + 1; k++) {
+            if (func_8009E534_C77C(D_800B4DE8_C77C[0], k, c->f_2) == 0) {
+                continue;
+            }
+            v = Seq_AllocVoice_C77C() & 0xFF;
+            { s32 w; __asm__("" : "=r"(w) : "0"(v));
+            if (w == 0xFF) {
+                break;
+            }
+            D_800B4DF0_C77C += k * 16;
+            if (D_800B4DF0_C77C[0xF] & 1) {
+                g_SeqVoices_[w].f_8 = 0;
+                g_SeqVoices_[w].f_C = 1;
+            } else {
+                g_SeqVoices_[w].f_8 = 1;
+                g_SeqVoices_[w].f_C = 0;
+            } }
+            vo = &g_SeqVoices_[v];
+            vo->f_0 = 1;
+            vo->f_2 = c->f_2;
+            vo->f_4 = c->f_0 & 0xF;
+            vo->f_6 = ch;
+            vo->f_A = st->nvoice;
+            vo->f_E = k;
+            vo->f_12 = 0;
+            vo->f_1A = 0;
+            vo->f_1C = 0;
+            vo->f_1E = 0;
+            vo->f_20 = 0;
+            vo->f_22 = c->f_20;
+            vo->f_28 = D_800B4DE0_C77C[0xE];
+            vo->f_2A = D_800B4DE8_C77C[1];
+            vo->f_2C = D_800E1860_C77C[c->f_3 + 2];
+            vo->f_2E = D_800B4DF0_C77C[0xB];
+            vo->f_30 = *(((func_8009E784_C77C(0, 0) >> 1) & 0x7E) + D_800B4190_C77C);
+            vo->f_32 = ((struct { u8 a; u8 b; } *)(((func_8009E784_C77C(0, 0) >> 1) & 0x7E) + D_800B4190_C77C))->b;
+            vo->f_34 = D_800B4DE0_C77C[3];
+            vo->f_36 = D_800B4DF0_C77C[3];
+            vo->f_38 = D_800B4DE0_C77C[0xA];
+            vo->f_3A = D_800B4DF0_C77C[0xD];
+            vo->f_3C = D_800B4DE0_C77C[0xC];
+            vo->f_3E = c->f_5;
+            vo->f_40 = D_800B4DF0_C77C[2];
+            vo->f_42 = 0;
+            vo->f_44 = 0;
+            vo->f_4A = D_800B4DF0_C77C[0xA];
+            vo->f_4C = D_800B4DE0_C77C[4];
+            vo->f_4E = 0x78;
+            if (D_800B4DE0_C77C[0xB] == 0x7F) {
+                vo->f_18 = 1;
+            }
+            t = D_800B4DF0_C77C[0xF];
+            if ((t & 0x20) && D_800B4DE0_C77C[9] != 0) {
+                if (t & 0x40) {
+                    vo->f_10 = D_800B4DE8_C77C[5];
+                } else {
+                    vo->f_10 = D_800B4DF0_C77C[0xE];
+                }
+                g_SeqVoices_[v].f_14 = 1;
+                g_SeqVoices_[v].f_16 = D_800B4DE0_C77C[9];
+            } else {
+                g_SeqVoices_[v].f_14 = 0;
+                g_SeqVoices_[v].f_16 = 0;
+            }
+            if (D_800B4DF0_C77C[0xF] & 0x10) {
+                prio = D_800B4DE8_C77C[4];
+            } else {
+                prio = D_800B4DF0_C77C[0xD];
+            }
+            __asm__("" : "=r"(j) : "0"(v));
+            { s16 p = func_8009E594_C77C(D_800B4DF0_C77C[2], c->f_2, D_800B4DF0_C77C[3], D_800B4DE0_C77C[0xA], prio); *(s16 *)((s32)D_800E1874_ + (j << 4) + 4) = p; }
+            l = Seq_NoteVolume_C77C(ch, func_8009E784_C77C(0, 0), 0);
+            r = Seq_NoteVolume_C77C(ch, func_8009E784_C77C(0, 0), 1);
+            if (st->f_32 != 0) {
+                r = Math_MaxS16_C77C(l, r);
+                l = r;
+            }
+            a = &D_800E1874_[j];
+            a->volL = l;
+            a->volR = r;
+            a->pitch = *(u16 *)(D_800B4DF0_C77C + 4) + g_SoundBanks_C77C[c->f_20][2];
+            a->adsr1 = *(u16 *)(D_800B4DF0_C77C + 6);
+            a->adsr2 = *(u16 *)(D_800B4DF0_C77C + 8);
+            func_8009E434_C77C(ch, v);
+    __asm__("" :: "r"(st),"r"(st),"r"(st),"r"(st),"r"(st),"r"(st),"r"(st),"r"(st));
+            if (D_800B4DF0_C77C[0xF] & 0x80) {
+                if (j < 0x10) {
+                    st->f_10 |= 1 << j;
+                } else {
+                    st->f_12 |= 1 << (j - 0x10);
+                }
+            } else if (j < 0x10) {
+                st->f_10 &= ~(1 << j);
+            } else {
+                st->f_12 &= ~(1 << (j - 0x10));
+            }
+            { s32 x; __asm__("" : "=r"(x) : "0"(v));
+            if (x < 0x10) {
+                st->f_14 &= ~(1 << x);
+            } else {
+                st->f_16 &= ~(1 << (x - 0x10));
+            } }
+            st->nvoice += st->nvoice < 0x18;
+            D_800B4DF0_C77C -= k * 16;
+            if (st->f_C != 0) {
+                st->f_C = 0;
+                break;
+            }
+        }
+    }
+    c->f_C += 3;
+}
+
+typedef struct { u8 pad0[0xE8]; s16 f_E8; u16 f_EA; u16 f_EC; u8 padEE[0x12]; u8 f_100; u8 f_101; u8 pad102[0x16]; u8 f_118; u8 pad119[7]; } Ch_9CE18_CE18;
+typedef struct { s16 volL; s16 volR; s16 pitch; u8 pad6[0xA]; } SpuV_9CE18_CE18;
+struct Snd_9CE18 { u8 pad0[0x32]; u16 f_32; u8 pad34[0xA]; u16 f_3E; };
+extern Ch_9CE18_CE18 g_SeqChannels_CE18[] asm("g_SeqChannels");
+extern u16 g_SeqVoices_CE18[][51] asm("g_SeqVoices");
+extern SpuV_9CE18_CE18 *D_800E1874_CE18 asm("D_800E1874");
+extern u16 *D_800E1864_CE18 asm("D_800E1864");
+extern u8 *D_800E1868_CE18 asm("D_800E1868");
+extern u8 D_800B4190_CE18[] asm("D_800B4190");
+extern struct Snd_9CE18 D_800F75C0_CE18 asm("D_800F75C0");
+s16 Math_MaxS16_CE18(s16, s16) asm("Math_MaxS16");
+s16 Seq_VoiceVolume_CE18(u16, s32) asm("Seq_VoiceVolume");
+u8 Sound_LerpU8_CE18(u8 a, u8 b, u8 c, u8 d) asm("Sound_LerpU8");
+u16 func_8009E594_CE18(u8, u8, s8, u8, u8) asm("func_8009E594");
+s16 Seq_ScaleParam_CE18(u16 a, s32 b) asm("Seq_ScaleParam");
+#define V(k) g_SeqVoices_CE18[i][k]
+typedef struct { u8 a, b; } Pair_9CE18_CE18;
+extern Pair_9CE18_CE18 D_800B4190P[] asm("D_800B4190");
+
+void func_8009CE18(void) {
+    Ch_9CE18_CE18 *c;
+    s16 i;
+    u8 t2;
+    u8 a1;
+    u8 a2;
+    u8 a3;
+    u8 t3;
+    u8 depth;
+    s32 d;
+    s32 n;
+    s32 n_s1;
+    s32 t1;
+    s32 m;
+    s16 s;
+    s16 l;
+    s16 r;
+    struct Snd_9CE18 *st;
+
+    c = g_SeqChannels_CE18;
+    st = &D_800F75C0_CE18;
+    for (i = 0; i < 24; i++) {
+        if (V(0) != 1) {
+            continue;
+        }
+        c += V(3);
+        if (V(0xA) == 1 || V(0x22) == 1 || c->f_100 == 1) {
+            a2 = V(0x1B);
+            a1 = V(1);
+            t2 = V(0x20);
+            a3 = V(0x1C);
+            t3 = V(0x1D);
+            if (V(0xA) == 1 || V(0x22) == 1) {
+                if (t2 <= a1) {
+                    t2 = 0x78 - (a1 - t2);
+                } else {
+                    t2 = t2 - a1 + 0x78;
+                }
+                if (V(0xA) != 0) {
+                    if (st->f_3E == 0x3C && (V(0x1E) & 0xFFF) == 0x78) {
+                        if (V(0x1E) & 0xF000) {
+                            V(0x1E) = (V(0x1E) & 0xFFF) | ((V(0x1E) & 0xF000) - 0x1000);
+                            V(9) += V(0x1E) & 0xFFF;
+                        } else {
+                            V(0x1E) |= 0x6000;
+                        }
+                    } else {
+                        V(9) += V(0x1E) & 0xFFF;
+                    }
+                    if (V(9) >= 0xF0) {
+                        V(9) = (V(0x1E) & 0xFFF) >> 1;
+                    }
+                    a1 = V(0x27);
+                    depth = D_800E1868_CE18[D_800E1864_CE18[V(8) + 1] + (V(9) >> 2)];
+                    if (V(0xE) == 0) {
+                        if (V(0x1C) >= 0x40) {
+                            { s32 dd = (V(0x1C) - 0x40) * V(0x1D);
+                            s32 nn = dd / 64;
+                            a1 += nn;
+                            a2 += dd / 4 - nn * 16; }
+                        } else {
+                            d = (0x40 - V(0x1C)) * V(0x1D);
+                            n = d / 64;
+                            a1 -= n;
+                            { s32 q = d / 4; a2 += n * 16 - q; }
+                        }
+                        t3 = 1;
+                    }
+                    a3 = depth * V(0xB) / 255 - (((V(0xB) + 1) >> 1) - 0x40);
+                }
+                if (V(0x22) != 0 && V(0x31) != 0) {
+                    V(0x31)--;
+                    if (V(0x30) & 0x80) {
+                        n_s1 = V(0x32) - V(0x31);
+                        t1 = n_s1 * (u8)-V(0x30) * 0xC0 / (V(0x32) * 0x78);
+                        a1 = (u8)V(0x27) - n_s1 * (0x100 - V(0x30)) / 10 / V(0x32);
+                        a2 -= t1 % 16;
+                    } else {
+                        m = (V(0x32) - V(0x31)) * V(0x30);
+                        t1 = m * 0xC0 / (V(0x32) * 0x78);
+                        a1 = (u8)V(0x27) + m / 10 / V(0x32);
+                        a2 += t1 % 16;
+__asm__("" :: "m"(V(0x30)), "m"(V(0x30)));
+                    }
+                    if (a1 < 0xD) {
+                        a1 = 0xC;
+                    }
+                    if (a1 >= 0xF3) {
+                        a1 = 0xF3;
+                    }
+                    c->f_118 = a1;
+                    if (V(0x31) == 0) {
+                        V(0x27) = a1;
+                        V(0x22) = 0;
+                    }
+                }
+            }
+            if (V(0x21) == 1 || c->f_100 == 1) {
+                s = c->f_E8;
+            } else {
+                s = 0x1000;
+            }
+            { s32 p = (func_8009E594_CE18(t2, a1, a2, a3, t3) * s) >> 12; SpuV_9CE18_CE18 *b = D_800E1874_CE18; ((SpuV_9CE18_CE18 *)((s32)b + (i << 4)))->pitch = p; }
+        }
+        if (V(0xD) == 1 && (V(0x23) == 1 || V(0x24) == 1 || c->f_101 == 1)) {
+            if (V(0x23) != 0) {
+                if (V(0x28) != V(0x29)) {
+                    if (V(0x2A) != 0) {
+                        V(0x16) = Sound_LerpU8_CE18(V(0x28), V(0x29), V(0x2B), V(0x2A));
+                        V(0x2A)--;
+                    } else {
+                        V(0x16) = V(0x28);
+                        V(0x23) = 0;
+                    }
+                } else {
+                    V(0x23) = 0;
+                }
+            }
+            if (V(0x24) != 0) {
+                if (V(0x2C) == V(0x2D)) {
+                    V(0x24) = 0;
+                } else {
+                    if (V(0x2E) != 0) {
+                        V(0x26) = Sound_LerpU8_CE18(V(0x2C), V(0x2D), V(0x2F), V(0x2E));
+                        V(0x2E)--;
+                    } else {
+                        V(0x26) = V(0x2C);
+                        V(0x24) = 0;
+                    }
+                    V(0x18) = D_800B4190P[V(0x26) >> 2].a;
+                    V(0x19) = D_800B4190P[V(0x26) >> 2].b;
+                }
+            }
+            l = Seq_VoiceVolume_CE18(i, 0);
+            r = Seq_VoiceVolume_CE18(i, 1);
+            if (V(0x21) == 1 || c->f_101 == 1) {
+                l = Seq_ScaleParam_CE18(l, c->f_EA);
+                r = Seq_ScaleParam_CE18(r, c->f_EC);
+            }
+            if (st->f_32 != 0) {
+                r = Math_MaxS16_CE18(l, r);
+                l = r;
+            }
+            { SpuV_9CE18_CE18 *a = (SpuV_9CE18_CE18 *)((s32)D_800E1874_CE18 + (i << 4)); a->volL = l; a->volR = r; }
+        }
+        c -= V(3);
+    }
+}
 
 void Sound_BusyWait(s32 n) {
     s32 i;
