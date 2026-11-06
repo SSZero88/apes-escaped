@@ -169,17 +169,1132 @@ struct S_D_800EC1E0_800661D4 { u8 pad_0[0x60]; SVEC_800661D4_800661D4 f_60; u8 p
 struct S_D_800E5320_800661D4 { u8 pad_0[0x178]; u16 f_178; u8 pad_17A[0x1A]; u16 f_194; u8 pad_196[2]; u16 f_198; };
 struct S_D_800EC010_800661D4 { u8 pad_0[0x10]; s32 f_10; u8 pad_14[0x10]; s32 f_24; u8 pad_28[0x8]; s32 f_30; };
 
-INCLUDE_ASM("asm/nonmatchings/game/80060780_spike", Spike_Update);
+typedef struct { u8 pad0[0x24]; s32 x, y, z; s32 vx, vy, vz; SVECTOR prevDir; u8 pad44[0xC]; u32 coll; u8 pad54[8]; u16 frame; u16 state; SVECTOR dir; SVECTOR up; s32 animFlags; SVECTOR moveDir; s32 lean; SVECTOR aim; u16 f_88; u16 f_8A; u16 f_8C; u16 f_8E; u8 pad90[0x48]; SVECTOR f_D8; s32 events; s32 prevEvents; s16 health; u8 padEA[2]; s16 floorKind; u8 f_EE; u8 padEF; u8 padF0; u8 f_F1; s8 gadget; u8 padF3[9]; u16 f_FC; s16 f_FE; u8 pad100[2]; s16 f_102; s16 slopeX, slopeZ; s32 f_108, f_10C, f_110; s32 f_114, f_118, f_11C; s32 f_120, f_124, f_128; s32 ground; s16 lastX, lastY, lastZ; s16 f_136; u16 water; u16 prevWater; s16 waterTop; s16 waterY; u8 pad140[8]; u16 idle; u8 idleLoading; u8 idleReady; } Spike_SU;
+typedef struct { u8 pad0[0x158]; s32 held; u8 pad15C[4]; s32 pressed; u8 pad164[0x14]; union { u32 both; struct { u16 l, r; } h; } sticks; u16 f_17C, f_17E; u16 magL; u16 magR; u8 pad184[0x10]; SVECTOR dirL; SVECTOR dirR; s32 f_1A4, f_1A8; s16 f_1AC, f_1AE, f_1B0, f_1B2, f_1B4, f_1B6, f_1B8, f_1BA, f_1BC, f_1BE; } Pad_SU;
+typedef struct { u16 f_0, f_2; unsigned steer : 4; unsigned tilt : 4; unsigned move : 8; unsigned cb : 8; unsigned flagLo : 4; unsigned flagHi : 4; } AnimEnt_SU;
+typedef struct { void *f_0; AnimEnt_SU *anims; void *f_8; void *events; } AnimSet_SU;
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MATRIX_SU;
+typedef struct { SVECTOR v0; SVECTOR dir; SVECTOR v2; u8 pad18[0x10]; MATRIX_SU m; AnimEnt_SU *anims; void *f_4C; void *events; s32 held, pressed; u16 stickL, stickR, f_60, f_62, magL, magR; s32 f_68, f_6C; s16 f_70, f_72, f_74, f_76, f_78, f_7A, f_7C, f_7E; s32 noControl; } Scr_SU;
+typedef struct { u8 pad0[0x32]; u8 look; u8 pad33[5]; u8 firstPerson; u8 pad39[0xD]; u8 aim; } Cam_SU;
+typedef struct { u8 pad0[0x18]; s16 air; s16 airLow; u8 pad1C[2]; s16 f_1E; } Air_SU;
+typedef struct { s32 f_0, f_4; u8 pad8[2]; s16 f_A; u8 padC[2]; s16 f_E; } Floor_SU;
+typedef struct { u8 pad0[0x80]; void *buf; u8 pad84[2]; s16 clip; } IdleClip_SU;
+typedef struct { s32 x, y, z; u8 padC[0xC]; SVECTOR dir; s16 f_20; u8 pad22[2]; s16 f_24, f_26; } Shape_SU;
+typedef struct { s16 x; u8 pad2[2]; s16 y; u8 pad6[2]; s16 z; } ExitShape_SU;
+typedef struct { u8 loc[4]; void *buf; s32 sectors; } CdRead_SU;
+struct Game_SU { u32 frame; u8 pad4[0x8122]; u16 stage; u8 pad8128[2]; u16 area; u8 pad812C[0x24]; u16 playMode; u16 f_8152; u8 pad8154[0x17C]; s32 lastIdleClip; };
+extern Spike_SU g_Spike_SU asm("g_Spike");
+extern Pad_SU g_Pad_SU asm("g_Pad");
+extern struct Game_SU g_Game_SU asm("g_Game");
+extern Cam_SU D_800E68D0_SU asm("D_800E68D0");
+extern Air_SU D_800F4DB0_SU asm("D_800F4DB0");
+extern AnimSet_SU g_SpikeAnimSets_SU[] asm("g_SpikeAnimSets");
+extern AnimEnt_SU *D_800F4DE4_SU asm("D_800F4DE4");
+extern void *D_800F4DE8_SU asm("D_800F4DE8");
+extern Floor_SU D_800AEF60_SU[] asm("D_800AEF60");
+extern void (*D_800B03AC_SU[])(void) asm("D_800B03AC");
+extern IdleClip_SU *D_800B4D70_SU asm("D_800B4D70");
+extern struct { u8 pad0[0x8E]; s8 f_8E; s8 f_8F; } *D_800B4DC4_SU asm("D_800B4DC4");
+extern void (*D_800B4DC0_SU)(void) asm("D_800B4DC0");
+extern void (*D_800B4DC8_SU)(void) asm("D_800B4DC8");
+extern struct { s32 f_0; u8 pad4[2]; s16 f_6; u8 pad8[0x44]; s32 f_4C, f_50; u8 pad54[0xC]; s16 f_60, f_62, f_64; } g_GadgetState_SU asm("g_GadgetState");
+extern struct { s32 f_0; s16 f_4; s16 f_6; s32 f_8, f_C, f_10, f_14; } g_GadgetPos_SU asm("g_GadgetState");
+extern struct { u8 pad0[0x2C]; s32 f_2C; } *D_800F516C_SU asm("D_800F516C");
+extern struct { u8 pad0[0x2C]; s32 f_2C; } *D_800F5170_SU asm("D_800F5170");
+extern struct { u8 pad0[0x14]; s16 f_14; } D_800F51D0_SU asm("D_800F51D0");
+extern struct { u8 pad0[8]; s32 f_8; u8 padC[4]; s32 f_10; u8 pad14[0x30]; u8 f_44[1]; } D_800E3890_SU asm("D_800E3890");
+extern s16 D_800F5144_SU asm("D_800F5144");
+extern u8 D_800E38D4_SU[] asm("D_800E38D4");
+extern MATRIX_SU D_800AE740_SU asm("D_800AE740");
+extern MATRIX_SU D_800AE760_SU asm("D_800AE760");
+extern s32 D_800EC014_SU asm("D_800EC014");
+extern s32 D_800EC02C_SU asm("D_800EC02C");
+extern s32 D_800EC034_SU asm("D_800EC034");
+void Spike_SetState_SU(s32) asm("Spike_SetState");
+void Spike_AnimEvents_SU(void *, void *) asm("Spike_AnimEvents");
+void Spike_HandleHit_SU(void) asm("Spike_HandleHit");
+void Spike_StartDamageEffect_SU(s32) asm("Spike_StartDamageEffect");
+void Spike_StateClimb_SU(void) asm("Spike_StateClimb");
+void Spike_SwapGadgetState_SU(void) asm("Spike_SwapGadgetState");
+void Spike_ResetAir_SU(void) asm("Spike_ResetAir");
+void Spike_UpdateMode8Scene_SU(void) asm("Spike_UpdateMode8Scene");
+s32 Gadget_SelectFromButtons_SU(void) asm("Gadget_SelectFromButtons");
+s32 Gadget_Cancel_SU(void) asm("Gadget_Cancel");
+s32 Gadget_Select_SU(s32, s32) asm("Gadget_Select");
+s32 Game_NotExiting_SU(void) asm("Game_NotExiting");
+s32 Game_SetMode_SU(s32, s32, s32) asm("Game_SetMode");
+s32 Cd_PlayXaTrack_SU(s32) asm("Cd_PlayXaTrack");
+s32 Cd_QueueCommand_SU(s32, void *, void *, s32) asm("Cd_QueueCommand");
+s32 rsin_SU(s32) asm("rsin");
+void *func_8008C09C_SU(s32) asm("func_8008C09C");
+void func_8008C064_SU(s32) asm("func_8008C064");
+void Spike_Draw_SU(void) asm("Spike_Draw");
+void func_80066094_SU(void) asm("func_80066094");
+void func_800668A0_SU(void *) asm("func_800668A0");
+s32 func_8006699C_SU(s32) asm("func_8006699C");
+void func_800681E4_SU(void) asm("func_800681E4");
+void func_80068634_SU(void) asm("func_80068634");
+void func_800687D8_SU(void) asm("func_800687D8");
+void func_8006896C_SU(s32) asm("func_8006896C");
+void func_80068ADC_SU(void) asm("func_80068ADC");
+void func_80068B1C_SU(void) asm("func_80068B1C");
+void func_8006B70C_SU(void) asm("func_8006B70C");
+void func_8006BF10_SU(void) asm("func_8006BF10");
+void func_80142808_SU(void *) asm("func_80142808");
+void func_80014804_SU(SVECTOR *, MATRIX_SU *) asm("func_80014804");
+s32 Water_Query_SU(s32, s32, s32) asm("Water_Query");
+#define SPK g_Spike_SU
+#define PAD g_Pad_SU
+#define GAME g_Game_SU
+#define SCR scr
+s16 Floor_GetHeightSlope_SU(s32, s32, s32, s16 *) asm("func_800433B0");
+void func_80142808_v(void) asm("func_80142808");
+extern u16 D_800E54A0_SU asm("D_800E54A0");
+void ApplyMatrixSV_SU(void *, void *, void *) asm("ApplyMatrixSV");
+void Camera_ExitAim_SU(void) asm("Camera_ExitAim");
+void Camera_ExitLook_SU(void) asm("Camera_ExitLook");
+void CdIntToPos_SU(s32, void *) asm("CdIntToPos");
+s32 CdPosToInt_SU(void *) asm("CdPosToInt");
+void *Cd_GetFileEntry_SU(void *, s32) asm("Cd_GetFileEntry");
+void *CollShape_Alloc_SU(void) asm("CollShape_Alloc");
+s32 Collision_GetShape_SU(s16) asm("Collision_GetShape");
+s32 Collision_Set_SU(s32, void *, void *) asm("Collision_Set");
+void Effect_SpawnAt_SU(s32, void *) asm("Effect_SpawnAt");
+void Pad_Vibrate_SU(s32, s32, s32) asm("Pad_Vibrate");
+s32 Sound_PlayFixed_SU(s32) asm("Sound_PlayFixed");
+s32 Spike_ClampMoveStep_SU(s32) asm("Spike_ClampMoveStep");
+void Spike_LoadModelData_SU(void *) asm("Spike_LoadModelData");
+void Spike_SetPlayMode_SU(s32) asm("Spike_SetPlayMode");
+void Spike_TakeDamage_SU(s32) asm("Spike_TakeDamage");
+s32 Vec_Length_SU(s32, s32, s32) asm("Vec_Length");
+s32 VectorNormalSS_SU(void *, void *) asm("VectorNormalSS");
+void func_800649D8_SU(void *) asm("func_800649D8");
+s32 func_800652E4_SU(void) asm("func_800652E4");
+void func_80066C90_SU(void *, void *, s32) asm("func_80066C90");
+void func_8006BF84_SU(void) asm("func_8006BF84");
+s32 rcos_SU(s32) asm("rcos");
 
-INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5A40);
-INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5A40_pad);
-INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5A78);
-INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5A98);
-INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5A98_pad);
-INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5AC8);
-INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5AC8_pad);
-INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5B10);
-INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5B10_pad);
+void Spike_Update(void) {
+    /* Spike's per-frame update. In order:
+     * - Idle animations: after 0x385 frames with no input while standing still, one of 8 idle
+     *   animations is read from CD file 0x13 (never the same one twice in a row) and played in
+     *   play mode 10; any input frees it again.
+     * - Copies the pad into the scratchpad, cleared or masked while the camera is in look / first
+     *   person / aim mode, during mode 0xB and when Spike is dead.
+     * - Touching a stage exit (collision kind 8) ends the stage (mode 0x10, or 0x21 from stage 0x57).
+     * - Event bits from the last frame can switch the play mode (5, 6, 3, 1).
+     * - Play modes 1/2/3 run per-area routines in the level overlay, 8/12/13 other routines;
+     *   5/6/7/10 run their state routine; the rest (normal play) steers, moves, swims, takes floor
+     *   damage and runs the animation callback.
+     * - All modes but 1/2/3/8/12/13 then update the body tilt, the Stun Club and Sky Flyer
+     *   hitboxes, integrate the velocity, run collision (Spike_Draw) and the animation events. */
+    Scr_SU *scr = (Scr_SU *)0x1F800000;
+    SVECTOR n;
+    SVECTOR fx, fx2; /* unused, but part of the original stack frame */
+    AnimEnt_SU *e;
+    Shape_SU *c;
+    s32 t, lim, ev, steer;
+    u32 kind;
+    struct { u8 pad0[0x8E]; s8 f_8E; s8 f_8F; } *g;
+
+    /* idle animations */
+    if (GAME.playMode == 0) {
+        if (GAME.f_8152 != 0xB && PAD.sticks.both == 0 && !(PAD.held & 0xEFF) && SPK.x == SPK.lastX &&
+            SPK.y == SPK.lastY && SPK.z == SPK.lastZ && D_800E68D0_SU.firstPerson != 1) {
+            if (++SPK.idle >= 0x385 && SPK.state < 2) {
+                if (SPK.idleReady != 0) {
+                    Spike_SetPlayMode_SU(10);
+                } else if (SPK.idleLoading == 0) {
+                    void *buf = func_8008C09C_SU(0xA000);
+                    CdRead_SU rd;
+                    CdRead_SU file;
+                    SVECTOR unused; /* unused, but part of the original stack frame */
+                    u8 mode;
+                    s32 pos;
+                    s32 clip;
+                    D_800B4D70_SU = func_8008C09C_SU(0x88);
+                    D_800B4D70_SU->buf = buf;
+                    Cd_GetFileEntry_SU(&file, 0x13);
+                    pos = CdPosToInt_SU(&file);
+                    __asm__ volatile("");
+                    clip = GAME.frame & 7;
+                    if (GAME.lastIdleClip == clip) {
+                        clip = (clip + 1) % 8;
+                    }
+                    GAME.lastIdleClip = clip;
+                    D_800B4D70_SU->clip = clip;
+                    CdIntToPos_SU(pos + clip * 20, rd.loc);
+                    mode = 0x80;
+                    Cd_QueueCommand_SU(0xE, &mode, D_800E3890_SU.f_44, 0);
+                    rd.buf = D_800B4D70_SU->buf;
+                    rd.sectors = 0x14;
+                    Cd_QueueCommand_SU(2, &rd, D_800E3890_SU.f_44, 0);
+                    Cd_QueueCommand_SU(0x20, &rd, D_800E3890_SU.f_44, (s32)&SPK.idleReady);
+                    SPK.idleLoading = 1;
+                    Game_SetMode_SU(3, 0, 0);
+                    D_800E3890_SU.f_8 = 0;
+                    D_800E3890_SU.f_10 = -1;
+                }
+            }
+        } else {
+            SPK.idle = 0;
+            if (SPK.idleReady != 0) {
+                func_8008C064_SU((s32)D_800B4D70_SU->buf);
+                func_8008C064_SU((s32)D_800B4D70_SU);
+                Spike_LoadModelData_SU(0);
+            }
+        }
+    }
+
+    /* controller copy */
+    if (D_800E68D0_SU.look == 1 || D_800E68D0_SU.firstPerson == 1 || D_800E68D0_SU.aim == 1 ||
+        GAME.f_8152 == 0xB || SPK.health == 0) {
+        if (GAME.f_8152 == 0xB || SPK.health == 0) {
+            SCR->held = 0;
+            SCR->pressed = 0;
+        } else {
+            if (D_800E68D0_SU.look == 1) {
+                SCR->held = PAD.held & 0xFA;
+                SCR->pressed = PAD.pressed;
+            }
+            if (D_800E68D0_SU.firstPerson == 1 || D_800E68D0_SU.aim == 1) {
+                SCR->held = PAD.held & 0x2F0;
+                SCR->pressed = PAD.pressed;
+            }
+        }
+        SCR->stickL = 0;
+        SCR->magL = 0;
+        if (D_800E68D0_SU.aim == 1 && GAME.f_8152 != 0xB) {
+            SCR->stickR = PAD.sticks.h.r;
+            SCR->magR = PAD.magR;
+        } else {
+            SCR->stickR = 0;
+            SCR->magR = 0;
+        }
+        SCR->f_70 = 0x1000;
+        SCR->f_74 = 0x1000;
+        SCR->f_60 = 0;
+        SCR->f_62 = 0;
+        SCR->f_68 = 0;
+        SCR->f_6C = 0;
+        SCR->f_72 = 0;
+        SCR->f_76 = 0;
+        SCR->f_78 = 0;
+        SCR->f_7A = 0;
+        SCR->f_7C = 0;
+        SCR->f_7E = 0;
+        SCR->noControl = 1;
+    } else {
+        SCR->held = PAD.held;
+        SCR->pressed = PAD.pressed;
+        SCR->stickL = PAD.sticks.h.l;
+        SCR->stickR = PAD.sticks.h.r;
+        SCR->f_60 = PAD.f_17C;
+        SCR->f_62 = PAD.f_17E;
+        SCR->magL = PAD.magL;
+        SCR->magR = PAD.magR;
+        SCR->f_68 = PAD.f_1A4;
+        SCR->f_6C = PAD.f_1A8;
+        SCR->f_72 = PAD.f_1AE;
+        SCR->f_70 = PAD.f_1AC;
+        SCR->f_76 = PAD.f_1B2;
+        SCR->f_74 = PAD.f_1B0;
+        SCR->f_78 = PAD.f_1B4;
+        SCR->f_7A = PAD.f_1B6;
+        SCR->f_7C = PAD.f_1BC;
+        SCR->noControl = 0;
+        SCR->f_7E = PAD.f_1BE;
+    }
+
+    {
+        AnimEnt_SU *at;
+        if (SPK.state < 0x80) {
+            at = D_800F4DE4_SU;
+        } else {
+            at = g_SpikeAnimSets_SU[SPK.gadget + 1].anims;
+        }
+        SCR->anims = at;
+    }
+    SCR->f_4C = g_SpikeAnimSets_SU[SPK.gadget + 1].f_8;
+    SCR->events = g_SpikeAnimSets_SU[SPK.gadget + 1].events;
+    SPK.ground = Floor_GetHeightSlope_SU(SPK.x, SPK.y, SPK.z, &SPK.slopeX);
+    if ((*(u16 *)0x1F8003F8 & 0xF) == 1) {
+        SPK.f_136 = 0;
+    } else {
+        SPK.f_136 = 1;
+    }
+
+    if (SPK.coll >> 28 == 8) {
+        /* stage exit */
+        ExitShape_SU *x = (ExitShape_SU *)Collision_GetShape_SU((s16)SPK.coll);
+        SVECTOR ex;
+        ex.vx = x->x;
+        ex.vy = x->y - 0x80;
+        ex.vz = x->z;
+        if (Game_NotExiting_SU() != 0) {
+            if (GAME.stage == 0x57) {
+                Game_SetMode_SU(0x21, GAME.stage, GAME.area);
+            } else {
+                Game_SetMode_SU(0x10, GAME.stage, GAME.area);
+            }
+        }
+        SPK.coll = 0;
+    } else if (GAME.playMode != 0xD && SPK.health > 0) {
+        if (SPK.events & 2) {
+            if (func_800652E4_SU() == 0 || (PAD.held & 0xA)) {
+                Spike_SetPlayMode_SU(5);
+            } else {
+                SPK.vy = 0;
+            }
+        }
+        if ((SPK.events & 4) && GAME.playMode != 6 && SPK.vy >= 0) {
+            Spike_SetPlayMode_SU(6);
+        }
+        if ((SPK.events & 0x10) && SPK.health > 0) {
+            g = D_800B4DC4_SU;
+            if (!(SPK.prevEvents & 0x10)) {
+            if (g->f_8F >= 2) {
+                g->f_8F--;
+            } else if (GAME.playMode == 0) {
+                if (g_GadgetState_SU.f_0 & 8) {
+                    Spike_SetPlayMode_SU(3);
+                } else if ((g_GadgetState_SU.f_0 & 4) && D_800B4DC4_SU->f_8E > 0) {
+                    Spike_SetPlayMode_SU(1);
+                }
+            }
+            }
+        }
+    }
+    SPK.prevEvents = SPK.events;
+
+    switch (GAME.playMode) {
+    case 1:
+        D_800B4DC8_SU();
+        return;
+    case 3:
+        D_800B4DC0_SU();
+        return;
+    case 2:
+        func_80142808_v();
+        return;
+    case 8:
+        Spike_UpdateMode8Scene_SU();
+        return;
+    case 5:
+        Gadget_SelectFromButtons_SU();
+        Spike_StateClimb_SU();
+        break;
+    case 6:
+        Gadget_SelectFromButtons_SU();
+        func_800681E4_SU();
+        break;
+    case 7:
+        Gadget_SelectFromButtons_SU();
+        func_80068634_SU();
+        break;
+    case 10:
+        func_800687D8_SU();
+        break;
+    case 12:
+        func_80068ADC_SU();
+        return;
+    case 13:
+        func_80068B1C_SU();
+        return;
+    ev8:
+        SPK.dir = SPK.f_D8;
+        SPK.f_114 = SPK.f_D8.vx << 5;
+        SPK.f_11C = SPK.f_D8.vz << 5;
+        Spike_SetState_SU(6);
+        Sound_PlayFixed_SU(0x27);
+        goto moved;
+    stick:
+        SPK.f_114 = (PAD.dirL.vx * PAD.magL) >> 2;
+        SPK.f_11C = (PAD.dirL.vz * PAD.magL) >> 2;
+        SPK.moveDir = PAD.dirL;
+        goto moved;
+    default:
+        /* normal play */
+        SCR->v0.vy = 0;
+        SCR->v0.vx = SPK.vx - SPK.f_114;
+        SCR->v0.vz = SPK.vz - SPK.f_11C;
+        if (VectorNormalSS_SU(&SCR->v0, &SCR->v0) > 0x100) {
+            SPK.vx /= 4;
+            SPK.vz /= 4;
+        }
+        if (SPK.f_118 - SPK.vy >= 8 && SPK.vy < 0) {
+            SPK.vy = SPK.f_118 - 7;
+        }
+        do {
+        ev = SPK.events;
+        if (ev & 8) {
+            goto ev8;
+        } else if (ev & 0x40) {
+            SPK.vy = -0x6E;
+            SPK.y--;
+            Spike_SetState_SU(0x2C);
+            func_8006BF84_SU();
+            if (PAD.sticks.h.l != 0) {
+                goto stick;
+            }
+            SPK.moveDir = SPK.dir;
+        } else {
+            if (ev & 0x20) {
+                switch (SPK.state) {
+                case 0x0:
+                    SPK.vy = -0x3C;
+                    SPK.y--;
+                    Spike_SetState_SU(8);
+                    break;
+                case 0x9:
+                    if (ABS(SPK.vy) < 0x26) {
+                        SPK.vy -= 0x14;
+                        SPK.moveDir = SPK.dir;
+                        Spike_SetState_SU(0x35);
+                    }
+                    break;
+                case 0x36:
+                    Spike_SetPlayMode_SU(0xD);
+                    break;
+                }
+            }
+            SPK.f_114 = (SPK.vx << 12) + SPK.f_108;
+            SPK.f_11C = (SPK.vz << 12) + SPK.f_110;
+        }
+        } while (0);
+
+    moved:
+        /* water and the air meter */
+        SPK.prevWater = SPK.water;
+        SPK.water = Water_Query_SU(SPK.x, SPK.y, SPK.z);
+        if (SPK.water >> 12 == 1) {
+            s16 *wi = (s16 *)0x1F8003D4;
+            SPK.waterY = wi[5];
+            SPK.waterTop = SPK.waterY - wi[8];
+            if (SPK.y - SPK.waterTop < 0x100 && SPK.health > 0) {
+                t = D_800F4DB0_SU.air;
+                if (t < 600) {
+                    t += 15;
+                    if (t > 600) {
+                        t = 600;
+                        Sound_PlayFixed_SU(0x41);
+                    }
+                    if (t < 450 && D_800F4DB0_SU.airLow != 0) {
+                        Sound_PlayFixed_SU(0x40);
+                    }
+                }
+                D_800F4DB0_SU.air = t;
+                D_800F4DB0_SU.airLow = 0;
+            } else if ((u32)(SPK.state - 0x46) < 2) {
+                t = D_800F4DB0_SU.air - 1;
+                if (t < 150) {
+                    if (GAME.frame % 10 == 0) {
+                        Sound_PlayFixed_SU(0x23);
+                    }
+                } else if (t < 300) {
+                    if (GAME.frame % 25 == 0) {
+                        Sound_PlayFixed_SU(0x23);
+                    }
+                }
+                D_800F4DB0_SU.air = t;
+                D_800F4DB0_SU.airLow = 1;
+                if (t <= 0) {
+                    Spike_TakeDamage_SU(5);
+                }
+            }
+        }
+        switch (SPK.state) {
+        case 0x49:
+        case 0x4A:
+            SPK.vx = 0;
+            SPK.vy = 0;
+            SPK.vz = 0;
+            SPK.f_10C = 0;
+            SPK.f_114 = 0;
+            SPK.f_11C = 0;
+            /* fallthrough */
+        case 0x46:
+        case 0x47:
+        case 0x4C:
+            switch (SPK.water & 0xF) {
+            case 0:
+                if (SPK.state != 0x47) {
+                    SPK.f_10C -= 0x800;
+                }
+                break;
+            case 1:
+                SPK.vy /= 2;
+                if (SPK.y - 0x9C < SPK.waterTop) {
+                    SPK.f_10C += 0x2000;
+                }
+                break;
+            case 2:
+                SPK.f_10C += 0x5000;
+                break;
+            }
+            {
+                Spike_SU *sp = &SPK;
+                sp->vy = sp->vy < -0x10 ? -0x10 : sp->vy > 0x10 ? 0x10 : sp->vy;
+            }
+            break;
+        case 0x4D:
+            SPK.vx = 0;
+            SPK.vy = 0;
+            SPK.vz = 0;
+            break;
+        default:
+            SPK.f_10C += D_800EC014_SU << 7;
+            break;
+        }
+        {
+        s32 r = (SPK.vy << 12) + SPK.f_10C;
+        SPK.f_128 = 0;
+        SPK.f_120 = 0;
+        SPK.f_110 = 0;
+        SPK.f_10C = 0;
+        SPK.f_108 = 0;
+        SPK.f_124 = SPK.f_118 = r;
+        }
+        if (Gadget_SelectFromButtons_SU() != 0) {
+            AnimEnt_SU *at;
+            if (SPK.state < 0x80) {
+                at = D_800F4DE4_SU;
+            } else {
+                at = g_SpikeAnimSets_SU[SPK.gadget + 1].anims;
+            }
+            SCR->anims = at;
+            SCR->f_4C = g_SpikeAnimSets_SU[SPK.gadget + 1].f_8;
+            SCR->events = g_SpikeAnimSets_SU[SPK.gadget + 1].events;
+            if (SPK.state >= 0x80) {
+                Spike_SetState_SU(SPK.ground > SPK.y ? 0x24 : 0);
+            }
+        }
+
+        /* steering: the wanted direction in SCR->dir */
+        steer = SCR->anims[SPK.state & 0x7F].steer;
+        SCR->dir = SPK.dir;
+        if (D_800E68D0_SU.aim != 1) {
+            switch (steer) {
+            case 0:
+                if (SCR->stickL != 0) {
+                    SCR->dir = PAD.dirL;
+                    if (SCR->dir.vx == 0 && SCR->dir.vz == 0) {
+                        SCR->dir = SPK.dir;
+                    }
+                }
+                break;
+            case 1:
+                if (SCR->stickL != 0) {
+                    SCR->v2 = PAD.dirL;
+                    func_80066C90_SU(&SCR->v2, &SCR->dir, 0x71);
+                }
+                break;
+            case 2:
+                if (SCR->stickL != 0) {
+                    SCR->v2 = PAD.dirL;
+                    func_80066C90_SU(&SCR->v2, &SCR->dir, 0x155);
+                }
+                break;
+            case 4: {
+                s32 l;
+                s32 d;
+                if (SCR->stickL != 0) {
+                    SCR->v2 = PAD.dirL;
+                    func_80066C90_SU(&SCR->v2, &SCR->dir, 0x71);
+                }
+                l = 0;
+                if (PAD.sticks.h.l == 0) {
+                    if (PAD.held & 0x200) {
+                        l = 0x300;
+                    } else if (PAD.held & 0xA) {
+                        l = -0x300;
+                    }
+                } else if (PAD.held & 0x200) {
+                    l = 0x300;
+                } else {
+                    l = PAD.magL * 6 - 0x300;
+                }
+                d = SPK.lean - l;
+                if (d > 0x20) {
+                    SPK.lean -= 0x20;
+                } else if (d < -0x20) {
+                    SPK.lean += 0x20;
+                } else {
+                    SPK.lean = l;
+                }
+                SCR->v2.vx = 0;
+                SCR->v2.vy = rsin_SU(SPK.lean);
+                SCR->v2.vz = -rcos_SU(SPK.lean);
+                func_80014804_SU(&SCR->dir, &SCR->m);
+                ApplyMatrixSV_SU(&SCR->m, &SCR->v2, &SPK.aim);
+                break;
+            }
+            case 5:
+                if (!(PAD.held & 0x200) && PAD.sticks.h.r != 0) {
+                    SCR->v2.vy = 0;
+                    SCR->v2.vx = -PAD.dirR.vx;
+                    SCR->v2.vz = -PAD.dirR.vz;
+                    func_80066C90_SU(&SCR->v2, &SCR->dir, 0x38);
+                }
+                break;
+            case 6:
+                if (SCR->stickR != 0) {
+                    SCR->v2 = PAD.dirR;
+                    func_80066C90_SU(&SCR->v2, &SCR->dir, 0x155);
+                }
+                break;
+            case 7:
+                func_80066C90_SU(&SPK.moveDir, &SPK.dir, 0x155);
+                SCR->dir = SPK.dir;
+                break;
+            case 8:
+                ApplyMatrixSV_SU(&D_800AE740_SU, &SPK.dir, &SCR->dir);
+                break;
+            case 9:
+                ApplyMatrixSV_SU(&D_800AE760_SU, &SPK.dir, &SCR->dir);
+                break;
+            case 10:
+                /* snap to the 8 directions */
+                if (SCR->dir.vx >= 0x800) {
+                    SCR->dir.vx = 0x1000;
+                } else if (SCR->dir.vx < -0x7FF) {
+                    SCR->dir.vx = -0x1000;
+                } else {
+                    SCR->dir.vx = 0;
+                }
+                if (SCR->dir.vz >= 0x800) {
+                    SCR->dir.vz = 0x1000;
+                } else if (SCR->dir.vz < -0x7FF) {
+                    SCR->dir.vz = -0x1000;
+                } else {
+                    SCR->dir.vz = 0;
+                }
+                VectorNormalSS_SU(&SCR->dir, &SCR->dir);
+                break;
+            }
+        }
+        VectorNormalSS_SU(&SCR->dir, &SPK.dir);
+        Spike_SwapGadgetState_SU();
+
+        /* movement: the wanted velocity in f_120 / f_128 */
+        if (D_800E68D0_SU.aim == 1) {
+            SPK.f_128 = 0;
+            SPK.f_120 = 0;
+            SPK.frame++;
+        } else {
+            switch (SCR->anims[SPK.state & 0x7F].move) {
+            case 0:
+                SPK.f_128 = 0;
+                SPK.f_120 = 0;
+                SPK.frame++;
+                break;
+            case 1:
+                SPK.f_120 = SPK.f_114 * 4000 / 4096;
+                SPK.f_128 = SPK.f_11C * 4000 / 4096;
+                SPK.f_EE = 0;
+                SPK.frame++;
+                break;
+            case 2:
+                SPK.frame++;
+                SPK.f_120 = ((SPK.dir.vx / 2) * SCR->magL) >> 2;
+                SPK.f_128 = ((SPK.dir.vz / 2) * SCR->magL) >> 2;
+                break;
+            case 3:
+                if (PAD.sticks.h.l != 0) {
+                    if (PAD.f_1B0 > 0) {
+                        SPK.f_120 = SPK.dir.vx * SCR->magL / 8;
+                        SPK.f_128 = SPK.dir.vz * SCR->magL / 8;
+                    } else {
+                        SPK.f_120 = 0;
+                        SPK.f_128 = 0;
+                    }
+                } else {
+                    SPK.f_128 = 0;
+                    SPK.f_120 = 0;
+                }
+                SPK.f_8A += D_800E54A0_SU << 5;
+                if (SPK.f_8A >= 0x1000) {
+                    SPK.f_8A -= 0x1000;
+                    SPK.frame++;
+                }
+                break;
+            case 4:
+                SPK.frame++;
+                SPK.f_120 = (((SPK.dir.vx * SCR->magL) >> 7) * D_800EC034_SU) >> 5;
+                SPK.f_128 = (((SPK.dir.vz * SCR->magL) >> 7) * D_800EC034_SU) >> 5;
+                break;
+            case 5:
+                SPK.frame++;
+                SPK.f_120 = (SCR->magL * PAD.dirL.vx * D_800EC02C_SU) >> 10;
+                SPK.f_128 = (SCR->magL * PAD.dirL.vz * D_800EC02C_SU) >> 10;
+                break;
+            case 6:
+                SPK.f_120 = 0;
+                SPK.f_128 = 0;
+                SPK.f_EE = 0;
+                SPK.f_8A += SPK.f_8E;
+                SPK.f_8C = 0xFFFF;
+                SPK.frame += SPK.f_8A / 4096;
+                SPK.f_8A %= 4096;
+                break;
+            case 7:
+                SPK.frame++;
+                SPK.f_120 = (((PAD.dirL.vx * SCR->magL) >> 7) * D_800EC034_SU) >> 5;
+                SPK.f_128 = (((PAD.dirL.vz * SCR->magL) >> 7) * D_800EC034_SU) >> 5;
+                break;
+            case 8:
+                SPK.f_120 = 0;
+                SPK.f_128 = 0;
+                SPK.f_EE = 0;
+                SPK.frame++;
+                break;
+            case 9:
+                SPK.f_120 = 0;
+                SPK.f_124 = 0;
+                SPK.f_128 = 0;
+                SPK.frame++;
+                break;
+            case 10:
+                SPK.f_120 = PAD.dirL.vx * 8;
+                SPK.f_128 = PAD.dirL.vz * 8;
+                SPK.frame++;
+                break;
+            case 11:
+                if (PAD.sticks.h.l != 0) {
+                    SPK.f_120 = SPK.dir.vx * SCR->magL / 8;
+                    SPK.f_128 = SPK.dir.vz * SCR->magL / 8;
+                } else {
+                    SPK.f_128 = 0;
+                    SPK.f_120 = 0;
+                }
+                SPK.frame++;
+                break;
+            case 12:
+                if (SPK.state == 0x46) {
+                    SPK.f_120 = 0;
+                    SPK.f_124 = -0xA000;
+                    SPK.f_128 = 0;
+                    if ((SCR->pressed & 0xA) && D_800F51D0_SU.f_14 == 0) {
+                        D_800F51D0_SU.f_14 = 0x1E;
+                    }
+                } else if (SCR->held & 0xA) {
+                    SPK.f_120 = SPK.aim.vx << 5;
+                    SPK.f_124 = SPK.aim.vy << 5;
+                    SPK.f_128 = SPK.aim.vz << 5;
+                    SPK.frame++;
+                    if ((SCR->pressed & 0xA) && D_800F51D0_SU.f_14 == 0) {
+                        D_800F51D0_SU.f_14 = 0x1E;
+                    } else {
+                        Pad_Vibrate_SU(1, 0x4A, 2);
+                    }
+                } else {
+                    SPK.f_120 = SPK.aim.vx * 21;
+                    SPK.f_124 = SPK.aim.vy * 21;
+                    SPK.f_128 = SPK.aim.vz * 21;
+                }
+                t = D_800F51D0_SU.f_14;
+                if (t > 0) {
+                    Pad_Vibrate_SU(1, t * 8, 1);
+                    if (t == 0x1C) {
+                        Sound_PlayFixed_SU(0x3E);
+                    }
+                    if (t >= 11) {
+                        func_8006BF10_SU();
+                    }
+                    D_800F51D0_SU.f_14 = t - 1;
+                }
+                Spike_ClampMoveStep_SU(0x1000);
+                SPK.frame++;
+                break;
+            case 14:
+                SPK.f_120 = SPK.f_114 * 0xED8 / 4096;
+                SPK.f_128 = SPK.f_11C * 0xED8 / 4096;
+                SPK.f_124 = SPK.f_124 * 0xED8 / 4096;
+                SPK.frame++;
+                break;
+            case 15:
+                SPK.f_120 = (SPK.dir.vx * D_800EC034_SU) >> 3;
+                SPK.f_128 = (SPK.dir.vz * D_800EC034_SU) >> 3;
+                func_8006699C_SU(0x6000);
+                SPK.frame++;
+                break;
+            case 16:
+                SPK.f_120 = (SPK.dir.vx * D_800EC034_SU) >> 4;
+                SPK.f_128 = (SPK.dir.vz * D_800EC034_SU) >> 4;
+                if (g_GadgetState_SU.f_6 != 0) {
+                    SPK.f_114 = SPK.f_120;
+                    SPK.f_11C = SPK.f_128;
+                    g_GadgetState_SU.f_6 = 0;
+                    Sound_PlayFixed_SU(0x27);
+                }
+                SPK.frame++;
+                break;
+            }
+        }
+
+        if (SPK.health > 0) {
+            /* floor */
+            n.vy = 0x200;
+            n.vx = -SPK.slopeX;
+            n.vz = -SPK.slopeZ;
+            VectorNormalSS_SU(&n, &n);
+            if (SPK.y >= SPK.ground) {
+                volatile u16 *fa = (u16 *)0x1F8003F0;
+                kind = (fa[4] >> 1) & 7;
+                {
+                s32 len = Vec_Length_SU(SPK.slopeX, 0x200, 0);
+                if (len != 0) {
+                    SPK.f_120 = (SPK.f_120 << 9) / len;
+                }
+                }
+                {
+                s32 len = Vec_Length_SU(SPK.slopeZ, 0x200, 0);
+                if (len != 0) {
+                    SPK.f_128 = (SPK.f_128 << 9) / len;
+                }
+                }
+                if (fa[4] & 1) {
+                    if (kind != 0) {
+                        /* damaging floor, kinds 1-3 */
+                        if (kind < 4 && SPK.state != 0x4D) {
+                            Spike_SetState_SU(0x4D);
+                            Spike_StartDamageEffect_SU(kind);
+                            Pad_Vibrate_SU(1, 0x96, 0xC);
+                            SPK.f_F1 = 0xF;
+                            Spike_TakeDamage_SU(1);
+                            if (D_800E68D0_SU.look == 1) {
+                                Camera_ExitLook_SU();
+                            }
+                            if (D_800E68D0_SU.aim == 1) {
+                                Camera_ExitAim_SU();
+                            }
+                            switch (kind) {
+                            case 1:
+                                Sound_PlayFixed_SU(0x34);
+                                break;
+                            case 2:
+                                Sound_PlayFixed_SU(0x33);
+                                break;
+                            case 3:
+                                Sound_PlayFixed_SU(0x35);
+                                break;
+                            }
+                        }
+                    } else {
+                        /* bottomless pit */
+                        Spike_TakeDamage_SU(5);
+                        Spike_SetState_SU(0x2D);
+                        func_8006896C_SU(0xA);
+                        if (SPK.gadget == 4) {
+                            Gadget_Select_SU(4, 4);
+                        }
+                        goto common;
+                    }
+                } else {
+                    switch (kind) {
+                    case 6:
+                    case 7:
+                        func_8006699C_SU(0);
+                        if ((SPK.animFlags & 0xF0) != 0xA0) {
+                            func_800668A0_SU(&n);
+                        }
+                        if (SPK.vy < 0) {
+                            SPK.f_114 = SPK.f_120 >> 1;
+                            SPK.f_11C = SPK.f_128 >> 1;
+                        }
+                        SPK.f_120 += SPK.slopeX * 0x38;
+                        SPK.f_128 += SPK.slopeZ * 0x38;
+                        func_8006699C_SU(0x4000);
+                        break;
+                    default: {
+                        lim = D_800AEF60_SU[kind].f_E;
+                        if (SPK.f_EE == 0 || SPK.slopeX > lim || SPK.slopeX < -lim || SPK.slopeZ > lim || SPK.slopeZ < -lim) {
+                            func_8006699C_SU(D_800AEF60_SU[kind].f_4);
+                            SPK.f_EE = 0;
+                            SPK.f_120 += SPK.slopeX * 0x38;
+                            SPK.f_128 += SPK.slopeZ * 0x38;
+                        }
+                        if ((SPK.events & 0x04000000) || SPK.floorKind == -1) {
+                            s32 af = SPK.animFlags & 0xF0;
+                            if (af != 0xA0 && af != 0xC0) {
+                                lim = D_800AEF60_SU[kind].f_A;
+                                if (ABS(SPK.slopeX) > lim || ABS(SPK.slopeZ) > lim) {
+                                    func_800668A0_SU(&n);
+                                }
+                            }
+                        }
+                        if (SPK.f_EE != 0) {
+                            if (func_8006699C_SU(D_800AEF60_SU[kind].f_0) != 0) {
+                                SPK.f_EE = 0;
+                                if (kind == 5 && (SPK.animFlags & 0xF0) == 0x30 && (GAME.frame & 0x20)) {
+                                    Sound_PlayFixed_SU(0x83);
+                                }
+                            }
+                        } else {
+                            func_8006B70C_SU();
+                            if ((SPK.animFlags & 0xF0) == 0xA0 && SPK.vy < 0) {
+                                SPK.f_114 = SPK.f_120 >> 1;
+                                SPK.f_11C = SPK.f_128 >> 1;
+                            }
+                            if (func_8006699C_SU(D_800AEF60_SU[kind].f_4) == 0) {
+                                SPK.f_EE = 1;
+                            }
+                        }
+                        break;
+                    }
+                    }
+                }
+                /* dust while sliding fast, sparkles in state 0x48 */
+                if (SPK.state == 0x2F && (ABS(SPK.vx) + ABS(SPK.vz)) / 2 > 10) {
+                    SVECTOR p = { SPK.x, SPK.y, SPK.z };
+                    Effect_SpawnAt_SU(4, &p);
+                }
+                if (SPK.state == 0x48 && SPK.frame % 5 == 0) {
+                    SVECTOR p = { SPK.x + rsin_SU(GAME.frame * 360) / 32, SPK.y - rsin_SU(GAME.frame * 360) / 32 - 0x80,
+                                  SPK.z + rcos_SU(GAME.frame * 360) / 32 };
+                    Effect_SpawnAt_SU(0x103, &p);
+                }
+                SPK.floorKind = kind;
+            } else {
+                /* in the air */
+                SPK.floorKind = -1;
+                func_8006699C_SU(SPK.state == 0x2B ? 0x3000 : 0x1000);
+            }
+            if (Gadget_Cancel_SU() != 0) {
+                Spike_SetState_SU(0x46);
+                Spike_ResetAir_SU();
+                switch (SPK.gadget) {
+                case 4:
+                    g_GadgetPos_SU.f_4 = 0;
+                    g_GadgetPos_SU.f_8 = 0;
+                    g_GadgetPos_SU.f_C = 0;
+                    g_GadgetPos_SU.f_10 = 0;
+                    g_GadgetPos_SU.f_14 = 0;
+                    break;
+                case 3:
+                    D_800F5144_SU = 0;
+                    break;
+                }
+            }
+        } else if ((SPK.animFlags & 0xF0) != 0xE0) {
+            /* just died */
+            Spike_SetState_SU(0x22);
+            func_80066094_SU();
+            Cd_PlayXaTrack_SU(GAME.frame & 1 ? 0xD : 0xF);
+        }
+        func_800649D8_SU(D_800F4DE8_SU);
+        if (SPK.gadget != 9) {
+            func_800649D8_SU(SCR->f_4C);
+        }
+        e = (AnimEnt_SU *)((SPK.state & 0x7F) * 8 + (s32)SCR->anims);
+        if (e->cb != 0) {
+            D_800B03AC_SU[e->cb]();
+        }
+        break;
+    }
+
+common:
+    Spike_HandleHit_SU();
+    if (GAME.playMode == 0xA) {
+        SPK.animFlags = 0x12;
+    } else {
+        SPK.animFlags = SCR->anims[SPK.state & 0x7F].flagLo | (SCR->anims[SPK.state & 0x7F].flagHi << 4);
+    }
+    if (SPK.f_102 != 0) {
+        SPK.animFlags &= 0xF0;
+    }
+
+    /* body tilt toward the floor normal n (n is only set in normal play) */
+    {
+    s32 tl = SCR->anims[SPK.state & 0x7F].tilt;
+    switch (tl) {
+    case 0:
+        SPK.up.vz = 0;
+        SPK.up.vx = 0;
+        SPK.up.vy = 0x1000;
+        break;
+    case 1:
+        n.vx /= 4;
+        n.vz /= 4;
+        n.vx = (n.vx + SPK.up.vx) >> 1;
+        n.vz = (n.vz + SPK.up.vz) >> 1;
+        VectorNormalSS_SU(&n, &SPK.up);
+        break;
+    case 2:
+        n.vx /= 2;
+        n.vz /= 2;
+        n.vx = (n.vx + SPK.up.vx) >> 1;
+        n.vz = (n.vz + SPK.up.vz) >> 1;
+        VectorNormalSS_SU(&n, &SPK.up);
+        break;
+    case 3:
+        n.vx = (n.vx + SPK.up.vx) >> 1;
+        n.vz = (n.vz + SPK.up.vz) >> 1;
+        VectorNormalSS_SU(&n, &SPK.up);
+        break;
+    case 4: {
+        s32 d;
+        n.vy = 0x1000;
+        SPK.up.vy = 0x1000;
+        if (SPK.state == 0x46) {
+            n.vx = 0;
+            n.vz = 0;
+        } else {
+            n.vx = -(PAD.dirR.vx * PAD.magR) >> 8;
+            n.vz = -(PAD.dirR.vz * PAD.magR) >> 8;
+        }
+        {
+        d = n.vx - SPK.up.vx;
+        if (ABS(d) > 0x80) {
+            SPK.up.vx += d > 0 ? 0x80 : -0x80;
+        } else {
+            SPK.up.vx = n.vx;
+        }
+        }
+        {
+        d = n.vz - SPK.up.vz;
+        if (ABS(d) > 0x80) {
+            SPK.up.vz += d > 0 ? 0x80 : -0x80;
+        } else {
+            SPK.up.vz = n.vz;
+        }
+        }
+        break;
+        }
+    }
+    }
+    SPK.prevDir = SPK.dir;
+
+    /* Stun Club swing hitbox (gadget 1, state 0x81) */
+    if (SPK.gadget == 1 && SPK.state == 0x81) {
+        SPK.f_8C = 0xFFFE;
+        lim = PAD.f_1AE < 0 ? SCR->anims[2].f_0 : SCR->anims[2].f_2;
+        if (SPK.f_88 != lim) {
+            SPK.f_88 = lim;
+            SPK.f_8A = 0;
+        }
+        {
+        s32 cl = ABS(PAD.f_1AE * 4);
+        s32 dd;
+        cl = cl < 0 ? 0 : cl > 0x1000 ? 0x1000 : cl;
+        dd = cl - SPK.f_8A;
+        if (dd > 0x80) {
+            SPK.f_8A += 0x80;
+        } else if (dd < -0x80) {
+            SPK.f_8A -= 0x80;
+        } else {
+            SPK.f_8A = cl;
+        }
+        }
+        if (GAME.f_8152 != 0xB && SPK.health > 0 && (SPK.ground > SPK.y || PAD.f_1BC > 0x28)) {
+            c = (Shape_SU *)CollShape_Alloc_SU();
+            if (c != NULL) {
+                c->dir = SPK.dir;
+                c->x = g_GadgetState_SU.f_60;
+                c->y = g_GadgetState_SU.f_62;
+                c->z = g_GadgetState_SU.f_64;
+                c->f_20 = 0x80;
+                Collision_Set_SU(8, (void *)c, (void *)&SPK);
+                c->f_24 = 0x100;
+                c->f_26 = 0;
+            }
+        }
+    }
+    if (SPK.gadget == 0) {
+        if (D_800F516C_SU != NULL && D_800F516C_SU->f_2C != 0) {
+            Pad_Vibrate_SU(0, 1, 1);
+        }
+        if (D_800F5170_SU != NULL && D_800F5170_SU->f_2C != 0) {
+            Pad_Vibrate_SU(0, 1, 1);
+        }
+        g_GadgetState_SU.f_4C = 0;
+        g_GadgetState_SU.f_50 = 0;
+    }
+    /* falling hitbox under Spike (gadget 6, state 0x84) */
+    if (SPK.gadget == 6 && SPK.state == 0x84 && SPK.vy < -7) {
+        c = (Shape_SU *)CollShape_Alloc_SU();
+        if (c != NULL) {
+            c->dir.vx = 0;
+            c->dir.vy = -0x1000;
+            c->dir.vz = 0;
+            c->x = SPK.x;
+            c->y = SPK.y - 0x100;
+            c->z = SPK.z;
+            c->f_20 = 0x80;
+            Collision_Set_SU(6, (void *)c, (void *)&SPK);
+            c->f_24 = 0x12;
+            c->f_26 = 0x201;
+        }
+    }
+    if (SPK.gadget == 7 && GAME.f_8152 != 0xB && (PAD.held & PAD.pressed & 0x400)) {
+        Gadget_Select_SU(7, 7);
+    }
+
+    /* integrate the velocity */
+    SPK.f_120 += SPK.f_108;
+    SPK.f_124 += SPK.f_10C;
+    SPK.f_128 += SPK.f_110;
+    SPK.f_120 = SPK.f_120 < -0x40000 ? -0x40000 : SPK.f_120 > 0x40000 ? 0x40000 : SPK.f_120;
+    SPK.f_128 = SPK.f_128 < -0x40000 ? -0x40000 : SPK.f_128 > 0x40000 ? 0x40000 : SPK.f_128;
+    SPK.f_124 = SPK.f_124 < -0x80000 ? -0x80000 : SPK.f_124 > 0x80000 ? 0x80000 : SPK.f_124;
+    if (SPK.f_124 == 0x80000) {
+        SPK.f_FC++;
+    } else {
+        SPK.f_FC = 0;
+    }
+    SPK.events = 0;
+    Spike_Draw_SU();
+    SPK.vx = SPK.f_120 / 4096;
+    SPK.vy = SPK.f_124 / 4096;
+    SPK.vz = SPK.f_128 / 4096;
+    SPK.f_108 = SPK.f_120 - (SPK.vx << 12);
+    SPK.f_10C = SPK.f_124 - (SPK.vy << 12);
+    SPK.f_110 = SPK.f_128 - (SPK.vz << 12);
+    SPK.f_114 = SPK.vx;
+    SPK.f_11C = SPK.vz;
+    SPK.f_118 = SPK.vy;
+    SPK.lastX = SPK.x;
+    SPK.lastY = SPK.y;
+    SPK.lastZ = SPK.z;
+    {
+        AnimEnt_SU *at;
+        if (SPK.state < 0x80) {
+            at = D_800F4DE4_SU;
+        } else {
+            at = g_SpikeAnimSets_SU[SPK.gadget + 1].anims;
+        }
+        SCR->anims = at;
+    }
+    SCR->events = g_SpikeAnimSets_SU[SPK.gadget + 1].events;
+    Spike_AnimEvents_SU(SCR->anims, g_SpikeAnimSets_SU[0].events);
+    if (SPK.gadget != 9) {
+        Spike_AnimEvents_SU(SCR->anims, SCR->events);
+    }
+    if (SPK.f_8C > 0xFFFD) {
+        SPK.f_8C = 0;
+    } else if (SPK.f_8C != 0) {
+        SPK.f_8C--;
+    }
+    if (SPK.f_FE > 0) {
+        SPK.f_FE--;
+    }
+    if (D_800F4DB0_SU.f_1E > 0) {
+        D_800F4DB0_SU.f_1E--;
+    }
+    if (GAME.playMode == 0xA) {
+        /* idle animation: any input ends it */
+        if (PAD.sticks.both != 0 || (PAD.held & 0xFFF) || SPK.idle == 0) {
+            Spike_SetPlayMode_SU(0);
+            return;
+        }
+        SPK.idle--;
+    }
+}
+#undef SPK
+#undef PAD
+#undef GAME
+#undef SCR
+
 
 
 typedef struct { s16 vx, vy, vz, pad; } SV_63628;
