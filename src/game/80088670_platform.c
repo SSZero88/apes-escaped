@@ -608,7 +608,137 @@ s32 func_80089D64(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80088670_platform", Platform_ReachWaypoint);
+typedef struct { s16 vx, vy, vz, pad; } SV_89D6C;
+typedef struct { s16 x, y, z, hx, hy, hz, f_C; u16 next; } Wp_89D6C;
+typedef struct { s16 x, y, z, hx, hy, hz; u8 padC[2]; s16 f_E; u8 f_10; u8 pad11; u8 f_12; u8 pad13[0xD]; s16 f_20; s16 f_22; s16 f_24; s16 f_26; s16 f_28; s16 f_2A; s16 f_2C; s16 f_2E; u8 pad30[2]; s16 f_32; } Plat_89D6C;
+typedef struct { u32 *f_0; u8 pad4[0xC]; s16 f_10; s16 f_12; s16 f_14; u8 pad16[6]; void *f_1C; } Mdl_89D6C;
+typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; u8 pad30[0x28]; s16 f_58; u8 pad5A[6]; s16 f_60; u8 pad62[2]; s16 f_64; } Body_89D6C;
+struct Game_89D6C { u8 pad0[0x8150]; u16 f_8150; u8 pad8152[0xC2]; Wp_89D6C *f_8214; };
+#define GM_89D6C ((struct Game_89D6C *)&g_Game_89D6C)
+extern u8 g_Game_89D6C[] asm("g_Game");
+extern Body_89D6C g_Spike_89D6C asm("g_Spike");
+extern Body_89D6C g_RcCar_89D6C asm("g_RcCar");
+extern s16 D_800EC238_89D6C asm("D_800EC238");
+extern Mdl_89D6C *D_800B4D64_89D6C asm("D_800B4D64");
+s32 Platform_CarryRiders_89D6C(s32 unused, SV_89D6C *d, s16 id) asm("Platform_CarryRiders");
+s16 func_800889EC_89D6C(Plat_89D6C *) asm("func_800889EC");
+void func_80066E8C_89D6C(Plat_89D6C *, s16 *) asm("func_80066E8C");
+void func_80066E28_89D6C(s32, s32, s32, s32, s32, s32) asm("func_80066E28");
+void RotMatrixZYX_89D6C(SV_89D6C *, void *) asm("RotMatrixZYX");
+void func_800147D0_89D6C(SV_89D6C *, void *) asm("func_800147D0");
+s32 rcos_89D6C(s32) asm("rcos");
+s32 rsin_89D6C(s32) asm("rsin");
+
+s32 Platform_ReachWaypoint(Plat_89D6C *o, s16 id) {
+    Wp_89D6C *w;
+    u16 k;
+    u16 t;
+    u16 wx;
+    u16 wy;
+    u16 wz;
+    SV_89D6C d;
+    SV_89D6C r;
+
+    if (o->f_22 < 0) {
+        return 0;
+    }
+    w = &GM_89D6C->f_8214[o->f_22];
+    t = o->f_12;
+    wx = w->x;
+    wy = w->y;
+    wz = w->z;
+    d.vx = wx - o->x;
+    d.vy = wy - o->y;
+    d.vz = wz - o->z;
+    Platform_CarryRiders_89D6C((s32)o, &d, id);
+    k = t;
+    if (t == 0xE) {
+        o->f_24 += d.vx;
+        o->f_26 += d.vy;
+        o->f_28 += d.vz;
+        if (GM_89D6C->f_8150 == 6 && D_800EC238_89D6C == (s16)id) {
+            func_80066E8C_89D6C(o, &o->f_24);
+        }
+    }
+    if ((o->f_10 == 0x3B || o->f_10 == 0x59) && GM_89D6C->f_8150 == 5 && D_800EC238_89D6C == (s16)id) {
+        if (o->f_10 == 0x3B) {
+            func_80066E28_89D6C((s16)wx, (s16)wy, (s16)wz, o->hx, o->hy, 1);
+        } else {
+            func_80066E28_89D6C((s16)wx, (s16)wy, (s16)wz, o->hx, o->hy, 0);
+        }
+    }
+    if (o->f_E >= 0) {
+        D_800B4D64_89D6C[o->f_E].f_10 = wx;
+        D_800B4D64_89D6C[o->f_E].f_12 = wy;
+        D_800B4D64_89D6C[o->f_E].f_14 = wz;
+        if ((*D_800B4D64_89D6C[o->f_E].f_0 & 0xF) == 3) {
+            if (k == 8) {
+                r.vx = -w->hx / 100 * 4096 / 360;
+                r.vy = -w->hy / 100 * 4096 / 360;
+                r.vz = -w->hz / 100 * 4096 / 360;
+                RotMatrixZYX_89D6C(&r, D_800B4D64_89D6C[o->f_E].f_1C);
+                if (g_Spike_89D6C.f_58 == (s16)id) {
+                    g_Spike_89D6C.f_60 = rcos_89D6C(-r.vy);
+                    g_Spike_89D6C.f_64 = rsin_89D6C(-r.vy);
+                    g_Spike_89D6C.x = D_800B4D64_89D6C[o->f_E].f_10;
+                    g_Spike_89D6C.z = D_800B4D64_89D6C[o->f_E].f_14;
+                }
+                if (g_RcCar_89D6C.f_58 == (s16)id) {
+                    g_RcCar_89D6C.f_60 = rcos_89D6C(-r.vy);
+                    g_RcCar_89D6C.f_64 = rsin_89D6C(-r.vy);
+                    g_RcCar_89D6C.x = D_800B4D64_89D6C[o->f_E].f_10;
+                    g_RcCar_89D6C.z = D_800B4D64_89D6C[o->f_E].f_14;
+                }
+            } else {
+                r.vx = (w->hx << 12) / o->f_2A;
+                r.vy = (w->hy << 12) / o->f_2C;
+                r.vz = (w->hz << 12) / o->f_2E;
+                func_800147D0_89D6C(&r, D_800B4D64_89D6C[o->f_E].f_1C);
+                if (g_Spike_89D6C.f_58 == (s16)id) {
+                    g_Spike_89D6C.y += o->hy - w->hy;
+                    if (g_Spike_89D6C.x < o->x) {
+                        g_Spike_89D6C.x += o->hx - w->hx;
+                    } else {
+                        g_Spike_89D6C.x -= o->hx - w->hx;
+                    }
+                    if (g_Spike_89D6C.z < o->z) {
+                        g_Spike_89D6C.z += o->hz - w->hz;
+                    } else {
+                        g_Spike_89D6C.z -= o->hz - w->hz;
+                    }
+                }
+                if (g_RcCar_89D6C.f_58 == (s16)id) {
+                    g_RcCar_89D6C.y += o->hy - w->hy;
+                    if (g_RcCar_89D6C.x < o->x) {
+                        g_RcCar_89D6C.x += o->hx - w->hx;
+                    } else {
+                        g_RcCar_89D6C.x -= o->hx - w->hx;
+                    }
+                    if (g_RcCar_89D6C.z < o->z) {
+                        g_RcCar_89D6C.z += o->hz - w->hz;
+                    } else {
+                        g_RcCar_89D6C.z -= o->hz - w->hz;
+                    }
+                }
+            }
+        }
+    }
+    o->x = wx;
+    o->y = wy;
+    o->z = wz;
+    if (k == 0xC) {
+        o->hx = w->hx;
+        o->hy = w->hy;
+        o->hz = w->hz;
+    }
+    o->f_20 = func_800889EC_89D6C(o);
+    o->f_22 = GM_89D6C->f_8214[o->f_22].next;
+    o->f_32++;
+    if (w->f_C <= 0) {
+        o->f_32 = 0;
+    }
+    return 0;
+}
 
 /* A moving platform (direction +0x2A/+0x2C/+0x2E times speed +0x1C per frame) carries what stands
  * in its box (half sizes +6 / +0xA, from its top +2 up to +8 above). Spike: type 0x300 adds the
@@ -973,7 +1103,44 @@ s32 func_8008B228(S_P_8008B228_8008B228 *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80088670_platform", func_8008B3A4);
+typedef struct { s16 x, y, z, hx, hy, hz; } Blk_8B3A4;
+typedef struct { s16 f_0; u8 pad2[6]; u16 f_8; } Sc_8B3A4;
+extern struct { u8 pad0[0x8296]; s16 f_8296; } g_Game_8B3A4 asm("g_Game");
+s16 Floor_GetHeight_8B3A4(s32, s32, s32) asm("Floor_GetHeight");
+#define b ((Blk_8B3A4 *)bp)
+#define CHK(i) { s16 y = b->y; if (h[i] < b->y) { *out = y; return 1; } } if ((s16)sc->f_8 == 1 && sc->f_0 < 0) h[i] = 0x7FFF;
+
+s32 func_8008B3A4(bp, dx, dz, out) Blk_80088F2C_80088F2C *bp; s16 dx; s16 dz; s16 *out; {
+    Sc_8B3A4 *sc = (Sc_8B3A4 *)0x1F8003F0;
+    s16 *h = (s16 *)0x1F80003C;
+    s16 hx = b->hx - 2;
+    s16 hz = b->hz - 2;
+    s16 a;
+    s16 c;
+
+    g_Game_8B3A4.f_8296 = 1;
+    h[0] = Floor_GetHeight_8B3A4(b->x + dx - hx, b->y, b->z + dz + hz);
+    CHK(0)
+    g_Game_8B3A4.f_8296 = 1;
+    h[1] = Floor_GetHeight_8B3A4(b->x + dx + hx, b->y, b->z + dz + hz);
+    CHK(1)
+    g_Game_8B3A4.f_8296 = 1;
+    h[2] = Floor_GetHeight_8B3A4(b->x + dx - hx, b->y, b->z + dz - hz);
+    CHK(2)
+    g_Game_8B3A4.f_8296 = 1;
+    h[3] = Floor_GetHeight_8B3A4(b->x + dx + hx, b->y, b->z + dz - hz);
+    CHK(3)
+    g_Game_8B3A4.f_8296 = 1;
+    h[4] = Floor_GetHeight_8B3A4(b->x + dx, b->y, b->z + dz);
+    { s16 y = b->y; if (h[3] < b->y) { *out = y; return 1; } } if ((s16)sc->f_8 == 1 && sc->f_0 < 0) h[4] = 0x7FFF;
+    a = h[0] < h[1] ? h[0] : h[1];
+    c = h[2] < h[3] ? h[2] : h[3];
+    { s16 d = c; if (a < c) d = a;
+    *out = d < h[4] ? d : h[4]; }
+    return 0;
+}
+#undef b
+#undef CHK
 
 s32 Platform_ProcessEvents(p, id)
     S_P_8008B7F8_8008B7F8 *p;

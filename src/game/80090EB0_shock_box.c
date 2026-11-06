@@ -106,7 +106,7 @@ struct Spike_800931C8 { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x16]; s16 height; 
 s32 Geo_ProjectOnLine(s16 *c, s16 *p, s16 ang, s32 *out);
 struct Spike_80091D24 { u8 pad0[0x24]; s32 x, y, z; };
 struct Game_800920AC { u8 pad0[0x820C]; O_800920AC_800920AC *f_820C; u8 pad8210[0x10]; Pl_800920AC_800920AC *f_8220; };
-s16 func_80092324(T_800920AC_800920AC *, O_800920AC_800920AC *);
+s32 func_80092324(T_800920AC_800920AC *, O_800920AC_800920AC *);
 /* For a type-3 model idx (D_800B4D64, low nibble of its first word) builds its rotation matrix
  * from one angle about the axis picked by direction code axis: 4/7 +x, 5/6 -x, 0/3 +z, 1/2 -z,
  * 8 +y. */
@@ -734,9 +734,175 @@ s32 PlateLift_Update(T_800920AC_800920AC *t) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80090EB0_shock_box", func_80092324);
+typedef struct { s16 x, y, z, w, h, d; u8 padC[8]; s16 f_14; u8 pad16[0xE]; s16 f_24, f_26, f_28; u8 pad2A[8]; s16 f_32, f_34, f_36; } Bx_92324;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[4]; s32 f_34; u8 pad38[0xC]; s16 f_44; } Sp_92324;
+extern Sp_92324 g_Spike_92324 asm("g_Spike");
+#define ABSDIFF_92324(a, b) ((a) - (b) >= 0 ? (a) - (b) : (b) - (a))
+#define b ((Bx_92324 *)bp)
 
-INCLUDE_RODATA("asm/nonmatchings/game/80090EB0_shock_box", jtbl_800A6740);
+s32 func_80092324(a, bp) T_800920AC_800920AC *a; O_800920AC_800920AC *bp; {
+    s32 hit = 0;
+    s32 ev;
+    s32 h;
+    s32 hw;
+    s32 t;
+    s32 d;
+    s32 unused[2];
+
+    if ((u16)(a->f_8 - 4) < 4) {
+        if ((u16)(a->f_8 - 6) < 2) {
+            h = b->f_36 * (rcos(a->f_16) << 1) / 4096;
+            t = rsin(a->f_16);
+            hw = b->f_36 * (t << 1) / 8192;
+        } else {
+            h = b->f_36 * (rsin(a->f_16) << 1) / 4096;
+            t = rcos(a->f_16);
+            hw = b->f_36 * (t << 1) / 8192;
+        }
+        if (b->f_34 - 0x20 < h || hw < 0x40) {
+            hw = a->f_10;
+            ev = 0;
+            if (!(b->y - 0x10 < g_Spike_92324.y) && !(g_Spike_92324.y < b->y - h + 0x20)) {
+                if (ABSDIFF_92324(g_Spike_92324.x, b->x) < b->w && ABSDIFF_92324(g_Spike_92324.z, b->z) < b->d + g_Spike_92324.f_44) {
+                    hit = 1;
+                }
+            }
+        skip1:
+            h = b->f_34;
+        } else {
+            ev = 0;
+            if (h < 0x40) {
+                h = a->f_10 * 2;
+                hw = b->f_36;
+            } else {
+                ev = 0x2000;
+            }
+        }
+        b->d = hw;
+        b->h = h;
+    } else if ((u16)a->f_8 < 4) {
+        if ((u16)(a->f_8 - 2) < 2) {
+            h = b->f_32 * (rcos(a->f_16) << 1) / 4096;
+            t = rsin(a->f_16);
+            hw = b->f_32 * (t << 1) / 8192;
+        } else {
+            h = b->f_32 * (rsin(a->f_16) << 1) / 4096;
+            t = rcos(a->f_16);
+            hw = b->f_32 * (t << 1) / 8192;
+        }
+        if (b->f_34 - 0x20 < h || hw < 0x40) {
+            hw = a->f_10;
+            ev = 0;
+            if (!(b->y - 0x10 < g_Spike_92324.y) && !(g_Spike_92324.y < b->y - h + 0x20)) {
+                if (ABSDIFF_92324(g_Spike_92324.z, b->z) < b->d && ABSDIFF_92324(g_Spike_92324.x, b->x) < b->w + g_Spike_92324.f_44) {
+                    hit = 1;
+                }
+            }
+        skip2:
+            h = b->f_34;
+        } else {
+            ev = 0;
+            if (h < 0x40) {
+                h = a->f_10 * 2;
+                hw = b->f_32;
+            } else {
+                ev = 0x2000;
+            }
+        }
+        b->w = hw;
+        b->h = h;
+    }
+    if (a->f_16 < 0x200 && !hit && ev == 0x2000) {
+        b->f_14 = 0xE;
+    } else {
+        b->f_14 = 6;
+    }
+    b->y = b->f_26;
+    switch (a->f_8) {
+    case 6:
+        b->z = b->f_28 - (b->f_36 - hw);
+        if (ev == 0x2000) {
+            ev = 0x2055;
+            goto lift;
+        }
+        if (hit) {
+            { s32 q = b->d; q += g_Spike_92324.f_44; g_Spike_92324.z = b->z - q; }
+        }
+        break;
+    case 5:
+        b->z = b->f_28 - (b->f_36 - hw);
+        b->y -= b->f_34 - h;
+        if (ev == 0x2000) {
+            ev = 0x2057;
+        }
+        break;
+    case 7:
+        b->z = b->f_28 + (b->f_36 - hw);
+        if (ev == 0x2000) {
+            ev = 0x2057;
+            goto lift;
+        }
+        if (hit) {
+            g_Spike_92324.z = (b->d + g_Spike_92324.f_44) + b->z;
+        }
+        break;
+    case 4:
+        b->z = b->f_28 + (b->f_36 - hw);
+        b->y -= b->f_34 - h;
+        if (ev == 0x2000) {
+            ev = 0x2055;
+        }
+        break;
+    case 3:
+        b->x = b->f_24 - (b->f_32 - hw);
+        if (ev == 0x2000) {
+            ev = 0x2058;
+            goto lift;
+        }
+        if (hit) {
+            g_Spike_92324.x -= (b->w + g_Spike_92324.f_44) - (g_Spike_92324.x - b->x);
+        }
+        break;
+    case 0:
+        b->x = b->f_24 + (b->f_32 - hw);
+        b->y -= b->f_34 - h;
+        if (ev == 0x2000) {
+            ev = 0x2058;
+        }
+        break;
+    case 2:
+        b->x = b->f_24 + (b->f_32 - hw);
+        if (ev == 0x2000) {
+            ev = 0x2056;
+        lift:
+            b->y -= a->f_10 * 2;
+            break;
+        }
+        if (hit) {
+            g_Spike_92324.x += (b->w + g_Spike_92324.f_44) - (b->x - g_Spike_92324.x);
+        }
+        break;
+    case 1:
+        b->x = b->f_24 - (b->f_32 - hw);
+        b->y -= b->f_34 - h;
+        if (ev == 0x2000) {
+            ev = 0x2056;
+        }
+        break;
+    }
+    if (ABSDIFF_92324(g_Spike_92324.x, b->x) < b->w && ABSDIFF_92324(g_Spike_92324.z, b->z) < b->d) {
+        {
+            t = Floor_GetHeight(g_Spike_92324.x, g_Spike_92324.y + g_Spike_92324.f_34, g_Spike_92324.z);
+            if (t < g_Spike_92324.y + g_Spike_92324.f_34) {
+                g_Spike_92324.y = t;
+            }
+        }
+    }
+    return ev;
+}
+#undef b
+#undef ABSDIFF_92324
+
 
 
 s32 func_80092A68(S_92A68_80092A68 *s) {

@@ -60,7 +60,187 @@ void RcCar_Remove(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80099360_rc_car", RcCar_Update);
+typedef struct { s16 vx, vy, vz, pad; } SV_9A8;
+typedef struct { s32 x, y, z; u8 padC[0xC]; SV_9A8 dir; s16 f_20; s16 pad22; s16 f_24; s16 f_26; } Col_9A8;
+typedef struct { u8 pad0[0x24]; s32 x, y, z, vx, vy, vz; u8 pad3C[0xA]; s16 f_46; u8 pad48[8]; u32 f_50; u8 pad54[0xC]; SV_9A8 f_60; SV_9A8 f_68; s32 f_70; u16 f_74; u16 f_76; s16 f_78; s16 f_7A; } RC_9A8;
+typedef struct { u8 pad0[8]; u16 f_8; u8 padA[2]; s16 f_C; s16 f_E; } Sc_9A8;
+typedef struct { u8 pad0[0x60]; s16 f_60; u8 pad62[2]; s16 f_64; u8 pad66[0x82]; s16 f_E8; u8 padEA[8]; s8 gadget; } Sp_9A8;
+typedef struct { u8 pad0[0x182]; u16 f_182; u8 pad184[0x18]; s16 f_19C; } Pad_9A8;
+extern RC_9A8 g_RcCar_9A8 asm("g_RcCar");
+extern Sp_9A8 g_Spike_9A8 asm("g_Spike");
+extern Pad_9A8 g_Pad_9A8 asm("g_Pad");
+extern struct { s32 frame; u8 pad4[0x814C]; u16 f_8150; } g_Game_9A8 asm("g_Game");
+extern u8 D_800F5A80[];
+s32 Floor_GetHeight_9A8(s32, s32, s32) asm("Floor_GetHeight");
+void VectorNormalSS_9A8(void *, void *) asm("VectorNormalSS");
+void Effect_SpawnAt_9A8(s32, void *) asm("Effect_SpawnAt");
+void Sound_PlayFixed_9A8(s32) asm("Sound_PlayFixed");
+void func_80066C90_9A8(void *, void *, s32) asm("func_80066C90");
+Col_9A8 *CollShape_Alloc_9A8(void) asm("CollShape_Alloc");
+s32 Collision_Set_9A8(s32, void *, void *) asm("Collision_Set");
+u16 Water_Query_9A8(s32, s32, s32) asm("Water_Query");
+void Puff_Spawn_9A8(void *, s32, s32, s32) asm("Puff_Spawn");
+s32 Projectile_Spawn_9A8(void *, void *, s32) asm("Projectile_Spawn");
+s32 func_800463A4_9A8(s32, s32, s32) asm("func_800463A4");
+void memset_9A8(void *, s32, s32) asm("memset");
+
+void RcCar_Update(void) {
+    SV_9A8 p;
+    SV_9A8 q;
+    SV_9A8 z;
+    s32 ground;
+    s32 tx;
+    s32 tz;
+
+    if (g_RcCar_9A8.f_70 == 0) {
+        return;
+    }
+    if (g_RcCar_9A8.vy < -14) {
+        g_RcCar_9A8.vy = -14;
+    }
+    g_RcCar_9A8.vy += 7;
+    if (g_RcCar_9A8.f_78 > 0) {
+        Sp_9A8 *sp = &g_Spike_9A8;
+        s32 a = sp->f_60;
+        s32 b;
+        g_RcCar_9A8.f_78--;
+        b = sp->f_64;
+        g_RcCar_9A8.vx = a >> 8;
+        g_RcCar_9A8.vz = b >> 8;
+        return;
+    }
+    ground = Floor_GetHeight_9A8(g_RcCar_9A8.x, g_RcCar_9A8.y, g_RcCar_9A8.z);
+    if (g_RcCar_9A8.y >= ground) {
+        Sc_9A8 *sc = (Sc_9A8 *)0x1F8003F0;
+        s32 k;
+        s16 nx, nz;
+        g_RcCar_9A8.f_68.vy = 0x200;
+        nx = sc->f_C;
+        nz = sc->f_E;
+        g_RcCar_9A8.f_68.vx = -nx;
+        g_RcCar_9A8.f_68.vz = -nz;
+        VectorNormalSS_9A8(&g_RcCar_9A8.f_68, &g_RcCar_9A8.f_68);
+        if (sc->f_8 & 1) {
+            k = (sc->f_8 >> 1) & 7;
+            if (k < 4) { if (k >= 0) {
+                { s16 px = g_RcCar_9A8.x, py = g_RcCar_9A8.y, pz = g_RcCar_9A8.z;
+                p.vx = px;
+                p.vy = py;
+                p.vz = pz; }
+                Effect_SpawnAt_9A8(0x102, &p);
+                RcCar_Remove();
+                Sound_PlayFixed_9A8(0x79);
+            } }
+        }
+    }
+    if (func_8007CA48(7) && g_Spike_9A8.gadget == 7 && g_Spike_9A8.f_E8 > 0) {
+        if (g_RcCar_9A8.y >= ground) {
+            s32 m = g_Game_9A8.f_8150;
+            if (m < 4) { if (m != 0) {
+                tx = 0;
+                tz = tx;
+                goto have;
+            } }
+            {
+                Pad_9A8 *pad = &g_Pad_9A8;
+                if (pad->f_182 != 0) {
+                    func_80066C90_9A8(&pad->f_19C, D_800F5A80, 0x155);
+                }
+                {
+                tx = g_RcCar_9A8.f_60.vx * pad->f_182 / 0x3000;
+                tz = g_RcCar_9A8.f_60.vz * pad->f_182 / 0x3000; }
+                // * pad->f_182 / 0x3000;
+                tz = g_RcCar_9A8.f_60.vz * pad->f_182 / 0x3000;
+            }
+            have: {
+                Sc_9A8 *sc = (Sc_9A8 *)0x1F8003F0;
+                s32 nx = sc->f_C;
+                s32 nz = sc->f_E;
+                if ((u32)(nx + 0x200) > 0x400) {
+                    tx = g_RcCar_9A8.vx + 0xE00 / nx;
+                }
+                if ((u32)(nz + 0x200) > 0x400) {
+                    tz = g_RcCar_9A8.vz + 0xE00 / nz;
+                }
+            }
+        } else {
+            tx = g_RcCar_9A8.vx;
+            tz = g_RcCar_9A8.vz;
+        }
+        {
+        if (g_RcCar_9A8.vx * g_RcCar_9A8.vx + g_RcCar_9A8.vz * g_RcCar_9A8.vz >= 0x385) {
+            Col_9A8 *col = CollShape_Alloc_9A8();
+            if (col != 0) {
+                col->x = g_RcCar_9A8.x;
+                col->y = g_RcCar_9A8.y - g_RcCar_9A8.f_46 / 2;
+                col->z = g_RcCar_9A8.z;
+                col->f_20 = 0x50;
+                col->dir = g_RcCar_9A8.f_60;
+                col->f_24 = 0x22;
+                col->f_26 = 0x201;
+                Collision_Set_9A8(6, col, &g_RcCar_9A8);
+            }
+        } }
+    } else {
+        tx = 0;
+        tz = tx;
+    }
+    {
+    g_RcCar_9A8.f_74 = g_RcCar_9A8.f_76;
+    {
+        u16 w = Water_Query_9A8(g_RcCar_9A8.x, g_RcCar_9A8.y, g_RcCar_9A8.z);
+        g_RcCar_9A8.f_76 = w;
+        if ((w >> 12) == 1) {
+            p.vx = g_RcCar_9A8.x;
+            p.vy = g_RcCar_9A8.y;
+            p.vz = g_RcCar_9A8.z;
+            if ((g_RcCar_9A8.f_74 >> 12) != 1) {
+                Effect_SpawnAt_9A8(0x100, &p);
+                Sound_PlayFixed_9A8(0x72);
+                g_RcCar_9A8.f_7A = 0;
+            }
+            if (++g_RcCar_9A8.f_7A >= 0x1F) {
+                Effect_SpawnAt_9A8(0x102, &p);
+                Sound_PlayFixed_9A8(0x79);
+                RcCar_Remove();
+            } else if (!(g_Game_9A8.frame & 7)) {
+                Puff_Spawn_9A8(&g_RcCar_9A8.x, 1, 0, 0x60);
+            }
+        }
+    }
+    }
+    if ((g_RcCar_9A8.f_50 >> 28) == 0xB) {
+        Sound_PlayFixed_9A8(0x79);
+        q.vx = g_RcCar_9A8.x;
+        q.vy = g_RcCar_9A8.y;
+        q.vz = g_RcCar_9A8.z;
+        Effect_SpawnAt_9A8(0x102, &q);
+        z.vx = 0;
+        z.vy = 0;
+        z.vz = 0;
+        Projectile_Spawn_9A8(&q, &z, 6);
+        RcCar_Remove();
+    }
+    if (g_RcCar_9A8.vy < -7) {
+        g_RcCar_9A8.vx = (g_RcCar_9A8.vx + tx) >> 2;
+        g_RcCar_9A8.vz = (g_RcCar_9A8.vz + tz) >> 2;
+        return;
+    }
+    {
+        s32 nvx = func_800463A4_9A8(g_RcCar_9A8.vx, tx, 4);
+        s32 nvz = func_800463A4_9A8(g_RcCar_9A8.vz, tz, 4);
+        g_RcCar_9A8.vx = nvx;
+        g_RcCar_9A8.vz = nvz;
+        if (((nvx != tx) | (nvz != tz)) && !(g_Game_9A8.frame & 1)) {
+            memset_9A8(&z, 0, 8);
+            z.vx = g_RcCar_9A8.x;
+            z.vy = g_RcCar_9A8.y;
+            z.vz = g_RcCar_9A8.z;
+            q = z;
+            Effect_SpawnAt_9A8(4, &q);
+        }
+    }
+}
 
 typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_80099AE0;
 extern struct S_D_800F5A20_80099360 g_RcCar_80099AE0 asm("g_RcCar");

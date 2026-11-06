@@ -381,7 +381,89 @@ end:
     return s->f_F;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8009BA90_seq", func_8009DCA0);
+typedef struct { u8 f_0; u8 pad1[2]; u8 f_3; u8 pad4[9]; u8 f_D; u8 padE; u8 f_F; } Snd_9DCA0;
+
+u8 func_8009DCA0(u8 ch, u8 prio) {
+    u16 best = 0;
+    Snd_9DCA0 *s = (Snd_9DCA0 *)&D_800F75C0;
+    u16 min = 24;
+    u16 i;
+    u16 j;
+
+    if (ch != 0) {
+        for (i = 0; i < 24; i++) {
+            if (g_SeqVoices[i][0xD] == 1 && g_SeqVoices[i][0x10] == ch) {
+                for (j = 0; j < 24; j++) {
+                    if (g_SeqVoices[i][5] < g_SeqVoices[j][5] && g_SeqVoices[i][5] != 0x40) {
+                        g_SeqVoices[j][5]--;
+                    }
+                }
+                s->f_0--;
+                ch = i;
+                goto end;
+            }
+        }
+    }
+    if (s->f_D >= s->f_3) {
+        for (j = 0; j < 24; j++) {
+            for (i = 0; i < 24; i++) {
+                if (g_SeqVoices[i][0xD] == 1 && g_SeqVoices[i][5] >= j && g_SeqVoices[i][5] < min) {
+                    min = g_SeqVoices[i][5];
+                    best = i;
+                }
+            }
+            if (prio >= g_SeqVoices[best][0xF]) {
+                for (j = 0; j < 24; j++) {
+                    if (min < g_SeqVoices[j][5] && g_SeqVoices[j][5] != 0xFFFF) {
+                        g_SeqVoices[j][5]--;
+                    }
+                }
+                s->f_0--;
+                ch = best;
+                goto end;
+            }
+            min = 24;
+        }
+        ch = 0xFF;
+        goto end;
+    }
+    for (i = 0; i < 24; i++) {
+        { s32 next = s->f_F < 23 ? s->f_F + 1 : 0;
+        s->f_F = next;
+        if (g_SeqVoices[s->f_F][0] == 0) {
+            s->f_D++;
+            ch = s->f_F;
+            goto end;
+        } }
+    }
+    for (i = 0; i < 24; i++) {
+        if (g_SeqVoices[i][4] == 1 && g_SeqVoices[i][0xD] != 1) {
+            for (j = i; j < 24; j++) {
+                if (g_SeqVoices[j][4] == 1 && g_SeqVoices[j][0xD] != 1 && g_SeqVoices[j][5] < min) {
+                    min = g_SeqVoices[j][5];
+                    ch = j;
+                }
+            }
+            goto found;
+        }
+    }
+    for (i = 0; i < 24; i++) {
+        if (g_SeqVoices[i][0xD] != 1 && g_SeqVoices[i][5] < min) {
+            min = g_SeqVoices[i][5];
+            ch = i;
+        }
+    }
+found:
+    for (j = 0; j < 24; j++) {
+        if (min < g_SeqVoices[j][5] && g_SeqVoices[j][5] != 0xFFFF) {
+            g_SeqVoices[j][5]--;
+        }
+    }
+    s->f_D++;
+    s->f_0--;
+end:
+    return ch;
+}
 
 u8 func_8009E124(u8 ch) {
     Ch_9E124_8009E124 *c;
