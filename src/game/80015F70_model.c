@@ -312,7 +312,93 @@ void func_80016294(Mdl_16294 *m, Proj_16294 *out) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_ProjectMorphFrame);
+/* Projects a vertex-animated (morphing) model blended between two key frames (time>>12, fraction &0xFFF) via GTE gpf; per-arm block-local frame index, pinned next-frame/out pointers. Local GTE macros *_PMF. */
+typedef struct { u32 flags; u8 pad4[2]; u16 nFrames; u8 pad8[4]; u16 timesOfs; u8 padE[4]; u16 nVerts; } MorphHdr_PMF;
+typedef struct { MorphHdr_PMF *hdr; u8 pad4[8]; SVECTOR *frames; u8 pad10[8]; u16 frame; } Morph_PMF;
+typedef struct { u32 sxy; s32 sz; } Proj_PMF;
+typedef struct { SVECTOR org; SVECTOR v; } Scr_PMF;
+#define gte_ldIR0_PMF(r) __asm__ volatile ("mtc2 %0, $8" : : "r"(r))
+#define gte_ldIR1_PMF(r) __asm__ volatile ("mtc2 %0, $9" : : "r"(r))
+#define gte_ldIR2_PMF(r) __asm__ volatile ("mtc2 %0, $10" : : "r"(r))
+#define gte_ldIR3_PMF(r) __asm__ volatile ("mtc2 %0, $11" : : "r"(r))
+#define gte_gpf12_PMF() __asm__ volatile ("nop; nop; gpf 1")
+#define gte_stMAC1_PMF(r) __asm__ volatile ("mfc2 %0, $25" : "=r"(r))
+#define gte_stMAC2_PMF(r) __asm__ volatile ("mfc2 %0, $26" : "=r"(r))
+#define gte_stMAC3_PMF(r) __asm__ volatile ("mfc2 %0, $27" : "=r"(r))
+#define gte_ldv0_PMF(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
+#define gte_rtps_PMF() __asm__ volatile ("nop; nop; rtps")
+#define gte_stsxy_PMF(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+#define gte_stsz_PMF(p) __asm__ volatile ("swc2 $19, 0(%0)" : : "r"(p) : "memory")
+
+void Model_ProjectMorphFrame(Morph_PMF *m, Proj_PMF *out) {
+    Scr_PMF *scr = (Scr_PMF *)0x1F8003C8;
+    MorphHdr_PMF *h = m->hdr;
+    s32 n = h->nVerts;
+    SVECTOR *a;
+    SVECTOR *bb;
+    register Proj_PMF *o asm("$5") = out;
+    u32 t; u16 *tt;
+    s32 i, c, d, e;
+
+    if (h->flags & 0x2000) {
+        t = m->frame;
+        {
+        s32 f = t >> 12;
+        a = &m->frames[f * n];
+        if (f == h->nFrames - 1) {
+            bb = m->frames;
+        } else {
+            bb = a + n;
+        }
+        }
+    } else {
+        tt = (u16 *)((u8 *)h + h->timesOfs * 4); t = tt[m->frame + 1];
+        {
+        s32 f = t >> 12;
+        a = &m->frames[f * n];
+        if (f == h->nFrames - 1) {
+            bb = m->frames;
+        } else {
+            bb = a + n;
+        }
+        }
+    }
+    t &= 0xFFF;
+    {
+    register SVECTOR *b asm("$4") = bb;
+    for (i = 0; i < n; i++) {
+        c = a[i].vx;
+        e = b->vx;
+        gte_ldIR0_PMF(t);
+        d = e - c;
+        scr->v.vx = scr->org.vx + c;
+        gte_ldIR1_PMF(d);
+        c = a[i].vy;
+        e = b->vy;
+        d = e - c;
+        scr->v.vy = scr->org.vy + c;
+        gte_ldIR2_PMF(d);
+        c = a[i].vz;
+        e = b->vz;
+        d = e - c;
+        scr->v.vz = scr->org.vz + c;
+        gte_ldIR3_PMF(d);
+        gte_gpf12_PMF();
+        gte_stMAC1_PMF(c);
+        gte_stMAC2_PMF(e);
+        gte_stMAC3_PMF(d);
+        scr->v.vx += c;
+        scr->v.vy += e;
+        scr->v.vz += d;
+        gte_ldv0_PMF(&scr->v);
+        gte_rtps_PMF();
+        gte_stsxy_PMF(&o->sxy);
+        gte_stsz_PMF(&o->sz);
+        o++;
+        b++;
+    }
+    }
+}
 
 typedef struct { u8 pad0[4]; u16 nBones; } MdlHdr_16A6C;
 typedef struct { u16 count; u16 start; u8 pad4[8]; } Bone_16A6C;

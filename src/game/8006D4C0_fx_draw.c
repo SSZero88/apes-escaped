@@ -57,7 +57,94 @@ void func_8006D588(s32 arg0) {
     func_8006D4C0(arg0, 2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8006D4C0_fx_draw", func_8006D5A8);
+extern u8 g_Game[];
+typedef struct { s16 x, y, z; u8 life; u8 kind; } Dust_6D5A8;
+typedef struct { s32 seed; s32 sxy; s32 z; SVECTOR v; } Scr_6D5A8;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_6D5A8;
+#define ADDPRIM_BF_6D5A8(ot, p) (((PTag_6D5A8 *)(p))->addr = ((PTag_6D5A8 *)(ot))->addr, ((PTag_6D5A8 *)(ot))->addr = (u32)(p))
+#define RND_6D5A8() (scr->seed = scr->seed * 5 + 1)
+extern Dust_6D5A8 D_800BADA0_6D5A8[] asm("D_800BADA0");
+extern u8 *D_800EC354_6D5A8 asm("D_800EC354");
+extern u16 g_RandSeed_6D5A8 asm("g_RandSeed");
+extern u8 D_800E78C0_6D5A8[] asm("D_800E78C0");
+void SetRotMatrix_6D5A8(void *) asm("SetRotMatrix");
+void SetTransMatrix_6D5A8(void *) asm("SetTransMatrix");
+#define gte_ldv0_6D5A8(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
+#define gte_rtps_n6D5A8() __asm__ volatile ("nop; nop; rtps")
+#define gte_stsxy_6D5A8(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+#define gte_stszotz_6D5A8(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+
+/* Dust clouds: each live entry of the 32 in D_800BADA0 jitters (unless kind 1) by its own random
+   sequence (seeded from g_RandSeed in the scratch pad), then three puffs scattered round it are
+   drawn as additive sprites sized 2 * life + 4 (kind 2) or 3 * life + 0x10, brightness 2 * life +
+   0x10, with the 5-frame dust animation picked by life; life counts down by 1 a frame. */
+void func_8006D5A8(void) {
+    Scr_6D5A8 *scr = (Scr_6D5A8 *)0x1F800000;
+    Dust_6D5A8 *e;
+    u32 *p;
+    u32 *ot;
+    s32 i, j, c, col, r, tp, tw, x;
+    s16 y;
+    u8 w, h;
+    s16 x0, y0;
+
+    SetRotMatrix_6D5A8(D_800E78C0_6D5A8);
+    SetTransMatrix_6D5A8(D_800E78C0_6D5A8);
+    ot = G_DRAW.db[G_DRAW.cur].ot;
+    p = (u32 *)G_DRAW.prim;
+    scr->seed = g_RandSeed_6D5A8;
+    for (i = 31, e = D_800BADA0_6D5A8; i >= 0; i--, e++) {
+        if (e->life == 0) {
+            continue;
+        }
+        c = (u8)(e->life * 2 + 0x10);
+        col = (c << 16) | (c << 8) | (c + 8);
+        tp = 0x3C;
+        if (e->kind != 1) {
+            { s32 d = (RND_6D5A8() & 0xF) + 0xFFF9; e->x += d; }
+            { s32 d = (RND_6D5A8() & 0xF) + 0xFFE4; e->y += d; }
+            { s32 d = (RND_6D5A8() & 0xF) + 0xFFF9; e->z += d; }
+        }
+        if (e->kind == 2) {
+            r = e->life * 2 + 4;
+        } else {
+            r = e->life * 3 + 0x10;
+        }
+        for (j = 2; j >= 0; j--) {
+            scr->v.vx = e->x + (RND_6D5A8() & 0xF) - 7;
+            scr->v.vy = e->y + (RND_6D5A8() & 0x1F) - 0x10;
+            scr->v.vz = e->z + (RND_6D5A8() & 0xF) - 7;
+            gte_ldv0_6D5A8(&scr->v);
+            gte_rtps_n6D5A8();
+            gte_stsxy_6D5A8(&scr->sxy);
+            gte_stszotz_6D5A8(&scr->z);
+            x = (u16)scr->sxy;
+            y = scr->sxy >> 16;
+            if ((u16)(x + 0x20) >= 0x1C1 || y < -0x20 || y >= 0x111 || (u32)(scr->z - 1) >= 0xFFF) {
+                continue;
+            }
+            w = r * 0x148 / scr->z;
+            h = r * 0x148 * 0x11D00 / 0x16800 / scr->z;
+            ((u8 *)p)[3] = 9;
+            p[1] = col | 0x2E000000;
+            tw = (tp << 16) | 0xC800;
+            x0 = x - (w >> 1);
+            y0 = y - (h >> 1);
+            p[2] = (y0 << 16) | (x0 & 0xFFFF);
+            p[4] = (y0 << 16) | (x0 + w);
+            p[6] = ((y0 + h) << 16) | (x0 & 0xFFFF);
+            p[8] = ((y0 + h) << 16) | (x0 + w);
+            p[3] = ((4 - (e->life >> 1)) * 0x30) | 0x7C2CC800;
+            p[5] = ((4 - (e->life >> 1)) * 0x30 + 0x2F) | tw;
+            ((u16 *)p)[0xE] = ((4 - (e->life >> 1)) * 0x30) | -0x200;
+            ((u16 *)p)[0x12] = ((4 - (e->life >> 1)) * 0x30 + 0x2F) | -0x200;
+            ADDPRIM_BF_6D5A8(ot + scr->z, p);
+            p += 10;
+        }
+        e->life--;
+    }
+    D_800EC354_6D5A8 = (u8 *)p;
+}
 
 void func_8006DAC8(void) {
     s32 i;
@@ -231,7 +318,89 @@ void Flare_Spawn(s16 *pos, s16 *b, s32 mode) {
     Flare_Add(&p.vx, b);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8006D4C0_fx_draw", func_8006E1C0);
+typedef struct { s16 x, y, z; s8 life; u8 pad7; s8 vx, vy, vz; u8 padB; } Spark_6E1C0;
+typedef struct { s32 z; s32 sxy[3]; SVECTOR v[3]; } Scr_6E1C0;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_6E1C0;
+#define ADDPRIM_BF_6E1C0(ot, p) (((PTag_6E1C0 *)(p))->addr = ((PTag_6E1C0 *)(ot))->addr, ((PTag_6E1C0 *)(ot))->addr = (u32)(p))
+extern Spark_6E1C0 D_800BAEA0_6E1C0[] asm("D_800BAEA0");
+extern struct { u8 pad0[0x24]; s32 x, y, z, vx, vy, vz; u8 pad3C[0x22]; u16 state; } g_Spike_6E1C0 asm("g_Spike");
+void memset(void *, s32, s32);
+#define gte_ldv3c_6E1C0(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(v))
+#define gte_rtpt_n6E1C0() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxy3c_6E1C0(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
+#define gte_stszotz_6E1C0(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+
+/* Spike's sparks. In state 6 a flare is spawned at Spike moving against his velocity. Then each of
+   the 8 sparks in D_800BAEA0 still alive moves by its velocity, loses a frame of life and is drawn
+   as two crossed translucent gouraud triangles of half-size life + 1 with a tail 6 velocities long. */
+void func_8006E1C0(void) {
+    Scr_6E1C0 *scr = (Scr_6E1C0 *)0x1F800000;
+    SVECTOR pos, vel, t;
+    Spark_6E1C0 *e;
+    u32 *p;
+    u32 *ot;
+    s32 i, j, s;
+
+    if (g_Spike_6E1C0.state == 6) {
+        memset(&vel, 0, 8);
+        vel.vx = g_Spike_6E1C0.x;
+        vel.vy = g_Spike_6E1C0.y;
+        vel.vz = g_Spike_6E1C0.z;
+        pos = vel;
+        memset(&t, 0, 8);
+        t.vx = -g_Spike_6E1C0.vx;
+        t.vz = -g_Spike_6E1C0.vz;
+        vel = t;
+        Flare_Spawn((s16 *)&pos, (s16 *)&vel, 0);
+    }
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    ot = G_DRAW.db[G_DRAW.cur].ot;
+    p = (u32 *)G_DRAW.prim;
+    for (i = 7; i >= 0; i--) {
+        e = &D_800BAEA0_6E1C0[i];
+        if (e->life == 0) {
+            continue;
+        }
+        e->x += e->vx;
+        e->y += e->vy;
+        e->z += e->vz;
+        s = e->life + 1;
+        e->life--;
+        scr->v[0].vx = e->x - s;
+        scr->v[0].vy = e->y - s;
+        scr->v[0].vz = e->z - s;
+        scr->v[1].vx = e->x + s;
+        scr->v[1].vy = e->y + s;
+        scr->v[1].vz = e->z + s;
+        scr->v[2].vx = e->x + e->vx * 6;
+        scr->v[2].vy = e->y + e->vy * 6;
+        scr->v[2].vz = e->z + e->vz * 6;
+        for (j = 2; j > 0; j--) {
+            gte_ldv3c_6E1C0(scr->v);
+            gte_rtpt_n6E1C0();
+            gte_stsxy3c_6E1C0(scr->sxy);
+            gte_stszotz_6E1C0(&scr->z);
+            if ((u32)(scr->z - 1) < 0xFFF) {
+                ((u8 *)p)[3] = 7;
+                p[1] = 0xE1000220;
+                p[2] = 0x336E5A3C;
+                p[4] = 0x6E5A3C;
+                p[6] = 0;
+                p[3] = scr->sxy[0];
+                p[5] = scr->sxy[1];
+                p[7] = scr->sxy[2];
+                ADDPRIM_BF_6E1C0(ot + scr->z, p);
+                scr->v[0].vx = D_800BAEA0_6E1C0[i].x + s;
+                scr->v[1].vx = D_800BAEA0_6E1C0[i].x - s;
+                scr->v[0].vy = D_800BAEA0_6E1C0[i].y + s;
+                scr->v[1].vy = D_800BAEA0_6E1C0[i].y - s;
+                p += 8;
+            }
+        }
+    }
+    D_800EC354 = (u8 *)p;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/8006D4C0_fx_draw", Fx_DrawFadeRing);
 

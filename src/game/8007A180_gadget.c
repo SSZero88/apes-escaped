@@ -1038,7 +1038,174 @@ void func_8007BCB4(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8007A180_gadget", func_8007BD38);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_7BD38;
+typedef struct { s32 vx, vy, vz, pad; } VEC_7BD38;
+typedef struct { void *f_0; u8 pad4[8]; SVECTOR *verts; } Mdl_7BD38;
+typedef struct { u16 start, end; u8 pad4[4]; } Anim_7BD38;
+typedef struct { s16 bone; s16 out; SVECTOR v; } Tip_7BD38;
+typedef struct { u8 pad0[0x14]; MAT_7BD38 *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x2C]; u16 frame; u16 anim; } Obj_7BD38;
+typedef struct { u8 pad0[0x6C]; SVECTOR *verts; } MdlB_7BD38;
+extern MdlB_7BD38 D_800EC0E0_7BD38 asm("D_800EC0E0");
+extern Mdl_7BD38 D_800EC070_7BD38 asm("D_800EC070");
+extern Mdl_7BD38 D_800EC140_7BD38 asm("D_800EC140");
+extern MAT_7BD38 D_800E9C60_7BD38[] asm("D_800E9C60");
+extern MAT_7BD38 D_800E9E40_7BD38 asm("D_800E9E40");
+extern MAT_7BD38 D_800E78C0_7BD38 asm("D_800E78C0");
+extern MAT_7BD38 D_800F4910_7BD38 asm("D_800F4910");
+extern u8 D_800E7D00_7BD38[] asm("D_800E7D00");
+extern u8 *D_800EC358_7BD38 asm("D_800EC358");
+extern SVECTOR D_800F51D0_7BD38[2] asm("D_800F51D0");
+extern struct { Obj_7BD38 o; SVECTOR dirB; SVECTOR dirA; } D_800F50B0_7BD38 asm("D_800F50B0");
+#define D_800F50B0 D_800F50B0_7BD38.o
+extern s16 D_800F5174_7BD38 asm("D_800F5174");
+extern Anim_7BD38 *D_800B4DA0_7BD38 asm("D_800B4DA0");
+extern u8 D_800AEBF8_7BD38[] asm("D_800AEBF8");
+extern Mdl_7BD38 D_800F4630_7BD38[] asm("D_800F4630");
+extern Tip_7BD38 D_800B2140_7BD38[] asm("D_800B2140");
+extern Tip_7BD38 D_800B2188_7BD38[] asm("D_800B2188");
+extern struct S_G_7BD38 { u8 pad_0[0x8124]; u16 f_8124; u8 pad_8126[0x2C]; s16 f_8152; u8 pad_8154[0x50]; void *f_81A4; } g_Game_7BD38 asm("g_Game");
+s32 Spike_IsUnderwater_7BD38(void) asm("Spike_IsUnderwater");
+void Model_ProjectVerts_7BD38(void *, void *, void *) asm("Model_ProjectVerts");
+void Model_ProjectBonedVerts_7BD38(void *) asm("Model_ProjectBonedVerts");
+void func_80017CD4_7BD38(void *, void *, void *) asm("func_80017CD4");
+void func_80017D94_7BD38(void *, void *, void *, s32) asm("func_80017D94");
+void Matrix_FromDirection_7BD38(SVECTOR *, MAT_7BD38 *) asm("Matrix_FromDirection");
+void Matrix_LookAt_7BD38(SVECTOR *, SVECTOR *, MAT_7BD38 *, s32) asm("Matrix_LookAt");
+void SetRotMatrix_7BD38(void *) asm("SetRotMatrix");
+void SetTransMatrix_7BD38(void *) asm("SetTransMatrix");
+void CompMatrix_7BD38(void *, void *, void *) asm("CompMatrix");
+void RotTransSV_7BD38(SVECTOR *, SVECTOR *, s32 *) asm("RotTransSV");
+s32 RotTransPers_7BD38(SVECTOR *, void *, s32 *, s32 *) asm("RotTransPers");
+void VectorNormalSS_7BD38(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
+void ScaleMatrixL_7BD38(MAT_7BD38 *, VEC_7BD38 *) asm("ScaleMatrixL");
+void RotMatrixY_7BD38(s32, MAT_7BD38 *) asm("RotMatrixY");
+void func_80014EF0_7BD38(void *, void *) asm("func_80014EF0");
+void Model_CalcJointMatrices_7BD38(void *, s32) asm("Model_CalcJointMatrices");
+s32 func_80032E58_7BD38(void) asm("func_80032E58");
+
+/* Draws Spike's hands with the current gadget model held between them. Normal: hand model D_800EC070
+   on bone matrix 15, hand vertices 0 / 0x51 / 8; underwater: the swimming body D_800EC0E0 and hand
+   model D_800EC140 placed at D_800F51D0 facing D_800F51D8, vertices 2 / 0xC / 0xB. Unless in area
+   0x20, the gadget (D_800F50B0, a boned model) is centred between hand vertices a and c and aimed
+   along (mid - b) / (a - mid), grows in over its first 8 frames (D_800F5174, scaled and spun), and
+   is drawn with the attachment D_800F4630[D_800AEBF8[func_80032E58() >> 6]]. Once fully grown, six
+   points of the hand model (D_800B2140 / D_800B2188) are projected through their bones. */
+void func_8007BD38(void) {
+    register u8 *vb asm("$16");
+    MAT_7BD38 m;
+    SVECTOR a, b, c, mid, d1, pad, d2;
+    VEC_7BD38 scale;
+    s32 flag;
+    SVECTOR *verts;
+    s32 ia, ib, ic;
+    s32 s, k, i;
+    Mdl_7BD38 *mdl;
+    Tip_7BD38 *tip;
+
+    if (Spike_IsUnderwater_7BD38() != 0) {
+        Model_ProjectVerts_7BD38(&D_800EC0E0_7BD38, &D_800E9E40_7BD38, D_800E7D00_7BD38);
+        func_80017CD4_7BD38(D_800EC358_7BD38, D_800E7D00_7BD38, &D_800EC0E0_7BD38);
+        ib = 0xC;
+        ic = 0xB;
+        Matrix_FromDirection_7BD38(&D_800F51D0_7BD38[1], &m);
+        m.t[0] = D_800F51D0_7BD38[0].vx;
+        m.t[1] = D_800F51D0_7BD38[0].vy;
+        m.t[2] = D_800F51D0_7BD38[0].vz;
+        SetRotMatrix_7BD38(&m);
+        SetTransMatrix_7BD38(&m);
+        CompMatrix_7BD38(&D_800E78C0_7BD38, &m, &m);
+        verts = D_800EC0E0_7BD38.verts;
+        ia = 2;
+    } else {
+        m = D_800E9C60_7BD38[15];
+        SetRotMatrix_7BD38(&D_800F4910_7BD38);
+        SetTransMatrix_7BD38(&D_800F4910_7BD38);
+        ia = 0;
+        ib = 0x51;
+        ic = 8;
+        verts = D_800EC070_7BD38.verts;
+    }
+    if (g_Game_7BD38.f_8124 == 0x20) {
+        return;
+    }
+    RotTransSV_7BD38(&verts[ia], &a, &flag);
+    RotTransSV_7BD38(&verts[ib], &b, &flag);
+    RotTransSV_7BD38(&verts[ic], &c, &flag);
+    D_800F50B0.anim = 0;
+    mid.vx = (a.vx + c.vx) / 2;
+    mid.vy = (a.vy + c.vy) / 2;
+    mid.vz = (a.vz + c.vz) / 2;
+    D_800F50B0.x = mid.vx;
+    D_800F50B0.y = mid.vy;
+    D_800F50B0.z = mid.vz;
+    d1.vx = mid.vx - b.vx;
+    d1.vy = mid.vy - b.vy;
+    d1.vz = mid.vz - b.vz;
+    d2.vx = a.vx - mid.vx;
+    d2.vy = a.vy - mid.vy;
+    d2.vz = a.vz - mid.vz;
+    D_800F50B0.frame++;
+    if (D_800F50B0.frame < D_800B4DA0_7BD38->start || D_800B4DA0_7BD38->end < D_800F50B0.frame) {
+        D_800F50B0.frame = D_800B4DA0_7BD38->start;
+    }
+    VectorNormalSS_7BD38(&d1, &D_800F50B0_7BD38.dirA);
+    VectorNormalSS_7BD38(&d2, &D_800F50B0_7BD38.dirB);
+    Matrix_LookAt_7BD38(&D_800F50B0_7BD38.dirB, &D_800F50B0_7BD38.dirA, D_800F50B0.mat, 0);
+    if (D_800F5174_7BD38 > 0) {
+        if (D_800F5174_7BD38 < 9) {
+            s = (D_800F5174_7BD38 << 12) / 9;
+            scale.vz = s;
+            scale.vx = s;
+            scale.vy = 0x2000 - s;
+            ScaleMatrixL_7BD38(D_800F50B0.mat, &scale);
+            RotMatrixY_7BD38(s * 2, D_800F50B0.mat);
+        }
+        func_80014EF0_7BD38(&D_800F50B0, &D_800B4DA0_7BD38[D_800F50B0.anim]);
+        Model_CalcJointMatrices_7BD38(&D_800F50B0, 1);
+        Model_ProjectBonedVerts_7BD38(&D_800F50B0);
+        k = func_80032E58_7BD38();
+        func_80017D94_7BD38(G_DRAW.db[G_DRAW.cur].ot, D_800E7D00_7BD38, &D_800F50B0, k);
+        {
+            Mdl_7BD38 *gm = &D_800F4630_7BD38[D_800AEBF8_7BD38[k >> 6]];
+            Model_ProjectVerts_7BD38(gm, &D_800E9C60_7BD38[((u16 *)gm->f_0)[2]], D_800E7D00_7BD38);
+            func_80017CD4_7BD38(G_DRAW.db[G_DRAW.cur].ot, D_800E7D00_7BD38, gm);
+        }
+    }
+    if (Spike_IsUnderwater_7BD38() != 0) {
+        mdl = &D_800EC140_7BD38;
+        tip = D_800B2188_7BD38;
+    } else {
+        mdl = &D_800EC070_7BD38;
+        tip = D_800B2140_7BD38;
+    }
+    if (D_800F5174_7BD38 < 9) {
+        Model_ProjectVerts_7BD38(mdl, &m, D_800E7D00_7BD38);
+        func_80017CD4_7BD38(G_DRAW.db[G_DRAW.cur].ot, D_800E7D00_7BD38, mdl);
+    } else {
+        { register void *pa asm("$4") = mdl; register void *pb asm("$5") = &m;
+        vb = D_800E7D00_7BD38;
+        Model_ProjectVerts_7BD38(pa, pb, vb); }
+        {Tip_7BD38 *tp = tip;
+        for (i = 0; i < 6;) {
+            SetRotMatrix_7BD38(&D_800E9C60_7BD38[tp->bone]);
+            i++;
+            SetTransMatrix_7BD38(&D_800E9C60_7BD38[tp->bone]);
+            {
+                SVECTOR *tv = &tp->v;
+                s32 o;
+                register s32 *q2 asm("$6"); register s32 *q3 asm("$7");
+                __asm__("" :: "r"(tv));
+                __asm__("" : "=r"(q2) : "0"(&flag));
+                __asm__("" : "=r"(q3) : "0"(&flag));
+                o = tp->out;
+                tp++;
+                RotTransPers_7BD38(tv, (u8 *)(o * 8 + (s32)vb), q2, q3);
+            }
+        }}
+        func_80017CD4_7BD38(G_DRAW.db[G_DRAW.cur].ot, D_800E7D00_7BD38, mdl);
+    }
+}
+#undef D_800F50B0
 
 /* Spike_Update's handler for game sub-mode 8 (g_Game+0x8150). Draws Spike, then counts
  * g_GadgetState+0x54 down to 0: strong rumble pulses every 5 frames while >= 13, a light one

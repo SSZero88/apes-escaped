@@ -157,7 +157,41 @@ void DebugFont_Printf_Va(s8 *fmt, ...) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8008C390_debug_font", DebugFont_DrawBox);
+typedef struct { u32 addr : 24; u32 len : 8; } PT_8CAD4;
+typedef struct { u16 x, px, y, py, cx, pcx; s32 line; } Con16_8CAD4;
+extern Con16_8CAD4 D_800DF7D8_8CAD4 asm("D_800DF7D8");
+typedef struct { u32 tag; u32 rgbc; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad2; s16 x3, y3; u8 u3, v3; u16 pad3; } PolyFT4_8CAD4;
+
+void DebugFont_DrawBox(s32 w, s32 h) {
+    PolyFT4_8CAD4 *p = (PolyFT4_8CAD4 *)G_DRAW.prim;
+    u32 *ot = G_HUD_OT;
+
+    p->rgbc = 0x808080;
+    ((u8 *)p)[3] = 9;
+    ((u8 *)p)[7] = 0x2C;
+    p->x0 = D_800DF7D8_8CAD4.x + D_800DF7D8_8CAD4.cx;
+    p->y0 = D_800DF7D8_8CAD4.y + D_800DF7D8_8CAD4.line * 8;
+    p->x1 = p->x0 + w;
+    p->y1 = p->y0;
+    p->x2 = p->x0;
+    p->y2 = p->y0 + h;
+    p->x3 = p->x1;
+    p->y3 = p->y2;
+    p->u0 = 0;
+    p->v0 = 0x18;
+    p->u1 = 0x40;
+    p->v1 = 0x18;
+    p->u2 = 0;
+    p->v2 = 0x28;
+    p->u3 = 0x40;
+    p->v3 = 0x28;
+    p->clut = 0x7DBF;
+    p->tpage = 0x1F;
+    ((PT_8CAD4 *)p)->addr = ((PT_8CAD4 *)ot)->addr;
+    ((PT_8CAD4 *)ot)->addr = (u32)p;
+    p++;
+    G_DRAW.prim = (u8 *)p;
+}
 
 void func_8008CBFC(s32 a0, ...) {
     s32 old = g_Game.unk82BA;

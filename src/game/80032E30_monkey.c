@@ -3759,9 +3759,81 @@ apply:
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80032E30_monkey", func_8003C204);
+typedef struct { s16 vx, vy, vz, pad; } SV_8003C204;
+typedef struct { u8 pad0[0x60]; SV_8003C204 dir; u8 pad68[0x10]; u8 state; u8 pad79[0x1B]; s16 f_94; u8 pad96[6]; MAT_8003CC3C mat; u8 padBC[0x36]; u16 f_F2; u16 f_F4; u8 padF6[0xA]; s32 f_100, f_104, f_108; u8 pad10C[4]; s32 f_110, f_114, f_118; u8 pad11C[4]; s16 f_120; s16 f_122; } M_8003C204;
+#define MC_3C204 ((M_8003C204 *)g_CurMonkey)
+void Monkey_TurnToGoal(void);
 
-INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", jtbl_800A49B8);
+void func_8003C204(void) {
+    SV_8003C204 rot;
+    SV_8003C204 save;
+    VEC_80040CFC_80034EF8 a;
+    VEC_80040CFC_80034EF8 b;
+    s32 spd;
+    s32 d;
+    s32 r;
+    M_8003C204 *m;
+    s32 v;
+    switch (MC_3C204->state) {
+    case 2:
+        spd = 0x22;
+        break;
+    case 0x1A:
+    case 0x35:
+    case 0x39:
+    default:
+        spd = 0xAA;
+        break;
+    case 12:
+    case 36:
+        spd = 0x16;
+        break;
+    }
+    save = MC_3C204->dir;
+    Monkey_TurnToGoal();
+    if (func_80033C00()) {
+        MC_3C204->f_100 = save.vx;
+        MC_3C204->f_104 = save.vy;
+        MC_3C204->f_108 = save.vz;
+        Node_GetPosition(MC_3C204->f_F2, &a);
+        Node_GetPosition(MC_3C204->f_F4, &b);
+        MC_3C204->f_110 = a.vx - b.vx;
+        MC_3C204->f_114 = a.vy - b.vy;
+        MC_3C204->f_118 = a.vz - b.vz;
+        if ((s16)Vec_DotXZ((VEC_80034940 *)&MC_3C204->f_100, (VEC_80034940 *)&MC_3C204->f_110) < -0xE66) {
+            MC_3C204->f_110 = MC_3C204->f_110 * 11 / 10;
+            MC_3C204->f_118 = MC_3C204->f_110 * 9 / 10;
+        }
+        VectorNormal((VEC_80034940 *)&MC_3C204->f_110, (VEC_80034940 *)&MC_3C204->f_110);
+        { s32 k; v = Vec_AngleBetweenXZ((VEC_800344C8 *)&MC_3C204->f_100, (VEC_800344C8 *)&MC_3C204->f_110);
+        k = 0x2E8BA2E9; __asm__("" :: "r"(k));
+        d = abs(v); }
+        MC_3C204->f_122 = (d / 22 - 1) < 0 ? 0 : (d / 22 - 1);
+        MC_3C204->f_120 = (d / 22 - 1) < 0 ? 0 : (d / 22 - 1);
+        MC_3C204->dir = save;
+        return;
+    }
+    r = -Math_Atan2Pos(save.vz, save.vx);
+    d = -Math_Atan2Pos(MC_3C204->dir.vz, MC_3C204->dir.vx) - r;
+    if (d > 0x800) {
+        d -= 0x1000;
+    } else if (d < -0x800) {
+        d += 0x1000;
+    }
+    MC_3C204->f_94 = abs(d / spd);
+    if (d > 0) {
+        rot.vx = 0;
+        rot.vy = spd;
+        rot.vz = 0;
+    } else {
+        rot.vx = 0;
+        rot.vy = -spd;
+        rot.vz = 0;
+    }
+    RotMatrixYXZ((SVECTOR *)&rot, &MC_3C204->mat);
+    MC_3C204->dir = save;
+}
+
 
 
 typedef struct { u8 pad0[0x60]; SVECTOR f_60; u8 pad68[0x98]; s32 f_100; s32 f_104; s32 f_108; u8 pad10C[4]; s32 f_110; s32 f_114; s32 f_118; u8 pad11C[4]; s16 f_120; s16 f_122; } S_M_8003C568;
