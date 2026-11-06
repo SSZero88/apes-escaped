@@ -48,7 +48,113 @@ void func_80017E5C(u32 *, u8 *, Mdl_71370_80071370 *);
 void Effect_SpawnAt(s32, void *);
 struct S_D_800BB920_80071370 { MAT_71370_80071370 base; SV3_71370_80071370 rot; u8 pad26[2]; SV3_71370_80071370 rv; u8 pad2E[2]; s16 x, y, z; s16 vx; s16 vy; s16 vz; s8 bounces; u8 timer; s16 floor; s16 model; u8 pad42[2]; };
 
-INCLUDE_ASM("asm/nonmatchings/game/8006FA10_shockwave", Shockwave_Draw);
+struct S_D_800BAF00;
+typedef struct { s16 x, y, z; u8 pad6[2]; s16 h; s16 cx; s16 cy; u8 n; u8 padF; s16 r0; s16 r1; s16 rotZ; u16 clut; u8 u0; u8 v0; u8 uw; u8 vh; u32 color; MAT_71370_80071370 m; } Shock_6FA10;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_6FA10;
+#define ADDPRIM_BF_6FA10(ot, p) (((PTag_6FA10 *)(p))->addr = ((PTag_6FA10 *)(ot))->addr, ((PTag_6FA10 *)(ot))->addr = (u32)(p))
+typedef struct { s32 z[33]; s32 sxy[33][2]; MAT_71370_80071370 m; SVECTOR a; SVECTOR b; } Scr_6FA10;
+#define SCR_M_6FA10 (&scr->m)
+#define SCR_A_6FA10 (&scr->a)
+#define SCR_B_6FA10 (&scr->b)
+extern u8 *D_800EC354;
+void func_8004637C(MAT_71370_80071370 *);
+void RotMatrixZ(s32, MAT_71370_80071370 *);
+void SetRotMatrix(MAT_71370_80071370 *);
+void SetTransMatrix(MAT_71370_80071370 *);
+s32 rcos(s32);
+s32 rsin(s32);
+#define gte_ldv0_6FA10(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
+#define gte_rtps_6FA10() __asm__ volatile ("nop; nop; rtps")
+#define gte_stsxy_6FA10(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+#define gte_stszotz_6FA10(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+
+/* Draws one shockwave ring: n + 1 points round its outer (r0, centred cx, cy, raised h) and inner
+   (r1) circles, in the ring's own matrix turned by rotZ, at its position, are projected into the
+   scratch pad (screen points at +0x84, depths at +0), and each of the n segments with an on-screen
+   depth becomes an additive FT4 whose texture runs u0 .. u0 + uw across the ring. */
+void Shockwave_Draw(struct S_D_800BAF00 *ep) {
+    Shock_6FA10 *e = (Shock_6FA10 *)ep;
+    Scr_6FA10 *scr = (Scr_6FA10 *)0x1F800000;
+    s16 cx, cy;
+    SVECTOR *va;
+    s32 *zp;
+    s32 *sp;
+    s32 *zq, *sq;
+    s32 a;
+    s32 u0, q;
+    u16 w;
+    u8 prev, cur;
+    u32 *p;
+    u32 *ot;
+    u32 code, v, cl, vh;
+    s32 r0, r1;
+
+    func_8004637C(SCR_M_6FA10);
+    RotMatrixZ(e->rotZ, SCR_M_6FA10);
+    sp = scr->sxy[0];
+    CompMatrix(&e->m, SCR_M_6FA10, SCR_M_6FA10);
+    zp = scr->z;
+    va = &scr->a;
+    SCR_M_6FA10->t[0] = e->x;
+    SCR_M_6FA10->t[1] = e->y;
+    SCR_M_6FA10->t[2] = e->z;
+    CompMatrix(&D_800E78C0, SCR_M_6FA10, SCR_M_6FA10);
+    SetRotMatrix(SCR_M_6FA10);
+    SetTransMatrix(SCR_M_6FA10);
+    cx = e->cx;
+    cy = e->cy;
+    r0 = e->r0;
+    r1 = e->r1;
+    SCR_B_6FA10->vz = 0;
+    SCR_A_6FA10->vz = e->h;
+    for (a = 0x1000; a >= 0; a -= 0x1000 / ((Shock_6FA10 *)ep)->n) {
+        SCR_B_6FA10->vx = rcos(a) * r1 / 4096;
+        SCR_B_6FA10->vy = rsin(a) * r1 / 4096;
+        SCR_A_6FA10->vx = cx + rcos(a) * r0 / 4096;
+        SCR_A_6FA10->vy = cy + rsin(a) * r0 / 4096;
+        gte_ldv0_6FA10(va);
+        gte_rtps_6FA10();
+        gte_stsxy_6FA10(sp);
+        sp++;
+        gte_ldv0_6FA10(SCR_B_6FA10);
+        gte_rtps_6FA10();
+        gte_stsxy_6FA10(sp);
+        sp++;
+        gte_stszotz_6FA10(zp);
+        zp++;
+    }
+    sq = scr->sxy[0];
+    zq = scr->z;
+    p = (u32 *)G_DRAW.prim;
+    ot = G_DRAW.db[G_DRAW.cur].ot;
+    u0 = ((Shock_6FA10 *)ep)->u0;
+    cl = ((Shock_6FA10 *)ep)->clut;
+    w = ((Shock_6FA10 *)ep)->uw;
+    code = ((Shock_6FA10 *)ep)->color;
+    vh = ((Shock_6FA10 *)ep)->vh;
+    v = ((Shock_6FA10 *)ep)->v0;
+    prev = u0;
+    for (a = 1; a <= ((Shock_6FA10 *)ep)->n; zq++, sq += 2, a++) {
+        if ((u32)(*zq - 1) < 0xFFF) {
+            q = w * a / ((Shock_6FA10 *)ep)->n;
+            ((u8 *)p)[3] = 9;
+            p[1] = code | 0x2E000000;
+            p[2] = sq[0];
+            p[4] = sq[2];
+            p[6] = sq[1];
+            p[8] = sq[3];
+            p[3] = (v << 8) | (prev & 0xFF) | (cl << 16);
+            cur = u0 + q;
+            p[5] = (v << 8) | (cur & 0xFF) | 0x3C0000;
+            ((u16 *)p)[0xE] = (u8)prev | ((vh + v) << 8);
+            ((u16 *)p)[0x12] = (u8)cur | ((vh + v) << 8);
+            ADDPRIM_BF_6FA10(ot + *zq, p);
+            p += 10;
+        }
+        prev = cur;
+    }
+    D_800EC354 = (u8 *)p;
+}
 
 void func_8006FE54(void) {
     s32 i;

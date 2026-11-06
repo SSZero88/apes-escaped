@@ -41,7 +41,86 @@ void func_8008C408(void) {
     D_800DF7D8.f_C = (s32) D_800DF7D8.f_1C;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8008C390_debug_font", DebugFont_PutChar);
+extern u8 g_Game_8C434[] asm("g_Game");
+#define G_DRAW_8C434 (*(GameDraw *)g_Game_8C434)
+typedef struct { u8 r, g, b, cd; } Col_8C434;
+typedef struct { s32 x, y, cx, line; s32 save[4]; Col_8C434 col; } Con_8C434;
+extern Con_8C434 D_800DF7D8_8C434 asm("D_800DF7D8");
+extern s32 D_800DF7FC;
+extern s32 D_800DF800;
+typedef struct { u8 u, w; } Glyph_8C434;
+extern Glyph_8C434 D_800B3390[];
+typedef struct { u32 tag; Col_8C434 c; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8C434;
+typedef struct { u32 tag; Col_8C434 c; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad2; s16 x3, y3; u8 u3, v3; u16 pad3; } PolyFT4_8C434;
+typedef struct { u32 addr : 24; u32 len : 8; } PT_8C434;
+#define CON_8C434 D_800DF7D8_8C434
+
+void DebugFont_PutChar(s32 c) {
+    u32 *ot = G_DRAW_8C434.db[G_DRAW_8C434.cur].hud;
+    s16 x, y; u16 w; s32 h; s16 v;
+
+    if (D_800DF7FC < 4) {
+        Sprt_8C434 *p = (Sprt_8C434 *)G_DRAW_8C434.prim;
+        if (c != 0) {
+            *(u32 *)&p->c = *(u32 *)&CON_8C434.col;
+            ((u8 *)p)[3] = 4;
+            p->c.cd = 0x64;
+            p->x0 = CON_8C434.x + CON_8C434.cx;
+            p->y0 = CON_8C434.y + CON_8C434.line * 8;
+            p->u0 = (c % 32) * 8;
+            p->v0 = (c / 32) * 8;
+            p->w = 8;
+            p->h = 8;
+            p->clut = ((D_800DF7FC + 0x1F1) << 6) | 0x3F;
+            ((PT_8C434 *)p)->addr = ((PT_8C434 *)ot)->addr;
+            ((PT_8C434 *)ot)->addr = (u32)p;
+            p++;
+            CON_8C434.cx += 8;
+        } else {
+            CON_8C434.cx += 8;
+        }
+        G_DRAW_8C434.prim = (u8 *)p;
+    } else {
+        PolyFT4_8C434 *p;
+        x = CON_8C434.x + CON_8C434.cx;
+        p = (PolyFT4_8C434 *)G_DRAW_8C434.prim;
+        y = CON_8C434.y + CON_8C434.line * 8;
+        w = D_800B3390[c].w;
+        h = 16;
+        v = (c >= 0x4F) + (c >= 0x34);
+        if (c >= 0x1C) {
+            v = (v << 4) + 0x50;
+        } else {
+            v = (v << 4) | 0x40;
+        }
+        *(u32 *)&p->c = *(u32 *)&CON_8C434.col;
+        ((u8 *)p)[3] = 9;
+        p->c.cd = 0x2C;
+        p->x0 = x;
+        p->y0 = y;
+        p->x1 = x + w;
+        p->y1 = y;
+        p->x2 = x;
+        p->y2 = y + h;
+        p->x3 = x + w;
+        p->y3 = y + h;
+        p->u0 = D_800B3390[c].u;
+        p->v0 = v;
+        p->u1 = D_800B3390[c].u + w;
+        p->v1 = v;
+        p->u2 = D_800B3390[c].u;
+        p->v2 = v + h;
+        p->u3 = D_800B3390[c].u + w;
+        p->v3 = v + h;
+        p->clut = 0x7D7F;
+        p->tpage = D_800DF800;
+        ((PT_8C434 *)p)->addr = ((PT_8C434 *)ot)->addr;
+        ((PT_8C434 *)ot)->addr = (u32)p;
+        p++;
+        CON_8C434.cx += D_800B3390[c].w;
+        G_DRAW_8C434.prim = (u8 *)p;
+    }
+}
 
 typedef char *va_list_8C474;
 #define VA_START(ap, last) (ap = (va_list_8C474)&last + 4)

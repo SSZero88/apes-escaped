@@ -196,7 +196,69 @@ s32 Cd_GetAreaFileSector(s32 i) {
     return CdPosToInt(loc);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80010B50_cd", Zone_CheckSpike);
+typedef struct { s32 type; s32 x, y, z; u32 r; s32 ex, ey, ez; s32 dest; s32 sub; } Zone_80010D80;
+struct Game_80010D80 { u8 pad0[0x8120]; u16 mode; u8 pad8122[4]; u16 f_8126; u8 pad8128[2]; u16 f_812A; u8 pad812C[0x10C]; Zone_80010D80 *zones; u8 pad823C[0x50]; s32 nzones; };
+extern struct Game_80010D80 g_Game_10D80 asm("g_Game");
+extern struct { u8 pad0[0x24]; s32 x, y, z; } g_Spike_10D80 asm("g_Spike");
+void Game_SetMode(s32, u16, u16);
+u32 Vec_Length(s32, s32, s32);
+
+s32 Zone_CheckSpike(s32 mode) {
+    Zone_80010D80 *z;
+    Zone_80010D80 *zones, *zz;
+    s32 i;
+    u32 d;
+    zones = g_Game_10D80.zones;
+    if (zones == 0) {
+        return -1;
+    }
+    if (g_Game_10D80.mode == 0x24) {
+        return -1;
+    }
+    i = 0;
+    zz = zones;
+    __asm__("" : "=r"(zones) : "0"(zones));
+    for (; i < g_Game_10D80.nzones; i++) { z = &zz[i];
+        if (mode == 0) {
+            if (z->type == 2 && g_Game_10D80.mode == 0x11) {
+                if (ABS(g_Spike_10D80.x - z->x) < z->ex) {
+                    if (ABS(g_Spike_10D80.y - z->y) < z->ey) {
+                        if (ABS(g_Spike_10D80.z - z->z) < z->ez) {
+                            Game_SetMode(0x16, g_Game_10D80.f_8126, g_Game_10D80.f_812A);
+                            return -1;
+                        }
+                    }
+                }
+            } else {
+                { register s32 ax asm("$2") = z->x; register s32 ay asm("$7") = z->y; register s32 az asm("$3") = z->z; d = Vec_Length(g_Spike_10D80.x - ax, g_Spike_10D80.y - ay, g_Spike_10D80.z - az); }
+            }
+            if (d >= z->r) {
+                continue;
+            }
+            goto found;
+        } else if (z->type == 0) {
+            { register s32 ax asm("$2") = z->x; register s32 ay asm("$7") = z->y; register s32 az asm("$3") = z->z; d = Vec_Length(g_Spike_10D80.x - ax, g_Spike_10D80.y - ay, g_Spike_10D80.z - az); }
+            if (d >= (u32)z->ex) {
+                continue;
+            }
+            goto found;
+        } else if (z->type == 3) {
+            return -1;
+        } else if (ABS(g_Spike_10D80.x - z->x) < z->ex) {
+            if (ABS(g_Spike_10D80.y - z->y) < z->ey) {
+                if (ABS(g_Spike_10D80.z - z->z) < z->ez) {
+                    if (z->type == 4) {
+                        Game_SetMode(0x1B, g_Game_10D80.f_8126, g_Game_10D80.f_812A);
+                        return -1;
+                    }
+                found:
+                    return (z->dest << 8) | z->sub;
+                }
+            }
+        }
+    }
+    return -1;
+}
 
 s32 func_800110B0(void) {
     M2C_FIELD(&D_800E3890, s32 *, 0) = 0x50000;

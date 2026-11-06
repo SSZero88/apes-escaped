@@ -810,7 +810,77 @@ s32 Sound_SetStereo(s32 arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80086040_sound", Sound_CalcVolume3D);
+typedef struct { s16 vx, vy, vz, pad; } SV_87C8C;
+struct Game_87C8C { u8 pad0[0x813A]; u16 f_813A; u8 pad813C[0x11C]; SV_87C8C f_8258; SV_87C8C f_8260; };
+extern struct Game_87C8C g_Game_87C8C asm("g_Game");
+extern SV_87C8C D_800BF688_87C8C asm("D_800BF688");
+void VectorNormalSS(void *, void *);
+
+s32 Sound_CalcVolume3D(s32 pv, s16 range, S16x2 *out)
+{
+  SV_87C8C *p = (SV_87C8C *)pv;
+  SV_87C8C v;
+  SV_87C8C n1;
+  SV_87C8C cam;
+  SV_87C8C n2;
+  s32 d;
+  s32 e;
+  s32 l;
+  s32 r;
+  int new_var;
+  out->y = 0;
+  out->x = 0;
+  new_var = ((D_800BF688_87C8C.vx - p->vx) * (D_800BF688_87C8C.vx - p->vx)) + ((D_800BF688_87C8C.vy - p->vy) * (D_800BF688_87C8C.vy - p->vy));
+  d = SquareRoot0(new_var + ((D_800BF688_87C8C.vz - p->vz) * (D_800BF688_87C8C.vz - p->vz)));
+  {
+  s32 rg = (s16)range; __asm__("" :: "r"(rg), "r"(rg), "r"(rg), "r"(rg));
+  if (d > rg)
+  {
+    return 0;
+  }
+  l = 0x1000;
+  if (d > 0x800)
+  {
+    l = ((rg - d) << 12) / (rg - 0x800);
+  }
+  }
+  if (n2.vz)
+  {
+    r = l;
+  }
+  else
+  {
+    r = l;
+  }
+  if (g_Game_87C8C.f_813A != 0)
+  {
+    __asm__("" :: "m"(g_Game_87C8C.f_813A), "m"(g_Game_87C8C.f_813A), "m"(g_Game_87C8C.f_813A));
+    cam = g_Game_87C8C.f_8258;
+    v.vx = p->vx - cam.vx;
+    v.vy = 0;
+    v.vz = p->vz - cam.vz;
+    VectorNormalSS(&v, &n1);
+    v.vy = 0;
+    v.vx = g_Game_87C8C.f_8260.vx - cam.vx;
+    v.vz = g_Game_87C8C.f_8260.vz - cam.vz;
+    VectorNormalSS(&v, &n2);
+    e = ((-n2.vz) * n1.vx) + (n2.vx * n1.vz);
+    if (e > 0)
+    {
+      e >>= 12; r = (r * (0x1000 - e)) / 4096;
+    }
+    else
+    {
+      e = -e;
+      l = (l * (0x1000 - (e / 4096))) / 4096;
+    }
+  }
+  out->y = r;
+  out->x = l;
+  e = 0;
+  if (r < 8 && l < 8) return e;
+  return 1;
+}
 
 /* func_80087EE0: volume of a positional sound source s for the listener D_800BF688 (used by
  * func_8008686C). Distance in the y/z plane (type 0x3000) or y/x plane, against radius f_E or

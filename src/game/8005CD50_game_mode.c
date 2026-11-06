@@ -99,7 +99,43 @@ s32 func_8005CDFC(void) {
 
 /* New game: resets the game state counters and starts the subsystems.
  */
-INCLUDE_ASM("asm/nonmatchings/game/8005CD50_game_mode", Game_NewGameReset);
+typedef struct { s32 f_0; u8 pad4[0x8100]; s32 f_8104; u8 pad8108[0x1E]; u16 f_8126; u8 pad8128[0x4]; s16 f_812C; s16 f_812E; u8 pad8130[0x8]; u8 f_8138; u8 f_8139; u16 f_813A; s16 f_813C; u8 pad813E[0x2]; s32 f_8140; u8 pad8144[0x10]; s16 f_8154; s16 f_8156; s16 f_8158; u8 pad815A[0x4]; s16 f_815E; u8 pad8160[0x2]; s16 f_8162; u8 pad8164[0x2]; s16 f_8166; s16 f_8168; s16 f_816A; u8 pad816C[0x160]; u8 f_82CC; u8 f_82CD; } Game_5CE04;
+extern Game_5CE04 g_Game_5CE04 asm("g_Game");
+void func_80086428(s32);
+void Sound_SetStereo(s32);
+void Gadget_SetupForMode(void);
+void func_80095960(void);
+
+s32 Game_NewGameReset(void) {
+    Game_5CE04 *g = &g_Game_5CE04;
+    s32 one;
+    { s32 five; __asm__("" : "=r"(one), "=r"(five) : "0"(1), "1"(5), "r"((u8 *)g + 0x8000)); g->f_813C = five; }
+    g->f_8154 = 9;
+    g->f_8156 = 9;
+    g->f_8138 = 0;
+    g->f_8139 = 0;
+    g->f_812C = 0;
+    g->f_812E = 0;
+    g->f_813A = one;
+    g->f_8166 = 0;
+    g->f_8168 = 0;
+    g->f_816A = 0;
+    g->f_8158 = 0;
+    g_Game_5CE04.f_0 = 0;
+    g->f_8126 = -1;
+    g->f_815E = 0;
+    g->f_8162 = 0;
+    g->f_8140 = 0;
+    g->f_82CC = 0;
+    g->f_82CD = 0;
+    g->f_8104 = 1;
+    g->f_8138 = one;
+    func_80086428(1);
+    Sound_SetStereo(g->f_813A);
+    Gadget_SetupForMode();
+    func_80095960();
+    return 0;
+}
 
 void System_Shutdown(void) {
     DrawSync(0);
