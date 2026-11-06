@@ -1914,7 +1914,98 @@ s32 Coll_PushCurvedCorner(O_76AC8_80076AC8 *o, s32 *b, s32 *out) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", func_80076E80);
+typedef struct { s16 x, y, z; u8 pad6[0x1E]; s16 f_24, f_26, f_28; } O_76E80;
+typedef struct { s32 x, y, z; } P_76E80;
+struct Game_76E80 { u8 pad0[0x8150]; u16 f_8150; };
+extern struct Game_76E80 g_Game_76E80 asm("g_Game");
+extern P_76E80 *D_800B20B4_76E80 asm("D_800B20B4");
+extern s16 D_800EC238_76E80 asm("D_800EC238");
+void func_80066E8C_76E80(s16 *, s16 *) asm("func_80066E8C");
+
+s32 func_80076E80(O_76E80 *o, s32 *b) {
+    s32 *q = (s32 *)0x1F800124;
+    s32 *r = (s32 *)0x1F80012C;
+    s16 hx;
+    s16 hz;
+    s16 cx;
+    s16 cy;
+    s16 cz;
+    s16 ax;
+    s16 az;
+    s16 sg[2];
+    s32 t;
+    s32 k;
+    s32 d;
+
+    if (D_800B20CC != 1) {
+        goto miss;
+    }
+    hz = 0x40;
+    if (g_Game_76E80.f_8150 == 6 && D_800B20C8 == D_800B20C6) {
+        D_800EC238_76E80 = D_800B20C6;
+        func_80066E8C_76E80(&o->x, &o->f_24);
+    miss:
+        return 0;
+    }
+    hx = hz;
+    cx = o->f_24 + (o->x - o->f_24) / 2;
+    cy = o->f_26 + (o->y - o->f_26) / 2;
+    cz = o->f_28 + (o->z - o->f_28) / 2;
+    t = D_800B20B4_76E80->y - b[2] + 0x40;
+    if (t < cy - 0x40) {
+        goto miss;
+    }
+    if (cy + 0x40 < t) {
+        goto miss;
+    }
+    if (o->x == o->f_24) {
+        hz = ABS(o->f_28 - o->z) / 2;
+        ax = ABS(D_800B20B4_76E80->x - cx);
+        az = ABS(D_800B20B4_76E80->z - cz);
+        if (ax > hx) {
+            goto miss;
+        }
+        if (az > hz) {
+            s32 z;
+            __asm__("" : "=r"(z) : "0"(0));
+            return z;
+        }
+    } else if (o->z == o->f_28) {
+        hx = ABS(o->f_24 - o->x) / 2;
+        ax = ABS(D_800B20B4_76E80->x - cx);
+        az = ABS(D_800B20B4_76E80->z - cz);
+        if (ax > hx) {
+            goto miss;
+        }
+        if (az > hz) {
+            s32 z;
+            __asm__("" : "=r"(z) : "0"(0), "i"(1));
+            return z;
+        }
+    } else {
+        sg[0] = o->x - o->f_24 > 0 ? 1 : -1;
+        sg[1] = o->z - o->f_28 > 0 ? 1 : -1;
+        if (sg[0] * sg[1] > 0) {
+            *(volatile s32 *)&q[0] = (D_800B20B4_76E80->z + D_800B20B4_76E80->x - (cz - cx)) / 2;
+            q[1] = (((volatile P_76E80 *)D_800B20B4_76E80)->z + ((volatile P_76E80 *)D_800B20B4_76E80)->x + (cz - cx)) / 2;
+        } else {
+            *(volatile s32 *)&q[0] = (cz + cx - (D_800B20B4_76E80->z - D_800B20B4_76E80->x)) / 2;
+            q[1] = (cz + cx + (((volatile P_76E80 *)D_800B20B4_76E80)->z - ((volatile P_76E80 *)D_800B20B4_76E80)->x)) / 2;
+        }
+        r[0] = SquareRoot0((D_800B20B4_76E80->z - q[1]) * (D_800B20B4_76E80->z - q[1]) + (D_800B20B4_76E80->x - q[0]) * (D_800B20B4_76E80->x - q[0]));
+        r[1] = SquareRoot0((cz - q[1]) * (cz - q[1]) + (cx - q[0]) * (cx - q[0]));
+        if (r[0] > 0x40) {
+            goto miss;
+        }
+        d = o->f_24 - cx; if (d < 0) d = cx - o->f_24;
+        if (d < r[1]) {
+            goto miss;
+        }
+    }
+    func_80066E8C_76E80(&o->x, &o->f_24);
+    D_800EC238_76E80 = D_800B20C6;
+    return 0;
+}
 
 s32 Coll_PushFlatWall(S_A_8007734C_8007734C *a, S_B_8007734C_8007734C *b, S_B_8007734C_8007734C *out) {
     s32 r = b->f_0 + 12;
@@ -2355,7 +2446,133 @@ void Pickup_Collect(s16 type) {
 INCLUDE_RODATA("asm/nonmatchings/game/80071D20_collide", jtbl_800A5EA8_pad);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", func_80078C9C);
+typedef struct { u8 pad0[0xC]; u16 f_C; s16 f_E; u8 pad10[2]; s16 f_12; } Tile_78C9C;
+typedef struct { u8 pad0[0xC]; Tile_78C9C *f_C; } Probe_78C9C;
+typedef struct { u8 pad0[0x10]; u16 f_10; u8 pad12[2]; u16 f_14; u16 f_16; u8 pad18[6]; s16 f_1E; u8 pad20[0x18]; } Obj_78C9C;
+typedef struct { s32 x, y, z, f_C, f_10; } Q_78C9C;
+typedef struct { u8 pad0[0x820C]; Obj_78C9C *f_820C; u8 pad8210[0x74]; u16 f_8284; } Game_78C9C;
+extern Game_78C9C g_Game_78C9C asm("g_Game");
+extern Probe_78C9C *D_800B20B0_78C9C asm("D_800B20B0");
+extern s32 *D_800B20B4_78C9C asm("D_800B20B4");
+extern Obj_78C9C *D_800B20BC;
+s32 func_80079A28(s16 type, s16 flag);
+s32 Contact_Add(s32 a, s32 b);
+s32 Contact_IsNew(s16 a, s32 b);
+
+s32 func_80078C9C(s32 arg, Q_78C9C *q, s16 *out) {
+    s16 *hit = (s16 *)0x1F8003F0;
+    s32 *pt = (s32 *)0x1F800114;
+    s32 *res = (s32 *)0x1F800124;
+    u32 mode;
+    s16 i;
+    s32 r;
+    Probe_78C9C *p;
+    Obj_78C9C *o;
+
+    mode = (u32)arg >> 16;
+    r = -1;
+    D_800B20B4_78C9C[0] = q->x;
+    D_800B20B4_78C9C[1] = q->y;
+    D_800B20B4_78C9C[2] = q->z;
+    *out = 0;
+    pt[0] = q->f_C;
+    pt[2] = q->f_10;
+    for (i = 7; i >= 0; i--) {
+        p = (Probe_78C9C *)((i << 4) + (s32)D_800B20B0_78C9C);
+        if (p->f_C == 0) {
+            continue;
+        }
+        pt[1] = p->f_C->f_12;
+        { s32 k = (u16)p->f_C->f_12 >> 12;
+        res[0] = 0;
+        res[5] = 0;
+        res[4] = 0;
+        res[3] = 0;
+        res[2] = 0;
+        res[1] = 0;
+        if (D_800B20E0[k](&D_800B20B0_78C9C[i], pt, res) == 0) {
+            continue;
+        } }
+        if (mode == 2 && (D_800B20B0_78C9C[i].f_C->f_C & 0x2000)) {
+            continue;
+        }
+        if (func_80079A28(D_800B20B0_78C9C[i].f_C->f_12, D_800B20B0_78C9C[i].f_C->f_C & 0x8000) == 0) {
+            continue;
+        }
+        r = D_800B20B0_78C9C[i].f_C->f_E;
+        if (mode != 0 && Contact_IsNew(1, (s32)D_800B20B0_78C9C[i].f_C) == 0) {
+            continue;
+        }
+        *out = 1;
+        if (mode != 0) {
+            Contact_Add(1, (s32)D_800B20B0_78C9C[i].f_C);
+        }
+    }
+    for (i = g_Game_78C9C.f_8284 - 1; i >= 0; i--) {
+        if (D_800B20C0[i] != 0) {
+            continue;
+        }
+        *D_800B20BC = *(Obj_78C9C *)(i * 56 + (s32)g_Game_78C9C.f_820C);
+        { Obj_78C9C *e = D_800B20BC;
+        pt[1] = e->f_10;
+        {
+        s32 k = (e->f_10 & 0xF000) >> 10;
+        res[5] = 0;
+        res[4] = 0;
+        res[3] = 0;
+        res[2] = 0;
+        res[1] = 0;
+        { s32 (*fn)(Obj_78C9C *, s32 *, s32 *) = *(s32 (**)(Obj_78C9C *, s32 *, s32 *))((u8 *)D_800B2108 + k);
+        res[0] = 0;
+        if (fn(D_800B20BC, pt, res) == 0) {
+            continue;
+        } }
+        }
+        if (0) {
+            continue;
+        }}
+        if (func_80079A28(D_800B20BC->f_10, D_800B20BC->f_14 & 0x8000) == 0) {
+            continue;
+        }
+        if (mode == 2 && (D_800B20BC->f_14 & 0x2000)) {
+            continue;
+        }
+        r = D_800B20BC->f_16;
+        if (mode == 1) {
+            if (Contact_IsNew(2, (s32)&g_Game_78C9C.f_820C[i]) != 0) {
+                *out = mode;
+                Contact_Add(2, (s32)&g_Game_78C9C.f_820C[i]);
+                D_800B20BC->f_1E = arg;
+                g_Game_78C9C.f_820C[i] = *D_800B20BC;
+            }
+            if (r == 10) {
+                return r;
+            }
+            continue;
+        }
+        if (mode - 2 < 2) {
+            if (Contact_IsNew(2, (s32)&g_Game_78C9C.f_820C[i]) != 0) {
+                *out = 1;
+                Contact_Add(2, (s32)&g_Game_78C9C.f_820C[i]);
+            }
+        }
+        return r;
+    }
+    if (r >= 0) {
+        return r;
+    }
+    if (Floor_GetHeight(q->x, q->y - q->f_C, q->z) < q->y - q->f_C && hit[0] < 0) {
+        r = (s16)hit[5];
+        if (mode != 0 && Contact_IsNew(0, 0) == 0) {
+            return r;
+        }
+        *out = 1;
+        if (mode != 0) {
+            Contact_Add(0, 0);
+        }
+    }
+    return r;
+}
 
 /* Finds the stage zone containing point p: walks the zone list (g_Game+0x820C, count +0x8284)
  * backwards and writes each containing zone's index to p->f_34, so the lowest index wins. Zone

@@ -19,7 +19,132 @@ void memset(void *, s32, s32);
 void Model_DrawOnScreen(void *, SV_5FD80_8005FD80 *, SV_5FD80_8005FD80 *, struct S_D_800A5A10 *);
 struct S_D_800F4DB0_8005FD80 { s16 f_0; u8 f_2; u8 f_3; };
 
-INCLUDE_ASM("asm/nonmatchings/game/8005E0F0_hud", Hud_Draw);
+extern struct { u8 pad0[0x8140]; s32 time; } g_GameT asm("g_Game");
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; s16 w, h; } Tile_5E0F0;
+typedef struct { u8 pad0[0x18]; u32 groundCol; u32 skyCol; u8 pad20[0xA]; u16 fog; } Stage_5E0F0;
+typedef struct { u8 pad0[0x8124]; u16 area; u8 pad8126[6]; u8 f_812C; u8 pad812D[0x13]; s32 time; u8 pad8144[0x50]; Stage_5E0F0 *stage; } GameH_5E0F0;
+#define GH (*(GameH_5E0F0 *)&g_Game)
+extern s16 D_800E78CE;
+extern u8 D_800E6908;
+s32 Overlay_GetState(void);
+s32 Game_IsTimed(void);
+void Hud_DrawTimerClock(s32, s32, s32);
+void Hud_DrawTime(s32, s32, u32);
+s32 func_8005DD34(void);
+void func_8005FFD4(s32);
+void Hud_DrawHealth(void);
+void Hud_DrawGadgets(void);
+void Hud_DrawLives(void);
+void Hud_UpdateStatusIcons(void);
+void func_8009529C(void);
+void func_80095924(void);
+void func_8013D424(s32);
+void Tex_DrawFogLevels(s32);
+#define gte_ldIR_5E0F0(r1, r2, r3) __asm__ volatile ("mtc2 %0, $9; nop; mtc2 %1, $10; nop; mtc2 %2, $11" : : "r"(r1), "r"(r2), "r"(r3))
+#define gte_ldRGB_5E0F0(p) __asm__ volatile ("lwc2 $6, 0(%0)" : : "r"(p))
+#define gte_stRGB2_5E0F0(p) __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(p))
+#define gte_cc_5E0F0() __asm__ volatile ("cc")
+
+/* Per-frame HUD. Unless g_Game+0x812C is 0xB, 7 or 9: first two background tiles, sky above and ground
+   below a horizon at 0x78 - camera pitch / 16 (0..0xEF), in the stage's colours (+0x1C, +0x18) run
+   through the GTE colour step, at the back of the ordering table. Then, unless an overlay is up, the
+   timer (timed modes), health, gadgets (also in areas 0x1F/0x20), lives, status icons (not in first
+   person), the menu countdown and func_80095924, as the D_800F4DB0+0x20 flags say; area-specific extras
+   for areas 7 and 0xE, and the fog levels when the stage has fog. */
+void Hud_Draw(void) {
+    Stage_5E0F0 *st = GH.stage;
+    Tile_5E0F0 *p;
+    s32 hz;
+    s32 t;
+
+    if (GH.f_812C == 0xB || GH.f_812C == 7 || GH.f_812C == 9) {
+        return;
+    }
+    hz = 0x78 - D_800E78CE / 16;
+    if (hz >= 0) { t = 0xEF; if (hz < 0xF0) t = hz; } else t = 0;
+    hz = t;
+    { s32 h2 = hz;
+    p = (Tile_5E0F0 *)G_DRAW.prim;
+    gte_ldIR_5E0F0(0x1000, 0, 0);
+    gte_ldRGB_5E0F0(&st->skyCol);
+    p->x0 = 0;
+    p->y0 = 0;
+    gte_cc_5E0F0();
+    p->w = 0x200;
+    p->h = h2;
+    gte_stRGB2_5E0F0(&p->r0);
+    ((u8 *)p)[3] = 3;
+    p->code = 0x60;
+    ADD_PRIM_R(&G_DRAW.ot[0xFFF], p, "$5", "$4");
+    p++;
+    gte_ldIR_5E0F0(0x1000, 0, 0);
+    gte_ldRGB_5E0F0(&st->groundCol);
+    p->x0 = 0;
+    p->y0 = h2;
+    gte_cc_5E0F0();
+    p->h = 0xF0 - h2;
+    p->w = 0x200;
+    gte_stRGB2_5E0F0(&p->r0);
+    ((u8 *)p)[3] = 3;
+    p->code = 0x60;
+    ADD_PRIM_R(&G_DRAW.ot[0xFFF], p, "$5", "$4");
+    G_DRAW.prim = (u8 *)(p + 1); }
+    if (Overlay_GetState() != 0) {
+        return;
+    }
+    {
+    s32 ar = GH.area;
+    if (ar >= 0x21) {
+        goto main;
+    }
+    if (ar >= 0x1F) {
+        goto gadgets;
+    }
+    }
+main:
+    if (D_800E6908 == 1) {
+        goto lives;
+    }
+    if (Game_IsTimed() != 0) {
+        s32 k;
+        { u8 *g = (u8 *)&g_GameT; u32 kk; __asm__("" : "=r"(g) : "0"(g)); __asm__("" : "=r"(kk) : "0"(0x8000)); 
+        Hud_DrawTimerClock(0x90, 0x20, *(s32 *)(g + kk + 0x140));
+        Hud_DrawTime(0xA0, 0x20, *(s32 *)(g + kk + 0x140)); }
+        k = func_8005DD34();
+        if (k != 0) {
+            func_8005FFD4(k);
+        }
+    }
+    if (D_800F4DB0.f_20 & 0x10) {
+        Hud_DrawHealth();
+    }
+    if (!(D_800F4DB0.f_20 & 0x20)) {
+        goto lives;
+    }
+gadgets:
+    Hud_DrawGadgets();
+lives:
+    if (D_800F4DB0.f_20 & 8) {
+        Hud_DrawLives();
+    }
+    if ((D_800F4DB0.f_20 & 2) && D_800E6908 != 1) {
+        Hud_UpdateStatusIcons();
+    }
+    if (D_800F4DB0.f_20 & 4) {
+        func_8009529C();
+    }
+    if (D_800F4DB0.f_20 & 1) {
+        func_80095924();
+    }
+    if (g_Game.f_8124 == 7) {
+        func_8013D424(0);
+    } else if (g_Game.f_8124 == 0xE) {
+        func_8013D424(1);
+    }
+    if (st->fog != 0) {
+        Tex_DrawFogLevels(0);
+    }
+}
 
 void func_8005E42C(s32 arg0) {
     switch (arg0) {                                 /* irregular */
@@ -324,7 +449,95 @@ void Debug_DrawPadGraph(void) {
     G_DRAW.prim = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8005E0F0_hud", Debug_DrawSticks);
+typedef struct { s8 hist[40][4]; u8 padA0[0xD0]; u32 cur; u8 pad174[0x30]; s32 f_1A4; } PadHist2_5EF28;
+#define PH_5EF28 (*(PadHist2_5EF28 *)&g_Pad)
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0, x1, y1, x2, y2, x3, y3; } PolyF4_5EF28;
+typedef struct { u32 tag; u32 tpage; u8 r0, g0, b0, code; s16 x0, y0, x1, y1, x2, y2, x3, y3; } PolyF4Tp_5EF28;
+#define DOT_5EF28(p, x, y, r) ((u8 *)(p))[3] = 5; (p)->code = 0x28; (p)->r0 = (r); (p)->g0 = 0; (p)->b0 = 0; (p)->x0 = (x); (p)->y0 = (y) + 0x19; (p)->x1 = (x) + 3; (p)->y1 = (y) + 0x19; (p)->x2 = (x); (p)->y2 = (y) + 0x1C; (p)->x3 = (x) + 3; (p)->y3 = (y) + 0x1C;
+/* Debug: analog sticks of the newest and previous g_Pad history samples as 3x3 dots (red,
+   dim red), plus two boxes, the second green or blue by g_Pad+0x1A4 */
+#define Q_5EF28 ((PolyF4Tp_5EF28 *)p)
+
+void Debug_DrawSticks(void) {
+    PolyF4_5EF28 *p = (PolyF4_5EF28 *)G_DRAW.prim;
+    PolyF4Tp_5EF28 *q;
+    u32 *ot = G_DRAW.db[G_DRAW.cur].ot;
+    s8 *h;
+    s32 lx, ly, rx, ry;
+    s32 v, pos, neg;
+
+        rx = PH_5EF28.hist[PH_5EF28.cur][2];
+    lx = PH_5EF28.hist[PH_5EF28.cur][0];
+    ry = -PH_5EF28.hist[PH_5EF28.cur][3];
+    ly = -PH_5EF28.hist[PH_5EF28.cur][1];
+    rx /= 8;
+    ry /= 8;
+    lx /= 8;
+    ly /= 8;
+    v = PH_5EF28.f_1A4 / 128;
+    v = (v < -0x7F) ? -0x7F : (v >= 0x80) ? 0x7F : v;
+    if (v > 0) {
+        pos = v * 2;
+        neg = 0;
+    } else {
+        pos = 0;
+        neg = -v * 2;
+    }
+    DOT_5EF28(p, rx + 0xD7, ry, 0xFF);
+    ADD_PRIM_ASM(ot, p);
+    p++;
+    DOT_5EF28(p, lx + 0xFB, ly, 0xFF);
+    ADD_PRIM_ASM(ot, p);
+    p++;
+    h = PH_5EF28.hist[(PH_5EF28.cur + 39) % 40];
+    rx = h[2];
+    lx = h[0];
+    ry = -h[3];
+    ly = -h[1];
+    rx /= 8;
+    ry /= 8;
+    lx /= 8;
+    ly /= 8;
+    DOT_5EF28(p, rx + 0xD7, ry, 0x80);
+    ADD_PRIM_ASM(ot, p);
+    p++;
+    DOT_5EF28(p, lx + 0xFB, ly, 0x80);
+    ADD_PRIM_ASM(ot, p);
+    p++;
+    ((u8 *)p)[3] = 6;
+    Q_5EF28->code = 0x2A;
+    Q_5EF28->tpage = 0xE1000200;
+    Q_5EF28->r0 = 0;
+    Q_5EF28->g0 = 0xFF;
+    Q_5EF28->b0 = 0xFF;
+    Q_5EF28->x0 = 0xC8;
+    Q_5EF28->y0 = 10;
+    Q_5EF28->x1 = 0xE8;
+    Q_5EF28->y1 = 10;
+    Q_5EF28->x2 = 0xC8;
+    Q_5EF28->y2 = 0x2A;
+    Q_5EF28->x3 = 0xE8;
+    Q_5EF28->y3 = 0x2A;
+    ADD_PRIM_R(ot, p, "$3", "$2");
+    p = (PolyF4_5EF28 *)((u8 *)p + 0x1C);
+    ((u8 *)p)[3] = 6;
+    Q_5EF28->tpage = 0xE1000200;
+    Q_5EF28->code = 0x2A;
+    Q_5EF28->r0 = 0;
+    Q_5EF28->g0 = pos;
+    Q_5EF28->b0 = neg;
+    Q_5EF28->x0 = 0xEC;
+    Q_5EF28->y0 = 10;
+    Q_5EF28->x1 = 0x10C;
+    Q_5EF28->y1 = 10;
+    Q_5EF28->x2 = 0xEC;
+    Q_5EF28->y2 = 0x2A;
+    Q_5EF28->x3 = 0x10C;
+    Q_5EF28->y3 = 0x2A;
+    ADD_PRIM_ASM(ot, p);
+    p = (PolyF4_5EF28 *)((u8 *)p + 0x1C);
+    G_DRAW.prim = (u8 *)p;
+}
 
 typedef struct { u32 f_0; u8 pad4[0x8120]; u16 stage; u8 pad8126[8]; u16 mode; u8 pad8130[0x36]; s16 caught; u8 pad8168[0x20]; s16 total; } GameMk_Hud_DrawMonkeyHeads;
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_Hud_DrawMonkeyHeads;

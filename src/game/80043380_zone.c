@@ -33,7 +33,119 @@ s16 func_800433B0(s32 a0, s32 a1, s32 a2, s16 *out)
   return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80043380_zone", Floor_GetHeight);
+typedef struct { s16 f_0, f_2, f_4, f_6; u16 f_8; s16 f_A, f_C, f_E; } Hit_FGH;
+extern struct { u16 w; u16 h; u8 pad4[4]; u32 *cells; u8 padC[8]; s16 *heights; } D_800EBFA0_FGH asm("D_800EBFA0");
+extern struct { u8 pad0[0x8194]; u32 *f_8194; } g_Game_FGH asm("g_Game");
+s32 func_8004D8C0(s32, s32, s32);
+
+s32 Floor_GetHeight(s32 x, s32 y, s32 z) {
+    Hit_FGH *hit = (Hit_FGH *)0x1F8003F0;
+    s16 slope[2];
+    s32 h[5];
+    s16 res;
+    s32 ax;
+    s16 cx, cz;
+    s32 fx, fz;
+    u32 cell;
+    u32 type;
+    s32 idx;
+    s16 d;
+    s32 t;
+    s16 obj;
+    u16 w;
+    u16 hh;
+    s32 lx, lz, j;
+    s16 *hp;
+
+    hit->f_0 = -1;
+    hit->f_2 = 0;
+    hit->f_4 = 0;
+    hit->f_6 = 0;
+    hit->f_A = 0;
+    hit->f_8 = 0;
+    hit->f_E = 0;
+    hit->f_C = 0;
+    res = 0x4000;
+    if (!(*g_Game_FGH.f_8194 & 2)) {
+        w = D_800EBFA0_FGH.w;
+        hh = D_800EBFA0_FGH.h;
+        ax = x + (w << 8);
+        cz = (z + (hh << 8)) >> 9;
+        cx = ax >> 9;
+        if (cx >= w || cz >= hh || cx < 0 || cz < 0) {
+            return 0;
+        }
+        cell = D_800EBFA0_FGH.cells[cz * w + cx];
+        lx = ax & 0x1FF;
+        lz = (z + (D_800EBFA0_FGH.h << 8)) & 0x1FF;
+        type = ((lx < lz) << 1) | (0x200 - lx < lz);
+        fx = ax & 0x1FF;
+        fz = (z + (D_800EBFA0_FGH.h << 8)) & 0x1FF;
+        hit->f_8 = cell >> 16;
+        if ((cell >> 11) & 1) {
+            u32 tt = type | 0x80; type = tt | ((cell >> 8) & 0x70);
+        }
+        idx = (w + 1) * cz + cx;
+        *(volatile s32 *)&h[0] = D_800EBFA0_FGH.heights[idx];
+        h[1] = D_800EBFA0_FGH.heights[idx + 1];
+        idx += w + 1;
+        h[2] = D_800EBFA0_FGH.heights[idx];
+        h[3] = D_800EBFA0_FGH.heights[idx + 1];
+        h[4] = D_800EBFA0_FGH.heights[(w + 1) * (*(volatile u16 *)&D_800EBFA0_FGH.h + 1) + cz * w + cx];
+        switch (type) {
+        case 0:
+        case 0x90:
+        case 0xA0:
+            slope[0] = h[1] - h[0];
+            slope[1] = (h[4] - slope[0] / 2 - h[0]) * 2;
+            res = h[0] + fx * slope[0] / 512 + fz * slope[1] / 512;
+            break;
+        case 1:
+        case 0xA1:
+        case 0xB1:
+            slope[1] = h[3] - h[1];
+            slope[0] = (h[1] + slope[1] / 2 - h[4]) * 2;
+            res = h[1] + -slope[0] * (0x200 - fx) / 512 + fz * slope[1] / 512;
+            break;
+        case 2:
+        case 0x92:
+        case 0xC2:
+            slope[1] = h[2] - h[0];
+            slope[0] = (h[4] - h[0] - slope[1] / 2) * 2;
+            res = h[0] + fx * slope[0] / 512 + fz * slope[1] / 512;
+            break;
+        case 3:
+        case 0xB3:
+        case 0xC3:
+            slope[0] = h[3] - h[2];
+            slope[1] = (h[2] + slope[0] / 2 - h[4]) * 2;
+            res = h[2] + fx * slope[0] / 512 + -slope[1] * (0x200 - fz) / 512;
+            break;
+        default:
+            res = 0x4000;
+            slope[0] = 0;
+            slope[1] = 0;
+            break;
+        }
+    }
+    if (y < (s16)res) {
+        obj = func_8004D8C0(x, y, z);
+    } else {
+        obj = func_8004D8C0(x, (s16)res, z);
+    }
+    if (obj > (s16)res) {
+        hit->f_C = slope[0];
+        hit->f_E = slope[1];
+        if (y < (s16)res) {
+            hit->f_8 &= 0xFFE0;
+        }
+        return (s16)res;
+    }
+    if (y < obj) {
+        hit->f_8 &= 0xFFE0;
+    }
+    return obj;
+}
 
 /* Builds a half-resolution byte map of the cell grid D_800EBFA0 (w x h cells of u32 flags):
  * each output byte covers a 2x2 block of cells and is 0xFF when none of the four has bit 0
