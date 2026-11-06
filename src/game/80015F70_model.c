@@ -19,7 +19,7 @@ typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 p
 extern struct { u8 pad0[0x1C]; u8 f_1C; u8 f_1D; u8 f_1E; u8 pad1F[5]; u16 f_24; u8 pad26[2]; u16 f_28; } D_800EBFA0;
 
 void func_80017CD4(s32, s32, S_Model_17E5C *);
-M2C_UNK func_8001CE54(s32, M2C_UNK, void **);
+void func_8001CE54();
 void Model_DrawPrims(s32, u8 *, s32);
 u8 *Model_AddF3(s32, u8 *, s32);
 u8 *Model_AddFT3(s32, u8 *, s32);
@@ -2280,9 +2280,139 @@ done:
 INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4688_pad);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", func_8001CE54);
+typedef struct { u32 sxy; u16 z; u16 pad; } Vtx_1CE54;
+typedef struct { u8 pad0[8]; u8 *prims; } Mdl_1CE54;
+typedef struct { u16 x, y; } XY_1CE54;
+typedef struct { u8 pad0[0x3CC]; XY_1CE54 sxy[4]; s32 z; s32 opz[2]; u8 pad3E8[4]; u16 idx[4]; u8 mode; } Scr_1CE54;
+typedef struct { u32 tag; u8 r0, g0, b0, code; u32 xy0; u16 uv0; u16 clut; u32 xy1; u16 uv1; u16 tpage; u32 xy2; u16 uv2; u16 pad; u32 xy3; u16 uv3; u16 pad2; } Poly_1CE54;
+typedef struct { u16 uv; u8 pad2[6]; } Uv_1CE54;
+extern Uv_1CE54 D_800EA066[];
+extern u8 *D_800EC354_1CE54 asm("D_800EC354");
+#define gte_ldsxy3_1CE54(p) __asm__ volatile ("lwc2 $12, 0(%0); lwc2 $13, 4(%0); lwc2 $14, 8(%0)" : : "r"(p))
+#define gte_ldsxy0_1CE54(r) __asm__ volatile ("mtc2 %0, $12" : : "r"(r))
+#define gte_nclip_1CE54() __asm__ volatile ("nop; nop; nclip")
+#define gte_stopz_1CE54(p) __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(p) : "memory")
+#define gte_stsxy3_ft3_1CE54(p) __asm__ volatile ("swc2 $12, 8(%0); swc2 $13, 16(%0); swc2 $14, 24(%0)" : : "r"(p) : "memory")
+#define gte_stsxy3_1CE54(a, b, c) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 0(%1); swc2 $14, 0(%2)" : : "r"(a), "r"(b), "r"(c) : "memory")
 
-INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4700);
+/* Draws a model with its per-vertex texture coordinates (D_800EA066[i].uv, set up by
+   Model_CycleVertexColors) as textured polys (0x25 / 0x2D, tpage 0x3D, clut 0x7037). Culling as in
+   Model_DrawScreenMapped; a quad is only dropped when both of its halves face away. Scratch
+   mode bit 0 puts everything in the first OT entry. */
+void func_8001CE54(u32 *ot, Vtx_1CE54 *v, Mdl_1CE54 *m) {
+    Scr_1CE54 *sc = (Scr_1CE54 *)0x1F800000;
+    u16 clut;
+    u16 tpage;
+    u8 *prim;
+    u8 *pr;
+    u32 *o;
+    u32 t;
+    tpage = 0x3D;
+    clut = 0x7037;
+    prim = D_800EC354_1CE54;
+    pr = m->prims;
+
+    for (;;) {
+        switch (pr[3] & 0xFC) {
+        case 0x20:
+        case 0x24:
+        case 0x30:
+        case 0x34:
+            sc->idx[0] = ((u16 *)pr)[2];
+            t = v[(s16)sc->idx[0]].sxy;
+            *(u32 *)&sc->sxy[0] = t;
+            sc->idx[1] = ((u16 *)pr)[3];
+            t = v[(s16)sc->idx[1]].sxy;
+            *(u32 *)&sc->sxy[1] = t;
+            sc->idx[2] = ((u16 *)pr)[4];
+            { Vtx_1CE54 *q = (Vtx_1CE54 *)((s16)sc->idx[2] * 8 + (s32)v); __asm__ volatile(""); *(u32 *)&sc->sxy[2] = q->sxy; }
+            gte_ldsxy3_1CE54(sc->sxy);
+            gte_nclip_1CE54();
+            if (((s16)sc->sxy[0].x > 0x180 & (s16)sc->sxy[1].x > 0x180 & (s16)sc->sxy[2].x > 0x180)
+                || ((s16)sc->sxy[0].y > 0xF0 & (s16)sc->sxy[1].y > 0xF0 & (s16)sc->sxy[2].y > 0xF0)) {
+                pr += pr[1] * 4;
+            } else {
+                gte_stopz_1CE54(&sc->opz[0]);
+                if (sc->opz[0] < 0 || (s16)v[(s16)sc->idx[0]].z < 0x1B) {
+                    pr += pr[1] * 4;
+                } else {
+                    sc->z = (((s16)v[(s16)sc->idx[0]].z >> 2) + ((s16)v[(s16)sc->idx[1]].z >> 2) + ((s16)v[(s16)sc->idx[2]].z >> 2)) / 3;
+                    sc->z = (sc->z < 0) ? 0 : ((sc->z >= 0xFC0) ? 0xFBF : sc->z);
+                    { s32 z = sc->z; register u32 *oo asm("$4") = ot; if (!(sc->mode & 1)) { register s32 zz asm("$2") = z << 2; oo = (u32 *)((u8 *)ot + zz); } o = oo; }
+                    ADD_PRIM_R(o, prim, "$3", "$2");
+                    gte_stsxy3_ft3_1CE54(prim);
+                    prim[3] = 7;
+                    ((Poly_1CE54 *)prim)->code = 0x25;
+                    ((Poly_1CE54 *)prim)->tpage = tpage;
+                    ((Poly_1CE54 *)prim)->clut = clut;
+                    ((Poly_1CE54 *)prim)->uv0 = D_800EA066[(s16)sc->idx[0]].uv;
+                    ((Poly_1CE54 *)prim)->uv1 = D_800EA066[(s16)sc->idx[1]].uv;
+                    ((Poly_1CE54 *)prim)->uv2 = D_800EA066[(s16)sc->idx[2]].uv;
+                    prim += 0x20;
+                    pr += pr[1] * 4;
+                }
+            }
+            break;
+        case 0x28:
+        case 0x2C:
+        case 0x38:
+        case 0x3C:
+            sc->idx[0] = ((u16 *)pr)[2];
+            t = v[(s16)sc->idx[0]].sxy;
+            *(u32 *)&sc->sxy[0] = t;
+            sc->idx[1] = ((u16 *)pr)[3];
+            t = v[(s16)sc->idx[1]].sxy;
+            *(u32 *)&sc->sxy[1] = t;
+            sc->idx[2] = ((u16 *)pr)[4];
+            t = v[(s16)sc->idx[2]].sxy;
+            *(u32 *)&sc->sxy[2] = t;
+            sc->idx[3] = ((u16 *)pr)[5];
+            { Vtx_1CE54 *q = (Vtx_1CE54 *)((s16)sc->idx[3] * 8 + (s32)v); __asm__ volatile(""); *(u32 *)&sc->sxy[3] = q->sxy; }
+            gte_ldsxy3_1CE54(sc->sxy);
+            gte_nclip_1CE54();
+            if (((s16)sc->sxy[0].x > 0x180 & (s16)sc->sxy[1].x > 0x180 & (s16)sc->sxy[2].x > 0x180 & (s16)sc->sxy[3].x > 0x180)
+                || ((s16)sc->sxy[0].y > 0xF0 & (s16)sc->sxy[1].y > 0xF0 & (s16)sc->sxy[2].y > 0xF0 & (s16)sc->sxy[3].y > 0xF0)) {
+                pr += pr[1] * 4;
+            } else {
+                gte_stopz_1CE54(&sc->opz[0]);
+                gte_ldsxy0_1CE54(*(u32 *)&sc->sxy[3]);
+                gte_nclip_1CE54();
+                if ((s16)v[(s16)sc->idx[0]].z < 0x1B) {
+                    pr += pr[1] * 4;
+                } else {
+                    gte_stopz_1CE54(&sc->opz[1]);
+                    if (sc->opz[0] < 0 && sc->opz[1] > 0) {
+                        pr += pr[1] * 4;
+                    } else {
+                        sc->z = ((s16)v[(s16)sc->idx[0]].z >> 4) + ((s16)v[(s16)sc->idx[1]].z >> 4) + ((s16)v[(s16)sc->idx[2]].z >> 4) + ((s16)v[(s16)sc->idx[3]].z >> 4);
+                        sc->z = (sc->z < 0) ? 0 : ((sc->z >= 0xFC0) ? 0xFBF : sc->z);
+                        { s32 z = sc->z; o = (sc->mode & 1) ? ot : &ot[z]; }
+                        ADD_PRIM_R(o, prim, "$3", "$2");
+                        ((Poly_1CE54 *)prim)->xy0 = *(u32 *)&sc->sxy[0];
+                        gte_stsxy3_1CE54(&((Poly_1CE54 *)prim)->xy3, &((Poly_1CE54 *)prim)->xy1, &((Poly_1CE54 *)prim)->xy2);
+                        prim[3] = 9;
+                        ((Poly_1CE54 *)prim)->code = 0x2D;
+                        ((Poly_1CE54 *)prim)->tpage = tpage;
+                        ((Poly_1CE54 *)prim)->clut = clut;
+                        ((Poly_1CE54 *)prim)->uv0 = D_800EA066[(s16)sc->idx[0]].uv;
+                        ((Poly_1CE54 *)prim)->uv1 = D_800EA066[(s16)sc->idx[1]].uv;
+                        ((Poly_1CE54 *)prim)->uv2 = D_800EA066[(s16)sc->idx[2]].uv;
+                        ((Poly_1CE54 *)prim)->uv3 = D_800EA066[(s16)sc->idx[3]].uv;
+                        prim += 0x28;
+                        pr += pr[1] * 4;
+                    }
+                }
+            }
+            break;
+        default:
+            goto done;
+        }
+    }
+done:
+    __asm__("" : : "r"(tpage));
+    D_800EC354_1CE54 = prim;
+}
+
 INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4700_pad);
 
 

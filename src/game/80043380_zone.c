@@ -60,7 +60,84 @@ INCLUDE_ASM("asm/nonmatchings/game/80043380_zone", func_80043A8C);
 
 INCLUDE_ASM("asm/nonmatchings/game/80043380_zone", func_80044EF4);
 
-INCLUDE_ASM("asm/nonmatchings/game/80043380_zone", func_80045BE4);
+typedef struct { u32 sxy; s16 z; s16 pad; } V_80045BE4;
+typedef struct { u32 color[0x80]; V_80045BE4 v[4]; u8 pad220[0x88]; s32 nc0; s32 nc1; s32 otz; u8 idx[4]; } Scr_80045BE4;
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_80045BE4;
+typedef struct { Tag_80045BE4 tag; u32 c0; u32 xy0; u32 c1; u32 xy1; u32 c2; u32 xy2; u32 c3; u32 xy3; } G4_80045BE4;
+typedef struct { u8 pad0[4]; G4_80045BE4 *prim; u32 *ot; s32 cur; struct { u8 env[0x70]; Tag_80045BE4 ot[0x1000]; u32 hud[2]; } db[2]; } Draw_80045BE4;
+typedef struct { u8 pad0[0x24]; s32 fogScale; s32 fogNear; } Fog_80045BE4;
+extern Draw_80045BE4 g_Game_80045BE4 asm("g_Game");
+extern Fog_80045BE4 D_800EBFA0_80045BE4 asm("D_800EBFA0");
+#define S_5BE4 S
+#define MAX_5BE4(a, b) ((a) > (b) ? (a) : (b))
+
+void func_80045BE4(void) {
+    s32 t;
+    Scr_80045BE4 *S = (Scr_80045BE4 *)0x1F800000;
+    __asm__ volatile("mtc2 %0, $12; nop; mtc2 %2, $14; nop; mtc2 %1, $13" : : "r"(S_5BE4->v[0].sxy), "r"(S_5BE4->v[1].sxy), "r"(S_5BE4->v[2].sxy));
+    __asm__ volatile("nop; nop; nclip");
+    __asm__ volatile("swc2 $24, 0(%0)" : : "r"(&((Scr_80045BE4 *)0x1F800000)->nc0) : "memory");
+    __asm__ volatile("mtc2 %0, $12" : : "r"(S_5BE4->v[3].sxy));
+    __asm__ volatile("nop; nop; nclip");
+    __asm__ volatile("swc2 $24, 0(%0)" : : "r"(&((Scr_80045BE4 *)0x1F800000)->nc1) : "memory");
+    switch (((S_5BE4->nc0 >> 31) & 2) | (S_5BE4->nc1 > 0)) {
+    case 0:
+        S_5BE4->otz = MAX_5BE4(S_5BE4->v[0].z, S_5BE4->v[1].z);
+        S_5BE4->otz = MAX_5BE4(S_5BE4->otz, S_5BE4->v[2].z);
+        S_5BE4->otz = S_5BE4->otz > S_5BE4->v[3].z ? S_5BE4->otz >> 2 : S_5BE4->v[3].z >> 2;
+        g_Game_80045BE4.prim->xy0 = S_5BE4->v[0].sxy;
+        g_Game_80045BE4.prim->xy1 = S_5BE4->v[1].sxy;
+        g_Game_80045BE4.prim->xy2 = S_5BE4->v[2].sxy;
+        g_Game_80045BE4.prim->xy3 = S_5BE4->v[3].sxy;
+        t = S_5BE4->otz < 0 ? 0 : (S_5BE4->otz > 0xFFF ? 0xFFF : S_5BE4->otz); S_5BE4->otz = t;
+        { __asm__ volatile("lwl $5, 2(%0); lw $2, %1; nop; sll $2, $2, 8; swl $2, 2(%0); lw $2, %1; nop; swl $5, 2($2)" : : "r"(&g_Game_80045BE4.db[g_Game_80045BE4.cur].ot[t]), "m"(g_Game_80045BE4.prim) : "$2", "$5", "memory"); }
+        S_5BE4->otz = ((S_5BE4->otz - D_800EBFA0_80045BE4.fogNear) * D_800EBFA0_80045BE4.fogScale) >> 12;
+        t = S_5BE4->otz < 0 ? 0 : (S_5BE4->otz > 0x1000 ? 0x1000 : S_5BE4->otz); S_5BE4->otz = t;
+        __asm__ volatile("lwc2 $20, 0(%0); lwc2 $21, 0(%1); lwc2 $22, 0(%2); lwc2 $6, 0(%2)" : : "r"(&S_5BE4->color[S_5BE4->idx[0]]), "r"(&S_5BE4->color[S_5BE4->idx[1]]), "r"(&S_5BE4->color[S_5BE4->idx[2]]));
+        __asm__ volatile("nop; mtc2 %0, $8; nop; nop; dpct" : : "r"(t));
+        __asm__ volatile("swc2 $20, 0(%0); swc2 $21, 0(%1); swc2 $22, 0(%2)" : : "r"(&g_Game_80045BE4.prim->c0), "r"(&g_Game_80045BE4.prim->c1), "r"(&g_Game_80045BE4.prim->c2) : "memory");
+        __asm__ volatile("lwc2 $6, 0(%0); nop; nop; dpcs" : : "r"(&S_5BE4->color[S_5BE4->idx[3]]));
+        __asm__ volatile("swc2 $22, 0(%0)" : : "r"(&g_Game_80045BE4.prim->c3) : "memory");
+        g_Game_80045BE4.prim->tag.len = 8;
+        ((u8 *)g_Game_80045BE4.prim)[7] = 0x38;
+        g_Game_80045BE4.prim = (G4_80045BE4 *)((u8 *)g_Game_80045BE4.prim + 0x24);
+        return;
+    case 1:
+        S_5BE4->otz = MAX_5BE4(S_5BE4->v[0].z, S_5BE4->v[1].z);
+        S_5BE4->otz = S_5BE4->otz > S_5BE4->v[2].z ? S_5BE4->otz >> 2 : S_5BE4->v[2].z >> 2;
+        g_Game_80045BE4.prim->xy0 = S_5BE4->v[0].sxy;
+        g_Game_80045BE4.prim->xy1 = S_5BE4->v[1].sxy;
+        g_Game_80045BE4.prim->xy2 = S_5BE4->v[2].sxy;
+        t = S_5BE4->otz < 0 ? 0 : (S_5BE4->otz > 0xFFF ? 0xFFF : S_5BE4->otz); S_5BE4->otz = t;
+        { __asm__ volatile("lwl $5, 2(%0); lw $2, %1; nop; sll $2, $2, 8; swl $2, 2(%0); lw $2, %1; nop; swl $5, 2($2)" : : "r"(&g_Game_80045BE4.db[g_Game_80045BE4.cur].ot[t]), "m"(g_Game_80045BE4.prim) : "$2", "$5", "memory"); }
+        S_5BE4->otz = ((S_5BE4->otz - D_800EBFA0_80045BE4.fogNear) * D_800EBFA0_80045BE4.fogScale) >> 12;
+        t = S_5BE4->otz < 0 ? 0 : (S_5BE4->otz > 0x1000 ? 0x1000 : S_5BE4->otz); S_5BE4->otz = t;
+        __asm__ volatile("lwc2 $20, 0(%0); lwc2 $21, 0(%1); lwc2 $22, 0(%2); lwc2 $6, 0(%2)" : : "r"(&S_5BE4->color[S_5BE4->idx[0]]), "r"(&S_5BE4->color[S_5BE4->idx[1]]), "r"(&S_5BE4->color[S_5BE4->idx[2]]));
+        __asm__ volatile("nop; mtc2 %0, $8; nop; nop; dpct" : : "r"(t));
+        __asm__ volatile("swc2 $20, 0(%0); swc2 $21, 0(%1); swc2 $22, 0(%2)" : : "r"(&g_Game_80045BE4.prim->c0), "r"(&g_Game_80045BE4.prim->c1), "r"(&g_Game_80045BE4.prim->c2) : "memory");
+        g_Game_80045BE4.prim->tag.len = 6;
+        ((u8 *)g_Game_80045BE4.prim)[7] = 0x30;
+        g_Game_80045BE4.prim = (G4_80045BE4 *)((u8 *)g_Game_80045BE4.prim + 0x1C);
+        return;
+    case 2:
+        S_5BE4->otz = MAX_5BE4(S_5BE4->v[1].z, S_5BE4->v[2].z);
+        S_5BE4->otz = S_5BE4->otz > S_5BE4->v[3].z ? S_5BE4->otz >> 2 : S_5BE4->v[3].z >> 2;
+        g_Game_80045BE4.prim->xy0 = S_5BE4->v[1].sxy;
+        g_Game_80045BE4.prim->xy1 = S_5BE4->v[2].sxy;
+        g_Game_80045BE4.prim->xy2 = S_5BE4->v[3].sxy;
+        t = S_5BE4->otz < 0 ? 0 : (S_5BE4->otz > 0xFFF ? 0xFFF : S_5BE4->otz); S_5BE4->otz = t;
+        { __asm__ volatile("lwl $5, 2(%0); lw $2, %1; nop; sll $2, $2, 8; swl $2, 2(%0); lw $2, %1; nop; swl $5, 2($2)" : : "r"(&g_Game_80045BE4.db[g_Game_80045BE4.cur].ot[t]), "m"(g_Game_80045BE4.prim) : "$2", "$5", "memory"); }
+        __asm__ volatile("lwc2 $20, 0(%0); lwc2 $21, 0(%1); lwc2 $22, 0(%2); lwc2 $6, 0(%2)" : : "r"(&S_5BE4->color[S_5BE4->idx[1]]), "r"(&S_5BE4->color[S_5BE4->idx[2]]), "r"(&S_5BE4->color[S_5BE4->idx[3]]));
+        S_5BE4->otz = ((S_5BE4->otz - D_800EBFA0_80045BE4.fogNear) * D_800EBFA0_80045BE4.fogScale) >> 12;
+        { s32 f = S_5BE4->otz < 0 ? 0 : (S_5BE4->otz > 0x1000 ? 0x1000 : S_5BE4->otz); S_5BE4->otz = f;
+        __asm__ volatile("mtc2 %0, $8; nop; nop; dpct" : : "r"(f)); }
+        __asm__ volatile("swc2 $20, 0(%0); swc2 $21, 0(%1); swc2 $22, 0(%2)" : : "r"(&g_Game_80045BE4.prim->c0), "r"(&g_Game_80045BE4.prim->c1), "r"(&g_Game_80045BE4.prim->c2) : "memory");
+        g_Game_80045BE4.prim->tag.len = 6;
+        ((u8 *)g_Game_80045BE4.prim)[7] = 0x30;
+        g_Game_80045BE4.prim = (G4_80045BE4 *)((u8 *)g_Game_80045BE4.prim + 0x1C);
+        return;
+    }
+}
 
 /* Zone lookup by position (has an original bug on the y axis).
  */

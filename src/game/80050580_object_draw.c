@@ -177,7 +177,105 @@ s32 func_80050580(s32 arg0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80050580_object_draw", func_800505C8);
+typedef struct { u16 type; u8 pad2[0x1E]; } Rec_800505C8;
+typedef struct { u32 magic; u16 n; u16 f_6; s32 f_8; s32 f_C; } Hdr_800505C8;
+typedef struct { u8 pad0[0x7E]; u8 f_7E; u8 pad7F[0x4C]; u8 f_CB; u8 padCC[0x14]; u32 f_E0; } Obj_800505C8;
+typedef struct { Hdr_800505C8 *hdr; Rec_800505C8 *recs; void *f_8; s16 n; s16 f_E; s16 count; u8 f_12; u8 f_13; u8 f_14; u8 pad15[3]; u8 f_18; u8 pad19[6]; u8 f_1F; u8 pad20[3]; u8 f_23; } List_800505C8;
+typedef struct { u8 f_0; u8 f_1; u8 pad2; u8 f_3; u8 f_4; u8 pad5; s16 f_6; } St_800505C8;
+typedef struct { u8 pad0[0x8124]; u16 f_8124; u16 f_8126; u8 pad8128[4]; u8 f_812C; u8 pad812D[0x117]; Hdr_800505C8 *f_8244; } G_800505C8;
+extern Obj_800505C8 g_Objects_800505C8[] asm("g_Objects");
+extern List_800505C8 D_800E77D0_800505C8 asm("D_800E77D0");
+extern St_800505C8 D_800E77A0_800505C8 asm("D_800E77A0");
+extern G_800505C8 g_Game_800505C8 asm("g_Game");
+extern struct { u8 pad0[0x28]; s32 f_28; } D_800EBFA0_800505C8 asm("D_800EBFA0");
+void Hook_ClearAll(void);
+void func_800587EC(void);
+void func_800509A4(void);
+
+void func_800505C8(void) {
+    s32 v;
+    s32 i, j, k;
+    Hdr_800505C8 *h;
+    Rec_800505C8 *r, *recs;
+    Obj_800505C8 *o;
+    u32 mask;
+
+    v = D_800EBFA0_800505C8.f_28;
+    if (v > 0x555) {
+        v = 0x555;
+    }
+    D_800B4D50 = v;
+    {
+        s32 v2 = D_800EBFA0_800505C8.f_28 + 0x177;
+        if (v2 > 0xAAA) {
+            v2 = 0xAAA;
+        }
+        D_800B4D52 = v2;
+    }
+    D_800E77D0_800505C8.f_14 = 0;
+    D_800E77D0_800505C8.f_1F = 0;
+    D_800E77D0_800505C8.f_18 = 1;
+    D_800E77D0_800505C8.f_12 = 0;
+    D_800E77D0_800505C8.f_13 = 0;
+    D_800E77D0_800505C8.n = 0;
+    D_800E77D0_800505C8.f_E = 0;
+    D_800E77D0_800505C8.count = 0;
+    D_800E77D0_800505C8.f_23 = 0;
+    D_800E77A0_800505C8.f_0 = 0;
+    D_800E77A0_800505C8.f_1 = 0;
+    D_800E77A0_800505C8.f_4 = 0;
+    D_800E77A0_800505C8.f_3 = 0;
+    D_800E77A0_800505C8.f_6 = 0;
+    Hook_ClearAll();
+    for (i = 0; i < 16; i++) {
+        g_Objects_800505C8[i].f_CB = i;
+        g_Objects_800505C8[i].f_E0 &= ~0x10;
+        D_800E77B0[i] = -1;
+    }
+    func_800587EC();
+    h = g_Game_800505C8.f_8244;
+    if (h->magic != 0x44455A2E) {
+        return;
+    }
+    {
+    recs = (Rec_800505C8 *)((u8 *)h + h->f_8);
+    D_800E77D0_800505C8.n = h->n;
+    D_800E77D0_800505C8.f_E = h->f_6;
+    D_800E77D0_800505C8.hdr = h;
+    D_800E77D0_800505C8.recs = recs;
+    D_800E77D0_800505C8.f_8 = (u8 *)h + h->f_C;
+    *(u8 *)h = 'x';
+    o = g_Objects_800505C8;
+    for (i = 0; i < D_800E77D0_800505C8.n; i++) {
+        r = &recs[i];
+        __asm__("" :: "r"(r),"r"(r));
+        if (r->type < 0xB7 && func_80050580(r->type) == 0) {
+            Object_SpawnFromRecord((void *)o, (void *)r, i);
+            D_800E77D0_800505C8.count++;
+            o++;
+        }
+    }
+    }
+    if (g_Game_800505C8.f_812C == 0xD) {
+        func_800509A4();
+        return;
+    }
+    {
+    Obj_800505C8 *q = g_Objects_800505C8;
+    s32 w = g_Game_800505C8.f_8126 - World_FirstStage(g_Game_800505C8.f_8124);
+    if (w >= 8) {
+        bios_printf(D_800A4F60);
+        w = 0;
+    }
+    mask = D_800B8D00[w];
+    for (j = 0; j < D_800E77D0_800505C8.count; j++, q++) {
+        if ((mask & 1) && ((q->f_E0 >> 4) & 1) && q->f_7E != 0x4C) {
+            func_80051E98(q, 0);
+        }
+        mask >>= 1;
+    }
+    }
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/80050580_object_draw", D_800A4F60);
 

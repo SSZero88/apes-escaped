@@ -163,7 +163,25 @@ s32 func_80142808(void) {
     return r;
 }
 
-INCLUDE_ASM("asm/ovl/390/nonmatchings/390d_t4", func_8014284C);
+s32 func_8014284C(s32 a0) {
+    register s32 r asm("$2");
+    switch (D_801450E0) {
+    case 3:
+        __asm__ volatile("");
+        D_8014511C = a0 & 0xFF;
+        break;
+    case 4:
+        *D_80145108 = (a0 & 0xFF) << 8;
+        break;
+    case 5:
+        __asm__ volatile("");
+        *D_80145108 += a0 & 0xFF;
+        break;
+    }
+    r = 0;
+    __asm__ volatile("" : : "r"(r));
+    return r;
+}
 
 s32 func_801428E0(s32 a0, s32 a1, s32 a2) {
     if (a1 >= 0) {

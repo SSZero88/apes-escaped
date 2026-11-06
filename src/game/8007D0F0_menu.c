@@ -220,7 +220,455 @@ s32 func_8007D2D8(MenuDef_8007D2D8 *def) {
     return D_800BEF60_7D2D8 - 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8007D0F0_menu", func_8007D530);
+typedef struct { s16 x, y, w, h; } Rect_d530;
+typedef struct { Rect_d530 r[4]; } Rect4_d530;
+typedef struct { u16 flags; u8 pad2[2]; u8 *text; void *ptr; s32 (*cb)(s32); s32 min; s32 max; s32 def; s32 step; u8 size; u8 pad21[3]; } Item_d530;
+typedef struct { s16 x; s16 y; Item_d530 *items; } MenuDef_d530;
+typedef struct { s16 x; s16 y; Item_d530 *items; s16 w; s16 h; u8 state; u8 mode; s8 n; s8 sel; u16 t0; u16 t1; s16 open; s16 speed; s16 tx; s16 ty; s16 scale; s8 child; s8 redraw; u8 pad20[2]; s16 cx; s16 cy; u8 pad26[2]; s32 val; } Menu_d530;
+typedef struct { u8 pad0[2]; s16 clip_y; u8 pad4[0x5A]; s16 disp_y; u8 pad60[0x10]; u32 ot[0x1000]; u32 hud[2]; } DBuf_d530;
+typedef struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DBuf_d530 db[2]; u8 pad8100[0x26]; u16 f_8126; u8 pad8128[2]; u16 f_812A; u8 f_812C; u8 pad812D[0x18D]; u16 f_82BA; } Game_d530;
+typedef struct { u8 pad0[0x158]; u32 held; u8 pad15C[4]; u32 trig; } Pad_d530;
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, p1; s16 x1, y1; u8 r2, g2, b2, p2; s16 x2, y2; u8 r3, g3, b3, p3; s16 x3, y3; } PolyG4_d530;
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad1; s16 x3, y3; u8 u3, v3; u16 pad2; } PolyFT4_d530;
+typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_d530;
+typedef struct { u32 addr : 24; u32 len : 8; } PTag_d530;
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_d530;
+typedef struct { s16 vx, vy, vz, pad; } SVec_d530;
+typedef struct { s32 vx, vy, vz, pad; } Vec_d530;
+extern Game_d530 g_Game_d530 asm("g_Game");
+extern Pad_d530 g_Pad_d530 asm("g_Pad");
+extern u16 D_800BEF60_d530 asm("D_800BEF60");
+extern u16 D_800BEF62_d530 asm("D_800BEF62");
+extern u16 D_800BEF64_d530 asm("D_800BEF64");
+extern Menu_d530 D_800F5270_d530[] asm("D_800F5270");
+extern Item_d530 D_800B21D0[];
+extern u8 D_800F4C50[];
+extern char D_800A60B4[];
+extern char D_800A60BC[];
+extern char D_800A60C0[];
+void func_8001325C(s32);
+void Gfx_BeginFrame(void);
+void func_8008C390(void);
+s32 Stage_UpdateAreaState(void);
+void SetDrawMove(void *p, void *rect, s32 x, s32 y);
+void SetDrawArea(void *p, void *r);
+void SetDrawTPage(void *p, s32 dfe, s32 dtd, s32 tpage);
+void DrawPrim(void *p);
+void func_8008C3C0(s32, s32);
+void DebugFont_Printf(char *, ...);
+void func_8007D188(void *p, s32 v, s32 size);
+s32 func_8007D2D8_d530(MenuDef_d530 *def) asm("func_8007D2D8");
+s32 Game_SetMode(s32, s32, s32);
+void Sound_PlayFixed_d530(s32) asm("Sound_PlayFixed");
+void RotMatrixZYX_d530(SVec_d530 *, Mat_d530 *) asm("RotMatrixZYX");
+void ScaleMatrix_d530(Mat_d530 *, Vec_d530 *) asm("ScaleMatrix");
+void Model_ProjectVerts_d530(void *, Mat_d530 *, void *) asm("Model_ProjectVerts");
+void func_80017CD4_d530(u32 *, void *, void *) asm("func_80017CD4");
+void Ot_SkipEmptyRuns(u32 *);
+s32 DrawSync(s32);
+s32 VSync(s32);
+void *PutDrawEnv_d530(void *) asm("PutDrawEnv");
+void *PutDispEnv_d530(void *) asm("PutDispEnv");
+void DrawOTag_d530(u32 *) asm("DrawOTag");
+#define G_d530 g_Game_d530
+#define ADDP_d530(n) (((PTag_d530 *)G_d530.prim)->addr = ((PTag_d530 *)&G_d530.db[G_d530.cur].ot[n])->addr, ((PTag_d530 *)&G_d530.db[G_d530.cur].ot[n])->addr = (u32)G_d530.prim)
+#define PG4_d530 ((PolyG4_d530 *)G_d530.prim)
+#define PFT4_d530 ((PolyFT4_d530 *)G_d530.prim)
+#define SPRT_d530 ((Sprt_d530 *)G_d530.prim)
+
+void func_8007D530(void) {
+    s32 i;
+    s16 clipy, dispy;
+    s32 cur;
+    u16 saved;
+    s32 quit = 0;
+    Rect_d530 r;
+    Menu_d530 *m;
+
+    if (D_800BEF60_d530 == 0) {
+        return;
+    }
+    saved = G_d530.f_82BA;
+    cur = G_d530.cur;
+    G_d530.f_82BA = 1;
+    dispy = G_d530.db[cur].disp_y;
+    clipy = G_d530.db[cur].clip_y;
+    r.x = 0;
+    r.y = clipy;
+    r.w = 0x17F;
+    r.h = 0xEF;
+    SetDrawMove(G_d530.prim, &r, 0, dispy);
+    DrawPrim(G_d530.prim);
+    G_d530.prim += 0x18;
+    for (;;) {
+        func_8001325C(0);
+        if (g_Pad_d530.trig & g_Pad_d530.held & 0x140) break;
+        if (G_d530.f_812C == 7) break;
+        if (quit) break;
+        m = D_800F5270_d530;
+        G_d530.frame++;
+        Gfx_BeginFrame();
+        func_8008C390();
+        Stage_UpdateAreaState();
+        for (i = 0; i < D_800BEF60_d530; i++, m++) {
+            if (m->state == 0) continue;
+            m->t0++;
+            m->t1++;
+            if (m->t1 > 0xFFFD) m->t1 = 0xFFFE;
+            if (m->mode == 2) {
+                s32 y, k, d;
+                s32 tp, cl;
+                m->mode = 1;
+                r.x = 0;
+                r.w = 0x180;
+                r.y = 0;
+                r.h = 0x200;
+                SetDrawArea(G_d530.prim, &r);
+                ADDP_d530(0xFFE);
+                G_d530.prim += 0xC;
+                SetDrawTPage(G_d530.prim, 0, 1, 0x1C);
+                ADDP_d530(0xFFD);
+                G_d530.prim += 8;
+                y = m->y + ((clipy == G_d530.db[1].clip_y) ? 0x100 : -0x100);
+                ((u8 *)G_d530.prim)[3] = 8;
+                PG4_d530->code = 0x3B;
+                PG4_d530->x0 = m->x;
+                PG4_d530->y0 = y;
+                PG4_d530->x1 = m->x + m->w;
+                PG4_d530->y1 = y;
+                PG4_d530->x2 = m->x;
+                PG4_d530->y2 = m->h + y;
+                PG4_d530->x3 = m->x + m->w;
+                PG4_d530->y3 = m->h + y;
+                PG4_d530->r0 = 0;
+                PG4_d530->g0 = 0xF0;
+                PG4_d530->b0 = 0xDC;
+                PG4_d530->r1 = 0;
+                PG4_d530->g1 = 0x3E;
+                PG4_d530->b1 = 0x2D;
+                PG4_d530->r2 = 0;
+                PG4_d530->g2 = 0x2D;
+                PG4_d530->b2 = 0x5F;
+                PG4_d530->r3 = 0;
+                PG4_d530->g3 = 0xA;
+                PG4_d530->b3 = 0x28;
+                ADDP_d530(0xFFC);
+                G_d530.prim += 0x24;
+                {
+                    Rect4_d530 rr = { { { m->x, y, 7, m->h },
+                                        { m->x + m->w - 1, m->h + y, -7, ~m->h },
+                                        { m->x, y, m->w, 5 },
+                                        { m->x + m->w, m->h + y, -m->w, -6 } } };
+                    tp = 0x5C;
+                    cl = 0x7F2C;
+                    for (k = 0; k < 2; k++) {
+                        d = k * 4 - 0x11;
+                        ((u8 *)G_d530.prim)[3] = 8;
+                        PG4_d530->code = 0x3B;
+                        PG4_d530->x0 = m->x + k * (m->w - 7);
+                        PG4_d530->y0 = y + 5;
+                        PG4_d530->x1 = m->x + k * (m->w - 7) + 7;
+                        PG4_d530->y1 = y + 5;
+                        PG4_d530->x2 = m->x + k * (m->w - 7);
+                        PG4_d530->y2 = y - d;
+                        PG4_d530->x3 = m->x + k * (m->w - 7) + 7;
+                        PG4_d530->y3 = y - d;
+                        PG4_d530->r0 = 0x4C;
+                        PG4_d530->g0 = 0x4C;
+                        PG4_d530->b0 = 0x42;
+                        PG4_d530->r1 = 0x42;
+                        PG4_d530->g1 = 0x42;
+                        PG4_d530->b1 = 0x38;
+                        PG4_d530->r2 = 0x10;
+                        PG4_d530->g2 = 0x10;
+                        PG4_d530->b2 = 6;
+                        PG4_d530->r3 = 0;
+                        PG4_d530->g3 = 0;
+                        PG4_d530->b3 = 0;
+                        ADDP_d530(0xFFB);
+                        G_d530.prim += 0x24;
+                    }
+                    for (k = 3; k >= 0; k--) {
+                        Rect_d530 *q;
+                        ((u8 *)G_d530.prim)[3] = 9;
+                        PFT4_d530->code = 0x2D;
+                        PFT4_d530->x0 = rr.r[k].x;
+                        PFT4_d530->y0 = rr.r[k].y;
+                        PFT4_d530->x1 = rr.r[k].x + rr.r[k].w;
+                        PFT4_d530->y1 = rr.r[k].y;
+                        PFT4_d530->x2 = rr.r[k].x;
+                        PFT4_d530->y2 = rr.r[k].y + rr.r[k].h;
+                        PFT4_d530->x3 = rr.r[k].x + rr.r[k].w;
+                        PFT4_d530->y3 = rr.r[k].y + rr.r[k].h;
+                        if (k < 2) {
+                            PFT4_d530->u0 = 0xF0;
+                            PFT4_d530->v0 = 0x88;
+                            PFT4_d530->u1 = 0xF8;
+                            PFT4_d530->v1 = 0x88;
+                            PFT4_d530->u2 = 0xF0;
+                            PFT4_d530->v2 = 0xC8;
+                            PFT4_d530->u3 = 0xF8;
+                            PFT4_d530->v3 = 0xC8;
+                        } else {
+                            PFT4_d530->u0 = 0xB8;
+                            PFT4_d530->v0 = 0x80;
+                            PFT4_d530->u1 = 0xF8;
+                            PFT4_d530->v1 = 0x80;
+                            PFT4_d530->u2 = 0xB8;
+                            PFT4_d530->v2 = 0x88;
+                            PFT4_d530->u3 = 0xF8;
+                            PFT4_d530->v3 = 0x88;
+                        }
+                        ADDP_d530(0xFFB);
+                        PFT4_d530->tpage = tp;
+                        PFT4_d530->clut = cl;
+                        G_d530.prim += 0x28;
+                    }
+                }
+            }
+            if (m->redraw == 0 && i != D_800BEF62_d530 && m->mode == 0 && m->t1 >= 0x15) continue;
+            if (m->t1 < 0x15) {
+                s32 o = m->open * 96 / m->h;
+                s32 xx = o - 0x76;
+                if (m->x + m->w / 2 + xx > 0) {
+                    s32 yy;
+                    r.x = m->x + m->w / 2 + xx;
+                    yy = o - 0x6A;
+                    r.y = clipy + (m->y + yy);
+                    r.w = 0x12;
+                    r.h = 0x12;
+                    SetDrawMove(G_d530.prim, &r, m->x + m->w / 2 + xx, m->y + yy + dispy);
+                    ADDP_d530(0xFF8);
+                    G_d530.prim += 0x18;
+                }
+            }
+            m->speed = m->speed * 9 / 10;
+            if (m->speed < 2) m->speed = 2;
+            m->open += m->speed;
+            if (m->h < m->open) m->open = m->h;
+            if (m->mode != 0) {
+                s32 j, yo, n;
+                r.x = m->x;
+                r.y = m->y + clipy;
+                r.w = m->w;
+                r.h = m->open;
+                SetDrawMove(G_d530.prim, &r, m->x, m->y + dispy);
+                ADDP_d530(0xFFA);
+                G_d530.prim += 0x18;
+                for (j = 0; j < m->n; j++) {
+                    func_8008C3C0(m->x + m->tx, m->y + (m->ty + j * 10) * m->open / m->h);
+                    if (m->items[j].ptr == NULL && (m->items[j].flags & 0x8000)) {
+                        DebugFont_Printf(D_800A60B4, m->items[j].text);
+                    } else {
+                        DebugFont_Printf(D_800A60BC, m->items[j].text);
+                    }
+                }
+            }
+            if (m->open == m->h) m->mode = 0;
+            {
+                s32 o = m->open * 96 / m->h;
+                s32 xx = o - 0x76;
+                if (m->x + m->w / 2 + xx > 0) {
+                    SetDrawTPage(G_d530.prim, 0, 1, 0x1C);
+                    ADDP_d530(0xFF7);
+                    G_d530.prim += 8;
+                    ((u8 *)G_d530.prim)[3] = 4;
+                    SPRT_d530->code = 0x65;
+                    SPRT_d530->x0 = m->x + m->w / 2 + xx;
+                    { s32 yy = o - 0x6A; SPRT_d530->y0 = m->y + yy; }
+                    SPRT_d530->w = 0x12;
+                    SPRT_d530->h = 0x12;
+                    SPRT_d530->u0 = (m->t1 < 0x15) ? ((m->mode == 0) ? (m->t0 & 3) * 24 : 0) : 0;
+                    SPRT_d530->v0 = 0xA8;
+                    SPRT_d530->clut = 0x7D2C;
+                    ADDP_d530(0xFF6);
+                    G_d530.prim += 0x14;
+                }
+            }
+            if (m->redraw != 0 || (i == D_800BEF62_d530 && *(u16 *)&m->state == 1)) {
+                s32 j, yo, io;
+                r.x = m->x;
+                r.y = m->cy + clipy - 1;
+                r.w = m->w;
+                r.h = 10;
+                SetDrawMove(G_d530.prim, &r, m->x, m->cy + dispy - 1);
+                ADDP_d530(0xFF0);
+                G_d530.prim += 0x18;
+                r.x = m->cx - 0xC;
+                r.y = m->cy + clipy - 0xD;
+                r.w = 0x18;
+                r.h = 0x1A;
+                SetDrawMove(G_d530.prim, &r, m->cx - 0xC, m->cy + dispy - 0xD);
+                ADDP_d530(0xFF0);
+                G_d530.prim += 0x18;
+                for (j = 0; j < m->n; j++) {
+                    Item_d530 *it = &m->items[j];
+                    func_8008C3C0(m->x + m->tx, m->y + m->ty + j * 10);
+                    switch (it->flags) {
+                    case 0xC005:
+                    case 0xC008:
+                        DebugFont_Printf(D_800A60C0, it->text, func_8007D118(it->ptr, it->size));
+                        break;
+                    case 0x2006:
+                        DebugFont_Printf(D_800A60C0, it->text, m->val);
+                        break;
+                    default:
+                        if (it->ptr == NULL && (it->flags & 0x8000)) {
+                            DebugFont_Printf(D_800A60B4, it->text);
+                        } else {
+                            DebugFont_Printf(D_800A60BC, it->text);
+                        }
+                        break;
+                    }
+                }
+                if (m->mode == 0) m->redraw = 0;
+                if (m->state == 1) {
+                    Mat_d530 mat;
+                    SVec_d530 rot;
+                    Vec_d530 sc;
+                    MenuDef_d530 d;
+                    if (!(g_Pad_d530.held & 0xF000)) {
+                        D_800BEF64_d530 = 1;
+                    } else if (--D_800BEF64_d530 == 0) {
+                        u32 pad;
+                        Sound_PlayFixed_d530(1);
+                        if (g_Pad_d530.trig & g_Pad_d530.held) D_800BEF64_d530 = 0x14; else D_800BEF64_d530 = 3;
+                        pad = g_Pad_d530.held;
+                        if (pad & 0x1000) {
+                            do {
+                                if (--m->sel < 0) m->sel += m->n;
+                            } while (!(m->items[m->sel].flags & 0x8000));
+                        } else if (pad & 0x4000) {
+                            do {
+                                if (++m->sel > m->n) m->sel = 0;
+                            } while (!(m->items[m->sel].flags & 0x8000));
+                        } else if (pad & 0xA000) {
+                            Item_d530 *it = (Item_d530 *)(m->sel * sizeof(Item_d530) + (s32)m->items);
+                            if (it->flags == 0xC005 || it->flags == 0xC008) {
+                                s32 st = it->step;
+                                s32 v;
+                                if (pad & 8) st += st * 9;
+                                v = st;
+                                if (!(pad & 0x2000)) v = -v;
+                                v = v + func_8007D118(it->ptr, it->size) / v * v;
+                                if (v < m->items[m->sel].min) v = m->items[m->sel].max;
+                                else if (m->items[m->sel].max < v) v = m->items[m->sel].min;
+                                func_8007D188(m->items[m->sel].ptr, v, m->items[m->sel].size);
+                                if (m->items[m->sel].flags != 0xC008) {
+                                    s32 res = m->items[m->sel].cb(v);
+                                    if (res == 1) {
+                                        m->redraw = res;
+                                        m->mode = res;
+                                    }
+                                }
+                            }
+                        }
+                        if (m->child != -1) {
+                            D_800F5270_d530[m->child].redraw = 1;
+                            D_800F5270_d530[m->child].val = m->items[m->sel].def;
+                        }
+                    }
+                    if (g_Pad_d530.trig & g_Pad_d530.held & 0x8A0) {
+                        switch (m->items[m->sel].flags) {
+                        case 0x8004:
+                            Game_SetMode(7, G_d530.f_8126, G_d530.f_812A);
+                            Sound_PlayFixed_d530(3);
+                            break;
+                        case 0x8007:
+                        case 0xC008:
+                            if (m->items[m->sel].cb != NULL) {
+                                s32 res = m->items[m->sel].cb(func_8007D118(m->items[m->sel].ptr, m->items[m->sel].size));
+                                if (res == 1) {
+                                    m->redraw = res;
+                                    m->mode = res;
+                                }
+                                if (!(g_Pad_d530.held & 0x80)) Sound_PlayFixed_d530(2);
+                            }
+                            break;
+                        case 0x8002:
+                        case 0x8003:
+                            if (m->items[m->sel].ptr == NULL) {
+                                Sound_PlayFixed_d530(0x24);
+                                Sound_PlayFixed_d530(0x21);
+                            } else {
+                                s32 c;
+                                d.x = m->x + m->w + 4;
+                                d.y = m->y - 4;
+                                d.items = m->items[m->sel].ptr;
+                                c = func_8007D2D8_d530(&d);
+                                if (m->items[m->sel].flags == 0x8003) {
+                                    d.x = m->x + 4;
+                                    d.y = m->y + m->h + 8;
+                                    d.items = D_800B21D0;
+                                    D_800F5270_d530[c].child = func_8007D2D8_d530(&d);
+                                    D_800F5270_d530[D_800F5270_d530[c].child].redraw = 1;
+                                    D_800F5270_d530[D_800F5270_d530[c].child].val = D_800F5270_d530[c].items->def;
+                                }
+                                if (m->items[m->sel].cb != NULL) {
+                                    m->items[m->sel].cb(0);
+                                }
+                            }
+                            break;
+                        default:
+                            quit = 1;
+                            break;
+                        }
+                    }
+                    if (g_Pad_d530.trig & g_Pad_d530.held & 2) {
+                        func_8007D188(m->items[m->sel].ptr, m->items[m->sel].def, m->items[m->sel].size);
+                    }
+                    m->cx = m->x + m->tx - 0xE;
+                    m->cy = m->y + m->ty + m->sel * 10;
+                    {
+                        u32 c, ci;
+                        rot.vx = (((m->t0 + 0x50) >> 1) << 12) / 360 % 1024;
+                        if (rot.vx > 0x200) rot.vx = 0x400 - rot.vx;
+                        rot.vx = (rot.vx + 0xF00) % 0x1000;
+                        rot.vy = (m->t0 * 3 << 12) / 360 % 0x1000;
+                        rot.vz = 0;
+                        RotMatrixZYX_d530(&rot, &mat);
+                        mat.t[0] = m->cx - 0xC0;
+                        mat.t[1] = m->cy - 0x76;
+                        mat.t[2] = 0x180;
+                        sc.vx = sc.vy = sc.vz = m->scale;
+                        ScaleMatrix_d530(&mat, &sc);
+                        Model_ProjectVerts_d530(D_800F4C50, &mat, D_800E7D00);
+                        func_80017CD4_d530(G_d530.db[G_d530.cur].ot, D_800E7D00, D_800F4C50);
+                        ((u8 *)G_d530.prim)[3] = 8;
+                        PG4_d530->code = 0x38;
+                        PG4_d530->x0 = m->cx + 10;
+                        PG4_d530->y0 = m->cy - 1;
+                        PG4_d530->x1 = m->cx + (s16)(m->w - 0x20);
+                        PG4_d530->y1 = m->cy - 1;
+                        PG4_d530->x2 = m->cx + 10;
+                        PG4_d530->y2 = m->cy + 9;
+                        PG4_d530->x3 = m->cx + (s16)(m->w - 0x20);
+                        PG4_d530->y3 = m->cy + 9;
+                        c = (m->t0 & 0x7F) * 4;
+                        if (c >= 0x100) c = 0x1FF - c;
+                        ci = c ^ 0xFF;
+                        *(u32 *)&PG4_d530->r0 = ((c << 16) | (ci << 8)) | 0x39000000;
+                        *(u32 *)&PG4_d530->r1 = c | (ci << 16);
+                        *(u32 *)&PG4_d530->r2 = (c << 8) | ci;
+                        *(u32 *)&PG4_d530->r3 = (c << 16) | (ci << 8);
+                        ADDP_d530(0xFEF);
+                        G_d530.prim += 0x24;
+                    }
+                }
+            }
+        }
+        Ot_SkipEmptyRuns(G_d530.db[G_d530.cur].ot);
+        DrawSync(0);
+        VSync(0);
+        PutDrawEnv_d530(&G_d530.db[cur ^ 1]);
+        PutDispEnv_d530((u8 *)&G_d530.db[cur] + 0x5C);
+        DrawOTag_d530(G_d530.ot + 0xFFF);
+    }
+    D_800BEF60_d530 = 0;
+    D_800BEF62_d530 = 0;
+    G_d530.f_82BA = saved;
+    func_8001325C(0);
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/8007D0F0_menu", D_800A60B4);
 INCLUDE_RODATA("asm/nonmatchings/game/8007D0F0_menu", D_800A60BC);

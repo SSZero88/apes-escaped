@@ -5,7 +5,7 @@ typedef struct { s16 vx, vy, vz, pad; } SV_59FA4_80059FA4;
 typedef struct { u8 pad0[0x2C]; u32 f_2C; } Col_59FA4_80059FA4;
 typedef struct { u8 pad0[0x24]; s32 x, y, z; s32 vx, vy, vz; } Spk_59FA4_80059FA4;
 
-M2C_UNK EnemyShot_DrawAll();
+void EnemyShot_DrawAll();
 void EnemyShot_UpdateAll(void);
 extern struct S_D_800EC350 { u8 pad_0[0x8100]; s32 f_8100; } g_Game;
 
@@ -271,7 +271,98 @@ void EnemyShot_Frame(void) {
     EnemyShot_DrawAll();
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/800592E0_enemy_shot", EnemyShot_DrawAll);
+typedef struct { s32 vx, vy, vz, pad; } VEC_59B90;
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_59B90;
+typedef struct { u8 pad0[0xC]; u8 state; u8 pad0D[3]; u8 model; u8 pad11[2]; u8 hidden; u8 u; u8 v; u8 w; u8 h; u16 clut; u16 tpage; SV_59FA4_80059FA4 pos; s16 vx; s16 vy; s16 vz; s16 ground; u8 pad2C[4]; } Shot_59B90;
+typedef struct { u32 tag; u32 code; u32 xy0; u32 uvc0; u32 xy1; u32 uvt1; u32 xy2; u16 uv2; u16 pad1E; u32 xy3; u16 uv3; u16 pad26; } FT4_59B90;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTAG_59B90;
+extern Shot_59B90 D_800B8D30_59B90[16] asm("D_800B8D30");
+extern u8 D_800F4C30[];
+extern u8 D_800E7D00[];
+extern MAT_59B90 D_800E78C0;
+extern GameDraw g_Game_59B90 asm("g_Game");
+void Shadow_Draw(void *, s32, s32, s32);
+void Matrix_FromDirection(void *, void *);
+void CompMatrix(void *, void *, void *);
+void SetRotMatrix(void *);
+void SetTransMatrix(void *);
+s32 RotTransPers(void *, s32 *, s32 *, s32 *);
+void Model_ProjectVerts(void *, void *, void *);
+void func_80017CD4(void *, void *, void *);
+
+/* Draws the 16 enemy projectiles: kinds 6 and up as a shaded model with a ground shadow, kind 5 as a
+   camera-facing textured quad scaled by depth */
+void EnemyShot_DrawAll(void) {
+    Shot_59B90 *p;
+    s32 i;
+    MAT_59B90 m;
+    VEC_59B90 c;
+    VEC_59B90 v;
+    struct { s32 w; } sxy;
+    s32 dummy;
+    s32 z;
+
+    for (i = 15, p = D_800B8D30_59B90; i >= 0; i--, p++) {
+        if (p->state == 0 || p->hidden != 0 || p->state < 5) {
+            continue;
+        }
+        if (p->state >= 6) {
+            memset(&v, 0, 0x10);
+            v.vx = p->pos.vx;
+            v.vy = p->pos.vy;
+            v.vz = p->pos.vz;
+            c = v;
+            Shadow_Draw(&c, p->ground, 0x20, 0);
+            Matrix_FromDirection(&p->vx, &m);
+            m.t[0] = p->pos.vx;
+            m.t[1] = p->pos.vy;
+            m.t[2] = p->pos.vz;
+            CompMatrix(&D_800E78C0, &m, &m);
+            Model_ProjectVerts(D_800F4C30 + p->model * 16, &m, D_800E7D00);
+            func_80017CD4(g_Game_59B90.db[g_Game_59B90.cur].ot, D_800E7D00, D_800F4C30 + p->model * 16);
+        } else {
+            FT4_59B90 *q;
+            s16 sx, sy, w, h, x0;
+            u32 *ot;
+            s32 cur;
+            SetRotMatrix(&D_800E78C0);
+            SetTransMatrix(&D_800E78C0);
+            ((SVECTOR *)&v)->vx = p->pos.vx;
+            ((SVECTOR *)&v)->vy = p->pos.vy;
+            ((SVECTOR *)&v)->vz = p->pos.vz;
+            z = RotTransPers(&v, &sxy.w, &dummy, &dummy);
+            if ((u32)(z - 1) >= 0xFFF) {
+                continue;
+            }
+            sx = sxy.w;
+            sy = sxy.w >> 16;
+            if ((u16)(sx + 0x20) >= 0x1C1 || sy < -0x20 || sy >= 0x111) {
+                continue;
+            }
+            w = p->w * 0x148 / z;
+            h = p->h * 0x16D2800 / 0x16800 / z;
+            q = (FT4_59B90 *)g_Game_59B90.prim;
+            __asm__ volatile("");
+            x0 = sx - w / 2;
+            sxy.w = ((sy - h) << 16) | (x0 & 0xFFFF);
+            cur = g_Game_59B90.cur;
+            ((u8 *)q)[3] = 9;
+            q->code = 0x2D000000;
+            q->xy0 = sxy.w;
+            q->xy1 = ((sy - h) << 16) | (x0 + w);
+            q->xy2 = (sy << 16) | (x0 & 0xFFFF);
+            q->xy3 = (sy << 16) | (x0 + w);
+            q->uvc0 = (p->v << 8) | p->u | (p->clut << 16);
+            q->uvt1 = (p->v << 8) | (p->u + p->w) | (p->tpage << 16);
+            q->uv2 = p->u | ((p->v + p->h) << 8);
+            q->uv3 = ((p->v + p->h) << 8) | (p->u + p->w);
+            ot = g_Game_59B90.db[cur].ot;
+            ((PTAG_59B90 *)q)->addr = ((PTAG_59B90 *)&ot[z])->addr;
+            ((PTAG_59B90 *)&ot[z])->addr = (u32)q;
+            g_Game_59B90.prim = (u8 *)(q + 1);
+        }
+    }
+}
 
 /* Updates the 16 enemy projectiles (D_800B8D30). By state: 1/2 wait while the owner object
  * exists, 10 explodes when it is destroyed; 3/4 are one-frame blasts; 5 hops toward Spike

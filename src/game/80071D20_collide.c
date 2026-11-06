@@ -1438,7 +1438,94 @@ s32 Coll_PushHalfCylinder(O_75630_80075630 *o, B_75630_80075630 *b, s32 *out) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", func_80075A40);
+typedef struct { s32 x, y, z; } P_75A40;
+extern P_75A40 *D_800B20B4_75A40 asm("D_800B20B4");
+s32 Surface_CylinderHeight_75A40(s16, s16 *, V3_792C8_800792C8 *, V3_792C8_800792C8 *) asm("Surface_CylinderHeight");
+s32 Coll_PushHalfCylinder(O_75630_80075630 *o, B_75630_80075630 *b, s32 *out);
+
+s32 func_80075A40(O_75630_80075630 *o, B_75630_80075630 *b, s32 *out) {
+    P_75A40 *p = (P_75A40 *)0x1F800124;
+    s32 *h1 = (s32 *)0x1F800130;
+    s32 *h2 = (s32 *)0x1F800138;
+    s32 kind = b->kind;
+    s32 d1;
+    s32 d2;
+    s32 w;
+    s16 cc[6];
+    s16 i;
+
+    { s32 tx = D_800B20B4_75A40->x - o->x; p->y = D_800B20B4_75A40->y - b->h - o->y; p->z = D_800B20B4_75A40->z - o->z; p->x = tx; }
+    Surface_CylinderHeight_75A40(kind, &o->w, (V3_792C8_800792C8 *)p, (V3_792C8_800792C8 *)h2);
+    { s32 tx = D_800B20B4_75A40->x - o->x; p->y = D_800B20B4_75A40->y - o->y; p->z = D_800B20B4_75A40->z - o->z; p->x = tx; }
+    Surface_CylinderHeight_75A40(kind, &o->w, (V3_792C8_800792C8 *)p, (V3_792C8_800792C8 *)h1);
+    __asm__("" :: "r"(h1), "r"(h1), "r"(h1), "r"(h1));
+    __asm__("" :: "r"(out));
+    if (kind == 0x53) {
+        { s32 tx = D_800B20B4_75A40->x - o->x; p->y = D_800B20B4_75A40->y - b->h - o->y; p->z = D_800B20B4_75A40->z - o->z; p->x = tx; }
+        d1 = SquareRoot0(p->y * p->y + p->z * p->z);
+        { s32 tx = D_800B20B4_75A40->x - o->x; p->y = D_800B20B4_75A40->y - o->y; p->z = D_800B20B4_75A40->z - o->z; p->x = tx; }
+        d2 = SquareRoot0(p->y * p->y + p->z * p->z);
+        if (o->d - 0xC0 < d1) {
+            goto cyl;
+        }
+        if (o->d - 0xC0 < d2) {
+            goto cyl;
+        }
+        w = SquareRoot0((o->d - 0x100) * (o->d - 0x100) - b->h * b->h) - 0x40;
+        if (*h1 == *h2 && o->z - w < D_800B20B4_75A40->z && D_800B20B4_75A40->z < o->z + w) {
+            return 0;
+        }
+        if (D_800B20B4_75A40->z < o->z - w) {
+            out[2] = o->z - w - D_800B20B4_75A40->z;
+        } else if (o->z + w < D_800B20B4_75A40->z) {
+            out[2] = o->z + w - D_800B20B4_75A40->z;
+        }
+    } else if (kind == 0x54) {
+        { s32 tx = D_800B20B4_75A40->x - o->x; p->y = D_800B20B4_75A40->y - b->h - o->y; p->z = D_800B20B4_75A40->z - o->z; p->x = tx; }
+        d1 = SquareRoot0(p->y * p->y + p->x * p->x);
+        { s32 tx = D_800B20B4_75A40->x - o->x; p->y = D_800B20B4_75A40->y - o->y; p->z = D_800B20B4_75A40->z - o->z; p->x = tx; }
+        d2 = SquareRoot0(p->y * p->y + p->x * p->x);
+        if (o->w - 0xC0 < d1) {
+            goto cyl;
+        }
+        if (o->w - 0xC0 < d2) {
+            goto cyl;
+        }
+        w = SquareRoot0((o->w - 0x100) * (o->w - 0x100) - b->h * b->h) - 0x40;
+        if (*h1 == *h2 && o->x - w < D_800B20B4_75A40->x && D_800B20B4_75A40->x < o->x + w) {
+            return 0;
+        }
+        if (D_800B20B4_75A40->x < o->x - w) {
+            out[0] = o->x - w - D_800B20B4_75A40->x;
+        } else if (o->x + w < D_800B20B4_75A40->x) {
+            out[0] = o->x + w - D_800B20B4_75A40->x;
+        }
+    } else {
+        goto cyl;
+    }
+    {
+        s32 hv = *h1;
+        if (hv < 0 && *h2 > 0) {
+            s32 c = hv; s32 a; s32 oy; s32 bh; s32 dy; __asm__("" : "=r"(c) : "0"(c));
+            dy = D_800B20B4_75A40->y; oy = o->y; bh = b->h; 
+            __asm__ volatile("");
+            a = c; __asm__("" : "=r"(a) : "0"(a)); a = abs(a);
+            out[4] = c; out[5] = a;
+            out[3] = oy + hv - (dy - bh);
+        }
+    }
+    return 1;
+cyl:
+    for (i = 0; i < 6; i++) {
+        cc[i] = ((s16 *)o)[i];
+    }
+    if (kind == 0x53) {
+        cc[5] += 0x100;
+    } else if (kind == 0x54) {
+        cc[3] += 0x100;
+    }
+    return Coll_PushHalfCylinder((O_75630_80075630 *)cc, b, out);
+}
 
 /* Push Spike out of a wall edge piece: type 0x1000 has one fixed face from the orientation,
  * others pick the face by quadrant (like Coll_PushWallSegment); returns the axis corrected. */
@@ -2124,7 +2211,36 @@ body:
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", func_80077EE8);
+typedef struct { s32 f_0; s32 f_4; s32 f_8; u8 padC[0x14]; s16 f_20; u16 f_22; s16 f_24; u8 pad26[6]; u32 f_2C; } S_P_80077EE8;
+typedef struct { u8 pad0[2]; u16 f_2; S_P_80077EE8 *f_4; } S_O_80077EE8;
+typedef struct S_Node_80077EE8 { s16 f_0; s16 f_2; S_P_80077EE8 *f_4; u8 pad8[4]; struct S_Node_80077EE8 *f_C; } S_Node_80077EE8;
+typedef struct { s16 vx; u16 vy; u16 vz; } S_Sc_80077EE8;
+extern S_Node_80077EE8 *g_CollisionHead_7EE8 asm("g_CollisionHead");
+void Collider_GetCentre_7EE8(s16, S_P_80077EE8 *, S_Sc_80077EE8 *) asm("Collider_GetCentre");
+
+s32 func_80077EE8(s32 unused, S_O_80077EE8 *o) {
+    S_Sc_80077EE8 *sc = (S_Sc_80077EE8 *)0x1F8000F0;
+    register S_Node_80077EE8 *n asm("$16");
+    S_P_80077EE8 *x;
+    s32 r; register S_P_80077EE8 *op asm("$6");
+    s32 h;
+    for (n = g_CollisionHead_7EE8; n != 0; n = n->f_C) {
+        if ((u16)(n->f_0 - 3) >= 3) continue;
+        if (n->f_4->f_2C != 0 && (n->f_4->f_2C >> 28) != 10) continue;
+        __asm__ volatile("" ::: "memory");
+        x = n->f_4;
+        Collider_GetCentre_7EE8(n->f_0, x, sc);
+        if (Vec_Length(sc->vx - o->f_4->f_0, 0, (s16)sc->vz - o->f_4->f_8) >= x->f_20 + (op = o->f_4)->f_20) continue;
+        h = (s16)x->f_22 / 2;
+        { s32 rr = op->f_20 + abs(h); s32 sy = (s16)sc->vy;
+        if (((sy - op->f_4) < 0 ? -(sy - op->f_4) : (sy - op->f_4)) < rr) {
+            { u32 t = (o->f_2 & 0xFFF) | 0xB0000000; u32 hi = (o->f_4->f_24 << 12) & 0xFFFF000; hi |= t; n->f_4->f_2C = hi; }
+            o->f_4->f_2C = 0x60000000;
+            
+        }}
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", func_80078088);
 
