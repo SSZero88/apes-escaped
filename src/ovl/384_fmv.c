@@ -341,7 +341,7 @@ s32 func_8013668C(s32 *mode, s32 idx) {
         return 1;
     }
     D_8013C4B0 = D_8013C4B4 = D_8013C484_8013668C->f_0;
-    func_8013990C((void *)0x80148000);
+    Fmv_LoadModelTable((void *)0x80148000);
     func_80137D20();
     func_80136000(0, D_8013C484_8013668C->f_1);
     *mode = 0x120;
@@ -775,7 +775,7 @@ s32 func_80137248(s32 idx) {
     mode = 0x120;
     func_80137878();
     func_80136000(0, 0);
-    func_8013990C(D_800F5AA0_80137248.f_8);
+    Fmv_LoadModelTable(D_800F5AA0_80137248.f_8);
     switch (idx) {
     case 1:
     case 3:
@@ -1851,7 +1851,7 @@ void func_80139F0C_8013990C(u32) asm("func_80139F0C");
 void func_800A3760(void *, void *, s32);
 s32 func_8013B8D0(void *arg0, s32 arg1, void *arg2);
 
-void func_8013990C(void *arg0) {
+void Fmv_LoadModelTable(void *arg0) {
     u8 buf[4];
     MdlObj_8013990C **t;
     u32 cnt;

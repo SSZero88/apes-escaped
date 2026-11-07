@@ -785,7 +785,7 @@ s32 func_801378C4(void) {
     func_80136000(a, 0xC0 - func_80136120(a) / 2, 0x18, 1);
     func_80136000(b, 0xC0 - func_80136120(b) / 2, 0x2A, 0);
     func_80137D40();
-    func_80138428();
+    MinigameMenu_DrawScoreBars();
     func_801388A4();
     func_80136160(0xC, 0x40, 0x160, 0xA0);
     func_80138978();
@@ -1063,7 +1063,7 @@ extern u8 D_80138EF4[];
 extern s32 D_80139330;
 extern s32 D_80139334;
 
-s32 func_80138428(void) {
+s32 MinigameMenu_DrawScoreBars(void) {
     u8 buf[8];
     Mk_80138428 *m;
     Label_80138428 *t;

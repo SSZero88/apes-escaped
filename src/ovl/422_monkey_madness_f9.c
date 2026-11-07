@@ -1563,7 +1563,7 @@ void func_80142C40_80140A60(void) asm("func_80142C40");
 #define ST_80140A60 D_80144BE8_80140A60
 #define PT_80140A60 D_80144460_80140A60
 
-void func_80140A60(void) {
+void Boss_Update(void) {
     SVECTOR v18;
     SVECTOR v20;
     SVECTOR v28;
