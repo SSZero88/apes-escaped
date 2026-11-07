@@ -829,7 +829,143 @@ void Camera_UpdateLook(Cam_8004AC84_8004AC84 *cam) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80048DD0_camera2", func_8004AF78);
+typedef struct { u8 pad0[0x30]; u8 f_30; u8 pad31[7]; u16 step; u8 pad3A[6]; s32 yaw; } CamAim_4AF78;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x30]; s16 dirX; s16 dirY; s16 dirZ; } Spike_4AF78;
+typedef struct { u8 pad0[0xA2]; s8 sx; s8 sy; u8 padA4[0xDC]; u16 magL; } Pad_4AF78;
+typedef struct { u32 tag; u32 code; u32 xy0; u32 xy1; } LineF2_4AF78;
+typedef struct { u32 addr : 24; u32 len : 8; } PT_4AF78;
+#define AP_4AF78(ot, p) (((PT_4AF78 *)(p))->addr = ((PT_4AF78 *)(ot))->addr, ((PT_4AF78 *)(ot))->addr = (u32)(p))
+typedef struct { u32 tag; u32 code; u32 xy0; u32 uv0; u32 xy1; u32 uv1; u32 xy2; u16 uv2; u16 pad1E; u32 xy3; u16 uv3; u16 pad26; } FT4_4AF78;
+extern Spike_4AF78 g_Spike_4AF78 asm("g_Spike");
+extern Pad_4AF78 g_Pad_4AF78 asm("g_Pad");
+extern u8 D_800E6916;
+extern u16 D_800EC23E;
+extern s8 D_800E53C3;
+extern u8 D_800B8CB0;
+s32 func_8004D104(void);
+s32 Floor_GetHeight_4AF78(s32, s32, s32) asm("Floor_GetHeight");
+s32 RotTransPers_4AF78(SVECTOR *, s32 *, s32 *, s32 *) asm("RotTransPers");
+
+void func_8004AF78(Cam_8004AC84_8004AC84 *cam) {
+    CamAim_4AF78 *c = (CamAim_4AF78 *)cam;
+    SVECTOR v;
+    s32 sxy;
+    s32 dummy;
+    s16 sy;
+    s16 sx;
+    s32 mode;
+    s32 half;
+    s32 n, t;
+    s16 w, h;
+    LineF2_4AF78 *l;
+    u32 *ot;
+    s16 *scr;
+    s32 st;
+
+    mode = 1;
+    half = 0;
+    __asm__("" : "=r"(scr) : "0"(0x1F800000));
+    if (func_8004D104() != 0) {
+        return;
+    }
+    if (D_800E6916 != 0) {
+        sx = 0xC0;
+        sy = 0x78;
+        st = D_800EC23E;
+        if (st >= 0x82 && (st < 0x85 || st == 0x86)) {
+            mode = 2;
+        }
+    } else {
+        half = 1;
+        st = D_800EC23E;
+        if (st < 0x82 || (st >= 0x85 && st != 0x86)) {
+            mode = 0;
+        } else {
+            mode = 2;
+            if (g_Pad_4AF78.magL >= 0x33 && Stage_GetSpecialKind() == 0) {
+                if (g_Pad_4AF78.sx > 0) {
+                    c->yaw = (c->yaw + 0xFEA) % 4096;
+                } else {
+                    c->yaw = (c->yaw + 0x1016) % 4096;
+                }
+                c->f_30 = 0;
+                __asm__ volatile("");
+                if (D_800E53C3 < -0x50) {
+                    scr[1] += c->step;
+                    if (scr[1] > g_Spike_4AF78.y - 0x40) {
+                        scr[1] = g_Spike_4AF78.y - 0x40;
+                    }
+                } else if (D_800E53C3 > 0x50) {
+                    scr[1] -= c->step;
+                }
+            }
+            SetRotMatrix(&D_800E78C0);
+            SetTransMatrix(&D_800E78C0);
+            v.vy = g_Spike_4AF78.y - 0x80;
+            v.vx = g_Spike_4AF78.x + g_Spike_4AF78.dirX / 3;
+            v.vz = g_Spike_4AF78.z + g_Spike_4AF78.dirZ / 3;
+            RotTransPers_4AF78(&v, &sxy, &dummy, &dummy);
+            sx = sxy;
+            sy = sxy >> 16;
+            v.vy = Floor_GetHeight_4AF78(v.vx, v.vy, v.vz);
+            RotTransPers_4AF78(&v, &sxy, &dummy, &dummy);
+            l = (LineF2_4AF78 *)G_DRAW.prim;
+            {
+            s16 x2 = sxy; s16 y2 = sxy >> 16; s32 cur = G_DRAW.cur; u32 *o2;
+            ((u8 *)l)[3] = 3;
+            l->xy0 = (y2 << 16) | ((x2 - 7) & 0xFFFF);
+            l->xy1 = (y2 << 16) | ((x2 + 7) & 0xFFFF);
+            l->code = 0x43010101;
+            o2 = G_DRAW.db[cur].ot;
+            AP_4AF78(&o2[2], l);
+            l = (LineF2_4AF78 *)((u8 *)l + 0x10);
+            ((u8 *)l)[3] = 1;
+            ((u32 *)l)[1] = 0xE1000200;
+            AP_4AF78(&o2[2], l);
+            }
+            G_DRAW.prim = (u8 *)l + 8;
+        }
+    }
+    if (mode != 0) {
+        for (n = 2; n > 0; n--) {
+            FT4_4AF78 *p;
+            s32 y0, y1, x0, x1;
+            if (mode == 2) {
+                t = D_800B8CB0 & 0x1F;
+                if (t >= 0x10) {
+                    t = 0x1F - t;
+                }
+                h = w = t + 0xC;
+            } else {
+                D_800B8CB0 = 0x13;
+                h = w = 0x18;
+            }
+            ot = G_DRAW.db[G_DRAW.cur].ot;
+            p = (FT4_4AF78 *)G_DRAW.prim;
+            if (half) {
+                w >>= 1;
+                h >>= 1;
+            }
+            ((u8 *)p)[3] = 9;
+            p->code = 0x2F000000;
+            y0 = (sy - h) << 16;
+            x0 = (sx - w) & 0xFFFF;
+            x1 = (sx + w) & 0xFFFF;
+            y1 = (sy + h) << 16;
+            p->xy0 = y0 | x0;
+            p->uv2 = 0x3040;
+            p->xy1 = y0 | x1;
+            p->xy2 = y1 | x0;
+            p->xy3 = y1 | x1;
+            p->uv0 = 0x7D2D0040;
+            p->uv1 = 0x1B006F;
+            p->uv3 = 0x306F;
+            AP_4AF78(&ot[1], p);
+            p++; G_DRAW.prim = (u8 *)p;
+        }
+        D_800B8CB0++;
+    }
+}
 
 void Camera_EnterAim(void) {
     if ((D_800E68D0.f_46 != 1) && (func_8005AB6C() == 0)) {
