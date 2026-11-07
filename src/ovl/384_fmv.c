@@ -324,7 +324,6 @@ extern s32 D_8013C4B0;
 extern s32 D_8013C4B4;
 void func_8008C01C(void);
 void func_800A3750(s32);
-void func_8013990C(void *);
 void func_80137D20(void);
 void func_80136000(s32 arg0, s32 arg1);
 void func_80086248(s32);
@@ -1837,7 +1836,153 @@ u8 func_801398F0(s32 arg0) {
     return M2C_FIELD(((arg0 * 4) + D_8013C560), u8 *, 3);
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013990C);
+typedef struct { u8 pad0[2]; u16 f2; u8 pad4[2]; u16 f6; u16 f8; u8 padA[4]; u16 fE; u8 pad10[2]; u16 f12; u8 pad14[2]; u16 f16; } MdlHdr_8013990C;
+typedef struct { MdlHdr_8013990C *f0; u8 *f4; u8 *f8; u8 padC[0xC]; u8 *f18; } MdlObj_8013990C;
+extern u32 *D_8013C560_8013990C asm("D_8013C560");
+extern MdlObj_8013990C **D_8013C564_8013990C asm("D_8013C564");
+extern u32 D_8013C568_8013990C asm("D_8013C568");
+extern u32 D_8013C56C_8013990C asm("D_8013C56C");
+extern u32 D_8013C570_8013990C asm("D_8013C570");
+void func_80139E44_8013990C(void *, void *) asm("func_80139E44");
+void func_80139E88_8013990C(void *, void *) asm("func_80139E88");
+s32 func_80139F38_8013990C(void *, s32) asm("func_80139F38");
+s32 func_80139F6C_8013990C(void *, s32) asm("func_80139F6C");
+void func_80139F0C_8013990C(u32) asm("func_80139F0C");
+void func_800A3760(void *, void *, s32);
+s32 func_8013B8D0(void *arg0, s32 arg1, void *arg2);
+
+void func_8013990C(void *arg0) {
+    u8 buf[4];
+    MdlObj_8013990C **t;
+    u32 cnt;
+    u8 *out;
+    u32 *e;
+    u32 i;
+    MdlObj_8013990C *obj;
+    s32 n;
+    s32 m;
+    s32 sz;
+    MdlObj_8013990C *ref;
+    u16 *ent;
+
+    out = (u8 *)0x80193800;
+    cnt = ((u32 *)arg0)[0];
+    e = (u32 *)arg0 + 1;
+    n = 0;
+    i = 0;
+    D_8013C560_8013990C = e;
+    D_8013C568_8013990C = cnt;
+    for (; i < D_8013C568_8013990C; i++) {
+        switch (((u8 *)&e[i])[3] & 0xF) {
+        case 2:
+            n += 0x1C;
+            break;
+        case 3:
+        case 4:
+            n += 0x1C;
+            break;
+        }
+    }
+    i = 0;
+    D_8013C564_8013990C = (MdlObj_8013990C **)func_8008C09C(D_8013C568_8013990C * 4 + n);
+    obj = (MdlObj_8013990C *)((u8 *)D_8013C564_8013990C + D_8013C568_8013990C * 4);
+    if (D_8013C568_8013990C != 0) {
+        do {
+            t = D_8013C564_8013990C;
+            t[i] = obj;
+            switch (((u8 *)e)[3]) {
+            case 2:
+                func_80139E44_8013990C(obj, (u32 *)arg0 + (e[0] & 0xFFFFFF));
+                {
+                MdlObj_8013990C **sl = D_8013C564_8013990C;
+                obj++;
+                if (D_8013C56C_8013990C < sl[i]->f0->f12) {
+                    D_8013C56C_8013990C = sl[i]->f0->f12;
+                }
+                if (D_8013C570_8013990C < sl[i]->f0->fE) {
+                    D_8013C570_8013990C = sl[i]->f0->fE;
+                }
+                }
+                break;
+            case 3:
+                func_80139E88_8013990C(obj, (u32 *)arg0 + (e[0] & 0xFFFFFF));
+                {
+                MdlObj_8013990C **sl = D_8013C564_8013990C;
+                obj++;
+                if (D_8013C56C_8013990C < sl[i]->f0->f6) {
+                    D_8013C56C_8013990C = sl[i]->f0->f6;
+                }
+                if (D_8013C570_8013990C < sl[i]->f0->f8) {
+                    D_8013C570_8013990C = sl[i]->f0->f8;
+                }
+                }
+                break;
+            case 4: {
+                s32 cnt2;
+                u8 *src;
+                u8 *dst;
+                u8 *src2;
+                ent = (u16 *)e;
+                switch (((u8 *)&D_8013C560_8013990C[((u8 *)e)[2]])[3]) {
+                case 2:
+                    ref = t[((u8 *)e)[2]];
+                    func_80139E44_8013990C(obj, ref->f0);
+                    src2 = ref->f4;
+                    src = ref->f8;
+                    cnt2 = ref->f0->fE;
+                    obj++;
+                    dst = out;
+                    n = ref->f0->f16;
+                    D_8013C564_8013990C[i]->f8 = out;
+                    m = func_80139F6C_8013990C(src, n);
+                    break;
+                case 3:
+                    ref = t[((u8 *)e)[2]];
+                    func_80139E88_8013990C(obj, ref->f0);
+                    src2 = ref->f4;
+                    src = ref->f8;
+                    cnt2 = ref->f0->f8;
+                    obj++;
+                    dst = out;
+                    m = ref->f0->f2;
+                    D_8013C564_8013990C[i]->f8 = out;
+                    n = func_80139F38_8013990C(src, m);
+                    break;
+                }
+                sz = n * 4;
+                func_800A3760(dst, src, sz);
+                out += sz;
+                if (*ent & 1) {
+                    buf[3] = 3;
+                    buf[0] = 1;
+                    buf[2] = (*ent >> 1) & 3;
+                    func_8013B8D0(dst, m, buf);
+                }
+                if (*ent & 8) {
+                    buf[3] = 4;
+                    buf[1] = 0;
+                    func_8013B8D0(dst, m, buf);
+                }
+                if (*ent & 0x10) {
+                    s32 sz2;
+                    ent = (u16 *)D_8013C564_8013990C[i];
+                    sz2 = cnt2 * 4;
+                    ((MdlObj_8013990C *)ent)->f4 = out;
+                    func_800A3760(out, src2, sz2);
+                    out += sz2;
+                    ((MdlObj_8013990C *)ent)->f18 = out;
+                    func_800A3760(out, src2, sz2);
+                    out += sz2;
+                }
+                break;
+            }
+            }
+            i++;
+            e++;
+        } while (i < D_8013C568_8013990C);
+    }
+    func_80139F0C_8013990C(D_8013C568_8013990C);
+}
 
 void func_80139DAC(void) {
     func_8008C064(D_8013C574);

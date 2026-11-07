@@ -1498,7 +1498,504 @@ void func_80140A20(void) {
     func_80140630(0x32);
 }
 
-INCLUDE_ASM("asm/ovl/422/nonmatchings/422_monkey_madness_f9", func_80140A60);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_80140A60;
+typedef struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; u8 pad_30[0x20]; u32 f_50; u8 pad_54[8]; u16 f_5C; u8 pad_5E[2]; SVECTOR f_60; u8 pad_68[0xC]; SVECTOR f_74; SVECTOR f_7C; u16 *f_84; u8 pad_88[4]; u8 f_8C; u8 pad_8D; u8 f_8E; u8 pad_8F; s16 f_90; s16 f_92; s16 f_94; u16 f_96; } Part_80140A60;
+typedef struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; u8 pad_30[0x20]; u32 f_50; u8 pad_54[0x1C]; SVECTOR f_70; } Coll_80140A60;
+typedef struct { u16 anim; u8 pad_2[2]; u16 f_4; u8 f_6; u8 f_7; u16 *f_8; u8 f_C; u8 f_D; u8 f_E; u8 f_F; s16 f_10; u16 f_12; s8 f_14; s8 f_15; u8 f_16; u8 f_17; Part_80140A60 *f_18; u8 f_1C; u8 f_1D; u8 f_1E; u8 f_1F; } St_80140A60;
+typedef struct { u8 pad_0[0x24]; s16 f_24; } Shape_80140A60;
+extern St_80140A60 D_80144BE8_80140A60 asm("D_80144BE8");
+extern Part_80140A60 D_80144460_80140A60[] asm("D_80144460");
+extern Coll_80140A60 D_80144888_80140A60[] asm("D_80144888");
+extern u8 D_80144BEE_80140A60 asm("D_80144BEE");
+extern s16 D_80144BF8_80140A60 asm("D_80144BF8");
+extern s16 D_801444A4_80140A60 asm("D_801444A4");
+extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_80140A60 asm("g_Spike");
+extern u8 D_80143F00_80140A60[] asm("D_80143F00");
+extern u8 D_80144014_80140A60[] asm("D_80144014");
+extern u8 D_801440BC_80140A60[] asm("D_801440BC");
+extern u8 D_80144164_80140A60[] asm("D_80144164");
+extern u8 D_8014436C_80140A60[] asm("D_8014436C");
+extern u8 D_80144378_80140A60[] asm("D_80144378");
+s32 Sound_PlayFixed_80140A60(s32) asm("Sound_PlayFixed");
+void Camera_StartShake_80140A60(s32) asm("Camera_StartShake");
+void Effect_Spawn_80140A60(s32, void *, void *, s32) asm("Effect_Spawn");
+void Fx_SpawnFadeRing_80140A60(void *, s32, s32, s32) asm("Fx_SpawnFadeRing");
+void Fx_DrawFadeRing_80140A60(void *, s32, s32, s32) asm("Fx_DrawFadeRing");
+void func_80070284_80140A60(void *, void *, s32, s32, void *) asm("func_80070284");
+void func_80070130_80140A60(void *, void *, s32, s32, s32, s32) asm("func_80070130");
+void func_800702B0_80140A60(void *, void *) asm("func_800702B0");
+void Pickup_Drop_80140A60(s32, void *, s32, s32) asm("Pickup_Drop");
+Shape_80140A60 *Collision_GetShape_80140A60(s32) asm("Collision_GetShape");
+s32 Collision_GetId_80140A60(s32) asm("Collision_GetId");
+void Collision_Remove_80140A60(void *) asm("Collision_Remove");
+void RotMatrix_80140A60(void *, void *) asm("RotMatrix");
+void *ApplyMatrixSV_80140A60(void *, void *, void *) asm("ApplyMatrixSV");
+s32 VectorNormalSS_80140A60(void *, void *) asm("VectorNormalSS");
+void *memset_80140A60(void *, s32, s32) asm("memset");
+void func_8013D000(s32 i, void *obj, void *out);
+void func_8013D4A4(SVECTOR *arg0);
+void func_8013D60C_80140A60(void) asm("func_8013D60C");
+void func_8013D9DC(void);
+void func_8013DA04(void);
+void func_8013DD44_80140A60(void *) asm("func_8013DD44");
+void func_8013E22C_80140A60(void) asm("func_8013E22C");
+void func_8013E4D0_80140A60(void *, void *) asm("func_8013E4D0");
+void func_8013E564(void);
+void func_8013E8D4(void);
+void func_8013F0A4_80140A60(void *) asm("func_8013F0A4");
+void func_8013F198(void);
+void func_8013F598(u8 *obj);
+void func_8013F78C(u8 *e, s16 a1, s16 a2, s16 a3);
+void func_8013F930(void);
+void func_8013F964(void);
+void func_8013FAA4_80140A60(void) asm("func_8013FAA4");
+void func_80140630(s16 arg0);
+void func_8014063C(void);
+void func_80140738(void);
+void func_801407B4(s32 n);
+void func_8014081C(void);
+void func_801408AC(s32 arg0, s32 arg1);
+void func_8014092C(void);
+void func_801409AC(void);
+void func_80141F70(void);
+void func_80142C40_80140A60(void) asm("func_80142C40");
+#define RAND_80140A60() (g_RandSeed = g_RandSeed * 5 + 1)
+#define ST_80140A60 D_80144BE8_80140A60
+#define PT_80140A60 D_80144460_80140A60
+
+void func_80140A60(void) {
+    SVECTOR v18;
+    SVECTOR v20;
+    SVECTOR v28;
+    SVECTOR v30;
+    SVECTOR v38;
+    SVECTOR *sc = (SVECTOR *)0x1F800000;
+    s32 i;
+    Part_80140A60 *q;
+    Part_80140A60 *p;
+
+    if (ST_80140A60.f_F == 1) {
+        if (ST_80140A60.f_E == 0) {
+            func_80142C40_80140A60();
+        }
+        return;
+    }
+    switch (ST_80140A60.f_C) {
+    case 1:
+        ST_80140A60.f_10++;
+        if (ST_80140A60.f_10 < 0x30 && !(*(volatile s16 *)&ST_80140A60.f_10 & 7)) {
+            Sound_PlayFixed_80140A60(0x6A);
+        }
+        if (ST_80140A60.f_6 == 0) {
+            func_801408AC(0x1E, 0xA);
+        }
+        if (ST_80140A60.f_10 == 0x32) {
+            func_8013F930();
+            Camera_StartShake_80140A60(1);
+            Sound_PlayFixed_80140A60(0xC);
+            Sound_PlayFixed_80140A60(0x80);
+        }
+        break;
+    case 0:
+        func_801406F8(0);
+        if (ST_80140A60.f_E == 0 && --ST_80140A60.f_10 == 0) {
+            s32 n = 0x40;
+            u8 r;
+
+            do {
+                r = (RAND_80140A60() >> 8) & 3;
+            } while (ST_80140A60.f_1E == r && --n > 0);
+            func_801407B4(ST_80140A60.f_17 ^ 1);
+            if ((PT_80140A60[3].f_8C != 1 || PT_80140A60[4].f_8C != 1) && r == 2) {
+                r = 0;
+            }
+            ST_80140A60.f_1E = r;
+            ST_80140A60.f_1F = 0;
+            func_80140630(0x1E);
+            switch (r) {
+            case 0:
+                func_801406F8(ST_80140A60.f_17 + 3);
+                ST_80140A60.f_C = 4;
+                Sound_PlayFixed_80140A60(0x74);
+                Sound_PlayFixed_80140A60(0x8E);
+                break;
+            case 1:
+                func_801406F8(ST_80140A60.f_17 + 5);
+                ST_80140A60.f_7 = 1;
+                ST_80140A60.f_C = 6;
+                ST_80140A60.f_10 = 0;
+                Sound_PlayFixed_80140A60(0x74);
+                Sound_PlayFixed_80140A60(0x8E);
+                break;
+            case 2:
+                func_801406F8(2);
+                ST_80140A60.f_C = 3;
+                Sound_PlayFixed_80140A60(0x82);
+                break;
+            case 3:
+                func_8014092C();
+                ST_80140A60.f_10 = 0;
+                break;
+            }
+            if ((RAND_80140A60() >> 8) & 1) {
+                func_8014081C();
+            }
+            func_80140498(2);
+        }
+        break;
+    case 2:
+        ST_80140A60.f_10++;
+        if (ST_80140A60.f_6 == 0) {
+            func_801408AC(0x46, 0x1E);
+        }
+        if (ST_80140A60.f_10 < 0x30 && !(*(volatile s16 *)&ST_80140A60.f_10 & 7)) {
+            Sound_PlayFixed_80140A60(0x6A);
+        }
+        if (D_80144BF8_80140A60 == 0x1E) {
+            func_8013F964();
+        }
+        break;
+    case 3:
+        if (++ST_80140A60.f_10 < 0x2D) {
+            for (i = 0; i < 2; i++) {
+                *sc = PT_80140A60[i + 3].f_7C;
+                Effect_SpawnAt(6, sc);
+                if (!((RAND_80140A60() >> 8) & 3)) {
+                    func_800702B0_80140A60(sc, D_80144378_80140A60);
+                }
+            }
+        } else if (ST_80140A60.f_10 == 0x2D) {
+            s32 i;
+
+            for (i = 0; i < 2; i++) {
+                *sc = PT_80140A60[i + 3].f_7C;
+                sc->vy = -0x3010;
+                func_80070130_80140A60(sc, D_80144164_80140A60, 2, 1, 2, 0);
+                sc->vy += 0x80;
+                func_800702B0_80140A60(sc, D_8014436C_80140A60);
+            }
+            for (i = 0; i < 0x30; i++) {
+                sc->vx = ((RAND_80140A60() >> 8) - 0x7F) * 0x10;
+                sc->vy = -0x3000;
+                sc->vz = 0xEB8 - ((RAND_80140A60() >> 5) & 0x7F8);
+                Effect_SpawnAt(6, sc);
+            }
+            sc->vy = -0x3000;
+            sc->vx = 0;
+            sc->vz = 0xADC;
+            func_8013D4A4(sc);
+            Camera_StartShake_80140A60(2);
+            Sound_PlayFixed_80140A60(0x80);
+            Sound_PlayFixed_80140A60(0x79);
+            Sound_PlayFixed_80140A60(0x60);
+            func_8013D9DC();
+        }
+        if (ST_80140A60.f_10 >= 0x35) {
+            func_8013DA04();
+        }
+        if (ST_80140A60.f_6 == 0) {
+            func_801408AC(0x28, 0x14);
+        }
+        break;
+    case 4:
+        ST_80140A60.f_7 = 1;
+        if ((u16)RAND_80140A60() >> 8 < 0x20) {
+            func_8013E81C((u8 *)ST_80140A60.f_18, 0);
+        }
+        if (ST_80140A60.f_6 == 0) {
+            func_801409AC();
+        }
+        break;
+    case 6: {
+        Part_80140A60 *m = ST_80140A60.f_18;
+        SVECTOR *p = &m->f_7C;
+
+        ST_80140A60.f_10++;
+        if (ST_80140A60.f_10 & 1) {
+            u8 c = ST_80140A60.f_10 * 2 + 0x20;
+
+            Fx_DrawFadeRing_80140A60(p, ST_80140A60.f_10 * 24, 5, (c << 16) | (c << 8) | c);
+        }
+        if (!(ST_80140A60.f_10 & 1)) {
+            sc->vx = p->vx + ((RAND_80140A60() >> 8) - 0x80) * 16;
+            sc->vy = p->vy + ((RAND_80140A60() >> 8) - 0x80) * 16;
+            sc->vz = p->vz + ((RAND_80140A60() >> 8) - 0x80) * 16;
+            func_8013E4D0_80140A60(sc, p);
+            ST_80140A60.f_1D = 1;
+            ST_80140A60.f_1C = ((RAND_80140A60() >> 8) & 7) + 9;
+            if (!(ST_80140A60.f_10 & 1)) {
+                Sound_PlayFixed_80140A60(0x58);
+            }
+        }
+        if (ST_80140A60.f_6 == 0) {
+            ST_80140A60.f_C = 7;
+            ST_80140A60.f_10 = (((RAND_80140A60() >> 8) & 3) + 4) * 4;
+        }
+        break;
+    }
+    case 7: {
+        Part_80140A60 *m = ST_80140A60.f_18;
+        SVECTOR *p = &m->f_7C;
+
+        if (!(--ST_80140A60.f_10 & 3)) {
+            func_8013F0A4_80140A60(m);
+            ST_80140A60.f_14 = ST_80140A60.f_15 = -0x18;
+            ST_80140A60.f_16 = 1;
+            sc->vx = p->vx + ((RAND_80140A60() >> 8) - 0x80) * 4;
+            sc->vy = p->vy + ((RAND_80140A60() >> 8) - 0x80) * 4;
+            sc->vz = p->vz + ((RAND_80140A60() >> 8) - 0x80) * 4;
+            func_8013E4D0_80140A60(sc, p);
+            Sound_PlayFixed_80140A60(0x77);
+        }
+        if (ST_80140A60.f_10 == 0) {
+            ST_80140A60.f_C = 8;
+            func_801406F8(ST_80140A60.f_17 + 7);
+            ST_80140A60.f_7 = 1;
+        }
+        break;
+    }
+    case 8:
+        if (D_80144BEE_80140A60 == 0) {
+            func_801408AC(0x1E, 0x3C);
+        }
+        break;
+    case 10:
+        if (--ST_80140A60.f_10 == 0x43) {
+            func_80140498(0);
+        }
+        if (ST_80140A60.f_10 == 0x14) {
+            func_8014081C();
+        }
+        if (ST_80140A60.f_10 == 0) {
+            func_801406F8(ST_80140A60.f_17 + 0xD);
+            ST_80140A60.f_C = 0xB;
+            func_80140498(1);
+        }
+        break;
+    case 11:
+        if (D_80144BEE_80140A60 == 0) {
+            func_801408AC(0x1E, 0x3C);
+        }
+        break;
+    case 12:
+        if (ST_80140A60.f_6 == 0 && ST_80140A60.f_D == 0) {
+            func_801408AC(0x3C, 0x3C);
+        }
+        break;
+    case 13:
+        if (--ST_80140A60.f_10 == 0) {
+            v18.vy = -0x3300;
+            v18.vx = 0;
+            v18.vz = 0xEB8;
+            Effect_SpawnAt(0x105, &v18);
+            Fx_SpawnFadeRing_80140A60(&v18, 0, 0x3E8, 0);
+            func_8013D4A4(&v18);
+            Camera_StartShake_80140A60(1);
+            memset_80140A60(&v28, 0, 8);
+            v28.vx = g_Spike_80140A60.x - v18.vx;
+            v28.vy = g_Spike_80140A60.y - v18.vy;
+            v28.vz = g_Spike_80140A60.z - v18.vz;
+            v20 = v28;
+            func_80070284_80140A60(&v18, D_80144014_80140A60, 1, 0, &v20);
+            Sound_PlayFixed_80140A60(0x82);
+            Sound_PlayFixed_80140A60(0xBA);
+            func_8013F78C((u8 *)&PT_80140A60[1], 0x1E, -0x94, -0x1E);
+            func_8013F78C((u8 *)&PT_80140A60[2], -0x19, -0x41, -0x28);
+            func_8013F78C((u8 *)&PT_80140A60[5], 0x1C, -0x6E, -0x3C);
+            func_8013F78C((u8 *)&PT_80140A60[6], -0x24, -0x50, -0xC);
+            Sound_PlayFixed_80140A60(0x79);
+            ST_80140A60.f_10 = 0x3C;
+            ST_80140A60.f_C = 0xE;
+            func_8013D000(7, &PT_80140A60[0], &PT_80140A60[0].f_84);
+            ST_80140A60.f_8 = PT_80140A60[0].f_84;
+            ST_80140A60.f_4 = *ST_80140A60.f_8;
+            ST_80140A60.f_7 = 0;
+            func_8013D9DC();
+        }
+        break;
+    case 14:
+        if (--ST_80140A60.f_10 == 0) {
+            v28.vy = -0x3370;
+            v28.vx = 0;
+            v28.vz = 0xEB8;
+            Effect_SpawnAt(0x105, &v28);
+            Fx_SpawnFadeRing_80140A60(&v28, 0, 0x640, 0);
+            func_8013D4A4(&v28);
+            Effect_SpawnAt(0x109, &v28);
+            Camera_StartShake_80140A60(2);
+            func_8013D9DC();
+            memset_80140A60(&v38, 0, 8);
+            v38.vx = g_Spike_80140A60.x - v28.vx;
+            v38.vy = g_Spike_80140A60.y - v28.vy;
+            v38.vz = g_Spike_80140A60.z - v28.vz;
+            v30 = v38;
+            func_80070284_80140A60(&v28, D_80144014_80140A60, 1, 0, &v30);
+            Sound_PlayFixed_80140A60(0x82);
+            Sound_PlayFixed_80140A60(0xBA);
+            D_801444A4_80140A60 = 0xC8;
+            func_80141F70();
+        }
+        break;
+    }
+    func_80140738();
+    {
+
+        for (i = 0, p = PT_80140A60; i < 7; i++, p++) {
+            p->f_5C = ST_80140A60.f_4;
+            if (i == 0) {
+                func_8013DD44_80140A60(p);
+                p->y = -0x3000;
+                p->x = 0;
+                p->z = 0x10B8;
+                continue;
+            }
+            if (p->f_8C == 2) {
+                p->f_5C = 2;
+                p->x += p->f_90;
+                p->y += p->f_92;
+                p->z += p->f_94;
+                p->f_92 += 0xB;
+                Effect_SpawnAt(6, &p->f_74);
+                if (ST_80140A60.f_12 & 1) {
+                    Effect_Spawn_80140A60(0xCD, &p->f_74, D_80143F00_80140A60, 0);
+                }
+                if (p->f_92 > 0 && p->y >= -0x2DFF) {
+                    s32 j;
+
+                    p->f_8C = 0;
+                    *sc = p->f_7C;
+                    sc->vy = -0x3010;
+                    if ((u32)(i - 3) < 2) {
+                        for (j = 0; j < 3; j++) {
+                            Pickup_Drop_80140A60(1, sc, 3, 0);
+                        }
+                        for (j = 0; j < 2; j++) {
+                            Pickup_Drop_80140A60(3, sc, 3, 0);
+                        }
+                        Pickup_Drop_80140A60(5, sc, 3, 0);
+                    }
+                    func_8013D4A4(sc);
+                    sc->vy -= ((u16)RAND_80140A60() >> 9) + 0x60;
+                    func_80070284_80140A60(sc, D_801440BC_80140A60, 1, (RAND_80140A60() >> 8) & 7, NULL);
+                    sc->vy -= 0x60;
+                    func_80070284_80140A60(sc, D_801440BC_80140A60 - 0x54, 2, (RAND_80140A60() >> 8) & 3, NULL);
+                    Fx_SpawnFadeRing_80140A60(sc, 0, 0x578, 0);
+                    Effect_SpawnAt(0x109, &p->f_74);
+                    for (j = 0; j < 0xF; j++) {
+                        Effect_Spawn_80140A60(0xCD, sc, D_80143F00_80140A60, 0);
+                    }
+                    Camera_StartShake_80140A60(2);
+                    Sound_PlayFixed_80140A60(0xBA);
+                    func_8013D9DC();
+                    if ((u32)(ST_80140A60.f_C - 0xD) >= 2 && PT_80140A60[3].f_8C == 0 && PT_80140A60[4].f_8C == 0) {
+                        ST_80140A60.f_C = 0xD;
+                        ST_80140A60.f_10 = 0x1E;
+                    }
+                }
+                sc->vx = 0xB;
+                sc->vy = 0;
+                sc->vz = 0;
+                RotMatrix_80140A60(sc, (Mat_80140A60 *)(sc + 1));
+                ApplyMatrixSV_80140A60((Mat_80140A60 *)(sc + 1), &p->f_60, &p->f_60);
+                VectorNormalSS_80140A60(&p->f_60, &p->f_60);
+                p->f_96++;
+            }
+            if (p->f_8C == 1) {
+                p->y = -0x3000;
+                p->x = 0;
+                p->z = 0x10B8;
+            }
+            if (p->f_8C != 0) {
+                func_8013DD44_80140A60(p);
+            }
+        }
+    }
+    {
+        Coll_80140A60 *c;
+
+
+        for (i = 0, p = &PT_80140A60[3], c = D_80144888_80140A60; i < 2; i++, p++, c++) {
+            if (p->f_8C != 1) {
+                v18.vx = c->f_70.vx + ((RAND_80140A60() >> 8) + 0xFF80);
+                v18.vy = c->f_70.vy + ((RAND_80140A60() >> 8) + 0xFF80);
+                v18.vz = c->f_70.vz + ((RAND_80140A60() >> 8) + 0xFF80);
+                if (!((RAND_80140A60() >> 8) & 7)) {
+                    func_8013E4D0_80140A60(&v18, &c->f_70);
+                }
+                if (!((RAND_80140A60() >> 8) & 1)) {
+                    Effect_SpawnAt(7, &v18);
+                    Effect_SpawnAt(0x31, &v18);
+                }
+                if (ST_80140A60.f_12 & 1) {
+                    Fx_DrawFadeRing_80140A60(&c->f_70, ((u16)RAND_80140A60() >> 9) | 0x80, 0, 0x303030);
+                }
+            }
+            if (p->f_8E != 0 && ST_80140A60.f_D == 0) {
+                c->x = p->f_7C.vx;
+                c->y = p->f_7C.vy + 0x50;
+                c->z = p->f_7C.vz;
+                if ((c->f_50 >> 28) == 0xB) {
+                    Shape_80140A60 *sh = Collision_GetShape_80140A60(M2C_FIELD(c, u16 *, 0x50) & 0xFFF);
+                    s32 id = Collision_GetId_80140A60(M2C_FIELD(p, u16 *, 0x50) & 0xFFF);
+                    s32 t;
+
+                    if (p != ST_80140A60.f_18 || (t = sh->f_24 & 0xFF00) == 0xD00 || t == 0xF00
+                        || (u32)(ST_80140A60.f_C - 0xA) >= 2 || id != 1) {
+                        ST_80140A60.f_D = 0xC;
+                        Effect_SpawnAt(0x109, &p->f_7C);
+                        Camera_StartShake_80140A60(0);
+                        Sound_PlayFixed_80140A60(0x60);
+                        func_8013D9DC();
+                    } else {
+                        memset_80140A60(&v28, 0, 8);
+                        v28.vx = p->f_7C.vx;
+                        v28.vy = p->f_7C.vy;
+                        v28.vz = p->f_7C.vz;
+                        v20 = v28;
+                        func_801406F8(i + 0xB);
+                        ST_80140A60.f_D = 0x1E;
+                        ST_80140A60.f_C = 0xC;
+                        Effect_SpawnAt(0x105, &v20);
+                        Fx_SpawnFadeRing_80140A60(&v20, 0, 0x300, 0);
+                        func_8013D4A4(&v20);
+                        Camera_StartShake_80140A60(1);
+                        memset_80140A60(&v30, 0, 8);
+                        v30.vx = g_Spike_80140A60.x - v20.vx;
+                        v30.vy = g_Spike_80140A60.y - v20.vy;
+                        v30.vz = g_Spike_80140A60.z - v20.vz;
+                        v28 = v30;
+                        func_80070284_80140A60(&v20, D_80144014_80140A60, 1, 0, &v28);
+                        Sound_PlayFixed_80140A60(0x4D);
+                        Sound_PlayFixed_80140A60(0x82);
+                        func_80140630(0x32);
+                        func_8013D9DC();
+                        if (--p->f_8E == 0) {
+                            Collision_Remove_80140A60(&c->x);
+                            func_8013F78C((u8 *)p, i * -0x28 + 0x14, -0x50, -8);
+                            Sound_PlayFixed_80140A60(0x79);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    q = &PT_80140A60[3]; /* the original passes &PT[3] - 3 to func_8013F598 */
+    if (ST_80140A60.f_D != 0) {
+        ST_80140A60.f_D--;
+    }
+    if (ST_80140A60.f_1C != 0) {
+        ST_80140A60.f_1C--;
+    }
+    ST_80140A60.f_12++;
+    func_8013FAA4_80140A60();
+    func_8013E8D4();
+    func_8013F198();
+    func_8013D60C_80140A60();
+    func_8013E22C_80140A60();
+    func_8013E564();
+    func_8014063C();
+    func_8013F598((u8 *)(q - 3));
+}
 
 extern u8 D_80144A10[];
 extern u8 D_80144978[];

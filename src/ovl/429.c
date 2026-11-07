@@ -771,7 +771,6 @@ s32 func_801374DC(void) {
 typedef struct { s16 f_0; u8 pad2[6]; } Row_801378C4;
 extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_801378C4 asm("g_Pad");
 extern Row_801378C4 D_80139368_801378C4[] asm("D_80139368");
-void func_80138428();
 s32 func_801388A4(void);
 s32 func_80136FF0(void);
 
@@ -1056,7 +1055,125 @@ done:
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/429/nonmatchings/429", func_80138428);
+typedef struct { s16 x, y; u8 s[0x20]; } Label_80138428;
+typedef struct { u8 pad0[0x1C]; u16 f_1C; u8 pad1E[0x40]; u8 s5E[0xC]; u8 s6A[0x1E]; } Mk_80138428;
+typedef struct { s16 f_0; u16 f_2; Mk_80138428 *f_4; } Slot_80138428;
+extern Slot_80138428 D_80139368_80138428[] asm("D_80139368");
+extern u8 D_80138EF4[];
+extern s32 D_80139330;
+extern s32 D_80139334;
+
+s32 func_80138428(void) {
+    u8 buf[8];
+    Mk_80138428 *m;
+    Label_80138428 *t;
+    u8 *q;
+    u8 *p;
+    s32 v;
+    s32 i, j, n;
+    s32 c0, c1;
+    s32 k;
+
+    m = D_80139368_80138428[D_801391B0].f_4;
+    v = (s16)m->f_1C;
+    k = v / 1000;
+    func_80136000(m->s5E, 0x10B - func_80136120(m->s5E) / 2, 0x50, 0);
+    func_80136000(m->s6A, 0xC6 - func_80136120(m->s6A) / 2, 0xC9, 0);
+    q = D_80138EF4;
+    t = (Label_80138428 *)(q - 4);
+    func_80136000(t[0].s, t[0].x, t[0].y, 0);
+    func_80136000(t[1].s, t[1].x, t[1].y, 0);
+    func_80136000(t[2].s, t[2].x, t[2].y, 0);
+    func_80136000(t[3].s, t[3].x, t[3].y, 0);
+    buf[0] = D_801391E0[k];
+    buf[1] = 0;
+    func_80136000(buf, 0x140, 0x74, 0);
+    p = D_800EC354;
+    if (D_80139334 == 1) {
+        if ((D_80139330 += 4) > 0xD0) {
+            D_80139334 = -1;
+        }
+    } else {
+        if ((D_80139330 -= 4) < 0) {
+            D_80139334 = 1;
+        }
+    }
+    for (i = 0; i < 3; i++) {
+        if (i == 2) {
+            n = v % 10;
+        } else if (i == 1) {
+            n = v % 100 / 10;
+        } else {
+            n = v % 1000 / 100;
+        }
+        for (j = 0; j < 5; j++) {
+            p[3] = 8;
+            p[7] = 0x38;
+            if (j >= n) {
+                c1 = c0 = 0;
+            } else {
+                c0 = 0xF0 - D_80139330;
+                c1 = D_80139330 + 0x20;
+            }
+            if (i == 0) {
+                p[4] = 0;
+                p[5] = 0;
+                p[6] = c0;
+                p[0xC] = 0;
+                p[0xD] = 0;
+                p[0xE] = c0;
+                p[0x14] = 0;
+                p[0x15] = 0;
+                p[0x16] = c1;
+                p[0x1C] = 0;
+                p[0x1D] = 0;
+                p[0x1E] = c1;
+            } else if (i == 1) {
+                p[4] = c0;
+                p[5] = 0;
+                p[6] = 0;
+                p[0xC] = c0;
+                p[0xD] = 0;
+                p[0xE] = 0;
+                p[0x14] = c1;
+                p[0x15] = 0;
+                p[0x16] = 0;
+                p[0x1C] = c1;
+                p[0x1D] = 0;
+                p[0x1E] = 0;
+            } else {
+                p[4] = c0;
+                p[5] = c0;
+                p[6] = 0;
+                p[0xC] = c0;
+                p[0xD] = c0;
+                p[0xE] = 0;
+                p[0x14] = c1;
+                p[0x15] = c1;
+                p[0x16] = 0;
+                p[0x1C] = c1;
+                p[0x1D] = c1;
+                p[0x1E] = 0;
+            }
+            M2C_FIELD(p, s16 *, 0x8) = 0x120 + j * 12;
+            M2C_FIELD(p, s16 *, 0xA) = 0x8D + i * 16;
+            M2C_FIELD(p, s16 *, 0x10) = 0x128 + j * 12;
+            M2C_FIELD(p, s16 *, 0x12) = 0x8D + i * 16;
+            M2C_FIELD(p, s16 *, 0x18) = 0x120 + j * 12;
+            M2C_FIELD(p, s16 *, 0x1A) = 0x9C + i * 16;
+            M2C_FIELD(p, s16 *, 0x20) = 0x128 + j * 12;
+            M2C_FIELD(p, s16 *, 0x22) = 0x9C + i * 16;
+            {
+                s32 cur = G_DRAW.cur;
+                register u32 *ot asm("$2") = G_DRAW.db[cur].ot;
+                __asm__ volatile("lwl $4, 2(%1)\n\tsll %0, %3, 8\n\tswl %0, 2(%1)\n\tswl $4, %2" : "=r"(cur) : "r"(ot), "m"(*((u8 *)(p) + 2)), "r"(p), "0"(cur) : "$4");
+            }
+            p += 0x24;
+        }
+    }
+    D_800EC354 = p;
+    return 0;
+}
 
 s32 func_801388A4(void) {
     u8 *p = G_DRAW.prim;
