@@ -288,7 +288,179 @@ void Seq_Tick(void) {
 INCLUDE_RODATA("asm/nonmatchings/game/8009BA90_seq", jtbl_800A68C0_pad);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/8009BA90_seq", func_8009BFFC);
+typedef struct { u8 f_0; u8 f_1; u8 f_2; u8 f_3; u16 f_4; u16 f_6; u16 f_8; u8 f_A; u8 f_B; u8 f_C; u8 f_D; u8 f_E; u8 f_F; } Note_BFFC;
+typedef struct { u8 pad0[3]; u8 f_3; u8 pad4[6]; u8 f_A; u8 padB; u8 f_C; u8 padD; u8 f_E; } Trk_BFFC;
+typedef struct { u8 f_0; u8 pad1; u8 f_2; u8 f_3; u8 pad4; u8 f_5; u8 pad6[6]; s32 f_C; u8 pad10[0xD]; u8 f_1D; u8 pad1E; u8 f_1F; u8 f_20; u8 pad21[0xC4]; u8 f_E5; u8 f_E6; u8 padE7; u16 f_E8; u16 f_EA; u16 f_EC; u8 padEE[0x32]; } Ch_BFFC;
+typedef struct { u8 f_0; u8 pad1[3]; u8 f_4; u8 pad5[0xB]; u16 f_10; u16 f_12; u16 f_14; u16 f_16; u8 pad18[0x1A]; u16 f_32; } Seq_BFFC;
+typedef struct { u16 f_0, f_2, f_4, f_6, f_8, f_A; u8 padC[4]; } SpuV_BFFC;
+typedef struct { SpuV_BFFC v[24]; u8 pad180[0x2A]; u16 f_1AA; } Spu_BFFC;
+typedef struct { u8 pad0[8]; u16 f_8; u8 padA[2]; } Bank_BFFC;
+typedef struct { u16 f_0, f_2, f_4, f_6, f_8, f_A, f_C, f_E, f_10, f_12, f_14, f_16, f_18, f_1A, f_1C, f_1E, f_20, f_22, f_24, f_26, f_28, f_2A, f_2C, f_2E, f_30, f_32, f_34, f_36, f_38, f_3A, f_3C, f_3E, f_40, f_42, f_44, f_46, f_48, f_4A, f_4C, f_4E; u16 pad50[9]; u16 f_62; u16 pad64; } Vo_BFFC;
+extern Note_BFFC *D_800B4DF0_BFFC asm("D_800B4DF0");
+extern Trk_BFFC *D_800B4DE0_BFFC asm("D_800B4DE0");
+extern Ch_BFFC g_SeqChannels_BFFC[] asm("g_SeqChannels");
+extern Vo_BFFC g_SeqVoices_BFFC[] asm("g_SeqVoices");
+extern Seq_BFFC D_800F75C0_BFFC asm("D_800F75C0");
+extern Spu_BFFC *D_800E1874_BFFC asm("D_800E1874");
+extern Bank_BFFC g_SoundBanks_BFFC[] asm("g_SoundBanks");
+u8 func_8009E124(u8 ch);
+u8 func_8009DCA0(u8 ch, u8 prio);
+s16 Seq_ScaleParam(u16, s32);
+s32 Math_MaxS16(s16, s16);
+void func_8009E434(s32, s32);
+void func_8009E490(s32 a0, u8 bit);
+
+void func_8009BFFC(u8 ch) {
+    Ch_BFFC *c;
+    Seq_BFFC *sq = &D_800F75C0_BFFC;
+    s16 d;
+    s32 k;
+    s32 v;
+    s32 j;
+    Vo_BFFC *vo;
+    u16 l, r;
+    s16 a, b;
+    u8 adsr;
+
+    c = g_SeqChannels_BFFC; c += (u8)ch;
+    if (c->f_3 == 0) {
+        func_8009E124((u8)ch);
+        return;
+    }
+    d = c->f_2 - D_800B4DE8[6];
+    k = d;
+    if (k < 0) {
+        return;
+    }
+    D_800B4DF0_BFFC += k;
+    D_800B4DE0_BFFC->f_A = 0x40;
+    v = func_8009DCA0(D_800B4DF0_BFFC->f_0, D_800B4DF0_BFFC->f_1);
+    { s32 i0; __asm__("" : "=r"(i0) : "0"(v));
+    if (i0 == 0xFF) {
+        c->f_C += 4;
+        sq->f_4 = 0;
+        return;
+    }
+    if (D_800B4DF0_BFFC->f_F & 1) {
+        g_SeqVoices_BFFC[i0].f_8 = 0;
+        g_SeqVoices_BFFC[i0].f_C = 1;
+    } else {
+        g_SeqVoices_BFFC[i0].f_8 = 1;
+        g_SeqVoices_BFFC[i0].f_C = 0;
+    } }
+    g_SeqVoices_BFFC[v].f_0 = 1;
+    g_SeqVoices_BFFC[v].f_2 = c->f_2;
+    g_SeqVoices_BFFC[v].f_4 = c->f_0 & 0xF;
+    __asm__("" : "=m"(g_SeqVoices_BFFC[v].f_6) : "m"(g_SeqVoices_BFFC[v].f_4));
+    g_SeqVoices_BFFC[v].f_6 = (u8)ch;
+    g_SeqVoices_BFFC[v].f_A = sq->f_0;
+    g_SeqVoices_BFFC[v].f_E = d;
+    g_SeqVoices_BFFC[v].f_12 = 0;
+    g_SeqVoices_BFFC[v].f_18 = 0;
+    g_SeqVoices_BFFC[v].f_1A = 1;
+    g_SeqVoices_BFFC[v].f_1C = 4;
+    g_SeqVoices_BFFC[v].f_1E = D_800B4DF0_BFFC->f_1;
+    g_SeqVoices_BFFC[v].f_20 = D_800B4DF0_BFFC->f_0;
+    g_SeqVoices_BFFC[v].f_22 = c->f_20;
+    g_SeqVoices_BFFC[v].f_24 = c->f_1D;
+    g_SeqVoices_BFFC[v].f_26 = c->f_1F;
+    g_SeqVoices_BFFC[v].f_28 = D_800B4DE0_BFFC->f_E;
+    g_SeqVoices_BFFC[v].f_2A = D_800B4DE8[1];
+    g_SeqVoices_BFFC[v].f_2C = D_800E1860[c->f_3 + 2];
+    g_SeqVoices_BFFC[v].f_2E = D_800B4DF0_BFFC->f_B;
+    g_SeqVoices_BFFC[v].f_30 = D_800B4190[(func_8009E784(4, 0) >> 1) & 0x7E];
+    { u8 *q = &D_800B4190[((func_8009E784(4, 0) >> 1) & 0x7E)]; g_SeqVoices_BFFC[v].f_32 = q[1]; }
+    g_SeqVoices_BFFC[v].f_34 = D_800B4DE0_BFFC->f_3;
+    g_SeqVoices_BFFC[v].f_36 = D_800B4DF0_BFFC->f_3;
+    g_SeqVoices_BFFC[v].f_38 = D_800B4DE0_BFFC->f_A;
+    g_SeqVoices_BFFC[v].f_3A = D_800B4DF0_BFFC->f_D;
+    g_SeqVoices_BFFC[v].f_3C = D_800B4DE0_BFFC->f_C;
+    g_SeqVoices_BFFC[v].f_3E = c->f_5;
+    g_SeqVoices_BFFC[v].f_40 = D_800B4DF0_BFFC->f_2;
+    g_SeqVoices_BFFC[v].f_44 = 0;
+    g_SeqVoices_BFFC[v].f_4A = D_800B4DF0_BFFC->f_A;
+    g_SeqVoices_BFFC[v].f_4C = D_800B4DF0_BFFC->f_C;
+    g_SeqVoices_BFFC[v].f_4E = 0x78;
+    g_SeqVoices_BFFC[v].f_62 = 0;
+    sq->f_0 += sq->f_0 < 0x18;
+    if (D_800B4DF0_BFFC->f_F & 0x20) {
+        if (D_800B4DF0_BFFC->f_F & 0x40) {
+            g_SeqVoices_BFFC[v].f_10 = D_800B4DE8[5];
+        } else {
+            g_SeqVoices_BFFC[v].f_10 = D_800B4DF0_BFFC->f_E;
+        }
+        g_SeqVoices_BFFC[v].f_14 = 1;
+        g_SeqVoices_BFFC[v].f_16 = 0x7F;
+    } else {
+        g_SeqVoices_BFFC[v].f_14 = 0;
+    }
+    l = Seq_NoteVolume((u8)ch, func_8009E784(4, 0), 0);
+    r = Seq_NoteVolume((u8)ch, func_8009E784(4, 0), 1);
+    if (D_800B4DF0_BFFC->f_F & 0x10) {
+        adsr = D_800B4DE8[4];
+    } else {
+        adsr = D_800B4DF0_BFFC->f_D;
+    }
+    if (c->f_E5 != 0) {
+        u16 p = func_8009E594(D_800B4DF0_BFFC->f_2, c->f_2, D_800B4DF0_BFFC->f_3, D_800B4DE0_BFFC->f_A, adsr);
+        { s32 ja; __asm__("" : "=r"(ja) : "0"(v));
+        D_800E1874_BFFC->v[ja].f_4 = p * c->f_E8 >> 12;
+        a = Seq_ScaleParam(l, c->f_EA);
+        b = Seq_ScaleParam(r, c->f_EC);
+        g_SeqVoices_BFFC[ja].f_42 = 1; }
+    } else {
+        u16 p = func_8009E594(D_800B4DF0_BFFC->f_2, c->f_2, D_800B4DF0_BFFC->f_3, D_800B4DE0_BFFC->f_A, adsr);
+        { s32 jb; Spu_BFFC *sp = D_800E1874_BFFC; __asm__("" : "=r"(jb) : "0"(v), "r"(p));
+        sp->v[jb].f_4 = p;
+        a = Seq_ScaleParam(l, 0x1000);
+        b = Seq_ScaleParam(r, 0x1000);
+        g_SeqVoices_BFFC[jb].f_42 = 0; }
+    }
+    if (sq->f_32 != 0) {
+        b = Math_MaxS16(a, b); __asm__("" : "=r"(a) : "0"(b));
+    }
+    {
+        Spu_BFFC *sp = D_800E1874_BFFC; SpuV_BFFC *sv;
+        __asm__("" : "=r"(j) : "0"(v), "r"(a));
+        sv = &sp->v[j];
+        sv->f_0 = a;
+        sv->f_2 = b;
+        sv->f_6 = D_800B4DF0_BFFC->f_4 + g_SoundBanks_BFFC[c->f_20].f_8;
+        sv->f_8 = D_800B4DF0_BFFC->f_6;
+        sv->f_A = D_800B4DF0_BFFC->f_8;
+    }
+    func_8009E434((u8)ch, v);
+    if (c->f_E6 != 0) {
+        if (j < 0x10) {
+            sq->f_10 |= 1 << j;
+        } else {
+            sq->f_12 |= 1 << (j - 0x10);
+        }
+    } else if (D_800B4DF0_BFFC->f_F & 0x80) {
+        if (j < 0x10) {
+            sq->f_10 |= 1 << j;
+        } else {
+            sq->f_12 |= 1 << (j - 0x10);
+        }
+    } else if (j < 0x10) {
+        sq->f_10 &= ~(1 << j);
+    } else {
+        sq->f_12 &= ~(1 << (j - 0x10));
+    }
+    if (D_800B4DF0_BFFC->f_F & 2) {
+        func_8009E490((u8)ch, v);
+        D_800E1874_BFFC->f_1AA = (D_800E1874_BFFC->f_1AA & 0xC0FF) | (D_800B4DF0_BFFC->f_2 << 8);
+    } else {
+        s32 j2; __asm__("" : "=r"(j2) : "0"(v));
+        if (j2 < 0x10) {
+            sq->f_14 &= ~(1 << j2);
+        } else {
+            sq->f_16 &= ~(1 << (j2 - 0x10));
+        }
+    }
+    D_800B4DF0_BFFC -= d;
+    c->f_C += 4;
+}
 
 typedef struct { u8 f_0; u8 pad1; u8 f_2; u8 f_3; u8 pad4; u8 f_5; u8 pad6[6]; s32 f_C; u8 pad10[0x10]; u8 f_20; u8 f_21; u8 pad22; u8 f_23; u8 pad24[0xFC]; } SeqCh_C77C;
 typedef struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; s16 f_8; s16 f_A; s16 f_C; s16 f_E; s16 f_10; s16 f_12; s16 f_14; s16 f_16; s16 f_18; s16 f_1A; s16 f_1C; s16 f_1E; s16 f_20; s16 f_22; s16 pad24[2]; s16 f_28; s16 f_2A; s16 f_2C; s16 f_2E; s16 f_30; s16 f_32; s16 f_34; s16 f_36; s16 f_38; s16 f_3A; s16 f_3C; s16 f_3E; s16 f_40; s16 f_42; s16 f_44; s16 pad46[2]; s16 f_4A; s16 f_4C; s16 f_4E; s16 pad50[11]; } SeqVoice_C77C;
