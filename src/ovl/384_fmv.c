@@ -1951,7 +1951,130 @@ void func_80139FA0(u8 *a) {
     D_8013C580 = v;
 }
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_80139FB8);
+typedef struct { u8 tag[3]; u8 len; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_80139FB8;
+typedef struct { u8 tag[3]; u8 len; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad1; s16 x3, y3; u8 u3, v3; u16 pad2; } PolyFT4_80139FB8;
+extern struct { s32 frame; u32 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_80139FB8 asm("g_Game");
+u16 GetTPage(s32, s32, s32, s32);
+extern u8 D_800EC3D0[];
+#define OT_80139FB8 ((u32 *)(g_Game_80139FB8.cur * 0x4078 + ob))
+
+void func_80139FB8(void) {
+    u8 *ob;
+    Sprt_80139FB8 *s;
+    PolyFT4_80139FB8 *p1;
+    PolyFT4_80139FB8 *p;
+    u8 *env;
+    s32 tp;
+    s32 c;
+
+    ob = D_800EC3D0;
+    {
+        register s32 b asm("$3");
+        s32 t;
+
+        D_8013C582 += (t = D_8013C580);
+        b = t;
+        if (D_8013C582 > 0xC0) {
+            D_8013C582 = b;
+        }
+    }
+    s = (Sprt_80139FB8 *)g_Game_80139FB8.prim;
+    env = g_Game_80139FB8.db[g_Game_80139FB8.cur].env + 0x5C;
+    s->len = 4;
+    s->code = 0x65;
+    s->x0 = 0;
+    s->y0 = 0;
+    s->w = 0xC0 - D_8013C582;
+    s->h = 0xF0;
+    s->u0 = D_8013C580;
+    s->v0 = 0;
+    ADD_PRIM_R(OT_80139FB8, s, "$5", "$3");
+    g_Game_80139FB8.prim += sizeof(Sprt_80139FB8);
+
+    p1 = (PolyFT4_80139FB8 *)g_Game_80139FB8.prim;
+    p1->len = 9;
+    p1->code = 0x2D; c = 0x2D;
+    p1->x0 = 0xC0 - D_8013C582;
+    p1->y0 = 0x55;
+    p1->x1 = 0xD0 - D_8013C582;
+    p1->y1 = 0x5F;
+    p1->x2 = 0xC0 - D_8013C582;
+    p1->y2 = 0x9B;
+    p1->x3 = 0xD0 - D_8013C582;
+    p1->y3 = 0x91;
+    p1->u0 = -((u8)D_8013C582 + 0x40) + D_8013C580;
+    p1->v0 = 0x55;
+    p1->u1 = -((u8)D_8013C582 + 0x30) + D_8013C580;
+    p1->v1 = 0x5F;
+    p1->u2 = -((u8)D_8013C582 + 0x40) + D_8013C580;
+    p1->v2 = 0x9B;
+    p1->u3 = -((u8)D_8013C582 + 0x30) + D_8013C580;
+    p1->v3 = 0x91;
+    p1->tpage = GetTPage(2, 0, 0, *(s16 *)(env + 2));
+    ADD_PRIM_R(OT_80139FB8, p1, "$4", "$3");
+    g_Game_80139FB8.prim += sizeof(PolyFT4_80139FB8);
+
+    s = (Sprt_80139FB8 *)g_Game_80139FB8.prim;
+    s->len = 4;
+    s->code = 0x65;
+    s->x0 = D_8013C582 + 0xD0;
+    s->y0 = 0;
+    s->u0 = (u8)(D_8013C582 + 0x10 - D_8013C580);
+    s->w = 0xB0;
+    s->v0 = 0;
+    s->h = 0xF0;
+    ADD_PRIM_R(OT_80139FB8, s, "$5", "$3");
+    g_Game_80139FB8.prim += sizeof(Sprt_80139FB8);
+
+    p = (PolyFT4_80139FB8 *)g_Game_80139FB8.prim;
+    p->len = 9;
+    p->code = c;
+    p->x0 = D_8013C582 + 0xC0;
+    p->y0 = 0;
+    p->x1 = D_8013C582 + 0xD0;
+    p->y1 = 0;
+    p->x2 = D_8013C582 + 0xC0;
+    p->y2 = 0x55;
+    p->x3 = D_8013C582 + 0xD0;
+    p->y3 = 0x5F;
+    p->u0 = (u8)D_8013C582 - D_8013C580;
+    p->v0 = 0;
+    p->u1 = (u8)D_8013C582 - D_8013C580 + 0x10;
+    p->v1 = 0;
+    p->u2 = (u8)D_8013C582 - D_8013C580;
+    p->v2 = 0x55;
+    p->u3 = (u8)D_8013C582 - D_8013C580 + 0x10;
+    p->v3 = 0x5F;
+    tp = GetTPage(2, 0, 0xC0, *(s16 *)(env + 2));
+    p->tpage = tp;
+    ADD_PRIM_R(OT_80139FB8, p, "$5", "$4");
+    g_Game_80139FB8.prim += sizeof(PolyFT4_80139FB8);
+
+    p = (PolyFT4_80139FB8 *)g_Game_80139FB8.prim;
+    p->len = 9;
+    p->code = c;
+    p->x0 = D_8013C582 + 0xC0;
+    p->y0 = 0x9B;
+    p->x1 = D_8013C582 + 0xD0;
+    p->y1 = 0x91;
+    p->x2 = D_8013C582 + 0xC0;
+    p->y2 = 0xF0;
+    p->x3 = D_8013C582 + 0xD0;
+    p->y3 = 0xF0;
+    p->u0 = (u8)D_8013C582 - D_8013C580;
+    p->v0 = 0x9B;
+    p->u1 = (u8)D_8013C582 - D_8013C580 + 0x10;
+    p->v1 = 0x91;
+    p->u2 = (u8)D_8013C582 - D_8013C580;
+    p->v2 = 0xF0;
+    p->u3 = (u8)D_8013C582 - D_8013C580 + 0x10;
+    p->v3 = 0xF0;
+    p->tpage = tp;
+    ADD_PRIM_R(OT_80139FB8, p, "$5", "$4");
+    g_Game_80139FB8.prim += sizeof(PolyFT4_80139FB8);
+}
+/* an original object file starts at 0x8013A460 (16-byte aligned) */
+__asm__(".section .text\n.balign 16");
 
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_8013A460;
 typedef struct { s32 vx, vy, vz, pad; } Vec_8013A460;
