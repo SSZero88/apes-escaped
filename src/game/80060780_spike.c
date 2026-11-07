@@ -1656,9 +1656,188 @@ check:
     SP_64208->f_70 = ((f >> 24) & 0xF) | ((f >> 28) << 4);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80060780_spike", Spike_AnimEvents);
+typedef struct { s16 vx, vy, vz, pad; } SV_80064454;
+typedef struct { s32 x, y, z; u8 padC[0xC]; SV_80064454 dir; s16 f_20; s16 pad22; s16 f_24; s16 f_26; } Col_80064454;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x2C]; u16 frame; u16 state; SV_80064454 f_60; u8 pad68[0x22]; u16 f_8A; u8 pad8C[0x5C]; s16 f_E8; } Sp_80064454;
+typedef struct { u8 pad0[0x60]; s16 f_60; s16 f_62; s16 f_64; } GS_80064454;
+typedef struct { s8 dx, dy, dz, r; u8 yaw; u8 pitch; u8 pad6[2]; u16 f_8; u16 f_A; } Arg_80064454;
+extern struct S_AE_64454 { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } g_Spike_64454 asm("g_Spike");
+extern struct { u8 pad0[0x152]; u16 f_152; } D_800F4350_64454 asm("D_800F4350");
+extern u8 g_GadgetState_64454[] asm("g_GadgetState");
+extern u8 D_800F4730[];
+extern void (*D_800B027C[])(void);
+extern void (*D_800B03AC[])(void);
+void Sound_PlayFixed_AE(s32) asm("Sound_PlayFixed");
+Col_80064454 *CollShape_Alloc(void);
+s32 Collision_Set(s32, void *, void *);
+void ApplyMatrixSV_64454(void *, void *, void *) asm("ApplyMatrixSV");
+s32 rsin(s32);
+void MagicPunch_AddHitSpheres(SV_80064454 *, s32, s32, s32);
+typedef struct { u8 st; u8 fr; u8 type; u8 arg; } Ev_80064454;
 
-INCLUDE_RODATA("asm/nonmatchings/game/80060780_spike", jtbl_800A5B50);
+void Spike_AnimEvents(Anim_80064208_80064208 *tbl, u8 *script)
+{
+  SV_80064454 v;
+  s32 i;
+  Ev_80064454 *r;
+  Arg_80064454 *a;
+  Ev_80064454 **new_var;
+  Col_80064454 *c;
+  Col_80064454 *d;
+  s32 s;
+  s32 st;
+  Sp_80064454 *sp;
+  struct { u8 pad0[0x152]; u16 f_152; } *dd;
+  GS_80064454 *gs;
+  sp = (Sp_80064454 *)&g_Spike_64454;
+  dd = (void *)&D_800F4350_64454;
+  gs = (GS_80064454 *)g_GadgetState_64454;
+  r = (Ev_80064454 *) script;
+  i = 4;
+  __asm__ ("" :: "r"(sp), "r"(dd), "r"(gs));
+  __asm__ ("" :: "r"(i), "r"(i), "r"(i), "r"(i), "r"(i), "r"(i), "r"(i), "r"(i), "r"(i));
+  __asm__ ("" :: "r"(i), "r"(i), "r"(i), "r"(i), "r"(i), "r"(i));
+  __asm__ ("" :: "r"(script), "r"(script), "r"(script), "r"(script), "r"(script), "r"(script));
+  while (1)
+  {
+    __asm__ ("" :: "r"(r));
+    __asm__ ("" :: "r"(r));
+    __asm__ ("" :: "r"(r));
+    __asm__ ("" :: "r"(r));
+    sp = (Sp_80064454 *)&g_Spike_64454; dd = (void *)&D_800F4350_64454; gs = (GS_80064454 *)g_GadgetState_64454;
+    st = r->st;
+    if (st == 0xFF)
+    {
+      break;
+    }
+    if (((st == sp->state) && ((r->fr + tbl[st % 128].start) == sp->frame)) && (sp->f_8A == 0))
+    {
+      switch (r->type)
+      {
+        case 1:
+          Sound_PlayFixed_AE(r->arg);
+          break;
+
+        case 8:
+          func_8006896C(r->arg);
+          break;
+
+        case 2:
+          c = CollShape_Alloc();
+          if (c != 0)
+        {
+          a = (Arg_80064454 *) (script + i);
+          v.vx = a->dx * 8;
+          v.vy = a->dy * 8;
+          v.vz = a->dz * 8;
+          ApplyMatrixSV_64454(D_800F4730, &v, &v);
+          c->x = sp->x + v.vx;
+          c->y = sp->y + v.vy;
+          c->z = sp->z + v.vz;
+          c->f_20 = a->r * 8;
+          s = rsin(a->yaw << 4);
+          v.vx = (s * rcos(a->pitch << 4)) / 4096;
+          v.vy = rsin(a->pitch << 4);
+          s = rcos(a->yaw << 4);
+          { s32 cp = rcos(a->pitch << 4); __asm__ volatile(""); s = -s; v.vz = (s * cp) / 4096; }
+          ApplyMatrixSV_64454(D_800F4730, &v, &c->dir);
+          c->f_24 = a->f_8;
+          c->f_26 = a->f_A;
+          Collision_Set(6, c, sp);
+        }
+          break;
+
+        case 3: {
+          if ((dd->f_152 != 0xB) && (sp->f_E8 > 0))
+        {
+          Col_80064454 *c;
+          Arg_80064454 *a;
+          c = CollShape_Alloc();
+          if (c != 0)
+          {
+            a = (Arg_80064454 *) (script + i);
+            c->dir = sp->f_60;
+            v.vx = a->dx * 8;
+            v.vy = a->dy * 8;
+            v.vz = a->dz * 8;
+            ApplyMatrixSV_64454(D_800F4730, &v, &v);
+            c->x = sp->x + v.vx;
+            c->y = sp->y + v.vy;
+            c->z = sp->z + v.vz;
+            c->f_20 = a->r * 8;
+            Collision_Set(8, c, sp);
+            c->f_24 = 0x100;
+            c->f_26 = 0;
+          }
+        }
+          break;
+
+        } case 7:
+          if ((dd->f_152 != 0xB) && (sp->f_E8 > 0))
+        {
+          d = CollShape_Alloc();
+          if (d != 0)
+          {
+            d->dir = sp->f_60;
+            d->x = gs->f_60;
+            d->y = gs->f_62;
+            d->z = gs->f_64;
+            d->f_20 = ((Arg_80064454 *) (script + i))->r * 8;
+            Collision_Set(8, d, sp);
+            d->f_24 = 0x100;
+            d->f_26 = 0;
+          }
+        }
+          break;
+
+        case 4:
+          D_800B027C[r->arg]();
+          break;
+
+        case 5:
+          D_800B03AC[r->arg]();
+          break;
+
+        case 6:
+          a = (Arg_80064454 *) (script + i);
+          s = rsin(a->yaw << 4);
+          v.vx = (s * rcos(a->pitch << 4)) / 4096;
+          v.vy = rsin(a->pitch << 4);
+          s = rcos(a->yaw << 4);
+          { s32 cp = rcos(a->pitch << 4); __asm__ volatile(""); s = -s; v.vz = (s * cp) / 4096; }
+          MagicPunch_AddHitSpheres(&v, a->r * 8, a->f_8, a->f_A);
+          break;
+
+      }
+
+    }
+    switch ((*(new_var = &r))->type)
+    {
+      case 2:
+
+      case 6:
+        r += 4;
+        i += 0x10;
+        break;
+
+      case 3:
+
+      case 7:
+        r += 2;
+        i += 8;
+        break;
+
+      default:
+        r += 1;
+        i += 4;
+        break;
+
+    }
+
+  }
+
+}
+
 
 
 typedef struct { u8 f_0; s8 f_1; u8 f_2; u8 f_3; } E_800649D8;

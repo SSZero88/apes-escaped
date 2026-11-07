@@ -664,7 +664,69 @@ u8 *func_8009D7C8(u8 i) {
     return h;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8009BA90_seq", func_8009D870);
+typedef struct { u8 f_0; u8 pad1[0xB]; s32 f_C; s32 f_10; u8 pad14[0x10]; u32 f_24; u8 pad28[0xF8]; } Ch_9D870;
+typedef struct { u8 pad0[0x10]; s32 f_10; u8 pad14[0xC]; s32 f_20; } Bank_9D870;
+typedef struct { u8 pad0[8]; s32 f_8; } Snd_9D870;
+extern Ch_9D870 g_SeqChannels_9D870[] asm("g_SeqChannels");
+extern Snd_9D870 D_800F75C0_9D870 asm("D_800F75C0");
+extern Bank_9D870 *D_800E1870_9D870 asm("D_800E1870");
+extern u16 *D_800E1858_9D870 asm("D_800E1858");
+extern s32 D_800E1854_9D870 asm("D_800E1854");
+extern s32 D_800B4DE0_9D870 asm("D_800B4DE0");
+extern s32 D_800B4DE4_9D870 asm("D_800B4DE4");
+extern s32 D_800B4DE8_9D870 asm("D_800B4DE8");
+extern s32 D_800B4DF0_9D870 asm("D_800B4DF0");
+#define F20_9D870 (*(s32 *)((u8 *)D_800E1870_9D870 + 0x20))
+#define F10_9D870 (*(s32 *)((u8 *)D_800E1870_9D870 + 0x10))
+
+u8 func_8009D870(u8 ch) {
+    Ch_9D870 *c = g_SeqChannels_9D870;
+    Snd_9D870 *s = &D_800F75C0_9D870;
+    u8 ok;
+    s32 k;
+    c += ch;
+
+    if ((c->f_24 & 0xFF00FF00) == 0x1000000 && (ok = 1, F20_9D870 != -1)) {
+        { s32 *pd = &D_800B4DE8_9D870; s32 b = D_800F75C0_9D870.f_8 + F20_9D870; s32 o = D_800E1858_9D870[((u8 *)(c->f_C + D_800E1854_9D870))[3] + 0xC9] + 0x190; s32 *pe = &D_800B4DE0_9D870; *pd = b + o;
+        { s32 idx = ((u8 *)(c->f_C + D_800E1854_9D870))[3]; s32 kk;
+        D_800B4DE4_9D870 = D_800F75C0_9D870.f_8 + F20_9D870;
+        { s32 bb = D_800F75C0_9D870.f_8 + F20_9D870; kk = ch * 16 + 0x10; *pe = bb + kk; }
+        D_800B4DF0_9D870 = D_800E1858_9D870[idx + 0xC9] + (D_800F75C0_9D870.f_8 + F20_9D870) + 0x198; }
+        }
+        goto end;
+    }
+    if (((u8 *)c)[0x25] == 0 || ((u8 *)c)[0x27] == 1) {
+        __asm__("" :: "r"(ok));
+        return 0;
+    }
+    { u8 t; __asm__("" : "=r"(t) : "0"(c->f_0 & 0xF)); k = t; }
+    if (c->f_0 < 0xA0) {
+        ok = 0;
+        if (D_800E1858_9D870[((u8 *)(k * 16 + D_800E1854_9D870))[0x12] + 1] == 0xFFFF) {
+            goto end;
+        }
+        if (*D_800E1858_9D870 < ((u8 *)(k * 16 + D_800E1854_9D870))[0x12]) {
+            goto end;
+        }
+        if (D_800E1870_9D870->f_10 != -1) {
+            ok = 1;
+        } else {
+            ok = 0;
+            goto end;
+        }
+    } else {
+        ok = 1;
+    }
+    { s32 kk; s32 *pd = &D_800B4DE8_9D870; Bank_9D870 *bk = D_800E1870_9D870; kk = k * 16;
+    *pd = bk->f_10 + *(s32 *)((u8 *)s + 8) + D_800E1858_9D870[((u8 *)(kk + D_800E1854_9D870))[0x12] + 1];
+    { s32 idx = ((u8 *)(kk + D_800E1854_9D870))[0x12];
+    kk += 0x10;
+    D_800B4DE4_9D870 = *(s32 *)((u8 *)c + 0x10);
+    D_800B4DE0_9D870 = *(s32 *)((u8 *)c + 0x10) + kk;
+    D_800B4DF0_9D870 = bk->f_10 + *(s32 *)((u8 *)s + 8) + D_800E1858_9D870[idx + 1] + 8; } }
+end:
+    return ok;
+}
 
 /* Seq_AllocVoice: pick a sequencer voice (24 voices, g_SeqVoices). Round-robin from the last one
  * (D_800F75C0+0xF) to the first free voice ([0] == 0); otherwise steal the unlocked ([0xD] == 0)

@@ -3974,7 +3974,209 @@ void func_8003CD24(s32 a) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80032E30_monkey", func_8003CD84);
+typedef struct { s32 x, y, z; } V_3CD84;
+typedef struct { u8 pad0[0x24]; V_3CD84 pos; u8 pad30[0x1A]; s16 f_4A; u8 pad4C[0x24]; s16 vx, vy, vz; u8 pad76[2]; u8 f_78; u8 f_79; u8 f_7A; u8 f_7B; u8 f_7C; u8 pad7D[0x11]; s16 f_8E; u8 pad90[0x2C]; V_3CD84 goal; u8 padC8[0x24]; u16 f_EC; u8 padEE[4]; u16 f_F2; u16 f_F4; u8 padF6[0x66]; s32 f_15C; u8 pad160[0xB4]; s32 f_214; u8 pad218[8]; s16 f_220; s8 f_222; u8 pad223[0xD]; s32 f_230; s32 f_234; u8 pad238[4]; s32 f_23C; s16 f_240; u8 pad242[6]; u32 f_248; u32 f_24C; } M_3CD84;
+#define CM_3CD84 ((M_3CD84 *)g_CurMonkey)
+#define TGT_3CD84 ((M_3CD84 *)g_MonkeyTarget)
+extern s16 D_800AEC00_3CD84[] asm("D_800AEC00");
+extern s8 D_800AEC08_3CD84[] asm("D_800AEC08");
+extern s8 D_800AEC0C_3CD84[] asm("D_800AEC0C");
+extern u16 D_800B8CA0_3CD84 asm("D_800B8CA0");
+extern u16 D_800B8CA2_3CD84 asm("D_800B8CA2");
+extern struct { u32 frame; } g_Game_3CD84 asm("g_Game");
+void func_800390F8_3CD84(void) asm("func_800390F8");
+void Monkey_TurnToGoal_3CD84(void) asm("Monkey_TurnToGoal");
+void Monkey_UpdateSpeed_3CD84(void) asm("Monkey_UpdateSpeed");
+void func_80038FD8_3CD84(void) asm("func_80038FD8");
+s32 Vec_Dist_3CD84(V_3CD84 *, V_3CD84 *) asm("Vec_Dist");
+s32 Vec_DistXZ_3CD84(V_3CD84 *, V_3CD84 *) asm("Vec_DistXZ");
+void func_800880D0_3CD84(s32, s32) asm("func_800880D0");
+u8 Monkey_ChooseRoute_3CD84(s16, s16) asm("Monkey_ChooseRoute");
+s32 func_800339EC_3CD84(void) asm("func_800339EC");
+s32 func_80033BE0_3CD84(void) asm("func_80033BE0");
+void func_8003C204_3CD84(void) asm("func_8003C204");
+void func_80035E6C_3CD84(void) asm("func_80035E6C");
+void func_80036C84_3CD84(void) asm("func_80036C84");
+s32 Monkey_CheckStateTimer_3CD84(void) asm("Monkey_CheckStateTimer");
+void Monkey_AimAtGoal_3CD84(void) asm("Monkey_AimAtGoal");
+s32 Floor_GetHeight_3CD84(s32, s32, s32) asm("Floor_GetHeight");
+void func_8003CC3C_3CD84(s32) asm("func_8003CC3C");
+void func_8003CD24_3CD84(s32) asm("func_8003CD24");
+s32 func_800374B8_3CD84(void) asm("func_800374B8");
+void Monkey_RestartAnim_3CD84() asm("Monkey_RestartAnim");
+void Monkey_GoToNode_3CD84(s16) asm("Monkey_GoToNode");
+s32 Node_GetLink_3CD84(s16, s16) asm("Node_GetLink");
+u32 Monkey_Rand_3CD84(void) asm("Monkey_Rand");
+s32 rsin_3CD84(s32) asm("rsin");
+s32 rcos_3CD84(s32) asm("rcos");
+
+void func_8003CD84(void) {
+    CM_3CD84->f_230++;
+    CM_3CD84->f_24C &= ~4;
+    if (CM_3CD84->f_230 < 30) {
+        CM_3CD84->f_248 |= 0x80000000;
+        return;
+    }
+    CM_3CD84->f_248 &= 0x7FFFFFFF;
+    if (CM_3CD84->f_8E < 1000) {
+        func_800390F8_3CD84();
+    }
+    if (CM_3CD84->f_8E <= 400) {
+        if (!(((u8 *)&CM_3CD84->f_248)[3] & 1)) {
+            u16 k;
+            u16 r;
+            u16 old;
+            CM_3CD84->f_78 = 0x1E;
+            CM_3CD84->f_248 |= 0x1000000;
+            CM_3CD84->f_EC = CM_3CD84->f_F2;
+            k = (u16)Monkey_Rand_3CD84() % D_800B4D00[CM_3CD84->f_F2].f_B;
+            r = ((s32 (*)(s16, s32))Node_GetLink_3CD84)(CM_3CD84->f_F2, k);
+            old = CM_3CD84->f_F2;
+            if ((s16)r == CM_3CD84->f_F4) {
+                CM_3CD84->f_F2 = Node_GetLink_3CD84(CM_3CD84->f_F2, (k + 1) % D_800B4D00[CM_3CD84->f_F2].f_B);
+            } else {
+                CM_3CD84->f_F2 = r;
+            }
+            Monkey_GoToNode_3CD84(r);
+            CM_3CD84->f_F4 = old;
+        } else {
+            Monkey_TurnToGoal_3CD84();
+            Monkey_UpdateSpeed_3CD84();
+            func_80038FD8_3CD84();
+            if (Vec_Dist_3CD84(&CM_3CD84->goal, &CM_3CD84->pos) < CM_3CD84->f_220) {
+                func_800880D0_3CD84(0x6050, CM_3CD84->f_15C);
+                Monkey_ChooseRoute_3CD84(1, 1);
+                if (func_800339EC_3CD84()) {
+                    CM_3CD84->f_4A = -0x4000;
+                } else {
+                    CM_3CD84->f_4A = -0x8000;
+                }
+                if (CM_3CD84->f_78 != 9 && !func_80033BE0_3CD84()) {
+                    func_8003C204_3CD84();
+                }
+                CM_3CD84->f_8E = 1000;
+                func_80035E6C_3CD84();
+                func_80036C84_3CD84();
+                return;
+            }
+            CM_3CD84->pos.x += CM_3CD84->vx;
+            CM_3CD84->pos.y += CM_3CD84->vy;
+            CM_3CD84->pos.z += CM_3CD84->vz;
+        }
+        D_800B8CA0_3CD84 = CM_3CD84->pos.x;
+        D_800B8CA2_3CD84 = CM_3CD84->pos.z;
+        return;
+    }
+    if (CM_3CD84->f_78 == 0x20) {
+        func_80038FD8_3CD84();
+        if (!Monkey_CheckStateTimer_3CD84()) {
+            CM_3CD84->f_78 = 0x1E;
+        }
+    }
+    if (CM_3CD84->f_230 < 240) {
+        CM_3CD84->goal.x = CM_3CD84->pos.x;
+        CM_3CD84->goal.y = CM_3CD84->pos.y - 3000;
+        CM_3CD84->goal.z = CM_3CD84->pos.z;
+    } else {
+        CM_3CD84->f_214 = Vec_DistXZ_3CD84(&CM_3CD84->pos, &CM_3CD84->goal);
+        if (g_Game_3CD84.frame % 300 == 0) {
+            s32 a;
+            a = (Monkey_Rand_3CD84() & 0xFFFF) * (Monkey_Rand_3CD84() & 0xFFFF);
+            if (a % 300 == 0) {
+                D_800AEC08_3CD84[CM_3CD84->f_7B] = -D_800AEC08_3CD84[CM_3CD84->f_7B];
+                if (D_800AEC08_3CD84[CM_3CD84->f_7B] == -1) {
+                    s32 rad;
+                    rad = CM_3CD84->f_240 * (rsin_3CD84((D_800AEB60 * 5) & 0xFFF) + 0x1000) / 8192;
+                    CM_3CD84->goal.x = CM_3CD84->f_234 + rad * rsin_3CD84((D_800AEB60 * 5) & 0xFFF) / 4096;
+                    CM_3CD84->goal.y = TGT_3CD84->pos.y - 500;
+                    CM_3CD84->goal.z = CM_3CD84->f_23C + rad * rcos_3CD84((D_800AEB60 * 5) & 0xFFF) / 4096;
+                }
+            }
+        }
+        if (D_800AEC08_3CD84[CM_3CD84->f_7B] == 1) {
+            if (CM_3CD84->f_240 > Vec_DistXZ_3CD84((V_3CD84 *)&CM_3CD84->f_234, &TGT_3CD84->pos)) {
+                s32 a;
+                s32 d1;
+                M_3CD84 *m;
+                M_3CD84 *t;
+                a = (Monkey_Rand_3CD84() & 0xFFFF) * (Monkey_Rand_3CD84() & 0xFFFF);
+                if (a % 600 == 0) {
+                    D_800AEC0C_3CD84[CM_3CD84->f_7B] = -D_800AEC0C_3CD84[CM_3CD84->f_7B];
+                }
+                CM_3CD84->goal.x = TGT_3CD84->pos.x + rsin_3CD84(D_800AEC0C_3CD84[CM_3CD84->f_7B] * D_800AEB60 * 30) * 1500 / 4096;
+                m = CM_3CD84;
+                t = TGT_3CD84;
+                m->goal.y = t->pos.y < Floor_GetHeight_3CD84(m->goal.x, m->goal.y, m->goal.z) ? TGT_3CD84->pos.y - 500 : Floor_GetHeight_3CD84(CM_3CD84->goal.x, CM_3CD84->goal.y, CM_3CD84->goal.z) - 500;
+                CM_3CD84->goal.z = TGT_3CD84->pos.z + rcos_3CD84(D_800AEC0C_3CD84[CM_3CD84->f_7B] * D_800AEB60 * 30) * 1500 / 4096;
+            } else {
+                s32 rad;
+                s32 d2;
+                M_3CD84 *m;
+                M_3CD84 *t;
+                rad = CM_3CD84->f_240 / 2 + CM_3CD84->f_240 * (rsin_3CD84(D_800AEB60 & 0xFFF) + 0x1000) / 16384;
+                CM_3CD84->goal.x = CM_3CD84->f_234 + rad * rsin_3CD84((D_800AEB60 * 30) & 0xFFE) / 4096;
+                m = CM_3CD84;
+                t = TGT_3CD84;
+                m->goal.y = t->pos.y < Floor_GetHeight_3CD84(m->goal.x, m->goal.y, m->goal.z) ? TGT_3CD84->pos.y - 300 : Floor_GetHeight_3CD84(CM_3CD84->goal.x, CM_3CD84->goal.y, CM_3CD84->goal.z) - 300;
+                CM_3CD84->goal.z = CM_3CD84->f_23C + rad * rcos_3CD84((D_800AEB60 * 30) & 0xFFE) / 4096;
+            }
+        } else {
+            CM_3CD84->f_24C |= 4;
+            if (CM_3CD84->f_214 < 200) {
+                s32 a;
+                s32 b;
+                s32 rad;
+                s32 ang;
+                a = (Monkey_Rand_3CD84() & 0xFFFF) * (Monkey_Rand_3CD84() & 0xFFFF);
+                ang = a % 4096;
+                b = rsin_3CD84(ang);
+                rad = CM_3CD84->f_240 / 2 + CM_3CD84->f_240 * (b % 4096 + 0x1000) / 16384;
+                CM_3CD84->goal.x = CM_3CD84->f_234 + rad * rsin_3CD84(ang) / 4096;
+                CM_3CD84->goal.y = TGT_3CD84->pos.y - 500;
+                CM_3CD84->goal.z = CM_3CD84->f_23C + rad * rcos_3CD84(ang) / 4096;
+            }
+        }
+    }
+    Monkey_AimAtGoal_3CD84();
+    Monkey_UpdateSpeed_3CD84();
+    if (CM_3CD84->f_214 > 100) {
+        CM_3CD84->pos.x += CM_3CD84->vx;
+        CM_3CD84->pos.z += CM_3CD84->vz;
+    }
+    if (CM_3CD84->f_230 < 240) {
+        CM_3CD84->pos.y -= 5;
+    } else {
+        s32 a;
+        s32 b;
+        s32 c;
+        a = rcos_3CD84((D_800AEB60 << 12) / 80);
+        b = rcos_3CD84((D_800AEB60 << 12) / 40);
+        c = rcos_3CD84(((D_800AEB60 - 1) << 12) / 40);
+        CM_3CD84->pos.y += CM_3CD84->vy + (a * 30 / 4096 + 60) * (b - c) / 4096;
+    }
+    {
+        M_3CD84 *m;
+        m = CM_3CD84;
+        m->pos.y = m->pos.y < Floor_GetHeight_3CD84(m->pos.x, m->pos.y, m->pos.z) ? CM_3CD84->pos.y : Floor_GetHeight_3CD84(CM_3CD84->pos.x, CM_3CD84->pos.y, CM_3CD84->pos.z);
+    }
+    if (CM_3CD84->f_230 < 240) {
+        func_8003CC3C_3CD84(0x71);
+    }
+    if (CM_3CD84->f_222 > 0 && D_800AEC00_3CD84[CM_3CD84->f_7C] != 100) {
+        func_8003CD24_3CD84(D_800AEC00_3CD84[CM_3CD84->f_7C]);
+    }
+    if (!Monkey_CheckStateTimer_3CD84()) {
+        s16 s;
+        if (((CM_3CD84->f_248 >> 23) & 1) && (s = func_800374B8_3CD84()) != 100) {
+            D_800AEC00_3CD84[CM_3CD84->f_7C] = s;
+            func_8003CD24_3CD84(s);
+        } else {
+            Monkey_RestartAnim_3CD84();
+        }
+    }
+    D_800B8CA0_3CD84 = CM_3CD84->pos.x;
+    D_800B8CA2_3CD84 = CM_3CD84->pos.z;
+}
 
 /* Monkey state handler (from the per-state dispatch in Monkey_Update) for unalerted movement.
  * Every third frame (staggered by kind f_7C) it looks for Spike; if seen it either reacts

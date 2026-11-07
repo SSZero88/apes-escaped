@@ -1371,9 +1371,197 @@ miss:
 INCLUDE_RODATA("asm/nonmatchings/game/80071D20_collide", D_800A5D84);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", func_80074BBC);
+typedef struct { s16 x, y, z, r, h, rz; } Shape_74BBC;
+typedef struct { s32 radius; u8 kind; u8 pad5[3]; s32 height; } Col_74BBC;
+typedef struct { s32 x, y, z; } Pos_74BBC;
+extern struct { u8 pad0[0x8150]; u16 f_8150; } g_Game_74BBC asm("g_Game");
+extern Pos_74BBC *D_800B20B4_74BBC asm("D_800B20B4");
+extern s32 D_800B20B8_74BBC asm("D_800B20B8");
+extern s16 D_800B20C6_74BBC asm("D_800B20C6");
+extern s16 D_800B20CA_74BBC asm("D_800B20CA");
+extern s16 D_800B20CC_74BBC asm("D_800B20CC");
+extern u16 D_800EC238_74BBC asm("D_800EC238");
+s32 SquareRoot0_74BBC(s32) asm("SquareRoot0");
+s32 Coll_PastEdge_74BBC(Shape_74BBC *, Pos_74BBC *) asm("Coll_PastEdge");
+s32 Coll_HeightOverlap_74BBC(s32, s32, s32, s32) asm("Coll_HeightOverlap");
+s32 Box_ContainsXZ_74BBC(s32, Shape_74BBC *) asm("Box_ContainsXZ");
+void func_80066E28_74BBC(s32, s32, s32, s32, s32, s32) asm("func_80066E28");
+s32 Coll_PushCurvedCorner_74BBC(Shape_74BBC *, Col_74BBC *, s32 *) asm("Coll_PushCurvedCorner");
+s32 Coll_PushHalfCylinder_74BBC(Shape_74BBC *, Col_74BBC *, s32 *) asm("Coll_PushHalfCylinder");
+s32 func_80075A40_74BBC(Shape_74BBC *, Col_74BBC *, s32 *) asm("func_80075A40");
+s32 func_80076E80_74BBC(Shape_74BBC *, Col_74BBC *, s32 *) asm("func_80076E80");
 
-INCLUDE_RODATA("asm/nonmatchings/game/80071D20_collide", jtbl_800A5DA8);
+s32 func_80074BBC(Shape_74BBC *s, Col_74BBC *c, s32 *out) {
+    s32 rad = c->radius;
+    s32 d;
+    s32 k;
+    s32 dx;
+    s32 dz;
+    s16 ex;
+    s16 ez;
+
+    switch (c->kind) {
+    case 0x36:
+    case 0x44:
+    case 0x4E:
+    case 0x4F:
+    case 0x50:
+    case 0x51:
+        d = SquareRoot0_74BBC((s->x - D_800B20B4_74BBC->x) * (s->x - D_800B20B4_74BBC->x) + (s->z - D_800B20B4_74BBC->z) * (s->z - D_800B20B4_74BBC->z));
+        if (d == 0) {
+            d = 1;
+        }
+        if (D_800B20B4_74BBC->y < s->y - s->h + 0x40) {
+            return 0;
+        }
+        if (s->y < D_800B20B4_74BBC->y - c->height) {
+            return 0;
+        }
+        rad = s->r * 75 / 1000;
+        if (rad < 0x40) {
+            rad = 0x40;
+        }
+        if (rad < (s->r - d >= 0 ? s->r - d : d - s->r)) {
+            return 0;
+        }
+        if ((u32)(c->kind - 0x4E) < 4 && !Coll_PastEdge_74BBC(s, D_800B20B4_74BBC)) {
+            return 0;
+        }
+        if (d < s->r) {
+            s32 k = s->r - rad;
+            s32 tx = k * (D_800B20B4_74BBC->x - s->x) * 100 / d;
+            s32 tz = k * (D_800B20B4_74BBC->z - s->z) * 100 / d;
+            dx = tx / 100;
+            dz = tz / 100;
+        } else {
+            s32 k = s->r + rad;
+            s32 tx = k * (D_800B20B4_74BBC->x - s->x) * 100 / d;
+            s32 tz = k * (D_800B20B4_74BBC->z - s->z) * 100 / d;
+            dx = tx / 100;
+            dz = tz / 100;
+        }
+        out[0] = s->x + dx - D_800B20B4_74BBC->x;
+        out[2] = s->z + dz - D_800B20B4_74BBC->z;
+        return 1;
+    case 0x3B:
+    case 0x59:
+        if (g_Game_74BBC.f_8150 == 5) {
+            if (D_800B20CA_74BBC != D_800B20C6_74BBC) {
+                return 0;
+            }
+            if (D_800B20CC_74BBC != 1) {
+                return 0;
+            }
+            D_800EC238_74BBC = D_800B20C6_74BBC;
+            break;
+        }
+        d = SquareRoot0_74BBC((s->x - D_800B20B4_74BBC->x) * (s->x - D_800B20B4_74BBC->x) + (s->z - D_800B20B4_74BBC->z) * (s->z - D_800B20B4_74BBC->z));
+        if (d == 0) {
+            d = 1;
+        }
+        if (d >= rad + s->r) {
+            return 0;
+        }
+        if (!Coll_HeightOverlap_74BBC(D_800B20B4_74BBC->y, c->height, s->y, s->h)) {
+            break;
+        }
+        if (D_800B20CC_74BBC == 1) {
+            if (c->kind == 0x3B) {
+                func_80066E28_74BBC(s->x, s->y, s->z, s->r, s->h, 1);
+            } else {
+                func_80066E28_74BBC(s->x, s->y, s->z, s->r, s->h, 0);
+            }
+            D_800EC238_74BBC = D_800B20C6_74BBC;
+        }
+        {
+            s32 tx = (rad + s->r) * (D_800B20B4_74BBC->x - s->x) * 100 / d;
+            s32 tz = (rad + s->r) * (D_800B20B4_74BBC->z - s->z) * 100 / d;
+            dx = tx / 100;
+            dz = tz / 100;
+        }
+        out[0] = s->x + dx - D_800B20B4_74BBC->x;
+        out[2] = s->z + dz - D_800B20B4_74BBC->z;
+        if (D_800B20B4_74BBC->y - c->height < s->y && s->y - s->h < D_800B20B4_74BBC->y) {
+            if (Box_ContainsXZ_74BBC(D_800B20B8_74BBC, s)) {
+                if (d < s->r) {
+                    out[3] = s->y - (D_800B20B4_74BBC->y - c->height);
+                }
+            }
+        }
+        return 2;
+    case 0x46:
+    case 0x47:
+    case 0x48:
+    case 0x49:
+        return Coll_PushCurvedCorner_74BBC(s, c, out);
+    case 0x24:
+    case 0x25:
+        ex = (u16)s->r + (u16)c->radius;
+        ez = (u16)s->rz + (u16)c->radius;
+        if (D_800B20B4_74BBC->x > s->x + ex || s->x - ex > D_800B20B4_74BBC->x) {
+            return 0;
+        }
+        if (s->z + ez < D_800B20B4_74BBC->z || D_800B20B4_74BBC->z < s->z - ez) {
+            return 0;
+        }
+        return Coll_PushHalfCylinder_74BBC(s, c, out);
+    case 0x53:
+        ex = (u16)s->r + (u16)c->radius;
+        ez = (u16)s->rz + ((u16)c->radius + 0x100);
+        if (D_800B20B4_74BBC->x > s->x + ex || s->x - ex > D_800B20B4_74BBC->x) {
+            return 0;
+        }
+        if (s->z + ez < D_800B20B4_74BBC->z || D_800B20B4_74BBC->z < s->z - ez) {
+            return 0;
+        }
+        return func_80075A40_74BBC(s, c, out);
+    case 0x54:
+        ex = (u16)s->r + ((u16)c->radius + 0x100);
+        ez = (u16)s->rz + (u16)c->radius;
+        if (D_800B20B4_74BBC->x > s->x + ex || s->x - ex > D_800B20B4_74BBC->x) {
+            return 0;
+        }
+        if (s->z + ez < D_800B20B4_74BBC->z || D_800B20B4_74BBC->z < s->z - ez) {
+            return 0;
+        }
+        return func_80075A40_74BBC(s, c, out);
+    case 0x52:
+        return func_80076E80_74BBC(s, c, out);
+    default:
+        d = SquareRoot0_74BBC((s->x - D_800B20B4_74BBC->x) * (s->x - D_800B20B4_74BBC->x) + (s->z - D_800B20B4_74BBC->z) * (s->z - D_800B20B4_74BBC->z));
+        if (d == 0) {
+            d = 1;
+        }
+        if (d >= rad + s->r) {
+            return 0;
+        }
+        if (!Coll_HeightOverlap_74BBC(D_800B20B4_74BBC->y, c->height, s->y, s->h)) {
+            return 0;
+        }
+        k = rad + s->r;
+        if (k > 0x1000) {
+            dx = k * (D_800B20B4_74BBC->x - s->x) / d;
+            dz = k * (D_800B20B4_74BBC->z - s->z) / d;
+        } else {
+            s32 tx = k * (D_800B20B4_74BBC->x - s->x) * 100 / d;
+            s32 tz = k * (D_800B20B4_74BBC->z - s->z) * 100 / d;
+            dx = tx / 100;
+            dz = tz / 100;
+        }
+        out[0] = s->x + dx - D_800B20B4_74BBC->x;
+        out[2] = s->z + dz - D_800B20B4_74BBC->z;
+        if (D_800B20B4_74BBC->y - c->height < s->y && s->y - s->h < D_800B20B4_74BBC->y) {
+            if (Box_ContainsXZ_74BBC(D_800B20B8_74BBC, s)) {
+                if (d < s->r) {
+                    out[3] = s->y - (D_800B20B4_74BBC->y - c->height);
+                }
+            }
+        }
+        return 1;
+    }
+    return 0;
+}
+
 
 
 /* Like Coll_PushBox for a half-cylinder (log/barrel) lying along x (kinds 0x24/0x53, radius +0xA)
