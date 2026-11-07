@@ -290,7 +290,7 @@ void Model_BindMesh(void *, u32 *);
 void func_80015AC0(void *, u8 *);
 void func_801374D0(void);
 void func_80136000(SVECTOR *eye, SVECTOR *at);
-void func_80016F34(void);
+void Stage_DrawPlacedModels(void);
 void Sound_PlayFixed(s32);
 void func_801383B8(void);
 void func_80138490(void);
@@ -355,7 +355,7 @@ s32 func_80136954(void) {
         }
         func_801374D0();
         func_80136000(&D_80138CA0_80136954.eye, &D_80138CA0_80136954.at);
-        func_80016F34();
+        Stage_DrawPlacedModels();
         func_80137DF0(D_80138D00_80136954);
         D_801389B0 = 1;
         D_80138CA0_80136954.sub = 0;
@@ -460,7 +460,7 @@ s32 func_80136954(void) {
     case 2:
         func_801374D0();
         func_80136000(&D_80138CA0_80136954.eye, &D_80138CA0_80136954.at);
-        func_80016F34();
+        Stage_DrawPlacedModels();
         func_80137DF0(D_80138D00_80136954);
         func_80138490();
         if ((g_Pad_80136954.f_158 & g_Pad_80136954.f_160 & 0x860) || *D_80138CA0_80136954.pc == 0x3FC0) {

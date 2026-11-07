@@ -71,7 +71,7 @@ void func_8005ACE8(void);
 void func_80043A8C(void);
 void Pickup_Frame(void);
 void Tip_DrawAll(void);
-void func_80016F34(void);
+void Stage_DrawPlacedModels(void);
 void func_80069BEC(void);
 void Fx_UpdateAll(void);
 void CenterSign_Draw(void);
@@ -218,7 +218,7 @@ s32 Game_MainLoop(void) {
             func_80043A8C();
             Pickup_Frame();
             Tip_DrawAll();
-            func_80016F34();
+            Stage_DrawPlacedModels();
             func_80069BEC();
             Fx_UpdateAll();
             CenterSign_Draw();

@@ -733,7 +733,7 @@ void func_80136E68(u8);
 void func_80136454(s32, s32);
 s32 func_80136E00(void *, void *);
 void func_80137A64(void);
-void func_80016F34(void);
+void Stage_DrawPlacedModels(void);
 void Hud_Draw(void);
 void func_8005ACE8(void);
 void func_80069BEC(void);
@@ -825,7 +825,7 @@ s32 func_80137248(s32 idx) {
         for (rec = ring; *(u16 *)rec != 0; rec += *(u16 *)rec * 2) {
             D_8013C1AC_80137248[rec[2]](rec, rec + 4);
         }
-        func_80016F34();
+        Stage_DrawPlacedModels();
         Hud_Draw();
         if (g_Game_80137248.f_8126 != 0x46) {
             func_8005ACE8();

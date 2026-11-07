@@ -579,9 +579,319 @@ void func_80016EBC(s32 arg0, M2C_UNK arg1, void **arg2) {
     func_80017CD4(arg0, arg1, arg2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", func_80016F34);
+typedef struct { s16 m[3][3]; s32 t[3]; } MATRIX_16F34;
+typedef struct { s16 vx, vy, vz; u16 pad; } SVEC_16F34;
+typedef struct { s32 vx, vy, vz, pad; } VEC_16F34;
+typedef struct { u32 flags; } ObjMdl_16F34;
+typedef struct { ObjMdl_16F34 *mdl; u8 pad4[0xC]; s16 x, y, z; u16 mask; u8 pad18[4]; MATRIX_16F34 *mat; } Obj_16F34;
+typedef struct { u8 pad0[0x80]; u8 proj[0x340]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; SVEC_16F34 v; VEC_16F34 r; MATRIX_16F34 m; } Scr_16F34;
+typedef struct { u8 pad0[0x194]; u32 *f_194; u8 pad198[0xC0]; s16 camX; s16 camY; s16 camZ; u8 pad25E[0x22]; s32 count; } G8_16F34;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; } Spk_16F34;
+extern struct { u8 pad0[0x24]; u16 f_24; u8 pad26[2]; u16 f_28; u8 pad2A[2]; s32 f_2C; } D_800EBFA0_16F34 asm("D_800EBFA0");
+extern Obj_16F34 *D_800B4D64;
+extern Spk_16F34 g_Spike_16F34 asm("g_Spike");
+extern MATRIX_16F34 D_800E78C0;
+extern MATRIX_16F34 D_800AE840;
+extern MATRIX_16F34 D_800AF0A0;
+extern MATRIX_16F34 D_800EBFD0;
+extern u16 D_800EBFC4;
+extern u8 D_800E7D00_16F34[] asm("D_800E7D00");
+extern u8 D_800E7D00_c0[] asm("D_800E7D00");extern u8 D_800E7D00_k1[] asm("D_800E7D00");extern u8 D_800E7D00_k2[] asm("D_800E7D00");extern u8 D_800E7D00_k3[] asm("D_800E7D00");extern u8 D_800E7D00_k4[] asm("D_800E7D00");extern u8 D_800E7D00_k5[] asm("D_800E7D00");
+extern MATRIX_16F34 D_800E78C0_c3 asm("D_800E78C0");
+extern MATRIX_16F34 D_800E78C0_sky asm("D_800E78C0");
+extern MATRIX_16F34 D_800E78C0_pr asm("D_800E78C0");
+extern u8 D_800E7D00_sky[] asm("D_800E7D00");
+s32 Zone_FindAt_16F34(s32, s32, s32, s32) asm("Zone_FindAt");
+void func_80016294_16F34(Obj_16F34 *, void *) asm("func_80016294");
+void Model_ProjectMorphFrame_16F34(Obj_16F34 *, void *) asm("Model_ProjectMorphFrame");
+void Model_ProjectVertsAlt_16F34(Obj_16F34 *, MATRIX_16F34 *, void *) asm("Model_ProjectVertsAlt");
+void Model_DrawLit_16F34(u32 *, void *, Obj_16F34 *) asm("Model_DrawLit");
+void func_80017EFC_16F34(u32 *, void *, Obj_16F34 *, s32) asm("func_80017EFC");
+void Anim_StepFrame_16F34(Obj_16F34 *) asm("Anim_StepFrame");
+void func_8006D548_16F34(void *) asm("func_8006D548");
+void SetRotMatrix_16F34(MATRIX_16F34 *) asm("SetRotMatrix");
+void SetTransMatrix_16F34(MATRIX_16F34 *) asm("SetTransMatrix");
+void CompMatrix_16F34(MATRIX_16F34 *, MATRIX_16F34 *, MATRIX_16F34 *) asm("CompMatrix");
+#define gte_rtv0tr_16F34() __asm__ volatile ("nop; nop; mvmva 1, 0, 0, 0, 0")
+#define gte_stlvnl_16F34(p) __asm__ volatile ("swc2 $25, 0(%0); swc2 $26, 4(%0); swc2 $27, 8(%0)" : : "r"(p) : "memory")
+#define gte_SetTransVector_16F34(v) __asm__ volatile ("lw $12, 0(%0); lw $13, 4(%0); ctc2 $12, $5; lw $14, 8(%0); ctc2 $13, $6; ctc2 $14, $7" : : "r"(v) : "$12", "$13", "$14")
 
-INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4550);
+/* Draws the stage's placed models (the object list at D_800B4D64, walked from the end): each entry
+   whose zone mask touches the zones of Spike and of the camera is transformed to camera space, culled
+   against the view (x/y cones, near/far) and drawn by its kind (low flag byte): 0 plain, 1 / 8 with
+   their own rotation, 3 own matrix, 4/5 sky models, 7 near-OT models, 16 effect spawners. */
+void Stage_DrawPlacedModels(void) {
+    Scr_16F34 *S;
+    G8_16F34 *g8;
+    GameDraw *gd;
+    u32 *ot;
+    s32 far;
+    s32 flag4;
+    s32 zones;
+    s32 sx, sy, sz;
+    s32 i;
+    u32 flags;
+
+    gd = (GameDraw *)&g_Game;
+    far = D_800EBFA0_16F34.f_2C;
+    ot = G_DRAW.db[G_DRAW.cur].ot;
+    SetRotMatrix_16F34(&D_800E78C0_pr);
+    SetTransMatrix_16F34(&D_800E78C0_pr);
+    __asm__("" :: "m"(D_800E78C0_pr));
+    { register s32 one asm("$7") = 1; Spk_16F34 *sp = &g_Spike_16F34; __asm__("" :: "r"(one), "r"(sp));
+    sx = sp->x;
+    sy = sp->y;
+    sz = sp->z;
+    S = (Scr_16F34 *)0x1F800000;
+    __asm__("" :: "r"(gd), "r"(gd));
+    gd = (GameDraw *)((u8 *)gd + 0x8000);
+    S->f_3C6 = 0;
+    S->f_3C4 = 0;
+    i = ((G8_16F34 *)gd)->count - 1;
+    { register u16 fa asm("$3") = *(u16 *)((u8 *)&D_800EBFA0_16F34 + 0x24); register u16 fb asm("$8") = *(u16 *)((u8 *)&D_800EBFA0_16F34 + 0x28);
+    { s32 dmy; __asm__("" : "=r"(dmy) : "r"(fa), "r"(fb)); }
+    S->f_3C0 = fa;
+    S->f_3C2 = fb; }
+    zones = Zone_FindAt_16F34(sx, sy, sz, one); }
+    zones |= Zone_FindAt_16F34(((G8_16F34 *)gd)->camX, ((G8_16F34 *)gd)->camY, ((G8_16F34 *)gd)->camZ, 1);
+    flag4 = *((G8_16F34 *)gd)->f_194 & 4;
+    while (i >= 0) {
+        __asm__("" : "=r"(S) : "0"(S));
+        flags = D_800B4D64[i].mdl->flags;
+        if (!(D_800B4D64[i].mask & zones)) {
+            i--;
+            continue;
+        }
+        switch (flags & 0xFF) {
+        case 4:
+        case 5:
+            {
+            G8_16F34 *g8c = ((G8_16F34 *)((u8 *)&g_Game + 0x8000));
+            void *m = D_800E7D00_sky;
+            do {
+                gte_SetTransMatrix_(&D_800AE840);
+                __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile(""); __asm__ volatile("");
+                S->v.vz = 0;
+                S->v.vy = 0;
+                S->v.vx = 0;
+                if ((flags & 0xFF) == 4) {
+                    S->v.vy = -g8c->camY;
+                } else {
+                    S->v.vy = 0;
+                }
+                __asm__("" :: "r"(m), "r"(m));
+                S->f_3C0 = 0;
+                func_80016294_16F34(&D_800B4D64[i], m);
+                Model_DrawLit_16F34(ot + 0xFFF, m, &D_800B4D64[i]); 
+                SetTransMatrix_16F34(&D_800E78C0_sky);
+            } while (--i >= 0 && (u32)(((flags = D_800B4D64[i].mdl->flags) & 0xFF) - 4) < 2);
+            }
+            S->f_3C0 = D_800EBFC4;
+            break;
+        case 0:
+        default:
+            do {
+                *(s32 *)&S->v.vz = *(s32 *)&D_800B4D64[i].z;
+                if (S->v.pad & zones) {
+                    s32 s, z1, z; void *mat;
+                    *(s32 *)&S->v.vx = *(s32 *)&D_800B4D64[i].x;
+                    gte_ldv0(&S->v);
+                    gte_rtv0tr_16F34();
+                    if (flags & 0x1000) {
+                        mat = (void *)0x1F800080;
+                    } else {
+                        __asm__ volatile("");
+                        mat = D_800E7D00_c0;
+                    }
+                    gte_stlvnl_16F34(&S->r);
+                    s = (flags >> 28) << 9;
+                    z1 = S->r.vz;
+                    { s32 t = s + 0x200; z = z1 + t; }
+                    if (z < 0) continue;
+                    if (z < S->r.vx * 2) continue;
+                    if (z < -S->r.vx * 2) continue;
+                    if (z < S->r.vy * 3) continue;
+                    if (z < -S->r.vy * 3) continue;
+                    if (far < z1 - s && (flags & 0xF00) != 0xF00) continue;
+                    __asm__("" :: "r"(z1));
+                    if ((flags & 0x300000) && !(flags & 0x2000)) {
+                        Anim_StepFrame_16F34(&D_800B4D64[i]);
+                    }
+                    if (flags & 0x200000) {
+                        Model_ProjectMorphFrame_16F34(&D_800B4D64[i], mat); 
+                    } else {
+                        func_80016294_16F34(&D_800B4D64[i], mat);
+                    }
+                    func_80017EFC_16F34((u32 *)((u8 *)ot + ((flags >> 12) & 0xF0)), mat, &D_800B4D64[i], flag4 | ((flags >> 24) & 0xF)); __asm__("" :: "r"(mat), "r"(mat));
+                }
+            } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 0);
+            break;
+        case 7:
+            do {
+                *(s32 *)&S->v.vz = *(s32 *)&D_800B4D64[i].z;
+                if (S->v.pad & zones) {
+                    s32 z1, z; void *mat;
+                    *(s32 *)&S->v.vx = *(s32 *)&D_800B4D64[i].x;
+                    gte_ldv0(&S->v);
+                    gte_rtv0tr_16F34();
+                    gte_stlvnl_16F34(&S->r);
+                    z1 = S->r.vz;
+                    z = z1 + ((flags >> 28) << 9);
+                    if ((flags & 0xF00) == 0xF00) {
+                        if (z < 0) continue;
+                    __asm__("" :: "r"(z));
+                    } else {
+                        if (z < 0) continue;
+                        if (far < z1) continue;
+                    }
+                    if (z < S->r.vx * 2) continue;
+                    if (z < -S->r.vx * 2) continue;
+                    if (z < S->r.vy * 3) continue;
+                    if (z < -S->r.vy * 3) continue;
+                    if (flags & 0x1000) {
+                        mat = (void *)0x1F800080;
+                    } else {
+                        __asm__ volatile("");
+                        mat = D_800E7D00_k1;
+                    }
+                    func_80016294_16F34(&D_800B4D64[i], mat);
+                    func_80017EFC_16F34(ot + 4, mat, &D_800B4D64[i], flag4);
+                }
+            } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 0);
+            break;
+        case 1:
+            do {
+                *(s32 *)&S->v.vz = *(s32 *)&D_800B4D64[i].z;
+                if (S->v.pad & zones) {
+                    s32 z; void *mat;
+                    *(s32 *)&S->v.vx = *(s32 *)&D_800B4D64[i].x;
+                    gte_ldv0(&S->v);
+                    gte_rtv0tr_16F34();
+                    gte_stlvnl_16F34(&S->r);
+                    z = S->r.vz + ((flags >> 28) << 9);
+                    if (z < 0) continue;
+                    if (far < z) continue;
+                    if (z < S->r.vx * 2) continue;
+                    if (z < -S->r.vx * 2) continue;
+                    if (z < S->r.vy * 3) continue;
+                    if (z < -S->r.vy * 3) continue;
+                    gte_SetRotMatrix_(&D_800AF0A0);
+                    gte_SetTransVector_16F34(&S->r);
+                    S->v.vz = 0;
+                    S->v.vy = 0;
+                    S->v.vx = 0;
+                    if (flags & 0x1000) {
+                        mat = (void *)0x1F800080;
+                    } else {
+                        __asm__ volatile("");
+                        mat = D_800E7D00_k2;
+                    }
+                    func_80016294_16F34(&D_800B4D64[i], mat);
+                    func_80017EFC_16F34(ot, mat, &D_800B4D64[i], flag4 | ((flags >> 24) & 0xF));
+                    gte_SetRotMatrix_(&D_800E78C0);
+                    gte_SetTransMatrix_(&D_800E78C0);
+                }
+            } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 1);
+            break;
+        case 8:
+            do {
+                *(s32 *)&S->v.vz = *(s32 *)&D_800B4D64[i].z;
+                if (S->v.pad & zones) {
+                    s32 z; void *mat;
+                    *(s32 *)&S->v.vx = *(s32 *)&D_800B4D64[i].x;
+                    gte_ldv0(&S->v);
+                    gte_rtv0tr_16F34();
+                    gte_stlvnl_16F34(&S->r);
+                    z = S->r.vz + ((flags >> 28) << 9);
+                    if (z < 0) continue;
+                    if (far < S->r.vz) continue;
+                    if (z < S->r.vx * 2) continue;
+                    if (z < -S->r.vx * 2) continue;
+                    if (z < S->r.vy * 3) continue;
+                    if (z < -S->r.vy * 3) continue;
+                    gte_SetRotMatrix_(&D_800EBFD0);
+                    gte_SetTransVector_16F34(&S->r);
+                    S->v.vz = 0;
+                    S->v.vy = 0;
+                    S->v.vx = 0;
+                    if (flags & 0x1000) {
+                        mat = (void *)0x1F800080;
+                    } else {
+                        __asm__ volatile("");
+                        mat = D_800E7D00_k3;
+                    }
+                    func_80016294_16F34(&D_800B4D64[i], mat);
+                    func_80017EFC_16F34(ot, mat, &D_800B4D64[i], flag4 | ((flags >> 24) & 0xF));
+                    gte_SetRotMatrix_(&D_800E78C0);
+                    gte_SetTransMatrix_(&D_800E78C0);
+                }
+            } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 8);
+            break;
+        case 3:
+            do {
+                *(s32 *)&S->v.vz = *(s32 *)&D_800B4D64[i].z;
+                if (S->v.pad & zones) {
+                    s32 z; void *mat;
+                    *(s32 *)&S->v.vx = *(s32 *)&D_800B4D64[i].x;
+                    gte_ldv0(&S->v);
+                    gte_rtv0tr_16F34();
+                    gte_stlvnl_16F34(&S->r);
+                    z = S->r.vz + ((flags >> 28) << 9);
+                    if (z < 0) continue;
+                    if (far < S->r.vz) continue;
+                    if (z < S->r.vx * 2) continue;
+                    if (z < -S->r.vx * 2) continue;
+                    if (z < S->r.vy * 3) continue;
+                    if (z < -S->r.vy * 3) continue;
+                    S->m = *D_800B4D64[i].mat;
+                    S->m.t[0] = D_800B4D64[i].x;
+                    S->m.t[1] = D_800B4D64[i].y;
+                    S->m.t[2] = D_800B4D64[i].z;
+                    CompMatrix_16F34(&D_800E78C0, &S->m, &S->m);
+                    if ((flags & 0x102000) == 0x100000) {
+                        Anim_StepFrame_16F34(&D_800B4D64[i]);
+                    }
+                    if (flags & 0x1000) {
+                        mat = (void *)0x1F800080;
+                    } else {
+                        __asm__ volatile("");
+                        mat = D_800E7D00_k4;
+                    }
+                    Model_ProjectVertsAlt_16F34(&D_800B4D64[i], &S->m, mat);
+                    func_80017EFC_16F34((u32 *)((u8 *)ot + ((flags >> 12) & 0xF0)), mat, &D_800B4D64[i], flag4 | ((flags >> 24) & 0xF));
+                    SetRotMatrix_16F34(&D_800E78C0);
+                    SetTransMatrix_16F34(&D_800E78C0);
+                }
+            } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 3);
+            break;
+        case 16:
+            { SVEC_16F34 *v = &S->v;
+            do {
+                s32 z;
+                { s32 dd0; } { s32 dd1; } { s32 dd2; } { s32 dd3; } { s32 dd4; } { s32 dd5; } { s32 dd6; } { s32 dd7; } { s32 dd8; } { s32 dd9; } { s32 dd10; } { s32 dd11; } { s32 dd12; } { s32 dd13; } { s32 dd14; } { s32 dd15; } { s32 dd16; } { s32 dd17; } { s32 dd18; } { s32 dd19; } { s32 dd20; } { s32 dd21; } { s32 dd22; } { s32 dd23; } { s32 dd24; } { s32 dd25; } { s32 dd26; } { s32 dd27; } { s32 dd28; } { s32 dd29; } { s32 dd30; } { s32 dd31; } { s32 dd32; } { s32 dd33; } { s32 dd34; } { s32 dd35; } { s32 dd36; } { s32 dd37; } { s32 dd38; } { s32 dd39; } { s32 dd40; } { s32 dd41; } { s32 dd42; } { s32 dd43; } { s32 dd44; } { s32 dd45; } { s32 dd46; } { s32 dd47; } { s32 dd48; } { s32 dd49; } { s32 dd50; } { s32 dd51; } { s32 dd52; } { s32 dd53; } { s32 dd54; } { s32 dd55; } { s32 dd56; } { s32 dd57; } { s32 dd58; } { s32 dd59; } { s32 dd60; } { s32 dd61; } { s32 dd62; } { s32 dd63; } { s32 dd64; } { s32 dd65; } { s32 dd66; } { s32 dd67; } { s32 dd68; } { s32 dd69; } { s32 dd70; } { s32 dd71; } { s32 dd72; } { s32 dd73; } { s32 dd74; } { s32 dd75; } { s32 dd76; } { s32 dd77; } { s32 dd78; } { s32 dd79; } { s32 dd80; } { s32 dd81; } { s32 dd82; } { s32 dd83; } { s32 dd84; } { s32 dd85; } { s32 dd86; } { s32 dd87; } { s32 dd88; } { s32 dd89; } { s32 dd90; } { s32 dd91; } { s32 dd92; } { s32 dd93; } { s32 dd94; } { s32 dd95; } { s32 dd96; } { s32 dd97; } { s32 dd98; } { s32 dd99; }
+                *(s32 *)&S->v.vz = *(s32 *)&D_800B4D64[i].z;
+                __asm__("" : "=r"(S) : "0"(S));
+                *(s32 *)&S->v.vx = *(s32 *)&D_800B4D64[i].x;
+                gte_ldv0(v);
+                gte_rtv0tr_16F34();
+                gte_stlvnl_16F34(&S->r);
+                z = S->r.vz + ((flags >> 28) << 9);
+                if (z < 0) continue;
+                if (far < S->r.vz) continue;
+                if (z < S->r.vx * 2) continue;
+                if (z < -S->r.vx * 2) continue;
+                if (z < S->r.vy * 3) continue;
+                if (z < -S->r.vy * 3) continue;
+                if (g_Game.f_0 & 1) {
+                    func_8006D548_16F34(&D_800B4D64[i].x);
+                }
+            } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 16);
+            }
+            break;
+        }
+    }
+}
+
 INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4550_pad);
 
 

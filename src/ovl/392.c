@@ -578,7 +578,7 @@ s32 func_80010CA4(s32);
 void func_801380DC(void);
 void func_80138118(void);
 void func_80136000(SVECTOR *eye, SVECTOR *at);
-void func_80016F34(void);
+void Stage_DrawPlacedModels(void);
 s32 Sound_PlayFixed(s32);
 void Sound_UnloadBanks(s32);
 void func_80136EAC(void);
@@ -609,7 +609,7 @@ s32 func_80137198(void) {
         func_80138118();
         func_801385B0();
         func_80136000(&D_8013B998_80137198.eye, &D_8013B998_80137198.at);
-        func_80016F34();
+        Stage_DrawPlacedModels();
         func_801399A4(D_8013B6F0);
         D_8013AE60 = 1;
         D_8013B998_80137198.sub = 0;
@@ -672,7 +672,7 @@ s32 func_80137198(void) {
     }
     func_801385B0();
     func_80136000(&D_8013B998_80137198.eye, &D_8013B998_80137198.at);
-    func_80016F34();
+    Stage_DrawPlacedModels();
     func_801399A4(D_8013B6F0);
     if (func_80010CA4(g_Game_80137198.stage) == 10) {
         func_80136EAC();
