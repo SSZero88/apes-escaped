@@ -1010,3 +1010,4 @@ Surface_RampHeight = 0x8004EE94; // type:func
 Monkey_DrawHelmetLight = 0x8006ABF0; // type:func
 Model_SubdivideGT4 = 0x8001DB74; // type:func
 Model_SubdivideFT4 = 0x8001E828; // type:func
+Seq_NotePitch = 0x8009E594; // type:func

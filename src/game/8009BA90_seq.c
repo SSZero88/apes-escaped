@@ -83,7 +83,7 @@ u8 Sound_LerpU8(u8 a, u8 b, u8 c, u8 d);
 void func_800A2428(u8, u8);
 void func_800A1018(s16 ch, s16 n, s16 vol);
 void func_800A2B6C(u8, s32);
-u16 func_8009E594(u8, u8, s8, u8, u8);
+u16 Seq_NotePitch(u8, u8, s8, u8, u8);
 struct S_D_800F75C0_800A1830 { u8 pad0[0x1C]; u16 f_1C; u8 pad1E[0x17]; u8 f_35; };
 struct S_D_800F75C0_800A192C { u8 pad0[0x1C]; u16 f_1C; u8 pad1E[0x17]; u8 f_35; };
 extern u8 *D_800E1860;
@@ -402,14 +402,14 @@ void func_8009BFFC(u8 ch) {
         adsr = D_800B4DF0_BFFC->f_D;
     }
     if (c->f_E5 != 0) {
-        u16 p = func_8009E594(D_800B4DF0_BFFC->f_2, c->f_2, D_800B4DF0_BFFC->f_3, D_800B4DE0_BFFC->f_A, adsr);
+        u16 p = Seq_NotePitch(D_800B4DF0_BFFC->f_2, c->f_2, D_800B4DF0_BFFC->f_3, D_800B4DE0_BFFC->f_A, adsr);
         { s32 ja; __asm__("" : "=r"(ja) : "0"(v));
         D_800E1874_BFFC->v[ja].f_4 = p * c->f_E8 >> 12;
         a = Seq_ScaleParam(l, c->f_EA);
         b = Seq_ScaleParam(r, c->f_EC);
         g_SeqVoices_BFFC[ja].f_42 = 1; }
     } else {
-        u16 p = func_8009E594(D_800B4DF0_BFFC->f_2, c->f_2, D_800B4DF0_BFFC->f_3, D_800B4DE0_BFFC->f_A, adsr);
+        u16 p = Seq_NotePitch(D_800B4DF0_BFFC->f_2, c->f_2, D_800B4DF0_BFFC->f_3, D_800B4DE0_BFFC->f_A, adsr);
         { s32 jb; Spu_BFFC *sp = D_800E1874_BFFC; __asm__("" : "=r"(jb) : "0"(v), "r"(p));
         sp->v[jb].f_4 = p;
         a = Seq_ScaleParam(l, 0x1000);
@@ -480,7 +480,7 @@ u8 Seq_NoteOff_C77C(u8 ch) asm("Seq_NoteOff");
 s32 Seq_AllocVoice_C77C(void) asm("Seq_AllocVoice");
 void func_8009E434_C77C(s32, s32) asm("func_8009E434");
 u8 func_8009E534_C77C(u8, u8, u8) asm("func_8009E534");
-u16 func_8009E594_C77C(u8, u8, s8, u8, u8) asm("func_8009E594");
+u16 func_8009E594_C77C(u8, u8, s8, u8, u8) asm("Seq_NotePitch");
 u8 func_8009E784_C77C(u8 cmd, u8 n) asm("func_8009E784");
 u16 Seq_NoteVolume_C77C(u8, u8, u8) asm("Seq_NoteVolume");
 s16 Math_MaxS16_C77C(s16, s16) asm("Math_MaxS16");
@@ -642,7 +642,7 @@ extern struct Snd_9CE18 D_800F75C0_CE18 asm("D_800F75C0");
 s16 Math_MaxS16_CE18(s16, s16) asm("Math_MaxS16");
 s16 Seq_VoiceVolume_CE18(u16, s32) asm("Seq_VoiceVolume");
 u8 Sound_LerpU8_CE18(u8 a, u8 b, u8 c, u8 d) asm("Sound_LerpU8");
-u16 func_8009E594_CE18(u8, u8, s8, u8, u8) asm("func_8009E594");
+u16 func_8009E594_CE18(u8, u8, s8, u8, u8) asm("Seq_NotePitch");
 s16 Seq_ScaleParam_CE18(u16 a, s32 b) asm("Seq_ScaleParam");
 #define V(k) g_SeqVoices_CE18[i][k]
 typedef struct { u8 a, b; } Pair_9CE18_CE18;
@@ -1145,7 +1145,23 @@ u8 func_8009E534(u8 a, u8 b, u8 c)
   return a;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8009BA90_seq", func_8009E594);
+extern u16 D_800B38D0[];
+
+u16 Seq_NotePitch(u8 center, u8 note, s8 fine, u8 bend, u8 range) {
+    if (note >= center) {
+        s32 d, oct, b;
+        d = note - center;
+        oct = d / 12;
+        d = d % 12;
+        b = ((range * (bend - 64)) >> 2) + 0xD0;
+        __asm__("" : "=r"(oct) : "0"(oct), "r"(oct));
+        return D_800B38D0[d * 16 + b + fine] << oct;
+    } else {
+        s32 d, b;
+        d = center - note;
+        return D_800B38D0[(12 - d % 12) * 16 + (b = ((range * (bend - 64)) >> 2) + 0xD0) + fine] >> (d / 12 + 1);
+    }
+}
 
 u16 Seq_NoteVolume(u8 ch, u8 b, u8 c) {
     Ch_9E6B4_8009E6B4 *p;
@@ -1694,7 +1710,7 @@ void Seq_PitchBend(u8 ch) {
     for (i = 0; i < 24; i++) {
         r = g_SeqVoices[i];
         if (r[2] == (c->f_0 & 0xF) && r[0x11] == c->f_20 && r[3] == ch && r[0] == 1) {
-            *(u16 *)((u8 *)D_800E1874 + (i << 4) + 4) = func_8009E594(((u8 *)r)[0x40], ((u8 *)r)[2], ((s8 *)r)[0x36], ((u8 *)D_800B4DE0)[0xA], ((u8 *)r)[0x3A]);
+            *(u16 *)((u8 *)D_800E1874 + (i << 4) + 4) = Seq_NotePitch(((u8 *)r)[0x40], ((u8 *)r)[2], ((s8 *)r)[0x36], ((u8 *)D_800B4DE0)[0xA], ((u8 *)r)[0x3A]);
             r[0x1C] = ((u8 *)(c->f_C + D_800E1854))[1];
         }
     }
