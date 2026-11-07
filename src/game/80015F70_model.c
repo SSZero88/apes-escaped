@@ -2122,13 +2122,13 @@ extern u8 *D_800EC354_Model_AddFT4 asm("D_800EC354");
 typedef struct { u32 sxy; s32 sz; } ScrVtx_Model_AddFT4;
 typedef struct { u32 color[0xF0]; u16 fogScale, fogNear; u16 clut; u8 pad3C6[2]; union { u32 w; u8 c[4]; } cidx; union { u32 w; struct { s16 x, y; } s; } sxy[4]; s32 otz; s32 opz; s32 opz2; union { u32 w; u8 b[4]; } hdr; u32 idx01; u32 idx23; u8 flags; u8 mode; u16 tpage; } MdlScratch_Model_AddFT4;
 typedef struct { u32 sxy0; u16 z0; u16 pad0; u32 sxy1; u16 z1; u16 pad1; u32 sxy2; u16 z2; u16 pad2; u32 sxy3; u16 z3; u16 pad3; u32 color; u32 uv0; u32 uv1; u32 uv23; u8 code; } SubQuad_Model_AddFT4;
-u8 *func_8001E828(u32 *, u8 *, SubQuad_Model_AddFT4 *, s32);
+u8 *Model_SubdivideFT4(u32 *, u8 *, SubQuad_Model_AddFT4 *, s32);
 
 /* Model flat textured quads (code 0x2C run). Each quad is tested as two triangles (nclip of v0-v1-v2 and
    of v3-v1-v2): both facing gives a quad - depth-cued POLY_GT4 (+ white-fogged POLY_G4 for
    semi-transparent ones) past the fog start, else a POLY_FT4, or, when big on screen (area >= 5000)
    and opaque, it is copied to the scratch pad at 0x1F800280 and handed to the subdivider
-   func_8001E828 (1 or 2 levels). One facing half gives that half as a GT3/FT3. Returns the next run. */
+   Model_SubdivideFT4 (1 or 2 levels). One facing half gives that half as a GT3/FT3. Returns the next run. */
 u8 *Model_AddFT4(s32 otArg, u8 *primArg, s32 vtxArg)
 {
     register u32 *ot asm("$20") = (u32 *)otArg;
@@ -2407,7 +2407,7 @@ u8 *Model_AddFT4(s32 otArg, u8 *primArg, s32 vtxArg)
                         SQ->uv23 = t;
                         if (oz > 20000) n = 2;
                     }
-                    { register SubQuad_Model_AddFT4 *q asm("$6"); __asm__("" : "=r"(q) : "0"(0x1F800280)); p = func_8001E828(ot, p, q, n); }
+                    { register SubQuad_Model_AddFT4 *q asm("$6"); __asm__("" : "=r"(q) : "0"(0x1F800280)); p = Model_SubdivideFT4(ot, p, q, n); }
                 }
             } else {
                 /* first half only: v0 v1 v2 */
@@ -2600,11 +2600,11 @@ extern u8 *D_800EC354_Model_AddGT4 asm("D_800EC354");
 typedef struct { u32 sxy; s32 sz; } ScrVtx_Model_AddGT4;
 typedef struct { u32 color[0xF0]; u16 fogScale, fogNear; u16 clut; u16 uvoff; union { u32 w; u8 c[4]; } cidx; union { u32 w; struct { s16 x, y; } s; } sxy[4]; s32 otz; s32 opz; s32 opz2; union { u32 w; u8 b[4]; } hdr; u32 idx01; u32 idx23; u8 flags; u8 mode; u16 tpage; } MdlScratch_Model_AddGT4;
 typedef struct { u32 sxy0; u16 z0; u16 pad0; u32 sxy1; u16 z1; u16 pad1; u32 sxy2; u16 z2; u16 pad2; u32 sxy3; u16 z3; u16 pad3; u32 color[4]; u32 uv0; u32 uv1; u32 uv23; u8 code; } SubQuad_Model_AddGT4;
-u8 *func_8001DB74(u32 *, u8 *, SubQuad_Model_AddGT4 *, s32);
+u8 *Model_SubdivideGT4(u32 *, u8 *, SubQuad_Model_AddGT4 *, s32);
 
 /* Model Gouraud textured quads (code 0x3C run); same culling/fog/subdivision scheme as Model_AddFT4
    with per-vertex colours (and the scratch UV offset at 0x3C6 added on the quad paths). Big near quads
-   go to the subdivider func_8001DB74. */
+   go to the subdivider Model_SubdivideGT4. */
 u8 *Model_AddGT4(s32 otArg, u8 *primArg, s32 vtxArg)
 { u32 *p3;
     register u32 *ot asm("$20") = (u32 *)otArg;
@@ -2940,7 +2940,7 @@ u8 *Model_AddGT4(s32 otArg, u8 *primArg, s32 vtxArg)
                         SQ->uv23 = t;
                         if (oz > 20000) n = 2;
                     }
-                    { register SubQuad_Model_AddGT4 *q asm("$6"); __asm__("" : "=r"(q) : "0"(0x1F800280)); p = func_8001DB74(ot, p, q, n); }
+                    { register SubQuad_Model_AddGT4 *q asm("$6"); __asm__("" : "=r"(q) : "0"(0x1F800280)); p = Model_SubdivideGT4(ot, p, q, n); }
                 }
             } else {
                 /* first half only: v0 v1 v2 */
@@ -3569,7 +3569,7 @@ INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4778);
 INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4778_pad);
 
 
-INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", func_8001DB74);
+INCLUDE_ASM("asm/nonmatchings/game/80015F70_model", Model_SubdivideGT4);
 
 /* Quad subdivider for big near textured quads (from Model_AddFT4): culls if wholly off one screen side, at depth 0 emits a POLY_FT4, otherwise splits into four perspective-weighted sub-quads (built in q[1]) and recurses with depth-1. */
 typedef struct { s16 x, y; } XY_1E828;
@@ -3577,7 +3577,7 @@ typedef struct { u8 r, g, b, cd; } QC_1E828;
 typedef struct { union { u32 w; XY_1E828 s; } xy; union { u32 w; struct { s16 z, pad; } s; } zw; } QV_1E828;
 typedef struct { QV_1E828 v[4]; QC_1E828 col; u8 u0, v0; u16 clut; u8 u1, v1; u16 tpage; u8 u2, v2; u8 u3, v3; u8 code; u8 pad[3]; } Quad_1E828;
 
-u8 *func_8001E828(u32 *ot, u8 *prim, SubQuad_Model_AddFT4 *qa, s32 depth) {
+u8 *Model_SubdivideFT4(u32 *ot, u8 *prim, SubQuad_Model_AddFT4 *qa, s32 depth) {
     Quad_1E828 *q = (Quad_1E828 *)qa;
     MdlScratch_Model_AddFT4 *MS;
     Quad_1E828 *c;
@@ -3704,7 +3704,7 @@ u8 *func_8001E828(u32 *ot, u8 *prim, SubQuad_Model_AddFT4 *qa, s32 depth) {
     q[1].v[3].xy.s.y = ys;
     c = q + 1;
     d1 = depth - 1;
-    prim = func_8001E828(ot, prim, (SubQuad_Model_AddFT4 *)c, d1);
+    prim = Model_SubdivideFT4(ot, prim, (SubQuad_Model_AddFT4 *)c, d1);
 
     /* top-right: mid(v0,v1), v1, centre, mid(v1,v3) */
     wa = q->v[1].zw.s.z;
@@ -3733,7 +3733,7 @@ u8 *func_8001E828(u32 *ot, u8 *prim, SubQuad_Model_AddFT4 *qa, s32 depth) {
     q[1].v[3].zw.s.z = (wa + wb) / 2;
     q[1].u3 = (q->u1 + q->u3) >> 1;
     q[1].v3 = (q->v1 + q->v3) >> 1;
-    prim = func_8001E828(ot, prim, (SubQuad_Model_AddFT4 *)c, d1);
+    prim = Model_SubdivideFT4(ot, prim, (SubQuad_Model_AddFT4 *)c, d1);
 
     /* bottom-right: centre, mid(v1,v3), mid(v3,v2), v3 */
     wa = q->v[2].zw.s.z;
@@ -3762,7 +3762,7 @@ u8 *func_8001E828(u32 *ot, u8 *prim, SubQuad_Model_AddFT4 *qa, s32 depth) {
     q[1].v[3].xy.w = q->v[3].xy.w; q[1].v[3].zw.w = q->v[3].zw.w;
     q[1].u3 = q->u3;
     q[1].v3 = q->v3;
-    prim = func_8001E828(ot, prim, (SubQuad_Model_AddFT4 *)c, d1);
+    prim = Model_SubdivideFT4(ot, prim, (SubQuad_Model_AddFT4 *)c, d1);
 
     /* bottom-left: mid(v2,v0), centre, v2, mid(v3,v2) */
     wa = q->v[0].zw.s.z;
@@ -3791,7 +3791,7 @@ u8 *func_8001E828(u32 *ot, u8 *prim, SubQuad_Model_AddFT4 *qa, s32 depth) {
     q[1].v[0].zw.s.z = (wa + wb) / 2;
     q[1].u0 = (q->u0 + q->u2) >> 1;
     q[1].v0 = (q->v0 + q->v2) >> 1;
-    prim = func_8001E828(ot, prim, (SubQuad_Model_AddFT4 *)(q + 1), depth - 1);
+    prim = Model_SubdivideFT4(ot, prim, (SubQuad_Model_AddFT4 *)(q + 1), depth - 1);
 end:
     return prim;
 }

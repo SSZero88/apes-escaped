@@ -758,7 +758,7 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   masks instead of the 24-bit bitfield (the bitfield form swaps two temporaries).
 - s16 reads through a *constant* scratch pointer (`sc = (S *)0x1F800000; x = sc->f`) compile to
   `lhu` + `sll`/`sra`, never `lh` (also with `register ... asm("$9")`, unions or casts). `lh off(base)`
-  with a hoisted constant base, as in Model_AddF3/G3 and func_8001E828, only comes out when the base
+  with a hoisted constant base, as in Model_AddF3/G3 and Model_SubdivideFT4, only comes out when the base
   is opaque to the optimiser (a pointer parameter or global, `asm("" : "=r"(p) : "0"(0x1F800000))`),
   or with `-fforce-addr` / `-fno-expensive-optimizations` / `-O1` (those flags break matched
   functions in the same file and did not help). Solved for the Model_Add* family (2026-10-18):
