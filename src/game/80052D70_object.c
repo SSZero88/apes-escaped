@@ -2530,7 +2530,174 @@ void func_800587EC(void) {
     DebugItem_Init(p, &D_800E77E4[9], 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80052D70_object", func_80058954);
+typedef struct { u8 pad0[0x10]; u16 f_10; u16 f_12; u8 pad14[2]; u8 f_16; u8 pad17[9]; } Ent_58954;
+typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x5C]; u16 nPath; u8 pad8E[2]; SVECTOR *path; u8 pad94[6]; s16 cx, cy, cz; u8 padA0[2]; s16 coneWidth; u16 rNear; u16 rFar; u8 padA8[4]; s16 angle; u8 padAE[0x32]; u32 flags; } Obj_58954;
+typedef struct { u32 addr : 24; u32 len : 8; } PT_58954;
+typedef struct { PT_58954 tag; u32 code; s32 xy0; s32 xy1; } LineF2_58954;
+extern struct { s32 pad0; Ent_58954 *ents; s32 pad8; s16 nEnts; u8 padE[2]; s16 nObjs; u8 pad12[3]; u8 debug; } D_800E77D0_58954 asm("D_800E77D0");
+extern Obj_58954 g_Objects_58954[] asm("g_Objects");
+extern u8 *D_800EC354_58954 asm("D_800EC354");
+extern GameDraw g_GameDraw_58954 asm("g_Game");
+extern char D_800A52F8_58954[] asm("D_800A52F8");
+extern char D_800A5300_58954[] asm("D_800A5300");
+extern char D_800A5304_58954[] asm("D_800A5304");
+extern char D_800A5308_58954[] asm("D_800A5308");
+extern u8 D_800E78C0_58954[] asm("D_800E78C0");
+void func_8008C3C0_58954(s32, s32) asm("func_8008C3C0");
+void func_8008CBFC_58954() asm("func_8008CBFC");
+void SetRotMatrix_58954(void *) asm("SetRotMatrix");
+void SetTransMatrix_58954(void *) asm("SetTransMatrix");
+s32 RotTransPers_58954(SVECTOR *, s32 *, s32 *, s32 *) asm("RotTransPers");
+s32 rcos_58954(s32) asm("rcos");
+s32 rsin_58954(s32) asm("rsin");
+
+/* Debug view of the stage objects, on while D_800E77D0+0x15 is set (1 or 2): lists the spawn entries
+   (index, a two-way flag, two values) as text, then for each object with flag 0x10 draws, as
+   translucent lines in OT entry 1, its range circle (19 segments around +0x9A, radius +0xA4 in mode 1
+   in red, +0xA6 in mode 2 in green), the two edges of its view cone (angle +0xAC, width +0xA2, half
+   the circle's radius) and its patrol path (+0x90, +0x8C points, closed back to the first).
+   Matching notes: sxy1/sxy2 scalars + prim fields stored through plain u32 pointers keep the
+   load/store order; real P_TAG bitfield addPrim gives the 0xFFFFFF mask enough refs for s7;
+   the two empty asm volatiles stop loop.c hoisting the %hi of the two flag strings. */
+void func_80058954(void) {
+    SVECTOR p1, p2;
+    s32 sxy1, dummy, sxy2;
+    s32 i;
+    s32 y;
+    s16 cx, cy, cz, r, a;
+    u32 col;
+    u32 c;
+    Ent_58954 *e;
+    Ent_58954 *ents;
+    LineF2_58954 *l;
+    u32 *ot;
+    Obj_58954 *o;
+    s32 j, k;
+    s32 rr; Obj_58954 *X; s32 first;
+    SVECTOR *pt;
+
+    if (D_800E77D0_58954.debug == 0) {
+        return;
+    }
+    ents = D_800E77D0_58954.ents;
+    for (i = 0; i < D_800E77D0_58954.nEnts; i++) {
+        y = i * 10 + 0x64;
+        e = &ents[i];
+        func_8008C3C0_58954(0x10, y);
+        func_8008CBFC_58954(D_800A52F8_58954, i);
+        __asm__ volatile("");
+        __asm__ volatile("");
+        func_8008C3C0_58954(0x3C, y);
+        if (e->f_16 == 1) {
+            func_8008CBFC_58954(D_800A5300_58954);
+        } else {
+            func_8008CBFC_58954(D_800A5304_58954);
+        }
+        func_8008C3C0_58954(0x4C, y);
+        func_8008CBFC_58954(D_800A5308_58954, e->f_10);
+        func_8008C3C0_58954(0x64, y);
+        func_8008CBFC_58954(D_800A5308_58954, e->f_12);
+    }
+    SetRotMatrix_58954(D_800E78C0_58954);
+    SetTransMatrix_58954(D_800E78C0_58954);
+    l = (LineF2_58954 *)g_GameDraw_58954.prim;
+    ot = g_GameDraw_58954.db[g_GameDraw_58954.cur].ot;
+    for (i = 0; i < D_800E77D0_58954.nObjs; i++) {
+        o = &g_Objects_58954[i];
+        if (!((o->flags >> 4) & 1)) {
+            continue;
+        }
+        cx = o->cx;
+        cy = o->cy;
+        cz = o->cz;
+        if (D_800E77D0_58954.debug == 1) {
+            c = 0x5028F0;
+            r = o->rNear;
+        } else {
+            r = o->rFar;
+            c = 0x50F028;
+        }
+        a = 0;
+        p1.vx = cx + r;
+        p1.vy = cy;
+        p1.vz = cz;
+        for (j = 0; j < 19; j++) {
+            a = (a + 0xE3) % 4096;
+            p2.vx = cx + rcos_58954(a) * r / 4096;
+            p2.vy = cy;
+            p2.vz = cz + rsin_58954(a) * r / 4096;
+            k = (RotTransPers_58954(&p1, &sxy1, &dummy, &dummy) + RotTransPers_58954(&p2, &sxy2, &dummy, &dummy)) / 2;
+            if ((u32)(k - 1) < 0xFFF) {
+                l->tag.len = 3;
+                col = c | 0x41000000;
+                *(u32 *)((u8 *)l + 4 * 1) = (u32)col;
+                *(u32 *)((u8 *)l + 4 * 2) = (s32)sxy1;
+                *(u32 *)((u8 *)l + 4 * 3) = (s32)sxy2;
+                l->tag.addr = ((PT_58954 *)ot)[1].addr;
+                ((PT_58954 *)ot)[1].addr = (u32)l;
+                l++;
+                p1.vx = p2.vx;
+                p1.vy = p2.vy;
+                p1.vz = p2.vz;
+            }
+        }
+        p1.vx = o->x;
+        p1.vy = o->y;
+        p1.vz = o->z;
+        { s32 h = o->coneWidth / 2 - 0x1000; a = (o->angle - h) % 4096; }
+        rr = r;
+        X = o;
+        for (j = 0; j < 2; j++) {
+            p2.vx = p1.vx + rcos_58954(a) * rr / 8192;
+            p2.vy = p1.vy;
+            p2.vz = p1.vz + rsin_58954(a) * rr / 8192;
+            k = (RotTransPers_58954(&p1, &sxy1, &dummy, &dummy) + RotTransPers_58954(&p2, &sxy2, &dummy, &dummy)) / 2;
+            if ((u32)(k - 1) < 0xFFF) {
+                l->tag.len = 3;
+                *(u32 *)((u8 *)l + 4 * 1) = (u32)0x4150E6F0;
+                *(u32 *)((u8 *)l + 4 * 2) = (s32)sxy1;
+                *(u32 *)((u8 *)l + 4 * 3) = (s32)sxy2;
+                l->tag.addr = ((PT_58954 *)ot)[1].addr;
+                ((PT_58954 *)ot)[1].addr = (u32)l;
+                l++;
+                a = (a + (0x1000 + X->coneWidth)) % 4096;
+            }
+        }
+        /* patrol path */
+        if (o->nPath != 0) {
+            pt = o->path;
+            p1.vx = pt[0].vx;
+            p1.vy = pt[0].vy;
+            p1.vz = pt[0].vz;
+            RotTransPers_58954(&p1, &sxy1, &dummy, &dummy);
+            first = sxy1;
+            for (j = 1; j < g_Objects_58954[i].nPath; j++) {
+                p2.vx = pt[j].vx;
+                p2.vy = pt[j].vy;
+                p2.vz = pt[j].vz;
+                if ((u32)(RotTransPers_58954(&p2, &sxy2, &dummy, &dummy) - 1) < 0xFFF) {
+                    l->tag.len = 3;
+                    *(u32 *)((u8 *)l + 4 * 1) = (u32)0x41F09E5A;
+                    *(u32 *)((u8 *)l + 4 * 2) = (s32)sxy1;
+                    *(u32 *)((u8 *)l + 4 * 3) = (s32)sxy2;
+                    l->tag.addr = ((PT_58954 *)ot)[1].addr;
+                    ((PT_58954 *)ot)[1].addr = (u32)l;
+                    l++;
+                    p1 = p2;
+                    sxy1 = sxy2;
+                }
+            }
+            l->tag.len = 3;
+            *(u32 *)((u8 *)l + 4 * 1) = (u32)0x41A0502D;
+            *(u32 *)((u8 *)l + 4 * 2) = (s32)sxy1;
+            *(u32 *)((u8 *)l + 4 * 3) = (s32)first;
+            l->tag.addr = ((PT_58954 *)ot)[1].addr;
+            ((PT_58954 *)ot)[1].addr = (u32)l;
+            l++;
+        }
+    }
+    D_800EC354_58954 = (u8 *)l;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/game/80052D70_object", D_800A52F8);
 INCLUDE_RODATA("asm/nonmatchings/game/80052D70_object", D_800A5300);

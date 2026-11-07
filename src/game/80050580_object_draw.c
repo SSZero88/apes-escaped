@@ -153,7 +153,7 @@ void Object_Draw(Obj_51C00_80051C00 *o);
 void func_80051A28(void *arg0);
 struct S_D_800E77D0_80051534 { u8 pad0[0x10]; s16 f_10; };
 void Object_SetPath(S_508B8_800508B8 *, u16);
-void Object_Reset(S_508B8_800508B8 *, u8);
+void Object_Reset();
 void func_80057FD0(S_508B8_800508B8 *, u8, s8);
 extern u8 D_800E7D00[];
 void VectorNormalSS(void *, void *);
@@ -397,7 +397,119 @@ S_E6960 *func_80050CB0(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80050580_object_draw", Object_Reset);
+typedef struct { u8 pad0[0x1C]; s32 f_1C; u8 pad20[0x4]; s32 x; s32 y; s32 z; u8 pad30[0x14]; s16 f_44; s16 f_46; s16 f_48; s16 f_4A; u8 pad4C[0x4]; s32 f_50; u8 pad54[0xA]; s16 f_5E; s16 f_60; s16 f_62; s16 f_64; s16 f_66; u8 pad68[0xC]; s32 f_74; s32 f_78; s8 f_7C; u8 f_7D; u8 kind; u8 pad7F[0x1]; u8 f_80; u8 f_81; u8 f_82; u8 f_83; u8 f_84; u8 pad85[0x9]; u8 f_8E; u8 f_8F; u8 pad90[0x4]; s16 f_94; s16 f_96; s16 f_98; s16 f_9A; s16 f_9C; s16 f_9E; s16 f_A0; u8 padA2[0xC]; s16 f_AE; s16 f_B0; u8 padB2[0x2]; s32 f_B4; s32 f_B8; s16 f_BC; u8 padBE[0x2]; s16 f_C0; s16 f_C2; u8 padC4[0x2]; s16 f_C6; u8 f_C8; u8 f_C9; u8 f_CA; u8 f_CB; u8 f_CC; u8 f_CD; u8 padCE[0x1]; u8 f_CF; u8 padD0[0x4]; s16 f_D4; s16 f_D6; u8 padD8[0x3]; u8 f_DB; u8 f_DC; u8 padDD[0x2]; u8 f_DF; u32 flags; } O_50D04;
+void func_80052038_50D04(void *, s32) asm("func_80052038");
+
+void Object_Reset(O_50D04 *o, s32 arg1) {
+    u8 k;
+    s32 kk;
+    u32 f;
+    u32 g;
+
+    o->f_98 = 0;
+    o->f_96 = 0;
+    o->f_94 = 0;
+    o->f_AE = 0;
+    o->f_9A = o->x;
+    o->f_9E = o->z;
+    o->f_9C = o->y;
+    __asm__("" : "=r"(arg1) : "0"(arg1));
+    func_80052134(o);
+    func_80052038_50D04(o, arg1);
+    o->f_66 = 3;
+    k = o->kind;
+    if (k != 0xAD && k != 0x18 && k != 0x30 && k != 0x3B && k != 0x70 && k != 0x8E && k != 0x69 && k != 0x3D
+        && k != 0x23 && k != 0x2E && k != 0x45 && k != 0x50 && k != 0x57 && k != 0xC && k != 0x1A && k != 0x1B
+        && k != 0x4F && k != 0x39 && k != 0x40) {
+        o->flags |= 0x10;
+    } else {
+        o->flags &= ~0x10;
+    }
+    k = o->kind;
+    if (k != 0x30 && k != 0x18 && k != 0x3B && k != 0x12 && k != 0x17 && k != 0x3A && k != 0x32 && k != 0x33
+        && k != 0x24 && k != 0x70 && k != 0x2C && k != 0x71 && k != 0x3D && k != 0x2E && k != 0x45 && k != 0x29
+        && k != 0x15 && k != 0 && k != 0x55 && k != 0x57 && k != 0x40 && k != 0x62 && k != 0x35 && k != 0x64
+        && k != 0x65 && k != 0x51 && k != 0x1B) {
+        o->flags |= 0x4000;
+    } else {
+        o->flags &= ~0x4000;
+    }
+    kk = o->kind;
+    if ((u8)kk != 0x37 && (u8)kk != 0x44 && (u8)kk != 0x54 && (u8)kk != 0x3D && (u8)kk != 0x20 && (u8)kk != 7 && (u8)kk != 0x22 && (u8)kk != 0x56
+        && (u8)kk != 0x19 && (u32)(kk - 0x59) >= 6) {
+        o->flags |= 0x8000000;
+    } else {
+        o->flags &= ~0x8000000;
+    }
+    if ((o->flags & 0x4010) == 0x4010) {
+        k = o->kind;
+        Collision_Set((k == 1 || k == 4 || k == 9 || k == 0x3F) ? 5 : 4, &o->x, o);
+        if ((o->flags >> 27) & 1) {
+            func_8007CD88(&o->f_1C);
+        }
+    }
+    o->f_62 = 0;
+    o->f_60 = 0x1000;
+    o->f_64 = 0x1000;
+    o->f_48 = 1;
+    o->flags &= ~0x20000;
+    o->f_4A = -0x7EFD;
+    o->f_44 = 0x30;
+    o->f_A0 = 0x30;
+    o->f_82 = 0;
+    o->f_83 = 0;
+    o->f_DB = 0;
+    o->f_46 = 0x80;
+    o->f_80 = 1;
+    o->f_C9 = 0;
+    o->f_8F = 0;
+    o->f_8E = 0;
+    o->f_D4 = 0;
+    o->flags &= ~0x80000;
+    o->f_D6 = 0;
+    o->f_50 = 0;
+    o->flags &= ~0x40;
+    o->f_84 = 0;
+    o->f_B0 = 0x16;
+    o->f_81 = 2;
+    o->flags &= ~0xC00000;
+    o->f_C8 = 10;
+    f = o->flags;
+    f &= ~0x100000;
+    f &= ~0x2;
+    f &= ~0x80;
+    f &= ~0x200000;
+    o->flags = f;
+    o->f_CA = o->f_CB;
+    o->f_BC = 0;
+    o->f_C0 = 0;
+    o->f_C2 = 0;
+    o->f_C6 = 0;
+    o->f_7C = -1;
+    o->flags &= ~0x4000000;
+    o->f_CC = 0xFF;
+    o->flags &= ~0x200;
+    o->flags &= ~0x3000000;
+    __asm__ volatile("" : "=m"(o->f_7D) : "m"(o->flags));
+    f = o->flags;
+    o->f_7D = 5;
+    f |= 0x1000;
+    __asm__ volatile("");
+    o->flags = f;
+    o->f_DC = 0x63;
+    g = f | 0x8000;
+    __asm__ volatile("");
+    f = g & ~0x2000;
+    o->f_DF = 0;
+    o->f_5E = 0;
+    o->f_CF = 0;
+    o->f_CD = 0;
+    o->f_B4 = 0;
+    o->f_B8 = 0;
+    o->f_74 = 0;
+    o->f_78 = 0;
+    o->flags = f;
+}
 
 /* Per-frame update of all stage objects (0xE4-byte slots in g_Objects, count D_800E77D0+0x10).
  * First runs the mode hook D_800AF574[D_800E77A0.f_0]. For each live object (flag 0x10): records

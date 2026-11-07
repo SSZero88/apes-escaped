@@ -2333,7 +2333,201 @@ s32 func_80077EE8(s32 unused, S_O_80077EE8 *o) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80071D20_collide", func_80078088);
+typedef struct { s32 x, y, z; u8 padC[0x14]; s16 f_20; u16 f_22; s16 f_24; u16 f_26; u8 pad28[4]; u32 f_2C; } Shape_78088;
+typedef struct { u8 pad0[0x4C]; s16 f_4C; u8 pad4E[2]; u32 f_50; } Own_78088;
+typedef struct Node_78088 { s16 kind; s16 id; Shape_78088 *shape; Own_78088 *owner; struct Node_78088 *next; } Node_78088;
+typedef struct { s16 x; u16 y; u16 z; } SPt_78088;
+typedef struct { u8 pad0[0x8296]; s16 f_8296; } Game_78088;
+typedef struct { u8 pad0[0x70]; u32 f_70; } Sp_78088;
+extern Game_78088 g_Game_78088 asm("g_Game");
+extern Node_78088 *g_CollisionHead_78088 asm("g_CollisionHead");
+extern Sp_78088 g_Spike_78088 asm("g_Spike");
+extern u8 g_RcCar_78088[] asm("g_RcCar");
+s32 Collision_KindOfOwner_78088(Own_78088 *) asm("Collision_KindOfOwner");
+s32 Collider_GetCentre_78088(s16 k, Shape_78088 *s, SPt_78088 *out) asm("Collider_GetCentre");
+s32 Collider_HitSound(s16, s16);
+s32 func_80078C9C_78088(s32, s32 *, s16 *) asm("func_80078C9C");
+
+s32 func_80078088(s32 kind_, Node_78088 *self_) {
+    register s32 kind asm("$21") = kind_;
+    s32 dmy_ = ({ __asm__("" : "=r"(kind) : "0"(kind)); 0; });
+    register Node_78088 *self asm("$19") = self_;
+    s32 dmy2_ = ({ __asm__("" : "=r"(self) : "0"(self)); 0; });
+    SVECTOR sv;
+    s16 flag;
+    s32 *d = (s32 *)0x1F8000F0;
+    SPt_78088 *pt = (SPt_78088 *)0x1F800100;
+    s32 *q = (s32 *)0x1F800108;
+    Own_78088 *owner;
+    Node_78088 *n;
+    s32 sk;
+    s32 h;
+    s32 dist;
+    u16 hh;
+    s32 lim;
+    s32 ang;
+    s32 mode;
+    s32 r;
+    u16 nk;
+    s16 ok;
+    u16 px;
+    Shape_78088 *ns;
+
+    if (self->shape->f_2C != 0) {
+        return 0;
+    }
+    __asm__("" : "=r"(d) : "0"(d));
+    owner = self->owner;
+    sk = Collision_KindOfOwner_78088(owner);
+    for (n = g_CollisionHead_78088; n != 0; n = n->next) {
+        if (self == n) {
+            continue;
+        }
+        if (n->kind <= 0) {
+            continue;
+        }
+        if (n->kind >= 6) {
+            continue;
+        }
+        h = n->shape->f_2C;
+        if (h != 0 && (u32)h >> 28 >= 6 && (u32)h >> 28 != 10) {
+            continue;
+        }
+        if (n->kind == 1 && owner != 0 && (owner->f_50 >> 28) == 8) {
+            continue;
+        }
+        if ((void *)n->owner == &g_Spike_78088 && (void *)owner == g_RcCar_78088) {
+            continue;
+        }
+        if (n->kind == 3 && (void *)owner != &g_Spike_78088 && (void *)owner != g_RcCar_78088) {
+            continue;
+        }
+        if (n->kind == 4 && sk != 5 && (void *)owner != &g_Spike_78088 && (void *)owner != g_RcCar_78088) {
+            continue;
+        }
+        ok = 0;
+        if (owner == 0) {
+            goto yes;
+        }
+        if (owner->f_4C != n->id && n->owner == 0) {
+            goto yes;
+        }
+        if (owner == n->owner) {
+            goto no;
+        }
+        if (n->owner == 0) {
+            goto no;
+        }
+    yes:
+        ok = 1;
+    no:
+        if (ok == 0) {
+            continue;
+        }
+        ns = n->shape;
+        Collider_GetCentre_78088(n->kind, ns, pt); __asm__("" :: "r"(n), "r"(n), "r"(n), "r"(n));
+        d[0] = pt->x - self->shape->x;
+        d[1] = (s16)pt->y - self->shape->y;
+        d[2] = (s16)pt->z - self->shape->z;
+        nk = n->kind;
+        if ((u16)(nk - 6) < 2 || (s16)nk == 0xC || (s16)nk == 0xD) {
+            if (Vec_Length(d[0], d[1], d[2]) < ns->f_20 + self->shape->f_20) {
+                n->shape->f_2C = 0xB0000000;
+                self->shape->f_2C = 0xB0000000;
+            }
+            continue;
+        }
+        dist = Vec_Length(d[0], 0, d[2]);
+        hh = ns->f_22;
+        if (n->kind == 1 && (g_Spike_78088.f_70 & 0xF0) == 0x80) {
+            hh = (s16)hh / 3;
+        }
+        __asm__("" :: "r"(dist), "r"(dist));
+        if (dist >= ns->f_20 + self->shape->f_20) {
+            continue;
+        }
+        lim = self->shape->f_20 + ABS((s16)hh / 2);
+        {
+            s32 sy = (s16)pt->y;
+            if ((sy - self->shape->y) >= 0) { if ((sy - self->shape->y) < lim) goto ok_78088; continue; } if ((self->shape->y - sy) >= lim) continue;
+        ok_78088:;
+        }
+        if ((u32)(kind - 6) < 2 || kind == 0xC || kind == 0xD) {
+            self->shape->f_2C = 0x60000000;
+            ang = self->shape->f_24; ang <<= 12;
+            if (n->kind == 1 && func_80098320() != 0) {
+                { u32 t = (n->id & 0xFFF) | 0xB0000000; self->shape->f_2C = (ang & 0xFFFF000) | t; }
+                if (self->owner != 0) {
+                    self->owner->f_50 = self->shape->f_2C;
+                }
+            } else {
+                { u32 t = (self->id & 0xFFF) | 0xB0000000; n->shape->f_2C = (ang & 0xFFFF000) | t; }
+                if (self->owner != 0) {
+                    self->owner->f_50 = 0x60000000;
+                }
+            }
+        } else if (kind == 0xE) {
+            n->shape->f_2C = 0xE0000000;
+        } else if (kind == 0xF) {
+            n->shape->f_2C = 0xF0000000;
+        } else if (kind == 8) {
+            if (n->kind == 3 && (n->shape->f_26 & 0x4000)) {
+                continue;
+            }
+            if (self->owner != 0 && (self->owner->f_50 >> 28) == 8) {
+                continue;
+            }
+            __asm__("" ::: "memory");
+            if (n->kind == 3) {
+                u32 hb = 0x80000000;
+                n->shape->f_2C = (self->id & 0xFFF) | hb;
+                self->shape->f_2C = (n->id & 0xFFF) | hb;
+                if (self->owner != 0) {
+                    self->owner->f_50 = n->id | hb;
+                }
+            }
+        }
+    }
+    if (!(sk == 5 && kind == 6) && self->shape->f_2C != 0) {
+        return 0;
+    }
+    mode = 0;
+    if ((sk == 1 || sk == 5) && ((u32)(kind - 6) < 2 || kind == 0xC || kind == 0xD)) {
+        mode = 1;
+    } else if (sk == 3 && kind == 7) {
+        mode = 2;
+    } else if (sk == 4 && (self->shape->f_24 & 0xC00)) {
+        mode = 3;
+    }
+    if (mode == 0) {
+        goto out;
+    }
+    if (kind == 7) g_Game_78088.f_8296 = 2; else g_Game_78088.f_8296 = 1;
+    px = self->shape->x;
+    sv.vx = px;
+    q[1] = sv.vy = self->shape->y + self->shape->f_20;
+    q[2] = sv.vz = self->shape->z;
+    q[3] = self->shape->f_20;
+    q[4] = self->shape->f_20 * 2;
+    D_800B20CC = 6;
+    q[0] = (s16)px;
+    { s32 m4 = mode << 16; r = func_80078C9C_78088(m4 | self->shape->f_24, q, &flag); }
+    if (r >= 0) {
+        register Shape_78088 *ssh asm("$5") = self->shape;
+        if (ssh->f_2C == 0) {
+            ssh->f_2C = 0xA0000000;
+        }
+        if (flag != 0) {
+            s32 snd = Collider_HitSound(sk, r);
+            if (snd != 0x29) {
+                Sound_PlayAt(snd, &sv);
+            }
+        }
+    }
+    g_Game_78088.f_8296 = 0;
+out:
+    return 0;
+}
 
 s32 Collider_HitSound(s16 a, s16 b) {
     s32 v;

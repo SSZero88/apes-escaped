@@ -354,7 +354,91 @@ s32 Sound_PauseVolumes(s32 mode) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80086040_sound", func_8008686C);
+typedef struct { s16 vx, vy, vz, pad; } SV_8008686C;
+typedef struct { s16 id; s16 voice; SV_8008686C pos; u8 padC[4]; s16 f_10; s16 playing; s16 f_14; s16 f_16; s32 *f_18; } Slot_8008686C;
+typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; u8 pad30[0x220]; } Mky_8008686C;
+typedef struct { u8 pad0[0x812C]; u8 f_812C; u8 pad_812D[0x12B]; SV_8008686C f_8258; } Game_8008686C;
+extern Slot_8008686C g_SoundSlots_8008686C[] asm("g_SoundSlots");
+extern Mky_8008686C g_Monkeys[];
+extern struct { u8 pad0[0x100]; s32 f_100; u8 pad104[0x2C]; u16 f_130; s16 f_132; } D_800F4350;
+extern u8 D_800E6908;
+extern struct { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } g_Spike;
+extern SV_8008686C D_800BF688_8008686C asm("D_800BF688");
+s32 func_80087EE0(S_Src_80087EE0_80087EE0 *s, s16 *out);
+s32 Sound_Stop(s32 a, s32 b);
+s32 Music_DuckForPause(void);
+#define STOP_8008686C { if (s->playing != 0) { Sound_Stop(s->id, s->voice); s->playing = 0; s->voice = -1; } continue; }
+#define PLAY_8008686C { s->voice = Sound_Play(1, s->id); if (s->voice >= 0) { s->playing = 1; } else { s->playing = 0; } continue; }
+
+s32 func_8008686C(void) {
+    S16x2 vol;
+    SV_8008686C p;
+    s16 i;
+    s16 kind;
+    Slot_8008686C *s;
+
+    if (((Game_8008686C *)&g_Game)->f_812C == 0x18 || D_800E6908 == 1) {
+        D_800BF688_8008686C = ((Game_8008686C *)&g_Game)->f_8258;
+    } else {
+        D_800BF688_8008686C.vx = g_Spike.f_24;
+        D_800BF688_8008686C.vy = g_Spike.f_28;
+        D_800BF688_8008686C.vz = g_Spike.f_2C;
+    }
+    for (i = 0; i < 0x18; i++) {
+        s = &g_SoundSlots_8008686C[i];
+        if (s->id < 0) {
+            continue;
+        }
+        kind = s->id & 0xF000;
+        if (kind == 0x2000) {
+            if (Sound_CalcVolume3D((s32)&g_SoundSlots_8008686C[i].pos, s->f_10, &vol) == 0) STOP_8008686C
+            if (s->playing == 0) PLAY_8008686C
+        } else if (kind == 0x3000 || kind == 0x4000) {
+            if (func_80087EE0((S_Src_80087EE0_80087EE0 *)s, (s16 *)&vol) == 0) STOP_8008686C
+            if (s->playing == 0) PLAY_8008686C
+        } else if (kind == 0x5000) {
+            continue;
+        } else if (kind == 0x6000) {
+            if (D_800F4350.f_100 & 2) {
+                vol.y = 0;
+                vol.x = 0;
+            } else {
+                p.vx = g_Monkeys[s->f_10].x;
+                p.vy = g_Monkeys[s->f_10].y;
+                p.vz = g_Monkeys[s->f_10].z;
+                Sound_CalcVolume3D((s32)&p, 0x2000, &vol);
+            }
+        } else if (kind == 0x7000) {
+            if (D_800F4350.f_100 & 4) {
+                vol.y = 0;
+                vol.x = 0;
+            } else {
+                p.vx = s->f_18[0];
+                p.vy = s->f_18[1];
+                p.vz = s->f_18[2];
+                if (Sound_CalcVolume3D((s32)&p, s->f_10, &vol) == 0) STOP_8008686C
+                if (s->playing == 0) PLAY_8008686C
+            }
+        } else if (kind == 0x1000) {
+            if (D_800F4350.f_130 == 0) {
+                continue;
+            }
+            vol.x = 0x1000;
+            vol.y = 0x1000;
+        } else {
+            continue;
+        }
+        if ((u16)(D_800F4350.f_130 - 1) < 4) {
+            s32 x = (0x30 - D_800F4350.f_132) * vol.x;
+            s32 y = (0x30 - D_800F4350.f_132) * vol.y;
+            vol.x = x / 48;
+            vol.y = y / 48;
+        }
+        func_800A3570(g_SoundSlots_8008686C[i].voice, vol.x, vol.y);
+    }
+    Music_DuckForPause();
+    return 0;
+}
 
 s32 func_80086CA4(void) {
     return 0;
