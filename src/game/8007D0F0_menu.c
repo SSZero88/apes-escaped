@@ -932,10 +932,607 @@ void func_8007F9D0(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8007D0F0_menu", PauseMenu_Update);
+/* MATCH (r36): check_c MATCH + full SCUS link OK with both INCLUDE_RODATA deletions. Note: D_800F51C4 is g_GadgetState.owned (0x800F5120+0xA4). */
+void Cheat_CheckCodes(void);
+void func_8007F830(void);
+void func_8007F848(void);
+void func_8007F9D0(void);
+typedef struct { s16 x, y, w, h; } Rect_pm;
+typedef struct { s32 vx, vy, vz, pad; } Vec_pm;
+typedef struct { s16 vx, vy, vz, pad; } SVec_pm;
+typedef struct { u8 pad0[0x70]; u32 ot[0x1000]; u32 hud[2]; } DBuf_pm;
+typedef struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DBuf_pm db[2]; u8 pad8100[0x22]; u16 f_8122; u8 pad8124[0x18]; u16 f_813C; u8 pad813E[2]; s32 f_8140; } Game_pm;
+typedef struct { u8 pad0[0x158]; u32 held; u8 pad15C[4]; u32 trig; u8 pad164[4]; u32 rep; } Pad_pm;
+typedef struct { s8 state; s8 f_1; s16 t; } Pause_pm;
+typedef struct { u8 pad0[0x88]; s8 slot[4]; u8 pad8C[0x18]; u32 owned; } GState_pm;
+typedef struct { s16 f_0; u8 pad2[2]; s16 f_4; u8 pad6[0x16]; s16 f_1C; u8 pad1E[2]; s32 f_20; } HudSt_pm;
+typedef struct { u8 b[16]; } Mdl_pm;
+typedef struct { u32 tag; u32 tpage; u8 r0, g0, b0, code; u32 xy; u32 uvc; u32 wh; } HiSpr_pm;
+extern Game_pm g_Game_pm asm("g_Game");
+extern Pad_pm g_Pad_pm asm("g_Pad");
+extern Pause_pm D_800BEF74_pm asm("D_800BEF74");
+extern GState_pm g_GadgetState_pm asm("g_GadgetState");
+extern HudSt_pm D_800F4DB0;
+extern u8 *D_800B25A0[][5];
+extern Mdl_pm D_800EC060[];
+extern struct S_D_800AF0A0 D_800E78C0_pm asm("D_800E78C0");
+extern u8 D_800B267C[];
+extern u8 D_800B2690[];
+extern u8 D_800B2694[];
+extern u8 D_800B2698[];
+extern u8 D_800B26BC[];
+void DrawSync_pm(s32) asm("DrawSync");
+void VSync_pm(s32) asm("VSync");
+void *PutDispEnv_pm(void *) asm("PutDispEnv");
+void *PutDrawEnv_pm(void *) asm("PutDrawEnv");
+s32 StoreImage_pm(void *, u32 *) asm("StoreImage");
+u32 *ClearOTagR_pm(u32 *, s32) asm("ClearOTagR");
+void DrawOTag_pm(u32 *) asm("DrawOTag");
+s32 func_8008C09C(s32);
+void func_8008C064(s32);
+void func_80095244(s32, void *);
+void func_80095600(s32, s32);
+void func_800958C0(s32);
+s32 Game_IsTimed(void);
+void func_80081B9C(s32 mode);
+void func_8008227C(s32 arg0);
+void func_8005DD18(void);
+void Sound_PlayFixed_pm(s32) asm("Sound_PlayFixed");
+void func_80081D54(void);
+s32 PauseMenu_DrawItemModel_pm(s32, s32, s32, s32, s32, u32 *) asm("PauseMenu_DrawItemModel");
+void func_80082D40(void);
+s32 Text_GetWidth(u8 *s);
+void Menu_DrawCaps(s32 x, s32 y, s32 w);
+void RotMatrixZ_pm(s32, void *) asm("RotMatrixZ");
+void RotMatrixY_pm(s32, void *) asm("RotMatrixY");
+void RotMatrixX_pm(s32, void *) asm("RotMatrixX");
+void ScaleMatrix_pm(void *, void *) asm("ScaleMatrix");
+s32 func_8008DE68_pm(u8 *, s32) asm("func_8008DE68");
+void MagicPunch_Draw(void *, s32, s32);
+void Radar_DrawModel(void *, void *, void *, s32);
+void Club_Draw(void *, s32, s32);
+void func_80017CD4_pm(u32 *, void *, void *) asm("func_80017CD4");
+void Model_DrawWireframe(u32 *, void *, void *);
+s32 func_80066F50(void);
+s32 Gadget_Select(s32, s32);
+void func_80081144(s32, s8);
+void Hud_DrawGadgets(void);
+void SetPriority_pm(void *, s32, s32) asm("SetPriority");
+void Menu_DrawStatusScreen(void);
+void PauseMenu_DrawStageInfo(void);
+s32 OptionsMenu_Update(void);
+void Hud_DrawTimerClock(s32, s32, s32);
+void Hud_DrawTime(s32, s32, u32);
+s32 func_8005DD34(void);
+void func_8005FFD4(s32);
+void Hud_DrawMonkeyHeads(s32, s32);
+void Hud_DrawHealth(void);
+void Hud_DrawLivesIcon(s32, s32);
+void Hud_DrawBigDigit(s32, s32, s32);
+void Hud_DrawBigNumber(s32, s32, s32);
+void func_8005FD80(void);
+void Hud_UpdateStatusIcons(void);
+void Cd_Update(void);
+void bios_printf_pm(char *, ...) asm("bios_printf");
+void func_800729CC(void);
+#define gte_SetGeomScreen_pm(h) __asm__ volatile ("ctc2 %0, $26" : : "r"(h))
+#define G_pm g_Game_pm
+#define PS_pm D_800BEF74_pm
+#define PAD_pm (g_Pad_pm.held & g_Pad_pm.trig)
+#define ADDPRIM_pm(ot, p) { u32 _a, _b; __asm__ volatile("lwl %0, 2(%2)\n\tsll %1, %4, 8\n\tswl %1, 2(%2)\n\tswl %0, %3" : "=&r"(_a), "=&r"(_b) : "r"(ot), "m"(*((u8 *)(p) + 2)), "r"(p)); }
 
-INCLUDE_RODATA("asm/nonmatchings/game/8007D0F0_menu", D_800A60E4);
-INCLUDE_RODATA("asm/nonmatchings/game/8007D0F0_menu", jtbl_800A60F8);
+s32 PauseMenu_Update(void) {
+    struct S_D_800AF0A0 m;
+    struct S_D_800AF0A0 m2;
+    s32 bufs[2];
+    Rect_pm r;
+    Vec_pm sc;
+    SVec_pm sv;
+    struct S_D_800AF0A0 m3;
+    SVec_pm rot;
+    u32 *ot;
+    s32 h;
+    s32 i;
+    s32 sel;
+    register s32 ret asm("$21");
+    u8 *prim;
+
+    DrawSync_pm(0);
+    VSync_pm(0);
+    PutDispEnv_pm((u8 *)&G_pm.db[G_pm.cur ^ 1] + 0x5C);
+    PutDrawEnv_pm(&G_pm.db[G_pm.cur ^ 1]);
+    __asm__ volatile("cfc2 %0, $26" : "=r"(h));
+    gte_SetGeomScreen_pm(0x148);
+    r.w = 0x180;
+    r.h = 0xF0;
+    r.x = 0;
+    r.y = (G_pm.cur != 0) << 8;
+    StoreImage_pm(&r, (u32 *)0x801A8000);
+    DrawSync_pm(0);
+    func_8007F830();
+    bufs[0] = func_8008C09C(0x9000);
+    bufs[1] = func_8008C09C(0x9000);
+    D_800F4DB0.f_20 |= 0x10;
+    func_80095244(1, &D_800F4DB0);
+    func_80095600(1, 0);
+    if (Game_IsTimed() == 0) {
+        func_800958C0(1);
+    }
+    func_80081B9C(0);
+    func_80081B9C(1);
+    func_8008227C(1);
+    DrawSync_pm(0);
+    VSync_pm(2);
+    do {
+        func_8001325C(2);
+        G_pm.cur ^= 1;
+        G_pm.frame++;
+        ClearOTagR_pm(G_pm.db[G_pm.cur].ot, 0x1000);
+        G_pm.prim = (u8 *)bufs[G_pm.cur];
+        *G_pm.db[G_pm.cur].hud = 0xFFFFFF;
+        ot = G_pm.db[G_pm.cur].ot;
+        G_pm.ot = ot;
+        func_8008C390();
+        prim = G_pm.prim;
+        if (PS_pm.f_1 != 0) {
+            PS_pm.f_1 = 0;
+            if (func_80082030(0)) {
+                ret = 0;
+                sel = 0;
+                PS_pm.state = 10;
+                PS_pm.t = 0;
+                func_80081B9C(2);
+                func_8005DD18();
+            } else {
+                PS_pm.t = 0xF;
+                PS_pm.state = 1;
+            }
+        }
+        switch (PS_pm.state) {
+        case 2:
+            Cheat_CheckCodes();
+            if (PS_pm.t < 0x100) {
+                PS_pm.t++;
+            }
+            ret = 0;
+            func_8008DDB0(0x100, 0xAA);
+            func_8008DDC8(D_800B269C);
+            func_80081D54();
+            prim = G_pm.prim;
+            { s32 c;
+            for (i = 0; i < 4; i++) {
+                s32 a = i << 10;
+                s32 b;
+                c = rcos(a) / 52;
+                b = rsin(a);
+                __asm__("" :: "r"(a), "r"(a), "r"(a));
+                prim = (u8 *)PauseMenu_DrawItemModel_pm(c, b / 74, i, PS_pm.t, (s32)prim, ot);
+            }
+            if ((PAD_pm & 0x20) && ({ __asm__("" :: "r"(c)); func_80082030(2); })) {
+                Sound_PlayFixed_pm(3);
+                PS_pm.state = 11;
+                PS_pm.t = 0;
+                func_80081B9C(3);
+            }
+            }
+            if ((PAD_pm & 0x80) && func_80082030(1)) {
+                Sound_PlayFixed_pm(3);
+                sel = 1;
+                PS_pm.state = 4;
+                PS_pm.t = 0;
+                func_80081B9C(4);
+            }
+            if (PAD_pm & 0x10) {
+                if (func_80082030(0)) {
+                    ret = 0;
+                    sel = 0;
+                    PS_pm.state = 10;
+                    PS_pm.t = 0;
+                    func_80081B9C(2);
+                    Sound_PlayFixed_pm(3);
+                }
+            }
+            if (PAD_pm & 0x40) {
+                if (func_80082030(3)) {
+                    ret = 0;
+                    sel = 0;
+                    PS_pm.state = 12;
+                    PS_pm.t = 0;
+                    func_80081B9C(5);
+                    Sound_PlayFixed_pm(3);
+                    func_80082D40();
+                }
+            }
+            if (PAD_pm & 0xC00) {
+                ret = 0;
+                PS_pm.state = 3;
+                PS_pm.t = 0;
+                Sound_PlayFixed_pm(1);
+            }
+            break;
+        case 1:
+            for (i = 0; i < 4; i++) {
+                prim = (u8 *)PauseMenu_DrawItemModel_pm(rcos((PS_pm.t << 7) + (i << 10)) / (0x34 - PS_pm.t * 2), rsin((PS_pm.t << 7) + (i << 10)) / (0x4A - PS_pm.t * 2), i, 0, (s32)prim, ot);
+            }
+            if (--PS_pm.t == 0) {
+                PS_pm.state = 2;
+            }
+            if (PAD_pm & 0x800) {
+                PS_pm.state = 3;
+                ret = 0;
+                Sound_PlayFixed_pm(0x10);
+            }
+            break;
+        case 3:
+            for (i = 0; i < 4; i++) {
+                prim = (u8 *)PauseMenu_DrawItemModel_pm(rcos((PS_pm.t << 7) + (i << 10)) / (0x34 - PS_pm.t * 2), rsin((PS_pm.t << 7) + (i << 10)) / (0x4A - PS_pm.t * 2), i, 0x20, (s32)prim, ot);
+            }
+            if (++PS_pm.t >= 0x10) {
+                switch (ret) {
+                case 1:
+                    PS_pm.state = 11;
+                    break;
+                case 4:
+                    PS_pm.state = 10;
+                    sel = 0;
+                    break;
+                default:
+                    PS_pm.state = 0;
+                    break;
+                }
+            }
+            break;
+        case 4: {
+            s32 w;
+            u32 pad;
+            G_pm.prim = prim;
+            Text_Draw(D_800B267C, (0x180 - Text_GetWidth(D_800B267C)) >> 1, 0x64, 2);
+            Text_Draw(D_800B2690, (0x180 - Text_GetWidth(D_800B2690)) >> 1, 0x78, 2);
+            Text_Draw(D_800B2694, (0x180 - Text_GetWidth(D_800B2694)) >> 1, 0x8C, 2);
+            Text_Draw(D_800B2698, (0x180 - Text_GetWidth(D_800B2698)) >> 1, 0xA0, 2);
+            if (Game_IsTimed()) {
+                Text_Draw(D_800B26BC, (0x180 - Text_GetWidth(D_800B26BC)) >> 1, 0xB4, 2);
+            }
+            pad = g_Pad_pm.rep;
+            if (pad & 0x5000) {
+                Sound_PlayFixed_pm(0);
+                if (pad & 0x1000) {
+                    sel--;
+                } else {
+                    sel++;
+                }
+            }
+            if (Game_IsTimed()) {
+                sel = (sel + 3) % 3;
+            } else {
+                sel = (sel + 2) & 1;
+            }
+            w = 0x60;
+            switch (sel) {
+            case 0:
+                w = Text_GetWidth(D_800B2694) + 0x30;
+                break;
+            case 1:
+                w = Text_GetWidth(D_800B2698) + 0x30;
+                break;
+            case 2:
+                w = Text_GetWidth(D_800B26BC) + 0x30;
+                break;
+            }
+            Menu_DrawCaps(0xC0, sel * 20 + 0x8C, w);
+            __asm__ volatile("lw %0, %1" : "=r"(prim) : "m"(G_pm.prim));
+            Menu_DrawWindow(0x5C, 0x50, 0xC0, Game_IsTimed() ? 0x80 : 0x70);
+            func_80081D54();
+            prim = G_pm.prim;
+            if (PAD_pm & 0x8F0) {
+                switch (sel) {
+                case 0:
+                    PS_pm.state = 3;
+                    ret = 3;
+                    Sound_PlayFixed_pm(3);
+                    break;
+                case 1:
+                    PS_pm.state = 2;
+                    PS_pm.t = 0x100;
+                    Sound_PlayFixed_pm(1);
+                    break;
+                case 2:
+                    PS_pm.state = 3;
+                    ret = 2;
+                    Sound_PlayFixed_pm(3);
+                    break;
+                }
+                func_80081B9C(1);
+            }
+            break;
+        }
+        case 10: {
+            s32 pad;
+            func_8005DD18();
+            G_pm.prim = prim;
+            for (i = 0; i < 8; i++) {
+                s32 row, col, c3, r3; s16 cx; s16 cy;
+                struct S_D_800AF0A0 *mp, *lm;
+                func_8004637C(&m);
+                row = i / 4;
+                col = i - row * 4;
+                c3 = col * 3; r3 = row * 3;
+                m.t[0] = c3 * 32 - 0x100;
+                m.t[1] = r3 * 32 - 0x40;
+                m.t[2] = 0x290;
+                RotMatrixZ_pm(0x8C8, &m);
+                __asm__("" :: "r"(r3));
+                RotMatrixY_pm((G_pm.frame + i) << 5, &m);
+                if (i == sel) {
+                    HiSpr_pm *p = (HiSpr_pm *)G_pm.prim;
+                    s32 pulse = G_pm.frame & 0xF;
+                    s32 j, k;
+                    s16 yy, xx;
+                    if (pulse >= 8) {
+                        pulse = (pulse - 8) ^ 7;
+                    }
+                    pulse >>= 1;
+                    cx = c3 * 16 + 0x30;
+                    cy = r3 * 16 + 0x40;
+                    for (yy = cy - pulse, j = 0; j < 0x11; yy += (pulse + 0x10) + pulse, j += 0x10) {
+                        for (xx = cx - pulse, k = 0; k < 0x11; k += 0x10, xx += (pulse + 0x10) + pulse) {
+                            ((u8 *)p)[3] = 5;
+                            p->tpage = 0xE100023D;
+                            p->code = 0x65;
+                            p->xy = (yy << 16) | xx;
+                            { u32 t = (k + 0x80) | 0x70F70000; p->uvc = ((j + 0x40) << 8) | t; }
+                            p->wh = 0x100010;
+                            ADDPRIM_pm(ot, p);
+                            p++;
+                            __asm__(""); __asm__(""); __asm__(""); /* sets global-alloc priorities of the j/yy loop vars */
+                        }
+                    }
+                    G_pm.prim = (u8 *)p;
+                    if ((1 << i) & g_GadgetState_pm.owned) {
+                        u8 **nm = (u8 **)((u8 *)D_800B25A0 + i * 20);
+                        s32 w = func_8008DE68_pm(nm[0], 0);
+                        w = w / 2 - 0x10;
+                        func_8008DDB0((s16)(cx - w), (s16)(cy + 0x20));
+                        func_8008DDC8(nm[0]);
+                        func_8008DDB0(0x10, 0xA8);
+                        func_8008DDC8(nm[1]);
+                        func_8008DDB0(0x10, 0xB8);
+                        func_8008DDC8(nm[2]);
+                        func_8008DDB0(0x10, 0xC8);
+                        func_8008DDC8(nm[3]);
+                    }
+                } else {
+                    sc.vx = 0x800;
+                    sc.vy = 0x800;
+                    sc.vz = 0x800;
+                    ScaleMatrix_pm(&m, &sc);
+                }
+                mp = &m;
+                m2 = m;
+                CompMatrix(&D_800AF0A0, mp, mp);
+                lm = &m2;
+                if ((1 << i) & g_GadgetState_pm.owned) {
+                    Mdl_pm *mdl;
+                    switch (i) {
+                    case 0:
+                        MagicPunch_Draw(mp, 0, 0x800);
+                        break;
+                    case 2:
+                        { s32 a = G_pm.frame << 6;
+                        sv.vz = rcos(a);
+                        sv.vx = rsin(a); }
+                        if (sel == i) {
+                            sv.vy = 0;
+                        } else {
+                            sv.vy = 0x800;
+                        }
+                        D_800E78C0_pm = D_800AF0A0;
+                        Radar_DrawModel(&m, &m2, &sv, G_pm.frame << 7);
+                        break;
+                    case 7:
+                        mdl = &D_800EC060[7];
+                        Model_ProjectVerts(mdl, mp, D_800E7D00);
+                        func_80017CD4_pm(ot, D_800E7D00, mdl);
+                        m.t[0] += 0x40;
+                        RotMatrixX_pm(0x800, mp);
+                        Model_ProjectVerts(&D_800EC060[11], mp, D_800E7D00);
+                        func_80017CD4_pm(ot, D_800E7D00, &D_800EC060[11]);
+                        break;
+                    case 5:
+                        func_8004637C(&m3);
+                        m3.t[1] = -0xC8;
+                        rot.vx = 0x400;
+                        rot.vy = 0;
+                        rot.vz = 0;
+                        RotMatrixZYX(&rot, &m3);
+                        CompMatrix(lm, &m3, &m3);
+                        Club_Draw(&m3, 0x555, 0);
+                        break;
+                    default:
+                        { Mdl_pm *md = &D_800EC060[i];
+                        Model_ProjectVerts(md, &m, D_800E7D00);
+                        func_80017CD4_pm(ot, D_800E7D00, md); }
+                        break;
+                    }
+                } else {
+                    Model_ProjectVerts(D_800EC060, mp, D_800E7D00);
+                    Model_DrawWireframe(ot, D_800E7D00, D_800EC060);
+                }
+            }
+            func_8008DDB0(0x114, 0x8A);
+            func_8008DDC8(D_800B269C);
+            prim = G_pm.prim;
+            pad = PAD_pm;
+            if (pad & 0xF000) {
+                Sound_PlayFixed_pm(0);
+                if (pad & 0x8000) {
+                    sel = (sel & 3) ? sel - 1 : sel + 3;
+                } else if (pad & 0x2000) {
+                    sel = ((sel & 3) == 3) ? sel - 3 : sel + 1;
+                } else if (pad & 0x1000) {
+                    sel = (sel >> 2) ? sel - 4 : sel + 4;
+                } else if (pad & 0x4000) {
+                    sel = (sel >> 2) ? sel - 4 : sel + 4;
+                } else {
+                    goto f0;
+                }
+            } else {
+            f0:
+                if (pad & 0xF0) {
+                    s32 snd;
+                    if (func_80066F50()) {
+                        if (pad & 0x10) {
+                            if (!((1 << ret) & g_GadgetState_pm.owned)) goto bad;
+                            if (g_CurrentGadget == g_GadgetState_pm.slot[0]) Gadget_Select(ret, g_CurrentGadget);
+                            func_80081144(ret, g_GadgetState_pm.slot[0]);
+                            snd = 0x24;
+                            g_GadgetState_pm.slot[0] = ret;
+                        } else if (pad & 0x80) {
+                            if (!((1 << ret) & g_GadgetState_pm.owned)) goto bad;
+                            if (g_CurrentGadget == g_GadgetState_pm.slot[1]) Gadget_Select(ret, g_CurrentGadget);
+                            func_80081144(ret, g_GadgetState_pm.slot[1]);
+                            snd = 0x24;
+                            g_GadgetState_pm.slot[1] = ret;
+                        } else if (pad & 0x20) {
+                            if (!((1 << ret) & g_GadgetState_pm.owned)) goto bad;
+                            if (g_CurrentGadget == g_GadgetState_pm.slot[2]) Gadget_Select(ret, g_CurrentGadget);
+                            func_80081144(ret, g_GadgetState_pm.slot[2]);
+                            snd = 0x24;
+                            g_GadgetState_pm.slot[2] = ret;
+                        } else if (pad & 0x40) {
+                            if (!((1 << ret) & g_GadgetState_pm.owned)) goto bad;
+                            if (g_CurrentGadget == g_GadgetState_pm.slot[3]) Gadget_Select(ret, g_CurrentGadget);
+                            func_80081144(ret, g_GadgetState_pm.slot[3]);
+                            snd = 0x24;
+                            g_GadgetState_pm.slot[3] = ret;
+                        } else {
+                            goto wrap;
+                        }
+                    } else {
+                    bad:
+                        snd = 0x30;
+                    }
+                    Sound_PlayFixed_pm(snd);
+                }
+            }
+        wrap:
+            if (sel >= 8) {
+                sel %= 8;
+            }
+            G_pm.prim = prim;
+            Hud_DrawGadgets();
+            __asm__("addu %0,%1,$0" : "=r"(ret) : "r"(sel));
+            func_80081D54();
+            Menu_DrawWindow(8, 0x38, 0x100, 0x68);
+            Menu_DrawWindow(8, 0xA2, 0x170, 0x40);
+            prim = G_pm.prim;
+            SetPriority_pm(prim, 0, 0);
+            { register u32 *_q asm("$3") = &ot[0xFFE]; __asm__ volatile("lwl $4, 2(%0)\n\tsll $2, %1, 8\n\tswl $2, 2(%0)\n\tswl $4, 2(%1)" : : "r"(_q), "r"(prim) : "$2", "$4"); }
+            prim += 0xC;
+            if (PAD_pm & 0x800) {
+                PS_pm.state = 2;
+                PS_pm.t = 0x100;
+                func_80081B9C(1);
+                Sound_PlayFixed_pm(1);
+                func_8005DD28();
+            }
+            if (PAD_pm & 0x100) {
+                ret = 0;
+                PS_pm.state = 3;
+                PS_pm.t = 0;
+                Sound_PlayFixed_pm(1);
+                func_8005DD28();
+            }
+            break;
+        }
+        case 11:
+            G_pm.prim = prim;
+            if (G_pm.f_8122 == 0xD) {
+                Menu_DrawStatusScreen();
+            } else {
+                PauseMenu_DrawStageInfo();
+            }
+            func_80081D54();
+            if (PAD_pm & 0x8F0) {
+                PS_pm.state = 2;
+                PS_pm.t = 0x100;
+                func_80081B9C(1);
+                Sound_PlayFixed_pm(1);
+            }
+            prim = G_pm.prim;
+            break;
+        case 12:
+            G_pm.prim = prim;
+            if (OptionsMenu_Update() == -1) {
+                PS_pm.state = 2;
+                PS_pm.t = 0x100;
+                func_80081B9C(1);
+            }
+            prim = G_pm.prim;
+            break;
+        }
+        G_pm.prim = prim;
+        if (Game_IsTimed()) {
+            s32 v;
+            Hud_DrawTimerClock(0x90, 0x20, G_pm.f_8140);
+            Hud_DrawTime(0xA0, 0x20, G_pm.f_8140);
+            v = func_8005DD34();
+            if (v != 0) {
+                func_8005FFD4(v);
+            }
+        }
+        switch (PS_pm.state) {
+        case 4:
+        case 10:
+        case 11:
+        case 12:
+            break;
+        default:
+            Hud_DrawMonkeyHeads(0x136, 0xC0);
+            D_800F4DB0.f_1C = 0x14;
+            Hud_DrawHealth();
+            Hud_DrawLivesIcon(0x14, 0xC0);
+            Hud_DrawBigDigit(0x34, 0xC8, -1);
+            Hud_DrawBigNumber(0x4C, 0xC8, G_pm.f_813C - 1);
+            if (!Game_IsTimed()) {
+                D_800F4DB0.f_0 = 0x51;
+                func_8005FD80();
+            }
+            D_800F4DB0.f_4 = -0x1C;
+            Hud_UpdateStatusIcons();
+            break;
+        }
+        prim = G_pm.prim;
+        SetPriority_pm(prim, 0, 0);
+        { register u32 *_q asm("$3") = &ot[0xFFF]; __asm__ volatile("lwl $4, 2(%0)\n\tsll $2, %1, 8\n\tswl $2, 2(%0)\n\tswl $4, 2(%1)" : : "r"(_q), "r"(prim) : "$2", "$4"); }
+        Cd_Update();
+        func_8007F9D0();
+        DrawSync_pm(0);
+        VSync_pm(2);
+        PutDispEnv_pm((u8 *)&G_pm.db[G_pm.cur] + 0x5C);
+        PutDrawEnv_pm(&G_pm.db[G_pm.cur]);
+        func_8007F848();
+        DrawOTag_pm(&G_pm.db[G_pm.cur].ot[0xFFF]);
+        DrawOTag_pm(G_pm.db[G_pm.cur].hud);
+        if ((u32)(bufs[G_pm.cur] + 0x9000) < (u32)G_pm.prim) {
+            static const char s_pm[20] = "packet fllow!!\n";
+            bios_printf_pm((char *)s_pm);
+        }
+        if (PS_pm.state == 0) {
+            gte_SetGeomScreen_pm(h);
+            PS_pm.state = 0;
+            DrawSync_pm(0);
+            break;
+        }
+    } while (1);
+    VSync_pm(0);
+    func_8008C064(bufs[0]);
+    func_8008C064(bufs[1]);
+    func_8005DD18();
+    func_800729CC();
+    return ret;
+}
+
 
 
 void func_80081144(s32 arg0, s8 arg1)
