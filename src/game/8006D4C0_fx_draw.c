@@ -20,7 +20,7 @@ extern struct S_D_800F4ED0 { u8 pad0[6]; u16 f_6; } g_HoopSparks[];
 extern M2C_UNK D_800B1B90;
 void func_8006F3D0(SVEC_8006F274_8006F274 *, s32, void *, s32);
 struct S_D_800F5010_8006ED78 { SVECTOR f_0; s16 f_8; u8 f_A; u8 f_B; s16 f_C; s16 f_E; };
-void Fx_DrawFadeRing(struct S_D_800F5010 *, s32, s32, s32);
+void Fx_DrawFadeRing(void *, s32, s32, s32);
 struct S_D_800F5010_8006EE3C { SVECTOR f_0; u16 f_8; u8 f_A; u8 f_B; u16 f_C; u16 f_E; };
 extern u8 D_800B1B40_1;
 struct S_D_800BAEA0_8006E054 { s16 f_0; s16 f_2; s16 f_4; u8 f_6; u8 pad7; u8 f_8; u8 f_9; u8 f_A; u8 padB; };
@@ -402,7 +402,165 @@ void func_8006E1C0(void) {
     D_800EC354 = (u8 *)p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/8006D4C0_fx_draw", Fx_DrawFadeRing);
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_6E5B4;
+typedef struct { MAT_6E5B4 m; SVECTOR v; s32 z; s32 nz; u32 vert[144]; } Scr_6E5B4;
+typedef struct { u32 tag; u32 code; u32 xy0; u32 uv0; u32 xy1; u32 uv1; u32 xy2; u16 uv2; u16 pad2; u32 xy3; u16 uv3; u16 pad3; } FT4_6E5B4;
+typedef struct { u32 tag; u32 code; u32 w; } DrMode_6E5B4;
+typedef struct { u16 clut; u8 u0; u8 v0; u8 du; u8 dv; } Tex_6E5B4;
+extern MAT_6E5B4 D_800AE840;
+extern Tex_6E5B4 D_800B1B44[];
+extern s32 D_800EC35C;
+extern struct { s32 f_0; } g_Game_6E5B4 asm("g_Game");
+void *RotMatrixY(s32, void *);
+void *CompMatrix(void *, void *, void *);
+void SetRotMatrix(void *);
+void SetTransMatrix(void *);
+#define GD_6E5B4 (*(GameDraw *)&g_Game_6E5B4)
+#define gte_ldv0_6E5B4(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
+#define gte_rtps_6E5B4() __asm__ volatile ("nop; nop; rtps")
+#define gte_stsxy_6E5B4(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+#define gte_stszotz_6E5B4(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+#define gte_ldsxy3_6E5B4(a, b, c) __asm__ volatile ("mtc2 %0, $12; nop; mtc2 %2, $14; nop; mtc2 %1, $13" : : "r"(a), "r"(b), "r"(c))
+#define gte_nclip_6E5B4() __asm__ volatile ("nop; nop; nclip")
+#define gte_stopz_6E5B4(p) __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(p) : "memory")
+typedef struct { u32 addr : 24; u32 len : 8; } PT_6E5B4;
+#define ADDP_6E5B4(o, q) (((PT_6E5B4 *)(q))->addr = ((PT_6E5B4 *)(o))->addr, ((PT_6E5B4 *)(o))->addr = (u32)(q))
+
+void Fx_DrawFadeRing(void *arg0, s32 r, s32 flags, s32 color) {
+    long long ll; /* each ll = i adds ~4 insns to loop.c's count but leaves only a CLOBBER later; asm def at end gives ll a GPR class (no stack slot) */
+    SVECTOR *pos = (SVECTOR *)arg0;
+    Scr_6E5B4 *scr = (Scr_6E5B4 *)0x1F800000;
+    u32 *sxy;
+    s32 i, j, a, c;
+
+    scr->m = D_800AE840;
+    scr->m.m[2][2] = r;
+    scr->m.m[1][1] = r;
+    scr->m.m[0][0] = r;
+    RotMatrixY(-((g_Game_6E5B4.f_0 << 6) & 0xFFF), &scr->m); sxy = scr->vert;
+    scr->m.t[0] = pos->vx;
+    scr->m.t[1] = pos->vy;
+    scr->m.t[2] = pos->vz;
+    CompMatrix(D_800E78C0, &scr->m, &scr->m);
+    SetRotMatrix(&scr->m);
+    SetTransMatrix(&scr->m);
+    for (i = 0; i < 12; i++) {
+        a = (i << 11) / 11 - 0x400;
+        c = rcos(a);
+        scr->v.vy = rsin(a);
+        for (j = 0; j < 12; j++) {
+            a = (j << 12) / 11;
+            scr->v.vx = rcos(a) * c / 4096;
+            scr->v.vz = rsin(a) * c / 4096;
+            gte_ldv0_6E5B4(&scr->v);
+            gte_rtps_6E5B4();
+            gte_stsxy_6E5B4(sxy);
+            sxy++;
+        }
+    }
+    gte_stszotz_6E5B4(&scr->z);
+    scr->z -= (u32)r >> 2;
+    if (scr->z <= 0) {
+        scr->z = 1;
+    }
+    if (scr->z < 0x800) {
+        Tex_6E5B4 *e, *tb;
+        u32 *ot;
+        FT4_6E5B4 *p;
+        u16 clut, u0, v0;
+        u8 du, dv;
+        s32 k, n, t;
+        u8 uc, un, vc, vn;
+
+        tb = D_800B1B44; e = &tb[flags & 0xFF];
+        ot = GD_6E5B4.db[GD_6E5B4.cur].ot;
+        p = (FT4_6E5B4 *)GD_6E5B4.prim;
+        clut = e->clut;
+        u0 = e->u0;
+        v0 = e->v0;
+        du = e->du;
+        dv = e->dv;
+
+        if (!(flags & 0x100)) {
+            k = 0;
+            vc = v0;
+            for (i = 0; i < 0x84; i += 12) {
+                k++;
+                vn = v0 + dv * k / 11;
+                uc = u0;
+                for (j = i, t = 0; j < i + 12; j++) {
+                    n = j + 1;
+                    if (n >= i + 12) {
+                        n = i;
+                    }
+                    gte_ldsxy3_6E5B4(scr->vert[j], scr->vert[n], scr->vert[j + 12]);
+                    gte_nclip_6E5B4();
+                    gte_stopz_6E5B4(&scr->nz);
+                    ((u8 *)p)[3] = 9;
+                    t++;
+                    un = (u8)u0 + du * t / 11;
+                    p->code = color | 0x2E000000;
+                    p->xy0 = scr->vert[j];
+                    p->xy1 = scr->vert[n];
+                    p->xy2 = scr->vert[j + 12];
+                    p->xy3 = scr->vert[n + 12];
+                    p->uv0 = (vc << 8) | uc | (clut << 16);
+                    p->uv1 = (vc << 8) | (un - 1) | 0x3C0000;
+                    p->uv2 = uc | ((vn - 1) << 8);
+                    p->uv3 = ((vn - 1) << 8) | (un - 1);
+                    uc = un;
+                    ADDP_6E5B4(&ot[scr->z], p);
+                    p++;
+                }
+                vc = vn;
+                __asm__("" :: "r"(vc));
+
+            }
+        }
+        if (flags & 0x200) {
+            u32 tp = D_800EC35C != 0 ? 0x112 : 0x102;
+            DrMode_6E5B4 *d = (DrMode_6E5B4 *)p;
+            u8 vv = 0, tu;
+            ((u8 *)d)[3] = 2;
+            d->code = 0xE6000000;
+            d->w = 0;
+            ADDP_6E5B4(&ot[1], d);
+            p = (FT4_6E5B4 *)(d + 1);
+            for (i = 0; i < 0x84; vv += 0x14, i += 12) {
+                for (tu = 0, j = i; j < i + 12; tu += 0x15, j++) {
+                    n = j + 1;
+                    if (n >= i + 12) {
+                        n = i;
+                    }
+                    gte_ldsxy3_6E5B4(scr->vert[j], scr->vert[n], scr->vert[j + 12]);
+                    gte_nclip_6E5B4();
+                    gte_stopz_6E5B4(&scr->nz);
+                    if (scr->nz < 0) {
+                        ((u8 *)p)[3] = 9;
+                        p->code = 0x2F000000;
+                        p->xy0 = scr->vert[j];
+                        p->xy1 = scr->vert[n];
+                        p->xy2 = scr->vert[j + 12];
+                        p->xy3 = scr->vert[n + 12];
+                        p->uv0 = (vv << 8) | tu;
+                        p->uv1 = (vv << 8) | (tu + 0x14) | (tp << 16);
+                        p->uv2 = tu | ((vv + 0x13) << 8);
+                        p->uv3 = ((vv + 0x13) << 8) | (tu + 0x14);
+                        ADDP_6E5B4(&ot[1], p);
+                        p++;
+                    }
+                } __asm__("" :: "r"(ot)); ll = i; ll = i; ll = i; ll = i; ll = i; ll = i; ll = i; ll = i; ll = i; ll = i; ll = i; ll = i;
+            }
+            d = (DrMode_6E5B4 *)p;
+            ((u8 *)d)[3] = 2;
+            d->code = 0xE6000001;
+            d->w = 0;
+            ADDP_6E5B4(&ot[1], d);
+            p = (FT4_6E5B4 *)(d + 1);
+        }
+        GD_6E5B4.prim = (u8 *)p; __asm__("" :: "r"(scr), "r"(scr), "r"(scr), "r"(scr), "r"(scr), "r"(scr), "r"(scr), "r"(scr)); __asm__("" :: "r"(scr), "r"(scr)); 
+    } __asm__ volatile("" : "=r"(ll));
+}
 
 void func_8006ED4C(void) {
     s32 i;
