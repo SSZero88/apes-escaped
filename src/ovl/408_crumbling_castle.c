@@ -104,7 +104,65 @@ void func_8013D13C(void) {
     Hook_Add(func_8013DAFC);
 }
 
-INCLUDE_ASM("asm/ovl/408/nonmatchings/408_crumbling_castle", func_8013D230);
+/* Crumbling Castle gradient quad (4 projected corners, two fade colours) + tpage. MERGE: the later file prototype void func_8013D230(B8_8013D628 *, s32, s32, s32); must become void func_8013D230(); (definition takes SVECTOR *). Overlay build verified. */
+/* 23 diffs (hand, rd3): Crumbling Castle gradient quad (4 projected corners, two fade colours) + tpage. Size matches. z is s32 z[1] so the p stores order before the z reload (in-struct alias). Left: first addPrim's cur*0x4078 multiply/z load order and a few t-register/ordering diffs in the colour block. MERGE: the later file prototype 'void func_8013D230(B8_8013D628 *, s32, s32, s32);' must become 'void func_8013D230();' (definition takes SVECTOR *). */
+typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_8013D230;
+typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013D230;
+#define ADDPRIM_BF_8013D230(ot, p) (((PTag_8013D230 *)(p))->addr = ((PTag_8013D230 *)(ot))->addr, ((PTag_8013D230 *)(ot))->addr = (u32)(p))
+extern GameDraw g_Game_8013D230 asm("g_Game");
+extern MAT_8013D230 D_800E78C0_8013D230 asm("D_800E78C0");
+void SetRotMatrix_8013D230(MAT_8013D230 *) asm("SetRotMatrix");
+void SetTransMatrix_8013D230(MAT_8013D230 *) asm("SetTransMatrix");
+#define gte_ldv3c_8013D230(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(v))
+#define gte_rtpt_8013D230() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxy3c_8013D230(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
+#define gte_stszotz_8013D230(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+#define gte_ldv0_8013D230(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
+#define gte_rtps_8013D230() __asm__ volatile ("nop; nop; rtps")
+#define gte_stsxy_8013D230(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+
+void func_8013D230(SVECTOR *v, s32 a, s32 b, s32 d) {
+    s32 sxy[4];
+    s32 z;
+    u32 *p;
+    u32 *ot;
+    u32 *e;
+    u8 c0;
+    u8 c1;
+
+    SetRotMatrix_8013D230(&D_800E78C0_8013D230);
+    SetTransMatrix_8013D230(&D_800E78C0_8013D230);
+    gte_ldv3c_8013D230(v);
+    gte_rtpt_8013D230();
+    gte_stsxy3c_8013D230(sxy);
+    gte_stszotz_8013D230(&z);
+    gte_ldv0_8013D230(&v[3]);
+    gte_rtps_8013D230();
+    gte_stsxy_8013D230(&sxy[3]);
+    if ((u32)(z - 1) < 0xFFF) {
+        c0 = (u8)(a * 255) / d;
+        c1 = (u8)(b * 255) / d;
+        p = (u32 *)g_Game_8013D230.prim;
+        ot = g_Game_8013D230.db[g_Game_8013D230.cur].ot;
+        ((u8 *)p)[3] = 8;
+        p[1] = ((c0 >> 1) << 16 | (c0 >> 1) << 8 | (c0 >> 1)) | 0x3B000000;
+        p[2] = sxy[0];
+        p[3] = c0 << 16 | c0 << 8 | c0;
+        p[4] = sxy[1];
+        p[5] = (c1 >> 1) << 16 | (c1 >> 1) << 8 | (c1 >> 1);
+        p[6] = sxy[2];
+        p[7] = c1 << 16 | c1 << 8 | c1;
+        p[8] = sxy[3];
+        ADDPRIM_BF_8013D230(ot + z, p);
+        p += 9;
+        g_Game_8013D230.prim = (u8 *)p;
+        e = g_Game_8013D230.db[g_Game_8013D230.cur].ot;
+        ((u8 *)p)[3] = 1;
+        p[1] = 0xE1000220;
+        ADDPRIM_BF_8013D230(e + z, p);
+        g_Game_8013D230.prim = (u8 *)(p + 2);
+    }
+}
 
 typedef struct { u8 pad0[0x10]; s8 f; u8 pad11[3]; } Slot_406;
 extern s32 D_80144F30;
@@ -151,7 +209,7 @@ typedef struct { B8_8013D628 a; B8_8013D628 b; s8 f; s8 g; s8 h; s8 k; } Slot_80
 typedef struct { u8 pad[0x7E]; u8 f7E; u8 pad7F[0x65]; } Obj_8013D628;
 extern Obj_8013D628 g_Objects_8013D628[] asm("g_Objects");
 extern Slot_8013D628 *D_80144F34_8013D628 asm("D_80144F34");
-void func_8013D230(B8_8013D628 *, s32, s32, s32);
+void func_8013D230();
 
 void func_8013D628(Slot_8013D628 *s) {
     Slot_8013D628 *t = &D_80144F34_8013D628[s->g];
