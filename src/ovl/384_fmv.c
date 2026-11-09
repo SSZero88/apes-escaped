@@ -2646,7 +2646,125 @@ void func_8013AF50(void) {
 
 __asm__(".section .text\n.balign 16");
 
-INCLUDE_ASM("asm/ovl/384/nonmatchings/384_fmv", func_8013B390);
+#include "gte.h"
+#define gte_stszotz_8013B390(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+s32 rsin(s32);
+s32 rcos(s32);
+typedef struct { s16 m[3][3]; s32 t[3]; } MAT_8013B390;
+typedef struct { SVECTOR v; s32 c; s32 s; s32 otz; s32 sxy; } Scr_8013B390;
+typedef struct { u32 tag; u32 code; s32 xy0; u32 uv0; s32 xy1; u32 uv1; s32 xy2; u16 uv2; u16 pad2; s32 xy3; u16 uv3; u16 pad3; } Ft4_8013B390;
+extern MAT_8013B390 D_800E78C0_8013B390 asm("D_800E78C0");
+extern u16 D_8013C790_8013B390[] asm("D_8013C790");
+extern u16 g_RandSeed_8013B390 asm("g_RandSeed");
+extern u16 D_800AE8F2_8013B390 asm("D_800AE8F2");
+extern u8 *D_800EC354_8013B390 asm("D_800EC354");
+extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; } g_Game_8013B390 asm("g_Game");
+
+void Fmv_DrawGlowSparkles(u8 *arg0, s16 *arg1) {
+    MAT_8013B390 m;
+    Scr_8013B390 *sc = (Scr_8013B390 *)0x1F800000;
+    Ft4_8013B390 *p;
+    u32 *ot;
+    s32 h;
+    s32 a;
+    s32 i;
+    s32 j;
+    s32 n;
+    s32 sz;
+    s16 x;
+    s16 y;
+    s32 base;
+    s32 w0;
+    s32 h0;
+    u32 w;
+    u32 hh;
+    u32 r, g, b;
+    s32 xy0, xy1, xy2, xy3;
+    u32 ra, rb;
+    u32 lm;
+
+    func_80139668(&m, arg1, 1);
+    CompMatrix(&D_800E78C0_8013B390, &m, &m);
+    SetRotMatrix(&m);
+    SetTransMatrix(&m);
+    h = func_800315D0();
+    a = (g_Game_8013B390.frame & 0xF) << 8;
+    sc->c = (rcos(a) * 48) >> 12;
+    sc->s = (rsin(a) * 48) >> 12;
+    ot = (u32 *)(g_Game_8013B390.cur * 0x4078 + (u8 *)&g_Game_8013B390 + 0x80);
+    sz = arg1[0];
+    p = (Ft4_8013B390 *)g_Game_8013B390.prim;
+    for (i = 0; i < 4; i++) {
+        for (j = -1; j < 2; j += 2) {
+            n = 5 - i;
+            sc->v.vy = 0;
+            sc->v.vx = sc->c * i * j;
+            sc->v.vz = sc->s * i * j;
+            gte_ldv0(&sc->v);
+            gte_rtps();
+            gte_stsxy(&sc->sxy);
+            gte_stszotz_8013B390(&sc->otz);
+            y = sc->sxy >> 16;
+            x = sc->sxy;
+            if ((u32)(sc->otz - 1) < 0xFFF && (u16)(x + 0x20) < 0x1C1 && y >= -0x20 && y < 0x111) {
+                {
+                s32 b0 = (((g_RandSeed_8013B390 = g_RandSeed_8013B390 * 5 + 1) >> 8) & 7) + 2;
+                base = i * 3 + b0;
+                }
+                w0 = base + ((((g_RandSeed_8013B390 = g_RandSeed_8013B390 * 5 + 1) >> 8) & 0xF) * i) / 4;
+                h0 = base + ((((g_RandSeed_8013B390 = g_RandSeed_8013B390 * 5 + 1) >> 8) & 0xF) * i) / 4;
+                h0 = (u32)(h0 * sz) >> 12;
+                hh = (u32)((h0 * h) * 72960) / 92160 / sc->otz;
+                w0 = (u32)(w0 * sz) >> 12;
+                w = ((u32)(w0 * h)) / sc->otz;
+                xy0 = ((y - hh) << 16) | ((x - w) & 0xFFFF);
+                xy1 = ((y - hh) << 16) | ((x + w) & 0xFFFF);
+                xy2 = ((y + hh) << 16) | ((x - w) & 0xFFFF);
+                xy3 = ((y + hh) << 16) | ((x + w) & 0xFFFF);
+                ra = ((g_RandSeed_8013B390 = g_RandSeed_8013B390 * 5 + 1) >> 8) & 0x1F;
+                rb = ((D_800AE8F2_8013B390 = D_800AE8F2_8013B390 * 5 + 1) >> 8) & 0x1F;
+                switch (arg0[3]) {
+                case 0:
+                default:
+                    r = 0x18;
+                    g = rb + 0x18;
+                    b = ra + 0x40;
+                    break;
+                case 1:
+                    r = ra + 0x28;
+                    g = rb + 0x20;
+                    b = 0x10;
+                    break;
+                case 2:
+                    r = ra + 0x38;
+                    g = 0x14;
+                    b = (rb >> 1) + 8;
+                    break;
+                }
+                r = (r >> 2) + ((r * n) >> 2);
+                g = (g >> 2) + ((g * n) >> 2);
+                b = (b >> 2) + ((b * n) >> 2);
+                ((u8 *)p)[3] = 9;
+                p->code = (b << 16) | (g << 8) | r | 0x2E000000;
+                p->xy0 = xy0;
+                p->xy1 = xy1;
+                p->xy2 = xy2;
+                p->xy3 = xy3;
+                p->uv0 = D_8013C790_8013B390[(i & 3) == 2] << 16;
+                p->uv1 = 0x3B003F;
+                p->uv2 = 0x3F00;
+                p->uv3 = 0x3F3F;
+                lm = 0xFFFFFF;
+                p->tag = (p->tag & 0xFF000000) | (ot[sc->otz] & lm);
+                ot[sc->otz] = (ot[sc->otz] & 0xFF000000) | ((u32)p & lm);
+                p++;
+                __asm__ volatile(""::"r"(lm));
+            }
+        }
+    }
+    D_800EC354_8013B390 = (u8 *)p;
+}
+__asm__(".section .text\n\t.balign 16");
 
 s32 func_8013B8D0(void *arg0, s32 arg1, void *arg2) {
     s32 var_t0;
