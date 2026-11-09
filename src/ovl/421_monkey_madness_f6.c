@@ -654,7 +654,106 @@ void func_8013E8E4(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/421/nonmatchings/421_monkey_madness_f6", func_8013E97C);
+void Camera_StartShake_8013E97C(s32) asm("Camera_StartShake");
+typedef struct { u32 addr : 24; u32 len : 8; } Tag_8013E97C;
+typedef struct { s16 x, y, z; u8 active; u8 timer; u8 size; u8 pad[3]; } Ball_8013E97C;
+extern Ball_8013E97C D_80140D00_8013E97C[] asm("D_80140D00");
+typedef struct { u8 pad0[0x18]; s16 f_18; u8 pad1A[0x22]; u8 f_3C; } Boss_8013E97C;
+extern Boss_8013E97C D_801408C0_8013E97C asm("D_801408C0");
+extern struct { u8 pad_0[0x4]; u32 *f_4; u8 pad_8[4]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013E97C asm("g_Game");
+typedef struct { u8 pad0[0x2C]; s32 sxy; } Scr_8013E97C;
+#define ADDP_8013E97C(ot, p) { ((Tag_8013E97C *)(p))->addr = ((Tag_8013E97C *)(ot))->addr; ((Tag_8013E97C *)(ot))->addr = (u32)(p); }
+
+void BossBomb_DrawExplosionFlashes(void) {
+    SVECTOR v;
+    Scr_8013E97C *sc = (Scr_8013E97C *)0x1F800000;
+    Ball_8013E97C *e;
+    u32 *p;
+    u32 *ot;
+    s32 i;
+    s32 j;
+    s32 c;
+    s32 sz;
+    s32 uvo;
+    s32 h;
+    s32 w;
+    s32 xy0, xy1, xy2, xy3;
+    s16 x;
+    s16 y;
+
+    SetRotMatrix(D_800E78C0);
+    SetTransMatrix(D_800E78C0);
+    p = g_Game_8013E97C.f_4;
+    ot = (u32 *)(g_Game_8013E97C.f_80 + g_Game_8013E97C.f_C * 0x4078);
+    for (i = 3, e = D_80140D00_8013E97C; i >= 0; i--, e++) {
+        if (e->active == 0) {
+            continue;
+        }
+        v.vx = e->x;
+        v.vy = e->y - 0x80;
+        v.vz = e->z;
+        gte_ldv0(&v);
+        gte_rtps();
+        gte_stsxy(&sc->sxy);
+        y = (u32)sc->sxy >> 16;
+        x = sc->sxy;
+        e->size = e->size * 3 / 4;
+        if (e->timer < 9) {
+            uvo = (e->timer & 1) * 0x60;
+        } else {
+            uvo = (e->timer & 2) * 0x18;
+        }
+        c = 0x78;
+        sz = e->size;
+        for (j = 3; j >= 0; j--) {
+            if (e->timer >= 0x14) {
+                c = j * 16 + 0x10;
+            } else {
+                j = 0;
+            }
+            ((u8 *)p)[3] = 9;
+            p[1] = ((c & 0xFF) << 16 | (c & 0xFF) << 8 | (c & 0xFF)) | 0x2E000000;
+            h = sz + 0x13;
+            xy0 = (((s16)y - h) << 16) | ((x - (w = sz + 0x17)) & 0xFFFF);
+            xy1 = (((s16)y - h) << 16) | ((x + w) & 0xFFFF);
+            xy2 = (((s16)y + h) << 16) | ((x - w) & 0xFFFF);
+            xy3 = (((s16)y + h) << 16) | ((x + w) & 0xFFFF);
+            p[2] = xy0;
+            p[4] = xy1;
+            p[6] = xy2;
+            p[8] = xy3;
+            p[3] = ((uvo & 0xFFFF) + 0x30) | 0x38778000;
+            p[5] = ((uvo & 0xFFFF) + 0x5F) | 0x288000;
+            ((u16 *)p)[14] = (uvo + 0x30) | 0xA700;
+            ((u16 *)p)[18] = (uvo + 0x5F) | 0xA700;
+            ADDP_8013E97C(&ot[1], p);
+            p += 10;
+            sz = sz * 4 / 3;
+        }
+        if (e->timer < 0x14 && (e->timer & 1)) {
+            ((u8 *)p)[3] = 5;
+            p[1] = 0xE1000208;
+            p[2] = 0x67000000;
+            p[3] = ((y << 16) + 0xFFE00000) | ((x - 0x40) & 0xFFFF);
+            p[5] = 0x100030;
+            p[4] = 0x3877A800;
+            ADDP_8013E97C(&ot[1], p);
+            p += 6;
+        }
+        if (--e->timer == 0) {
+            func_8013DE38((s32)D_80140470, (SVECTOR *)e);
+            e->active = 0;
+            D_801408C0_8013E97C.f_18 = 0x10;
+            Camera_StartShake_8013E97C(0);
+            if (++D_801408C0_8013E97C.f_3C > (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 7) + 0x11) {
+                SVECTOR t = { 0, -0x3600, 0x12B8, 0 };
+                D_801408C0_8013E97C.f_3C = 0;
+                func_8013D810(&t);
+            }
+        }
+    }
+    g_Game_8013E97C.f_4 = p;
+}
 
 typedef struct { u32 addr : 24; u32 len : 8; } Tag_8013EE04;
 typedef struct { s32 f_0; s32 f_4; u8 pad8[4]; s32 f_C; s32 f_10; s16 f_14; s16 f_16; s16 f_18; s16 f_1A; u8 pad1C[0x18]; s32 f_34; } Boss_8013EE04;
@@ -989,7 +1088,7 @@ void func_8013FC8C(void) {
     func_8013E650();
 }
 
-void func_8013E97C(void);
+void BossBomb_DrawExplosionFlashes(void);
 void func_8013EE04(void);
 typedef struct { s32 f_0; s32 f_4; u8 pad8[4]; s32 f_C; s32 f_10; s16 f_14; s16 f_16; s16 f_18; s16 f_1A; u8 pad1C[8]; s16 f_24; s16 f_26; s16 f_28; u8 pad2A[0xA]; s32 f_34; s16 f_38; u8 f_3A; u8 f_3B; } Boss_8013FD74;
 extern Boss_8013FD74 D_801408C0_8013FD74 asm("D_801408C0");
@@ -1093,7 +1192,7 @@ void func_8013FD74(void) {
         }
     }
     func_8013F520();
-    func_8013E97C();
+    BossBomb_DrawExplosionFlashes();
     func_8013DEEC();
     func_8013E650();
     func_8013D860();
@@ -1101,5 +1200,5 @@ void func_8013FD74(void) {
     func_8013EE04();
 }
 __asm__(".section .text\n\t.balign 16");
-/* the SVECTOR initializer of func_8013E97C is this file's only read-only data; the data follows 16-aligned */
+/* the SVECTOR initializer of BossBomb_DrawExplosionFlashes is this file's only read-only data; the data follows 16-aligned */
 __asm__(".section .rodata\n\t.balign 16\n\t.section .text");
