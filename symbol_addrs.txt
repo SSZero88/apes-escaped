@@ -1012,3 +1012,5 @@ Model_SubdivideGT4 = 0x8001DB74; // type:func
 Model_SubdivideFT4 = 0x8001E828; // type:func
 Seq_NotePitch = 0x8009E594; // type:func
 Stage_DrawPlacedModels = 0x80016F34; // type:func
+Floor_DrawQuad = 0x80044EF4; // type:func
+Floor_DrawGrid = 0x80043A8C; // type:func

@@ -68,7 +68,7 @@ void Projectile_Frame(void);
 void Object_Frame(void);
 void Monkey_UpdateFrame(void);
 void func_8005ACE8(void);
-void func_80043A8C(void);
+void Floor_DrawGrid(void);
 void Pickup_Frame(void);
 void Tip_DrawAll(void);
 void Stage_DrawPlacedModels(void);
@@ -215,7 +215,7 @@ s32 Game_MainLoop(void) {
             Object_Frame();
             Monkey_UpdateFrame();
             func_8005ACE8();
-            func_80043A8C();
+            Floor_DrawGrid();
             Pickup_Frame();
             Tip_DrawAll();
             Stage_DrawPlacedModels();
