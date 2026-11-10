@@ -168,7 +168,358 @@ u8 *Grid_BuildHalfResMap(void) {
     return out;
 }
 
-INCLUDE_ASM("asm/nonmatchings/game/80043380_zone", Floor_DrawGrid);
+typedef struct { s16 x, y, z, pad; } V_80043A8C;
+typedef struct { u32 color[0x80]; V_80043A8C v[4]; V_80043A8C g[13]; s32 rx, ry, rz; s32 pad294; u32 uv0; u32 uv1; u16 uv2; u16 pad2A2; u16 w; u16 h; s32 nc0; s32 nc1; s32 otz; u32 idx; u16 clut; u16 tpage; u16 code; u16 tpage2; u16 zb; u16 f_2C2; u32 *ot; u32 flags; s32 tex; s16 bx; s16 bz; s32 pad2D4; s32 far; } Scr_80043A8C;
+typedef struct { u32 w0; u32 w1; } Idx_80043A8C;
+extern struct { u16 w; u16 h; u32 count; u32 *cells; u32 *colors; Idx_80043A8C *idx; u16 *heights; u8 *map; u8 pad1C[8]; u16 f_24; u8 pad26[2]; u16 f_28; } D_800EBFA0_80043A8C asm("D_800EBFA0");
+extern struct { u8 pad0[0x8194]; struct { u32 flags; u8 pad4[0x12]; u16 far; } *f_8194; } g_Game_80043A8C asm("g_Game");
+extern u8 D_800E78C0[];
+extern GameDraw g_GameDraw_80043A8C asm("g_Game");
+extern u32 D_800AEFE0[];
+extern u32 D_800AF020[];
+extern u32 D_800AF060[];
+void Floor_DrawQuad(s32);
+void func_80045BE4(void);
+#define gte_ldIR_A8C(r1, r2, r3) __asm__ volatile ("mtc2 %0, $9; nop; mtc2 %1, $10; nop; mtc2 %2, $11" : : "r"(r1), "r"(r2), "r"(r3))
+#define gte_ldRGB_A8C(p) __asm__ volatile ("lwc2 $6, 0(%0)" : : "r"(p))
+#define gte_cc_A8C() __asm__ volatile ("nop; nop; cc")
+#define gte_stRGB2_A8C(p) __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(p) : "memory")
+#define gte_ldv0_A8C(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
+#define gte_rtps_A8C() __asm__ volatile ("nop; nop; rtps")
+#define gte_stsxy_A8C(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+#define gte_SetFarColor0_A8C(z) __asm__ volatile ("ctc2 %0, $21; ctc2 %0, $22; ctc2 %0, $23" : : "r"(z))
+#define gte_rtv0tr_A8C() __asm__ volatile ("nop; nop; mvmva 1, 0, 0, 0, 0")
+#define gte_stlvnl_A8C(p) __asm__ volatile ("swc2 $25, 0(%0); swc2 $26, 4(%0); swc2 $27, 8(%0)" : : "r"(p) : "memory")
+#define gte_ldv3c_A8C(p) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(p))
+#define gte_ldv3_A8C(a, b, c) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 0(%1); lwc2 $3, 4(%1); lwc2 $4, 0(%2); lwc2 $5, 4(%2)" : : "r"(a), "r"(b), "r"(c))
+#define gte_rtpt_A8C() __asm__ volatile ("nop; nop; rtpt")
+#define gte_stsxy3c_A8C(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 8(%0); swc2 $14, 16(%0)" : : "r"(p) : "memory")
+#define gte_stsz3c_A8C(p) __asm__ volatile ("swc2 $17, 0(%0); swc2 $18, 8(%0); swc2 $19, 16(%0)" : : "r"(p) : "memory")
+#define gte_stsxy3_A8C(a, b, c) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 0(%1); swc2 $14, 0(%2)" : : "r"(a), "r"(b), "r"(c) : "memory")
+#define gte_stsz3_A8C(a, b, c) __asm__ volatile ("swc2 $17, 0(%0); swc2 $18, 0(%1); swc2 $19, 0(%2)" : : "r"(a), "r"(b), "r"(c) : "memory")
+#define gte_stsz_A8C(p) __asm__ volatile ("swc2 $19, 0(%0)" : : "r"(p) : "memory")
+#define gte_ldsxy3c_A8C(p) __asm__ volatile ("lwc2 $12, 0(%0); lwc2 $13, 8(%0); lwc2 $14, 16(%0)" : : "r"(p))
+#define gte_nclip_A8C() __asm__ volatile ("nop; nop; nclip")
+#define gte_stopz_A8C(p) __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(p) : "memory")
+#define gte_ldsxy0_A8C(r) __asm__ volatile ("mtc2 %0, $12" : : "r"(r))
+/* Draws the stage floor grid: the colour table is lit once into the scratchpad, then every 2x2 block
+   of floor cells (half-resolution map D_800EBFA0.map, 0xFF = empty) is culled by its centre point;
+   near blocks (z < 0xC01) are transformed as a 3x3 corner grid plus 4 centre points and drawn as
+   eight quads split through the centres, far blocks as four plain quads (with an optional diagonal
+   flip); textured cells (flag bit 1) go to Floor_DrawQuad, flat ones to func_80045BE4. */
+#define UV_A8C ((u16 *)&S->uv0)
+
+void Floor_DrawGrid(void) {
+    Scr_80043A8C *S;
+    u32 *col;
+    s32 j, k, i;
+    s32 n, s2, s3;
+    u32 flags;
+
+    s2 = (s32)&D_800EBFA0_80043A8C; col = ((__typeof__(D_800EBFA0_80043A8C) *)s2)->colors;
+    S = (Scr_80043A8C *)0x1F800000;
+    if (g_Game_80043A8C.f_8194->flags & 1) {
+        return;
+    }
+    SetRotMatrix(&D_800E78C0);
+    SetTransMatrix(&D_800E78C0);
+    { s32 z = 0; gte_SetFarColor0_A8C(z);
+    for (j = z; (u32)j < D_800EBFA0_80043A8C.count; j++) {
+        gte_ldIR_A8C(0x1000, 0, 0);
+        gte_ldRGB_A8C(&col[j]);
+        gte_cc_A8C();
+        gte_stRGB2_A8C(&S->color[j]);
+    } }
+    { s32 far, zb, c2; u32 *ot; u16 w0, h0;
+    w0 = D_800EBFA0_80043A8C.w;
+    h0 = D_800EBFA0_80043A8C.h;
+    S->tpage = 0x18;
+    S->w = w0;
+    S->h = h0;
+    __asm__("" : "=r"(S) : "0"(S));
+    far = g_Game_80043A8C.f_8194->far;
+    c2 = D_800EBFA0_80043A8C.f_24;
+    zb = D_800EBFA0_80043A8C.f_28;
+    ot = (*(GameDraw *)&g_Game_80043A8C).db[(*(GameDraw *)&g_Game_80043A8C).cur].ot + 0x28;
+    S->f_2C2 = c2;
+    S->ot = ot;
+    j = (S->h >> 1) - 1;
+    __asm__("" : "=r"(S) : "0"(S));
+    S->bz = ((S->h >> 1) - (S->h >> 2)) << 10;
+    S->zb = zb;
+    S->far = far;
+    { u32 w = S->w; S->bx = (((w >> 1) - (w >> 2)) << 10) - (w << 9); }
+    }
+    for (; j >= 0; j--) {
+        S->bz -= 0x400;
+        S->bx += S->w << 9;
+        for (k = (S->w >> 1) - 1; k >= 0; k--) {
+            s32 ax, z;
+            S->bx -= 0x400;
+            S->v[0].y = D_800EBFA0_80043A8C.heights[(S->w + 1) * (j * 2 + 1) + k * 2 + 1];
+            S->v[0].x = S->bx + 0x200;
+            S->v[0].z = S->bz + 0x200;
+
+            gte_ldv0_A8C(&S->v[0]);
+            gte_rtv0tr_A8C();
+            if (D_800EBFA0_80043A8C.map[(j * S->w) / 2 + k] == 0xFF) continue;
+            gte_stlvnl_A8C(&S->rx);
+            ax = abs(S->rx);
+            z = S->rz;
+            S->rx = ax;
+            if (z < ax * 2 - 0x800) continue;
+            if (S->far < z) continue;
+            if (z < -0x200) continue;
+            if (ax >= 0x1001) continue;
+            n = 2; if (z >= 0xC01) n = 1;
+            switch (n) {
+            case 2: {
+                { S->v[0].x = S->bx; S->v[0].z = S->bz; S->v[1].x = S->v[0].x + 0x200; S->v[1].z = S->bz; S->v[2].x = S->v[1].x + 0x200; S->v[2].z = S->v[0].z; }
+                n = (S->w + 1) * (j * 2) + k * 2;
+                { u16 *p1, *p2; s32 h0; h0 = D_800EBFA0_80043A8C.heights[n]; p1 = *(u16 * volatile *)&D_800EBFA0_80043A8C.heights; S->v[0].y = h0; p2 = *(u16 * volatile *)&D_800EBFA0_80043A8C.heights; S->v[1].y = p1[n + 1]; S->v[2].y = p2[n + 2]; }
+                gte_ldv3c_A8C(&S->v[0]);
+                gte_rtpt_A8C();
+                n += S->w + 1;
+                S->v[0].z += 0x200;
+                S->v[1].z += 0x200;
+                S->v[2].z += 0x200;
+                { u16 *p1, *p2; s32 h0; h0 = D_800EBFA0_80043A8C.heights[n]; p1 = *(u16 * volatile *)&D_800EBFA0_80043A8C.heights; S->v[0].y = h0; p2 = *(u16 * volatile *)&D_800EBFA0_80043A8C.heights; S->v[1].y = p1[n + 1]; S->v[2].y = p2[n + 2]; }
+                gte_stsxy3c_A8C(&S->g[0].x);
+                gte_stsz3c_A8C(&S->g[0].z);
+                gte_ldv3c_A8C(&S->v[0]);
+                gte_rtpt_A8C();
+                n += S->w + 1;
+                S->v[0].z += 0x200;
+                S->v[1].z += 0x200;
+                S->v[2].z += 0x200;
+                { u16 *p1, *p2; s32 h0; h0 = D_800EBFA0_80043A8C.heights[n]; p1 = *(u16 * volatile *)&D_800EBFA0_80043A8C.heights; S->v[0].y = h0; p2 = *(u16 * volatile *)&D_800EBFA0_80043A8C.heights; S->v[1].y = p1[n + 1]; S->v[2].y = p2[n + 2]; }
+                gte_stsxy3c_A8C(&S->g[3].x);
+                gte_stsz3c_A8C(&S->g[3].z);
+                gte_ldv3c_A8C(&S->v[0]);
+                gte_rtpt_A8C();
+                gte_stsxy3_A8C(&S->g[6].x, &S->g[7].x, &S->g[8].x);
+                gte_stsz3_A8C(&S->g[6].z, &S->g[7].z, &S->g[8].z);
+                S->v[0].x = S->bx + 0x100; S->v[0].z = S->bz + 0x100; S->v[1].x = S->v[0].x + 0x200; S->v[1].z = S->v[0].z; S->v[2].x = S->v[0].x; S->v[2].z = S->v[0].z + 0x200;
+                n = (S->w + 1) * (S->h + 1) + S->w * (j * 2) + k * 2;
+                { u16 *p1 = *(u16 * volatile *)&D_800EBFA0_80043A8C.heights; S->v[0].y = D_800EBFA0_80043A8C.heights[n]; S->v[1].y = p1[n + 1]; } S->v[2].y = D_800EBFA0_80043A8C.heights[n + S->w];
+                gte_ldv3c_A8C(&S->v[0]);
+                gte_rtpt_A8C();
+                gte_stsxy3c_A8C(&S->g[9].x);
+                gte_stsz3c_A8C(&S->g[9].z);
+                S->v[1].z += 0x200;
+                S->v[1].y = D_800EBFA0_80043A8C.heights[n + S->w + 1];
+                gte_ldv0_A8C(&S->v[1]);
+                gte_rtps_A8C();
+                gte_stsxy_A8C(&S->g[12].x);
+                gte_stsz_A8C(&S->g[12].z);
+                for (s3 = 1; s3 >= 0; s3--) {
+                    for (s2 = 1; s2 >= 0; s2--) {
+                        flags = D_800EBFA0_80043A8C.cells[k * 2 + S->w * (j * 2 + s3) + s2];
+                        S->flags = flags;
+                        if (!(flags & 1)) continue;
+                        S->tex = (flags >> 3) & 0xF;
+__asm__("" :: "r"(s3 * 3), "r"(j * 2 + s3), "r"(k * 2));
+                        n = s3 * 3 + s2;
+                        S->clut = ((*(u16 *)&S->tex + 0xF0) << 6) | 0x37;
+                        S->v[0] = S->g[n];
+                        S->v[1] = S->g[n + 3];
+                        S->v[2] = S->g[9 + s3 * 2 + s2];
+                        S->v[3] = S->g[n + 4];
+                        gte_ldsxy3c_A8C(&S->v[0]);
+                        gte_nclip_A8C();
+                        gte_stopz_A8C(&S->nc0);
+                        gte_ldsxy0_A8C(*(u32 *)&S->v[3]);
+                        gte_nclip_A8C();
+                        gte_stopz_A8C(&S->nc1);
+                        if (S->nc0 >= 0 || S->nc1 <= 0) {
+                            s32 mn, mx, a, b, hi, lo;
+                            mn = S->v[0].x; mx = S->v[1].x;
+                            if (mx < mn) { mx = mn; __asm__ volatile("" ::: "memory"); mn = S->v[1].x; }
+                            a = S->v[2].x; b = S->v[3].x;
+                            if (b < a) { b = a; __asm__ volatile("" ::: "memory"); a = S->v[3].x; }
+                            hi = b; if (hi < mx) hi = mx; lo = a; if (mn < lo) lo = mn; __asm__("" :: "r"(mn), "r"(mn)); 
+                            if (hi >= 0 && lo < 0x181) {
+                                mn = S->v[0].y; mx = S->v[1].y;
+                                if (mx < mn) { mx = mn; __asm__ volatile("" ::: "memory"); mn = S->v[1].y; }
+                                a = S->v[2].y; b = S->v[3].y;
+                                if (b < a) { b = a; __asm__ volatile("" ::: "memory"); a = S->v[3].y; }
+                                hi = b; if (hi < mx) hi = mx; lo = a; if (mn < lo) lo = mn; __asm__("" :: "r"(mn), "r"(mn)); 
+                                if (hi >= 0 && lo < 0xF1) {
+                                    S->idx = D_800EBFA0_80043A8C.idx[k * 2 + S->w * (j * 2 + s3) + s2].w0;
+                                    if ((S->flags >> 1) & 1) {
+                                        s32 t, q, m;
+                                        { u32 u0 = *(u32 *)((u8 *)D_800AEFE0 + ((S->flags >> 4) & 0x78));
+                                        u32 u1 = D_800AEFE0[((*(volatile u32 *)&S->flags >> 6) & 0x1E) + 1];
+                                        S->uv0 = u0; S->uv1 = u1; }
+                                        t = S->tex;
+                                        q = t / 4;
+                                        m = ((t % 4) << 6) | ((t / 4) << 14);
+                                        m |= m << 16;
+                                        S->uv0 += m;
+                                        S->uv1 += m;
+                                        Floor_DrawQuad(3);
+                                    } else {
+                                        func_80045BE4();
+                                    }
+                                }
+                            }
+                        }
+                        S->v[1] = S->g[9 + s3 * 2 + s2];
+                        S->v[2] = S->g[n + 1];
+                        gte_ldsxy3c_A8C(&S->v[0]);
+                        gte_nclip_A8C();
+                        gte_stopz_A8C(&S->nc0);
+                        gte_ldsxy0_A8C(*(u32 *)&S->v[3]);
+                        gte_nclip_A8C();
+                        gte_stopz_A8C(&S->nc1);
+                        if (S->nc0 >= 0 || S->nc1 <= 0) {
+                            s32 mn, mx, a, b, hi, lo;
+                            mn = S->v[0].x; mx = S->v[1].x;
+                            if (mx < mn) { mx = mn; __asm__ volatile("" ::: "memory"); mn = S->v[1].x; }
+                            a = S->v[2].x; b = S->v[3].x;
+                            if (b < a) { b = a; __asm__ volatile("" ::: "memory"); a = S->v[3].x; }
+                            hi = b; if (hi < mx) hi = mx; lo = a; if (mn < lo) lo = mn; __asm__("" :: "r"(mn), "r"(mn)); 
+                            if (hi >= 0 && lo < 0x181) {
+                                mn = S->v[0].y; mx = S->v[1].y;
+                                if (mx < mn) { mx = mn; __asm__ volatile("" ::: "memory"); mn = S->v[1].y; }
+                                a = S->v[2].y; b = S->v[3].y;
+                                if (b < a) { b = a; __asm__ volatile("" ::: "memory"); a = S->v[3].y; }
+                                hi = b; if (hi < mx) hi = mx; lo = a; if (mn < lo) lo = mn; __asm__("" :: "r"(mn), "r"(mn)); 
+                                if (hi >= 0 && lo < 0xF1) {
+                                    S->idx = D_800EBFA0_80043A8C.idx[k * 2 + S->w * (j * 2 + s3) + s2].w1;
+                                    if ((S->flags >> 1) & 1) {
+                                        s32 t, q, m;
+                                        { u32 u0 = *(u32 *)((u8 *)D_800AF020 + ((S->flags >> 4) & 0x78));
+                                        u32 u1 = D_800AF020[((*(volatile u32 *)&S->flags >> 6) & 0x1E) + 1];
+                                        S->uv0 = u0; S->uv1 = u1; }
+                                        t = S->tex;
+                                        q = t / 4;
+                                        m = ((t % 4) << 6) | ((t / 4) << 14);
+                                        m |= m << 16;
+                                        S->uv0 += m;
+                                        S->uv1 += m;
+                                        Floor_DrawQuad(3);
+                                    } else {
+                                        func_80045BE4();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case 1: {
+                { S->v[0].x = S->bx; S->v[0].z = S->bz; S->v[1].x = S->v[0].x + 0x200; S->v[1].z = S->bz; S->v[2].x = S->v[1].x + 0x200; S->v[2].z = S->v[0].z; }
+                n = (S->w + 1) * (j * 2) + k * 2;
+                { u16 *p1, *p2; s32 h0; h0 = D_800EBFA0_80043A8C.heights[n]; p1 = *(u16 * volatile *)&D_800EBFA0_80043A8C.heights; S->v[0].y = h0; p2 = *(u16 * volatile *)&D_800EBFA0_80043A8C.heights; S->v[1].y = p1[n + 1]; S->v[2].y = p2[n + 2]; }
+                gte_ldv3_A8C(&S->v[0], &S->v[1], &S->v[2]);
+                gte_rtpt_A8C();
+                n += S->w + 1;
+                S->v[0].z += 0x200;
+                S->v[1].z += 0x200;
+                S->v[2].z += 0x200;
+                { u16 *p1, *p2; s32 h0; h0 = D_800EBFA0_80043A8C.heights[n]; p1 = *(u16 * volatile *)&D_800EBFA0_80043A8C.heights; S->v[0].y = h0; p2 = *(u16 * volatile *)&D_800EBFA0_80043A8C.heights; S->v[1].y = p1[n + 1]; S->v[2].y = p2[n + 2]; }
+                gte_stsxy3_A8C(&S->g[0].x, &S->g[1].x, &S->g[2].x);
+                gte_stsz3_A8C(&S->g[0].z, &S->g[1].z, &S->g[2].z);
+                gte_ldv3_A8C(&S->v[0], &S->v[1], &S->v[2]);
+                gte_rtpt_A8C();
+                n += S->w + 1;
+                S->v[0].z += 0x200;
+                S->v[1].z += 0x200;
+                S->v[2].z += 0x200;
+                { u16 *p1, *p2; s32 h0; h0 = D_800EBFA0_80043A8C.heights[n]; p1 = *(u16 * volatile *)&D_800EBFA0_80043A8C.heights; S->v[0].y = h0; p2 = *(u16 * volatile *)&D_800EBFA0_80043A8C.heights; S->v[1].y = p1[n + 1]; S->v[2].y = p2[n + 2]; }
+                gte_stsxy3_A8C(&S->g[3].x, &S->g[4].x, &S->g[5].x);
+                gte_stsz3_A8C(&S->g[3].z, &S->g[4].z, &S->g[5].z);
+                gte_ldv3_A8C(&S->v[0], &S->v[1], &S->v[2]);
+                gte_rtpt_A8C();
+                gte_stsxy3_A8C(&S->g[6].x, &S->g[7].x, &S->g[8].x);
+                gte_stsz3_A8C(&S->g[6].z, &S->g[7].z, &S->g[8].z);
+                for (s3 = 1; s3 >= 0; s3--) {
+                    for (s2 = 1; s2 >= 0; s2--) {
+                        flags = D_800EBFA0_80043A8C.cells[k * 2 + S->w * (j * 2 + s3) + s2];
+                        S->flags = flags;
+                        if (!(flags & 1)) continue;
+                        S->tex = (flags >> 3) & 0xF;
+                        n = s3 * 3 + s2;
+                        S->clut = ((*(u16 *)&S->tex + 0xF0) << 6) | 0x37;
+                        switch ((S->flags >> 2) & 1) {
+                        case 0:
+                            S->v[0] = S->g[n];
+                            S->v[1] = S->g[n + 3];
+                            S->v[2] = S->g[n + 1];
+                            S->v[3] = S->g[n + 4];
+                            break;
+                        case 1:
+                            S->v[0] = S->g[n + 3];
+                            S->v[1] = S->g[n + 4];
+                            S->v[2] = S->g[n];
+                            S->v[3] = S->g[n + 1];
+                            break;
+                        }
+                        gte_ldsxy3c_A8C(&S->v[0]);
+                        gte_nclip_A8C();
+                        gte_stopz_A8C(&S->nc0);
+                        gte_ldsxy0_A8C(*(u32 *)&S->v[3]);
+                        gte_nclip_A8C();
+                        gte_stopz_A8C(&S->nc1);
+                        if (S->nc0 >= 0 || S->nc1 <= 0) {
+                            s32 mn, mx, a, b, hi, lo;
+                            mn = S->v[0].x; mx = S->v[1].x;
+                            if (mx < mn) { mx = mn; __asm__ volatile("" ::: "memory"); mn = S->v[1].x; }
+                            a = S->v[2].x; b = S->v[3].x;
+                            if (b < a) { b = a; __asm__ volatile("" ::: "memory"); a = S->v[3].x; }
+                            hi = b; if (hi < mx) hi = mx; lo = a; if (mn < lo) lo = mn; __asm__("" :: "r"(mn), "r"(mn)); 
+                            if (hi >= 0 && lo < 0x181) {
+                                mn = S->v[0].y; mx = S->v[1].y;
+                                if (mx < mn) { mx = mn; __asm__ volatile("" ::: "memory"); mn = S->v[1].y; }
+                                a = S->v[2].y; b = S->v[3].y;
+                                if (b < a) { b = a; __asm__ volatile("" ::: "memory"); a = S->v[3].y; }
+                                hi = b; if (hi < mx) hi = mx; lo = a; if (mn < lo) lo = mn; __asm__("" :: "r"(mn), "r"(mn)); 
+                                if (hi >= 0 && lo < 0xF1) {
+                                    s32 t, q, m, e;
+                                    { u32 u0 = *(u32 *)((u8 *)D_800AF060 + ((S->flags >> 4) & 0x78));
+                                    u32 u1 = D_800AF060[((*(volatile u32 *)&S->flags >> 6) & 0x1E) + 1];
+                                    S->uv0 = u0; S->uv1 = u1; }
+                                    t = S->tex;
+                                    q = t / 4;
+                                    m = ((t % 4) << 6) | ((t / 4) << 14);
+                                    m |= m << 16;
+                                    S->uv0 += m;
+                                    S->uv1 += m;
+                                    e = S->w * (j * 2 + s3) + k * 2 + s2;
+                                    switch ((S->flags >> 2) & 1) {
+                                    case 0:
+                                        { Idx_80043A8C *q; S->idx = *(u16 *)&D_800EBFA0_80043A8C.idx[e].w0; q = *(Idx_80043A8C * volatile *)&D_800EBFA0_80043A8C.idx;
+                                        S->idx |= q[e].w1 & 0xFFFF0000; }
+                                        break;
+                                    case 1: {
+                                        u32 w0 = D_800EBFA0_80043A8C.idx[e].w0, w1 = D_800EBFA0_80043A8C.idx[e].w1;
+                                        UV_A8C[4] = UV_A8C[0];
+                                        UV_A8C[0] = UV_A8C[1];
+                                        UV_A8C[1] = UV_A8C[3];
+                                        UV_A8C[3] = UV_A8C[2];
+                                        S->idx = ((w0 & 0xFF) << 16) | ((w0 & 0xFF00) >> 8) | ((w1 & 0xFF0000) << 8) | ((w1 >> 16) & 0xFF00);
+                                        UV_A8C[2] = UV_A8C[4];
+                                        break;
+                                    }
+                                    }
+                                    if ((S->flags >> 1) & 1) {
+                                        Floor_DrawQuad(0);
+                                    } else {
+                                        func_80045BE4();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            }
+        }
+    }
+}
 
 typedef struct { s16 x, y; s16 z, zpad; } V_80044EF4;
 typedef struct { V_80044EF4 v[4]; u32 col[4]; u32 uvA; u32 uvB; u32 uvC; u8 code; u8 pad[3]; } Sub_80044EF4;
