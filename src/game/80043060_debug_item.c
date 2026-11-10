@@ -25,8 +25,8 @@ typedef struct { u8 pad[0x24]; } Item_800430F0;
 typedef struct { u8 pad[0x88]; } Kind_800430F0;
 extern Item_800430F0 D_800AEC8C_i[] asm("D_800AEC8C");
 extern void *g_RadarLiveTarget;
-void func_8007D29C(void *, s32 (*)());
-void func_8007D2A4(void *, s32);
+void DebugItem_SetCallback(void *, s32 (*)());
+void DebugItem_SetStep(void *, s32);
 s32 Debug_MonkeyParamMenuRefresh(void);
 #define KB_430F0 ((u8 *)&((Kind_800430F0 *)g_MonkeyKinds)[m->f_7C])
 extern Monkey g_Monkeys[8];
@@ -44,11 +44,11 @@ void Debug_MonkeyParamMenu_(s32 idx) {
 
     DebugItem_Init(it, g_RadarLiveTarget, 0);
     DebugItem_SetRange(it, 0, 7);
-    func_8007D29C(it++, cb);
+    DebugItem_SetCallback(it++, cb);
     it++;
     for (i = 0; i < 8; i++) {
         DebugItem_Init(it, &((s16 *)(KB_430F0 + 0xC))[i], 1);
-        func_8007D2A4(it, 10);
+        DebugItem_SetStep(it, 10);
         it++;
     }
     it++;

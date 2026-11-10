@@ -4,10 +4,10 @@
 extern void *D_8013FD60;
 extern struct S_D_8013F3E0 { u8 *f_0; s16 f_4; s16 f_6; s16 f_8; u8 padA[2]; s32 f_C; s32 f_10; u8 *f_14; u8 pad18[4]; s32 f_1C; u8 pad20[0xC]; s32 f_2C; s32 f_30; } D_8013F3E0;
 M2C_UNK Seq_Tick();
-M2C_UNK func_80088578();
+M2C_UNK Sound_ClearFrameQueue();
 extern struct S_D_8013FC80 { u16 f_0; u8 pad_2[0x6]; s32 f_8; s16 f_C; s16 f_E; s16 f_10; s16 f_12; s16 f_14; u16 f_16; } D_8013FC80;
 extern s32 D_8013FB98;
-s32 func_8008C09C(M2C_UNK);
+s32 Mem_AllocPages(M2C_UNK);
 extern M2C_UNK D_8013FCE0;
 extern void *D_8013FCE4;
 extern s32 D_8013FBF0;
@@ -20,7 +20,7 @@ extern struct S_D_8013FE60 { u8 pad_0[0x24]; s32 f_24; s32 f_28; u8 pad_2C[0x6C]
 extern s16 D_8013FD40;
 extern M2C_UNK D_8013FD58;
 M2C_UNK Msg_PutChar(M2C_UNK, M2C_UNK, M2C_UNK);
-M2C_UNK func_8008DDB0(s16, s16);
+M2C_UNK Msg_SetPos(s16, s16);
 void func_80138350(s32 arg0);
 extern M2C_UNK D_8013EF8C;
 extern M2C_UNK D_8013EB60;
@@ -225,7 +225,7 @@ void func_801364CC(void) {
 
 void func_801365A8(void) {
     Seq_Tick();
-    func_80088578();
+    Sound_ClearFrameQueue();
 }
 
 INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EA90);
@@ -270,7 +270,7 @@ void func_801364CC(void);
 void func_801365D0(void);
 void func_80137934(void);
 void Gfx_BeginFrame(void);
-void func_8008C390(void);
+void DebugFont_Init(void);
 void Matrix_SetIdentity(void *);
 void *CompMatrix(void *m0, void *m1, void *m2);
 void Matrix_FromFacingXZ(s16 *, s16 *);
@@ -293,7 +293,7 @@ void func_80136704(void) {
         func_801364CC();
         g_Game_80136704.frame++;
         Gfx_BeginFrame();
-        func_8008C390();
+        DebugFont_Init();
         Matrix_SetIdentity(D_800E78C0_80136704);
         CompMatrix(D_800AF0A0, D_800E78C0_80136704, D_800E78C0_80136704);
         for (i = 0; i < 2; i++) {
@@ -382,7 +382,7 @@ void func_801369F4(void) {
         func_801360F0();
         func_801364CC();
         pad = (D_8013FBF8_801369F4.f_0 & D_8013FBF8_801369F4.f_4) | (D_8013FBF8_801369F4.f_8 & D_8013FBF8_801369F4.f_C);
-        func_8008C390();
+        DebugFont_Init();
         p = g_Game_801369F4.prim;
         ((u8 *)p)[3] = 5;
         p->code = 0x65;
@@ -540,7 +540,7 @@ s32 func_80136F30(void) {
             idle++;
         }
         g_Game_801369F4.frame++;
-        func_8008C390();
+        DebugFont_Init();
         Matrix_SetIdentity(D_800E78C0_80136704);
         CompMatrix(D_800AF0A0, D_800E78C0_80136704, D_800E78C0_80136704);
         p = g_Game_801369F4.prim;
@@ -694,13 +694,13 @@ void VSyncCallback(void *);
 void func_801365A8(void);
 void Game_VSyncCallback();
 s32 Gfx_InitDisplay(void);
-void func_8008C01C(void);
+void Mem_Init(void);
 void func_80137874(void);
 void func_80139444(void);
 void func_80139480(void);
 void func_801394A4(void);
 void func_8013A29C(void);
-void func_80069500(void);
+void Effect_ClearAll(void);
 void Fx_ClearAll(void);
 s32 VSync(s32 mode);
 void Cd_StartLoadList(void *);
@@ -724,13 +724,13 @@ void func_80137654(void) {
 
     VSyncCallback(func_801365A8);
     Gfx_InitDisplay();
-    func_8008C01C();
+    Mem_Init();
     func_80137874();
     func_80139444();
     func_80139480();
     func_801394A4();
     func_8013A29C();
-    func_80069500();
+    Effect_ClearAll();
     Fx_ClearAll();
     func_8013626C(0, 0, 0);
     func_8013626C(0, 1, 0x10);
@@ -779,14 +779,14 @@ void func_80137654(void) {
 
 typedef struct { s16 x, y, z; s16 pad; u32 col; } Star_80137874;
 extern Star_80137874 *D_8013FC78_80137874 asm("D_8013FC78");
-extern u16 D_800AE8F2_80137874 asm("D_800AE8F2");
+extern u16 D_800AE8F2_80137874 asm("g_RandSeed2");
 extern u16 g_RandSeed_80137874 asm("g_RandSeed");
 
 void func_80137874(void) {
     s32 i;
     Star_80137874 *s;
 
-    D_8013FC78_80137874 = func_8008C09C(0x300);
+    D_8013FC78_80137874 = Mem_AllocPages(0x300);
     for (i = 0; i < 0x40; i++) {
         D_8013FC78_80137874[i].x = (D_800AE8F2_80137874 = D_800AE8F2_80137874 * 5 + 1) & 0x1FF;
         D_8013FC78_80137874[i].z = ((g_RandSeed_80137874 = g_RandSeed_80137874 * 5 + 1) >> 8 & 3) + 1;
@@ -798,9 +798,9 @@ void func_80137874(void) {
 extern u8 g_Game[];
 typedef struct { s16 x; s16 y; s16 dy; s16 pad6; u32 col; } Star_80137934;
 extern Star_80137934 *D_8013FC78;
-extern u16 D_800AE8F2;
+extern u16 g_RandSeed2;
 extern u16 g_RandSeed;
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 extern struct { u8 pad0[0x1D]; u8 f_1D; u8 pad1E[0x37]; u8 f_55; } D_8013FBF8_80137934 asm("D_8013FBF8");
 s32 Math_StepToward(s32, s32, s32);
 #define SPRT_80137934(tp, x, y, uv, clut, wh, A)                          \
@@ -876,14 +876,14 @@ void func_80137934(void) {
     }
     {
     for (i = 0; i < 0x40; i++, st++) {
-        M2C_FIELD(p, u32 *, 4) = ((D_800AE8F2 = D_800AE8F2 * 5 + 1) << 8) | ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) | 0x808080;
+        M2C_FIELD(p, u32 *, 4) = ((g_RandSeed2 = g_RandSeed2 * 5 + 1) << 8) | ((g_RandSeed = g_RandSeed * 5 + 1) >> 8) | 0x808080;
         p[3] = 2;
         p[7] = 0x68;
         M2C_FIELD(p, u32 *, 8) = *(u32 *)st;
         ADD_PRIM_R2_80137934(&ot[0xFFF], p, "$3", "$2");
         p += 0xC;
         if ((st->y += st->dy) > 0xF0) {
-            st->x = (D_800AE8F2 = D_800AE8F2 * 5 + 1) & 0x1FF;
+            st->x = (g_RandSeed2 = g_RandSeed2 * 5 + 1) & 0x1FF;
             st->y = 0;
             st->dy = ((g_RandSeed = g_RandSeed * 5 + 1) >> 8 & 3) + 1;
             st->col = ((g_RandSeed = g_RandSeed * 5 + 1) & 0xFF00) | 0xFF00FF;
@@ -899,7 +899,7 @@ void func_80137934(void) {
     M2C_FIELD(p, s16 *, 0xE) = 0xF0;
     ADD_PRIM_R(&ot[0xFFF], p, "$4", "$2");
     p += 0x10;
-    D_800EC354 = p;
+    g_GamePrim = p;
     if (D_8013FBF8_80137934.f_1D + D_8013FBF8_80137934.f_55 > 0) {
         s++;
     } else {
@@ -912,8 +912,8 @@ void func_80137934(void) {
 }
 
 extern GameDraw g_Game_80137F50 asm("g_Game");
-extern SprtTp *D_800EC354_80137F50 asm("D_800EC354");
-extern u16 D_800AE8F2_80137F50 asm("D_800AE8F2");
+extern SprtTp *D_800EC354_80137F50 asm("g_GamePrim");
+extern u16 D_800AE8F2_80137F50 asm("g_RandSeed2");
 extern u8 D_8013F048[];
 
 void func_80137F50(s32 x, s32 y, u8 *s, s32 pal) {
@@ -1066,7 +1066,7 @@ void func_80138350(s32 arg0) {
 
 extern GameDraw g_Game_80138368 asm("g_Game");
 typedef struct { u32 tag; u32 tpage; u32 col; s16 x, y; u8 u, v; u16 clut; s16 w, h; } Sprt_80138368;
-extern Sprt_80138368 *D_800EC354_80138368 asm("D_800EC354");
+extern Sprt_80138368 *D_800EC354_80138368 asm("g_GamePrim");
 extern struct { u16 f_0; } D_8013FC80_80138368 asm("D_8013FC80");
 
 M2C_UNK func_80138368(M2C_UNK x, M2C_UNK y, M2C_UNK *str, M2C_UNK color) {
@@ -1119,7 +1119,7 @@ M2C_UNK func_80138368(M2C_UNK x, M2C_UNK y, M2C_UNK *str, M2C_UNK color) {
     D_800EC354_80138368 = p;
 }
 
-extern u8 *D_800EC354_801384CC asm("D_800EC354");
+extern u8 *D_800EC354_801384CC asm("g_GamePrim");
 extern u16 D_8013FC80_801384CC asm("D_8013FC80");
 
 void func_801384CC(s32 x, s32 y, u8 *str, u32 color) {
@@ -1254,7 +1254,7 @@ void func_80138860(void) {
     func_8013A29C();
     func_80139480();
     func_801394A4();
-    func_80069500();
+    Effect_ClearAll();
     Fx_ClearAll();
     func_8013C7F0();
     i = 0;
@@ -1373,7 +1373,7 @@ extern u8 g_ViewMatrix[];
 extern u8 D_800EC330[];
 void Camera_LookAt(void *, void *, void *, void *, s32);
 void Fx_UpdateAll(void);
-void func_80069BEC(void);
+void Particle_UpdateAll(void);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 void func_801380B4(void);
 void func_80138110(void);
@@ -1403,8 +1403,8 @@ void func_80138C30(void) {
         func_8013A6CC();
         g_Game_80138C30.frame++;
         Gfx_BeginFrame();
-        func_8008C390();
-        func_80069BEC();
+        DebugFont_Init();
+        Particle_UpdateAll();
         Fx_UpdateAll();
         func_80139BF8();
         func_8013A548();
@@ -1575,8 +1575,8 @@ s32 func_80139098(void) {
 __asm__(".section .rodata\n\t.align 2\n\t.asciz \"100\"\n\t.align 2\n\t.asciz \"5024\"\n\t.align 2\n\t.asciz \"800\"\n\t.align 2\n\t.asciz \"400\"\n\t.align 2\n\t.asciz \"200\"\n\t.section .text");
 
 void func_80139444(void) {
-    M2C_FIELD(&D_8013FCE0, s32 *, 0) = func_8008C09C(0x120);
-    M2C_FIELD(&D_8013FCE0, s32 *, 4) = func_8008C09C(0x180);
+    M2C_FIELD(&D_8013FCE0, s32 *, 0) = Mem_AllocPages(0x120);
+    M2C_FIELD(&D_8013FCE0, s32 *, 4) = Mem_AllocPages(0x180);
 }
 
 void func_80139480(void) {
@@ -1751,7 +1751,7 @@ void func_80139840(s32 flip) {
 typedef struct { s16 x, z, f_4; u8 f_6, f_7; s16 dx, dz; } Spark_80139888;
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u16 uv0; u16 clut; s16 x1, y1; u16 uv1; u16 tpage; s16 x2, y2; u16 uv2; u16 pad1; s16 x3, y3; u16 uv3; u16 pad2; } Ft4_80139888;
 extern struct { u32 frame; Ft4_80139888 *prim; u32 *ot; } g_Game_80139888 asm("g_Game");
-extern Ft4_80139888 *D_800EC354_80139888 asm("D_800EC354");
+extern Ft4_80139888 *D_800EC354_80139888 asm("g_GamePrim");
 extern Spark_80139888 *D_8013FCE0_80139888 asm("D_8013FCE0");
 void SetRotMatrix(void *);
 void SetTransMatrix(void *);
@@ -1826,7 +1826,7 @@ void func_80139888(void) {
 typedef struct { s16 x, z, f_4; u8 f_6, f_7; s16 dx, dz; } Spark_80139A74;
 typedef struct { u32 tag; u32 tpage; u8 r0, g0, b0, code; s32 xy0; u16 uv0; u16 clut; u32 wh; } Sprt_80139A74;
 extern struct { u32 frame; Sprt_80139A74 *prim; u32 *ot; } g_Game_80139A74 asm("g_Game");
-extern Sprt_80139A74 *D_800EC354_80139A74 asm("D_800EC354");
+extern Sprt_80139A74 *D_800EC354_80139A74 asm("g_GamePrim");
 extern Spark_80139A74 *D_8013FCE4_80139A74 asm("D_8013FCE4");
 
 void func_80139A74(void) {
@@ -2349,7 +2349,7 @@ typedef struct { u8 pad0[0x3CC]; u32 sxy[4]; s32 z; s32 opz; s32 opz2; u8 pad3E8
 typedef struct { u32 sxy; s16 z; u16 pad; } Vtx_8013A8C0;
 typedef struct { u8 pad0[8]; u8 *prims; } Mdl_8013A8C0;
 typedef struct { u8 f_0, len, f_2, code; u16 idx[4]; } Prm_8013A8C0;
-extern u8 *D_800EC354_8013A8C0 asm("D_800EC354");
+extern u8 *D_800EC354_8013A8C0 asm("g_GamePrim");
 #define gte_ldsxy3_8013A8C0(p) __asm__ volatile ("lwc2 $12, 0(%0); lwc2 $13, 4(%0); lwc2 $14, 8(%0)" : : "r"(p))
 #define gte_ldsxy0_8013A8C0(r) __asm__ volatile ("mtc2 %0, $12" : : "r"(r))
 #define gte_nclip_8013A8C0() __asm__ volatile ("nop; nop; nclip")
@@ -2808,7 +2808,7 @@ void func_8013B8B8(s32 kind, s16 *pos, s16 *dir) {
 
 typedef struct { u32 tag; u32 tpage; u8 r0, g0, b0, code; s32 xy0; u16 uv0; u16 clut; u32 wh; } Sprt_8013B92C;
 extern struct { u32 frame; Sprt_8013B92C *prim; u32 *ot; } g_Game_8013B92C asm("g_Game");
-extern Sprt_8013B92C *D_800EC354_8013B92C asm("D_800EC354");
+extern Sprt_8013B92C *D_800EC354_8013B92C asm("g_GamePrim");
 
 void func_8013B92C(void) {
     SVECTOR *v = (SVECTOR *)0x1F800000;
@@ -3229,7 +3229,7 @@ void func_8013C7FC(s32 i, u8 v) {
 }
 
 extern struct { s32 frame; u8 *prim; u32 *ot; } g_Game_8013C810 asm("g_Game");
-extern u8 *D_800EC354_8013C810 asm("D_800EC354");
+extern u8 *D_800EC354_8013C810 asm("g_GamePrim");
 
 void func_8013C810(void) {
     u8 *p = g_Game_8013C810.prim;
@@ -3307,7 +3307,7 @@ void func_8013C810(void) {
 }
 
 extern GameDraw g_Game_8013CA94 asm("g_Game");
-extern u8 *D_800EC354_8013CA94 asm("D_800EC354");
+extern u8 *D_800EC354_8013CA94 asm("g_GamePrim");
 extern u32 D_8013F37C[];
 typedef struct { u8 v[8]; } Seg_8013CA94;
 extern Seg_8013CA94 D_8013F32C[];
@@ -3799,7 +3799,7 @@ void func_8013D910(void) {
 void func_8013DAF0(s32 arg0, s32 arg1) {
     func_80138350(2);
     func_801384CC(arg0 - 8, arg1, &D_8013EF8C, 0x808080);
-    func_8008DDB0((s16) (arg0 + 0x28), (s16) (arg1 - 4));
+    Msg_SetPos((s16) (arg0 + 0x28), (s16) (arg1 - 4));
     Msg_PutChar(0x101, 0x1F0, 0);
     Msg_PutChar(0x104, 0x1F0, 0);
 }
@@ -3838,8 +3838,8 @@ void func_8013DB7C(void) {
         g_Game_8013DB7C.frame++;
         pad = (D_8013FBF8_8013DB7C.f_0 & D_8013FBF8_8013DB7C.f_4) | (D_8013FBF8_8013DB7C.f_8 & D_8013FBF8_8013DB7C.f_C);
         Gfx_BeginFrame();
-        func_8008C390();
-        func_80069BEC();
+        DebugFont_Init();
+        Particle_UpdateAll();
         Fx_UpdateAll();
         if (g_Game_8013DB7C.frame < 0x700) {
             if (g_Game_8013DB7C.frame > 0x680) {

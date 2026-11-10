@@ -65,7 +65,7 @@ s32 func_8013D020(s16 *p) {
 
 typedef struct { u32 *mdl; u8 pad4[0xC]; s16 x, y, z; u8 pad16[6]; void *mat; } Mesh_8013D1C4;
 typedef struct { s32 x, y, z; u8 padC[0xC]; SVECTOR dir; s16 f20; u8 pad22[2]; s16 f24; s16 f26; } Shape_8013D1C4;
-extern Mesh_8013D1C4 *D_800B4D64_8013D1C4 asm("D_800B4D64");
+extern Mesh_8013D1C4 *D_800B4D64_8013D1C4 asm("g_StageMeshes");
 void RotMatrixZYX(SVECTOR *, void *);
 void *CollShape_Alloc(void);
 s32 Collision_Set(s32, void *, void *);

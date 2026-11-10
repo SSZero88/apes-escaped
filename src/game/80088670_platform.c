@@ -30,13 +30,13 @@ typedef struct { u8 pad0[0x18]; u16 f_18; u8 pad1A[0x1E]; } S_820C_8008B7F8_8008
 typedef struct { u8 pad0[0xE]; u16 f_E; } S_8214_8008B7F8_8008B7F8;
 typedef struct { s16 f_0; s16 f_2; s16 f_4; u8 pad6[0x12]; u16 f_18; u8 pad1A[0x16]; s16 f_30; } S_P_8008B7F8_8008B7F8;
 
-extern s32 D_800B3384;
+extern s32 Platform_HookObject;
 extern M2C_UNK g_RcCar;
 void Camera_Translate(s32, s32, s32);
-extern s16 D_800EC238;
-extern S_4D64_8008A91C_8008A91C *D_800B4D64;
+extern s16 g_SpikeStandObj;
+extern S_4D64_8008A91C_8008A91C *g_StageMeshes;
 s32 Platform_CarryRiders(s32 unused, SVECTOR *d, s16 id);
-s16 func_800889EC(u16 *b);
+s16 Box_QuadrantMask(u16 *b);
 /* Moves a rider (Spike / RC car) with a rotating platform: rotates its offset d from the centre c
  * by the platform's turn this frame about Y (+0x2C), X (+0x2A) or Z (+0x2E) - the angle comes from
  * Platform_TurnStep(speed, +0x36) - and writes the new position to out. For X/Z turns a result that
@@ -61,8 +61,8 @@ extern s32 D_800B3380;
 s32 Platform_ProcessEvents();
 struct Game_892C4 { u8 pad0[0x8214]; Wp_892C4_800892C4 *f_8214; };
 s32 Platform_RotateRiders(S_P_8008ABB0_8008ABB0 *p, SVECTOR *c, s16 id);
-s32 func_8008B060(Plat_892C4_800892C4 *);
-s32 func_8008B228(S_P_8008B228_8008B228 *p);
+s32 Platform_ApplySpin(Plat_892C4_800892C4 *);
+s32 Platform_StepSpin(S_P_8008B228_8008B228 *p);
 struct Game_895F0 { u8 pad0[0x820C]; Obj_895F0_800895F0 *f_820C; };
 void RotMatrixZYX(SVECTOR *, void *);
 struct S_D_800F4350_8008B7F8 { u8 pad0[0x20C]; S_820C_8008B7F8_8008B7F8 *f_20C; u8 pad210[4]; S_8214_8008B7F8_8008B7F8 *f_214; S_Ev_8008B7F8_8008B7F8 *f_218; };
@@ -76,18 +76,18 @@ typedef struct { s16 x, y, z; u8 pad6[6]; s16 f_C; s16 f_E; u8 pad10[2]; u8 type
 typedef struct { u8 pad0[0x10]; s16 f_10; s16 f_12; s16 f_14; u8 pad16[6]; void *f_1C; } Mdl_88670;
 struct Game_88670 { u8 pad0[0x820C]; Zone_88670 *f_820C; u8 pad8210[0x74]; s16 f_8284; };
 extern struct Game_88670 g_Game_88670 asm("g_Game");
-extern Mdl_88670 *D_800B4D64_88670 asm("D_800B4D64");
-s16 func_800889EC_88670(Zone_88670 *) asm("func_800889EC");
+extern Mdl_88670 *D_800B4D64_88670 asm("g_StageMeshes");
+s16 func_800889EC_88670(Zone_88670 *) asm("Box_QuadrantMask");
 void func_800147D0_88670(SV_88670 *, void *) asm("Matrix_SetScale");
 void func_8013FC00(s32);
 #define Z_88670 (*(Zone_88670 *)(i * 0x38 + (s32)g_Game_88670.f_820C))
 
 /* Platform setup pass over the stage objects g_Game+0x820C (0x38 each, last to first): state word
-   +0x20 (0 when flag 0x8000, func_800889EC for types 0/9, else 0x1111), copy the position to the
+   +0x20 (0 when flag 0x8000, Box_QuadrantMask for types 0/9, else 0x1111), copy the position to the
    model, then per type: 3..6 scale angle/period (5: also /5 copies, 3: double the axis), 8/12/14
    copy +0xC to +0x32 (12: reset its model), 13 calls the overlay hook and is remembered in
-   D_800B3384, 2 doubles the axis. "k = 3" is shared with the later type-3 test as in the original. */
-s32 func_80088670(void) {
+   Platform_HookObject, 2 doubles the axis. "k = 3" is shared with the later type-3 test as in the original. */
+s32 Platform_InitAll(void) {
     s32 i;
     s32 k;
     s16 r;
@@ -147,7 +147,7 @@ s32 func_80088670(void) {
         }
         if (t == 0xD) {
             func_8013FC00(i);
-            D_800B3384 = i;
+            Platform_HookObject = i;
             continue;
         }
         if (t == 2) {
@@ -160,11 +160,11 @@ s32 func_80088670(void) {
     return 0;
 }
 
-s32 func_800889A4(void) {
-    return D_800B3384;
+s32 Platform_GetHookObject(void) {
+    return Platform_HookObject;
 }
 
-s32 func_800889B4(s16 a, s16 b) {
+s32 Quadrant_Bit(s16 a, s16 b) {
     if (a < 0) {
         if (b < 0) {
             return 1;
@@ -177,7 +177,7 @@ s32 func_800889B4(s16 a, s16 b) {
     return 0x100;
 }
 
-s16 func_800889EC(u16 *b)
+s16 Box_QuadrantMask(u16 *b)
 {
   u16 b0 = b[0];
   u16 b3 = b[3];
@@ -187,12 +187,12 @@ s16 func_800889EC(u16 *b)
   s16 z1 = b2 + b5;
   s16 x0;
   s16 z0;
-  unsigned short r = func_800889B4(x1, z1);
+  unsigned short r = Quadrant_Bit(x1, z1);
   x0 = b0 - b3;
-  r |= func_800889B4(x0, z1);
+  r |= Quadrant_Bit(x0, z1);
   z0 = b2 - b5;
-  r |= func_800889B4(x0, z0);
-  r |= func_800889B4(x1, z0);
+  r |= Quadrant_Bit(x0, z0);
+  r |= Quadrant_Bit(x1, z0);
   return r;
 }
 
@@ -251,7 +251,7 @@ s32 FallBlock_Update(Blk_FallBlock *o) {
     u16 y;
     if (o->f_2 > 0xC00) {
         if (o->f_E >= 0) {
-            (*(Mdl_80088F2C_80088F2C **)&D_800B4D64)[o->f_E].f_16 = 0;
+            (*(Mdl_80088F2C_80088F2C **)&g_StageMeshes)[o->f_E].f_16 = 0;
         }
         return 0;
     }
@@ -273,7 +273,7 @@ s32 FallBlock_Update(Blk_FallBlock *o) {
         } while (0);
         dy = (1 - (s16)(n % 2) * 2) * 32;
         if (o->f_E >= 0) {
-            (*(Mdl_80088F2C_80088F2C **)&D_800B4D64)[o->f_E].f_12 += dy;
+            (*(Mdl_80088F2C_80088F2C **)&g_StageMeshes)[o->f_E].f_12 += dy;
         }
         o->f_2 += dy;
         return 0;
@@ -288,7 +288,7 @@ s32 FallBlock_Update(Blk_FallBlock *o) {
         }
     }
     if (o->f_E >= 0) {
-        (*(Mdl_80088F2C_80088F2C **)&D_800B4D64)[o->f_E].f_12 += dy;
+        (*(Mdl_80088F2C_80088F2C **)&g_StageMeshes)[o->f_E].f_12 += dy;
     }
     o->f_2 += dy;
     return 0;
@@ -310,7 +310,7 @@ s32 PushBlock_Update(Blk_80088F2C_80088F2C *o, s16 id) {
     d.vx = 0;
     if (o->f_2 > 0xC00) {
         if (o->f_E >= 0) {
-            (*(Mdl_80088F2C_80088F2C * *)&D_800B4D64)[o->f_E].f_16 = 0;
+            (*(Mdl_80088F2C_80088F2C * *)&g_StageMeshes)[o->f_E].f_16 = 0;
         }
         o->f_18 = (o->f_18 & 0x8000) | 1;
         return 0;
@@ -365,9 +365,9 @@ s32 PushBlock_Update(Blk_80088F2C_80088F2C *o, s16 id) {
         }
     }
     if (o->f_E >= 0) {
-        (*(Mdl_80088F2C_80088F2C * *)&D_800B4D64)[o->f_E].f_10 += d.vx;
-        (*(Mdl_80088F2C_80088F2C * *)&D_800B4D64)[o->f_E].f_12 += d.vy;
-        (*(Mdl_80088F2C_80088F2C * *)&D_800B4D64)[o->f_E].f_14 += d.vz;
+        (*(Mdl_80088F2C_80088F2C * *)&g_StageMeshes)[o->f_E].f_10 += d.vx;
+        (*(Mdl_80088F2C_80088F2C * *)&g_StageMeshes)[o->f_E].f_12 += d.vy;
+        (*(Mdl_80088F2C_80088F2C * *)&g_StageMeshes)[o->f_E].f_14 += d.vz;
     }
     Platform_CarryRiders((s32)o, &d, id);
     o->f_0 += d.vx;
@@ -375,7 +375,7 @@ s32 PushBlock_Update(Blk_80088F2C_80088F2C *o, s16 id) {
     o->f_4 += d.vz;
     o->f_34 = d.vx;
     o->f_36 = d.vz;
-    o->f_20 = func_800889EC(o);
+    o->f_20 = Box_QuadrantMask(o);
     return 0;
 }
 
@@ -408,16 +408,16 @@ s32 Platform_GlideToWaypoint(Plat_892C4_800892C4 *o, s32 id) {
     d.vz = nz;
     Platform_RotateRiders((S_P_8008ABB0_8008ABB0 *)o, (SVECTOR *)&d, id);
     if (o->f_E >= 0) {
-        (*(Mdl_892C4_800892C4 * *)&D_800B4D64)[o->f_E].f_10 = nx;
-        (*(Mdl_892C4_800892C4 * *)&D_800B4D64)[o->f_E].f_12 = ny;
-        (*(Mdl_892C4_800892C4 * *)&D_800B4D64)[o->f_E].f_14 = nz;
-        func_8008B060(o);
+        (*(Mdl_892C4_800892C4 * *)&g_StageMeshes)[o->f_E].f_10 = nx;
+        (*(Mdl_892C4_800892C4 * *)&g_StageMeshes)[o->f_E].f_12 = ny;
+        (*(Mdl_892C4_800892C4 * *)&g_StageMeshes)[o->f_E].f_14 = nz;
+        Platform_ApplySpin(o);
     }
     o->x = nx;
     o->y = ny;
     o->z = nz;
-    o->f_20 = func_800889EC(o);
-    func_8008B228(o);
+    o->f_20 = Box_QuadrantMask(o);
+    Platform_StepSpin(o);
     o->f_C++;
     o->f_32++;
     if (o->f_C < w->f_C * 2) {
@@ -498,23 +498,23 @@ s32 Platform_UpdateOrbit(Plat_895F0_800895F0 *p, s16 id) {
     Platform_RotateRiders(p, &d, id);
     if (p->f_E >= 0) {
         if (axis == 0x100) {
-            (*(Mdl_895F0_800895F0 * *)&D_800B4D64)[p->f_E].f_10 = nx;
-            (*(Mdl_895F0_800895F0 * *)&D_800B4D64)[p->f_E].f_14 = nz;
+            (*(Mdl_895F0_800895F0 * *)&g_StageMeshes)[p->f_E].f_10 = nx;
+            (*(Mdl_895F0_800895F0 * *)&g_StageMeshes)[p->f_E].f_14 = nz;
         } else if (axis == 0x200) {
-            (*(Mdl_895F0_800895F0 * *)&D_800B4D64)[p->f_E].f_12 = ny;
-            (*(Mdl_895F0_800895F0 * *)&D_800B4D64)[p->f_E].f_14 = nz;
+            (*(Mdl_895F0_800895F0 * *)&g_StageMeshes)[p->f_E].f_12 = ny;
+            (*(Mdl_895F0_800895F0 * *)&g_StageMeshes)[p->f_E].f_14 = nz;
         } else {
-            (*(Mdl_895F0_800895F0 * *)&D_800B4D64)[p->f_E].f_10 = nx;
-            (*(Mdl_895F0_800895F0 * *)&D_800B4D64)[p->f_E].f_12 = ny;
+            (*(Mdl_895F0_800895F0 * *)&g_StageMeshes)[p->f_E].f_10 = nx;
+            (*(Mdl_895F0_800895F0 * *)&g_StageMeshes)[p->f_E].f_12 = ny;
         }
         if (kind == 4) {
-            (*(Mdl_895F0_800895F0 * *)&D_800B4D64)[p->f_E].f_12 -= p->f_8;
+            (*(Mdl_895F0_800895F0 * *)&g_StageMeshes)[p->f_E].f_12 -= p->f_8;
         }
-        if (func_8008B060(p) == 0 && axis == 0x100 && kind == 3) {
+        if (Platform_ApplySpin(p) == 0 && axis == 0x100 && kind == 3) {
             r.vx = 0;
             r.vy = a;
             r.vz = 0;
-            RotMatrixZYX(&r, (*(Mdl_895F0_800895F0 * *)&D_800B4D64)[p->f_E].f_1C);
+            RotMatrixZYX(&r, (*(Mdl_895F0_800895F0 * *)&g_StageMeshes)[p->f_E].f_1C);
         }
     }
     if (axis == 0x100) {
@@ -527,8 +527,8 @@ s32 Platform_UpdateOrbit(Plat_895F0_800895F0 *p, s16 id) {
         p->x = nx;
         p->y = ny;
     }
-    p->f_20 = func_800889EC(p);
-    func_8008B228(p);
+    p->f_20 = Box_QuadrantMask(p);
+    Platform_StepSpin(p);
     if ((p->f_12 & 0xF000) == 0) {
         if (++p->f_C > p->f_1C) {
             p->f_C -= p->f_1C;
@@ -556,7 +556,7 @@ struct Spike_80089B10 { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x28]; s16 f_58; };
 extern struct S_D_800EC1E0 g_Spike;
 s32 ratan2(s32, s32);
 
-s32 func_80089B10(o, id)
+s32 Platform_CarrySpikeAround(o, id)
 Rot_80089B10 *o;
 s16 id;
 {
@@ -618,12 +618,12 @@ struct Game_89D6C { u8 pad0[0x8150]; u16 f_8150; u8 pad8152[0xC2]; Wp_89D6C *f_8
 extern u8 g_Game_89D6C[] asm("g_Game");
 extern Body_89D6C g_Spike_89D6C asm("g_Spike");
 extern Body_89D6C g_RcCar_89D6C asm("g_RcCar");
-extern s16 D_800EC238_89D6C asm("D_800EC238");
-extern Mdl_89D6C *D_800B4D64_89D6C asm("D_800B4D64");
+extern s16 D_800EC238_89D6C asm("g_SpikeStandObj");
+extern Mdl_89D6C *D_800B4D64_89D6C asm("g_StageMeshes");
 s32 Platform_CarryRiders_89D6C(s32 unused, SV_89D6C *d, s16 id) asm("Platform_CarryRiders");
-s16 func_800889EC_89D6C(Plat_89D6C *) asm("func_800889EC");
-void func_80066E8C_89D6C(Plat_89D6C *, s16 *) asm("func_80066E8C");
-void func_80066E28_89D6C(s32, s32, s32, s32, s32, s32) asm("func_80066E28");
+s16 func_800889EC_89D6C(Plat_89D6C *) asm("Box_QuadrantMask");
+void func_80066E8C_89D6C(Plat_89D6C *, s16 *) asm("Spike_SetHangBar");
+void func_80066E28_89D6C(s32, s32, s32, s32, s32, s32) asm("Spike_SetClimbPole");
 void RotMatrixZYX_89D6C(SV_89D6C *, void *) asm("RotMatrixZYX");
 void func_800147D0_89D6C(SV_89D6C *, void *) asm("Matrix_SetScale");
 s32 rcos_89D6C(s32) asm("rcos");
@@ -845,7 +845,7 @@ s32 Platform_Move(S_Plat_8008A91C_8008A91C *p, s16 id) {
     d.vy = p->f_2 - p->f_26;
     d.vz = p->f_4 - p->f_28;
     Platform_CarryRiders((s32)p, &d, id);
-    if (D_800EC238 == id) {
+    if (g_SpikeStandObj == id) {
         if (p->f_2A != 0 || p->f_2C != 0 || p->f_2E != 0) {
             ((S_EC1E0_8008A91C_8008A91C *)&g_Spike)->f_60 = p->f_2A;
             ((S_EC1E0_8008A91C_8008A91C *)&g_Spike)->f_62 = p->f_2C;
@@ -853,14 +853,14 @@ s32 Platform_Move(S_Plat_8008A91C_8008A91C *p, s16 id) {
         }
     }
     if (p->f_E >= 0) {
-        D_800B4D64[p->f_E].f_10 = p->f_0;
-        D_800B4D64[p->f_E].f_12 = p->f_2;
-        D_800B4D64[p->f_E].f_14 = p->f_4;
+        g_StageMeshes[p->f_E].f_10 = p->f_0;
+        g_StageMeshes[p->f_E].f_12 = p->f_2;
+        g_StageMeshes[p->f_E].f_14 = p->f_4;
     }
     p->f_24 = p->f_0;
     p->f_26 = p->f_2;
     p->f_28 = p->f_4;
-    p->f_20 = func_800889EC(p);
+    p->f_20 = Box_QuadrantMask(p);
     return 0;
 }
 
@@ -1005,9 +1005,9 @@ s32 Platform_TurnStep(s16 period, s16 t) {
 
 typedef struct { u8 pad0[0xE]; s16 f_E; u16 f_10; u8 pad12[0x18]; s16 f_2A; s16 f_2C; s16 f_2E; u8 pad30[6]; s16 f_36; } Plat_8008B060;
 typedef struct { u32 *f_0; u8 pad4[0x18]; void *f_1C; } Mdl_8008B060;
-extern Mdl_8008B060 *D_800B4D64_8008B060 asm("D_800B4D64");
+extern Mdl_8008B060 *D_800B4D64_8008B060 asm("g_StageMeshes");
 
-s32 func_8008B060(Plat_892C4_800892C4 *arg) {
+s32 Platform_ApplySpin(Plat_892C4_800892C4 *arg) {
     Plat_8008B060 *o = (Plat_8008B060 *)arg;
     SVECTOR r;
     Mdl_8008B060 *m = D_800B4D64_8008B060;
@@ -1052,7 +1052,7 @@ s32 func_8008B060(Plat_892C4_800892C4 *arg) {
     return 1;
 }
 
-s32 func_8008B228(S_P_8008B228_8008B228 *p) {
+s32 Platform_StepSpin(S_P_8008B228_8008B228 *p) {
     s16 t;
     if ((p->f_10 & 0xF000) != 0x3000) {
         return 0;
@@ -1193,7 +1193,7 @@ struct Game_8008B980 { u8 pad0[0x820C]; Obj_8008B980 *f_820C; };
 extern struct Game_8008B980 g_Game_8008B980 asm("g_Game");
 typedef struct { u8 pad0[0x58]; s16 f_58; u8 pad5A[0x16]; s32 f_70; } Spk_8008B980;
 extern Spk_8008B980 g_Spike_8008B980 asm("g_Spike");
-s32 func_8008BDB4();
+s32 Platform_ResetToHome();
 
 s32 Platform_RunTrigger(S_P_8008B7F8_8008B7F8 *op, S_Ev_8008B7F8_8008B7F8 *cp, s32 dist, s16 id) {
     Plat_8008B980 *o = (Plat_8008B980 *)op;
@@ -1250,7 +1250,7 @@ s32 Platform_RunTrigger(S_P_8008B7F8_8008B7F8 *op, S_Ev_8008B7F8_8008B7F8 *cp, s
         break;
     case 'C':
         if (c->f_4 < dist) {
-            func_8008BDB4(o);
+            Platform_ResetToHome(o);
         }
         break;
     case 'S': {
@@ -1309,16 +1309,16 @@ s32 Platform_RunTrigger(S_P_8008B7F8_8008B7F8 *op, S_Ev_8008B7F8_8008B7F8 *cp, s
 INCLUDE_RODATA("asm/nonmatchings/game/80088670_platform", jtbl_800A62D0_pad);
 
 
-s32 func_8008BDB4(S_8BDB4_8008BDB4 *a) {
+s32 Platform_ResetToHome(S_8BDB4_8008BDB4 *a) {
     a->f_18 = (a->f_18 & 0x8000) | 1;
     a->f_0 = a->f_24;
     a->f_2 = a->f_26;
     a->f_4 = a->f_28;
     if (a->f_E >= 0) {
-        (*(S_4D64_8008BDB4 * *)&D_800B4D64)[a->f_E].f_10 = a->f_0;
-        (*(S_4D64_8008BDB4 * *)&D_800B4D64)[a->f_E].f_12 = a->f_2;
-        (*(S_4D64_8008BDB4 * *)&D_800B4D64)[a->f_E].f_14 = a->f_4;
-        (*(S_4D64_8008BDB4 * *)&D_800B4D64)[a->f_E].f_16 = 0xFFFF;
+        (*(S_4D64_8008BDB4 * *)&g_StageMeshes)[a->f_E].f_10 = a->f_0;
+        (*(S_4D64_8008BDB4 * *)&g_StageMeshes)[a->f_E].f_12 = a->f_2;
+        (*(S_4D64_8008BDB4 * *)&g_StageMeshes)[a->f_E].f_14 = a->f_4;
+        (*(S_4D64_8008BDB4 * *)&g_StageMeshes)[a->f_E].f_16 = 0xFFFF;
     }
     a->f_32 = 0;
     a->f_C = 0;

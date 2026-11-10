@@ -4,7 +4,7 @@ typedef struct { u8 b[4]; } Loc_9B7FC_8009B7FC;
 typedef struct { Loc_9B7FC_8009B7FC loc; u8 *buf; s32 n; } Req_9B7FC_8009B7FC;
 typedef struct { Loc_9B7FC_8009B7FC pos; u32 size; char name[16]; } File_9B7FC_8009B7FC;
 
-extern u8 D_800F5AA0;
+extern u8 g_OverlayState;
 extern s32 D_800F5AAC;
 extern s32 D_800F5AB0;
 extern s32 D_800F4DD0;
@@ -17,32 +17,32 @@ void func_80137248(s32);
 struct S_D_800F5AA0_8009B7FC { u8 state; u8 loaded; u8 ready; u8 arg; s16 fade; };
 
 u8 Overlay_GetState(void) {
-    return D_800F5AA0;
+    return g_OverlayState;
 }
 
 void Overlay_Request(s8 arg0) {
-    M2C_FIELD(&D_800F5AA0, s8 *, 0) = 1;
-    M2C_FIELD(&D_800F5AA0, s8 *, 3) = arg0;
+    M2C_FIELD(&g_OverlayState, s8 *, 0) = 1;
+    M2C_FIELD(&g_OverlayState, s8 *, 3) = arg0;
 }
 
-void func_8009B7C8(s32 arg0) {
-    M2C_FIELD(&D_800F5AA0, s32 *, 0) = 0;
-    M2C_FIELD(&D_800F5AA0, s32 *, 8) = arg0;
-    M2C_FIELD(&D_800F5AA0, s32 *, 0xC) = 0;
-    M2C_FIELD(&D_800F5AA0, s32 *, 0x10) = 0;
+void Overlay_Reset(s32 arg0) {
+    M2C_FIELD(&g_OverlayState, s32 *, 0) = 0;
+    M2C_FIELD(&g_OverlayState, s32 *, 8) = arg0;
+    M2C_FIELD(&g_OverlayState, s32 *, 0xC) = 0;
+    M2C_FIELD(&g_OverlayState, s32 *, 0x10) = 0;
 }
 
-void func_8009B7E4(s32 arg0) {
+void Overlay_SetDataB(s32 arg0) {
     D_800F5AAC = arg0;
 }
 
-void func_8009B7F0(s32 arg0) {
+void Overlay_SetDataC(s32 arg0) {
     D_800F5AB0 = arg0;
 }
 
 void Overlay_Update(void) {
-    struct S_D_800F5AA0_8009B7FC *s = ((struct S_D_800F5AA0_8009B7FC *)&D_800F5AA0);
-    s32 st = ((struct S_D_800F5AA0_8009B7FC *)&D_800F5AA0)->state;
+    struct S_D_800F5AA0_8009B7FC *s = ((struct S_D_800F5AA0_8009B7FC *)&g_OverlayState);
+    s32 st = ((struct S_D_800F5AA0_8009B7FC *)&g_OverlayState)->state;
     s32 t;
     Req_9B7FC_8009B7FC req;
     File_9B7FC_8009B7FC f;
@@ -76,7 +76,7 @@ void Overlay_Update(void) {
         Screen_DrawLetterbox(0x1E, 0x1E, s->fade);
         if (s->ready != 0) {
             func_80137248(s->arg);
-            ((struct S_D_800F5AA0_8009B7FC *)&D_800F5AA0)->state = 2;
+            ((struct S_D_800F5AA0_8009B7FC *)&g_OverlayState)->state = 2;
             s->fade = 0xF0;
             Screen_DrawLetterbox(0x1E, 0x1E, 0xF0);
         }
@@ -90,7 +90,7 @@ void Overlay_Update(void) {
             Screen_DrawLetterbox(0x1E, 0x1E, s->fade);
             break;
         }
-        *(s32 *)((struct S_D_800F5AA0_8009B7FC *)&D_800F5AA0) = 0;
+        *(s32 *)((struct S_D_800F5AA0_8009B7FC *)&g_OverlayState) = 0;
         D_800F4DD0 = 0x32;
         Spike_SetPlayMode(0);
         break;

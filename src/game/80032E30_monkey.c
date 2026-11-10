@@ -153,7 +153,7 @@ void Monkey_AimAndShoot(s16);
 extern s16 g_CaughtMonkeyKind;
 
 M2C_UNK Collision_Remove(void *);
-M2C_UNK func_8007CDC4(void *);
+M2C_UNK GuidedAmmo_RemoveTarget(void *);
 s32 ratan2();
 
 extern struct S_D_800EC350 { u8 pad_0[0x8122]; u16 f_8122; u8 pad_8124[0x2]; u16 f_8126; u8 pad_8128[0x118]; s32 f_8240; } g_Game;
@@ -220,7 +220,7 @@ void Monkey_AimAtGoal(void);
 s32 Monkey_IsJumping(void);
 s32 Monkey_IsNodeAnim(void);
 u32 Monkey_Rand(void);
-void func_80059304(s16 *, Monkey *, s32, s16 *);
+void EnemyShot_Spawn(s16 *, Monkey *, s32, s16 *);
 extern struct S_D_800F4730 { s16 m[3][3]; s16 pad; s32 t[3]; } g_JointWorldMatrices[];
 extern u32 g_MonkeyFrame;
 s32 Monkey_IsSwimming(void);
@@ -245,12 +245,12 @@ void Monkey_GoToNode(s16);
 s32 Node_GetLink(s16, s16);
 void Monkey_StartLink(s16, s16);
 s32 Monkey_NodeEvents(s16);
-s32 func_80052C4C(s16);
+s32 Object_GetStatus(s16);
 extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } g_ViewMatrix;
 void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
 s32 RotTransPers(void *v0, s32 *sxy, s32 *p, s32 *flag);
-void func_8006B3CC(SVEC_80035BD0 *);
+void Fx_SpawnHitSpark(SVEC_80035BD0 *);
 s32 Vec_DistXZ(VEC_8003473C *a, VEC_8003473C *b);
 /* Whether the current monkey sees its target: within the kind's sight distance for what the target
  * is doing (+0xC range[mode], or +0x1A), always in states 3 and 8 or when the target's mode is 7,
@@ -272,7 +272,7 @@ s32 Floor_GetHeight(s32, s32, s32);
 void Monkey_Land(void);
 struct Game_800332F8 { u8 pad0[0x816C]; u8 f_816C[8]; };
 void Object_SetFlagCF(s16, s32);
-void func_80052D04(s16, s32 *);
+void Object_GetHomePos(s16, s32 *);
 s32 Link_IsInDoneState(s32 idx);
 /* 1 if the current monkey's target is within its detection range. The range (+0x220) is doubled
  * in states 0xC and 0x24, x1.5 in state 9, and halved on stage 0x4D or 0x1A while the monkey's
@@ -346,7 +346,7 @@ s32 Math_Atan2Pos(s32 arg0, s32 arg1);
 void RotMatrixYXZ(SVECTOR *, MAT_8003CC3C *);
 extern Monkey *g_CurMonkey;
 void Collision_Set(s32, void *, void *);
-void func_8007CD88(void *);
+void GuidedAmmo_AddTarget(void *);
 u32 Collider_GetHitKind(void *arg0);
 extern struct S_D_800E9C60 { u8 pad[0x20]; } g_ModelMatrices[];
 extern u8 g_ProjVerts[];
@@ -362,9 +362,9 @@ extern u8 D_800A4BBC[];
 extern s32 D_1F8003FC;
 s32 Monkey_IsOffScreen(void);
 void Monkey_UpdateLod(void);
-void func_800880D0(s32, s32);
-void func_8008C3C0(s32, s32);
-void func_8008CBFC(void *, s32);
+void Sound_StopAndForget(s32, s32);
+void DebugFont_SetPos(s32, s32);
+void DebugFont_PrintfAlways(void *, s32);
 void Anim_BlendCurrentEntry(void);
 void Shadow_Draw(void *, s32, s32, s32);
 void Monkey_Draw(void);
@@ -384,7 +384,7 @@ void Model_ProjectBonedVerts(void *);
 void Model_DrawNoFog(void *, u8 *, void *, s32);
 void Monkey_UpdateHelmetLight(void);
 void Monkey_DrawAttachment(Model_39E50_80039E50 *m);
-s32 func_800882C4(s32, s32, s32);
+s32 Sound_PlayTagged(s32, s32, s32);
 s32 rsin(s32);
 extern u8 g_MissilePattern;
 s32 Monkey_GetAlertLevel(void);
@@ -398,7 +398,7 @@ void Monkey_ThrowCoconut(void);
 s32 Node_IsStopPoint(s16 arg0);
 void Monkey_TurnTowardTarget(s32 lim);
 struct S_D_800AE940_8003DC7C { u32 f_0; u32 flags; };
-s32 func_8005B7BC(s32, s16 *);
+s32 Link_GetRecord(s32, s16 *);
 
 u32 Monkey_Rand(void) {
     u32 temp_v0;
@@ -452,7 +452,7 @@ s32 Monkey_EnableCollision(void) {
     if (!((p->f_24C >> 1) & 1)) {
         p->f_24C |= 2;
         Collision_Set(3, &p->f_24, p);
-        func_8007CD88(&p->f_1C);
+        GuidedAmmo_AddTarget(&p->f_1C);
         return 1;
     }
     return 0;
@@ -477,7 +477,7 @@ s32 Monkey_DisableCollision(void)
   }
   *((u32 *) (((s8 *) temp_s0) + 0x24C)) = (u32) (temp_v1 & (~2));
   Collision_Remove(temp_s0 + 0x24);
-  func_8007CDC4(temp_s0 + 0x1C);
+  GuidedAmmo_RemoveTarget(temp_s0 + 0x1C);
   return 1;
 }
 
@@ -535,7 +535,7 @@ void Monkey_SetState(int arg0)
 /* For each of the 8 monkeys: sets its state byte f_7A from the stage's saved list at
  * g_Game+0x816C (4 becomes 0). For monkey kinds flagged 0x400 in g_PathNodes, state 2 calls
  * Object_SetFlagCF(kind->f_10 / 100, 4); state 5 does the same, resets the state to 0, calls
- * func_80052D04 with the monkey's position, and Monkey_SetState(0x2B). */
+ * Object_GetHomePos with the monkey's position, and Monkey_SetState(0x2B). */
 void Monkey_RestoreStates(void) {
     s32 i;
     u8 st;
@@ -553,7 +553,7 @@ void Monkey_RestoreStates(void) {
             } else if (g_CurMonkey->f_7A == 5) {
                 Object_SetFlagCF((s16)g_PathNodes[g_CurMonkey->f_F4].f_10 / 100, 4);
                 g_CurMonkey->f_7A = 0;
-                func_80052D04((s16)g_PathNodes[g_CurMonkey->f_F4].f_10 / 100, &g_CurMonkey->f_24);
+                Object_GetHomePos((s16)g_PathNodes[g_CurMonkey->f_F4].f_10 / 100, &g_CurMonkey->f_24);
                 Monkey_SetState(0x2B);
             }
         }
@@ -588,7 +588,7 @@ void Monkey_UpdateSlotStatus(void) {
 }
 
 /* Link_IsInDoneState: is link record idx in its "done" state? Reads its kind r[0] and state r[1]
- * (func_8005B7BC): kind 1: state 0 or 5; 0x65: state < 2 or == 5; 6: 3; 9/0x11/0x18: > 0;
+ * (Link_GetRecord): kind 1: state 0 or 5; 0x65: state < 2 or == 5; 6: 3; 9/0x11/0x18: > 0;
  * 0x31: 0; others: 2. Used by Monkey_CanDoAction for actions flagged 0x40/0x80. */
 s32 Link_IsInDoneState(s32 idx) {
     s16 r[4];
@@ -596,7 +596,7 @@ s32 Link_IsInDoneState(s32 idx) {
     u16 ok;
     s32 want;
 
-    if (func_8005B7BC(idx, r) == -1) {
+    if (Link_GetRecord(idx, r) == -1) {
         goto miss;
     }
     ok = 1;
@@ -836,7 +836,7 @@ s32 Monkey_IsStunned(void) {
     return var_a0;
 }
 
-/* Fires an enemy shot of type k (func_80059304) from g_CurMonkey: from its position, raised by
+/* Fires an enemy shot of type k (EnemyShot_Spawn) from g_CurMonkey: from its position, raised by
  * 200 except for types 3 and 4, aimed at g_MonkeyTarget. Type 6 cycles through the five aim
  * patterns (g_MissilePattern % 5) instead of passing the direction. */
 void Monkey_FireShot(s32 k) {
@@ -861,9 +861,9 @@ void Monkey_FireShot(s32 k) {
     d[1] = s->f_28 - g_CurMonkey->f_28;
     d[2] = s->f_2C - g_CurMonkey->f_2C;
     if (k == 6) {
-        func_80059304(v, g_CurMonkey, 6, (u8)(g_MissilePattern++ % 5));
+        EnemyShot_Spawn(v, g_CurMonkey, 6, (u8)(g_MissilePattern++ % 5));
     } else {
-        func_80059304(v, g_CurMonkey, k, (s32)d);
+        EnemyShot_Spawn(v, g_CurMonkey, k, (s32)d);
     }
 }
 
@@ -883,7 +883,7 @@ extern M_80033E4C *g_MonkeyTarget_33E4C asm("g_MonkeyTarget");
 #define TG_33E4C g_MonkeyTarget_33E4C
 void VectorNormalSS_33E4C(SV_80033E4C *, SV_80033E4C *) asm("VectorNormalSS");
 void Monkey_QueueSound(s32, s32);
-void func_80059304_33E4C(SV_80033E4C *, M_80033E4C *, s32, SV_80033E4C *) asm("func_80059304");
+void func_80059304_33E4C(SV_80033E4C *, M_80033E4C *, s32, SV_80033E4C *) asm("EnemyShot_Spawn");
 int abs(int);
 
 void Monkey_AimAndShoot(mode)
@@ -962,13 +962,13 @@ void Monkey_DropWhileRunning(s16 k) {
     v[1] = g_CurMonkey->f_28 - 200;
     v[2] = g_CurMonkey->f_2C;
     if (k == 6) {
-        func_80059304(v, g_CurMonkey, 10, (s16 *)(u16)((u16)Monkey_Rand() % 3));
+        EnemyShot_Spawn(v, g_CurMonkey, 10, (s16 *)(u16)((u16)Monkey_Rand() % 3));
     } else {
         /* the original writes all three deltas to d[0] */
         d[0] = g_MonkeyTarget->f_24 - g_CurMonkey->f_24;
         d[0] = g_MonkeyTarget->f_28 - g_CurMonkey->f_28;
         d[0] = g_MonkeyTarget->f_2C - g_CurMonkey->f_2C;
-        func_80059304(v, g_CurMonkey, 5, d);
+        EnemyShot_Spawn(v, g_CurMonkey, 5, d);
     }
     Monkey_QueueSound(0x49, 0);
     M2C_FIELD(g_CurMonkey, s16 *, 0x150) = 10;
@@ -993,7 +993,7 @@ void Monkey_ThrowCoconut(void) {
     d[0] = g_MonkeyTarget->f_24 - m->f_24;
     d[0] = g_MonkeyTarget->f_28 - m->f_28;
     d[0] = g_MonkeyTarget->f_2C - m->f_2C;
-    func_80059304(p, m, 8, d);
+    EnemyShot_Spawn(p, m, 8, d);
     Monkey_QueueSound(0x49, 0);
     g_CurMonkey->f_222--;
 }
@@ -1152,7 +1152,7 @@ s32 Monkey_ShouldStopAtNode(s16 k) {
     if ((f & 0x8000) && ((S_M_80034A2C_80034A2C *)g_CurMonkey)->f_20C >= 0x5DD) {
         goto yes;
     }
-    if (!(f & 0x10000) || func_80052C4C(g_PathNodes[k].f_10) != 2) {
+    if (!(f & 0x10000) || Object_GetStatus(g_PathNodes[k].f_10) != 2) {
         goto end;
     }
 yes:
@@ -1420,7 +1420,7 @@ s32 Monkey_BoardVehicle(void) {
     { s32 z = v.z; (*(M_3581C_8003581C * *)&g_CurMonkey)->f_240 = d[0]; (*(M_3581C_8003581C * *)&g_CurMonkey)->f_23C = z; }
     Monkey_SpawnRunDust();
     if (prev != 0x1E && prev != 0x20) {
-        (*(M_3581C_8003581C * *)&g_CurMonkey)->f_15C = func_800882C4(1, 0x6050, (*(M_3581C_8003581C * *)&g_CurMonkey)->f_7C);
+        (*(M_3581C_8003581C * *)&g_CurMonkey)->f_15C = Sound_PlayTagged(1, 0x6050, (*(M_3581C_8003581C * *)&g_CurMonkey)->f_7C);
     }
     do { return 1; } while (0);
 }
@@ -1513,7 +1513,7 @@ void Monkey_StartHitReaction(s16 st) {
     b.vx = g_CurMonkey->f_24;
     b.vy = g_CurMonkey->f_28 - 0x80;
     b.vz = g_CurMonkey->f_2C;
-    func_8006B3CC(&b);
+    Fx_SpawnHitSpark(&b);
 }
 
 void func_80035D18(void) {
@@ -2277,7 +2277,7 @@ s32 Monkey_AvoidConeAngle(void) {
  * action's requirement flags and a parameter, then each flag is checked: 0x40/0x80 a condition
  * (Link_IsInDoneState) that must hold / must not hold, 0x400 the target within `param` distance,
  * 0x1000 sub-state f_7C == param, 0x200000 / 0x400000 f_79 must / must not be 1, 0x40000
- * func_80052C4C(param) != 1, and actions flagged 0x100 only for the monkey's own action f_E6. */
+ * Object_GetStatus(param) != 1, and actions flagged 0x100 only for the monkey's own action f_E6. */
 s32 Monkey_CanDoAction(s32 a, s32 act)
 {
   V4_80037E8C_80037E8C tgt;
@@ -2325,7 +2325,7 @@ s32 Monkey_CanDoAction(s32 a, s32 act)
   {
     return 0;
   }
-  if ((f & 0x40000) && (func_80052C4C(param) == 1))
+  if ((f & 0x40000) && (Object_GetStatus(param) == 1))
   {
     return 0;
   }
@@ -3108,12 +3108,12 @@ void Monkey_Draw(void) {
             if (CM->f_78 == 0x1A) {
                 mdl = &D_800EC180;
                 if (CM->f_160 == -1) {
-                    CM->f_160 = func_800882C4(1, 0x602D, CM->f_7C);
+                    CM->f_160 = Sound_PlayTagged(1, 0x602D, CM->f_7C);
                 }
             } else {
                 mdl = &D_800EC0C0;
                 if (CM->f_160 != -1) {
-                    func_800880D0(0x602D, CM->f_160);
+                    Sound_StopAndForget(0x602D, CM->f_160);
                     CM->f_160 = -1;
                 }
             }
@@ -3990,7 +3990,7 @@ void Monkey_UpdateSpeed_3CD84(void) asm("Monkey_UpdateSpeed");
 void func_80038FD8_3CD84(void) asm("Monkey_SpawnSmokeBurst");
 s32 Vec_Dist_3CD84(V_3CD84 *, V_3CD84 *) asm("Vec_Dist");
 s32 Vec_DistXZ_3CD84(V_3CD84 *, V_3CD84 *) asm("Vec_DistXZ");
-void func_800880D0_3CD84(s32, s32) asm("func_800880D0");
+void func_800880D0_3CD84(s32, s32) asm("Sound_StopAndForget");
 u8 Monkey_ChooseRoute_3CD84(s16, s16) asm("Monkey_ChooseRoute");
 s32 func_800339EC_3CD84(void) asm("Stage_IsRaceOrBoss");
 s32 func_80033BE0_3CD84(void) asm("Monkey_IsNodeAnim");
@@ -4249,7 +4249,7 @@ void func_800355DC_t(u16) asm("Monkey_UpdateGoal");
  * 0x1C, 0x21, 0x22, 0x26-0x2B, 0x37, 0x38, 0x42).
  * - On a node flagged 0x400 (states 0x29-0x2B move between two linked nodes): tracks whether it
  *   still sees its target (+0x79, +0x249 give-up counter), re-places itself on the link or swaps
- *   +0xF2/+0xF4 when func_80052C4C says so, and state 0x2A drops along an arc onto the floor
+ *   +0xF2/+0xF4 when Object_GetStatus says so, and state 0x2A drops along an arc onto the floor
  *   (then 0x2B). On a node flagged 0x40 it snaps to its stage object.
  * - State 1 (idle) counts down +0x9A, then picks 0xD/0x10/0x13/0x3A, by the direction to Spike
  *   (+0x21C) when alerted (bit 19 of +0x248, or randomly when close), else at random.
@@ -4294,7 +4294,7 @@ void Monkey_StateInPlace(void) {
             }
         }
         if (CM->state == 0x29 || STF(CM->state)) {
-            if (func_80052C4C((s16)NODE(CM->f_F2).f_10 / 100) == 1) {
+            if (Object_GetStatus((s16)NODE(CM->f_F2).f_10 / 100) == 1) {
                 Monkey_StartDrop();
                 t = CM->f_F2;
                 CM->f_F2 = CM->f_F4;
@@ -4413,7 +4413,7 @@ void Monkey_StateInPlace(void) {
         }
         f2 = NODE(CM->f_F4).f_0;
         if (f2 & 0x10000) {
-            if (func_80052C4C(NODE(CM->f_F4).f_10) == 2 || func_80052C4C(NODE(CM->f_F4).f_10) == 1) {
+            if (Object_GetStatus(NODE(CM->f_F4).f_10) == 2 || Object_GetStatus(NODE(CM->f_F4).f_10) == 1) {
                 goto pick;
             }
             if ((NODE(CM->f_F4).f_0 & 0x10000) && (u16)Monkey_Rand() % 20 == 0) {
@@ -4477,7 +4477,7 @@ void Monkey_StateInPlace(void) {
     } else {
         mm = CM;
         if ((f = NODE(mm->f_F4).f_0) & 0x10000) {
-            if (func_80052C4C(NODE(mm->f_F4).f_10) == 2) {
+            if (Object_GetStatus(NODE(mm->f_F4).f_10) == 2) {
                 Monkey_PickNextAction();
             }
         } else {
@@ -4506,7 +4506,7 @@ void Monkey_StateInPlace(void) {
                 ((f & 4) && mm->f_22C == 0) ||
                 ((NODE(CM->f_F4).f_0 & 8) && !Stage_IsRaceOrBoss() && CM->f_20C < NODE(CM->f_F4).f_10) ||
                 ((NODE(CM->f_F4).f_0 & 0x8000) && CM->f_20C >= 0x5DD) ||
-                ((NODE(CM->f_F4).f_0 & 0x10000) && func_80052C4C(NODE(CM->f_F4).f_10) == 2) ||
+                ((NODE(CM->f_F4).f_0 & 0x10000) && Object_GetStatus(NODE(CM->f_F4).f_10) == 2) ||
                 (CM->f_79 == 1 && !STF(CM->state) && !Node_IsStopPoint(CM->f_F4)) ||
                 (CM->state != 0x37 && !(NODE(CM->f_F4).f_0 & 0x10000) && !Node_IsStopPoint(CM->f_F4) &&
                  (g_MonkeyFrame + CM->f_7C + 3) % 150 == 0 && !Monkey_CanSeeTarget(1)) ||
@@ -5276,7 +5276,7 @@ s32 Monkey_NodeEvents(s16 node)
       g_CurMonkey->f_79 = 0;
     }
     else
-      if ((g_PathNodes[node].f_0 & 0x10000) && (func_80052C4C(((s16) g_PathNodes[g_CurMonkey->f_F4].f_10) / 100) != 2))
+      if ((g_PathNodes[node].f_0 & 0x10000) && (Object_GetStatus(((s16) g_PathNodes[g_CurMonkey->f_F4].f_10) / 100) != 2))
     {
       g_CurMonkey->f_248 |= 0x400000;
       Monkey_SetState(0);
@@ -5880,14 +5880,14 @@ void Monkey_UpdateActive(void) {
             || (s32)fl < 0 || (m->f_228 & 0x4000) || m == 0 || m->f_7A == 2
             || Monkey_IsOffScreen() != 0) {
             if (D_800F4350.f_126 == 0x24 && (*(M42B68_80042B68 * *)&g_CurMonkey)->f_160 != -1) {
-                func_800880D0(0x602D, (*(M42B68_80042B68 * *)&g_CurMonkey)->f_160);
+                Sound_StopAndForget(0x602D, (*(M42B68_80042B68 * *)&g_CurMonkey)->f_160);
                 (*(M42B68_80042B68 * *)&g_CurMonkey)->f_160 = -1;
             }
             continue;
         }
         if (D_800AEB58 == 2) {
-            func_8008C3C0((*(M42B68_80042B68 * *)&g_CurMonkey)->f_80, (*(M42B68_80042B68 * *)&g_CurMonkey)->f_82);
-            func_8008CBFC(D_800A4BBC, (*(M42B68_80042B68 * *)&g_CurMonkey)->f_7C);
+            DebugFont_SetPos((*(M42B68_80042B68 * *)&g_CurMonkey)->f_80, (*(M42B68_80042B68 * *)&g_CurMonkey)->f_82);
+            DebugFont_PrintfAlways(D_800A4BBC, (*(M42B68_80042B68 * *)&g_CurMonkey)->f_7C);
         }
         if ((g_MonkeyFrame + (*(M42B68_80042B68 * *)&g_CurMonkey)->f_7B) % 3 == 0) {
             Monkey_UpdateLod();

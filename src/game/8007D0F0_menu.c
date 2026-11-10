@@ -12,20 +12,20 @@ typedef struct { s32 vx, vy, vz, pad; } V_7F5E4_8007F5E4;
 
 extern M2C_UNK g_GadgetState;
 
-void func_8005DD28(void);
+void Timer_Stop(void);
 
-void func_8007D110(void);
-s32 func_8007D118(void *p, s32 size);
+void DebugItem_NopCallback(void);
+s32 DebugItem_ReadValue(void *p, s32 size);
 
-M2C_UNK func_800864B4(s32 *);
+M2C_UNK Sound_GetVolumes(s32 *);
 extern s32 D_800BEF90;
 
-extern s16 D_800BEF60;
+extern s16 DebugMenu_Count;
 extern s16 D_800BEF62;
 extern s16 D_800BEF64;
 extern s32 g_CheatInput;
-extern struct S_D_800BEF74 { s8 f_0; u8 f_1; s16 f_2; } D_800BEF74;
-extern M2C_UNK D_800BEF78;
+extern struct S_D_800BEF74 { s8 f_0; u8 f_1; s16 f_2; } g_PauseState;
+extern M2C_UNK PauseBg_Blur;
 M2C_UNK Gfx_WaitFlip();
 M2C_UNK Gadget_StopSounds(s8);
 s32 PauseMenu_Update();
@@ -42,19 +42,19 @@ struct S_D_800EC1E0_8007F40C { u8 pad0[0x148]; s16 f_148; };
 extern u32 g_CheatCodes[];
 void Sound_PlayFixed();
 extern u8 D_800B2734[];
-void func_8007F8F4(s32);
+void PauseBg_BlurRow(s32);
 struct S_D_800BEF78_8007F9D0 { s32 done; s32 n; };
-extern struct S_D_800B264C { s16 x, y, x2, y2; u8 pad8[4]; } D_800B264C[];
+extern struct S_D_800B264C { s16 x, y, x2, y2; u8 pad8[4]; } PauseMenu_Icons[];
 struct Game_82A04 { u8 pad0[0x816A]; u16 f_816A; };
 extern u8 D_800B26D0[];
 extern u8 D_800B269C[];
 void Menu_DrawSpinningModel(s32 x, s32 y);
 void Text_Draw(u8 *, s32, s32, s32);
 void Menu_DrawWindow(s32, s32, s32, s32);
-s32 func_80096580(s32);
+s32 World_GetProgress(s32);
 s32 Save_GetCurrentCompletion(void);
-void func_8008DDB0(s32, s32);
-void func_8008DDC8(u8 *);
+void Msg_SetPos(s32, s32);
+void Msg_DrawString(u8 *);
 struct Game_828F8 { s32 frame; s32 f_4; u32 *ot; };
 extern u8 g_ProjVerts[];
 extern u8 D_800F4D00[];
@@ -70,22 +70,22 @@ void Model_DrawEnvMapped(u32 *, u8 *, void *);
 struct Game_7F5E4 { s32 frame; s32 prim; };
 extern s16 D_800BEF76;
 extern struct S_D_800F4CA0 { u8 b[16]; } D_800F4CA0[];
-extern s32 D_800EC354;
-s32 func_80082030(s32 a);
+extern s32 g_GamePrim;
+s32 PauseMenu_ItemEnabled(s32 a);
 void Model_DrawOnScreen(struct S_D_800F4CA0 *, SV_7F5E4_8007F5E4 *, SV_7F5E4_8007F5E4 *, V_7F5E4_8007F5E4 *);
 
 INCLUDE_RODATA("asm/nonmatchings/game/8007D0F0_menu", D_800A60B0);
 
-void func_8007D0F0(void) {
-    D_800BEF60 = 0;
+void DebugMenu_Init(void) {
+    DebugMenu_Count = 0;
     D_800BEF62 = 0;
     D_800BEF64 = 1;
 }
 
-void func_8007D110(void) {
+void DebugItem_NopCallback(void) {
 }
 
-s32 func_8007D118(void *p, s32 size) {
+s32 DebugItem_ReadValue(void *p, s32 size) {
     switch (size) {
     case 0:
         return *(s8 *)p;
@@ -98,7 +98,7 @@ s32 func_8007D118(void *p, s32 size) {
     }
 }
 
-void func_8007D188(void *p, s32 v, s32 size) {
+void DebugItem_WriteValue(void *p, s32 v, s32 size) {
     switch (size) {
     case 1:
         *(s16 *)p = v;
@@ -115,19 +115,19 @@ void func_8007D188(void *p, s32 v, s32 size) {
 
 void DebugItem_Init(S_7D23C *s, s32 a, s32 b) {
     s->unk20 = b;
-    s->unkC = func_8007D110;
+    s->unkC = DebugItem_NopCallback;
     s->unk8 = a;
-    s->unk18 = func_8007D118(a, b);
+    s->unk18 = DebugItem_ReadValue(a, b);
     s->unk10 = -9999;
     s->unk14 = 9999;
     s->unk1C = 1;
 }
 
-void func_8007D23C(S_7D23C *s, s32 a, s32 b) {
+void DebugItem_InitToggle(S_7D23C *s, s32 a, s32 b) {
     s->unk20 = b;
-    s->unkC = func_8007D110;
+    s->unkC = DebugItem_NopCallback;
     s->unk8 = a;
-    s->unk18 = func_8007D118(a, b);
+    s->unk18 = DebugItem_ReadValue(a, b);
     s->unk1C = 1;
     s->unk10 = 0;
     s->unk14 = 1;
@@ -138,15 +138,15 @@ void DebugItem_SetRange(void *arg0, s32 arg1, s32 arg2) {
     M2C_FIELD(arg0, s32 *, 0x14) = arg2;
 }
 
-void func_8007D29C(void *arg0, s32 arg1) {
+void DebugItem_SetCallback(void *arg0, s32 arg1) {
     M2C_FIELD(arg0, s32 *, 0xC) = arg1;
 }
 
-void func_8007D2A4(void *arg0, s32 arg1) {
+void DebugItem_SetStep(void *arg0, s32 arg1) {
     M2C_FIELD(arg0, s32 *, 0x1C) = arg1;
 }
 
-s32 func_8007D2AC(u8 *arg0) {
+s32 DebugMenu_TextLen(u8 *arg0) {
     u8 *p = arg0;
 
     if (*arg0 == 0x60) {
@@ -160,11 +160,11 @@ s32 func_8007D2AC(u8 *arg0) {
 typedef struct { u16 flags; u8 pad2[2]; u8 *text; u8 pad8[0x1C]; } MenuItem_8007D2D8;
 typedef struct { s16 x; s16 y; MenuItem_8007D2D8 *items; } MenuDef_8007D2D8;
 typedef struct { MenuDef_8007D2D8 def; s16 w; s16 h; u8 f_C; u8 f_D; s8 n; s8 sel; s16 f_10; s16 f_12; s16 f_14; s16 f_16; s16 f_18; s16 f_1A; s16 f_1C; s8 f_1E; u8 f_1F; u8 pad20[2]; s16 f_22; s16 f_24; u8 pad26[6]; } Menu_8007D2D8;
-extern u16 D_800BEF60_7D2D8 asm("D_800BEF60");
-extern Menu_8007D2D8 D_800F5270[];
-s32 func_8007D2AC(u8 *arg0);
+extern u16 D_800BEF60_7D2D8 asm("DebugMenu_Count");
+extern Menu_8007D2D8 g_DebugMenus[];
+s32 DebugMenu_TextLen(u8 *arg0);
 
-s32 func_8007D2D8(MenuDef_8007D2D8 *def) {
+s32 DebugMenu_Open(MenuDef_8007D2D8 *def) {
     MenuItem_8007D2D8 *it = def->items;
     s32 maxw = 0;
     s32 w;
@@ -173,7 +173,7 @@ s32 func_8007D2D8(MenuDef_8007D2D8 *def) {
     if (D_800BEF60_7D2D8 >= 6) {
         return -1;
     }
-    m = &D_800F5270[D_800BEF60_7D2D8];
+    m = &g_DebugMenus[D_800BEF60_7D2D8];
     m->def = *def;
     m->f_C = 1;
     m->f_D = 2;
@@ -187,7 +187,7 @@ s32 func_8007D2D8(MenuDef_8007D2D8 *def) {
     m->f_1C = 0x5C2;
     m->n = 0;
     while (it->flags != 0) {
-        w = func_8007D2AC(it->text);
+        w = DebugMenu_TextLen(it->text);
         if (it->flags & 0x6000) {
             w += 5;
         }
@@ -237,10 +237,10 @@ typedef struct { s16 vx, vy, vz, pad; } SVec_d530;
 typedef struct { s32 vx, vy, vz, pad; } Vec_d530;
 extern Game_d530 g_Game_d530 asm("g_Game");
 extern Pad_d530 g_Pad_d530 asm("g_Pad");
-extern u16 D_800BEF60_d530 asm("D_800BEF60");
+extern u16 D_800BEF60_d530 asm("DebugMenu_Count");
 extern u16 D_800BEF62_d530 asm("D_800BEF62");
 extern u16 D_800BEF64_d530 asm("D_800BEF64");
-extern Menu_d530 D_800F5270_d530[] asm("D_800F5270");
+extern Menu_d530 D_800F5270_d530[] asm("g_DebugMenus");
 extern Item_d530 D_800B21D0[];
 extern u8 D_800F4C50[];
 extern char D_800A60B4[];
@@ -248,16 +248,16 @@ extern char D_800A60BC[];
 extern char D_800A60C0[];
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-void func_8008C390(void);
+void DebugFont_Init(void);
 s32 Stage_UpdateAreaState(void);
 void SetDrawMove(void *p, void *rect, s32 x, s32 y);
 void SetDrawArea(void *p, void *r);
 void SetDrawTPage(void *p, s32 dfe, s32 dtd, s32 tpage);
 void DrawPrim(void *p);
-void func_8008C3C0(s32, s32);
+void DebugFont_SetPos(s32, s32);
 void DebugFont_Printf(char *, ...);
-void func_8007D188(void *p, s32 v, s32 size);
-s32 func_8007D2D8_d530(MenuDef_d530 *def) asm("func_8007D2D8");
+void DebugItem_WriteValue(void *p, s32 v, s32 size);
+s32 func_8007D2D8_d530(MenuDef_d530 *def) asm("DebugMenu_Open");
 s32 Game_SetMode(s32, s32, s32);
 void Sound_PlayFixed_d530(s32) asm("Sound_PlayFixed");
 void RotMatrixZYX_d530(SVec_d530 *, Mat_d530 *) asm("RotMatrixZYX");
@@ -276,7 +276,7 @@ void DrawOTag_d530(u32 *) asm("DrawOTag");
 #define PFT4_d530 ((PolyFT4_d530 *)G_d530.prim)
 #define SPRT_d530 ((Sprt_d530 *)G_d530.prim)
 
-void func_8007D530(void) {
+void DebugMenu_Update(void) {
     s32 i;
     s16 clipy, dispy;
     s32 cur;
@@ -308,7 +308,7 @@ void func_8007D530(void) {
         m = D_800F5270_d530;
         G_d530.frame++;
         Gfx_BeginFrame();
-        func_8008C390();
+        DebugFont_Init();
         Stage_UpdateAreaState();
         for (i = 0; i < D_800BEF60_d530; i++, m++) {
             if (m->state == 0) continue;
@@ -456,7 +456,7 @@ void func_8007D530(void) {
                 ADDP_d530(0xFFA);
                 G_d530.prim += 0x18;
                 for (j = 0; j < m->n; j++) {
-                    func_8008C3C0(m->x + m->tx, m->y + (m->ty + j * 10) * m->open / m->h);
+                    DebugFont_SetPos(m->x + m->tx, m->y + (m->ty + j * 10) * m->open / m->h);
                     if (m->items[j].ptr == NULL && (m->items[j].flags & 0x8000)) {
                         DebugFont_Printf(D_800A60B4, m->items[j].text);
                     } else {
@@ -503,11 +503,11 @@ void func_8007D530(void) {
                 G_d530.prim += 0x18;
                 for (j = 0; j < m->n; j++) {
                     Item_d530 *it = &m->items[j];
-                    func_8008C3C0(m->x + m->tx, m->y + m->ty + j * 10);
+                    DebugFont_SetPos(m->x + m->tx, m->y + m->ty + j * 10);
                     switch (it->flags) {
                     case 0xC005:
                     case 0xC008:
-                        DebugFont_Printf(D_800A60C0, it->text, func_8007D118(it->ptr, it->size));
+                        DebugFont_Printf(D_800A60C0, it->text, DebugItem_ReadValue(it->ptr, it->size));
                         break;
                     case 0x2006:
                         DebugFont_Printf(D_800A60C0, it->text, m->val);
@@ -550,10 +550,10 @@ void func_8007D530(void) {
                                 if (pad & 8) st += st * 9;
                                 v = st;
                                 if (!(pad & 0x2000)) v = -v;
-                                v = v + func_8007D118(it->ptr, it->size) / v * v;
+                                v = v + DebugItem_ReadValue(it->ptr, it->size) / v * v;
                                 if (v < m->items[m->sel].min) v = m->items[m->sel].max;
                                 else if (m->items[m->sel].max < v) v = m->items[m->sel].min;
-                                func_8007D188(m->items[m->sel].ptr, v, m->items[m->sel].size);
+                                DebugItem_WriteValue(m->items[m->sel].ptr, v, m->items[m->sel].size);
                                 if (m->items[m->sel].flags != 0xC008) {
                                     s32 res = m->items[m->sel].cb(v);
                                     if (res == 1) {
@@ -577,7 +577,7 @@ void func_8007D530(void) {
                         case 0x8007:
                         case 0xC008:
                             if (m->items[m->sel].cb != NULL) {
-                                s32 res = m->items[m->sel].cb(func_8007D118(m->items[m->sel].ptr, m->items[m->sel].size));
+                                s32 res = m->items[m->sel].cb(DebugItem_ReadValue(m->items[m->sel].ptr, m->items[m->sel].size));
                                 if (res == 1) {
                                     m->redraw = res;
                                     m->mode = res;
@@ -615,7 +615,7 @@ void func_8007D530(void) {
                         }
                     }
                     if (g_Pad_d530.trig & g_Pad_d530.held & 2) {
-                        func_8007D188(m->items[m->sel].ptr, m->items[m->sel].def, m->items[m->sel].size);
+                        DebugItem_WriteValue(m->items[m->sel].ptr, m->items[m->sel].def, m->items[m->sel].size);
                     }
                     m->cx = m->x + m->tx - 0xE;
                     m->cy = m->y + m->ty + m->sel * 10;
@@ -675,7 +675,7 @@ INCLUDE_RODATA("asm/nonmatchings/game/8007D0F0_menu", D_800A60BC);
 INCLUDE_RODATA("asm/nonmatchings/game/8007D0F0_menu", D_800A60C0);
 
 
-void func_8007F400(void) {
+void Cheat_ResetInput(void) {
     g_CheatInput = 0;
 }
 
@@ -744,32 +744,32 @@ void Cheat_CheckCodes(void) {
 
 
 
-void func_8007F560(s8 arg0) {
-    D_800BEF74.f_0 = arg0;
+void Pause_SetState(s8 arg0) {
+    g_PauseState.f_0 = arg0;
 }
 
-void func_8007F56C(s32 a) {
-    D_800BEF74.f_1 = 0;
-    func_8007F400();
+void Pause_Open(s32 a) {
+    g_PauseState.f_1 = 0;
+    Cheat_ResetInput();
     if (a != 1) {
         a = 1;
-        D_800BEF74.f_1 = 1;
-        D_800BEF74.f_2 = a;
+        g_PauseState.f_1 = 1;
+        g_PauseState.f_2 = a;
     } else {
-        D_800BEF74.f_2 = 0xF;
-        func_8005DD28();
+        g_PauseState.f_2 = 0xF;
+        Timer_Stop();
     }
-    D_800BEF74.f_0 = a;
+    g_PauseState.f_0 = a;
 }
 
-s8 func_8007F5D4(void) {
-    return D_800BEF74.f_0;
+s8 Pause_GetState(void) {
+    return g_PauseState.f_0;
 }
 
 /* Pause menu: draws menu model D_800F4CA0[kind 0/1/2 -> 2/3/1, else 0] at screen offset (x, y) from
  * the centre into the primitive buffer prim, returning the new buffer end. mode >= 0 spins it with
- * the frame counter. The pause state D_800BEF74 sets the scale: 2 shrinks the menu in (also pulling
- * x, y in), 1 and 3 scale by the timer f_2 (mode -1 grows instead). If func_80082030 says the
+ * the frame counter. The pause state g_PauseState sets the scale: 2 shrinks the menu in (also pulling
+ * x, y in), 1 and 3 scale by the timer f_2 (mode -1 grows instead). If PauseMenu_ItemEnabled says the
  * item is unavailable here, 0x1F8003C8 is set (drawn dimmed) and it does not spin. */
 s32 PauseMenu_DrawItemModel(s32 x, s32 y, s32 kind, s32 mode, s32 prim) {
     SV_7F5E4_8007F5E4 pos;
@@ -789,9 +789,9 @@ s32 PauseMenu_DrawItemModel(s32 x, s32 y, s32 kind, s32 mode, s32 prim) {
         rot.vy = 0;
         rot.vz = 0;
     }
-    switch (D_800BEF74.f_0) {
+    switch (g_PauseState.f_0) {
     case 1:
-        u = 0x1000 - (D_800BEF74.f_2 << 8);
+        u = 0x1000 - (g_PauseState.f_2 << 8);
         scale.vx = u;
         scale.vy = u;
         scale.vz = u;
@@ -806,7 +806,7 @@ s32 PauseMenu_DrawItemModel(s32 x, s32 y, s32 kind, s32 mode, s32 prim) {
         scale.vz = t;
         break;
     case 2:
-        s = 0x1000 - (D_800BEF74.f_2 << 6);
+        s = 0x1000 - (g_PauseState.f_2 << 6);
         if (s < 0x800) {
             s = 0x800;
         }
@@ -820,7 +820,7 @@ s32 PauseMenu_DrawItemModel(s32 x, s32 y, s32 kind, s32 mode, s32 prim) {
     pos.vx = x + 0xC0;
     pos.vy = y + 0x78;
     pos.vz = 0x148;
-    D_800EC354 = prim;
+    g_GamePrim = prim;
     switch (kind) {
     case 0:
         kind = 2;
@@ -835,7 +835,7 @@ s32 PauseMenu_DrawItemModel(s32 x, s32 y, s32 kind, s32 mode, s32 prim) {
         kind = 0;
         break;
     }
-    if (func_80082030(kind)) {
+    if (PauseMenu_ItemEnabled(kind)) {
         *(s32 *)(sp + 0x3C8) = 0;
     } else {
         *(s32 *)(sp + 0x3C8) = 1;
@@ -844,15 +844,15 @@ s32 PauseMenu_DrawItemModel(s32 x, s32 y, s32 kind, s32 mode, s32 prim) {
         rot.vz = 0;
     }
     Model_DrawOnScreen(&D_800F4CA0[kind], &pos, &rot, &scale);
-    return D_800EC354;
+    return g_GamePrim;
 }
 
-void func_8007F830(void) {
-    M2C_FIELD(&D_800BEF78, s32 *, 0) = 0;
-    M2C_FIELD(&D_800BEF78, s32 *, 4) = 0xEF;
+void PauseBg_ResetBlur(void) {
+    M2C_FIELD(&PauseBg_Blur, s32 *, 0) = 0;
+    M2C_FIELD(&PauseBg_Blur, s32 *, 4) = 0xEF;
 }
 
-void func_8007F848(void) {
+void PauseBg_Upload(void) {
     RECT16_8007F848 r;
     s32 n = D_800BEF7C;
     r.x = 0;
@@ -872,7 +872,7 @@ void func_8007F848(void) {
 typedef struct { s16 off; s16 shift; } S_Tap_7F8F4;
 extern S_Tap_7F8F4 D_800B2704[9];
 
-void func_8007F8F4(s32 row)
+void PauseBg_BlurRow(s32 row)
 {
   u16 *p = ((u16 *) 0x801A8002) + (row * 0x180);
   s32 x;
@@ -913,30 +913,30 @@ void func_8007F8F4(s32 row)
 
 }
 
-void func_8007F9D0(void) {
+void PauseBg_BlurStep(void) {
     s32 i;
     s32 lim;
-    if (((struct S_D_800BEF78_8007F9D0 *)&D_800BEF78)->done == 0) {
-        i = ((struct S_D_800BEF78_8007F9D0 *)&D_800BEF78)->n;
+    if (((struct S_D_800BEF78_8007F9D0 *)&PauseBg_Blur)->done == 0) {
+        i = ((struct S_D_800BEF78_8007F9D0 *)&PauseBg_Blur)->n;
         lim = 0;
         if (i >= 4) {
             lim = i - 4;
         }
         for (; i >= lim; i--) {
-            func_8007F8F4(i);
+            PauseBg_BlurRow(i);
         }
-        ((struct S_D_800BEF78_8007F9D0 *)&D_800BEF78)->n = lim;
+        ((struct S_D_800BEF78_8007F9D0 *)&PauseBg_Blur)->n = lim;
         if (lim == 0) {
-            ((struct S_D_800BEF78_8007F9D0 *)&D_800BEF78)->done = 1;
+            ((struct S_D_800BEF78_8007F9D0 *)&PauseBg_Blur)->done = 1;
         }
     }
 }
 
 /* MATCH (r36): check_c MATCH + full SCUS link OK with both INCLUDE_RODATA deletions. Note: D_800F51C4 is g_GadgetState.owned (0x800F5120+0xA4). */
 void Cheat_CheckCodes(void);
-void func_8007F830(void);
-void func_8007F848(void);
-void func_8007F9D0(void);
+void PauseBg_ResetBlur(void);
+void PauseBg_Upload(void);
+void PauseBg_BlurStep(void);
 typedef struct { s16 x, y, w, h; } Rect_pm;
 typedef struct { s32 vx, vy, vz, pad; } Vec_pm;
 typedef struct { s16 vx, vy, vz, pad; } SVec_pm;
@@ -950,9 +950,9 @@ typedef struct { u8 b[16]; } Mdl_pm;
 typedef struct { u32 tag; u32 tpage; u8 r0, g0, b0, code; u32 xy; u32 uvc; u32 wh; } HiSpr_pm;
 extern Game_pm g_Game_pm asm("g_Game");
 extern Pad_pm g_Pad_pm asm("g_Pad");
-extern Pause_pm D_800BEF74_pm asm("D_800BEF74");
+extern Pause_pm D_800BEF74_pm asm("g_PauseState");
 extern GState_pm g_GadgetState_pm asm("g_GadgetState");
-extern HudSt_pm D_800F4DB0;
+extern HudSt_pm g_HudState;
 extern u8 *D_800B25A0[][5];
 extern Mdl_pm g_GadgetModels[];
 extern struct S_D_800AF0A0 D_800E78C0_pm asm("g_ViewMatrix");
@@ -968,34 +968,34 @@ void *PutDrawEnv_pm(void *) asm("PutDrawEnv");
 s32 StoreImage_pm(void *, u32 *) asm("StoreImage");
 u32 *ClearOTagR_pm(u32 *, s32) asm("ClearOTagR");
 void DrawOTag_pm(u32 *) asm("DrawOTag");
-s32 func_8008C09C(s32);
-void func_8008C064(s32);
-void func_80095244(s32, void *);
-void func_80095600(s32, s32);
-void func_800958C0(s32);
+s32 Mem_AllocPages(s32);
+void Mem_Free(s32);
+void Hud_ShowMonkeyHeads(s32, void *);
+void Hud_ShowLives(s32, s32);
+void Hud_ShowChips(s32);
 s32 Game_IsTimed(void);
-void func_80081B9C(s32 mode);
+void PauseMenu_SetIconLayout(s32 mode);
 void func_8008227C(s32 arg0);
-void func_8005DD18(void);
+void Timer_Start(void);
 void Sound_PlayFixed_pm(s32) asm("Sound_PlayFixed");
-void func_80081D54(void);
+void PauseMenu_DrawIcons(void);
 s32 PauseMenu_DrawItemModel_pm(s32, s32, s32, s32, s32, u32 *) asm("PauseMenu_DrawItemModel");
-void func_80082D40(void);
+void OptionsMenu_Init(void);
 s32 Text_GetWidth(u8 *s);
 void Menu_DrawCaps(s32 x, s32 y, s32 w);
 void RotMatrixZ_pm(s32, void *) asm("RotMatrixZ");
 void RotMatrixY_pm(s32, void *) asm("RotMatrixY");
 void RotMatrixX_pm(s32, void *) asm("RotMatrixX");
 void ScaleMatrix_pm(void *, void *) asm("ScaleMatrix");
-s32 func_8008DE68_pm(u8 *, s32) asm("func_8008DE68");
+s32 func_8008DE68_pm(u8 *, s32) asm("Msg_GetWidthUntil");
 void MagicPunch_Draw(void *, s32, s32);
 void Radar_DrawModel(void *, void *, void *, s32);
 void Club_Draw(void *, s32, s32);
 void func_80017CD4_pm(u32 *, void *, void *) asm("Model_Draw");
 void Model_DrawWireframe(u32 *, void *, void *);
-s32 func_80066F50(void);
+s32 Spike_CanUseRadarView(void);
 s32 Gadget_Select(s32, s32);
-void func_80081144(s32, s8);
+void Gadget_ReplaceInSlots(s32, s8);
 void Hud_DrawGadgets(void);
 void SetPriority_pm(void *, s32, s32) asm("SetPriority");
 void Menu_DrawStatusScreen(void);
@@ -1003,18 +1003,18 @@ void PauseMenu_DrawStageInfo(void);
 s32 OptionsMenu_Update(void);
 void Hud_DrawTimerClock(s32, s32, s32);
 void Hud_DrawTime(s32, s32, u32);
-s32 func_8005DD34(void);
-void func_8005FFD4(s32);
+s32 TimeTrial_GetClockStop(void);
+void Hud_DrawClockStopBar(s32);
 void Hud_DrawMonkeyHeads(s32, s32);
 void Hud_DrawHealth(void);
 void Hud_DrawLivesIcon(s32, s32);
 void Hud_DrawBigDigit(s32, s32, s32);
 void Hud_DrawBigNumber(s32, s32, s32);
-void func_8005FD80(void);
+void Hud_DrawChipCounter(void);
 void Hud_UpdateStatusIcons(void);
 void Cd_Update(void);
 void bios_printf_pm(char *, ...) asm("bios_printf");
-void func_800729CC(void);
+void Pause_RestoreSounds(void);
 #define gte_SetGeomScreen_pm(h) __asm__ volatile ("ctc2 %0, $26" : : "r"(h))
 #define G_pm g_Game_pm
 #define PS_pm D_800BEF74_pm
@@ -1049,17 +1049,17 @@ s32 PauseMenu_Update(void) {
     r.y = (G_pm.cur != 0) << 8;
     StoreImage_pm(&r, (u32 *)0x801A8000);
     DrawSync_pm(0);
-    func_8007F830();
-    bufs[0] = func_8008C09C(0x9000);
-    bufs[1] = func_8008C09C(0x9000);
-    D_800F4DB0.f_20 |= 0x10;
-    func_80095244(1, &D_800F4DB0);
-    func_80095600(1, 0);
+    PauseBg_ResetBlur();
+    bufs[0] = Mem_AllocPages(0x9000);
+    bufs[1] = Mem_AllocPages(0x9000);
+    g_HudState.f_20 |= 0x10;
+    Hud_ShowMonkeyHeads(1, &g_HudState);
+    Hud_ShowLives(1, 0);
     if (Game_IsTimed() == 0) {
-        func_800958C0(1);
+        Hud_ShowChips(1);
     }
-    func_80081B9C(0);
-    func_80081B9C(1);
+    PauseMenu_SetIconLayout(0);
+    PauseMenu_SetIconLayout(1);
     func_8008227C(1);
     DrawSync_pm(0);
     VSync_pm(2);
@@ -1072,17 +1072,17 @@ s32 PauseMenu_Update(void) {
         *G_pm.db[G_pm.cur].hud = 0xFFFFFF;
         ot = G_pm.db[G_pm.cur].ot;
         G_pm.ot = ot;
-        func_8008C390();
+        DebugFont_Init();
         prim = G_pm.prim;
         if (PS_pm.f_1 != 0) {
             PS_pm.f_1 = 0;
-            if (func_80082030(0)) {
+            if (PauseMenu_ItemEnabled(0)) {
                 ret = 0;
                 sel = 0;
                 PS_pm.state = 10;
                 PS_pm.t = 0;
-                func_80081B9C(2);
-                func_8005DD18();
+                PauseMenu_SetIconLayout(2);
+                Timer_Start();
             } else {
                 PS_pm.t = 0xF;
                 PS_pm.state = 1;
@@ -1095,9 +1095,9 @@ s32 PauseMenu_Update(void) {
                 PS_pm.t++;
             }
             ret = 0;
-            func_8008DDB0(0x100, 0xAA);
-            func_8008DDC8(D_800B269C);
-            func_80081D54();
+            Msg_SetPos(0x100, 0xAA);
+            Msg_DrawString(D_800B269C);
+            PauseMenu_DrawIcons();
             prim = G_pm.prim;
             { s32 c;
             for (i = 0; i < 4; i++) {
@@ -1108,39 +1108,39 @@ s32 PauseMenu_Update(void) {
                 __asm__("" :: "r"(a), "r"(a), "r"(a));
                 prim = (u8 *)PauseMenu_DrawItemModel_pm(c, b / 74, i, PS_pm.t, (s32)prim, ot);
             }
-            if ((PAD_pm & 0x20) && ({ __asm__("" :: "r"(c)); func_80082030(2); })) {
+            if ((PAD_pm & 0x20) && ({ __asm__("" :: "r"(c)); PauseMenu_ItemEnabled(2); })) {
                 Sound_PlayFixed_pm(3);
                 PS_pm.state = 11;
                 PS_pm.t = 0;
-                func_80081B9C(3);
+                PauseMenu_SetIconLayout(3);
             }
             }
-            if ((PAD_pm & 0x80) && func_80082030(1)) {
+            if ((PAD_pm & 0x80) && PauseMenu_ItemEnabled(1)) {
                 Sound_PlayFixed_pm(3);
                 sel = 1;
                 PS_pm.state = 4;
                 PS_pm.t = 0;
-                func_80081B9C(4);
+                PauseMenu_SetIconLayout(4);
             }
             if (PAD_pm & 0x10) {
-                if (func_80082030(0)) {
+                if (PauseMenu_ItemEnabled(0)) {
                     ret = 0;
                     sel = 0;
                     PS_pm.state = 10;
                     PS_pm.t = 0;
-                    func_80081B9C(2);
+                    PauseMenu_SetIconLayout(2);
                     Sound_PlayFixed_pm(3);
                 }
             }
             if (PAD_pm & 0x40) {
-                if (func_80082030(3)) {
+                if (PauseMenu_ItemEnabled(3)) {
                     ret = 0;
                     sel = 0;
                     PS_pm.state = 12;
                     PS_pm.t = 0;
-                    func_80081B9C(5);
+                    PauseMenu_SetIconLayout(5);
                     Sound_PlayFixed_pm(3);
-                    func_80082D40();
+                    OptionsMenu_Init();
                 }
             }
             if (PAD_pm & 0xC00) {
@@ -1222,7 +1222,7 @@ s32 PauseMenu_Update(void) {
             Menu_DrawCaps(0xC0, sel * 20 + 0x8C, w);
             __asm__ volatile("lw %0, %1" : "=r"(prim) : "m"(G_pm.prim));
             Menu_DrawWindow(0x5C, 0x50, 0xC0, Game_IsTimed() ? 0x80 : 0x70);
-            func_80081D54();
+            PauseMenu_DrawIcons();
             prim = G_pm.prim;
             if (PAD_pm & 0x8F0) {
                 switch (sel) {
@@ -1242,13 +1242,13 @@ s32 PauseMenu_Update(void) {
                     Sound_PlayFixed_pm(3);
                     break;
                 }
-                func_80081B9C(1);
+                PauseMenu_SetIconLayout(1);
             }
             break;
         }
         case 10: {
             s32 pad;
-            func_8005DD18();
+            Timer_Start();
             G_pm.prim = prim;
             for (i = 0; i < 8; i++) {
                 s32 row, col, c3, r3; s16 cx; s16 cy;
@@ -1292,14 +1292,14 @@ s32 PauseMenu_Update(void) {
                         u8 **nm = (u8 **)((u8 *)D_800B25A0 + i * 20);
                         s32 w = func_8008DE68_pm(nm[0], 0);
                         w = w / 2 - 0x10;
-                        func_8008DDB0((s16)(cx - w), (s16)(cy + 0x20));
-                        func_8008DDC8(nm[0]);
-                        func_8008DDB0(0x10, 0xA8);
-                        func_8008DDC8(nm[1]);
-                        func_8008DDB0(0x10, 0xB8);
-                        func_8008DDC8(nm[2]);
-                        func_8008DDB0(0x10, 0xC8);
-                        func_8008DDC8(nm[3]);
+                        Msg_SetPos((s16)(cx - w), (s16)(cy + 0x20));
+                        Msg_DrawString(nm[0]);
+                        Msg_SetPos(0x10, 0xA8);
+                        Msg_DrawString(nm[1]);
+                        Msg_SetPos(0x10, 0xB8);
+                        Msg_DrawString(nm[2]);
+                        Msg_SetPos(0x10, 0xC8);
+                        Msg_DrawString(nm[3]);
                     }
                 } else {
                     sc.vx = 0x800;
@@ -1359,8 +1359,8 @@ s32 PauseMenu_Update(void) {
                     Model_DrawWireframe(ot, g_ProjVerts, g_GadgetModels);
                 }
             }
-            func_8008DDB0(0x114, 0x8A);
-            func_8008DDC8(D_800B269C);
+            Msg_SetPos(0x114, 0x8A);
+            Msg_DrawString(D_800B269C);
             prim = G_pm.prim;
             pad = PAD_pm;
             if (pad & 0xF000) {
@@ -1380,29 +1380,29 @@ s32 PauseMenu_Update(void) {
             f0:
                 if (pad & 0xF0) {
                     s32 snd;
-                    if (func_80066F50()) {
+                    if (Spike_CanUseRadarView()) {
                         if (pad & 0x10) {
                             if (!((1 << ret) & g_GadgetState_pm.owned)) goto bad;
                             if (g_CurrentGadget == g_GadgetState_pm.slot[0]) Gadget_Select(ret, g_CurrentGadget);
-                            func_80081144(ret, g_GadgetState_pm.slot[0]);
+                            Gadget_ReplaceInSlots(ret, g_GadgetState_pm.slot[0]);
                             snd = 0x24;
                             g_GadgetState_pm.slot[0] = ret;
                         } else if (pad & 0x80) {
                             if (!((1 << ret) & g_GadgetState_pm.owned)) goto bad;
                             if (g_CurrentGadget == g_GadgetState_pm.slot[1]) Gadget_Select(ret, g_CurrentGadget);
-                            func_80081144(ret, g_GadgetState_pm.slot[1]);
+                            Gadget_ReplaceInSlots(ret, g_GadgetState_pm.slot[1]);
                             snd = 0x24;
                             g_GadgetState_pm.slot[1] = ret;
                         } else if (pad & 0x20) {
                             if (!((1 << ret) & g_GadgetState_pm.owned)) goto bad;
                             if (g_CurrentGadget == g_GadgetState_pm.slot[2]) Gadget_Select(ret, g_CurrentGadget);
-                            func_80081144(ret, g_GadgetState_pm.slot[2]);
+                            Gadget_ReplaceInSlots(ret, g_GadgetState_pm.slot[2]);
                             snd = 0x24;
                             g_GadgetState_pm.slot[2] = ret;
                         } else if (pad & 0x40) {
                             if (!((1 << ret) & g_GadgetState_pm.owned)) goto bad;
                             if (g_CurrentGadget == g_GadgetState_pm.slot[3]) Gadget_Select(ret, g_CurrentGadget);
-                            func_80081144(ret, g_GadgetState_pm.slot[3]);
+                            Gadget_ReplaceInSlots(ret, g_GadgetState_pm.slot[3]);
                             snd = 0x24;
                             g_GadgetState_pm.slot[3] = ret;
                         } else {
@@ -1422,7 +1422,7 @@ s32 PauseMenu_Update(void) {
             G_pm.prim = prim;
             Hud_DrawGadgets();
             __asm__("addu %0,%1,$0" : "=r"(ret) : "r"(sel));
-            func_80081D54();
+            PauseMenu_DrawIcons();
             Menu_DrawWindow(8, 0x38, 0x100, 0x68);
             Menu_DrawWindow(8, 0xA2, 0x170, 0x40);
             prim = G_pm.prim;
@@ -1432,16 +1432,16 @@ s32 PauseMenu_Update(void) {
             if (PAD_pm & 0x800) {
                 PS_pm.state = 2;
                 PS_pm.t = 0x100;
-                func_80081B9C(1);
+                PauseMenu_SetIconLayout(1);
                 Sound_PlayFixed_pm(1);
-                func_8005DD28();
+                Timer_Stop();
             }
             if (PAD_pm & 0x100) {
                 ret = 0;
                 PS_pm.state = 3;
                 PS_pm.t = 0;
                 Sound_PlayFixed_pm(1);
-                func_8005DD28();
+                Timer_Stop();
             }
             break;
         }
@@ -1452,11 +1452,11 @@ s32 PauseMenu_Update(void) {
             } else {
                 PauseMenu_DrawStageInfo();
             }
-            func_80081D54();
+            PauseMenu_DrawIcons();
             if (PAD_pm & 0x8F0) {
                 PS_pm.state = 2;
                 PS_pm.t = 0x100;
-                func_80081B9C(1);
+                PauseMenu_SetIconLayout(1);
                 Sound_PlayFixed_pm(1);
             }
             prim = G_pm.prim;
@@ -1466,7 +1466,7 @@ s32 PauseMenu_Update(void) {
             if (OptionsMenu_Update() == -1) {
                 PS_pm.state = 2;
                 PS_pm.t = 0x100;
-                func_80081B9C(1);
+                PauseMenu_SetIconLayout(1);
             }
             prim = G_pm.prim;
             break;
@@ -1476,9 +1476,9 @@ s32 PauseMenu_Update(void) {
             s32 v;
             Hud_DrawTimerClock(0x90, 0x20, G_pm.f_8140);
             Hud_DrawTime(0xA0, 0x20, G_pm.f_8140);
-            v = func_8005DD34();
+            v = TimeTrial_GetClockStop();
             if (v != 0) {
-                func_8005FFD4(v);
+                Hud_DrawClockStopBar(v);
             }
         }
         switch (PS_pm.state) {
@@ -1489,16 +1489,16 @@ s32 PauseMenu_Update(void) {
             break;
         default:
             Hud_DrawMonkeyHeads(0x136, 0xC0);
-            D_800F4DB0.f_1C = 0x14;
+            g_HudState.f_1C = 0x14;
             Hud_DrawHealth();
             Hud_DrawLivesIcon(0x14, 0xC0);
             Hud_DrawBigDigit(0x34, 0xC8, -1);
             Hud_DrawBigNumber(0x4C, 0xC8, G_pm.f_813C - 1);
             if (!Game_IsTimed()) {
-                D_800F4DB0.f_0 = 0x51;
-                func_8005FD80();
+                g_HudState.f_0 = 0x51;
+                Hud_DrawChipCounter();
             }
-            D_800F4DB0.f_4 = -0x1C;
+            g_HudState.f_4 = -0x1C;
             Hud_UpdateStatusIcons();
             break;
         }
@@ -1506,12 +1506,12 @@ s32 PauseMenu_Update(void) {
         SetPriority_pm(prim, 0, 0);
         { register u32 *_q asm("$3") = &ot[0xFFF]; __asm__ volatile("lwl $4, 2(%0)\n\tsll $2, %1, 8\n\tswl $2, 2(%0)\n\tswl $4, 2(%1)" : : "r"(_q), "r"(prim) : "$2", "$4"); }
         Cd_Update();
-        func_8007F9D0();
+        PauseBg_BlurStep();
         DrawSync_pm(0);
         VSync_pm(2);
         PutDispEnv_pm((u8 *)&G_pm.db[G_pm.cur] + 0x5C);
         PutDrawEnv_pm(&G_pm.db[G_pm.cur]);
-        func_8007F848();
+        PauseBg_Upload();
         DrawOTag_pm(&G_pm.db[G_pm.cur].ot[0xFFF]);
         DrawOTag_pm(G_pm.db[G_pm.cur].hud);
         if ((u32)(bufs[G_pm.cur] + 0x9000) < (u32)G_pm.prim) {
@@ -1526,16 +1526,16 @@ s32 PauseMenu_Update(void) {
         }
     } while (1);
     VSync_pm(0);
-    func_8008C064(bufs[0]);
-    func_8008C064(bufs[1]);
-    func_8005DD18();
-    func_800729CC();
+    Mem_Free(bufs[0]);
+    Mem_Free(bufs[1]);
+    Timer_Start();
+    Pause_RestoreSounds();
     return ret;
 }
 
 
 
-void func_80081144(s32 arg0, s8 arg1)
+void Gadget_ReplaceInSlots(s32 arg0, s8 arg1)
 {
   M2C_UNK *var_v1;
   s32 var_a2;
@@ -1611,7 +1611,7 @@ void Hud_DrawAirMeter(void) {
         p.q++;
         c = t; s = u;
     }
-    D_800EC354 = (s32)p.b;
+    g_GamePrim = (s32)p.b;
 }
 
 typedef struct { u8 pad0[0x98]; s16 x; s16 f_9A; s16 f_9C; u8 pad9E[2]; u8 sel; u8 n1; u8 n2; } SlingHud_813D8;
@@ -1695,7 +1695,7 @@ void Hud_DrawSlingAmmo(void) {
     if (SH_813D8.f_9A > 0) {
         SH_813D8.f_9A--;
     }
-    D_800EC354 = (s32)p;
+    g_GamePrim = (s32)p;
 }
 
 extern struct { u8 pad0[0xF2]; s8 gadget; } g_Spike_81664 asm("g_Spike");
@@ -1706,7 +1706,7 @@ typedef struct { u8 u, v; u16 clut; } GadgetIcon_81664;
 extern GadgetIcon_81664 D_800B2254[];
 typedef struct { u32 tag; u32 tpage; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } SprtTp_81664;
 s32 Spike_IsUnderwater(void);
-s32 func_80066F50(void);
+s32 Spike_CanUseRadarView(void);
 extern GadgetHud_81664 g_GadgetState_81664 asm("g_GadgetState");
 #define GH_81664 g_GadgetState_81664
 
@@ -1723,7 +1723,7 @@ void Hud_DrawGadgets(void) {
         Hud_DrawAirMeter();
         return;
     }
-    if (func_80066F50() == 0 || g_Spike_81664.gadget == 9) {
+    if (Spike_CanUseRadarView() == 0 || g_Spike_81664.gadget == 9) {
         return;
     }
     if (g_Spike_81664.gadget == 3) {
@@ -1788,7 +1788,7 @@ void Hud_DrawGadgets(void) {
         ADD_PRIM_ASM(ot, p);
         p++;
     }
-    D_800EC354 = (s32)p;
+    g_GamePrim = (s32)p;
 }
 
 /* Places the HUD cursor on the slot that holds the current gadget.
@@ -1860,67 +1860,67 @@ SprtTpW_819E8 *Hud_DrawSmallNumber(s32 x, s32 y, s32 n, SprtTpW_819E8 *p) {
     return p + 1;
 }
 
-void func_80081B9C(s32 mode) {
+void PauseMenu_SetIconLayout(s32 mode) {
     switch (mode) {
     case 0:
-        D_800B264C[0].x2 = 0x80;
-        D_800B264C[0].y2 = -0x20;
-        D_800B264C[1].x2 = -0x80;
-        D_800B264C[1].y2 = 0x6E;
-        D_800B264C[2].x2 = 0x200;
-        D_800B264C[2].y2 = 0x6E;
-        D_800B264C[3].x2 = 0x80;
-        D_800B264C[3].y2 = 0x120;
+        PauseMenu_Icons[0].x2 = 0x80;
+        PauseMenu_Icons[0].y2 = -0x20;
+        PauseMenu_Icons[1].x2 = -0x80;
+        PauseMenu_Icons[1].y2 = 0x6E;
+        PauseMenu_Icons[2].x2 = 0x200;
+        PauseMenu_Icons[2].y2 = 0x6E;
+        PauseMenu_Icons[3].x2 = 0x80;
+        PauseMenu_Icons[3].y2 = 0x120;
         break;
     case 1:
-        D_800B264C[0].x = 0x80;
-        D_800B264C[0].y = 0x3C;
-        D_800B264C[1].x = 0x28;
-        D_800B264C[1].y = 0x6E;
-        D_800B264C[2].x = 0xDC;
-        D_800B264C[2].y = 0x6E;
-        D_800B264C[3].x = 0x80;
-        D_800B264C[3].y = 0xAA;
+        PauseMenu_Icons[0].x = 0x80;
+        PauseMenu_Icons[0].y = 0x3C;
+        PauseMenu_Icons[1].x = 0x28;
+        PauseMenu_Icons[1].y = 0x6E;
+        PauseMenu_Icons[2].x = 0xDC;
+        PauseMenu_Icons[2].y = 0x6E;
+        PauseMenu_Icons[3].x = 0x80;
+        PauseMenu_Icons[3].y = 0xAA;
         break;
     case 2:
-        D_800B264C[0].x = 0x78;
-        D_800B264C[0].y = 0x1E;
-        D_800B264C[1].x = -0x80;
-        D_800B264C[1].y = 0x6E;
-        D_800B264C[2].x = 0x200;
-        D_800B264C[2].y = 0x6E;
-        D_800B264C[3].x = 0x80;
-        D_800B264C[3].y = 0x120;
+        PauseMenu_Icons[0].x = 0x78;
+        PauseMenu_Icons[0].y = 0x1E;
+        PauseMenu_Icons[1].x = -0x80;
+        PauseMenu_Icons[1].y = 0x6E;
+        PauseMenu_Icons[2].x = 0x200;
+        PauseMenu_Icons[2].y = 0x6E;
+        PauseMenu_Icons[3].x = 0x80;
+        PauseMenu_Icons[3].y = 0x120;
         break;
     case 3:
-        D_800B264C[0].x = 0x80;
-        D_800B264C[0].y = -0x20;
-        D_800B264C[1].x = -0x80;
-        D_800B264C[1].y = 0x6E;
-        D_800B264C[2].x = 0x78;
-        D_800B264C[2].y = 0x1E;
-        D_800B264C[3].x = 0x80;
-        D_800B264C[3].y = 0x120;
+        PauseMenu_Icons[0].x = 0x80;
+        PauseMenu_Icons[0].y = -0x20;
+        PauseMenu_Icons[1].x = -0x80;
+        PauseMenu_Icons[1].y = 0x6E;
+        PauseMenu_Icons[2].x = 0x78;
+        PauseMenu_Icons[2].y = 0x1E;
+        PauseMenu_Icons[3].x = 0x80;
+        PauseMenu_Icons[3].y = 0x120;
         break;
     case 4:
-        D_800B264C[0].x = 0x80;
-        D_800B264C[0].y = -0x20;
-        D_800B264C[1].x = 0x78;
-        D_800B264C[1].y = 0x1E;
-        D_800B264C[2].x = 0x200;
-        D_800B264C[2].y = 0x6E;
-        D_800B264C[3].x = 0x80;
-        D_800B264C[3].y = 0x120;
+        PauseMenu_Icons[0].x = 0x80;
+        PauseMenu_Icons[0].y = -0x20;
+        PauseMenu_Icons[1].x = 0x78;
+        PauseMenu_Icons[1].y = 0x1E;
+        PauseMenu_Icons[2].x = 0x200;
+        PauseMenu_Icons[2].y = 0x6E;
+        PauseMenu_Icons[3].x = 0x80;
+        PauseMenu_Icons[3].y = 0x120;
         break;
     case 5:
-        D_800B264C[0].x = 0x80;
-        D_800B264C[0].y = -0x20;
-        D_800B264C[1].x = -0x80;
-        D_800B264C[1].y = 0x6E;
-        D_800B264C[2].x = 0x200;
-        D_800B264C[2].y = 0x6E;
-        D_800B264C[3].x = 0x78;
-        D_800B264C[3].y = 0x1E;
+        PauseMenu_Icons[0].x = 0x80;
+        PauseMenu_Icons[0].y = -0x20;
+        PauseMenu_Icons[1].x = -0x80;
+        PauseMenu_Icons[1].y = 0x6E;
+        PauseMenu_Icons[2].x = 0x200;
+        PauseMenu_Icons[2].y = 0x6E;
+        PauseMenu_Icons[3].x = 0x78;
+        PauseMenu_Icons[3].y = 0x1E;
         break;
     }
 }
@@ -1931,27 +1931,27 @@ typedef struct { u32 tag; u32 rgbc; u32 xy; u32 uvclut; u32 wh; } SprtW_81D54;
 typedef struct { u32 tag; u32 code; } DrTpage_81D54;
 s32 Game_IsTimed(void);
 
-void func_80081D54(void) {
+void PauseMenu_DrawIcons(void) {
     u32 *ot = G_HUD_OT;
     SprtW_81D54 *p = (SprtW_81D54 *)G_DRAW.prim;
     s32 i;
     u32 c;
 
-    if (Game_IsTimed() && D_800BEF74.f_0 != 2) {
+    if (Game_IsTimed() && g_PauseState.f_0 != 2) {
         return;
     }
     for (i = 0; i < 4; i++) {
-        if (func_80082030(i)) {
+        if (PauseMenu_ItemEnabled(i)) {
             ((u8 *)p)[3] = 4;
             p->rgbc = 0x64808080;
         } else {
             ((u8 *)p)[3] = 4;
             p->rgbc = 0x64202020;
         }
-        D_800B264C[i].x2 = (D_800B264C[i].x2 * 2 + D_800B264C[i].x) / 3;
-        D_800B264C[i].y2 = (D_800B264C[i].y2 * 2 + D_800B264C[i].y) / 3;
-        p->xy = ((u32 *)D_800B264C)[i * 3 + 1];
-        p->uvclut = ((u32 *)D_800B264C)[i * 3 + 2];
+        PauseMenu_Icons[i].x2 = (PauseMenu_Icons[i].x2 * 2 + PauseMenu_Icons[i].x) / 3;
+        PauseMenu_Icons[i].y2 = (PauseMenu_Icons[i].y2 * 2 + PauseMenu_Icons[i].y) / 3;
+        p->xy = ((u32 *)PauseMenu_Icons)[i * 3 + 1];
+        p->uvclut = ((u32 *)PauseMenu_Icons)[i * 3 + 2];
         p->wh = 0x100080;
         ADD_PRIM_ASM(ot, p);
         p++;
@@ -1960,7 +1960,7 @@ void func_80081D54(void) {
     ((DrTpage_81D54 *)p)->code = 0xE100021A;
     ADD_PRIM_ASM(ot, p);
     p = (SprtW_81D54 *)((u8 *)p + 8);
-    D_800EC354 = (s32)p;
+    g_GamePrim = (s32)p;
 }
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; } Sprt8_81F18;
@@ -2009,7 +2009,7 @@ void Menu_DrawWindow(s32 x, s32 y, s32 w, s32 h) {
     G_DRAW.prim = (u8 *)p;
 }
 
-s32 func_80082030(s32 a) {
+s32 PauseMenu_ItemEnabled(s32 a) {
     switch (a) {
     case 2:
         return g_Game.f_8122 != 0xF;
@@ -2067,8 +2067,8 @@ void Menu_DrawCaps(s32 x, s32 y, s32 w) {
 /* While paused: stops the gadget loop sounds and runs the pause menu.
  */
 s32 Pause_Update(void) {
-    if (D_800BEF74.f_0 != 0) {
-        if (D_800BEF74.f_0 == 1) {
+    if (g_PauseState.f_0 != 0) {
+        if (g_PauseState.f_0 == 1) {
             Gfx_WaitFlip();
             Gadget_StopSounds(g_CurrentGadget);
             return PauseMenu_Update();
@@ -2138,7 +2138,7 @@ extern u8 D_800B26F4[];
 extern u8 D_800B2640[];
 extern u8 D_800F4458[];
 s32 func_800964B0(s32);
-s32 func_80097FB0(s32);
+s32 SpecterCoin_CountInWorld(s32);
 void Menu_DrawSpinningModel(s32, s32);
 void Hud_DrawTime(s32, s32, u32);
 void Hud_DrawTimeMedal(s32, s32, u32, s16 *);
@@ -2169,7 +2169,7 @@ void PauseMenu_DrawStageInfo(void) {
             p->u0 = 0x80;
             cl = 0x3A3F;
         } else {
-            if (i >= GP.present && (func_80096580(GP.stage) <= 0 || GP.f_812E == 2)) {
+            if (i >= GP.present && (World_GetProgress(GP.stage) <= 0 || GP.f_812E == 2)) {
                 p->rgbc = 0x101010;
                 ((u8 *)p)[3] = 4;
                 ((u8 *)p)[7] = 0x64;
@@ -2203,7 +2203,7 @@ void PauseMenu_DrawStageInfo(void) {
         a = (func_800964B0(0x24) & 0x10) ? b : 0;
         break;
     default:
-        a = func_80097FB0(GP.stage);
+        a = SpecterCoin_CountInWorld(GP.stage);
         b = GP.f_818A;
         break;
     }
@@ -2231,8 +2231,8 @@ void PauseMenu_DrawStageInfo(void) {
     s2[0] = 10;
     s2[1] = 9;
     s2[2] = 0;
-    func_8008DDB0(0x36, 0xB4);
-    func_8008DDC8(s2);
+    Msg_SetPos(0x36, 0xB4);
+    Msg_DrawString(s2);
     if (GP.best != -1) {
         Text_Draw(D_800B26C4, 0xD6, 0x72, 2);
         Hud_DrawTime(0xF6, 0x8C, GP.best);
@@ -2296,7 +2296,7 @@ void Menu_DrawStatusScreen(void) {
     }
     n = (s16)((s16)(*(struct Game_82A04 *)&g_Game).f_816A % 10);
     sp[1] = DIGIT(n);
-    if (func_80096580(0x18) > 0) {
+    if (World_GetProgress(0x18) > 0) {
         len += 3;
         sp[2] = 0x8D;
         sp[3] = 0x7A;
@@ -2336,13 +2336,13 @@ void Menu_DrawStatusScreen(void) {
     sp2[0] = 10;
     sp2[1] = 9;
     sp2[2] = 0;
-    func_8008DDB0(0x36, 0xB4);
-    func_8008DDC8(SPAD);
+    Msg_SetPos(0x36, 0xB4);
+    Msg_DrawString(SPAD);
 }
 
-void func_80082D40(void) {
+void OptionsMenu_Init(void) {
     D_800BEF90 = 0;
-    func_800864B4((void *)((u8 *)&D_800BEF90 + 4));
+    Sound_GetVolumes((void *)((u8 *)&D_800BEF90 + 4));
 }
 
 typedef struct { s32 sel; s32 se; s32 bgm; } Opt_82D6C;
@@ -2359,7 +2359,7 @@ void Menu_DrawVolumeBar(s32, s32, s32);
 void Menu_DrawCaps(s32, s32, s32);
 u8 *Str_GetNth(u8 *, s32);
 s32 Sound_SetVolumes(s32, s32);
-s32 func_80086428(s32);
+s32 Sound_ResetVolumes(s32);
 s32 Sound_SetStereo(s32);
 
 /* Options menu: vibration, stereo/mono, music and effects volume (D-pad left/right, steps of 8)
@@ -2417,8 +2417,8 @@ s32 OptionsMenu_Update(void) {
     Text_Draw(Str_GetNth(D_800B2864, 8), 0x104, 0x4E, 1);
     Menu_DrawCaps(GO_82D6C.stereo ? 0xD4 : 0x124, 0x4E, 0x58);
     Text_Draw(Str_GetNth(D_800B2864, 9), 0x104, 0xB6, 0);
-    func_8008DDB0(0xE4, 0xB6);
-    func_8008DDC8(Str_GetNth(D_800B2864, 0xB));
+    Msg_SetPos(0xE4, 0xB6);
+    Msg_DrawString(Str_GetNth(D_800B2864, 0xB));
     btn = g_Pad.f_158 & g_Pad.f_160;
     switch (sel) {
     case 0:
@@ -2466,8 +2466,8 @@ s32 OptionsMenu_Update(void) {
         break;
     case 4:
         if (btn & 0xF0) {
-            func_80086428(1);
-            func_800864B4(&OPT_82D6C.se);
+            Sound_ResetVolumes(1);
+            Sound_GetVolumes(&OPT_82D6C.se);
             GO_82D6C.vibration = 1;
             GO_82D6C.stereo = 1;
             Sound_SetStereo(1);
@@ -2489,7 +2489,7 @@ s32 OptionsMenu_Update(void) {
         return -1;
     }
     OPT_82D6C.sel = sel;
-    func_80081D54();
+    PauseMenu_DrawIcons();
     return 0;
 }
 

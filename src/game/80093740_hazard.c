@@ -1,6 +1,6 @@
 #include "common.h"
 #include "m2c_macros.h"
-#define MDL(i) ((Mdl_8009398C_8009398C *)&D_800B4D64[i])
+#define MDL(i) ((Mdl_8009398C_8009398C *)&g_StageMeshes[i])
 #define GG ((G_8009398C_8009398C *)&g_Game)
 #define SP ((Sp_8009398C_8009398C *)&g_Spike)
 typedef struct { u8 pad0[0xE]; s16 f_E; u8 pad10[0x28]; } S_820C_8009391C;
@@ -28,12 +28,12 @@ typedef struct { s32 x, y, z; } P_80094330_80094330;
 extern struct S_D_800EC350 { u8 pad_0[0x820C]; s32 f_820C; } g_Game;
 s32 Box_ContainsPoint(void *, s32, s32, s32);
 extern struct S_D_800EC1E0 { u8 pad_0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } g_Spike;
-extern S_4D64_8009391C *D_800B4D64;
+extern S_4D64_8009391C *g_StageMeshes;
 s32 Link_TouchesSpike(s16 arg0, void *arg1, void *arg2);
 void Spike_StartKnockback(u8 *, s32);
 struct S_D_800EC350_80093788 { u8 pad0[0x820C]; S_820C_80093788 *f_820C; };
 struct Game_80093F04 { u8 pad0[0x8126]; u16 stage; u8 pad8128[0xE4]; O_80093F04_80093F04 *f_820C; };
-s32 func_80094330(O_80094330_80094330 *o, P_80094330_80094330 *p, s16 ex, s16 ez);
+s32 Bumper_TouchesSpike(O_80094330_80094330 *o, P_80094330_80094330 *p, s16 ex, s16 ez);
 s32 Geo_DiagonalDistance(s32, s32 *, O_80093F04_80093F04 *, void *);
 void VectorNormalSS(void *, void *);
 void Sound_PlayFixed(s32);
@@ -42,7 +42,7 @@ void func_80066F34(void);
 void Matrix_SetScale(void *, void *);
 s32 rsin(s32);
 
-s32 func_80093740(void *arg0) {
+s32 KnockbackZone_Init(void *arg0) {
     void *temp_v1;
 
     temp_v1 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
@@ -99,12 +99,12 @@ s32 Link_TouchesSpike(s16 arg0, void *arg1, void *arg2) {
     return 1;
 }
 
-s32 func_8009391C(S_9391C_8009391C *a) {
+s32 Bouncy_Init(S_9391C_8009391C *a) {
     S_820C_8009391C *r = &((S_820C_8009391C *)g_Game.f_820C)[a->f_4];
     a->f_2 = 0;
     a->f_6 = 0;
     if (a->f_C > 0) {
-        *D_800B4D64[r->f_E].f_0 |= 0x2000;
+        *g_StageMeshes[r->f_E].f_0 |= 0x2000;
     }
     return 0;
 }
@@ -232,20 +232,20 @@ s32 Bouncy_Update(T_8009398C_8009398C *t) {
     return 0;
 }
 
-s32 func_80093E74(S_93E74_80093E74 *a) {
+s32 Bumper_Init(S_93E74_80093E74 *a) {
     S_820C_80093E74 *r = &((S_820C_80093E74 *)g_Game.f_820C)[a->f_4];
     if (a->f_8 >= 4) {
         r->f_18 |= 0x8000;
     }
     if (r->f_E >= 0) {
-        *D_800B4D64[r->f_E].f_0 |= 0x2000;
+        *g_StageMeshes[r->f_E].f_0 |= 0x2000;
     }
     a->f_2 = 0;
     a->f_6 = 0;
     return 0;
 }
 
-/* Bumper: when Spike touches it (func_80094330 with size t->f_C / t->f_E; directions 4-7 also
+/* Bumper: when Spike touches it (Bumper_TouchesSpike with size t->f_C / t->f_E; directions 4-7 also
  * check the side with Geo_DiagonalDistance) it reflects his horizontal velocity according to its facing
  * t->f_8 (a zero component becomes 1), boosts it 5x, turns him to face the new direction and
  * starts a knockback of t->f_A frames (Spike_StartKnockback). Sound 0xB3 in stage 0x15, 0xB4 in
@@ -257,7 +257,7 @@ s32 Bumper_Update(T_80093F04_80093F04 *t) {
     s32 r;
     switch (t->f_2) {
     case 0:
-        if (!func_80094330(o, (*(Sp_80093F04_80093F04 *)&g_Spike).pos, t->f_C, t->f_E)) {
+        if (!Bumper_TouchesSpike(o, (*(Sp_80093F04_80093F04 *)&g_Spike).pos, t->f_C, t->f_E)) {
             return 0;
         }
         switch (t->f_8) {
@@ -356,14 +356,14 @@ s32 Bumper_Update(T_80093F04_80093F04 *t) {
         return 0;
     }
     if (o->f_E >= 0) {
-        (*(Mdl_80093F04_80093F04 * *)&D_800B4D64)[o->f_E].f_18 = t->f_6 * ((t->f_10 + 1) << 12) / t->f_A;
+        (*(Mdl_80093F04_80093F04 * *)&g_StageMeshes)[o->f_E].f_18 = t->f_6 * ((t->f_10 + 1) << 12) / t->f_A;
     }
     return 0;
 }
 
 
 
-s32 func_80094330(O_80094330_80094330 *o, P_80094330_80094330 *p, s16 ex, s16 ez) {
+s32 Bumper_TouchesSpike(O_80094330_80094330 *o, P_80094330_80094330 *p, s16 ex, s16 ez) {
     if (o->x + o->w + ex < p->x || p->x < o->x - o->w - ex) {
         goto miss;
     }

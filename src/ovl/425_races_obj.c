@@ -113,7 +113,7 @@ s32 func_8013D290(s32 type, s32 idx) {
 extern GameDraw g_Game_8013D424 asm("g_Game");
 extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013D424 asm("g_Spike");
 extern struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } g_Monkeys_8013D424 asm("g_Monkeys");
-extern SprtTp *D_800EC354_8013D424 asm("D_800EC354");
+extern SprtTp *D_800EC354_8013D424 asm("g_GamePrim");
 
 void func_8013D424(s32 flag) {
     SprtTp *p = (SprtTp *)g_Game_8013D424.prim;
@@ -169,9 +169,9 @@ void func_8013D424(s32 flag) {
 }
 
 typedef struct { SVECTOR at; SVECTOR eye; SVECTOR spike; u8 pad18[0x30]; SVECTOR dir; } Scr_401;
-void func_80047464(void *, s32, s32, s32);
-void func_80047558(void *, s32, s32, s32);
-void func_8004B8F4(void *, s32, void *);
+void Camera_EaseEye(void *, s32, s32, s32);
+void Camera_EaseLookAt(void *, s32, s32, s32);
+void CamPoint_GetLookPoint(void *, s32, void *);
 void VectorNormalSS(void *, void *);
 extern struct { u8 pad0[0xA]; s16 f_A; } D_800E68C0;
 extern struct { u8 pad0[0x24]; s16 x; u8 pad26[2]; s16 y; u8 pad2A[2]; s16 z; } g_Spike;
@@ -182,12 +182,12 @@ void func_8013D5C4(void *arg0) {
     ((Scr_401 *)0x1F800000)->spike.vx = g_Spike.x;
     ((Scr_401 *)0x1F800000)->spike.vy = g_Spike.y;
     ((Scr_401 *)0x1F800000)->spike.vz = g_Spike.z;
-    func_8004B8F4(arg0, 2, &v);
+    CamPoint_GetLookPoint(arg0, 2, &v);
     v.vy += D_800E68C0.f_A;
     ((Scr_401 *)0x1F800000)->eye.vx = ((Scr_401 *)0x1F800000)->spike.vx;
     ((Scr_401 *)0x1F800000)->eye.vy = g_Spike.y - 0x100;
     ((Scr_401 *)0x1F800000)->eye.vz = ((Scr_401 *)0x1F800000)->spike.vz;
-    func_80047558(arg0, 6, 6, 6);
+    Camera_EaseLookAt(arg0, 6, 6, 6);
     ((Scr_401 *)0x1F800000)->at.vx = (v.vx * 7 + ((Scr_401 *)0x1F800000)->spike.vx) / 8;
     ((Scr_401 *)0x1F800000)->at.vy = v.vy - D_800E68C0.f_A * 2;
     ((Scr_401 *)0x1F800000)->dir.vx = ((Scr_401 *)0x1F800000)->spike.vx - M2C_FIELD(arg0, s16 *, 0xA);
@@ -195,17 +195,17 @@ void func_8013D5C4(void *arg0) {
     ((Scr_401 *)0x1F800000)->dir.vz = ((Scr_401 *)0x1F800000)->spike.vz - M2C_FIELD(arg0, s16 *, 0xE);
     VectorNormalSS(&((Scr_401 *)0x1F800000)->dir, &((Scr_401 *)0x1F800000)->dir);
     ((Scr_401 *)0x1F800000)->at.vz = ((Scr_401 *)0x1F800000)->spike.vz - ((Scr_401 *)0x1F800000)->dir.vz / 3;
-    func_80047464(arg0, 6, 6, 6);
+    Camera_EaseEye(arg0, 6, 6, 6);
 }
 
 
 __asm__(".section .text\n.balign 16");
 
 /* object type tables for this course: {init, update, ?}, zero-terminated */
-s32 func_80093740();
+s32 KnockbackZone_Init();
 s32 Link_UpdateKnockbackZone();
 void *D_8013D730[9] = {
-    func_80093740, Link_UpdateKnockbackZone, 0,
+    KnockbackZone_Init, Link_UpdateKnockbackZone, 0,
     func_8013D000, func_8013D010, 0,
     0, 0, 0,
 };

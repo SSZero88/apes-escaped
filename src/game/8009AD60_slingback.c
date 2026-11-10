@@ -14,7 +14,7 @@ s16 Sound_Play(s32, s32);
 void Sound_Stop(s32, s16);
 void Model_ProjectVerts(void *, void *, void *);
 void Model_Draw(u32 *, void *, void *);
-void func_8006CEF0(void);
+void SkyFlyer_FxTrail(void);
 
 typedef struct { u8 pad0[4]; SVECTOR a; SVECTOR b; SVECTOR pouch; u8 pad1C[8]; s16 drawn; u8 pad26[0x7A]; u8 f_A0; u8 padA1; u8 f_A2; } GS_9AD60;
 typedef struct { u8 pad0[0xC]; SVECTOR *verts; } Mdl_9AD60;
@@ -150,7 +150,7 @@ void Slingback_Update(void) {
 /* Sky Flyer: while Spike's action state is 0x80..0x82 (winding it up) keeps the wind-up sound
  * 0x1D going, and in 0x83..0x84 (flying) the flying sound 0x1E; g_GadgetState+8 tracks which one
  * plays (voices at +4 / +6). Draws the flying model (D_800EC180) or the idle one (D_800EC0C0),
- * and while flying calls func_8006CEF0. */
+ * and while flying calls SkyFlyer_FxTrail. */
 void SkyFlyer_Update(void) {
     s32 st;
     void *m;
@@ -209,6 +209,6 @@ void SkyFlyer_Update(void) {
     Model_ProjectVerts(m, &D_800E9E40, g_ProjVerts);
     Model_Draw(((struct GameDb_8009B1C0 *)&g_Game)->db[((struct GameDb_8009B1C0 *)&g_Game)->cur].ot, g_ProjVerts, m);
     if (D_800EC23E >= 0x83 && D_800EC23E <= 0x84) {
-        func_8006CEF0();
+        SkyFlyer_FxTrail();
     }
 }

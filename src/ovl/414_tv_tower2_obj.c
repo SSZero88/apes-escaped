@@ -33,7 +33,7 @@ extern u16 D_800E69BE_8013D014 asm("D_800E69BE");
 void Overlay_Request(s32);
 s32 Overlay_GetState(void);
 void func_80140760(void);
-void func_8008745C(void);
+void Music_Play(void);
 void Sound_UnloadBanks(s32);
 void Game_SetMode(s32, s32, s32);
 
@@ -56,7 +56,7 @@ s32 func_8013D014(s16 *p) {
         }
         p[1] = 3;
         func_80140760();
-        func_8008745C();
+        Music_Play();
         return 0;
     case 2:
         if (D_800EC20C < -0x7FF) {
@@ -77,7 +77,7 @@ s32 func_8013D014(s16 *p) {
             return 0;
         }
         p[1] = 5;
-        func_8008745C();
+        Music_Play();
         Game_SetMode(0x12, g_Game_8013D014.f_8126, g_Game_8013D014.f_812A);
         break;
     case 5:
@@ -91,13 +91,13 @@ s32 func_8013D174(void) {
 }
 
 /* object types handled by this level: {init, update, draw}, zero-terminated */
-s32 func_80090EC0();
+s32 Switch_Init();
 s32 ToggleSwitch_Update();
 s32 SlideDoor_Init();
 s32 SlideDoor_Update();
 __asm__(".section .rodata\n\t.balign 16\n\t.section .text");
 void *D_8013D1C0[12] = {
-    func_80090EC0, ToggleSwitch_Update, 0,
+    Switch_Init, ToggleSwitch_Update, 0,
     func_8013D000, func_8013D014, 0,
     SlideDoor_Init, SlideDoor_Update, 0,
     0, 0, 0,

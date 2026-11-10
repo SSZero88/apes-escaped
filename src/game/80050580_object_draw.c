@@ -46,64 +46,64 @@ void Matrix_FromFacingXZ(s32, MAT_800522A8 *);
 M2C_UNK Object_TurnToward(void *, s16, s16, s16, s32);
 
 void memset(void *, s32, s32);
-void func_80051E98(void *arg0, s32 arg1);
+void Object_Despawn(void *arg0, s32 arg1);
 void Effect_SpawnAt(s32, SVEC_80051F1C *);
 void Object_PlaySound(S_51F1C_80051F1C *, s32);
 void Object_DropPickups(S_51F1C_80051F1C_8005216C *s);
 
-void func_80052864(S_52864_80052864 *s);
+void Object_HitFeedback(S_52864_80052864 *s);
 
 extern s16 D_800E77E0;
 extern S_E6960 g_Objects[];
 extern s8 D_800E77E8;
 
-extern u32 D_800B8D00[];
+extern u32 Area_ObjectMasks[];
 
 M2C_UNK ApplyMatrixSV(void *, s32, void *);
 extern M2C_UNK g_JointWorldMatrices;
 
 M2C_UNK Model_CalcKeyedJointMatrices(void *, M2C_UNK);
-void func_80051740(S_O_80051740_80051740 *o);
-void func_800518AC(S_O_800518AC_800518AC *o);
-void func_8005240C(S_O_8005240C_8005240C *o, S_H_8005240C_8005240C *h);
-s32 func_800525A0(u8 *a0, u8 *a1);
+void Object_UpdateLinkPoint(S_O_80051740_80051740 *o);
+void Object_BuildMatrix(S_O_800518AC_800518AC *o);
+void Object_SetupKnockback(S_O_8005240C_8005240C *o, S_H_8005240C_8005240C *h);
+s32 Object_TakeHitDamage(u8 *a0, u8 *a1);
 s32 Collision_GetShape(s32);
 
 void Object_SpawnNearby(void);
 void Object_UpdateAll(void);
 void Object_DrawAll(void);
 M2C_UNK EnemyShot_Frame();
-M2C_UNK func_8005E000(M2C_UNK, s32);
+M2C_UNK Debug_CpuMark(M2C_UNK, s32);
 extern u8 D_800E77E4;
 extern struct S_D_800EC350 { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x140]; s32 f_8244; u8 pad_8248[0x50]; s16 f_8298; } g_Game;
 M2C_UNK Model_BindBonedAuto(s32, s32);
-s32 func_80051FE8(s32 a);
+s32 Object_FindRecordOfKind(s32 a);
 extern s32 D_800E77D4;
 s16 Object_FloorAt(void *arg0, s16 arg1, s16 arg2, s16 arg3);
 
-void func_80051620(void *arg0, s32 arg1, s32 arg2, void *arg3);
+void Object_GetJointPoint(void *arg0, s32 arg1, s32 arg2, void *arg3);
 M2C_UNK Collision_Set(M2C_UNK, void *, void *);
-M2C_UNK func_8007CD88(void *);
+M2C_UNK GuidedAmmo_AddTarget(void *);
 M2C_UNK Collision_Remove(void *);
-M2C_UNK func_8007CDC4(void *);
-u8 *func_800520A8(S_520A8_800520A8 *s, s32 key);
+M2C_UNK GuidedAmmo_RemoveTarget(void *);
+u8 *Object_GetAnimTable(S_520A8_800520A8 *s, s32 key);
 extern s8 D_800E77E2;
 extern s8 D_800E77E3;
-extern s8 D_800E77B0[];
+extern s8 Object_SlotForRecord[];
 void Object_EnableCollision(void *arg0);
 void Object_Destroy(S_51F1C_80051F1C *s);
 void Object_DisableCollision(void *arg0);
 struct S_D_800EC350_80051E98 { u8 pad_0[0x8160]; u16 f_8160; };
 extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } g_ViewMatrix;
-extern s16 D_800B4D50;
-extern s16 D_800B4D52;
+extern s16 Object_DrawDist;
+extern s16 Object_FarDrawDist;
 void SetTransMatrix(void *m);
 extern struct S_D_800E77D0 { s32 pad0; S_Spawn_80050B04_80050B04 *f_4; s32 pad8; s16 f_C; } D_800E77D0;
 extern struct S_D_800EC1E0 { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } g_Spike;
-S_E6960 *func_80050CB0(void);
+S_E6960 *Object_AllocSlot(void);
 /* Sets up object s from placement record r (kind, position, two angles, +0xC, optional
  * +0xE setting), resets it for its kind, records it as the object of placement id k
- * (D_800E77B0[k] = its slot) and marks the record as spawned (+0x16). */
+ * (Object_SlotForRecord[k] = its slot) and marks the record as spawned (+0x16). */
 void Object_SpawnFromRecord(S_508B8_800508B8 *s, S_Spawn_800508B8 *r, s32 k);
 extern s8 D_800AF300[][4];
 void Pickup_Drop(s32, SVEC_80051F1C_8005216C *, s32, s32);
@@ -120,45 +120,45 @@ void ScaleMatrix(void *, VEC_800518AC_800518AC *);
 struct S_D_800E77D0_8005240C { u8 pad0[0x19]; s8 f_19; s8 f_1A; u8 pad1B; s8 f_1C; };
 extern s8 D_800AF330[][4];
 extern s8 D_800E77EF;
-void func_800522A8(S_O_800522A8 *o, s32 rot, s32 spd, short ang);
+void Object_Launch(S_O_800522A8 *o, s32 rot, s32 spd, short ang);
 struct Game_800509CC { u8 pad0[0x8124]; u16 f_8124; u16 f_8126; u8 pad8128[0x38]; s16 f_8160; };
 extern char D_800A4F60[];
 void bios_printf(const char *, ...);
 s32 World_FirstStage(s32);
-s32 func_80050580(s32 arg0);
-void func_80054A08(u32 *);
+s32 Object_IsUnplacedKind(s32 arg0);
+void Area_UnmaskCarriedObjects(u32 *);
 struct S_D_800E77D0_800509CC { u8 pad0[4]; O_800509CC_800509CC *f_4; u8 pad8[4]; s16 f_C; };
 extern struct S_D_800F4350 { u8 pad0[0x290]; u16 f_290; } D_800F4350;
-extern void (*D_800AF574[])(void);
-extern void (*D_800AF350[])(Obj_800511A4_800511A4 *);
-void func_80052BC8(void *arg0);
+extern void (*Spawner_ModeHooks[])(void);
+extern void (*Object_TypeHandlers[])(Obj_800511A4_800511A4 *);
+void Object_LatchHit(void *arg0);
 s32 Object_UpdateAction();
 void Object_FinishAction(S_528E0_800528E0 *s);
 void func_8013F660(Obj_800511A4_800511A4 *);
 void Hook_RunAll(void);
-void func_80058954(void);
+void ObjectDebug_Draw(void);
 struct S_D_800E77D0_800511A4_800511A4 { u8 pad0[0x10]; s16 f_10; };
 struct S_D_800E77A0_800511A4 { u8 f_0; };
 struct S_D_800E77D0_80051FE8 { u8 pad0[4]; S_20_80051FE8 *f_4; u8 pad8[4]; s16 f_C; };
-void func_800573A0(S_52864_80052864 *, s32, s32, s32);
+void Object_SpawnHitSpark(S_52864_80052864 *, s32, s32, s32);
 struct Game_520A8 { u8 pad0[0x8244]; u8 *f_8244; };
 struct S_D_800E77D0_800520A8 { u8 pad0[4]; S_20_800520A8 *f_4; };
-s32 func_80051410(Vec4_80051410 *pos, s32 dy, s32 far);
+s32 Object_IsOffScreen(Vec4_80051410 *pos, s32 dy, s32 far);
 /* Draws one stage object (called from Object_DrawAll): normalizes its facing (+0x60), drops a
  * shadow of size +0xA0 at the floor below it, builds the model matrix, applies the optional
  * extras (flag bit 13 of +0xE0, a joint-override when +0x70 != 0xFFFF) and adds it to the OT.
  * Flag bit 26 sends it through the alternate Model_CycleVertexColors/Model_DrawCycledColors path (header +6 is
  * passed); otherwise it is drawn with a flash brightness while the hit timer +0x84 counts down. */
 void Object_Draw(Obj_51C00_80051C00 *o);
-void func_80051A28(void *arg0);
+void Object_UpdateUndrawn(void *arg0);
 struct S_D_800E77D0_80051534 { u8 pad0[0x10]; s16 f_10; };
 void Object_SetPath(S_508B8_800508B8 *, u16);
 void Object_Reset();
-void func_80057FD0(S_508B8_800508B8 *, u8, s8);
+void Spawner_Register(S_508B8_800508B8 *, u8, s8);
 extern u8 g_ProjVerts[];
 void VectorNormalSS(void *, void *);
 void Shadow_Draw(void *, s32, s32, s32);
-void func_800516D8(void *arg0);
+void Object_UpdateAttachPoints(void *arg0);
 void Model_ProjectBonedVerts(Obj_51C00_80051C00 *);
 void Model_CycleVertexColors(u8 *, u16);
 void Model_DrawCycledColors(u32 *, u8 *, Obj_51C00_80051C00 *);
@@ -167,10 +167,10 @@ typedef struct { S_Hdr_51AA4 *f_0; s32 f_4; s32 f_8; } S_Model_51AA4;
 typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } S_Scr_51AA4;
 extern struct { u8 pad0[0x24]; u16 f_24; u8 pad26[2]; u16 f_28; } D_800EBFA0;
 
-void func_80051AA4(u32 *, u8 *, S_Model_51AA4 *, s32);
+void Object_DrawLitModel(u32 *, u8 *, S_Model_51AA4 *, s32);
 void Model_DrawPrims(u32 *, s32, u8 *);
 
-s32 func_80050580(s32 arg0) {
+s32 Object_IsUnplacedKind(s32 arg0) {
     if ((arg0 == 0x61) || (arg0 == 0x63) || (arg0 == 0x6D) || (arg0 == 0x6E) || (arg0 == 0x84) || ((u32) (arg0 - 0x72) < 0x44U)) {
         return 1;
     }
@@ -189,10 +189,10 @@ extern St_800505C8 D_800E77A0_800505C8 asm("D_800E77A0");
 extern G_800505C8 g_Game_800505C8 asm("g_Game");
 extern struct { u8 pad0[0x28]; s32 f_28; } D_800EBFA0_800505C8 asm("D_800EBFA0");
 void Hook_ClearAll(void);
-void func_800587EC(void);
-void func_800509A4(void);
+void ObjectDebug_InitMenu(void);
+void Area_ClearObjectMasks(void);
 
-void func_800505C8(void) {
+void Object_InitStage(void) {
     s32 v;
     s32 i, j, k;
     Hdr_800505C8 *h;
@@ -204,13 +204,13 @@ void func_800505C8(void) {
     if (v > 0x555) {
         v = 0x555;
     }
-    D_800B4D50 = v;
+    Object_DrawDist = v;
     {
         s32 v2 = D_800EBFA0_800505C8.f_28 + 0x177;
         if (v2 > 0xAAA) {
             v2 = 0xAAA;
         }
-        D_800B4D52 = v2;
+        Object_FarDrawDist = v2;
     }
     D_800E77D0_800505C8.f_14 = 0;
     D_800E77D0_800505C8.f_1F = 0;
@@ -230,9 +230,9 @@ void func_800505C8(void) {
     for (i = 0; i < 16; i++) {
         g_Objects_800505C8[i].f_CB = i;
         g_Objects_800505C8[i].f_E0 &= ~0x10;
-        D_800E77B0[i] = -1;
+        Object_SlotForRecord[i] = -1;
     }
-    func_800587EC();
+    ObjectDebug_InitMenu();
     h = g_Game_800505C8.f_8244;
     if (h->magic != 0x44455A2E) {
         return;
@@ -249,7 +249,7 @@ void func_800505C8(void) {
     for (i = 0; i < D_800E77D0_800505C8.n; i++) {
         r = &recs[i];
         __asm__("" :: "r"(r),"r"(r));
-        if (r->type < 0xB7 && func_80050580(r->type) == 0) {
+        if (r->type < 0xB7 && Object_IsUnplacedKind(r->type) == 0) {
             Object_SpawnFromRecord((void *)o, (void *)r, i);
             D_800E77D0_800505C8.count++;
             o++;
@@ -257,7 +257,7 @@ void func_800505C8(void) {
     }
     }
     if (g_Game_800505C8.f_812C == 0xD) {
-        func_800509A4();
+        Area_ClearObjectMasks();
         return;
     }
     {
@@ -267,10 +267,10 @@ void func_800505C8(void) {
         bios_printf(D_800A4F60);
         w = 0;
     }
-    mask = D_800B8D00[w];
+    mask = Area_ObjectMasks[w];
     for (j = 0; j < D_800E77D0_800505C8.count; j++, q++) {
         if ((mask & 1) && ((q->f_E0 >> 4) & 1) && q->f_7E != 0x4C) {
-            func_80051E98(q, 0);
+            Object_Despawn(q, 0);
         }
         mask >>= 1;
     }
@@ -294,23 +294,23 @@ void Object_SpawnFromRecord(S_508B8_800508B8 *s, S_Spawn_800508B8 *r, s32 k) {
         Object_SetPath(s, r->f_E);
     }
     Object_Reset(s, s->f_7E);
-    D_800E77B0[k] = s->f_CB;
-    func_80057FD0(s, s->f_7E, s->f_CB);
+    Object_SlotForRecord[k] = s->f_CB;
+    Spawner_Register(s, s->f_7E, s->f_CB);
     r->f_16 = 1;
     s->f_CC = k;
 }
 
-void func_800509A4(void) {
+void Area_ClearObjectMasks(void) {
     s32 i;
 
     for (i = 7; i >= 0; i--) {
-        D_800B8D00[i] = 0;
+        Area_ObjectMasks[i] = 0;
     }
 }
 
 /* Remembers which of the current area's spawn records (D_800E77D0+4, count +0xC; 0x20 bytes
- * each) are still there: one bit per record that func_80050580 does not exclude, set when its
- * +0x16 is 0, newest record in bit 0. Stored (after func_80054A08) in D_800B8D00 indexed by the
+ * each) are still there: one bit per record that Object_IsUnplacedKind does not exclude, set when its
+ * +0x16 is 0, newest record in bit 0. Stored (after Area_UnmaskCarriedObjects) in Area_ObjectMasks indexed by the
  * area within the stage (g_Game+0x8126 minus the stage's first area, World_FirstStage; must be
  * < 8). Not for stage 0x20, which instead clears g_Game+0x8160. */
 void Area_SaveObjectMask(void) {
@@ -335,7 +335,7 @@ void Area_SaveObjectMask(void) {
     if (((struct S_D_800E77D0_800509CC *)&D_800E77D0)->f_C > 0) {
         for (i = ((struct S_D_800E77D0_800509CC *)&D_800E77D0)->f_C - 1; i >= 0; i--) {
             o = &objs[i];
-            if (!func_80050580(o->f_0)) {
+            if (!Object_IsUnplacedKind(o->f_0)) {
                 mask <<= 1;
                 if (o->f_16 == 0) {
                     mask |= 1;
@@ -343,11 +343,11 @@ void Area_SaveObjectMask(void) {
             }
         }
     }
-    func_80054A08(&mask);
-    D_800B8D00[area] = mask;
+    Area_UnmaskCarriedObjects(&mask);
+    Area_ObjectMasks[area] = mask;
 }
 
-void func_80050AFC(void) {
+void Object_Nop(void) {
 }
 
 void Object_SpawnNearby(void) {
@@ -364,7 +364,7 @@ void Object_SpawnNearby(void) {
             dx = s->x - px;
             dz = s->z - pz;
             if (s->f_12 * s->f_12 < dx * dx + dz * dz) {
-                o = func_80050CB0();
+                o = Object_AllocSlot();
                 if (o != 0) {
                     s->f_16 = 1;
                     s->f_10--;
@@ -381,13 +381,13 @@ void Object_Frame(void) {
         if (!(g_Game.f_8100 & 4)) {
             Object_UpdateAll();
         }
-        func_8005E000(1, 0x10A0F0);
+        Debug_CpuMark(1, 0x10A0F0);
         Object_DrawAll();
         Object_SpawnNearby();
     }
 }
 
-S_E6960 *func_80050CB0(void) {
+S_E6960 *Object_AllocSlot(void) {
     s32 i;
     for (i = 0; i < D_800E77E0; i++) {
         if (!((g_Objects[i].unkE0 >> 4) & 1)) {
@@ -398,7 +398,7 @@ S_E6960 *func_80050CB0(void) {
 }
 
 typedef struct { u8 pad0[0x1C]; s32 f_1C; u8 pad20[0x4]; s32 x; s32 y; s32 z; u8 pad30[0x14]; s16 f_44; s16 f_46; s16 f_48; s16 f_4A; u8 pad4C[0x4]; s32 f_50; u8 pad54[0xA]; s16 f_5E; s16 f_60; s16 f_62; s16 f_64; s16 f_66; u8 pad68[0xC]; s32 f_74; s32 f_78; s8 f_7C; u8 f_7D; u8 kind; u8 pad7F[0x1]; u8 f_80; u8 f_81; u8 f_82; u8 f_83; u8 f_84; u8 pad85[0x9]; u8 f_8E; u8 f_8F; u8 pad90[0x4]; s16 f_94; s16 f_96; s16 f_98; s16 f_9A; s16 f_9C; s16 f_9E; s16 f_A0; u8 padA2[0xC]; s16 f_AE; s16 f_B0; u8 padB2[0x2]; s32 f_B4; s32 f_B8; s16 f_BC; u8 padBE[0x2]; s16 f_C0; s16 f_C2; u8 padC4[0x2]; s16 f_C6; u8 f_C8; u8 f_C9; u8 f_CA; u8 f_CB; u8 f_CC; u8 f_CD; u8 padCE[0x1]; u8 f_CF; u8 padD0[0x4]; s16 f_D4; s16 f_D6; u8 padD8[0x3]; u8 f_DB; u8 f_DC; u8 padDD[0x2]; u8 f_DF; u32 flags; } O_50D04;
-void func_80052038_50D04(void *, s32) asm("func_80052038");
+void func_80052038_50D04(void *, s32) asm("Object_SetModel");
 
 void Object_Reset(O_50D04 *o, s32 arg1) {
     u8 k;
@@ -414,7 +414,7 @@ void Object_Reset(O_50D04 *o, s32 arg1) {
     o->f_9E = o->z;
     o->f_9C = o->y;
     __asm__("" : "=r"(arg1) : "0"(arg1));
-    func_80052134(o);
+    Object_InitAnim(o);
     func_80052038_50D04(o, arg1);
     o->f_66 = 3;
     k = o->kind;
@@ -445,7 +445,7 @@ void Object_Reset(O_50D04 *o, s32 arg1) {
         k = o->kind;
         Collision_Set((k == 1 || k == 4 || k == 9 || k == 0x3F) ? 5 : 4, &o->x, o);
         if ((o->flags >> 27) & 1) {
-            func_8007CD88(&o->f_1C);
+            GuidedAmmo_AddTarget(&o->f_1C);
         }
     }
     o->f_62 = 0;
@@ -512,18 +512,18 @@ void Object_Reset(O_50D04 *o, s32 arg1) {
 }
 
 /* Per-frame update of all stage objects (0xE4-byte slots in g_Objects, count D_800E77D0+0x10).
- * First runs the mode hook D_800AF574[D_800E77A0.f_0]. For each live object (flag 0x10): records
+ * First runs the mode hook Spawner_ModeHooks[D_800E77A0.f_0]. For each live object (flag 0x10): records
  * its link id (+0x70) in D_800F4350+0x290, clears flag 0x100, steps the animation frame (+0x5C,
  * wrapping per the anim table +0x88), turns it by +0xB2 while the timer +0xAE runs, then
- * func_80052BC8 / Object_UpdateAction (2 -> Object_FinishAction). An object 0x800 below its floor (+0x9C,
- * unless flag 0x40000) is destroyed; otherwise its type handler D_800AF350[type] runs when +0x82
- * is 0 or flag 0x200000 is set. Ends with Hook_RunAll and func_80058954. */
+ * Object_LatchHit / Object_UpdateAction (2 -> Object_FinishAction). An object 0x800 below its floor (+0x9C,
+ * unless flag 0x40000) is destroyed; otherwise its type handler Object_TypeHandlers[type] runs when +0x82
+ * is 0 or flag 0x200000 is set. Ends with Hook_RunAll and ObjectDebug_Draw. */
 void Object_UpdateAll(void) {
     s32 i;
     Obj_800511A4_800511A4 *o;
 
     i = 0;
-    D_800AF574[((struct S_D_800E77A0_800511A4 *)&D_800E77A0)->f_0]();
+    Spawner_ModeHooks[((struct S_D_800E77A0_800511A4 *)&D_800E77A0)->f_0]();
     for (; i < ((struct S_D_800E77D0_800511A4_800511A4 *)&D_800E77D0)->f_10; i++) {
         o = &((Obj_800511A4_800511A4 *)&g_Objects)[i];
         if (!((o->f_E0 >> 4) & 1)) {
@@ -546,7 +546,7 @@ void Object_UpdateAll(void) {
             o->f_60 = rcos(o->f_AC);
             o->f_64 = rsin(o->f_AC);
         }
-        func_80052BC8(o);
+        Object_LatchHit(o);
         if ((s16)Object_UpdateAction(o) == 2) {
             Object_FinishAction(o);
             continue;
@@ -560,14 +560,14 @@ void Object_UpdateAll(void) {
             continue;
         }
         if (o->f_82 == 0 || ((o->f_E0 >> 21) & 1)) {
-            D_800AF350[o->f_7E](o);
+            Object_TypeHandlers[o->f_7E](o);
         }
     }
     Hook_RunAll();
-    func_80058954();
+    ObjectDebug_Draw();
 }
 
-s32 func_80051410(Vec4_80051410 *pos, s32 dy, s32 far) {
+s32 Object_IsOffScreen(Vec4_80051410 *pos, s32 dy, s32 far) {
     SVECTOR v;
     s32 sxy;
     s32 p;
@@ -584,11 +584,11 @@ s32 func_80051410(Vec4_80051410 *pos, s32 dy, s32 far) {
     x = sxy;
     y = sxy >> 16;
     if (far) {
-        lim = D_800B4D52;
+        lim = Object_FarDrawDist;
         margin = 500;
     } else {
         margin = 0;
-        lim = D_800B4D50;
+        lim = Object_DrawDist;
     }
     if (x < -100 - margin || x > margin + 484 || y < -100 - margin || y > margin + 340 || lim < z || z <= 0) {
         return 1;
@@ -604,19 +604,19 @@ void Object_DrawAll(void) {
         o = &((O_51534_80051534 *)&g_Objects)[i];
         o->f_E0 |= 4;
         if ((o->f_E0 >> 4) & 1) {
-            if (func_80051410(&o->f_24, (s16)o->f_46 / 2, (o->f_E0 >> 9) & 1) == 0) {
+            if (Object_IsOffScreen(&o->f_24, (s16)o->f_46 / 2, (o->f_E0 >> 9) & 1) == 0) {
                 o->f_E0 &= ~4;
                 if (o->f_C8 != 0) {
                     Object_Draw(o);
                     continue;
                 }
             }
-            func_80051A28(o);
+            Object_UpdateUndrawn(o);
         }
     }
 }
 
-void func_80051620(void *arg0, s32 arg1, s32 arg2, void *arg3) {
+void Object_GetJointPoint(void *arg0, s32 arg1, s32 arg2, void *arg3) {
     void *temp_s0;
 
     temp_s0 = (void *)((u8 *)&g_JointWorldMatrices + (arg1 << 5));
@@ -632,7 +632,7 @@ void func_80051620(void *arg0, s32 arg1, s32 arg2, void *arg3) {
     M2C_FIELD(arg3, u16 *, 4) = (u16) (M2C_FIELD(arg3, u16 *, 4) + M2C_FIELD(temp_s0, u16 *, 0x1C));
 }
 
-void func_800516D8(void *arg0) {
+void Object_UpdateAttachPoints(void *arg0) {
     s32 var_s1;
     void *temp_a3;
     void *var_s0;
@@ -644,14 +644,14 @@ loop_1:
     var_s0 += 4;
     if (temp_a3 != NULL) {
         var_s1 += 1;
-        func_80051620(arg0, M2C_FIELD(temp_a3, s16 *, 8), M2C_FIELD(temp_a3, s16 *, 0xA), temp_a3);
+        Object_GetJointPoint(arg0, M2C_FIELD(temp_a3, s16 *, 8), M2C_FIELD(temp_a3, s16 *, 0xA), temp_a3);
         if (var_s1 < 2) {
             goto loop_1;
         }
     }
 }
 
-void func_80051740(S_O_80051740_80051740 *o) {
+void Object_UpdateLinkPoint(S_O_80051740_80051740 *o) {
     s32 a = Math_Atan2(((struct S_D_800EC1E0_80051740 *)&g_Spike)->f_60, ((struct S_D_800EC1E0_80051740 *)&g_Spike)->f_64);
     if (o->f_AE != 0) {
         a = (a + o->f_B2 + 0x1000) % 4096;
@@ -665,7 +665,7 @@ void func_80051740(S_O_80051740_80051740 *o) {
     ((struct S_D_800EC350_80051740 *)&g_Game)->f_820C[o->f_70].f_4 = D_800E77A0.f_C;
 }
 
-void func_800518AC(S_O_800518AC_800518AC *o) {
+void Object_BuildMatrix(S_O_800518AC_800518AC *o) {
     SVECTOR r;
     VEC_800518AC_800518AC s;
     VEC_800518AC_800518AC t;
@@ -703,14 +703,14 @@ void func_800518AC(S_O_800518AC_800518AC *o) {
     }
 }
 
-void func_80051A28(void *arg0) {
+void Object_UpdateUndrawn(void *arg0) {
     if ((((u32) M2C_FIELD(arg0, u32 *, 0xE0) >> 0xD) & 1) && (M2C_FIELD(arg0, u8 *, 0xC8) != 0)) {
-        func_800518AC(arg0);
+        Object_BuildMatrix(arg0);
         Model_CalcKeyedJointMatrices(arg0, 3);
-        func_800516D8(arg0);
+        Object_UpdateAttachPoints(arg0);
     }
     if (M2C_FIELD(arg0, u16 *, 0x70) != 0xFFFF) {
-        func_80051740(arg0);
+        Object_UpdateLinkPoint(arg0);
     }
 }
 
@@ -718,7 +718,7 @@ void func_80051A28(void *arg0) {
  * scratchpad, ORing bits into each one when non-zero, then sets scratch draw mode 2
  * and draws via Model_DrawPrims. Called from Object_Draw.
  */
-void func_80051AA4(u32 *ot, u8 *buf, S_Model_51AA4 *o, s32 bits) {
+void Object_DrawLitModel(u32 *ot, u8 *buf, S_Model_51AA4 *o, s32 bits) {
     s32 i;
     s32 *src;
     s32 c = o->f_8;
@@ -758,13 +758,13 @@ void Object_Draw(Obj_51C00_80051C00 *o) {
     if (o->f_A0 > 0) {
         Shadow_Draw(o->pos, Object_FloorAt(o, 0, 0, 0), o->f_A0, o->f_D0);
     }
-    func_800518AC(o);
+    Object_BuildMatrix(o);
     Model_CalcKeyedJointMatrices(o, 3);
     if ((o->f_E0 >> 13) & 1) {
-        func_800516D8(o);
+        Object_UpdateAttachPoints(o);
     }
     if (o->f_70 != 0xFFFF) {
-        func_80051740(o);
+        Object_UpdateLinkPoint(o);
     }
     Model_ProjectBonedVerts(o);
     if ((o->f_E0 >> 26) & 1) {
@@ -782,7 +782,7 @@ void Object_Draw(Obj_51C00_80051C00 *o) {
     } else {
         c = 0;
     }
-    func_80051AA4((*(Game_51C00_80051C00 *)&g_Game).db[(*(Game_51C00_80051C00 *)&g_Game).cur].ot, g_ProjVerts, (S_Model_51AA4 *)o, c);
+    Object_DrawLitModel((*(Game_51C00_80051C00 *)&g_Game).db[(*(Game_51C00_80051C00 *)&g_Game).cur].ot, g_ProjVerts, (S_Model_51AA4 *)o, c);
 }
 
 void Object_EnableCollision(void *arg0) {
@@ -793,7 +793,7 @@ void Object_EnableCollision(void *arg0) {
         temp_v0 = M2C_FIELD(arg0, u32 *, 0xE0) & ~2;
         M2C_FIELD(arg0, u32 *, 0xE0) = temp_v0;
         if ((temp_v0 >> 0x1B) & 1) {
-            func_8007CD88(arg0 + 0x1C);
+            GuidedAmmo_AddTarget(arg0 + 0x1C);
         }
     }
 }
@@ -806,12 +806,12 @@ void Object_DisableCollision(void *arg0) {
         temp_v0 = M2C_FIELD(arg0, u32 *, 0xE0) | 2;
         M2C_FIELD(arg0, u32 *, 0xE0) = temp_v0;
         if ((temp_v0 >> 0x1B) & 1) {
-            func_8007CDC4(arg0 + 0x1C);
+            GuidedAmmo_RemoveTarget(arg0 + 0x1C);
         }
     }
 }
 
-void func_80051E98(void *arg0, s32 arg1)
+void Object_Despawn(void *arg0, s32 arg1)
 {
   u8 temp_v1;
   if (arg1 != 0)
@@ -836,7 +836,7 @@ void Object_Destroy(S_51F1C_80051F1C *s) {
     v.vy = s->f_28;
     v.vz = s->f_2C;
     tmp = v;
-    func_80051E98(s, 1);
+    Object_Despawn(s, 1);
     if ((s->f_E3 & 3) == 2) {
         Effect_SpawnAt(0x102, &tmp);
         Object_PlaySound(s, 0x6E);
@@ -846,7 +846,7 @@ void Object_Destroy(S_51F1C_80051F1C *s) {
     Object_DropPickups(s);
 }
 
-s32 func_80051FE8(s32 a) {
+s32 Object_FindRecordOfKind(s32 a) {
     s32 i;
     S_20_80051FE8 *p = ((struct S_D_800E77D0_80051FE8 *)&D_800E77D0)->f_4;
     for (i = 0; i < ((struct S_D_800E77D0_80051FE8 *)&D_800E77D0)->f_C; i++) {
@@ -857,20 +857,20 @@ s32 func_80051FE8(s32 a) {
     return -1;
 }
 
-void func_80052038(s32 arg0, M2C_UNK arg1) {
+void Object_SetModel(s32 arg0, M2C_UNK arg1) {
     s32 temp_s0;
     s32 temp_v0;
 
     temp_s0 = D_800E77D4;
-    temp_v0 = func_80051FE8(arg1);
+    temp_v0 = Object_FindRecordOfKind(arg1);
     if (temp_v0 != -1) {
         Model_BindBonedAuto(arg0, g_Game.f_8244 + M2C_FIELD(((temp_v0 << 5) + temp_s0), s32 *, 0x18));
     }
 }
 
-u8 *func_800520A8(S_520A8_800520A8 *s, s32 key) {
+u8 *Object_GetAnimTable(S_520A8_800520A8 *s, s32 key) {
     S_20_800520A8 *tbl = ((struct S_D_800E77D0_800520A8 *)&D_800E77D0)->f_4;
-    s32 i = func_80051FE8(key);
+    s32 i = Object_FindRecordOfKind(key);
     u8 *h;
     u8 *p;
     if (i == -1) {
@@ -882,10 +882,10 @@ u8 *func_800520A8(S_520A8_800520A8 *s, s32 key) {
     return p;
 }
 
-void func_80052134(void *arg0) {
+void Object_InitAnim(void *arg0) {
     s32 temp_v0;
 
-    temp_v0 = ((s32 (*)())func_800520A8)();
+    temp_v0 = ((s32 (*)())Object_GetAnimTable)();
     if (temp_v0 != 0) {
         M2C_FIELD(arg0, s32 *, 0x88) = temp_v0;
         M2C_FIELD(arg0, s16 *, 0x5C) = 0;
@@ -922,7 +922,7 @@ void Object_DropPickups(S_51F1C_80051F1C_8005216C *s) {
     }
 }
 
-void func_800522A8(S_O_800522A8 *o, s32 rot, s32 spd, short ang)
+void Object_Launch(S_O_800522A8 *o, s32 rot, s32 spd, short ang)
 {
   MAT_800522A8 m;
   switch (o->f_82)
@@ -953,7 +953,7 @@ void func_800522A8(S_O_800522A8 *o, s32 rot, s32 spd, short ang)
   o->f_E0.b20 = 0;
 }
 
-void func_8005240C(S_O_8005240C_8005240C *o, S_H_8005240C_8005240C *h) {
+void Object_SetupKnockback(S_O_8005240C_8005240C *o, S_H_8005240C_8005240C *h) {
     struct S_D_800E77D0_8005240C *g = (struct S_D_800E77D0_8005240C *)&D_800E77D0;
     s16 spd;
     s16 ang;
@@ -994,10 +994,10 @@ void func_8005240C(S_O_8005240C_8005240C *o, S_H_8005240C_8005240C *h) {
     } else {
         spd = spd * (10 - D_800E77EF - o->f_7D) / 10;
     }
-    func_800522A8(o, (s32)&h->f_18, spd, ang);
+    Object_Launch(o, (s32)&h->f_18, spd, ang);
 }
 
-s32 func_800525A0(u8 *a0, u8 *a1) {
+s32 Object_TakeHitDamage(u8 *a0, u8 *a1) {
     if (D_800E77E8 != 0) {
         s32 v = a0[0x81] - (*(u16 *)(a1 + 0x24) & 0xF);
         if (v <= 0) {
@@ -1009,21 +1009,21 @@ s32 func_800525A0(u8 *a0, u8 *a1) {
     return 0;
 }
 
-void func_800525E0(void *arg0) {
+void Object_ApplyHit(void *arg0) {
     s32 temp_v0;
 
     temp_v0 = Collision_GetShape(M2C_FIELD(arg0, u16 *, 0x50) & 0xFFF);
-    func_8005240C(arg0, temp_v0);
-    if (func_800525A0(arg0, temp_v0) != 0) {
+    Object_SetupKnockback(arg0, temp_v0);
+    if (Object_TakeHitDamage(arg0, temp_v0) != 0) {
         Object_DisableCollision(arg0);
     }
 }
 
-s32 func_80052640(void *arg0) {
+s32 Object_WasHit(void *arg0) {
     return ((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 0xB;
 }
 
-void func_80052658(void *arg0) {
+void Object_HoldLastFrame(void *arg0) {
     u16 temp_v1;
 
     temp_v1 = M2C_FIELD(((M2C_FIELD(arg0, u8 *, 0x7F) * 4) + M2C_FIELD(arg0, s32 *, 0x88)), u16 *, 2);
@@ -1032,7 +1032,7 @@ void func_80052658(void *arg0) {
     }
 }
 
-s32 func_80052688(S_80052688_80052688 *m, s16 y) {
+s32 Object_BounceOnFloor(S_80052688_80052688 *m, s16 y) {
     s16 t = m->f_96;
 
     if (m->f_96 < 0x40) {
@@ -1055,7 +1055,7 @@ s32 func_80052688(S_80052688_80052688 *m, s16 y) {
     return 0;
 }
 
-s16 func_8005278C(void *arg0) {
+s16 Object_MoveAndGetFloor(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0x24) = (s32) (M2C_FIELD(arg0, s32 *, 0x24) + M2C_FIELD(arg0, s16 *, 0x94));
     M2C_FIELD(arg0, s32 *, 0x2C) = (s32) (M2C_FIELD(arg0, s32 *, 0x2C) + M2C_FIELD(arg0, s16 *, 0x98));
     M2C_FIELD(arg0, s32 *, 0x28) = (s32) (M2C_FIELD(arg0, s32 *, 0x28) + M2C_FIELD(arg0, s16 *, 0x96));
@@ -1063,7 +1063,7 @@ s16 func_8005278C(void *arg0) {
     return Object_FloorAt(arg0, 0, 0, 0);
 }
 
-s32 func_80052800(S_80052800_80052800 *arg0)
+s32 Object_SlideBack(S_80052800_80052800 *arg0)
 {
   short s;
   u16 t;
@@ -1075,10 +1075,10 @@ s32 func_80052800(S_80052800_80052800 *arg0)
   return ((s16) t) < 11;
 }
 
-void func_80052864(S_52864_80052864 *s) {
+void Object_HitFeedback(S_52864_80052864 *s) {
     s32 v;
     s32 id;
-    func_800573A0(s, 0, 0, 0);
+    Object_SpawnHitSpark(s, 0, 0, 0);
     v = s->f_E3 & 3;
     switch (v) {
     case 1:
@@ -1114,14 +1114,14 @@ void Object_FinishAction(S_528E0_800528E0 *s) {
     }
 }
 
-void func_800529A0(S_529A0_800529A0 *s) {
+void Object_CheckHit(S_529A0_800529A0 *s) {
     if ((s->f_E0 >> 12) & 1) {
-        if (func_80052640(s) == 1) {
+        if (Object_WasHit(s) == 1) {
             s->f_CE = s->f_7F;
             s->f_7F = s->f_CD;
             s->f_5C = s->f_88[s->f_7F].f_0;
-            func_800525E0(s);
-            func_80052864(s);
+            Object_ApplyHit(s);
+            Object_HitFeedback(s);
         }
     }
 }
@@ -1133,22 +1133,22 @@ struct S_E77D0_80052A24 { u8 pad0[0x19]; s8 f_19; u8 pad1A[3]; s8 f_1D; };
 s32 Object_UpdateAction(S_O_80052A24 *o) {
     s32 y;
     if (o->f_82 == 0) {
-        func_800529A0((void *)o);
+        Object_CheckHit((void *)o);
         return 0;
     }
     o->f_85++;
     if (!((o->f_E0 >> 20) & 1)) {
-        y = ((s32 (*)(void *))func_8005278C)(o);
-        func_80052658(o);
+        y = ((s32 (*)(void *))Object_MoveAndGetFloor)(o);
+        Object_HoldLastFrame(o);
         switch (o->f_82) {
         case 4:
-            if (func_80052688((void *)o, y) != 0) {
+            if (Object_BounceOnFloor((void *)o, y) != 0) {
                 o->f_E0 |= 0x100000;
             }
             o->f_96 = o->f_96 + (((struct S_E77D0_80052A24 *)&D_800E77D0)->f_19 == 1 ? ((struct S_E77D0_80052A24 *)&D_800E77D0)->f_1D : D_800AF330[o->f_83][2]);
             break;
         case 5:
-            if (func_80052800((void *)o) != 0 || ABS_52A24(o->f_28 - (s16)y) > 0x80) {
+            if (Object_SlideBack((void *)o) != 0 || ABS_52A24(o->f_28 - (s16)y) > 0x80) {
                 o->f_E0 |= 0x100000;
             }
             o->f_28 = (s16)y;
@@ -1162,7 +1162,7 @@ s32 Object_UpdateAction(S_O_80052A24 *o) {
     }
 }
 
-void func_80052BC8(void *arg0) {
+void Object_LatchHit(void *arg0) {
     if (((u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C) == 0xB) {
         if ((M2C_FIELD(arg0, u32 *, 0xE0) & 0x28000) == 0x8000) {
             M2C_FIELD(arg0, s16 *, 0x5E) = 2;
@@ -1179,17 +1179,17 @@ void func_80052BC8(void *arg0) {
     M2C_FIELD(arg0, u32 *, 0xE0) = (u32) (M2C_FIELD(arg0, u32 *, 0xE0) & 0xFFFDFFFF);
 }
 
-u16 func_80052C4C(s16 i) {
-    s32 k = D_800E77B0[i];
+u16 Object_GetStatus(s16 i) {
+    s32 k = Object_SlotForRecord[i];
     if (k == -1) {
         return 0;
     }
     return g_Objects[k].f_5E;
 }
 
-/* Looks up the object for `id` in D_800E77B0 (-1 = none) and sets its byte +0xCF to `v`. */
+/* Looks up the object for `id` in Object_SlotForRecord (-1 = none) and sets its byte +0xCF to `v`. */
 void Object_SetFlagCF(s16 id, u8 v) {
-    s32 i = D_800E77B0[id];
+    s32 i = Object_SlotForRecord[id];
     if (i != -1) {
         g_Objects[i].f_CF = v;
     }
@@ -1203,8 +1203,8 @@ void func_80052CF8(s8 arg0) {
     D_800E77E3 = arg0;
 }
 
-s32 func_80052D04(s32 i, s32 *out) {
-    s32 k = D_800E77B0[i];
+s32 Object_GetHomePos(s32 i, s32 *out) {
+    s32 k = Object_SlotForRecord[i];
     if (k == -1) {
         return 0;
     }

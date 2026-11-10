@@ -6,7 +6,7 @@ typedef struct { P_TAG_8005E008 tag; u8 r0, g0, b0, code; s16 x0, y0; s16 w, h; 
 typedef struct { u8 pad0[0x70]; u32 ot[0x1000]; u32 term; u8 *prims; } DrawBuf_8005E008;
 extern struct S_D_800EC350 { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf_8005E008 db[2]; } g_Game;
 
-void func_8005E000(void) {
+void Debug_CpuMark(void) {
 }
 
 /* Debug: draws a CPU-load bar (blue, yellow, then red as it grows).

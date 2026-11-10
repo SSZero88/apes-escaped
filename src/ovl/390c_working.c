@@ -11,9 +11,9 @@ void DrawSync(s32);
 s32 VSync(s32 mode);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-void func_8008C390(void);
-void func_8008CC60(s32, s32);
-void func_8008CBFC(u8 *);
+void DebugFont_Init(void);
+void DebugFont_Locate(s32, s32);
+void DebugFont_PrintfAlways(u8 *);
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
@@ -38,11 +38,11 @@ s32 func_8013C5E0(void) {
     while (1) {
         func_8001325C(0);
         Gfx_BeginFrame();
-        func_8008C390();
-        func_8008CC60(0x8C, 0x6E);
-        func_8008CBFC("Now working.\n");
-        func_8008CC60(0x82, 0xB4);
-        func_8008CBFC("Push START key.\n");
+        DebugFont_Init();
+        DebugFont_Locate(0x8C, 0x6E);
+        DebugFont_PrintfAlways("Now working.\n");
+        DebugFont_Locate(0x82, 0xB4);
+        DebugFont_PrintfAlways("Push START key.\n");
         if (g_Pad_8013C5E0.held & PAD_START) {
             break;
         }

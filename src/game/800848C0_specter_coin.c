@@ -4,10 +4,10 @@
 extern struct { u8 pad0[0x816A]; s16 unk816A; } g_Game;
 
 typedef struct { u8 unk0; u8 unk1; } S_U8x2;
-S_U8x2 *func_800962E8(void);
+S_U8x2 *Save_GetSpecterCoinList(void);
 
 void SpecterCoin_ClearAll(void) {
-    S_U8x2 *p = func_800962E8();
+    S_U8x2 *p = Save_GetSpecterCoinList();
     s32 i;
     for (i = 0; i < 128; i++) {
         p[i].unk0 = 0xFF;
@@ -16,7 +16,7 @@ void SpecterCoin_ClearAll(void) {
 }
 
 s32 SpecterCoin_IsCollected(u16 a) {
-    S_U8x2 *p = func_800962E8();
+    S_U8x2 *p = Save_GetSpecterCoinList();
     s32 i;
     for (i = 0; i < 128; i++) {
         if (p[i].unk0 == 0xFF) {
@@ -31,7 +31,7 @@ s32 SpecterCoin_IsCollected(u16 a) {
 
 void SpecterCoin_Add(s32 id)
 {
-  S_U8x2 *p = func_800962E8();
+  S_U8x2 *p = Save_GetSpecterCoinList();
   s32 i;
   if (g_Game.unk816A >= 0x7F)
   {
@@ -50,7 +50,7 @@ void SpecterCoin_Add(s32 id)
 }
 
 s32 SpecterCoin_Count(void) {
-    S_U8x2 *p = func_800962E8();
+    S_U8x2 *p = Save_GetSpecterCoinList();
     s32 n = 0;
     s32 i;
     for (i = 0; i < 128; i++) {

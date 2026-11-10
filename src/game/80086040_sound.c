@@ -11,8 +11,8 @@ typedef struct { u16 f_0; u8 pad2[2]; s16 f_4; s16 f_6; s16 f_8; s16 f_A; s16 f_
 s32 Sound_CalcVolume3D(s32, s16, S16x2 *);
 void func_800A3570(s32, s32, s32);
 
-s32 func_8008820C(s16 a, s16 b);
-extern struct S_D_800BF610 { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } D_800BF610[];
+s32 Sound_ForgetVoice(s16 a, s16 b);
+extern struct S_D_800BF610 { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } Sound_FrameQueue[];
 
 s32 Sound_SetVolumes(s32 a, s32 b);
 
@@ -24,10 +24,10 @@ M2C_UNK func_800A329C(s16);
 extern struct S_D_800BF370 { s16 f_0; s16 f_2; u8 pad4[0xC]; s16 f_10; s16 f_12; s16 f_14; s16 f_16; s32 f_18; } g_SoundSlots[];
 extern M2C_UNK g_SoundTable;
 
-s32 func_80086428(s32 arg0);
-s32 func_80088578(void);
+s32 Sound_ResetVolumes(s32 arg0);
+s32 Sound_ClearFrameQueue(void);
 s16 Spu_Upload(s32 arg0, u32 arg1, u32 arg2);
-s16 func_800A1A24(void);
+s16 Spu_TransferBusy(void);
 M2C_UNK func_800A1F8C(M2C_UNK);
 M2C_UNK func_800A2030(M2C_UNK);
 M2C_UNK func_800A20F4(M2C_UNK, M2C_UNK);
@@ -49,7 +49,7 @@ void func_800A2428(s16, s16);
 extern s16 D_800BF67E;
 
 s32 Sound_ResumeStreams(void);
-s32 func_80088194(void);
+s32 Sound_ClearSlots(void);
 extern s16 D_800BF676;
 extern s16 D_800BF686;
 M2C_UNK func_800A2294(s16);
@@ -59,8 +59,8 @@ struct S_D_800BF670_80086170 { s16 f_0; s16 f_2; s16 f_4; s16 f_6; s16 f_8; s16 
 struct S_D_800EC350_80086170 { u8 pad0[0x8120]; u16 f_8120; };
 struct S_D_800BF670_800862E4 { s16 f_0; s16 f_2; s16 f_4; s16 f_6; s16 f_8; s16 f_A; s16 f_C; s16 f_E; s16 f_10; };
 extern char D_800A622C[];
-s32 func_800885A8(s16 a);
-s32 func_800885FC(s16 a, s16 b, s16 *c);
+s32 Sound_IsQueuedThisFrame(s16 a);
+s32 Sound_QueueThisFrame(s16 a, s16 b, s16 *c);
 s16 func_800A31B8(s32, s32, s32, s32, s32, s32);
 struct S_D_800B2D08_80087A20 { s16 f_0; s16 f_2; s16 f_4; s16 f_6; };
 extern u32 D_800EC250;
@@ -70,15 +70,15 @@ struct S_D_800BF610_80088578 { s16 f_0; s16 f_2; s32 f_4; };
 void func_800A2B6C(s32, s32);
 s16 func_800A1F3C(s32);
 s16 func_800A1CCC(s32);
-void func_800A1718(void);
+void SeqDriver_Quit(void);
 extern s32 D_800E38B4;
 s16 Sound_LoadBank(void *src, void *h, u32 size);
 s16 SsGetNck(void);
-s32 func_80087388(void);
-s32 func_8008745C(void);
+s32 Music_OpenSeq(void);
+s32 Music_Play(void);
 struct S_D_800EC350_80086CAC { u8 pad_0[0x822C]; s32 *f_822C; s32 f_8230; };
 s16 func_800A3158(s16, s16, s16);
-extern struct S_D_800BF688 { s16 f_0; s16 f_2; s16 f_4; } D_800BF688;
+extern struct S_D_800BF688 { s16 f_0; s16 f_2; s16 f_4; } g_SoundListenerPos;
 s32 SquareRoot0(s32);
 
 s32 Sound_InitState(void) {
@@ -94,8 +94,8 @@ s32 Sound_InitState(void) {
     g_SoundState.f_4 = -1;
     g_SoundState.f_6 = -1;
     g_SoundState.f_16 = -1;
-    func_80086428(0);
-    func_80088578();
+    Sound_ResetVolumes(0);
+    Sound_ClearFrameQueue();
     var_v1 = (s32 *)0x80154000;
     var_v0 = 0x3FFF;
     do {
@@ -106,7 +106,7 @@ s32 Sound_InitState(void) {
     Spu_Upload(0x80154000, 0x6FFFFU, 0x10000U);
     do {
 
-    } while ((func_800A1A24() << 0x10) != 0);
+    } while ((Spu_TransferBusy() << 0x10) != 0);
     func_800A1F8C(0xC);
     func_800A2030(4);
     func_800A20F4(0xA, 0xA);
@@ -118,8 +118,8 @@ s32 Sound_InitState(void) {
     return 0;
 }
 
-s32 func_80086148(void) {
-    func_80088194();
+s32 Sound_ResetSlotsAndResume(void) {
+    Sound_ClearSlots();
     Sound_ResumeStreams();
     return 0;
 }
@@ -146,7 +146,7 @@ s32 Sound_ResumeStreams(void) {
 
 extern s16 D_800BF680;
 
-s32 func_80086248(s32 mode) {
+s32 Sound_SetXaVolume(s32 mode) {
     switch (mode) {
     case 0:
         { s32 t = D_800BF67E; mode = t * 127 / 75; __asm__("" : : "r"(t)); mode <<= 16; mode >>= 16; }
@@ -194,7 +194,7 @@ s32 Sound_SetVolumes(s32 a, s32 b) {
     return 0;
 }
 
-s32 func_800863B0(s32 arg0, s32 arg1) {
+s32 Music_SetVolume(s32 arg0, s32 arg1) {
     if (arg0 != 0) {
         if (arg0 != 2) {
             arg1 = 0x4B;
@@ -208,15 +208,15 @@ s32 func_800863B0(s32 arg0, s32 arg1) {
     return 0;
 }
 
-s16 func_80086408(void) {
+s16 Music_GetSeq(void) {
     return D_800BF676;
 }
 
-s16 func_80086418(void) {
+s16 Music_GetPlayingSeq(void) {
     return D_800BF686;
 }
 
-s32 func_80086428(s32 arg0)
+s32 Sound_ResetVolumes(s32 arg0)
 {
   g_SoundState.f_E = 0x4B;
   g_SoundState.f_10 = 0x7F;
@@ -238,13 +238,13 @@ s32 func_80086428(s32 arg0)
  do { return 0; } while (0);
 }
 
-s32 func_800864B4(void *arg0) {
+s32 Sound_GetVolumes(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0) = (s32) g_SoundState.f_10;
     M2C_FIELD(arg0, s32 *, 4) = (s32) g_SoundState.f_E;
     return 0;
 }
 
-s32 func_800864DC(void) {
+s32 Sound_SaveVolumes(void) {
     g_SoundState.f_14 = g_SoundState.f_10;
     g_SoundState.f_12 = g_SoundState.f_E;
     return 0;
@@ -261,10 +261,10 @@ typedef struct { u16 id; s16 voice; u16 f_4, f_6, f_8, f_A, f_C, f_E, f_10; s16 
 typedef struct { u16 id; u16 f_2; u16 f_4, f_6, f_8, f_A, f_C, f_E; } Amb_80086540;
 struct Game_80086540 { u8 pad0[0x8126]; u16 stage; };
 extern Slot_80086540 g_SoundSlots_80086540[24] asm("g_SoundSlots");
-extern struct { Amb_80086540 *list; s32 f_4; } D_800B29B0[];
+extern struct { Amb_80086540 *list; s32 f_4; } Sound_StageAmbience[];
 extern char D_800A6200[];
 
-s32 func_80086540(void) {
+s32 Sound_StartAmbience(void) {
     s16 i;
     Slot_80086540 *s;
     Amb_80086540 *list;
@@ -284,10 +284,10 @@ s32 func_80086540(void) {
             s->f_14 = -1;
             s->f_16 = 0;
         } else {
-            func_8008820C(s->id, s->voice);
+            Sound_ForgetVoice(s->id, s->voice);
         }
     }
-    list = D_800B29B0[((struct Game_80086540 *)&g_Game)->stage].list;
+    list = Sound_StageAmbience[((struct Game_80086540 *)&g_Game)->stage].list;
     if (list == 0) {
         return 0;
     }
@@ -314,7 +314,7 @@ s32 func_80086540(void) {
             s->f_12 = 0;
         }
     }
-    func_80088578();
+    Sound_ClearFrameQueue();
     return 0;
 }
 
@@ -363,14 +363,14 @@ extern Mky_8008686C g_Monkeys[];
 extern struct { u8 pad0[0x100]; s32 f_100; u8 pad104[0x2C]; u16 f_130; s16 f_132; } D_800F4350;
 extern u8 D_800E6908;
 extern struct { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } g_Spike;
-extern SV_8008686C D_800BF688_8008686C asm("D_800BF688");
-s32 func_80087EE0(S_Src_80087EE0_80087EE0 *s, s16 *out);
+extern SV_8008686C D_800BF688_8008686C asm("g_SoundListenerPos");
+s32 Sound_CalcVolumePlanar(S_Src_80087EE0_80087EE0 *s, s16 *out);
 s32 Sound_Stop(s32 a, s32 b);
 s32 Music_DuckForPause(void);
 #define STOP_8008686C { if (s->playing != 0) { Sound_Stop(s->id, s->voice); s->playing = 0; s->voice = -1; } continue; }
 #define PLAY_8008686C { s->voice = Sound_Play(1, s->id); if (s->voice >= 0) { s->playing = 1; } else { s->playing = 0; } continue; }
 
-s32 func_8008686C(void) {
+s32 Sound_UpdatePositional(void) {
     S16x2 vol;
     SV_8008686C p;
     s16 i;
@@ -394,7 +394,7 @@ s32 func_8008686C(void) {
             if (Sound_CalcVolume3D((s32)&g_SoundSlots_8008686C[i].pos, s->f_10, &vol) == 0) STOP_8008686C
             if (s->playing == 0) PLAY_8008686C
         } else if (kind == 0x3000 || kind == 0x4000) {
-            if (func_80087EE0((S_Src_80087EE0_80087EE0 *)s, (s16 *)&vol) == 0) STOP_8008686C
+            if (Sound_CalcVolumePlanar((S_Src_80087EE0_80087EE0 *)s, (s16 *)&vol) == 0) STOP_8008686C
             if (s->playing == 0) PLAY_8008686C
         } else if (kind == 0x5000) {
             continue;
@@ -440,15 +440,15 @@ s32 func_8008686C(void) {
     return 0;
 }
 
-s32 func_80086CA4(void) {
+s32 Sound_Nop(void) {
     return 0;
 }
 
 /* Load sound banks. 1: the common bank (header 0x80100000, data 0x80154000) -> g_SoundState.f_0.
  * 3: the bank at 0x80146000 with reverb (type 4, depth 10) -> f_4. 2: a stage sound pack at
  * 0x80146000: its offsets (+0x14..+0x24) are made absolute and kept in g_Game+0x822C/+0x8230, bank 1
- * -> f_2, optional bank 2 (if word 1 is set) -> f_4; then func_80087388 and, except when
- * D_800E38B4 is 0x35, 0x18, 0x48, 0x57 or 0x4E, func_8008745C. Each load waits for SsGetNck. */
+ * -> f_2, optional bank 2 (if word 1 is set) -> f_4; then Music_OpenSeq and, except when
+ * D_800E38B4 is 0x35, 0x18, 0x48, 0x57 or 0x4E, Music_Play. Each load waits for SsGetNck. */
 s32 Sound_LoadBanks(s32 mode) {
     s16 id;
     s32 *h;
@@ -503,16 +503,16 @@ s32 Sound_LoadBanks(s32 mode) {
         if (g_SoundState.f_4 >= 0) {
             func_800A2640(g_SoundState.f_4, g_SoundState.f_10);
         }
-        func_80087388();
+        Music_OpenSeq();
         if (D_800E38B4 != 0x35 && D_800E38B4 != 0x18 && D_800E38B4 != 0x48 && D_800E38B4 != 0x57 && D_800E38B4 != 0x4E) {
-            func_8008745C();
+            Music_Play();
         }
         return 0;
     }
     return 0;
 }
 
-s32 func_80086F00(s32 a, s32 b) {
+s32 Music_ChangesOnAreaSwitch(s32 a, s32 b) {
     if (a == 0x4B || (a == 0x48 && b == 0x4C) || a == 4 || (a == 3 && b == 4) || a == 0x22 || (a == 0x21 && b == 0x22)
         || (a == 0x20 && b == 0x1E) || (a == 0x1E && b == 0x20) || (a == 8 && b == 6) || (a == 6 && b == 8)
         || (a == 9 && b == 0xA) || (a == 0xA && b == 9)) {
@@ -537,7 +537,7 @@ s32 Sound_UnloadBanks(s32 mode) {
             g_SoundState.f_6 = -1;
             g_SoundState.f_16 = -1;
         }
-        func_80088194();
+        Sound_ClearSlots();
         func_800A342C(1);
         VSync(0);
         if (g_SoundState.f_4 >= 0) {
@@ -558,7 +558,7 @@ s32 Sound_UnloadBanks(s32 mode) {
             g_SoundState.f_6 = -1;
             g_SoundState.f_16 = -1;
         }
-        func_80088194();
+        Sound_ClearSlots();
         func_800A342C(1);
         VSync(0);
         if (g_SoundState.f_4 >= 0) {
@@ -593,7 +593,7 @@ s32 Sound_UnloadBanks(s32 mode) {
 
 /* Stops the music/stream voice (g_SoundState+6, also clears +0x16), then waits for the three
  * sound-bank slots (+4, +2, +0) to finish (func_800A1CCC < 0 while busy) and shuts the sound
- * library down (func_800A2030(4), func_800A20F4(0, 0), func_800A1718). Returns 0. */
+ * library down (func_800A2030(4), func_800A20F4(0, 0), SeqDriver_Quit). Returns 0. */
 s32 Sound_Shutdown(void) {
     if (g_SoundState.f_6 >= 0) {
         func_800A2428(g_SoundState.f_6, 0);
@@ -619,11 +619,11 @@ s32 Sound_Shutdown(void) {
     }
     func_800A2030(4);
     func_800A20F4(0, 0);
-    func_800A1718();
+    SeqDriver_Quit();
     return 0;
 }
 
-s32 func_80087388(void) {
+s32 Music_OpenSeq(void) {
     s16 temp_v0;
 
     if ((g_Game.f_8230 == 0) || (g_SoundState.f_2 < 0)) {
@@ -638,7 +638,7 @@ s32 func_80087388(void) {
     return 0;
 }
 
-s32 func_8008740C(void) {
+s32 Music_ModeUsesUserVolume(void) {
     if ((g_Game.f_8120 == 0xD) || (g_Game.f_8120 == 0xB) || (g_Game.f_8120 == 0x11) || (g_Game.f_8120 == 0x13) || (g_Game.f_8120 == 0x18)) {
         return 1;
     }
@@ -650,15 +650,15 @@ void func_800A2E3C(s32, s32, s32);
 void func_800A2ACC(s32);
 
 /* Starts the stage music voice (g_SoundState.f_6) with the volume for the current level: special-cased
-   when func_8008740C() is set (level 0x46 with save byte 8 == 5 plays at a third), otherwise by
+   when Music_ModeUsesUserVolume() is set (level 0x46 with save byte 8 == 5 plays at a third), otherwise by
    g_Game.f_8120. Remembers the voice in f_16. Returns 0. */
-s32 func_8008745C(void) {
+s32 Music_Play(void) {
     struct S_D_800BF670 *ss = &g_SoundState;
     u16 m;
     if (ss->f_6 < 0) {
         return 0;
     }
-    if (func_8008740C() != 0) {
+    if (Music_ModeUsesUserVolume() != 0) {
         if (D_800E38B4 == 0x46 && SaveByte_Get(8) == 5) {
             func_800A2E3C(g_SoundState.f_6, 0x5A, (s16)(g_SoundState.f_E / 3));
         } else {
@@ -682,7 +682,7 @@ s32 func_8008745C(void) {
     return 0;
 }
 
-s32 func_8008760C(void) {
+s32 Music_FadeOut(void) {
     if (g_SoundState.f_6 >= 0) {
         func_800A2F54(g_SoundState.f_6, 0x5A, 0);
         g_SoundState.f_16 = -1;
@@ -735,10 +735,10 @@ s32 Sound_PlayFixed(s32 id) {
     if (g_SoundStateArr[((S_Snd_800877F8 *)&g_SoundTable)[id].f_0] < 0) {
         return -1;
     }
-    if (func_800885A8(id) != 0) {
+    if (Sound_IsQueuedThisFrame(id) != 0) {
         return 0;
     }
-    if (func_800885FC(0, id, 0) == 0) {
+    if (Sound_QueueThisFrame(0, id, 0) == 0) {
         return 0;
     }
     ((S_Snd_800877F8 *)&g_SoundTable)[id].f_6 = func_800A3158(g_SoundStateArr[((S_Snd_800877F8 *)&g_SoundTable)[id].f_0], ((S_Snd_800877F8 *)&g_SoundTable)[id].f_2, ((S_Snd_800877F8 *)&g_SoundTable)[id].f_4);
@@ -811,11 +811,11 @@ s32 Sound_PlayAt(s32 idx, s32 a1)
   {
     return 0;
   }
-  if (func_800885A8(idx) != 0)
+  if (Sound_IsQueuedThisFrame(idx) != 0)
   {
     return 0;
   }
-  if (func_800885FC(1, idx, &v) == 0)
+  if (Sound_QueueThisFrame(1, idx, &v) == 0)
   {
     return 0;
   }
@@ -857,7 +857,7 @@ s32 Sound_UpdateVoice3D(s32 a0, s32 arg1, s16 b, s32 c)
   return 0;
 }
 
-s32 func_80087BA4(s32 a0, s16 id, s16 n, s16 d) {
+s32 Sound_SetVoiceVolumeRatio(s32 a0, s16 id, s16 n, s16 d) {
     S16x2_80087BA4 v;
     if (id < 0) {
         return -1;
@@ -867,7 +867,7 @@ s32 func_80087BA4(s32 a0, s16 id, s16 n, s16 d) {
     return 0;
 }
 
-s32 func_80087C28(s32 arg0, s16 arg1, s16 arg2)
+s32 Sound_SetVoicePitch(s32 arg0, s16 arg1, s16 arg2)
 {
   s16 new_var;
   int new_var2;
@@ -897,7 +897,7 @@ s32 Sound_SetStereo(s32 arg0) {
 typedef struct { s16 vx, vy, vz, pad; } SV_87C8C;
 struct Game_87C8C { u8 pad0[0x813A]; u16 f_813A; u8 pad813C[0x11C]; SV_87C8C f_8258; SV_87C8C f_8260; };
 extern struct Game_87C8C g_Game_87C8C asm("g_Game");
-extern SV_87C8C D_800BF688_87C8C asm("D_800BF688");
+extern SV_87C8C D_800BF688_87C8C asm("g_SoundListenerPos");
 void VectorNormalSS(void *, void *);
 
 s32 Sound_CalcVolume3D(s32 pv, s16 range, S16x2 *out)
@@ -966,12 +966,12 @@ s32 Sound_CalcVolume3D(s32 pv, s16 range, S16x2 *out)
   return 1;
 }
 
-/* func_80087EE0: volume of a positional sound source s for the listener D_800BF688 (used by
- * func_8008686C). Distance in the y/z plane (type 0x3000) or y/x plane, against radius f_E or
+/* Sound_CalcVolumePlanar: volume of a positional sound source s for the listener g_SoundListenerPos (used by
+ * Sound_UpdatePositional). Distance in the y/z plane (type 0x3000) or y/x plane, against radius f_E or
  * f_A: full volume 0x1000 within 0x800, falling linearly to 0 at the radius. Writes the same value
  * to out[0] and out[1] (left/right?); returns 0 when out of range, muted (D_800EC250 mode 0xC*) or
  * below 8. */
-s32 func_80087EE0(S_Src_80087EE0_80087EE0 *s, s16 *out) {
+s32 Sound_CalcVolumePlanar(S_Src_80087EE0_80087EE0 *s, s16 *out) {
     s32 type;
     s32 y;
     s32 d;
@@ -985,7 +985,7 @@ s32 func_80087EE0(S_Src_80087EE0_80087EE0 *s, s16 *out) {
         return 0;
     }
     if (type == 0x3000) {
-        d = SquareRoot0((D_800BF688.f_2 - y) * (D_800BF688.f_2 - y) + (D_800BF688.f_4 - s->f_8) * (D_800BF688.f_4 - s->f_8));
+        d = SquareRoot0((g_SoundListenerPos.f_2 - y) * (g_SoundListenerPos.f_2 - y) + (g_SoundListenerPos.f_4 - s->f_8) * (g_SoundListenerPos.f_4 - s->f_8));
         r = s->f_E;
         if (r < d) {
             return 0;
@@ -998,7 +998,7 @@ s32 func_80087EE0(S_Src_80087EE0_80087EE0 *s, s16 *out) {
             vr = vl;
         }
     } else {
-        d = SquareRoot0((D_800BF688.f_2 - y) * (D_800BF688.f_2 - y) + (D_800BF688.f_0 - s->f_4) * (D_800BF688.f_0 - s->f_4));
+        d = SquareRoot0((g_SoundListenerPos.f_2 - y) * (g_SoundListenerPos.f_2 - y) + (g_SoundListenerPos.f_0 - s->f_4) * (g_SoundListenerPos.f_0 - s->f_4));
         r = s->f_A;
         if (r < d) {
             return 0;
@@ -1029,20 +1029,20 @@ s32 Sound_Stop(s32 a, s32 b) {
     if (a & ~0xFFF) {
         return 0;
     }
-    func_8008820C(a, b);
+    Sound_ForgetVoice(a, b);
     return 0;
 }
 
-s32 func_800880D0(s32 a, s32 b) {
+s32 Sound_StopAndForget(s32 a, s32 b) {
     if (b < 0) {
         return 0;
     }
     func_800A329C(b);
-    func_8008820C(a, b);
+    Sound_ForgetVoice(a, b);
     return 0;
 }
 
-s32 func_80088120(s32 arg0)
+s32 Sound_FreeSlot(s32 arg0)
 {
   void *new_var;
   s16 temp_a0;
@@ -1067,7 +1067,7 @@ s32 func_80088120(s32 arg0)
   return 0;
 }
 
-s32 func_80088194(void) {
+s32 Sound_ClearSlots(void) {
     s32 i;
     for (i = 0; i < 24; i++) {
         g_SoundSlots[i].f_0 = -1;
@@ -1092,7 +1092,7 @@ struct S_D_800BF370 *Sound_AllocSlot(void) {
     return 0;
 }
 
-s32 func_8008820C(s16 a, s16 b) {
+s32 Sound_ForgetVoice(s16 a, s16 b) {
     s32 i;
     for (i = 0; i < 24; i++) {
         if (g_SoundSlots[i].f_2 == b && g_SoundSlots[i].f_0 == a) {
@@ -1107,7 +1107,7 @@ s32 func_8008820C(s16 a, s16 b) {
     return -1;
 }
 
-s32 func_80088280(s16 a) {
+s32 Sound_FindVoice(s16 a) {
     s32 i;
     for (i = 0; i < 24; i++) {
         if (g_SoundSlots[i].f_0 == a) {
@@ -1122,7 +1122,7 @@ extern SndEnt_882C4 g_SoundTable_882C4[] asm("g_SoundTable");
 extern s16 g_SoundState_882C4[] asm("g_SoundState");
 s16 func_800A3158_882C4(s32, s32, s32) asm("func_800A3158");
 
-s32 func_800882C4(s32 mode, s32 id, s32 tag) {
+s32 Sound_PlayTagged(s32 mode, s32 id, s32 tag) {
     s16 i = id & 0xFFF;
     SndEnt_882C4 *e;
     struct S_D_800BF370 *p;
@@ -1191,7 +1191,7 @@ s32 Sound_PlayTracked(s16 arg0, s16 arg1) {
     return -1;
 }
 
-s32 func_80088548(s32 arg0, s32 *arg1, s32 *arg2)
+s32 Sound_GetTableEntry(s32 arg0, s32 *arg1, s32 *arg2)
 {
   void *temp_a0;
   M2C_UNK *new_var2;
@@ -1205,34 +1205,34 @@ s32 func_80088548(s32 arg0, s32 *arg1, s32 *arg2)
   return 0;
 }
 
-s32 func_80088578(void) {
+s32 Sound_ClearFrameQueue(void) {
     s32 i;
     for (i = 0; i < 12; i++) {
-        ((struct S_D_800BF610_80088578 *)&D_800BF610)[i].f_0 = -1;
-        ((struct S_D_800BF610_80088578 *)&D_800BF610)[i].f_2 = 0;
+        ((struct S_D_800BF610_80088578 *)&Sound_FrameQueue)[i].f_0 = -1;
+        ((struct S_D_800BF610_80088578 *)&Sound_FrameQueue)[i].f_2 = 0;
     }
     return 0;
 }
 
-s32 func_800885A8(s16 a) {
+s32 Sound_IsQueuedThisFrame(s16 a) {
     s32 i;
     for (i = 0; i < 12; i++) {
-        if (D_800BF610[i].f_0 >= 0 && D_800BF610[i].f_2 == a) {
+        if (Sound_FrameQueue[i].f_0 >= 0 && Sound_FrameQueue[i].f_2 == a) {
             return 1;
         }
     }
     return 0;
 }
 
-s32 func_800885FC(s16 a, s16 b, s16 *c) {
+s32 Sound_QueueThisFrame(s16 a, s16 b, s16 *c) {
     s32 i;
     for (i = 0; i < 12; i++) {
-        if (D_800BF610[i].f_0 < 0) {
-            D_800BF610[i].f_0 = a;
-            D_800BF610[i].f_2 = b;
+        if (Sound_FrameQueue[i].f_0 < 0) {
+            Sound_FrameQueue[i].f_0 = a;
+            Sound_FrameQueue[i].f_2 = b;
             if (a == 1) {
-                D_800BF610[i].f_4 = c[0];
-                D_800BF610[i].f_6 = c[1];
+                Sound_FrameQueue[i].f_4 = c[0];
+                Sound_FrameQueue[i].f_6 = c[1];
             }
             return 1;
         }

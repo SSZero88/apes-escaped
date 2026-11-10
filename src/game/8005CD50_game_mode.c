@@ -26,7 +26,7 @@ void PadInitDirect(u8* pad1, u8* pad2);
 void PadStartCom(void);
 void func_8002F1F0(s32);
 void func_80012CA0(s32);
-void func_8008C01C(void);
+void Mem_Init(void);
 void Gfx_InitProjection(void);
 void DrawSyncCallback(void (*func)(void));
 void VSyncCallback(void (*func)(void));
@@ -50,7 +50,7 @@ void Gfx_VSyncFlip(void);
 s32 TimeTrial_ClockRunning(void);
 void func_8001300C(void);
 void Seq_Tick(void);
-void func_80088578(void);
+void Sound_ClearFrameQueue(void);
 void PutDispEnv(void *);
 void PutDrawEnv(void *);
 void DrawOTag(void *);
@@ -65,11 +65,11 @@ s32 Game_SetMode(s32, s32, s32);
 void Cd_Update(void);
 s32 Zone_CheckSpike(s32);
 s32 Cd_GetAreaFileSector(s32);
-void func_8007A14C(void);
+void ScreenWipe_DrawSpiralFrame(void);
 s32 Cd_PollLoadList(void);
-void func_80094F40(void);
+void StageIntro_Update(void);
 void TimeLimit_Update(void);
-void func_80095464(void);
+void StageExit_Update(void);
 void func_800954C4(void);
 void func_800955C8(void);
 
@@ -85,7 +85,7 @@ void System_Init(void) {
     PadStartCom();
     func_8002F1F0(0);
     func_80012CA0(0);
-    func_8008C01C();
+    Mem_Init();
     Gfx_InitProjection();
     DrawSyncCallback(Timing_SampleHBlanks);
     VSyncCallback(Game_VSyncCallback);
@@ -93,7 +93,7 @@ void System_Init(void) {
     Cd_InitFileTable();
 }
 
-s32 func_8005CDFC(void) {
+s32 Game_Nop(void) {
     return 0;
 }
 
@@ -101,10 +101,10 @@ s32 func_8005CDFC(void) {
  */
 typedef struct { s32 f_0; u8 pad4[0x8100]; s32 f_8104; u8 pad8108[0x1E]; u16 f_8126; u8 pad8128[0x4]; s16 f_812C; s16 f_812E; u8 pad8130[0x8]; u8 f_8138; u8 f_8139; u16 f_813A; s16 f_813C; u8 pad813E[0x2]; s32 f_8140; u8 pad8144[0x10]; s16 f_8154; s16 f_8156; s16 f_8158; u8 pad815A[0x4]; s16 f_815E; u8 pad8160[0x2]; s16 f_8162; u8 pad8164[0x2]; s16 f_8166; s16 f_8168; s16 f_816A; u8 pad816C[0x160]; u8 f_82CC; u8 f_82CD; } Game_5CE04;
 extern Game_5CE04 g_Game_5CE04 asm("g_Game");
-void func_80086428(s32);
+void Sound_ResetVolumes(s32);
 void Sound_SetStereo(s32);
 void Gadget_SetupForMode(void);
-void func_80095960(void);
+void Save_ResetNewGame(void);
 
 s32 Game_NewGameReset(void) {
     Game_5CE04 *g = &g_Game_5CE04;
@@ -130,10 +130,10 @@ s32 Game_NewGameReset(void) {
     g->f_82CD = 0;
     g->f_8104 = 1;
     g->f_8138 = one;
-    func_80086428(1);
+    Sound_ResetVolumes(1);
     Sound_SetStereo(g->f_813A);
     Gadget_SetupForMode();
-    func_80095960();
+    Save_ResetNewGame();
     return 0;
 }
 
@@ -162,7 +162,7 @@ void Game_VSyncCallback(void) {
         func_8001300C();
     }
     Seq_Tick();
-    func_80088578();
+    Sound_ClearFrameQueue();
 }
 
 void Timing_SampleHBlanks(void)
@@ -219,33 +219,33 @@ extern s16 g_ClockStopFrames;
 extern s16 g_SpikeHealth;
 struct Spk_5D100 { u8 pad0[0x30]; s32 f_30; s32 f_34; s32 f_38; u8 pad3C[0xB6]; u8 f_F2; u8 f_F3; };
 #define SPK_5D100 ((struct Spk_5D100 *)&g_Spike)
-void func_8005DD28(void);
+void Timer_Stop(void);
 void Stage_Begin(s32);
 void Spike_Init(void);
 void Stage_Load(s32, s32);
 void Spike_SetPlayMode(s32);
 void ClearImage(RECT_5D100 *, s32, s32, s32);
-void func_8005DD18(void);
+void Timer_Start(void);
 void Area_Enter(s32);
 void Sound_UnloadBanks(s32);
-s32 func_80086F00(s32, s32);
-void func_8008745C(void);
+s32 Music_ChangesOnAreaSwitch(s32, s32);
+void Music_Play(void);
 void Sound_PlayFixed(s32);
-void func_80094F20(void);
+void StageIntro_Start(void);
 void Stage_StartTimerAndMusic(void);
 void SaveByte_Set(s32, s32);
 void Stage_SaveStatus(void);
-void func_8008760C(void);
+void Music_FadeOut(void);
 void Camera_ExitLook(void);
 void Camera_ExitAim(void);
-void func_80097BFC(void);
+void Stage_UpdateClearStatus(void);
 void Stage_StoreClearState(s32);
 void Cd_SeekAreaFile(s32);
 void Area_SaveProgress(s32);
 s32 Stage_PairInSharedSet(s32, s32);
 void Cd_ReadCurrentFile(void);
 void Gfx_WaitFlip(void);
-void func_8009543C(void);
+void StageExit_Begin(void);
 void func_8009546C(void);
 void Cd_PlayXaTrack(s32);
 void func_80095588(void);
@@ -264,7 +264,7 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
         g_Cd.f_4 = -1;
         g_Cd.f_8 = 0;
         g_Cd.f_10 = -1;
-        func_8005DD28();
+        Timer_Stop();
         g_ClockStopFrames = 0;
         G->f_140 = 0;
         if (G->f_126 != 0x56) {
@@ -291,16 +291,16 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
     case 2:
         ClearImage(&r, 0, 0, 0);
         DrawSync(0);
-        func_8005DD18();
+        Timer_Start();
         Area_Enter(stage);
         if (stage == 0x35 || stage == 0x18) {
             Sound_UnloadBanks(2);
         }
-        if (func_80086F00(stage, G->f_126)) {
+        if (Music_ChangesOnAreaSwitch(stage, G->f_126)) {
             Sound_UnloadBanks(3);
         }
         if ((u32)(stage - 0x36) < 2 || stage == 0x19 || stage == 0x49) {
-            func_8008745C();
+            Music_Play();
         }
         Stage_Load(stage, area);
         G->f_130 = 4;
@@ -308,11 +308,11 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
         Sound_PlayFixed(0x7B);
         break;
     case 13:
-        func_8005DD18();
+        Timer_Start();
         g_ClockStopFrames = 0;
         Area_Enter(stage);
         if (stage != 0x35 && stage != 0x18 && stage != 0x57 && stage != 0x48) {
-            func_8008745C();
+            Music_Play();
         }
         Spike_Init();
         Stage_Load(stage, area);
@@ -322,7 +322,7 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
         G->f_132 = 0x30;
         break;
     case 24:
-        func_80094F20();
+        StageIntro_Start();
         break;
     case 25:
         Stage_StartTimerAndMusic();
@@ -345,7 +345,7 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
     case 31:
     case 32:
     case 34:
-        func_8008760C();
+        Music_FadeOut();
         G->f_130 = 2;
         G->f_132 = 0;
         Camera_ExitLook();
@@ -355,19 +355,19 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
         }
         break;
     case 29:
-        func_80097BFC();
+        Stage_UpdateClearStatus();
         Stage_StoreClearState(G->f_124);
     case 22:
         G->f_100 = -1;
         SPK_5D100->f_38 = 0;
         SPK_5D100->f_34 = 0;
         SPK_5D100->f_30 = 0;
-        func_8008760C();
+        Music_FadeOut();
         G->f_130 = 2;
         G->f_132 = 0;
         break;
     case 9:
-        func_8008760C();
+        Music_FadeOut();
         if (++G->f_158 >= 0x100) {
             G->f_158 = 0xFF;
         }
@@ -393,7 +393,7 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
         Cd_SeekAreaFile(stage);
         break;
     case 6:
-        func_8005DD28();
+        Timer_Stop();
         Area_SaveProgress(stage);
         if (Stage_PairInSharedSet((s16)G->f_126, (s16)stage)) {
             Sound_UnloadBanks(1);
@@ -409,7 +409,7 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
         G->f_134 = GB->f_C;
         break;
     case 10:
-        func_8005DD28();
+        Timer_Stop();
         if (G->f_124 == 0x21) {
             Game_SetMode(0x20, G->f_126, G->f_12A);
             break;
@@ -422,7 +422,7 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
             G->f_13C--;
         }
         if (G->f_120 == 0x13) {
-            func_8005DD44(10);
+            Timer_AddSeconds(10);
         }
         GB->f_40A0 = 1;
         GB->f_28 = 1;
@@ -434,12 +434,12 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
         Game_SetMode(0xB, G->f_126, G->f_12A);
         break;
     case 11:
-        func_8005DD28();
+        Timer_Stop();
         g_Cd.f_4 = -1;
         g_Cd.f_8 = 0;
         g_Cd.f_10 = -1;
         Area_SaveProgress(stage);
-        func_8008760C();
+        Music_FadeOut();
         g_SpikeHealth = 0;
         G->f_130 = 3;
         G->f_132 = 0;
@@ -453,9 +453,9 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
         Game_SetMode(3, G->f_126, G->f_12A);
         break;
     case 18:
-        func_8005DD28();
-        func_80097BFC();
-        func_8009543C();
+        Timer_Stop();
+        Stage_UpdateClearStatus();
+        StageExit_Begin();
         break;
     case 19:
         Spike_SetPlayMode(9);
@@ -484,7 +484,7 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
  * 4: waits in the zone (stops Spike on zone kind 1), then 5 or 4 again; leaving the zone goes
  * back to 3. 5: on reaching the inner zone (Zone_CheckSpike(1)) starts loading it (state 6).
  * 6: counts frames (+0x8132) and polls the load (g_Cd+8), then enters the new area
- * (state 2). States 18, 19, 24, 25 run func_80095464, func_800954C4, func_80094F40 and
+ * (state 2). States 18, 19, 24, 25 run StageExit_Update, func_800954C4, StageIntro_Update and
  * TimeLimit_Update; 20 sets Spike flag 0x20 and calls func_800955C8. Returns 0. */
 s32 Stage_UpdateAreaState(void) {
     s32 flags;
@@ -560,7 +560,7 @@ s32 Stage_UpdateAreaState(void) {
         break;
     case 6:
         (*(struct Game_8005D890 *)&g_Game).f_8132++;
-        func_8007A14C();
+        ScreenWipe_DrawSpiralFrame();
         switch (g_Cd.f_8) {
         case 0:
         case 1:
@@ -577,13 +577,13 @@ s32 Stage_UpdateAreaState(void) {
         }
         break;
     case 24:
-        func_80094F40();
+        StageIntro_Update();
         break;
     case 25:
         TimeLimit_Update();
         break;
     case 18:
-        func_80095464();
+        StageExit_Update();
         break;
     case 19:
         func_800954C4();
@@ -604,7 +604,7 @@ s32 Stage_UpdateAreaState(void) {
 INCLUDE_RODATA("asm/nonmatchings/game/8005CD50_game_mode", jtbl_800A5970_pad);
 
 
-s32 func_8005DC78(void) {
+s32 Game_IsPlaying(void) {
     if ((u32)(g_Game.f_812C - 3) < 3) {
         if (g_Spike.f_5E != 0x23 && g_Spike.f_5E != 0x4A && g_Spike.f_5E != 0x2D
             && (g_Spike.f_70 & 0xF0) != 0xE0) {
@@ -624,19 +624,19 @@ s32 Game_NotExiting(void) {
     return 0;
 }
 
-void func_8005DD18(void) {
+void Timer_Start(void) {
     g_TimerOn = 1;
 }
 
-void func_8005DD28(void) {
+void Timer_Stop(void) {
     g_TimerOn = 0;
 }
 
-s16 func_8005DD34(void) {
+s16 TimeTrial_GetClockStop(void) {
     return g_ClockStopFrames;
 }
 
-void func_8005DD44(s16 arg0) {
+void Timer_AddSeconds(s16 arg0) {
     g_Game.f_8140 = (s32) (g_Game.f_8140 + (arg0 * 0x3C));
 }
 
@@ -655,7 +655,7 @@ s32 TimeTrial_ClockRunning(void) {
     return g_TimerOn;
 }
 
-void func_8005DDE0(void) {
+void Gfx_ResetFlip(void) {
     D_800B97C0.f_2 = 0;
     D_800B97C0.f_0 = 0;
 }
@@ -688,7 +688,7 @@ void Gfx_WaitFlip(void) {
     DrawSync(0);
 }
 
-void func_8005DEE0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void Gfx_QueueFlip(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     Gfx_WaitFlip();
     D_800B97C0.f_4 = arg0;
     D_800B97C0.f_8 = arg1;

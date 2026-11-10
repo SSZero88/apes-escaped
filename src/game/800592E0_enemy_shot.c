@@ -9,7 +9,7 @@ void EnemyShot_DrawAll();
 void EnemyShot_UpdateAll(void);
 extern struct S_D_800EC350 { u8 pad_0[0x8100]; s32 f_8100; } g_Game;
 
-extern M2C_UNK D_800B8D30;
+extern M2C_UNK EnemyShot_Slots;
 
 M2C_UNK Collision_Set(M2C_UNK, s32 *, s32);
 s32 *CollShape_Alloc();
@@ -31,7 +31,7 @@ void EnemyShot_InitAll(void) {
     s32 var_v1;
 
     var_v1 = 0xF;
-    var_v0 = &D_800B8D30;
+    var_v0 = &EnemyShot_Slots;
     do {
         M2C_FIELD(var_v0, s8 *, 0xC) = 0;
         var_v1 -= 1;
@@ -44,17 +44,17 @@ typedef struct { s16 x, y, z; } P3_59304;
 typedef struct { u8 pad0[8]; s32 f_8; u8 padC[0x16]; u8 f_22; u8 pad23[7]; s16 f_2A; } Proj_59304;
 typedef struct { SV_59304 v; u8 f_8; u8 f_9; u8 padA[2]; } Aim_59304;
 typedef struct { void *col; s32 f_4; Proj_59304 *obj; u8 state; u8 f_D; u8 delay; u8 f_F; u8 f_10; u8 f_11; u8 f_12; u8 hidden; u8 f_14; u8 f_15; u8 f_16; u8 f_17; u16 f_18; u16 f_1A; SV_59304 pos; s16 vx; s16 vy; s16 vz; s16 ground; u8 pad2C[2]; u16 timer; } Shot_59304;
-extern Shot_59304 D_800B8D30_59304[] asm("D_800B8D30");
+extern Shot_59304 D_800B8D30_59304[] asm("EnemyShot_Slots");
 extern Aim_59304 D_800AF800[];
 void Matrix_FromFacingXZ(void *, void *);
 void ApplyMatrixSV(void *, void *, void *);
 Proj_59304 *Projectile_Alloc(void);
-void func_80084BB8(Proj_59304 *, s32);
-void func_80084B48(Proj_59304 *, SV_59304 *, SV_59304 *, s32);
-void func_80084B74(Proj_59304 *, s32);
-void func_80084C78(Proj_59304 *, s32, s32, s32);
+void Projectile_SetLife(Proj_59304 *, s32);
+void Projectile_Launch(Proj_59304 *, SV_59304 *, SV_59304 *, s32);
+void Projectile_SetColour(Proj_59304 *, s32);
+void Projectile_SetHitEffect(Proj_59304 *, s32, s32, s32);
 
-s32 func_80059304(P3_59304 *p, s32 owner, s32 type, s32 arg) {
+s32 EnemyShot_Spawn(P3_59304 *p, s32 owner, s32 type, s32 arg) {
     Shot_59304 *s;
     s32 i;
     s32 n;
@@ -179,10 +179,10 @@ s32 func_80059304(P3_59304 *p, s32 owner, s32 type, s32 arg) {
             if ((s->obj = Projectile_Alloc()) == 0) {
                 return 1;
             }
-            func_80084BB8(s->obj, 0x38);
-            func_80084B48(s->obj, &s->pos, &d, 0);
-            func_80084B74(s->obj, 1);
-            func_80084C78(s->obj, 0x10A, 0x6B, 0x59);
+            Projectile_SetLife(s->obj, 0x38);
+            Projectile_Launch(s->obj, &s->pos, &d, 0);
+            Projectile_SetColour(s->obj, 1);
+            Projectile_SetHitEffect(s->obj, 0x10A, 0x6B, 0x59);
             fx = 0x10B;
             goto spawn;
         case 10:
@@ -211,7 +211,7 @@ s32 func_80059304(P3_59304 *p, s32 owner, s32 type, s32 arg) {
             if ((s->obj = Projectile_Alloc()) == 0) {
                 return 1;
             }
-            func_80084B48(s->obj, &s->pos, &d, k2);
+            Projectile_Launch(s->obj, &s->pos, &d, k2);
             s->obj->f_8 = s->f_4;
             s->obj->f_22 = 8;
             s->obj->f_2A = 0xC01;
@@ -223,9 +223,9 @@ s32 func_80059304(P3_59304 *p, s32 owner, s32 type, s32 arg) {
             if ((s->obj = Projectile_Alloc()) == 0) {
                 return 1;
             }
-            func_80084B48(s->obj, &s->pos, &tmp, 0);
-            func_80084B74(s->obj, 2);
-            func_80084C78(s->obj, 0x112, 0x5A, 0xFF);
+            Projectile_Launch(s->obj, &s->pos, &tmp, 0);
+            Projectile_SetColour(s->obj, 2);
+            Projectile_SetHitEffect(s->obj, 0x112, 0x5A, 0xFF);
             fx = 0x118;
         spawn:
             s->obj->f_8 = s->f_4;
@@ -276,7 +276,7 @@ typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_59B90;
 typedef struct { u8 pad0[0xC]; u8 state; u8 pad0D[3]; u8 model; u8 pad11[2]; u8 hidden; u8 u; u8 v; u8 w; u8 h; u16 clut; u16 tpage; SV_59FA4_80059FA4 pos; s16 vx; s16 vy; s16 vz; s16 ground; u8 pad2C[4]; } Shot_59B90;
 typedef struct { u32 tag; u32 code; u32 xy0; u32 uvc0; u32 xy1; u32 uvt1; u32 xy2; u16 uv2; u16 pad1E; u32 xy3; u16 uv3; u16 pad26; } FT4_59B90;
 typedef struct { unsigned addr : 24; unsigned len : 8; } PTAG_59B90;
-extern Shot_59B90 D_800B8D30_59B90[16] asm("D_800B8D30");
+extern Shot_59B90 D_800B8D30_59B90[16] asm("EnemyShot_Slots");
 extern u8 D_800F4C30[];
 extern u8 g_ProjVerts[];
 extern MAT_59B90 g_ViewMatrix;
@@ -364,7 +364,7 @@ void EnemyShot_DrawAll(void) {
     }
 }
 
-/* Updates the 16 enemy projectiles (D_800B8D30). By state: 1/2 wait while the owner object
+/* Updates the 16 enemy projectiles (EnemyShot_Slots). By state: 1/2 wait while the owner object
  * exists, 10 explodes when it is destroyed; 3/4 are one-frame blasts; 5 hops toward Spike
  * when he is near and blinks out; 6 is a homing missile that steers at Spike's predicted
  * position and explodes on the ground, on contact or after 90 frames; 7 a bouncing bomb and
@@ -380,7 +380,7 @@ void EnemyShot_UpdateAll(void) {
     SV_59FA4_80059FA4 b;
     SV_59FA4_80059FA4 a;
 
-    for (i = 15, p = ((struct S_D_800B8D30_80059FA4 *)&D_800B8D30); i >= 0; i--, p++) {
+    for (i = 15, p = ((struct S_D_800B8D30_80059FA4 *)&EnemyShot_Slots); i >= 0; i--, p++) {
         if (p->state == 0) {
             continue;
         }

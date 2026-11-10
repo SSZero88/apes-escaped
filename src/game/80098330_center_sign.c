@@ -34,7 +34,7 @@ void CenterSign_ShowSpecterCoin(void) {
 }
 
 extern u8 g_Game[];
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 typedef struct { u32 addr : 24; u32 len : 8; } PTag_983E8;
 typedef struct { u32 tag; u32 rgbc; u32 xy0; u32 uv0; u32 xy1; u32 uv1; u32 xy2; u16 uv2, pad2; u32 xy3; u16 uv3, pad3; } PolyFT4_983E8;
 extern u8 g_SpecterCoinTimer;
@@ -110,6 +110,6 @@ void CenterSign_Draw(void) {
         ADD_PRIM_C(ot, p);
         p++;
     } while (a != 0 && --n > 0);
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
     g_CenterSign.size >>= 1;
 }

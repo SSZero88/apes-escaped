@@ -8,14 +8,14 @@ extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; } g_Game;
 
 M2C_UNK StSetRing(s32, s32);
 M2C_UNK StSetStream(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32);
-s32 func_8008C09C(s32);
+s32 Mem_AllocPages(s32);
 extern s32 D_8013C1A8;
 s32 CdControl(s32, void *, void *);
 s32 CdRead2(M2C_UNK);
 M2C_UNK CdSync(M2C_UNK, M2C_UNK);
 extern s32 D_8013C544;
 extern s32 D_8013C548;
-M2C_UNK func_8008C064(s32);
+M2C_UNK Mem_Free(s32);
 extern s32 D_8013C560;
 extern s32 D_8013C564;
 extern s32 D_8013C574;
@@ -38,7 +38,7 @@ void func_80136000(s32 arg0, s32 arg1) {
         var_s0 = 0x28;
     }
     if (D_8013C1A8 == 0) {
-        D_8013C1A8 = func_8008C09C(var_s0 << 0xB);
+        D_8013C1A8 = Mem_AllocPages(var_s0 << 0xB);
     }
     StSetRing(D_8013C1A8, var_s0);
     StSetStream(0, 0, -1, 0, 0);
@@ -120,7 +120,7 @@ void SetDispMask(s32 mask);
 s32 VSync_80136074(s32) asm("VSync");
 void Gfx_BeginFrame(void);
 void func_80139E00(void);
-void func_80069BEC(void);
+void Particle_UpdateAll(void);
 void Fx_UpdateAll(void);
 u32 StFreeRing(u32 *base);
 s32 StRingStatus(s16 *, s16 *);
@@ -168,7 +168,7 @@ fail:
             D_8013C1AC_80136074[rec[2]](rec, rec + 4);
         }
         func_80139E00();
-        func_80069BEC();
+        Particle_UpdateAll();
         Fx_UpdateAll();
         if (*(u16 *)(rec + 2) == 0xFFFF) {
             break;
@@ -322,11 +322,11 @@ extern Fmv_8013668C *D_8013C484_8013668C asm("D_8013C484");
 extern Fmv_8013668C D_8013C090[];
 extern s32 D_8013C4B0;
 extern s32 D_8013C4B4;
-void func_8008C01C(void);
+void Mem_Init(void);
 void func_800A3750(s32);
 void func_80137D20(void);
 void func_80136000(s32 arg0, s32 arg1);
-void func_80086248(s32);
+void Sound_SetXaVolume(s32);
 s32 CdControlB(s32, void *, void *);
 void func_80136EA8(void);
 void func_80136BD4(void);
@@ -334,7 +334,7 @@ void func_80136BD4(void);
 s32 func_8013668C(s32 *mode, s32 idx) {
     func_8013BA80(0);
     func_80136604();
-    func_8008C01C();
+    Mem_Init();
     func_800A3750(1);
     D_8013C484_8013668C = &D_8013C090[idx];
     if (func_80136884(idx) != 0) {
@@ -352,7 +352,7 @@ s32 func_8013668C(s32 *mode, s32 idx) {
         *mode |= 0x48;
         func_80136E68(1);
     }
-    func_80086248(-1);
+    Sound_SetXaVolume(-1);
     while (CdControlB(0xC, 0, 0) == 0) {
     }
     func_80136EA8();
@@ -387,7 +387,7 @@ void *CdSearchFile(void *fp, char *name);
 s32 CdPosToInt(void *p);
 void *CdIntToPos(s32 i, void *p);
 s32 func_8013AE80(void);
-void func_80068D10(s32);
+void Tex_LoadPack(s32);
 
 s32 func_80136884(void) {
     File_80136884 fp;
@@ -411,7 +411,7 @@ s32 func_80136884(void) {
         func_8013ADA0(tex, &fp);
         while (func_8013AE80() != 0) {
         }
-        func_80068D10(tex);
+        Tex_LoadPack(tex);
     }
     CdIntToPos(base + h->f_10, &fp);
     fp.size = h->f_14;
@@ -456,7 +456,7 @@ void func_801369E0(s32 arg0) {
         CdIntToPos(base + CdPosToInt(loc1), loc1);
         func_801364B0(loc0, loc1, 1, 0);
     }
-    func_80086248(2);
+    Sound_SetXaVolume(2);
     func_80136E68(0);
     while (CdControl(9, 0, 0) == 0) {
     }
@@ -465,7 +465,7 @@ void func_801369E0(s32 arg0) {
     }
     func_80136FF0(arg0);
     func_80139DAC();
-    func_8008C064(D_8013C1A8);
+    Mem_Free(D_8013C1A8);
     D_8013C1A8 = 0;
     VSyncCallback((void *)D_8013C488);
     func_8002FAF0(D_8013C48C);
@@ -709,8 +709,8 @@ typedef struct { u32 *f_0; u8 pad4[0x1C]; } Ent_80137248;
 extern Game_80137248 g_Game_80137248 asm("g_Game");
 extern struct { u8 pad0[0x158]; u16 f_158; u8 pad15A[2]; s32 f_15C; } g_Pad_80137248 asm("g_Pad");
 extern struct { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } D_800EBFA0_80137248 asm("D_800EBFA0");
-extern struct { u8 pad0[8]; void *f_8; s32 f_C; s32 f_10; } D_800F5AA0_80137248 asm("D_800F5AA0");
-extern Ent_80137248 *D_800B4D64_80137248 asm("D_800B4D64");
+extern struct { u8 pad0[8]; void *f_8; s32 f_C; s32 f_10; } D_800F5AA0_80137248 asm("g_OverlayState");
+extern Ent_80137248 *D_800B4D64_80137248 asm("g_StageMeshes");
 extern FmvEnt_80137248 D_8013C244_80137248[] asm("D_8013C244");
 extern void (*D_8013C1AC_80137248[])(u8 *, u8 *) asm("D_8013C1AC");
 extern void *D_8013C1B8_80137248 asm("D_8013C1B8");
@@ -735,8 +735,8 @@ s32 func_80136E00(void *, void *);
 void func_80137A64(void);
 void Stage_DrawPlacedModels(void);
 void Hud_Draw(void);
-void func_8005ACE8(void);
-void func_80069BEC(void);
+void Stage_UpdateSpecial(void);
+void Particle_UpdateAll(void);
 void Fx_UpdateAll(void);
 void Tex_UpdateAnims(void);
 u32 StFreeRing(u32 *base);
@@ -783,7 +783,7 @@ s32 func_80137248(s32 idx) {
         D_800F5AA0_80137248.f_C = D_800F5AA0_80137248.f_10;
         break;
     case 12:
-        tbl = (u8 *)func_8008C09C(g_Game_80137248.f_8280);
+        tbl = (u8 *)Mem_AllocPages(g_Game_80137248.f_8280);
         for (i = g_Game_80137248.f_8280 - 1; i >= 0; i--) {
             tbl[i] = (*D_800B4D64_80137248[i].f_0 & 0xF0000) >> 16;
             *D_800B4D64_80137248[i].f_0 |= 0xF0000;
@@ -800,7 +800,7 @@ s32 func_80137248(s32 idx) {
         mode |= 0x48;
         func_80136E68(1);
     }
-    func_80086248(-1);
+    Sound_SetXaVolume(-1);
     while (CdControlB(0xC, 0, 0) == 0) {
     }
     func_80136454((s32)CdIntToPos(CdPosToInt(D_8013C244_80137248[idx].file) + 5, D_8013C244_80137248[idx].file), mode);
@@ -828,9 +828,9 @@ s32 func_80137248(s32 idx) {
         Stage_DrawPlacedModels();
         Hud_Draw();
         if (g_Game_80137248.f_8126 != 0x46) {
-            func_8005ACE8();
+            Stage_UpdateSpecial();
         }
-        func_80069BEC();
+        Particle_UpdateAll();
         Fx_UpdateAll();
         Tex_UpdateAnims();
         if (*(u16 *)(rec + 2) == 0xFFFF) {
@@ -903,7 +903,7 @@ void func_80137878(void) {
 }
 
 typedef struct { u32 *f_0; u8 pad4[0x1C]; } Ent_801378F0;
-extern Ent_801378F0 *D_800B4D64_801378F0 asm("D_800B4D64");
+extern Ent_801378F0 *D_800B4D64_801378F0 asm("g_StageMeshes");
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x180]; s32 f_8280; } g_Game_801378F0 asm("g_Game");
 extern struct { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } D_800EBFA0_801378F0 asm("D_800EBFA0");
 extern s32 D_8013C4A0;
@@ -926,14 +926,14 @@ void func_801378F0(s32 arg0, u8 *tbl) {
             *e[i].f_0 = (*e[i].f_0 & 0xFFF0FFFF) | (tbl[i] << 16);
         } while (--i >= 0);
         }
-        func_8008C064((s32)tbl);
+        Mem_Free((s32)tbl);
     }
     func_8002FAF0(D_8013C48C);
     StUnSetRing();
     while (CdControl(9, 0, 0) == 0) {
     }
     func_80139DAC();
-    func_8008C064(D_8013C1A8);
+    Mem_Free(D_8013C1A8);
     Stage_SpecialSetup();
     Gfx_InitDisplay();
     DrawSync(0);
@@ -991,7 +991,7 @@ s32 func_80136074(s32);
 s32 Cd_StartFileLoad(s32, s32);
 s32 Cd_PollLoadList(void);
 void Cd_Update(void);
-s32 func_80096540(s32);
+s32 Movie_SetSeen(s32);
 s32 SaveByte_Set(s32, s32);
 
 s32 func_80137AC0(void) {
@@ -1009,7 +1009,7 @@ s32 func_80137AC0(void) {
         break;
     case 1:
         g_Game_80137AC0.f_8120 = 0xD;
-        func_80096540(1);
+        Movie_SetSeen(1);
         break;
     case 2:
         g_Game_80137AC0.f_8120 = 3;
@@ -1025,11 +1025,11 @@ s32 func_80137AC0(void) {
         break;
     case 4:
         g_Game_80137AC0.f_8120 = 0x1D;
-        func_80096540(4);
+        Movie_SetSeen(4);
         break;
     case 5:
         g_Game_80137AC0.f_8120 = 0xD;
-        func_80096540(5);
+        Movie_SetSeen(5);
         break;
     case 6:
         g_Game_80137AC0.f_8120 = 0x23;
@@ -1059,14 +1059,14 @@ void func_80137D20(void) {
     s32 temp_v0;
 
     func_801398B0(&sp10, &sp14);
-    temp_v0 = func_8008C09C((sp10 * 8) + (sp14 * 4));
+    temp_v0 = Mem_AllocPages((sp10 * 8) + (sp14 * 4));
     D_8013C544 = temp_v0;
     D_8013C548 = temp_v0 + (sp14 * 4);
 }
 
 void func_80137D74(void) {
-    func_8008C064(D_8013C544);
-    func_8008C064(D_8013C548);
+    Mem_Free(D_8013C544);
+    Mem_Free(D_8013C548);
 }
 
 void func_80137DAC(void) {
@@ -1512,7 +1512,7 @@ void func_80138CDC(void) {
 
 extern u16 g_RandSeed;
 #define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
-void func_8006F274(SVECTOR *, SVECTOR *, s32);
+void Fx_DrawLightning(SVECTOR *, SVECTOR *, s32);
 
 void func_80138CE4(void *arg0, s16 *src)
 {
@@ -1526,7 +1526,7 @@ void func_80138CE4(void *arg0, s16 *src)
   w.vy = src[4];
   new_var = &src[5];
   w.vz = *new_var;
-  func_8006F274(&v, &w, ((g_RandSeed = (g_RandSeed * 5) + 1) >> 4) & 0xFF0);
+  Fx_DrawLightning(&v, &w, ((g_RandSeed = (g_RandSeed * 5) + 1) >> 4) & 0xFF0);
 }
 
 void func_80138D60(void *arg0, u16 *arg1) {
@@ -1884,7 +1884,7 @@ void Fmv_LoadModelTable(void *arg0) {
         }
     }
     i = 0;
-    D_8013C564_8013990C = (MdlObj_8013990C **)func_8008C09C(D_8013C568_8013990C * 4 + n);
+    D_8013C564_8013990C = (MdlObj_8013990C **)Mem_AllocPages(D_8013C568_8013990C * 4 + n);
     obj = (MdlObj_8013990C *)((u8 *)D_8013C564_8013990C + D_8013C568_8013990C * 4);
     if (D_8013C568_8013990C != 0) {
         do {
@@ -1985,8 +1985,8 @@ void Fmv_LoadModelTable(void *arg0) {
 }
 
 void func_80139DAC(void) {
-    func_8008C064(D_8013C574);
-    func_8008C064(D_8013C564);
+    Mem_Free(D_8013C574);
+    Mem_Free(D_8013C564);
 }
 
 extern u8 *D_8013C574_80139DE4 asm("D_8013C574");
@@ -2037,7 +2037,7 @@ void func_80139EC4(u16 *len, Set_384 *e) {
     }
 }
 
-s32 func_8008C09C_80139F0C(void) asm("func_8008C09C");
+s32 func_8008C09C_80139F0C(void) asm("Mem_AllocPages");
 
 void func_80139F0C(void)
 {
@@ -2390,8 +2390,8 @@ void func_8013AAC8(s32 *arg0, s32 arg1) {
 typedef struct { u16 lo, hi, off, n; } Sub_8013AAF0;
 extern Sub_8013AAF0 *D_8013C758_AAF0 asm("D_8013C758");
 s32 func_8013AC98(u32 x);
-s32 func_8008DE68(u8 *, u16);
-void func_8008DDB0(s16, s16);
+s32 Msg_GetWidthUntil(u8 *, u16);
+void Msg_SetPos(s16, s16);
 void Msg_PutChar(u16, s32, s32);
 
 void func_8013AAF0(u32 frame) {
@@ -2410,7 +2410,7 @@ void func_8013AAF0(u32 frame) {
     maxw = 0;
     pos = 0;
     for (; i < n; i++) {
-        w = func_8008DE68(text + pos, 0);
+        w = Msg_GetWidthUntil(text + pos, 0);
         while (text[pos]) {
             pos++;
         }
@@ -2424,7 +2424,7 @@ void func_8013AAF0(u32 frame) {
         pos = 0;
         y = 0xAE;
         for (i = 0; i < n; i++) {
-            func_8008DDB0(maxw + k, y + k);
+            Msg_SetPos(maxw + k, y + k);
             func_8013AD40(text + pos, k ? 0x1F6 : 0x1F0);
             while (text[pos]) {
                 pos++;
@@ -2536,7 +2536,7 @@ void func_8013AE90(s32 arg0) {
 typedef struct { s16 x, y, w, h; } Rect_8013AF50;
 extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; } g_Game_8013AF50 asm("g_Game");
 extern s32 D_8013C780;
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 extern u32 D_800EC35C;
 int abs(int);
 #define ADD_PRIM_RR_8013AF50(ot, p) { unsigned int _t1, _t2; __asm__ volatile("lwl %0, 2(%2)\n\tsll %1, %3, 8\n\tswl %1, 2(%2)\n\tswl %0, 2(%3)" : "=&r"(_t1), "=&r"(_t2) : "r"(ot), "r"(p) : "memory"); }
@@ -2589,7 +2589,7 @@ void func_8013AF50(void) {
         ADD_PRIM_ASM(ot, p);
         p += 0x30;
     }
-    D_800EC354 = p;
+    g_GamePrim = p;
     n = D_8013C780--;
     if (n > 10) {
         amp = 0;
@@ -2641,7 +2641,7 @@ void func_8013AF50(void) {
             }
         }
     }
-    D_800EC354 = p;
+    g_GamePrim = p;
 }
 
 __asm__(".section .text\n.balign 16");
@@ -2656,8 +2656,8 @@ typedef struct { u32 tag; u32 code; s32 xy0; u32 uv0; s32 xy1; u32 uv1; s32 xy2;
 extern MAT_8013B390 D_800E78C0_8013B390 asm("g_ViewMatrix");
 extern u16 D_8013C790_8013B390[] asm("D_8013C790");
 extern u16 g_RandSeed_8013B390 asm("g_RandSeed");
-extern u16 D_800AE8F2_8013B390 asm("D_800AE8F2");
-extern u8 *D_800EC354_8013B390 asm("D_800EC354");
+extern u16 D_800AE8F2_8013B390 asm("g_RandSeed2");
+extern u8 *D_800EC354_8013B390 asm("g_GamePrim");
 extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; } g_Game_8013B390 asm("g_Game");
 
 void Fmv_DrawGlowSparkles(u8 *arg0, s16 *arg1) {
@@ -2904,7 +2904,7 @@ void func_8013BD1C(u32 *ot, u8 level) {
 
     r = D_8013C7B0_8013BD1C;
     __asm__("addiu %0, %1, -255" : "=r"(c) : "r"(level * 2));
-    p = (Sprt_8013BD1C *)D_800EC354;
+    p = (Sprt_8013BD1C *)g_GamePrim;
     for (i = 0; i < D_8013C7E0; i++) {
         p->len = 4;
         p->code = 0x66;
@@ -2943,5 +2943,5 @@ void func_8013BD1C(u32 *ot, u8 level) {
     tp->len = 1;
     tp->code = 0xE1000354;
     ADD_PRIM_R(ot, tp, "$3", "$2");
-    D_800EC354 = (u8 *)t;
+    g_GamePrim = (u8 *)t;
 }

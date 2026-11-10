@@ -4,57 +4,57 @@ typedef struct { SVECTOR unk0; s16 unk8; u8 unkA; u8 unkB; s16 unkC; s16 unkE; }
 typedef struct { s16 vx, vy, vz, pad; } SVEC_8006F274_8006F274;
 /* 8 fading rings (Fx_SpawnFadeRing): position, shape arg, timer, start delay, radius, target radius */
 
-extern struct S_D_800F4E90 { s16 f_0; s16 f_2; s16 f_4; u8 f_6; u8 pad7; } D_800F4E90[];
+extern struct S_D_800F4E90 { s16 f_0; s16 f_2; s16 f_4; u8 f_6; u8 pad7; } Ripple_Slots[];
 extern u16 g_RandSeed;
 
-extern u8 D_800B1B40;
-extern M2C_UNK D_800BADA0;
+extern u8 Dust_NextSlot;
+extern M2C_UNK Dust_Clouds;
 
-extern S_F5010 D_800F5010[8];
-extern u8 D_800B1B74;
+extern S_F5010 Fx_FadeRings[8];
+extern u8 Fx_FadeRingNext;
 
-extern struct S_D_800BAEA0 { u8 pad_0[0x6]; s8 f_6; u8 pad_7[0x5]; } D_800BAEA0[];
+extern struct S_D_800BAEA0 { u8 pad_0[0x6]; s8 f_6; u8 pad_7[0x5]; } Flare_Slots[];
 
-void func_8006D4C0(void *arg0, s8 arg1);
+void Dust_Spawn(void *arg0, s8 arg1);
 extern struct S_D_800F4ED0 { u8 pad0[6]; u16 f_6; } g_HoopSparks[];
 extern M2C_UNK D_800B1B90;
-void func_8006F3D0(SVEC_8006F274_8006F274 *, s32, void *, s32);
+void Fx_DrawRibbon(SVEC_8006F274_8006F274 *, s32, void *, s32);
 struct S_D_800F5010_8006ED78 { SVECTOR f_0; s16 f_8; u8 f_A; u8 f_B; s16 f_C; s16 f_E; };
 void Fx_DrawFadeRing(void *, s32, s32, s32);
 struct S_D_800F5010_8006EE3C { SVECTOR f_0; u16 f_8; u8 f_A; u8 f_B; u16 f_C; u16 f_E; };
 extern u8 D_800B1B40_1;
 struct S_D_800BAEA0_8006E054 { s16 f_0; s16 f_2; s16 f_4; u8 f_6; u8 pad7; u8 f_8; u8 f_9; u8 f_A; u8 padB; };
 
-void func_8006D4C0(void *arg0, s8 arg1)
+void Dust_Spawn(void *arg0, s8 arg1)
 {
   s32 temp_v1;
   s32 var_v0;
   u8 *new_var;
   void *temp_v0;
-  temp_v0 = (void *) (((u8 *) (&D_800BADA0)) + (D_800B1B40 * 8));
+  temp_v0 = (void *) (((u8 *) (&Dust_Clouds)) + (Dust_NextSlot * 8));
   *((SVECTOR *) (((s8 *) temp_v0) + 0)) = *((SVECTOR *) (((s8 *) arg0) + 0));
-  new_var = (u8 *) (&D_800BADA0);
-  *((s8 *) (((s8 *) ((void *) (new_var + (D_800B1B40 * 8)))) + 6)) = 9;
-  *((s8 *) (((s8 *) ((void *) (new_var + (D_800B1B40 * 8)))) + 7)) = arg1;
-  temp_v1 = D_800B1B40 + 1;
+  new_var = (u8 *) (&Dust_Clouds);
+  *((s8 *) (((s8 *) ((void *) (new_var + (Dust_NextSlot * 8)))) + 6)) = 9;
+  *((s8 *) (((s8 *) ((void *) (new_var + (Dust_NextSlot * 8)))) + 7)) = arg1;
+  temp_v1 = Dust_NextSlot + 1;
   var_v0 = temp_v1;
   if (temp_v1 < 0)
   {
-    var_v0 = D_800B1B40 + 0x20;
+    var_v0 = Dust_NextSlot + 0x20;
   }
-  D_800B1B40 = temp_v1 - (var_v0 & 0x1E0);
+  Dust_NextSlot = temp_v1 - (var_v0 & 0x1E0);
 }
 
-void func_8006D548(s32 arg0) {
-    func_8006D4C0(arg0, 0);
+void Dust_SpawnDrift(s32 arg0) {
+    Dust_Spawn(arg0, 0);
 }
 
-void func_8006D568(s32 arg0) {
-    func_8006D4C0(arg0, 1);
+void Dust_SpawnStill(s32 arg0) {
+    Dust_Spawn(arg0, 1);
 }
 
-void func_8006D588(s32 arg0) {
-    func_8006D4C0(arg0, 2);
+void Dust_SpawnSmall(s32 arg0) {
+    Dust_Spawn(arg0, 2);
 }
 
 extern u8 g_Game[];
@@ -63,8 +63,8 @@ typedef struct { s32 seed; s32 sxy; s32 z; SVECTOR v; } Scr_6D5A8;
 typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_6D5A8;
 #define ADDPRIM_BF_6D5A8(ot, p) (((PTag_6D5A8 *)(p))->addr = ((PTag_6D5A8 *)(ot))->addr, ((PTag_6D5A8 *)(ot))->addr = (u32)(p))
 #define RND_6D5A8() (scr->seed = scr->seed * 5 + 1)
-extern Dust_6D5A8 D_800BADA0_6D5A8[] asm("D_800BADA0");
-extern u8 *D_800EC354_6D5A8 asm("D_800EC354");
+extern Dust_6D5A8 D_800BADA0_6D5A8[] asm("Dust_Clouds");
+extern u8 *D_800EC354_6D5A8 asm("g_GamePrim");
 extern u16 g_RandSeed_6D5A8 asm("g_RandSeed");
 extern u8 D_800E78C0_6D5A8[] asm("g_ViewMatrix");
 void SetRotMatrix_6D5A8(void *) asm("SetRotMatrix");
@@ -74,11 +74,11 @@ void SetTransMatrix_6D5A8(void *) asm("SetTransMatrix");
 #define gte_stsxy_6D5A8(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
 #define gte_stszotz_6D5A8(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 
-/* Dust clouds: each live entry of the 32 in D_800BADA0 jitters (unless kind 1) by its own random
+/* Dust clouds: each live entry of the 32 in Dust_Clouds jitters (unless kind 1) by its own random
    sequence (seeded from g_RandSeed in the scratch pad), then three puffs scattered round it are
    drawn as additive sprites sized 2 * life + 4 (kind 2) or 3 * life + 0x10, brightness 2 * life +
    0x10, with the 5-frame dust animation picked by life; life counts down by 1 a frame. */
-void func_8006D5A8(void) {
+void Dust_UpdateAll(void) {
     Scr_6D5A8 *scr = (Scr_6D5A8 *)0x1F800000;
     Dust_6D5A8 *e;
     u32 *p;
@@ -146,7 +146,7 @@ void func_8006D5A8(void) {
     D_800EC354_6D5A8 = (u8 *)p;
 }
 
-void func_8006DAC8(void) {
+void SuperHoop_ClearSparkles(void) {
     s32 i;
     struct S_D_800F4ED0 *p = g_HoopSparks;
     for (i = 39; i >= 0; i--) {
@@ -157,7 +157,7 @@ void func_8006DAC8(void) {
 
 #include "gte.h"
 extern u8 g_Game[];
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 typedef struct { u32 addr : 24; u32 len : 8; } PTag_6DAF8;
 typedef struct { u32 tag; u32 rgbc; u32 xy0; u32 uv0; u32 xy1; u32 uv1; u32 xy2; u16 uv2, pad2; u32 xy3; u16 uv3, pad3; } PolyFT4_6DAF8;
 typedef struct { s16 x, y, z; u16 flags; } Spark_6DAF8;
@@ -172,12 +172,12 @@ typedef struct { s32 rand; s32 otz; u32 sxy; u32 padC; s32 dx, dy, dz; SVECTOR b
 void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
 extern u8 g_ViewMatrix[];
-s32 func_8005DC78(void);
+s32 Game_IsPlaying(void);
 s32 rcos(s32);
 s32 rsin(s32);
 #define gte_stszotz(r0) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(r0) : "$12", "memory")
 
-/* Super Hoop sparkles (gadget 4), the particles seen when the hoop is activated (user): 40 particles (g_HoopSparks) that, while func_8005DC78 allows and gadget state
+/* Super Hoop sparkles (gadget 4), the particles seen when the hoop is activated (user): 40 particles (g_HoopSparks) that, while Game_IsPlaying allows and gadget state
    +4 is 1, respawn on a ring around Spike (radius gadget state +8 / 6 + 90) with a 3-10 frame life
    and size 1-2, then drift with 2/3 of Spike's velocity; drawn as POLY_FT4 sized by size / depth. */
 void SuperHoop_DrawSparkles(void) {
@@ -188,7 +188,7 @@ void SuperHoop_DrawSparkles(void) {
     s32 i, a, x, y, d, w, h, x0, y0;
     u32 xy;
 
-    if (g_Spike_6DAF8.gadget != 4 || func_8005DC78() == 0) {
+    if (g_Spike_6DAF8.gadget != 4 || Game_IsPlaying() == 0) {
         return;
     }
     sc->noSpawn = 0;
@@ -263,31 +263,31 @@ void SuperHoop_DrawSparkles(void) {
         ((PTag_6DAF8 *)&ot[sc->otz])->addr = (u32)p;
         p++;
     }
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
 }
 
-void func_8006E02C(void) {
+void Flare_ClearAll(void) {
     s32 i;
 
     for (i = 7; i >= 0; i--) {
-        D_800BAEA0[i].f_6 = 0;
+        Flare_Slots[i].f_6 = 0;
     }
 }
 
-/* Adds an entry to the 8-slot ring D_800BAEA0 (next slot D_800B1B40_1): position a[0..2], a
- * 6-frame lifetime and the three bytes b[0..2] (probably its colour). func_8006E02C clears it. */
+/* Adds an entry to the 8-slot ring Flare_Slots (next slot D_800B1B40_1): position a[0..2], a
+ * 6-frame lifetime and the three bytes b[0..2] (probably its colour). Flare_ClearAll clears it. */
 void Flare_Add(s16 *a, s16 *b) {
     s32 k = D_800B1B40_1;
 
     do {
-        ((struct S_D_800BAEA0_8006E054 *)&D_800BAEA0)[k].f_6 = 6;
-        ((struct S_D_800BAEA0_8006E054 *)&D_800BAEA0)[k].f_0 = a[0];
-        ((struct S_D_800BAEA0_8006E054 *)&D_800BAEA0)[k].f_2 = a[1];
-        ((struct S_D_800BAEA0_8006E054 *)&D_800BAEA0)[k].f_4 = a[2];
+        ((struct S_D_800BAEA0_8006E054 *)&Flare_Slots)[k].f_6 = 6;
+        ((struct S_D_800BAEA0_8006E054 *)&Flare_Slots)[k].f_0 = a[0];
+        ((struct S_D_800BAEA0_8006E054 *)&Flare_Slots)[k].f_2 = a[1];
+        ((struct S_D_800BAEA0_8006E054 *)&Flare_Slots)[k].f_4 = a[2];
     } while (0);
-    ((struct S_D_800BAEA0_8006E054 *)&D_800BAEA0)[k].f_8 = b[0];
-    ((struct S_D_800BAEA0_8006E054 *)&D_800BAEA0)[k].f_9 = b[1];
-    ((struct S_D_800BAEA0_8006E054 *)&D_800BAEA0)[k].f_A = b[2];
+    ((struct S_D_800BAEA0_8006E054 *)&Flare_Slots)[k].f_8 = b[0];
+    ((struct S_D_800BAEA0_8006E054 *)&Flare_Slots)[k].f_9 = b[1];
+    ((struct S_D_800BAEA0_8006E054 *)&Flare_Slots)[k].f_A = b[2];
     k = (k + 1) % 8;
     D_800B1B40_1 = k;
 }
@@ -322,7 +322,7 @@ typedef struct { s16 x, y, z; s8 life; u8 pad7; s8 vx, vy, vz; u8 padB; } Spark_
 typedef struct { s32 z; s32 sxy[3]; SVECTOR v[3]; } Scr_6E1C0;
 typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_6E1C0;
 #define ADDPRIM_BF_6E1C0(ot, p) (((PTag_6E1C0 *)(p))->addr = ((PTag_6E1C0 *)(ot))->addr, ((PTag_6E1C0 *)(ot))->addr = (u32)(p))
-extern Spark_6E1C0 D_800BAEA0_6E1C0[] asm("D_800BAEA0");
+extern Spark_6E1C0 D_800BAEA0_6E1C0[] asm("Flare_Slots");
 extern struct { u8 pad0[0x24]; s32 x, y, z, vx, vy, vz; u8 pad3C[0x22]; u16 state; } g_Spike_6E1C0 asm("g_Spike");
 void memset(void *, s32, s32);
 #define gte_ldv3c_6E1C0(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(v))
@@ -331,9 +331,9 @@ void memset(void *, s32, s32);
 #define gte_stszotz_6E1C0(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 
 /* Spike's sparks. In state 6 a flare is spawned at Spike moving against his velocity. Then each of
-   the 8 sparks in D_800BAEA0 still alive moves by its velocity, loses a frame of life and is drawn
+   the 8 sparks in Flare_Slots still alive moves by its velocity, loses a frame of life and is drawn
    as two crossed translucent gouraud triangles of half-size life + 1 with a tail 6 velocities long. */
-void func_8006E1C0(void) {
+void Flare_UpdateAll(void) {
     Scr_6E1C0 *scr = (Scr_6E1C0 *)0x1F800000;
     SVECTOR pos, vel, t;
     Spark_6E1C0 *e;
@@ -399,7 +399,7 @@ void func_8006E1C0(void) {
             }
         }
     }
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
 }
 
 typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_6E5B4;
@@ -562,12 +562,12 @@ void Fx_DrawFadeRing(void *arg0, s32 r, s32 flags, s32 color) {
     } __asm__ volatile("" : "=r"(ll));
 }
 
-void func_8006ED4C(void) {
+void Fx_ClearFadeRings(void) {
     s32 i;
     for (i = 7; i >= 0; i--) {
-        D_800F5010[i].unkA = 0;
+        Fx_FadeRings[i].unkA = 0;
     }
-    D_800B1B74 = 0;
+    Fx_FadeRingNext = 0;
 }
 
 /* Effect command 0x33: start a fading ring in the next of 8 slots. It waits `delay` frames,
@@ -575,19 +575,19 @@ void func_8006ED4C(void) {
    starts at -b and shrinks toward 0. */
 void Fx_SpawnFadeRing(SVECTOR *pos, s16 a, s32 b, u8 delay) {
     S_F5010 *p;
-    D_800F5010[D_800B1B74].unkA = 0xF;
-    p = &D_800F5010[D_800B1B74];
+    Fx_FadeRings[Fx_FadeRingNext].unkA = 0xF;
+    p = &Fx_FadeRings[Fx_FadeRingNext];
     p->unkB = delay;
     p->unk8 = a;
-    D_800F5010[D_800B1B74].unk0 = *pos;
+    Fx_FadeRings[Fx_FadeRingNext].unk0 = *pos;
     if (b >= 0) {
-        D_800F5010[D_800B1B74].unkE = b;
-        D_800F5010[D_800B1B74].unkC = b >> 2;
+        Fx_FadeRings[Fx_FadeRingNext].unkE = b;
+        Fx_FadeRings[Fx_FadeRingNext].unkC = b >> 2;
     } else {
-        D_800F5010[D_800B1B74].unkE = 0;
-        D_800F5010[D_800B1B74].unkC = -b;
+        Fx_FadeRings[Fx_FadeRingNext].unkE = 0;
+        Fx_FadeRings[Fx_FadeRingNext].unkC = -b;
     }
-    D_800B1B74 = (D_800B1B74 + 1) % 8;
+    Fx_FadeRingNext = (Fx_FadeRingNext + 1) % 8;
 }
 
 /* Draw and age the fading rings: grey level timer*6, radius eased 1/8 toward the target. */
@@ -596,7 +596,7 @@ void Fx_UpdateFadeRings(void) {
     s32 i;
     u8 c;
     for (i = 0; i < 8; i++) {
-        p = &((struct S_D_800F5010_8006EE3C *)&D_800F5010)[i];
+        p = &((struct S_D_800F5010_8006EE3C *)&Fx_FadeRings)[i];
         if (p->f_A == 0) {
             continue;
         }
@@ -614,13 +614,13 @@ void Fx_UpdateFadeRings(void) {
 void Ripple_Spawn(s16 *a) {
     s32 i;
     for (i = 7; i >= 0; i--) {
-        if (D_800F4E90[i].f_6 == 0) {
+        if (Ripple_Slots[i].f_6 == 0) {
             u16 r = g_RandSeed * 5 + 1;
             g_RandSeed = r;
-            D_800F4E90[i].f_6 = ((r >> 8) & 3) + 0xC;
-            D_800F4E90[i].f_0 = a[0];
-            D_800F4E90[i].f_2 = a[1];
-            D_800F4E90[i].f_4 = a[2];
+            Ripple_Slots[i].f_6 = ((r >> 8) & 3) + 0xC;
+            Ripple_Slots[i].f_0 = a[0];
+            Ripple_Slots[i].f_2 = a[1];
+            Ripple_Slots[i].f_4 = a[2];
             return;
         }
     }
@@ -631,7 +631,7 @@ typedef struct { s32 z; s32 pad4; SVECTOR v[4]; s32 sxy[4]; } Scr_6EFAC;
 typedef struct { u32 tag; u32 code; u32 xy0; u32 uv0; u32 xy1; u32 uv1; u32 xy2; u16 uv2; u16 pad1E; u32 xy3; u16 uv3; u16 pad26; } FT4_6EFAC;
 typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_6EFAC;
 #define ADDPRIM_BF(ot, p) (((PTag_6EFAC *)(p))->addr = ((PTag_6EFAC *)(ot))->addr, ((PTag_6EFAC *)(ot))->addr = (u32)(p))
-extern Ripple_6EFAC D_800F4E90_6EFAC[] asm("D_800F4E90");
+extern Ripple_6EFAC D_800F4E90_6EFAC[] asm("Ripple_Slots");
 void SetRotMatrix(void *);
 void SetTransMatrix(void *);
 #define gte_ldv3c_6EFAC(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 8(%0); lwc2 $3, 12(%0); lwc2 $4, 16(%0); lwc2 $5, 20(%0)" : : "r"(v))
@@ -642,7 +642,7 @@ void SetTransMatrix(void *);
 #define gte_stsxy_6EFAC(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
 #define gte_stszotz_6EFAC(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 
-/* Water ripples (D_800F4E90, 8 entries set by Ripple_Spawn): each live one counts its timer down
+/* Water ripples (Ripple_Slots, 8 entries set by Ripple_Spawn): each live one counts its timer down
    and is drawn as a flat textured square on the water, half-size 0x18 + 12 * timer (so it grows as
    it fades), its colour (8, 12, 16) * timer, additive, when on screen. */
 void Ripple_DrawAll(void) {
@@ -705,10 +705,10 @@ void Ripple_DrawAll(void) {
         ADDPRIM_BF(ot + scr->z, p);
         p++;
     }
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
 }
 
-void func_8006F274(SVEC_8006F274_8006F274 *a, SVEC_8006F274_8006F274 *b, u16 seed) {
+void Fx_DrawLightning(SVEC_8006F274_8006F274 *a, SVEC_8006F274_8006F274 *b, u16 seed) {
     SVEC_8006F274_8006F274 pts[17];
     s32 i;
     SVEC_8006F274_8006F274 *p = pts;
@@ -721,7 +721,7 @@ void func_8006F274(SVEC_8006F274_8006F274 *a, SVEC_8006F274_8006F274 *b, u16 see
             p->vy += (s8)((seed = seed * 5 + 1) >> 8) / 2;
         }
     }
-    func_8006F3D0(pts, 16, &D_800B1B90, 16);
+    Fx_DrawRibbon(pts, 16, &D_800B1B90, 16);
 }
 
 typedef struct { u16 clut; u16 tpage; u8 u; u8 v; u8 du; u8 dv; } Tex_6F3D0;
@@ -735,7 +735,7 @@ s32 VectorNormalSS_6F3D0(void *, void *) asm("VectorNormalSS");
    screen position are dropped), its half-width is `width` * 0xA4 / depth (0 when off-screen or too
    near), and the strip edges are offset across the screen-space direction of travel. One
    semi-transparent quad per segment, with u stepping from tex->u by tex->du over the strip. */
-void func_8006F3D0(SVEC_8006F274_8006F274 *pts, s32 n, void *vtex, s32 width) {
+void Fx_DrawRibbon(SVEC_8006F274_8006F274 *pts, s32 n, void *vtex, s32 width) {
     Scr_6F3D0 *sc = (Scr_6F3D0 *)0x1F800000;
     s32 i, prev, a, b;
     s32 *pz, *pw, *qw;

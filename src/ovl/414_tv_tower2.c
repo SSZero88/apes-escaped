@@ -821,7 +821,7 @@ void func_8013ED18(s16 *pos) {
 typedef struct { u8 pad_0[4]; s16 x, y, z; u8 active; u8 f_B; s16 vx, vy, vz; u8 pad_12[2]; } Deb_8013EE1C;
 extern Deb_8013EE1C D_80144570_8013EE1C[] asm("D_80144570");
 void Sound_PlayFixed_8013EE1C(s32) asm("Sound_PlayFixed");
-void func_8006D548(void *);
+void Dust_SpawnDrift(void *);
 
 void func_8013EE1C(void *o) {
     Deb_8013EE1C *d;
@@ -851,7 +851,7 @@ void func_8013EE1C(void *o) {
                 Sound_PlayFixed_8013EE1C(0x94);
             }
             Effect_Spawn(0xCF, (s32)&d->x, &D_80143718, 0);
-            func_8006D548(&d->x);
+            Dust_SpawnDrift(&d->x);
             break;
         case 2:
             Camera_StartShake(0);
@@ -937,13 +937,13 @@ void func_8013F1B4(s16 *p) {
 typedef struct { s32 vx, vy, vz, pad; } Vec_8013F240;
 typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x2C]; s16 f_5C; u8 pad5E[2]; s16 f_60, f_62, f_64; u8 pad66[0x14]; s16 f_7A, f_7C, f_7E; u8 f_80, f_81; u8 pad82[2]; } Blast_8013F240;
 extern Blast_8013F240 D_80144598_8013F240[1] asm("D_80144598");
-extern u8 D_800B1BD4[];
+extern u8 Shockwave_Templates[];
 extern u8 D_801439F4_8013F240[] asm("D_801439F4");
 const Vec_8013F240 D_80143260 = { 0x2000, 0x2000, 0x2000, 0 };
 s32 Sound_PlayFixed_8013F240(s32) asm("Sound_PlayFixed");
 void Shadow_Draw_8013F240(void *, s32, s32, s32) asm("Shadow_Draw");
 void Fx_SpawnFadeRing(SVECTOR *, s32, s32, s32);
-void func_80070284(SVECTOR *, void *, s32, s32, s32);
+void Shockwave_Spawn(SVECTOR *, void *, s32, s32, s32);
 s32 func_8013E9C8(u8 *a, void *scale, s32 c, s32 spin);
 
 void func_8013F240(void) {
@@ -976,7 +976,7 @@ void func_8013F240(void) {
                 for (j = 0; j < 30; j++) {
                     Effect_Spawn(0xD6, (s32)&v, &D_80143718, 0);
                 }
-                func_80070284(&v, D_800B1BD4, 1, 4, 0);
+                Shockwave_Spawn(&v, Shockwave_Templates, 1, 4, 0);
                 Camera_StartShake(1);
                 Sound_PlayFixed_8013F240(0x9C);
             }
@@ -1012,8 +1012,8 @@ void func_8013F240(void) {
                 }
                 Fx_SpawnFadeRing(&v, 0, 0x578, 0);
                 Fx_SpawnFadeRing(&v, 0, 0x384, 4);
-                func_80070284(&v, D_801439F4_8013F240, 1, 6, 0);
-                func_80070284(&v, D_801439F4_8013F240 + 0x54, 1, 0, 0);
+                Shockwave_Spawn(&v, D_801439F4_8013F240, 1, 6, 0);
+                Shockwave_Spawn(&v, D_801439F4_8013F240 + 0x54, 1, 0, 0);
                 Effect_SpawnAt(0x109, &v);
                 Sound_PlayFixed_8013F240(0x80);
                 Sound_PlayFixed_8013F240(0x6C);
@@ -1111,7 +1111,7 @@ extern u8 D_801438A4[];
 void Effect_SpawnAt(s32, SVECTOR *);
 void Effect_Spawn_8013F838(s32, SVECTOR *, void *, s32) asm("Effect_Spawn");
 void Fx_SpawnFadeRing(SVECTOR *, s32, s32, s32);
-void func_80070284(SVECTOR *, void *, s32, s32, s32);
+void Shockwave_Spawn(SVECTOR *, void *, s32, s32, s32);
 
 void func_8013F838(SVECTOR *v) {
     func_8013DE24(v);
@@ -1119,7 +1119,7 @@ void func_8013F838(SVECTOR *v) {
     Effect_SpawnAt(0x112, v);
     Effect_Spawn_8013F838(0xD4, v, D_80143718_8013F838, 0);
     Fx_SpawnFadeRing(v, 1, 0x200, 0);
-    func_80070284(v, D_801438A4, 1, 0, 0);
+    Shockwave_Spawn(v, D_801438A4, 1, 0, 0);
 }
 
 typedef struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; u8 pad_30[0x14]; s16 f_44; s16 f_46; s16 f_48; s16 f_4A; u8 pad_4C[4]; u32 f_50; u8 pad_54[8]; u16 f_5C; u8 pad_5E[2]; SVECTOR f_60; u8 pad_68[8]; u8 *f_70; s16 f_74; s16 f_76; s16 f_78; u8 pad_7A[2]; u16 *f_7C; u8 pad_80[2]; u8 f_82; u8 mode; u8 active; u8 f_85; u8 f_86; u8 f_87; s16 vx; s16 vy; s16 vz; s16 f_8E; s16 f_90; s16 f_92; u8 f_94; u8 pad_95[3]; } Mine_8013F8B8;
@@ -1132,8 +1132,8 @@ s32 Sound_PlayFixed_8013F8B8(s32) asm("Sound_PlayFixed");
 s32 VectorNormalSS_8013F8B8(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
 void Collision_Set_8013F8B8(s32, void *, void *) asm("Collision_Set");
 void Collision_Remove_8013F8B8(void *) asm("Collision_Remove");
-void func_8007CD88_8013F8B8(void *) asm("func_8007CD88");
-void func_8007CDC4_8013F8B8(void *) asm("func_8007CDC4");
+void func_8007CD88_8013F8B8(void *) asm("GuidedAmmo_AddTarget");
+void func_8007CDC4_8013F8B8(void *) asm("GuidedAmmo_RemoveTarget");
 void *memset_8013F8B8(void *, s32, s32) asm("memset");
 void Shadow_Draw_8013F8B8(void *, s32, s32, s32) asm("Shadow_Draw");
 s32 rsin_8013F8B8(s32) asm("rsin");
@@ -1307,7 +1307,7 @@ void func_8013F8B8(void) {
             u.vz = p->z + (((u16)RAND_8013F8B8() >> 8) - 0x80);
             t = u;
             Effect_SpawnAt(7, &t);
-            func_8006D548(&t);
+            Dust_SpawnDrift(&t);
         }
         if (++p->f_5C > p->f_7C[1]) {
             p->f_5C = p->f_7C[0];
@@ -1332,11 +1332,11 @@ extern u8 D_80144598_801402D8[] asm("D_80144598");
 extern struct { u8 pad_0[3]; u8 f_3; s16 f_4; } D_80143EF8_801402D8 asm("D_80143EF8");
 extern s8 g_CurrentGadget;
 extern u8 D_800E6916;
-void func_800495F4(void *, s32);
-void func_8004AF78(void *);
-void func_80047464(void *, s32, s32, s32);
-void func_80047558(void *, s32, s32, s32);
-void func_80047720(s32, s32, s32);
+void Camera_UpdateFollow(void *, s32);
+void Camera_DrawAimReticle(void *);
+void Camera_EaseEye(void *, s32, s32, s32);
+void Camera_EaseLookAt(void *, s32, s32, s32);
+void Camera_AddOffset(s32, s32, s32);
 s32 VectorNormalSS_801402D8(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
 
 void func_801402D8(void *o) {
@@ -1347,7 +1347,7 @@ void func_801402D8(void *o) {
     u8 m;
 
     if (g_Spike_801402D8.z < -0xA5A) {
-        func_800495F4(o, 0);
+        Camera_UpdateFollow(o, 0);
         return;
     }
     sc->tgt.vx = g_Spike_801402D8.x;
@@ -1407,12 +1407,12 @@ void func_801402D8(void *o) {
         sc->eye.vy = -0x1200;
     }
     if (g_CurrentGadget == 3 && D_800E6916 != 1) {
-        func_8004AF78(o);
+        Camera_DrawAimReticle(o);
     }
-    func_80047558(o, 0x20, 0x18, 0x20);
-    func_80047464(o, 0x18, 0x18, 0x18);
+    Camera_EaseLookAt(o, 0x20, 0x18, 0x20);
+    Camera_EaseEye(o, 0x18, 0x18, 0x18);
     if (D_80143EF8_801402D8.f_3 != 0) {
-        func_80047720(0, 0, D_80143EF8_801402D8.f_4);
+        Camera_AddOffset(0, 0, D_80143EF8_801402D8.f_4);
         D_80143EF8_801402D8.f_4 += 0x18;
         if (--D_80143EF8_801402D8.f_3 == 0) {
             D_80143EF8_801402D8.f_4 = 0;
@@ -1511,7 +1511,7 @@ void func_80140A90(u8 *arg0) {
     if (M2C_FIELD(arg0, s32 *, 0xA0) > 0) {
         pos.vy += M2C_FIELD(arg0, s32 *, 0xA0);
     }
-    func_80070284(&pos, D_80143850, 1, 0, (s32)&dir);
+    Shockwave_Spawn(&pos, D_80143850, 1, 0, (s32)&dir);
     func_8013DE24((s32)&pos);
     func_8013DE24((s32)&pos);
     Sound_PlayFixed(0x27);
@@ -1650,7 +1650,7 @@ void func_80140D60(void) {
                 {
                     SVECTOR dir = { g_Spike_80140D60.f60.vx, 0, g_Spike_80140D60.f60.vz };
 
-                    func_80070284(&pos, D_80143850_80140D60, 1, 0, (s32)&dir);
+                    Shockwave_Spawn(&pos, D_80143850_80140D60, 1, 0, (s32)&dir);
                 }
                 pos.vy = 0;
                 pos.vx = g_Spike_80140D60.x - o->x;
@@ -1762,7 +1762,7 @@ void func_80140D60(void) {
                     {
                         SVECTOR v = { o->x, -0x1010, o->z };
 
-                        func_80070284(&v, &D_80143754, 1, 0, 0);
+                        Shockwave_Spawn(&v, &D_80143754, 1, 0, 0);
                     }
                     Sound_PlayFixed(0x4D);
                 }
@@ -1794,13 +1794,13 @@ void func_80140D60(void) {
 
                 func_8013D554(&v);
                 Fx_SpawnFadeRing(&v, 0, 0xBB8, 5);
-                func_80070284(&v, &D_801437A8[0], 3, 0, 0);
+                Shockwave_Spawn(&v, &D_801437A8[0], 3, 0, 0);
                 v.vy = -0x1040;
-                func_80070284(&v, &D_801437A8[1], 1, 6, 0);
+                Shockwave_Spawn(&v, &D_801437A8[1], 1, 6, 0);
                 v.vy = -0x129E;
-                func_80070284(&v, &D_801437A8[1], 1, 0xD, 0);
+                Shockwave_Spawn(&v, &D_801437A8[1], 1, 0xD, 0);
                 v.vy = -0x13E8;
-                func_80070284(&v, &D_801437A8[1], 1, 0x16, 0);
+                Shockwave_Spawn(&v, &D_801437A8[1], 1, 0x16, 0);
                 for (i = 0x14; i >= 0; i--) {
                     v.vx = o->x + ((RAND_80140D60() >> 8) - 0x80) * 4;
                     v.vy = -0x1000 - ((s16)RAND_80140D60() >> 6 & 0x3FC);
@@ -1908,7 +1908,7 @@ void func_80140D60(void) {
                 func_8013E53C(&v, D_80143EF8_80140D60.f6);
                 Sound_PlayFixed(0x8E);
                 Sound_PlayFixed(0x80);
-                func_80070284(&v, &D_8014394C[D_80143EF8_80140D60.f6], 3, 6, (s32)&o->dir);
+                Shockwave_Spawn(&v, &D_8014394C[D_80143EF8_80140D60.f6], 3, 6, (s32)&o->dir);
             }
             if (D_80143EF8_80140D60.fA != 0) {
                 D_80143EF8_80140D60.fA--;
@@ -1925,7 +1925,7 @@ void func_80140D60(void) {
                     } else {
                         D_80143EF8_80140D60.f8 = 0x78;
                         func_8013ED18((s16 *)&v);
-                        func_80070284(&v, &D_801438F8, 2, 3, (s32)&o->dir);
+                        Shockwave_Spawn(&v, &D_801438F8, 2, 3, (s32)&o->dir);
                         Effect_SpawnAt(0x113, &v);
                     }
                 }
@@ -1976,7 +1976,7 @@ void func_80140D60(void) {
             if (o->fBC == 0x2F) {
                 SVECTOR v = { o->x, o->y + 0x100, o->z };
 
-                func_80070284(&v, &D_80143754, 1, 0, 0);
+                Shockwave_Spawn(&v, &D_80143754, 1, 0, 0);
                 Camera_StartShake_80140D60(1);
                 Sound_PlayFixed(0x80);
                 Sound_PlayFixed(0x79);
@@ -2077,7 +2077,7 @@ void func_80140D60(void) {
                 if (--o->fB2 == 0) {
                     SVECTOR v = { o->x, o->y, o->z };
 
-                    func_80070284(&v, &D_80143754, 1, 0, 0);
+                    Shockwave_Spawn(&v, &D_80143754, 1, 0, 0);
                     Fx_DebrisExplosion(v.vx, v.vy, v.vz);
                     Camera_StartShake_80140D60(2);
                     o->fB6 = -0xF0;
@@ -2232,7 +2232,7 @@ void func_80140D60(void) {
                 {
                     SVECTOR v = { o->x, -0x1020, o->z };
 
-                    func_80070284(&v, &D_80143754, 2, 0, 0);
+                    Shockwave_Spawn(&v, &D_80143754, 2, 0, 0);
                 }
                 o->fB2 = 0x50;
                 o->state = 0;
@@ -2336,7 +2336,7 @@ void func_80140D60(void) {
                 if (o->state > 0x14) {
                     Effect_SpawnAt(((RAND_80140D60() >> 8) & 3) ? 0x27 : 0x102, &v);
                 }
-                func_8006D548(&v);
+                Dust_SpawnDrift(&v);
             }
             if (o->fB0 != 0) {
                 SVECTOR v;

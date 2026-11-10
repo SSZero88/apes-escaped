@@ -1,8 +1,8 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-M2C_UNK func_8008DDB0(s16, s16);
-M2C_UNK func_8008DDC8(s32);
+M2C_UNK Msg_SetPos(s16, s16);
+M2C_UNK Msg_DrawString(s32);
 extern M2C_UNK D_80138CA0;
 M2C_UNK Cd_PlayXaTrack(s32);
 extern s32 D_80138CEC;
@@ -280,12 +280,12 @@ extern s16 D_80138CCA;
 extern s16 D_80138A64[];
 extern s16 D_801389D4[];
 extern s16 D_80138B8E;
-extern Ent_80136954 *D_800B4D64_80136954 asm("D_800B4D64");
+extern Ent_80136954 *D_800B4D64_80136954 asm("g_StageMeshes");
 extern Mdl_80136954 D_80138D00_80136954[] asm("D_80138D00");
-extern u8 *D_800EC354_80136954 asm("D_800EC354");
+extern u8 *D_800EC354_80136954 asm("g_GamePrim");
 s32 Sound_ResumeStreams(void);
 void Zone_SetTable(s32);
-void *func_8008C09C(s32);
+void *Mem_AllocPages(s32);
 void Model_BindMesh(void *, u32 *);
 void Model_BindBoned(void *, u8 *);
 void func_801374D0(void);
@@ -323,7 +323,7 @@ s32 func_80136954(void) {
         g_Game_80136954.f_8224 = (u32 *)(h + *(u16 *)(h + 0x14) * 4);
         g_Game_80136954.f_8228 = (Rec_80136954 *)(h + *(u16 *)(h + 0x18) * 4 + 4);
         g_Game_80136954.f_8280 = *(s32 *)(h + *(u16 *)(h + 0x18) * 4);
-        D_800B4D64_80136954 = func_8008C09C(g_Game_80136954.f_8280 << 5);
+        D_800B4D64_80136954 = Mem_AllocPages(g_Game_80136954.f_8280 << 5);
         for (i = 0; i < g_Game_80136954.f_8280; i++) {
             D_800B4D64_80136954[i].f10 = g_Game_80136954.f_8228[i].f4;
             D_800B4D64_80136954[i].f14 = g_Game_80136954.f_8228[i].f8;
@@ -606,7 +606,7 @@ s32 func_80136954(void) {
     return 0;
 }
 
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 extern u8 D_80138B90[];
 typedef struct { s16 x, y; u16 clut, tpage; u32 *ot; s32 scale; } Pen_80137214;
 extern Pen_80137214 D_80138CA0_80137214 asm("D_80138CA0");
@@ -618,7 +618,7 @@ void func_80137214(u8 *s) {
     u32 c;
     u8 u, v;
 
-    p = (PolyFT4_80137214 *)D_800EC354;
+    p = (PolyFT4_80137214 *)g_GamePrim;
     x = D_80138CA0_80137214.x;
     y = D_80138CA0_80137214.y;
     sc = D_80138CA0_80137214.scale;
@@ -653,21 +653,21 @@ void func_80137214(u8 *s) {
         s++;
     }
     D_80138CA0_80137214.x = x;
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
 }
 
 void func_80137334(s32 arg0) {
-    func_8008DDB0(M2C_FIELD(&D_80138CA0, s16 *, 0), M2C_FIELD(&D_80138CA0, s16 *, 2));
-    func_8008DDC8(arg0);
-    func_8008DDB0((s16) ((u16) M2C_FIELD(&D_80138CA0, s16 *, 0) + 1), M2C_FIELD(&D_80138CA0, s16 *, 2));
-    func_8008DDC8(arg0);
+    Msg_SetPos(M2C_FIELD(&D_80138CA0, s16 *, 0), M2C_FIELD(&D_80138CA0, s16 *, 2));
+    Msg_DrawString(arg0);
+    Msg_SetPos((s16) ((u16) M2C_FIELD(&D_80138CA0, s16 *, 0) + 1), M2C_FIELD(&D_80138CA0, s16 *, 2));
+    Msg_DrawString(arg0);
 }
 
 extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; } g_Game;
 typedef struct { s16 x, y, w, h; } Rect_801373A4;
 void SetDrawMove(void *p, void *rect, s32 x, s32 y);
 extern s32 D_80138CFC;
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 
 void func_801373A4(void) {
     u8 *p;
@@ -703,7 +703,7 @@ void func_801373A4(void) {
         SetDrawMove(p, &r, 0x230, 0x30);
         ADD_PRIM_R(ot, p, "$2", "$3");
         p += 0x18;
-        D_800EC354 = p;
+        g_GamePrim = p;
     }
 }
 
@@ -1216,7 +1216,7 @@ void func_80138490(void) {
         ADD_PRIM_ASM(ot, p);
         p += 0x30;
     }
-    D_800EC354 = p;
+    g_GamePrim = p;
     n = D_80138C90--;
     if (n > 10) {
         amp = 0;
@@ -1271,7 +1271,7 @@ void func_80138490(void) {
             }
         }
     }
-    D_800EC354 = p;
+    g_GamePrim = p;
 }
 
 /* the original text ends with padding words after the last function */

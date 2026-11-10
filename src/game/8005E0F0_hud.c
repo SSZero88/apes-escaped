@@ -5,9 +5,9 @@ typedef struct { s16 vx, vy, vz, pad; } SV_5FD80_8005FD80;
 extern struct S_D_800EC1E0 { u8 pad0[0xE8]; s16 f_E8; s16 f_EA; u8 padEC[4]; u8 f_F0; } g_Spike;
 
 extern s16 D_800F4DCC;
-extern struct S_D_800F4DB0 { u8 pad_0[0x14]; s16 f_14; s16 f_16; u8 pad_18[0x4]; s16 f_1C; u8 pad_1E[0x2]; s32 f_20; } D_800F4DB0;
+extern struct S_D_800F4DB0 { u8 pad_0[0x14]; s16 f_14; s16 f_16; u8 pad_18[0x4]; s16 f_1C; u8 pad_1E[0x2]; s32 f_20; } g_HudState;
 extern struct S_D_800EC350 { u8 pad0[0x8124]; u16 f_8124; } g_Game;
-void func_8005E42C(s32 arg0);
+void Hud_ShowHealth(s32 arg0);
 void Hud_DrawBigDigit(s32, s32, s32);
 struct Game_5FD80 { u16 f_0; u8 pad2[0x8166]; s16 f_8168; };
 extern u8 D_800F4DB2;
@@ -30,14 +30,14 @@ s32 Overlay_GetState(void);
 s32 Game_IsTimed(void);
 void Hud_DrawTimerClock(s32, s32, s32);
 void Hud_DrawTime(s32, s32, u32);
-s32 func_8005DD34(void);
-void func_8005FFD4(s32);
+s32 TimeTrial_GetClockStop(void);
+void Hud_DrawClockStopBar(s32);
 void Hud_DrawHealth(void);
 void Hud_DrawGadgets(void);
 void Hud_DrawLives(void);
 void Hud_UpdateStatusIcons(void);
-void func_8009529C(void);
-void func_80095924(void);
+void Hud_UpdateMonkeyHeads(void);
+void Hud_UpdateChips(void);
 void func_8013D424(s32);
 void Tex_DrawFogLevels(s32);
 #define gte_ldIR_5E0F0(r1, r2, r3) __asm__ volatile ("mtc2 %0, $9; nop; mtc2 %1, $10; nop; mtc2 %2, $11" : : "r"(r1), "r"(r2), "r"(r3))
@@ -49,7 +49,7 @@ void Tex_DrawFogLevels(s32);
    below a horizon at 0x78 - camera pitch / 16 (0..0xEF), in the stage's colours (+0x1C, +0x18) run
    through the GTE colour step, at the back of the ordering table. Then, unless an overlay is up, the
    timer (timed modes), health, gadgets (also in areas 0x1F/0x20), lives, status icons (not in first
-   person), the menu countdown and func_80095924, as the D_800F4DB0+0x20 flags say; area-specific extras
+   person), the menu countdown and Hud_UpdateChips, as the g_HudState+0x20 flags say; area-specific extras
    for areas 7 and 0xE, and the fog levels when the stage has fog. */
 void Hud_Draw(void) {
     Stage_5E0F0 *st = GH.stage;
@@ -110,31 +110,31 @@ main:
         { u8 *g = (u8 *)&g_GameT; u32 kk; __asm__("" : "=r"(g) : "0"(g)); __asm__("" : "=r"(kk) : "0"(0x8000)); 
         Hud_DrawTimerClock(0x90, 0x20, *(s32 *)(g + kk + 0x140));
         Hud_DrawTime(0xA0, 0x20, *(s32 *)(g + kk + 0x140)); }
-        k = func_8005DD34();
+        k = TimeTrial_GetClockStop();
         if (k != 0) {
-            func_8005FFD4(k);
+            Hud_DrawClockStopBar(k);
         }
     }
-    if (D_800F4DB0.f_20 & 0x10) {
+    if (g_HudState.f_20 & 0x10) {
         Hud_DrawHealth();
     }
-    if (!(D_800F4DB0.f_20 & 0x20)) {
+    if (!(g_HudState.f_20 & 0x20)) {
         goto lives;
     }
 gadgets:
     Hud_DrawGadgets();
 lives:
-    if (D_800F4DB0.f_20 & 8) {
+    if (g_HudState.f_20 & 8) {
         Hud_DrawLives();
     }
-    if ((D_800F4DB0.f_20 & 2) && D_800E6908 != 1) {
+    if ((g_HudState.f_20 & 2) && D_800E6908 != 1) {
         Hud_UpdateStatusIcons();
     }
-    if (D_800F4DB0.f_20 & 4) {
-        func_8009529C();
+    if (g_HudState.f_20 & 4) {
+        Hud_UpdateMonkeyHeads();
     }
-    if (D_800F4DB0.f_20 & 1) {
-        func_80095924();
+    if (g_HudState.f_20 & 1) {
+        Hud_UpdateChips();
     }
     if (g_Game.f_8124 == 7) {
         func_8013D424(0);
@@ -146,22 +146,22 @@ lives:
     }
 }
 
-void func_8005E42C(s32 arg0) {
+void Hud_ShowHealth(s32 arg0) {
     switch (arg0) {                                 /* irregular */
     case 0:
         D_800F4DCC = 0;
         break;
     case 1:
-        if (D_800F4DB0.f_20 & 0x10) {
-            if (D_800F4DB0.f_1C >= 0x15) {
-                D_800F4DB0.f_1C = 0x14;
+        if (g_HudState.f_20 & 0x10) {
+            if (g_HudState.f_1C >= 0x15) {
+                g_HudState.f_1C = 0x14;
             }
         } else {
-            D_800F4DB0.f_1C = 0;
+            g_HudState.f_1C = 0;
         }
         break;
     }
-    D_800F4DB0.f_20 = (s32) (D_800F4DB0.f_20 | 0x10);
+    g_HudState.f_20 = (s32) (g_HudState.f_20 | 0x10);
 }
 
 extern s8 D_800B01E0[][2];
@@ -264,9 +264,9 @@ void Spike_TakeDamage(s32 dmg) {
     } else {
         g_Spike.f_E8 = 0;
     }
-    func_8005E42C(1);
-    D_800F4DB0.f_14 = dmg;
-    D_800F4DB0.f_16 = 12;
+    Hud_ShowHealth(1);
+    g_HudState.f_14 = dmg;
+    g_HudState.f_16 = 12;
     g_Spike.f_EA = 60;
     g_Spike.f_F0 = 1;
 }
@@ -279,7 +279,7 @@ void Spike_Heal(s32 arg0)
   new_var2 = (s8 *) (&g_Spike);
   new_var = (*((s16 *) (((s8 *) (&g_Spike)) + 0xE8))) + arg0;
   temp_s0 = new_var;
-  func_8005E42C(1);
+  Hud_ShowHealth(1);
   if (new_var < 6)
   {
     *((s16 *) (((s8 *) (&g_Spike)) + 0xE8)) = temp_s0;
@@ -292,8 +292,8 @@ typedef struct { s16 x, y, w, h; } Rect_5E7EC;
 typedef struct { u8 r, g, b, cd; } CVec_5E7EC;
 extern Rect_5E7EC D_800A5A00;
 extern Rect_5E7EC D_800B98D0[];
-void *func_8008C09C(s32 size);
-void func_8008C064(void *p);
+void *Mem_AllocPages(s32 size);
+void Mem_Free(void *p);
 s32 DrawSync(s32 mode);
 s32 LoadImage(void *rect, u32 *p);
 s32 StoreImage(void *rect, u32 *p);
@@ -303,8 +303,8 @@ s32 StoreImage(void *rect, u32 *p);
    colour (k = 1..7). Tex_DrawFogLevels copies them back over the texture at increasing depths. */
 void Tex_MakeFogLevels(Rect_5E7EC *r, s32 idx, CVec_5E7EC fog) {
     Rect_5E7EC dst = D_800A5A00;
-    s16 *src = func_8008C09C(0x1000);
-    u16 *out = func_8008C09C(0x1000);
+    s16 *src = Mem_AllocPages(0x1000);
+    u16 *out = Mem_AllocPages(0x1000);
     s32 fr, fg, fb;
     s32 k, i;
     u16 c;
@@ -344,8 +344,8 @@ void Tex_MakeFogLevels(Rect_5E7EC *r, s32 idx, CVec_5E7EC fog) {
         LoadImage(&dst, (u32 *)out);
         DrawSync(0);
     }
-    func_8008C064(src);
-    func_8008C064(out);
+    Mem_Free(src);
+    Mem_Free(out);
 }
 
 INCLUDE_RODATA("asm/nonmatchings/game/8005E0F0_hud", D_800A5A00);
@@ -783,7 +783,7 @@ void Hud_DrawTimerClock(s32 x, s32 y, s32 t) {
     G_DRAW.prim = (u8 *)p;
 }
 
-s32 func_8005FD80(void)
+s32 Hud_DrawChipCounter(void)
 {
   SV_5FD80_8005FD80 pos;
   s16 count;
@@ -797,14 +797,14 @@ s32 func_8005FD80(void)
   s32 y2;
   s32 d;
   s16 t;
-  f = ((struct S_D_800F4DB0_8005FD80 *)&D_800F4DB0)->f_0;
-  n = ((struct S_D_800F4DB0_8005FD80 *)&D_800F4DB0)->f_2;
+  f = ((struct S_D_800F4DB0_8005FD80 *)&g_HudState)->f_0;
+  n = ((struct S_D_800F4DB0_8005FD80 *)&g_HudState)->f_2;
   if (n != 0)
   {
-    if ((--((struct S_D_800F4DB0_8005FD80 *)&D_800F4DB0)->f_3) == 0)
+    if ((--((struct S_D_800F4DB0_8005FD80 *)&g_HudState)->f_3) == 0)
     {
-      ((struct S_D_800F4DB0_8005FD80 *)&D_800F4DB0)->f_3 = 3;
-      if ((((struct S_D_800F4DB0_8005FD80 *)&D_800F4DB0)->f_2 = n - 1) != 0)
+      ((struct S_D_800F4DB0_8005FD80 *)&g_HudState)->f_3 = 3;
+      if ((((struct S_D_800F4DB0_8005FD80 *)&g_HudState)->f_2 = n - 1) != 0)
       {
         Sound_PlayFixed(0x7A);
       }
@@ -847,7 +847,7 @@ s32 func_8005FD80(void)
   rot = r2;
   m = D_800A5A10;
   Model_DrawOnScreen(D_800F4D20, &pos, &rot, &m);
-  ((struct S_D_800F4DB0_8005FD80 *)&D_800F4DB0)->f_0 = f;
+  ((struct S_D_800F4DB0_8005FD80 *)&g_HudState)->f_0 = f;
   return 0;
 }
 
@@ -860,7 +860,7 @@ typedef struct { u32 tag; u32 c0; u32 xy0; u32 xy1; u32 xy2; u32 end; } LineF3_5
 extern GameDraw g_GameD_5FFD4 asm("g_Game");
 typedef struct { u32 tag; u32 c0; u32 xy0; u32 c1; u32 xy1; u32 c2; u32 xy2; u32 c3; u32 xy3; } PolyG4_5FFD4;
 
-void func_8005FFD4(s32 n) {
+void Hud_DrawClockStopBar(s32 n) {
     SV_5FD80_8005FD80 pos;
     SV_5FD80_8005FD80 rot;
     SV_5FD80_8005FD80 r2;

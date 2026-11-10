@@ -18,7 +18,7 @@ typedef struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; s16 f_8; s16 f_A; u8 padC[6
 typedef struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } S_821C_8005B318_8005B318;
 typedef struct { void *fn; s32 pad4; void *f_8; } S_Entry_8005B318_8005B318;
 
-extern S_B9030 D_800B9030[64];
+extern S_B9030 Link_SavedRecords[64];
 extern s16 D_800AFA20;
 extern s16 D_800AFA22;
 extern s16 D_800AFA24;
@@ -33,10 +33,10 @@ void Spike_PlaceAtSpawn(s32, s32, s32);
 void Camera_Translate(s32, s32, s32);
 void func_8013D000(void);
 void func_8013FE04(void);
-extern Mdl_8005B880_8005B880 *D_800B4D64;
+extern Mdl_8005B880_8005B880 *g_StageMeshes;
 struct Game_8005B880 { u8 pad0[0x8100]; s32 f_8100; u8 pad8104[0x22]; u16 stage; u8 pad8128[0xE4]; O_8005B880_8005B880 *f_820C; u8 pad8210[0x10]; L_8005B880_8005B880 *f_8220; };
 void Sound_PlayAt(s32, O_8005B880_8005B880 *);
-void func_8008FC30(s32, L_8005B880_8005B880 *);
+void Link_Activate(s32, L_8005B880_8005B880 *);
 void Model_BindStageMesh(Mdl_8005B880_8005B880 *, s16);
 void func_8013D358(s32, s32, s32);
 void Camera_StartShake(s32);
@@ -50,12 +50,12 @@ extern S_Entry_8005B318_8005B318 *D_800AF868[];
 s32 SaveFlag_Test(s16);
 s16 SaveByte_Get(s16);
 
-s32 func_8005AD90(void) {
+s32 Link_ClearSaved(void) {
     s32 i;
     for (i = 0; i < 64; i++) {
-        D_800B9030[i].unk0 = -1;
-        D_800B9030[i].unk2 = -1;
-        D_800B9030[i].unk4 = -1;
+        Link_SavedRecords[i].unk0 = -1;
+        Link_SavedRecords[i].unk2 = -1;
+        Link_SavedRecords[i].unk4 = -1;
     }
     if (g_Game.unk812C != 2) {
         D_800AFA20 = 0;
@@ -65,7 +65,7 @@ s32 func_8005AD90(void) {
     return 0;
 }
 
-s32 func_8005ADF8(void) {
+s32 Link_SaveAreaLinks(void) {
     struct S_D_800EC350_8005ADF8 *d = (struct S_D_800EC350_8005ADF8 *)&(*(M2C_UNK *)&g_Game);
     S_821C_8005ADF8_8005ADF8 *g;
     s32 i, j, k;
@@ -105,9 +105,9 @@ INCLUDE_RODATA("asm/nonmatchings/game/8005AD90_link", jtbl_800A53B0_pad);
 typedef struct { s16 f_0; s16 f_2; s16 f_4; u16 f_6; u8 pad8[6]; u16 f_E; u16 f_10; u16 f_12; u16 f_14; u16 f_16; u16 f_18; u16 f_1A; u8 pad1C[2]; } Rec_8005AF4C;
 typedef struct { u8 pad0[8]; u16 f_8; u16 f_A; u16 f_C; u16 f_E; u16 f_10; u16 f_12; u16 f_14; u8 pad16[2]; } L_8005AF4C;
 extern struct S_D_800F4350_8005AF4C { u8 pad0[0x126]; u16 f_126; u8 pad128[0xF8]; L_8005AF4C *f_220; } D_800F4350;
-#define REC_AF4C ((Rec_8005AF4C *)D_800B9030)
+#define REC_AF4C ((Rec_8005AF4C *)Link_SavedRecords)
 
-/* Puts the saved link values (D_800B9030, 64 records {area +0, link +2, index +4, kind +6, ...})
+/* Puts the saved link values (Link_SavedRecords, 64 records {area +0, link +2, index +4, kind +6, ...})
  * of the current area (D_800F4350+0x126) back into the area's link table (D_800F4350+0x220) and
  * frees the records. The value fields used depend on the link kind. Written as the permuter found
  * it: the `REC_AF4C + k` re-evaluations reproduce the original addressing. Returns 0. */
@@ -169,10 +169,10 @@ INCLUDE_RODATA("asm/nonmatchings/game/8005AD90_link", jtbl_800A5478_pad);
 
 /* a saved link record: in-use flag, area, link index, then the link itself (kind at +6) */
 typedef struct { s16 f_0; s16 f_2; s16 f_4; S_8220_8005ADF8_8005ADF8 l; } LinkSave_5B130;
-#define LS_5B130 ((LinkSave_5B130 *)D_800B9030)
+#define LS_5B130 ((LinkSave_5B130 *)Link_SavedRecords)
 typedef struct { s16 f_0; s16 f_2; s16 f_4; s16 kind; s16 f_8; u8 padA[4]; u16 f_E; u16 f_10; u8 pad12[8]; u16 f_1A; u8 pad1C[2]; } LinkSaveF_5B130;
 
-/* Saves link l (index idx of the current area) into a free D_800B9030 record and derives the values
+/* Saves link l (index idx of the current area) into a free Link_SavedRecords record and derives the values
    Link_RestoreSaved puts back, by link kind. Returns 0, or -1 when all 64 records are in use. */
 s32 Link_SaveState(s32 idx, S_8220_8005ADF8_8005ADF8 *l) {
     s32 i;
@@ -185,57 +185,57 @@ s32 Link_SaveState(s32 idx, S_8220_8005ADF8_8005ADF8 *l) {
         LS_5B130[i].f_2 = D_800F4350.f_126;
         LS_5B130[i].f_4 = idx;
         LS_5B130[i].l = *l;
-        switch (((LinkSaveF_5B130 *)D_800B9030)[i].kind) {
+        switch (((LinkSaveF_5B130 *)Link_SavedRecords)[i].kind) {
         case 2: case 3: case 5: case 7: case 9: case 12: case 13: case 23:
         case 32: case 33: case 34: case 35:
-            ((LinkSaveF_5B130 *)D_800B9030)[i].f_10 = ((LinkSaveF_5B130 *)D_800B9030)[i].f_8;
+            ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_10 = ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_8;
             break;
         case 24:
-            ((LinkSaveF_5B130 *)D_800B9030)[i].f_10 = ((LinkSaveF_5B130 *)D_800B9030)[i].f_E | (((LinkSaveF_5B130 *)D_800B9030)[i].f_8 << 8);
+            ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_10 = ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_E | (((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_8 << 8);
             break;
         case 6:
-            if (((LinkSaveF_5B130 *)D_800B9030)[i].f_8 == 3) {
-                ((LinkSaveF_5B130 *)D_800B9030)[i].f_10 = 1;
+            if (((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_8 == 3) {
+                ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_10 = 1;
             } else {
-                ((LinkSaveF_5B130 *)D_800B9030)[i].f_10 = 0;
+                ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_10 = 0;
             }
             break;
         case 10: case 41: case 46: case 48:
-            if (((LinkSaveF_5B130 *)D_800B9030)[i].f_8 != 0) {
-                ((LinkSaveF_5B130 *)D_800B9030)[i].f_1A = 1;
+            if (((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_8 != 0) {
+                ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_1A = 1;
             } else {
-                ((LinkSaveF_5B130 *)D_800B9030)[i].f_1A = 0;
+                ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_1A = 0;
             }
             break;
         case 42: case 45: case 47:
-            if (((LinkSaveF_5B130 *)D_800B9030)[i].f_8 != 0) {
-                ((LinkSaveF_5B130 *)D_800B9030)[i].f_1A = 2;
+            if (((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_8 != 0) {
+                ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_1A = 2;
             } else {
-                ((LinkSaveF_5B130 *)D_800B9030)[i].f_1A = 0;
+                ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_1A = 0;
             }
             break;
         case 39:
-            if (((LinkSaveF_5B130 *)D_800B9030)[i].f_8 != 4) {
-                ((LinkSaveF_5B130 *)D_800B9030)[i].f_1A = 1;
+            if (((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_8 != 4) {
+                ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_1A = 1;
             } else {
-                ((LinkSaveF_5B130 *)D_800B9030)[i].f_1A = 4;
+                ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_1A = 4;
             }
             break;
         case 50:
-            switch (((LinkSaveF_5B130 *)D_800B9030)[i].f_8) {
+            switch (((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_8) {
             case 0:
-                ((LinkSaveF_5B130 *)D_800B9030)[i].f_E = 0;
+                ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_E = 0;
                 break;
             case 1: case 2: case 3:
-                ((LinkSaveF_5B130 *)D_800B9030)[i].f_E = 2;
+                ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_E = 2;
                 break;
             case 4: case 5:
-                ((LinkSaveF_5B130 *)D_800B9030)[i].f_E = 5;
+                ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_E = 5;
                 break;
             }
             break;
         case 37:
-            ((LinkSaveF_5B130 *)D_800B9030)[i].f_E = ((LinkSaveF_5B130 *)D_800B9030)[i].f_8;
+            ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_E = ((LinkSaveF_5B130 *)Link_SavedRecords)[i].f_8;
             break;
         }
         return 0;
@@ -279,14 +279,14 @@ s32 Link_ApplySaveFlags(void) {
 s32 Link_SaveStates(void) {
     s32 i;
     for (i = 0; i < 64; i++) {
-        if (((struct S_D_800B9030_8005B480 *)&D_800B9030)[i].f_0 < 0) {
+        if (((struct S_D_800B9030_8005B480 *)&Link_SavedRecords)[i].f_0 < 0) {
             continue;
         }
-        if (((struct S_D_800B9030_8005B480 *)&D_800B9030)[i].f_6 == 0x22 && ((struct S_D_800B9030_8005B480 *)&D_800B9030)[i].f_10 != 0) {
-            SaveFlag_Set(((struct S_D_800B9030_8005B480 *)&D_800B9030)[i].f_18);
+        if (((struct S_D_800B9030_8005B480 *)&Link_SavedRecords)[i].f_6 == 0x22 && ((struct S_D_800B9030_8005B480 *)&Link_SavedRecords)[i].f_10 != 0) {
+            SaveFlag_Set(((struct S_D_800B9030_8005B480 *)&Link_SavedRecords)[i].f_18);
         }
-        if (((struct S_D_800B9030_8005B480 *)&D_800B9030)[i].f_6 == 0x32) {
-            SaveByte_Set(((struct S_D_800B9030_8005B480 *)&D_800B9030)[i].f_10, ((struct S_D_800B9030_8005B480 *)&D_800B9030)[i].f_E);
+        if (((struct S_D_800B9030_8005B480 *)&Link_SavedRecords)[i].f_6 == 0x32) {
+            SaveByte_Set(((struct S_D_800B9030_8005B480 *)&Link_SavedRecords)[i].f_10, ((struct S_D_800B9030_8005B480 *)&Link_SavedRecords)[i].f_E);
         }
     }
     return 0;
@@ -365,7 +365,7 @@ s32 Link_UpdateArea(void) {
     return 0;
 }
 
-s32 func_8005B7BC(s16 i, s16 *out) {
+s32 Link_GetRecord(s16 i, s16 *out) {
     s32 total = 0;
     s32 k;
     for (k = 0; k < ((struct S_D_800EC350_8005B7BC *)&g_Game)->f_8288; k++) {
@@ -381,7 +381,7 @@ s32 func_8005B7BC(s16 i, s16 *out) {
 }
 
 /* Sends event cmd to stage link record g_Game+0x8220[idx] (0x18 bytes; its object is
- * g_Game+0x820C[+4]); used by the monkey AI. 1: activates it (sound 0x75, func_8008FC30, sets
+ * g_Game+0x820C[+4]); used by the monkey AI. 1: activates it (sound 0x75, Link_Activate, sets
  * object flag 0x8000, optional model anim +0x10) - kind 0x2B instead goes 4 -> 5 (sound 0xB0);
  * 2: starts it with a camera shake (sound 0xAF, or 0xAC + func_8013D358 in stage 0x29);
  * 3/4: 4 -> 5 or 1 -> 2; 5/6: set +0x10/+0xE; 7: camera flyby segment 0, g_Game+0x8100 = 7;
@@ -407,7 +407,7 @@ s32 Link_SendEvent(s32 cmd, s32 idx, s32 arg) {
         if (l->f_2 != 0) {
             return 0;
         }
-        func_8008FC30(l->f_C, l);
+        Link_Activate(l->f_C, l);
         l->f_2 = 1;
         o->f_18 |= 0x8000;
         Sound_PlayAt(0x75, o);
@@ -415,7 +415,7 @@ s32 Link_SendEvent(s32 cmd, s32 idx, s32 arg) {
             return 0;
         }
         if (o->f_E >= 0) {
-            Model_BindStageMesh(&D_800B4D64[o->f_E], l->f_10);
+            Model_BindStageMesh(&g_StageMeshes[o->f_E], l->f_10);
             return 0;
         }
         break;
@@ -502,14 +502,14 @@ s32 Link_SendEvent(s32 cmd, s32 idx, s32 arg) {
 
 
 
-s32 func_8005BB5C(s32 a) {
+s32 Link_GetState(s32 a) {
     if (a < 0) {
         return -1;
     }
     return g_Game.f_8220[a].f_2;
 }
 
-s32 func_8005BB98(s32 arg0) {
+s32 Link_GetKindSound(s32 arg0) {
     s16 temp_a0;
 
     temp_a0 = (arg0 & 0x1F) - 2;

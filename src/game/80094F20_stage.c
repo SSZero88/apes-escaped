@@ -24,7 +24,7 @@ extern u8 D_800DFC98[32];
 
 M2C_UNK Game_SetMode(M2C_UNK, u16, u16);
 
-extern u8 D_800DFC70[32];
+extern u8 g_WorldProgress[32];
 extern u8 D_800DFC88;
 
 extern M2C_UNK D_800DFDD8;
@@ -32,17 +32,17 @@ extern s32 D_800DFDD0;
 
 
 M2C_UNK Spike_PlaceAtSpawn(M2C_UNK, s16, M2C_UNK);
-M2C_UNK func_8004BC5C();
-extern s16 D_800B37E0;
-extern s16 D_800B37E2;
+M2C_UNK Camera_StartEventCam1();
+extern s16 StageState_Timer;
+extern s16 StageState_Step;
 M2C_UNK Spike_SetState(M2C_UNK);
 M2C_UNK Spike_SetPlayMode(M2C_UNK);
 extern struct S_D_800EC1E0 { u8 pad_0[0xE0]; s32 f_E0; } g_Spike;
-s32 func_8005FD80();
-extern struct S_D_800F4DB0 { u8 pad_0[0x20]; s32 f_20; } D_800F4DB0;
+s32 Hud_DrawChipCounter();
+extern struct S_D_800F4DB0 { u8 pad_0[0x20]; s32 f_20; } g_HudState;
 extern s32 D_800E072C;
 
-M2C_UNK func_8005ADF8();
+M2C_UNK Link_SaveAreaLinks();
 M2C_UNK Link_SaveStates();
 extern u32 D_800DFCC0[];
 
@@ -50,22 +50,22 @@ extern s16 D_800B3858[];
 
 extern s16 D_800B3810[];
 
-M2C_UNK func_8004D73C();
-M2C_UNK func_8004BBF0();
-M2C_UNK func_8008760C();
+M2C_UNK CamFlyby_Start();
+M2C_UNK Camera_StartEventCam4();
+M2C_UNK Music_FadeOut();
 extern M2C_UNK g_SaveBlock;
 extern M2C_UNK D_800E0030;
-extern u8 D_800DF820[][8];
-extern M2C_UNK D_800DFB70;
+extern u8 g_StageMonkeys[][8];
+extern M2C_UNK g_SpecterCoinList;
 s32 Stage_GetEra();
 extern s32 D_800DFDF8;
-extern s32 D_800DFDFC;
+extern s32 g_MoviesSeen;
 extern s32 D_800E0730;
 extern s16 D_800B38B8;
 extern s16 D_800E0010;
 extern s32 D_800DFDCC;
 extern u16 D_800DFFE0[];
-extern struct S_D_800DFE00 { u8 pad[0x18]; } D_800DFE00[];
+extern struct S_D_800DFE00 { u8 pad[0x18]; } g_LevelMonkeyRows[];
 s32 Stage_GetWorld(s32);
 s32 World_FirstStage(s32 i);
 s32 Game_IsTimed();
@@ -75,13 +75,13 @@ extern s16 D_800B37E4;
 void Cd_PlayXaTrack(s32);
 struct S_D_800EC350_80094F48 { u32 f_0; u8 pad4[0x80FC]; s32 f_8100; u8 pad8104[0x1E]; u16 f_8122; u16 f_8124; u16 f_8126; };
 extern Monkey g_Monkeys[];
-struct S_D_800DFE00 *func_80097E88(s32 a, s32 *out);
+struct S_D_800DFE00 *Save_GetLevelMonkeys(s32 a, s32 *out);
 struct S_D_800EC350_80097504 { u8 pad_0[0x8126]; u16 f_8126; u16 f_8128; };
 extern s16 D_800B38BA;
 extern s16 D_800B38BC;
 extern s16 D_800B37F0[];
 s32 func_800978E0(s32 arg0);
-s32 func_80096580(s32 arg0);
+s32 World_GetProgress(s32 arg0);
 s32 func_800977BC(s32 a);
 s32 func_80096514();
 struct S_D_800EC350_800976B8 { u8 pad_0[0x8126]; u16 f_8126; };
@@ -95,13 +95,13 @@ struct S_D_800EC350_800972E0 { u8 pad_0[0x8126]; u16 f_8126; u8 pad_8128[4]; u8 
 /* Starts level lvl: sets the world (+0x8122) and stage (+0x8124) for it, resets several
  * subsystems, and when lvl is the stage's first area (D_800B3858) loads the stage's monkey
  * setup: count (+0x8128) and counters from the stage table at 0x80102400, the monkey list from
- * the loaded stage header, and the caught flags per area (D_800DFE00; cleared in mode 0x13 except
+ * the loaded stage header, and the caught flags per area (g_LevelMonkeyRows; cleared in mode 0x13 except
  * stages 0x1B/0x1C, which take them from D_800DFF20). Stages 0x1F/0x20/0x22, world 3 and other
  * levels get no monkeys; stage 0x21 gets one (race). */
 s32 Stage_Begin(s32 lvl);
-void func_800848B0(void);
-void func_80050AFC(void);
-void func_8005AD90(void);
+void Pickup_Nop(void);
+void Object_Nop(void);
+void Link_ClearSaved(void);
 struct S_D_800EC350_80096E0C { u8 pad_0[0x8124]; u16 f_8124; u16 f_8126; u16 f_8128; u8 pad_812A[0x3C]; u16 f_8166; u8 pad_8168[4]; u8 f_816C[8]; };
 void Monkey_UpdateSlotStatus(void);
 struct S_D_800F4DB0_80095600 { u8 pad0[4]; s16 f_4; u8 pad6[6]; s16 f_C; s16 f_E; s16 f_10; u8 pad12[0xE]; s32 f_20; };
@@ -110,11 +110,11 @@ struct Game_80095030 { u8 pad0[0x8100]; s32 f_8100; u8 pad8104[0x22]; u16 stage;
 struct Spike_80095030 { u8 pad0[0x100]; s16 f_100; };
 void Sound_PlayFixed(s32);
 void CenterSign_ShowDigit(s32);
-void func_8005DD18(void);
+void Timer_Start(void);
 s32 func_80097620(void);
-s32 func_80095600(s32 a, s32 b);
-s32 func_80095244(s32 a);
-void func_8005E42C(s32);
+s32 Hud_ShowLives(s32 a, s32 b);
+s32 Hud_ShowMonkeyHeads(s32 a);
+void Hud_ShowHealth(s32);
 void Hud_DrawBigDigit(s32 x, s32 y, s32 n);
 void Hud_DrawBigNumber(s32 x, s32 y, s32 n);
 void Hud_DrawLivesIcon(s32 x, s32 y);
@@ -131,20 +131,20 @@ extern s32 D_801544CC;
 extern u8 D_800DFF20[][24];
 extern u8 D_800DFCB0;
 void Monkey_ClearSlotStatus(void);
-void func_800847C4(void);
-void func_800509A4(void);
-void func_80086148(void);
+void Pickup_ClearAreaMasks(void);
+void Area_ClearObjectMasks(void);
+void Sound_ResetSlotsAndResume(void);
 extern s16 D_800B389C[];
 struct S_D_800EC350_80095B3C { u8 pad_0[0x8124]; u16 f_8124; u8 pad_8126[0x32]; u16 f_8158; };
 void func_80095D44(void);
-s32 func_80095CEC(void);
+s32 Save_StoreLinkStates(void);
 
-s32 func_80094F20(void) {
-    func_8004D73C();
+s32 StageIntro_Start(void) {
+    CamFlyby_Start();
     return 0;
 }
 
-s32 func_80094F40(void) {
+s32 StageIntro_Update(void) {
     return 0;
 }
 
@@ -201,13 +201,13 @@ s32 TimeLimit_Update(void) {
         D_800B37E6--;
         break;
     case 3:
-        func_8005DD18();
+        Timer_Start();
         Game_SetMode((GM_95030->mode & 0x6000) | 3, GM_95030->stage, GM_95030->f_812A);
         Spike_SetPlayMode(0);
         if (func_80097620() != 0) {
-            func_80095600(0, 0);
-            func_80095244(0);
-            func_8005E42C(0);
+            Hud_ShowLives(0, 0);
+            Hud_ShowMonkeyHeads(0);
+            Hud_ShowHealth(0);
         }
         D_800B37E4 = 4;
         break;
@@ -215,32 +215,32 @@ s32 TimeLimit_Update(void) {
     return 0;
 }
 
-s32 func_80095244(s32 a) {
+s32 Hud_ShowMonkeyHeads(s32 a) {
     struct S_D_800F4DB0_80095244 *p;
 
-    p = ((struct S_D_800F4DB0_80095244 *)&D_800F4DB0);
+    p = ((struct S_D_800F4DB0_80095244 *)&g_HudState);
     if (a == 0) {
         p->f_8 = 0x28;
     } else {
         p->f_8 = 0;
     }
-    p = ((struct S_D_800F4DB0_80095244 *)&D_800F4DB0);
+    p = ((struct S_D_800F4DB0_80095244 *)&g_HudState);
     if (a != 0) {
         p->f_A = 2;
     } else {
         p->f_A = 0;
     }
-    ((struct S_D_800F4DB0_80095244 *)&D_800F4DB0)->f_20 |= 4;
+    ((struct S_D_800F4DB0_80095244 *)&g_HudState)->f_20 |= 4;
     return 0;
 }
 
 struct S_D_800EC350_8009529C_b { u8 pad_0[0x8124]; u16 f_8124; u8 pad_8126[0x60]; s16 f_8186; };
-extern struct S_D_800F4DB0_8009529C_b { u8 pad_0[8]; s16 f_8; s16 f_A; u8 pad_C[0x14]; s32 f_20; } D_800F4DB0_9529C asm("D_800F4DB0");
+extern struct S_D_800F4DB0_8009529C_b { u8 pad_0[8]; s16 f_8; s16 f_A; u8 pad_C[0x14]; s32 f_20; } D_800F4DB0_9529C asm("g_HudState");
 extern struct S_D_800EC350_8009529C_b g_Game_9529C asm("g_Game");
 void Hud_DrawMonkeyHeads(s32, s32);
 extern s16 D_800F4DBA;
 
-s32 func_8009529C(void) {
+s32 Hud_UpdateMonkeyHeads(void) {
     s16 x;
     s16 t;
     if (g_Game_9529C.f_8124 == 0x1F) {
@@ -296,38 +296,38 @@ s32 func_8009529C(void) {
 INCLUDE_RODATA("asm/nonmatchings/game/80094F20_stage", jtbl_800A6780_pad);
 
 
-s32 func_8009543C(void) {
-    func_8004BBF0();
-    func_8008760C();
+s32 StageExit_Begin(void) {
+    Camera_StartEventCam4();
+    Music_FadeOut();
     return 0;
 }
 
-s32 func_80095464(void) {
+s32 StageExit_Update(void) {
     return 0;
 }
 
 s32 func_8009546C(void) {
-    D_800B37E0 = 0x50;
-    D_800B37E2 = 0;
+    StageState_Timer = 0x50;
+    StageState_Step = 0;
     g_Game.f_8100 = 0;
     Spike_PlaceAtSpawn(1, g_Game.f_8126, 1);
-    func_8004BC5C();
+    Camera_StartEventCam1();
     return 0;
 }
 
-/* Per frame: Spike_PlaceAtSpawn(1, stage, 1); a small state machine in D_800B37E2 waits 80 frames
- * (counter D_800B37E0), then calls Game_SetMode(0x14, stage, g_Game+0x812A) each frame. */
+/* Per frame: Spike_PlaceAtSpawn(1, stage, 1); a small state machine in StageState_Step waits 80 frames
+ * (counter StageState_Timer), then calls Game_SetMode(0x14, stage, g_Game+0x812A) each frame. */
 s32 func_800954C4(void) {
     struct Game_800954C4 *g = (struct Game_800954C4 *)&(*(M2C_UNK *)&g_Game);
     Spike_PlaceAtSpawn(1, g->stage, 1);
-    switch (D_800B37E2) {
+    switch (StageState_Step) {
     case 0:
-        D_800B37E2 = 2;
-        D_800B37E0 = 0x50;
+        StageState_Step = 2;
+        StageState_Timer = 0x50;
         break;
     case 2:
-        if (--D_800B37E0 < 0) {
-            D_800B37E2 = 4;
+        if (--StageState_Timer < 0) {
+            StageState_Step = 4;
         }
         break;
     case 4:
@@ -349,16 +349,16 @@ s32 func_800955C8(void) {
     return 0;
 }
 
-s32 func_80095600(s32 a, s32 b) {
-    ((struct S_D_800F4DB0_80095600 *)&D_800F4DB0)->f_C = a ? 0 : 0x28;
-    ((struct S_D_800F4DB0_80095600 *)&D_800F4DB0)->f_E = a ? 2 : 0;
-    ((struct S_D_800F4DB0_80095600 *)&D_800F4DB0)->f_10 = b ? 0x34 : 0;
-    ((struct S_D_800F4DB0_80095600 *)&D_800F4DB0)->f_4 = a ? -0x14 : 0;
-    ((struct S_D_800F4DB0_80095600 *)&D_800F4DB0)->f_20 |= 8;
+s32 Hud_ShowLives(s32 a, s32 b) {
+    ((struct S_D_800F4DB0_80095600 *)&g_HudState)->f_C = a ? 0 : 0x28;
+    ((struct S_D_800F4DB0_80095600 *)&g_HudState)->f_E = a ? 2 : 0;
+    ((struct S_D_800F4DB0_80095600 *)&g_HudState)->f_10 = b ? 0x34 : 0;
+    ((struct S_D_800F4DB0_80095600 *)&g_HudState)->f_4 = a ? -0x14 : 0;
+    ((struct S_D_800F4DB0_80095600 *)&g_HudState)->f_20 |= 8;
     return 0;
 }
 
-/* Lives counter at the bottom left (icon, "x", lives - 1 from g_Game+0x813C). D_800F4DB0.f_E
+/* Lives counter at the bottom left (icon, "x", lives - 1 from g_Game+0x813C). g_HudState.f_E
  * steps 0 -> 1 slide up (f_C -2 per frame) -> 2 hold 40 frames -> 3 slide down -> 4 done (clears
  * flag 8 of f_20). After a 1-up f_10 counts down: from 25 to 9 the old number blinks, below 9 the
  * new one bounces. f_4 gets the panel's offset for other HUD parts. Returns 0. */
@@ -369,36 +369,36 @@ s32 Hud_DrawLives(void) {
     u16 lives;
     s32 n;
 
-    switch (((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_E) {
+    switch (((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_E) {
     case 0:
-        ((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_E = 1;
-        off = ((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_C = 0x28;
+        ((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_E = 1;
+        off = ((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_C = 0x28;
         break;
     case 1:
-        if ((((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_C -= 2) < 0) {
-            ((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_E = 2;
-            ((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_C = 0x28;
+        if ((((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_C -= 2) < 0) {
+            ((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_E = 2;
+            ((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_C = 0x28;
         } else {
-            off = ((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_C;
+            off = ((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_C;
         }
         break;
     case 2:
-        if (--((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_C < 0) {
-            ((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_E = 3;
-            ((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_C = 0x28;
+        if (--((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_C < 0) {
+            ((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_E = 3;
+            ((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_C = 0x28;
         }
         break;
     case 3:
-        if ((((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_C -= 2) < 0) {
-            ((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_E = 4;
+        if ((((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_C -= 2) < 0) {
+            ((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_E = 4;
         }
-        off = 0x28 - ((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_C;
+        off = 0x28 - ((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_C;
         if (off < 0) {
             off = 0;
         }
         break;
     case 4:
-        ((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_20 &= ~8;
+        ((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_20 &= ~8;
         return 0;
     }
     Hud_DrawBigDigit(0x34, off + 200, -1);
@@ -406,49 +406,49 @@ s32 Hud_DrawLives(void) {
     lives = ((struct S_D_800EC350_80095690 *)&g_Game)->f_813C;
     y = off + 200;
     n = lives - 1;
-    if (((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_10 != 0) {
-        ((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_10--;
+    if (((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_10 != 0) {
+        ((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_10--;
         n = lives - 2;
-        if (((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_10 < 9) {
-            y = off + 199; y += (((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_10 & 1) << 1;
+        if (((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_10 < 9) {
+            y = off + 199; y += (((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_10 & 1) << 1;
             n = lives - 1;
-        } else if (((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_10 < 0x1A) {
-            show = ((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_10 & 2;
+        } else if (((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_10 < 0x1A) {
+            show = ((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_10 & 2;
         }
     }
     if (show) {
         Hud_DrawBigNumber(0x4C, y, n);
     }
     Hud_DrawLivesIcon(0x14, off + 0xC0);
-    ((struct S_D_800F4DB0_80095690_80095690 *)&D_800F4DB0)->f_4 = (off < 0x1C) ? off - 0x1C : 0;
+    ((struct S_D_800F4DB0_80095690_80095690 *)&g_HudState)->f_4 = (off < 0x1C) ? off - 0x1C : 0;
     return 0;
 }
 
 INCLUDE_RODATA("asm/nonmatchings/game/80094F20_stage", jtbl_800A6798_pad);
 
 
-s32 func_800958C0(s32 a) {
+s32 Hud_ShowChips(s32 a) {
     s32 v;
-    ((struct S_D_800F4DB0_800958C0 *)&D_800F4DB0)->f_20 |= 1;
-    v = ((struct S_D_800F4DB0_800958C0 *)&D_800F4DB0)->f_0;
+    ((struct S_D_800F4DB0_800958C0 *)&g_HudState)->f_20 |= 1;
+    v = ((struct S_D_800F4DB0_800958C0 *)&g_HudState)->f_0;
     if (a != 0) {
-        ((struct S_D_800F4DB0_800958C0 *)&D_800F4DB0)->f_0 = 0x4B;
+        ((struct S_D_800F4DB0_800958C0 *)&g_HudState)->f_0 = 0x4B;
         return 0;
     }
     if (v < 0xE) {
         return 0;
     }
     if (v < 0x50) {
-        ((struct S_D_800F4DB0_800958C0 *)&D_800F4DB0)->f_0 = 8;
+        ((struct S_D_800F4DB0_800958C0 *)&g_HudState)->f_0 = 8;
         return 0;
     }
-    ((struct S_D_800F4DB0_800958C0 *)&D_800F4DB0)->f_0 = 0;
+    ((struct S_D_800F4DB0_800958C0 *)&g_HudState)->f_0 = 0;
     return 0;
 }
 
-s32 func_80095924(void) {
-    if (func_8005FD80() != 0) {
-        D_800F4DB0.f_20 = (s32) (D_800F4DB0.f_20 & ~1);
+s32 Hud_UpdateChips(void) {
+    if (Hud_DrawChipCounter() != 0) {
+        g_HudState.f_20 = (s32) (g_HudState.f_20 & ~1);
     }
     return 0;
 }
@@ -458,8 +458,8 @@ typedef struct {
     u8 f_2F4[0x2F0]; u8 pad5E4[0xAC]; s32 f_690[32]; s32 f_710; s32 f_714; u8 pad718[0x7C]; s32 f_794;
 } Save_80095960;
 extern Save_80095960 g_SaveBlock_95960 asm("g_SaveBlock");
-extern u8 D_800DF820_95960[][8] asm("D_800DF820");
-extern u8 D_800DFC70_95960[32] asm("D_800DFC70");
+extern u8 D_800DF820_95960[][8] asm("g_StageMonkeys");
+extern u8 D_800DFC70_95960[32] asm("g_WorldProgress");
 extern u8 D_800DFC98_95960[32] asm("D_800DFC98");
 extern s32 g_BestTimes_95960[] asm("g_BestTimes");
 extern u32 D_800DFCC0_95960[] asm("D_800DFCC0");
@@ -467,14 +467,14 @@ extern u32 D_800DFDD8_95960[] asm("D_800DFDD8");
 extern s32 D_800DFDCC_95960 asm("D_800DFDCC");
 extern s32 D_800DFDD0_95960 asm("D_800DFDD0");
 extern s32 D_800DFDF8_95960 asm("D_800DFDF8");
-extern s32 D_800DFDFC_95960 asm("D_800DFDFC");
+extern s32 D_800DFDFC_95960 asm("g_MoviesSeen");
 s32 func_800848C0_95960(void) asm("SpecterCoin_ClearAll");
 s32 func_80095D44_95960(void) asm("func_80095D44");
-/* func_80095960: reset all save data for a new game: per-stage tables (D_800DF820, monkeys caught,
+/* Save_ResetNewGame: reset all save data for a new game: per-stage tables (g_StageMonkeys, monkeys caught,
  * stage states, best times = -1), then the save block itself (version 1, func_80095D44 status
  * word, flags, coin list = 0xFFFF, ...). The callees are declared returning s32 here: with void
  * prototypes the registers at the end shift (the original called them as int functions). */
-s32 func_80095960(void) {
+s32 Save_ResetNewGame(void) {
     s32 i, j;
     for (i = 0; i < 0x6A; i++) {
         for (j = 0; j < 8; j++) {
@@ -531,7 +531,7 @@ s32 Save_StoreGame(void) {
     func_80095D44();
     SV->f_668 = D_800DFDD0;
     for (i = 0; i < 128; i++) {
-        SV->f_68[i] = ((u16 *)&D_800DFB70)[i];
+        SV->f_68[i] = ((u16 *)&g_SpecterCoinList)[i];
     }
     if (Game_IsTimed() != 0) {
         for (i = 0; i < 32; i++) {
@@ -539,13 +539,13 @@ s32 Save_StoreGame(void) {
         }
         return 0;
     }
-    func_80095CEC();
-    src = (u8 *)D_800DF820;
+    Save_StoreLinkStates();
+    src = (u8 *)g_StageMonkeys;
     for (i = 0; i < 0x2F0; i++) {
         SV->f_2F4[i] = src[i];
     }
     for (i = 0; i < 32; i++) {
-        SV->f_28[i] = D_800DFC70[i];
+        SV->f_28[i] = g_WorldProgress[i];
         SV->f_48[i] = D_800DFC98[i];
     }
     for (i = 0; i < 8; i++) {
@@ -553,17 +553,17 @@ s32 Save_StoreGame(void) {
     }
     SV->f_664 = D_800DFDCC;
     SV->f_68C = D_800DFDF8;
-    SV->f_718 = D_800DFDFC;
+    SV->f_718 = g_MoviesSeen;
     return 0;
 }
 
-s32 func_80095CEC(void) {
+s32 Save_StoreLinkStates(void) {
     M2C_UNK *var_v1;
     s32 *var_a0;
     s32 temp_v0;
     s32 var_a1;
 
-    func_8005ADF8();
+    Link_SaveAreaLinks();
     Link_SaveStates();
     var_a1 = 0;
     var_a0 = D_800DFCC0;
@@ -584,12 +584,12 @@ extern S_80095D44 g_SaveBlock_95D44 asm("g_SaveBlock");
 extern struct { u8 pad_0[0x8138]; u8 f_8138; u8 pad_8139; u16 f_813A; u16 f_813C; u8 pad_813E[0x16]; u16 f_8154; u8 f_8156; u8 pad_8157[0x11]; u16 f_8168; } g_Game_95D44 asm("g_Game");
 extern struct { u8 pad0[0x88]; s32 f_88; u8 pad8C[0x15]; u8 f_A1; u8 f_A2; u8 padA3; s32 f_A4; } g_GadgetState_95D44 asm("g_GadgetState");
 extern s8 g_CurrentGadget_95D44 asm("g_CurrentGadget");
-s32 func_800864B4_95D44(T_80095D44 *) asm("func_800864B4");
+s32 func_800864B4_95D44(T_80095D44 *) asm("Sound_GetVolumes");
 s32 func_80095D44_(void) asm("func_80095D44");
 /* func_80095D44: store the current game state in the save block header: +0x14 = two bytes from
- * func_800864B4 (<< 16 / << 24) | flag 1 (g_Game+0x813A) | flag 2 (+0x8138); +2 = +0x813C (lives?)
+ * Sound_GetVolumes (<< 16 / << 24) | flag 1 (g_Game+0x813A) | flag 2 (+0x8138); +2 = +0x813C (lives?)
  * | +0x8168 << 8; +4/+8 gadget state words; +0xC = current gadget << 16 | gadget bytes +0xA1/+0xA2;
- * +0x10 = g_Game+0x8154 << 8 | +0x8156. func_800864B4 must be declared returning int. */
+ * +0x10 = g_Game+0x8154 << 8 | +0x8156. Sound_GetVolumes must be declared returning int. */
 s32 func_80095D44_(void) {
     S_80095D44 *s = &g_SaveBlock_95D44;
     T_80095D44 t;
@@ -628,17 +628,17 @@ extern Save_95E80 g_SaveBlock_95E80 asm("g_SaveBlock");
 extern struct Game_95E80 g_Game_95E80 asm("g_Game");
 extern GS_95E80 g_GadgetState_95E80 asm("g_GadgetState");
 extern u32 D_800E002C_95E80 asm("D_800E002C");
-extern u8 D_800DF820_95E80[] asm("D_800DF820");
-extern u8 D_800DFC70_95E80[] asm("D_800DFC70");
+extern u8 D_800DF820_95E80[] asm("g_StageMonkeys");
+extern u8 D_800DFC70_95E80[] asm("g_WorldProgress");
 extern u8 D_800DFC98_95E80[] asm("D_800DFC98");
 extern s32 g_BestTimes_95E80[] asm("g_BestTimes");
-extern u16 D_800DFB70_95E80[] asm("D_800DFB70");
+extern u16 D_800DFB70_95E80[] asm("g_SpecterCoinList");
 extern u32 D_800DFCC0_95E80[] asm("D_800DFCC0");
 extern u32 D_800DFDD8_95E80[] asm("D_800DFDD8");
 extern u32 D_800DFDCC_95E80 asm("D_800DFDCC");
 extern u32 D_800DFDD0_95E80 asm("D_800DFDD0");
 extern u32 D_800DFDF8_95E80 asm("D_800DFDF8");
-extern u32 D_800DFDFC_95E80 asm("D_800DFDFC");
+extern u32 D_800DFDFC_95E80 asm("g_MoviesSeen");
 s32 Gadget_Select(s32, s32);
 typedef struct { s32 a; s32 b; } Vol_95E80;
 s32 Sound_SetVolumes_95E80() asm("Sound_SetVolumes");
@@ -648,7 +648,7 @@ s32 SpecterCoin_Count(void);
    it out: lives/+0x8168 bytes, gadget state, current gadget, flags, sound volumes (passed as a
    two-word struct: the stack copy at 0x10/0x14 is part of the original), per-stage tables, best
    times, Specter coin count (+5 for each of two bonus flags in D_800DFDD0). Inverse of func_80095D44. */
-s32 func_80095E80(void) {
+s32 Save_Load(void) {
     Save_95E80 *sb;
     u32 w;
     s32 i;
@@ -740,7 +740,7 @@ s32 Record_UpdateBestTime(void) {
     return 0;
 }
 
-M2C_UNK *func_8009628C(void) {
+M2C_UNK *Save_GetBlock(void) {
     return &g_SaveBlock;
 }
 
@@ -748,8 +748,8 @@ M2C_UNK *func_80096298(void) {
     return &D_800E0030;
 }
 
-M2C_UNK *func_800962A4(void) {
-    return (M2C_UNK *)D_800DF820;
+M2C_UNK *Save_GetStageMonkeys(void) {
+    return (M2C_UNK *)g_StageMonkeys;
 }
 
 s32 Save_SumStageMonkeys(u8 *p)
@@ -769,8 +769,8 @@ s32 Save_SumStageMonkeys(u8 *p)
   return sum;
 }
 
-M2C_UNK *func_800962E8(void) {
-    return &D_800DFB70;
+M2C_UNK *Save_GetSpecterCoinList(void) {
+    return &g_SpecterCoinList;
 }
 
 s32 SaveFlag_Set(s32 a) {
@@ -857,24 +857,24 @@ s32 func_80096514()
     return ((u32) D_800DFDF8 >> Stage_GetEra()) & 1;
 }
 
-s32 func_80096540(s32 arg0) {
+s32 Movie_SetSeen(s32 arg0) {
     s32 temp_v1;
 
-    temp_v1 = D_800DFDFC | (1 << arg0);
+    temp_v1 = g_MoviesSeen | (1 << arg0);
     D_800E0730 = temp_v1;
-    D_800DFDFC = temp_v1;
+    g_MoviesSeen = temp_v1;
     return 0;
 }
 
-s32 func_80096568(s32 arg0) {
-    return ((u32) D_800DFDFC >> arg0) & 1;
+s32 Movie_WasSeen(s32 arg0) {
+    return ((u32) g_MoviesSeen >> arg0) & 1;
 }
 
-s32 func_80096580(s32 arg0) {
+s32 World_GetProgress(s32 arg0) {
     if ((u32)(arg0 - 0x18) < 6) {
         return D_800DFC88;
     }
-    return D_800DFC70[arg0];
+    return g_WorldProgress[arg0];
 }
 
 s32 Record_GetBestTime(s32 stage) {
@@ -907,7 +907,7 @@ s32 Stage_StoreClearState(s32 i) {
     if (i >= 0x18 && i < 0x1E) {
         D_800DFC88 = (u8)g_Game.f_812E;
     } else {
-        D_800DFC70[i] = (u8)g_Game.f_812E;
+        g_WorldProgress[i] = (u8)g_Game.f_812E;
     }
     return 0;
 }
@@ -935,10 +935,10 @@ s32 Stage_Begin(s32 lvl) {
     (*(struct Game_966B4 *)&g_Game).f_8160 = 0;
     (*(u16 *)&D_800B38B8) = 1;
     Monkey_ClearSlotStatus();
-    func_8005AD90();
-    func_800847C4();
-    func_800509A4();
-    func_80086148();
+    Link_ClearSaved();
+    Pickup_ClearAreaMasks();
+    Area_ClearObjectMasks();
+    Sound_ResetSlotsAndResume();
     w = World_FirstStage((*(struct Game_966B4 *)&g_Game).f_8124);
     if (w == lvl) {
         if ((*(struct Game_966B4 *)&g_Game).f_8124 == 0x1F) {
@@ -982,38 +982,38 @@ s32 Stage_Begin(s32 lvl) {
         if ((*(struct Game_966B4 *)&g_Game).f_8120 == 0x13) {
             for (i = 0; i < 12; i++) {
                 for (j = 0; j < 8; j++) {
-                    D_800DFE00[i].pad[j] = 0;
+                    g_LevelMonkeyRows[i].pad[j] = 0;
                 }
             }
             if ((*(struct Game_966B4 *)&g_Game).f_8124 == 0x1C) {
                 for (j = 0; j < 8; j++) {
-                    D_800DFE00[0].pad[j] = D_800DFF20[0][j];
+                    g_LevelMonkeyRows[0].pad[j] = D_800DFF20[0][j];
                 }
             } else if ((*(struct Game_966B4 *)&g_Game).f_8124 == 0x1B) {
                 for (j = 0; j < 8; j++) {
-                    D_800DFE00[0].pad[j] = D_800DFF20[1][j];
-                    D_800DFE00[1].pad[j] = D_800DFF20[2][j];
-                    D_800DFE00[2].pad[j] = D_800DFF20[3][j];
-                    D_800DFE00[3].pad[j] = D_800DFF20[4][j];
-                    D_800DFE00[4].pad[j] = D_800DFF20[5][j];
+                    g_LevelMonkeyRows[0].pad[j] = D_800DFF20[1][j];
+                    g_LevelMonkeyRows[1].pad[j] = D_800DFF20[2][j];
+                    g_LevelMonkeyRows[2].pad[j] = D_800DFF20[3][j];
+                    g_LevelMonkeyRows[3].pad[j] = D_800DFF20[4][j];
+                    g_LevelMonkeyRows[4].pad[j] = D_800DFF20[5][j];
                 }
             }
         } else {
             for (i = 0; i < (*(struct Game_966B4 *)&g_Game).f_8128; i++) {
                 for (j = 0; j < 8; j++) {
-                    D_800DFE00[i].pad[j] = D_800DF820[World_FirstStage((*(struct Game_966B4 *)&g_Game).f_8124) + i][j];
+                    g_LevelMonkeyRows[i].pad[j] = g_StageMonkeys[World_FirstStage((*(struct Game_966B4 *)&g_Game).f_8124) + i][j];
                 }
             }
         }
         } else {
             for (i = 0; i < 12; i++) {
                 for (j = 0; j < 8; j++) {
-                    D_800DFE00[i].pad[j] = 0;
+                    g_LevelMonkeyRows[i].pad[j] = 0;
                 }
             }
         }
         for (i = 0; i < 8; i++) {
-            (*(struct Game_966B4 *)&g_Game).f_816C[i] = D_800DFE00[lvl - World_FirstStage((*(struct Game_966B4 *)&g_Game).f_8124)].pad[i];
+            (*(struct Game_966B4 *)&g_Game).f_816C[i] = g_LevelMonkeyRows[lvl - World_FirstStage((*(struct Game_966B4 *)&g_Game).f_8124)].pad[i];
         }
         if ((*(struct Game_966B4 *)&g_Game).f_8120 == 0x13) {
             (*(struct Game_966B4 *)&g_Game).f_812E = 2;
@@ -1021,7 +1021,7 @@ s32 Stage_Begin(s32 lvl) {
             (*(struct Game_966B4 *)&g_Game).f_812E = D_800DFC88;
             (*(struct Game_966B4 *)&g_Game).f_8166 = D_800DFCB0;
         } else {
-            (*(struct Game_966B4 *)&g_Game).f_812E = D_800DFC70[(*(struct Game_966B4 *)&g_Game).f_8124];
+            (*(struct Game_966B4 *)&g_Game).f_812E = g_WorldProgress[(*(struct Game_966B4 *)&g_Game).f_8124];
             (*(struct Game_966B4 *)&g_Game).f_8166 = D_800DFC98[(*(struct Game_966B4 *)&g_Game).f_8124];
         }
         (*(u16 *)&D_800E0010) = (*(struct Game_966B4 *)&g_Game).f_812E;
@@ -1055,11 +1055,11 @@ s32 Stage_SaveStatus(void) {
     Monkey_UpdateSlotStatus();
     k = D_96E0C->f_8126 - World_FirstStage(D_96E0C->f_8124);
     for (j = 0; j < 8; j++) {
-        D_800DFE00[k].pad[j] = D_96E0C->f_816C[j];
+        g_LevelMonkeyRows[k].pad[j] = D_96E0C->f_816C[j];
     }
     for (j = 0; j < D_96E0C->f_8128; j++) {
         for (i = 0; i < 8; i++) {
-            D_800DF820[World_FirstStage(D_96E0C->f_8124) + j][i] = D_800DFE00[j].pad[i];
+            g_StageMonkeys[World_FirstStage(D_96E0C->f_8124) + j][i] = g_LevelMonkeyRows[j].pad[i];
         }
     }
     if ((u16)(D_96E0C->f_8124 - 24) < 6) {
@@ -1075,16 +1075,16 @@ struct Game_96FAC { u8 pad0[0x8124]; u16 f_8124; u16 f_8126; u16 f_8128; u8 pad8
 void Pickup_SaveAreaMask(void);
 void Area_SaveObjectMask(void);
 /* Saves the stage's progress when leaving it for area `next`: the caught-monkey flags
- * (g_Game+0x816C) of the current area into its slot of D_800DFE00; on leaving the last area of a
+ * (g_Game+0x816C) of the current area into its slot of g_LevelMonkeyRows; on leaving the last area of a
  * level for the Time Station (0x45) with mode 6 they are copied into the save data
- * (D_800DF820, or the race records D_800DFF20 for races 0x1B/0x1C). */
+ * (g_StageMonkeys, or the race records D_800DFF20 for races 0x1B/0x1C). */
 s32 Area_SaveProgress(s32 next) {
     s16 i;
     s16 j;
     s32 r;
     u8 v;
 
-    func_8005ADF8();
+    Link_SaveAreaLinks();
     Link_SaveStates();
     if (GM_96FAC->f_8126 == 0x45 && GM_96FAC->f_812C == 6) {
         if (Game_IsTimed()) {
@@ -1098,28 +1098,28 @@ s32 Area_SaveProgress(s32 next) {
     Monkey_UpdateSlotStatus();
     r = (s16)(GM_96FAC->f_8126 - World_FirstStage(GM_96FAC->f_8124));
     for (j = 0; j < 8; j++) {
-        D_800DFE00[r].pad[j] = GM_96FAC->f_816C[j];
+        g_LevelMonkeyRows[r].pad[j] = GM_96FAC->f_816C[j];
     }
     if (next == 0x45 && World_FirstStage(GM_96FAC->f_8124) == GM_96FAC->f_8126 && GM_96FAC->f_812C == 6) {
         if (Game_IsTimed()) {
             if (GM_96FAC->f_8124 == 0x1C) {
                 for (i = 0; i < 8; i++) {
-                    D_800DFF20[0][i] = D_800DFE00[0].pad[i];
+                    D_800DFF20[0][i] = g_LevelMonkeyRows[0].pad[i];
                 }
             } else if (GM_96FAC->f_8124 == 0x1B) {
                 for (i = 0; i < 8; i++) {
-                    D_800DFF20[1][i] = D_800DFE00[0].pad[i];
-                    D_800DFF20[2][i] = D_800DFE00[1].pad[i];
-                    D_800DFF20[3][i] = D_800DFE00[2].pad[i];
-                    D_800DFF20[4][i] = D_800DFE00[3].pad[i];
-                    D_800DFF20[5][i] = D_800DFE00[4].pad[i];
+                    D_800DFF20[1][i] = g_LevelMonkeyRows[0].pad[i];
+                    D_800DFF20[2][i] = g_LevelMonkeyRows[1].pad[i];
+                    D_800DFF20[3][i] = g_LevelMonkeyRows[2].pad[i];
+                    D_800DFF20[4][i] = g_LevelMonkeyRows[3].pad[i];
+                    D_800DFF20[5][i] = g_LevelMonkeyRows[4].pad[i];
                 }
             }
             return 0;
         }
         for (j = 0; j < GM_96FAC->f_8128; j++) {
             for (i = 0; i < 8; i++) {
-                D_800DF820[World_FirstStage(GM_96FAC->f_8124) + j][i] = D_800DFE00[j].pad[i];
+                g_StageMonkeys[World_FirstStage(GM_96FAC->f_8124) + j][i] = g_LevelMonkeyRows[j].pad[i];
             }
         }
         v = GM_96FAC->f_8166;
@@ -1133,7 +1133,7 @@ s32 Area_Enter(s32 st) {
     s16 i;
     s16 k;
     if (st == 0x45 && ((struct S_D_800EC350_800972E0 *)&g_Game)->f_812C == 2) {
-        func_8005AD90();
+        Link_ClearSaved();
         return 0;
     }
     if (((struct S_D_800EC350_800972E0 *)&g_Game)->f_8126 == 0x45 && World_FirstStage(Stage_GetWorld(st)) == st) {
@@ -1149,10 +1149,10 @@ s32 Area_Enter(s32 st) {
     }
     k = st - World_FirstStage(Stage_GetWorld(st));
     for (i = 0; i < 8; i++) {
-        ((struct S_D_800EC350_800972E0 *)&g_Game)->f_816C[i] = D_800DFE00[k].pad[i];
+        ((struct S_D_800EC350_800972E0 *)&g_Game)->f_816C[i] = g_LevelMonkeyRows[k].pad[i];
     }
-    func_800848B0();
-    func_80050AFC();
+    Pickup_Nop();
+    Object_Nop();
     return 0;
 }
 
@@ -1177,7 +1177,7 @@ s32 Stage_CountCaughtMonkeys(s32 *out) {
     return n >= D_800DFFE0[k];
 }
 
-s32 func_80097504(void) {
+s32 Level_CountCaughtMonkeys(void) {
     s32 i;
     s32 j;
     s32 n = 0;
@@ -1195,7 +1195,7 @@ s32 func_80097504(void) {
                 }
             }
         } else {
-            p = (u8 *)func_80097E88(base + i, &k);
+            p = (u8 *)Save_GetLevelMonkeys(base + i, &k);
             for (j = 0; j < 8; j++) {
                 if ((u8)(p[j] - 2) < 2) {
                     n++;
@@ -1235,13 +1235,13 @@ s32 Game_IsTimed() {
 }
 
 s32 func_800976B8(s32 a, s32 b) {
-    if (func_800978E0(6) == 0 && func_80096580(0x18) > 0 && Stage_GetEra(a) != 3) {
+    if (func_800978E0(6) == 0 && World_GetProgress(0x18) > 0 && Stage_GetEra(a) != 3) {
         ((struct S_D_800EC350_800976B8 *)&g_Game)->f_8126 = -1;
         D_800B38BA = b;
         D_800B38BC = a;
         return 2;
     }
-    if (func_80096580(Stage_GetWorld(a)) == 2 && b == 0x800) {
+    if (World_GetProgress(Stage_GetWorld(a)) == 2 && b == 0x800) {
         return 3;
     }
     if (func_800977BC(a) != 0) {
@@ -1384,7 +1384,7 @@ s32 Stage_IsCleared(void) {
     return 0;
 }
 
-s32 func_80097BFC(void) {
+s32 Stage_UpdateClearStatus(void) {
     if ((g_Game.f_8120 != 0xB) || (g_Game.f_8122 == 3)) {
         return 0;
     }
@@ -1434,7 +1434,7 @@ s32 Stage_GetInfo(u32 idx, S_Info_80097D0C_80097D0C *out) {
     out->f_8 = func_800965EC(idx);
     out->f_A = e[idx].f_4;
     out->f_6 = e[idx].f_2;
-    out->f_10 = func_80096580(idx);
+    out->f_10 = World_GetProgress(idx);
     if (idx - 24 < 6) {
         out->f_E = 0;
         for (i = 24; i < 30; i++) {
@@ -1480,7 +1480,7 @@ s32 Stage_GetTargetTimes(u32 arg0)
   }
 }
 
-struct S_D_800DFE00 *func_80097E88(s32 a, s32 *out) {
+struct S_D_800DFE00 *Save_GetLevelMonkeys(s32 a, s32 *out) {
     s32 k;
     if (Stage_GetWorld(a) == 0x20) {
         return 0;
@@ -1493,23 +1493,23 @@ struct S_D_800DFE00 *func_80097E88(s32 a, s32 *out) {
     }
     k = a - World_FirstStage(Stage_GetWorld(a));
     *out = D_800DFFE0[k];
-    return &D_800DFE00[k];
+    return &g_LevelMonkeyRows[k];
 }
 
-s32 func_80097F2C(void) {
+s32 Save_AllLevelsComplete(void) {
     s32 i;
     for (i = 0; i < 25; i++) {
         if (i == 0 || i == 7 || i == 14 || i == 18 || i == 19 || i == 23) {
             continue;
         }
-        if (D_800DFC70[i] != 2) {
+        if (g_WorldProgress[i] != 2) {
             return 0;
         }
     }
     return 1;
 }
 
-s32 func_80097FB0(s32 st) {
+s32 SpecterCoin_CountInWorld(s32 st) {
     u8 *t = (u8 *)0x80102400;
     s32 first;
     s32 n;
@@ -1539,11 +1539,11 @@ void Save_GetCurrentCompletion(void) {
     s32 i;
     b.f_668 = (*(u32 *)&D_800DFDD0);
     for (i = 0; i < 128; i++) {
-        b.f_68[i] = ((u16 *)&D_800DFB70)[i];
+        b.f_68[i] = ((u16 *)&g_SpecterCoinList)[i];
     }
     for (i = 0; i < 32; i++) {
         b.f_690[i] = g_BestTimes[i];
-        b.f_28[i] = D_800DFC70[i];
+        b.f_28[i] = g_WorldProgress[i];
         b.f_48[i] = D_800DFC98[i];
     }
     for (i = 0; i < 8; i++) {

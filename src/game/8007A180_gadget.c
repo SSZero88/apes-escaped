@@ -38,12 +38,12 @@ typedef struct { u8 pad[0x50]; } Mdl_7CAE0_8007CAE0;
 typedef struct { u8 pad0[0xC]; u16 f_C; u16 f_E; u16 f_10; } Gad_7CAE0_8007CAE0;
 
 extern struct S_D_800EC350 { u8 pad_0[0x8124]; u16 f_8124; u8 pad_8126[0x2C]; s16 f_8152; u8 pad_8154[0x50]; void *f_81A4; } g_Game;
-extern struct S_D_800F50B0 { u8 pad0[0x18]; u8 *f_18; } D_800F50B0;
+extern struct S_D_800F50B0 { u8 pad0[0x18]; u8 *f_18; } Gadget_HeldModel;
 extern u8 *D_800B4DA0;
 void Model_BindBoned(void *, void *);
 
 extern struct S_D_800F5120 { s32 f_0; u8 pad_4[0x20]; s32 f_24; s16 f_28; s16 f_2A; s16 f_2C; u8 pad_2E[0x1A]; s16 f_48; s16 f_4A; s32 f_4C; s32 f_50; u8 pad_54[0x34]; u8 f_88; u8 f_89; u8 f_8A; u8 f_8B; u8 f_8C; u8 f_8D; u8 f_8E; u8 f_8F; s32 f_90; u8 pad_94[0xF]; u8 f_A3; s32 f_A4; } g_GadgetState;
-void func_8006CDE0(void);
+void Fx_GadgetSwitch(void);
 
 extern struct S_D_800F5090 { s32 f_0; s16 f_4; s16 pad6; } g_GuidedLocks[];
 M2C_UNK Pad_Vibrate(); /* one caller passes a 4th argument */
@@ -58,10 +58,10 @@ struct S_D_800EC350_8007CA48 { u8 pad0[0x8150]; u16 f_8150; u16 f_8152; };
 extern M2C_UNK D_800EC204;
 extern u8 D_800E6916;
 extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } g_ViewMatrix;
-void func_8004B54C(SVEC_8007A32C_8007A32C *);
+void Camera_GetLookAt(SVEC_8007A32C_8007A32C *);
 s32 VectorNormalSS(void *, void *);
 void *GuidedAmmo_FindTarget(void *, SVEC_8007A32C_8007A32C *, s32);
-void func_8007A48C(s32 x);
+void GuidedAmmo_AddLock(s32 x);
 void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
 s32 RotTransPers(void *v0, s32 *sxy, s32 *p, s32 *flag);
@@ -88,10 +88,10 @@ void Anim_SetFrame(void *);
 void Model_CalcJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void Model_Draw(u32 *, void *, void *);
-void func_8007BD38(void);
-void func_8006896C(s32);
-void func_8004BC9C(void);
-void func_8006C6A4(void *);
+void Spike_DrawHandsAndGadget(void);
+void Spike_PlayVoice(s32);
+void Camera_StartRandomEventCam(void);
+void Fx_StartBlastSequence(void *);
 void Spike_SetPlayMode(s32 req);
 struct GSl_8007B16C { u8 pad0[0x88]; s8 slot[4]; u8 pad8C[0x17]; u8 f_A3; s32 f_A4; };
 struct Game_8007B16C { u8 pad0[0x8122]; u16 f_8122; u8 pad8124[2]; u16 stage; u8 pad8128[2]; u16 f_812A; u8 f_812C; };
@@ -100,7 +100,7 @@ void Gadget_RestoreSlots(void);
 s32 Gadget_SetupStageLoadout(s32);
 /* Selects gadget g (previous prev, -1 when restoring). Stops the sounds of the Stun Club,
  * Monkey Radar, Super Hoop or Sky Flyer being put away. Per gadget: Stun Club re-inits its swing,
- * Monkey Radar starts its scan (func_80099D20), Slingback re-selected cycles the ammo type
+ * Monkey Radar starts its scan (Radar_ResetScan), Slingback re-selected cycles the ammo type
  * (+0xA0: regular/explosive/guided, sound 3) or else resets it (and re-enters aiming if in look
  * mode), Super Hoop and Magic Punch reset their state, Sky Flyer clears D_800F5128, RC Car
  * re-selected while not in the 0xC0 state calls RcCar_Place at Spike (sound 0x2E).
@@ -114,7 +114,7 @@ struct Spike_8007AA98 { u8 pad0[0x1C]; SVECTOR f_1C; s32 x; s32 y; s32 z; u8 pad
 void Projectile_Spawn(SVECTOR *, SVECTOR *, s32);
 extern s32 D_800F51E0;
 extern u8 D_800EC130[];
-extern void *D_800EC358;
+extern void *g_GameOt;
 struct Game_8007C6CC { u8 pad0[0x8152]; u16 f_8152; };
 void Matrix_SetIdentity(void *);
 void RotMatrixX(s32, void *);
@@ -131,32 +131,32 @@ struct S_D_800F51D0_8007C6CC { s16 x, y, z, rot; SV_8007C6CC_8007C6CC vel; s32 t
 extern u8 D_800E6902;
 extern s32 D_800F5128;
 void Gadget_StopSounds(s32);
-void func_8007AA64(void);
+void Club_ResetSwing(void);
 void GadgetTrail_Clear(void);
 void GuidedAmmo_ClearLocks(void);
 void Camera_EnterAim(void);
 void Camera_ExitAim(void);
 void RcCar_Place(s32, s32, s32);
-void func_8004AA24(void);
-void func_8006DAC8(void);
-void func_80099D20(void);
+void Camera_ForceFloorCheck(void);
+void SuperHoop_ClearSparkles(void);
+void Radar_ResetScan(void);
 void Spike_SetState(s32);
 void Spike_SwapGadgetState(void);
-s32 func_8007F5D4(void);
-void func_8006CFA4(void);
+s32 Pause_GetState(void);
+void RcCar_ResetExhaust(void);
 struct Game_7B374 { u8 pad0[0x8100]; s32 f_8100; u8 pad8104[0x20]; u16 f_8124; u16 f_8126; u8 pad8128[2]; u16 f_812A; u8 pad812C[0x24]; u16 f_8150; s16 f_8152; };
 struct GS_8007B374 { u8 pad0[4]; s16 f_4; u8 pad6[2]; s32 f_8; };
-extern struct S_D_800F4DB0 { u8 pad0[0x20]; u32 f_20; } D_800F4DB0;
+extern struct S_D_800F4DB0 { u8 pad0[0x20]; u32 f_20; } g_HudState;
 extern Veh_7B374_8007B374 *D_800B4DC4;
 extern Obj_7B374_8007B374 *D_800B4D70;
-extern struct S_D_800E68D0 { u8 pad0[0x32]; u8 f_32; u8 pad33[0x13]; u8 f_46; } D_800E68D0;
-extern s16 D_800F5174;
+extern struct S_D_800E68D0 { u8 pad0[0x32]; u8 f_32; u8 pad33[0x13]; u8 f_46; } g_CameraState;
+extern s16 Gadget_GrowTimer;
 extern s32 D_800F4DD0;
 extern s16 D_800EC2E0;
 extern s16 D_800EC26C;
 extern void (*D_800B4DD0)(s32);
-void func_8004B590(s32, s32);
-void func_8006BF84(void);
+void Camera_CallStageHook(s32, s32);
+void Spike_GroundBlast(void);
 s32 Vec_Length(s32, s32, s32);
 s32 Math_ISqrt(s32);
 void Camera_ExitLook(void);
@@ -164,8 +164,8 @@ void Spike_LoadModelData(void *);
 void Fx_DebrisExplosion(s32, s32, s32);
 void Game_SetMode(s32, s32, s32);
 s32 Stage_IsCleared(void);
-void func_80095244(s32);
-void func_8008C064(void *);
+void Hud_ShowMonkeyHeads(s32);
+void Mem_Free(void *);
 extern u16 D_800E549E;
 
 
@@ -243,7 +243,7 @@ void GuidedAmmo_UpdateLockOn(void) {
     s32 i;
     struct S_D_800F5090_8007A32C *e;
     if (D_800E6916 == 1) {
-        func_8004B54C(&d);
+        Camera_GetLookAt(&d);
         d.vx -= ((S_EC1E0_8007A32C_8007A32C *)&g_Spike)->f_24;
         d.vy -= ((S_EC1E0_8007A32C_8007A32C *)&g_Spike)->f_28;
         d.vz -= ((S_EC1E0_8007A32C_8007A32C *)&g_Spike)->f_2C;
@@ -253,7 +253,7 @@ void GuidedAmmo_UpdateLockOn(void) {
     }
     t = GuidedAmmo_FindTarget(&D_800EC204, &d, 400);
     if (t != 0) {
-        func_8007A48C(t);
+        GuidedAmmo_AddLock(t);
     }
     SetRotMatrix(&g_ViewMatrix);
     SetTransMatrix(&g_ViewMatrix);
@@ -269,7 +269,7 @@ void GuidedAmmo_UpdateLockOn(void) {
     }
 }
 
-void func_8007A48C(s32 x) {
+void GuidedAmmo_AddLock(s32 x) {
     s32 i;
     for (i = 2; i >= 0; i--) {
         if (g_GuidedLocks[i].f_0 == x) {
@@ -301,7 +301,7 @@ extern GS_8007A514 g_GadgetState_7A514 asm("g_GadgetState");
 #define PAD_7A514M ((Pad_8007A514 *)&g_Pad_7A514)
 typedef struct { u8 pad0[0x28]; MAT_8007A514 m; s32 f_48; } Scr_8007A514;
 #define SCR_7A514M ((Scr_8007A514 *)0x1F800000)
-void func_8007CD0C(s32);
+void Gadget_SetHeldVariant(s32);
 void Club_Draw_7A514(void *, s32, s32) asm("Club_Draw");
 Col_8007A514 *CollShape_Alloc_7A514(void) asm("CollShape_Alloc");
 
@@ -411,10 +411,10 @@ void Club_SwingUpdate(void) {
     case 63:
     case 64:
     case 65:
-        func_8007CD0C(0);
+        Gadget_SetHeldVariant(0);
         break;
     default:
-        func_8007CD0C(1);
+        Gadget_SetHeldVariant(1);
         if ((SP_7A514M->f_70 & 0xF0) == 0x80) {
             Matrix_SetIdentity(&sc->m);
             sc->m.t[2] = -0x30;
@@ -477,7 +477,7 @@ void func_8007AA1C(void) {
     }
 }
 
-void func_8007AA64(void) {
+void Club_ResetSwing(void) {
     g_GadgetState.f_48 = -1;
     g_GadgetState.f_24 = 0;
     g_GadgetState.f_28 = 0;
@@ -561,7 +561,7 @@ s32 Gadget_Select(s32 g, s32 prev) {
     switch (g) {
     case 0:
         if (prev != 0) {
-            func_8007AA64();
+            Club_ResetSwing();
             GadgetTrail_Clear();
         }
         break;
@@ -589,7 +589,7 @@ s32 Gadget_Select(s32 g, s32 prev) {
     case 7:
         if (((*(Sp_8007AC64_8007AC64 *)&g_Spike).f_70 & 0xF0) != 0xC0 && prev == g) {
             RcCar_Place((*(Sp_8007AC64_8007AC64 *)&g_Spike).x, (*(Sp_8007AC64_8007AC64 *)&g_Spike).y, (*(Sp_8007AC64_8007AC64 *)&g_Spike).z);
-            func_8004AA24();
+            Camera_ForceFloorCheck();
             Sound_PlayFixed(0x2E);
         }
         if (D_800E6916 == 1) {
@@ -604,11 +604,11 @@ s32 Gadget_Select(s32 g, s32 prev) {
         (*(GS_8007AC64_8007AC64 *)&g_GadgetState).f_14 = 0;
         (*(GS_8007AC64_8007AC64 *)&g_GadgetState).f_20 = -1;
         (*(GS_8007AC64_8007AC64 *)&g_GadgetState).f_22 = -1;
-        func_8006DAC8();
+        SuperHoop_ClearSparkles();
         break;
     case 2:
         if (prev != 2) {
-            func_80099D20();
+            Radar_ResetScan();
         }
         break;
     case 5:
@@ -632,11 +632,11 @@ s32 Gadget_Select(s32 g, s32 prev) {
             Spike_SetState((*(Sp_8007AC64_8007AC64 *)&g_Spike).f_12C > (*(Sp_8007AC64_8007AC64 *)&g_Spike).y ? 0x24 : 0);
         }
         Spike_SwapGadgetState();
-        if (!func_8007F5D4()) {
-            func_8006CDE0();
+        if (!Pause_GetState()) {
+            Fx_GadgetSwitch();
         }
         if (g == 7) {
-            func_8006CFA4();
+            RcCar_ResetExhaust();
         }
         return 1;
     }
@@ -645,7 +645,7 @@ s32 Gadget_Select(s32 g, s32 prev) {
 
 
 
-void func_8007AFB8(void) {
+void Gadget_ClearFlags(void) {
     g_GadgetState.f_0 = 0;
 }
 
@@ -807,7 +807,7 @@ void Spike_SetPlayMode(s32 req) {
 
     if (req == 0xB || req == 0xE) {
         (*(struct Game_7B374 *)&g_Game).f_8152 = 0xB;
-        D_800F4DB0.f_20 &= ~0x10;
+        g_HudState.f_20 &= ~0x10;
         if (req == 0xB) {
             (*(struct Game_7B374 *)&g_Game).f_8100 = 0xE;
         }
@@ -836,12 +836,12 @@ void Spike_SetPlayMode(s32 req) {
             (*(Spk_7B374_8007B374 *)&g_Spike).vy = 0;
             (*(Spk_7B374_8007B374 *)&g_Spike).vz = 0;
             (*(struct Game_7B374 *)&g_Game).f_8150 = 1;
-            func_8004B590(0, 0);
+            Camera_CallStageHook(0, 0);
             if ((*(struct Game_7B374 *)&g_Game).f_8126 != 0x52) {
                 Sound_PlayFixed(0xAC);
             }
             Gadget_Select(9, (*(Spk_7B374_8007B374 *)&g_Spike).f_F2);
-            func_8006BF84();
+            Spike_GroundBlast();
             return;
         case 3:
             u = D_800B4DC4;
@@ -859,7 +859,7 @@ void Spike_SetPlayMode(s32 req) {
             return;
         case 8:
             (*(struct Game_7B374 *)&g_Game).f_8150 = 8;
-            D_800F5174 = 0x26;
+            Gadget_GrowTimer = 0x26;
             return;
         case 5:
             (*(struct Game_7B374 *)&g_Game).f_8150 = req;
@@ -886,11 +886,11 @@ void Spike_SetPlayMode(s32 req) {
             Gadget_Select(9, (*(Spk_7B374_8007B374 *)&g_Spike).f_F2);
             (*(Spk_7B374_8007B374 *)&g_Spike).f_5E = 0x80;
             (*(Spk_7B374_8007B374 *)&g_Spike).f_5C = 0;
-            if (D_800E68D0.f_46 == 1) {
+            if (g_CameraState.f_46 == 1) {
                 Camera_ExitAim();
             }
-            if (D_800E68D0.f_32 == 1) {
-                D_800E68D0.f_32 = 0;
+            if (g_CameraState.f_32 == 1) {
+                g_CameraState.f_32 = 0;
             }
             Spike_LoadModelData(D_800B4D70->f_80);
             return;
@@ -990,7 +990,7 @@ void Spike_SetPlayMode(s32 req) {
                 return;
             }
             Game_SetMode(3, (*(struct Game_7B374 *)&g_Game).f_8126, (*(struct Game_7B374 *)&g_Game).f_812A);
-            func_80095244(0);
+            Hud_ShowMonkeyHeads(0);
             (*(struct Game_7B374 *)&g_Game).f_8150 = req;
             return;
         case 9:
@@ -1006,8 +1006,8 @@ void Spike_SetPlayMode(s32 req) {
     case 10:
         (*(struct Game_7B374 *)&g_Game).f_8150 = req;
         Gadget_Select(D_800B4D70->f_84, -1);
-        func_8008C064(D_800B4D70->f_80);
-        func_8008C064(D_800B4D70);
+        Mem_Free(D_800B4D70->f_80);
+        Mem_Free(D_800B4D70);
         Spike_LoadModelData(0);
         Spike_SetState(0);
         D_800EC26C = 0;
@@ -1025,15 +1025,15 @@ void Spike_SetPlayMode(s32 req) {
 
 
 
-void func_8007BC9C(void) {
+void Spike_ClearPlayMode(void) {
     g_Game.f_8152 = 0;
 }
 
-void func_8007BCB4(void) {
+void Gadget_BindHeldModel(void) {
     u8 *base = (u8 *)0x80103000;
     if (g_Game.f_8124 != 0x20) {
-        Model_BindBoned(&D_800F50B0, g_Game.f_81A4);
-        D_800F50B0.f_18 = base + *(u16 *)(base + 0xB8) * 4;
+        Model_BindBoned(&Gadget_HeldModel, g_Game.f_81A4);
+        Gadget_HeldModel.f_18 = base + *(u16 *)(base + 0xB8) * 4;
         D_800B4DA0 = base + *(u16 *)(base + 0xB4) * 4;
     }
 }
@@ -1053,11 +1053,11 @@ extern MAT_7BD38 D_800E9E40_7BD38 asm("D_800E9E40");
 extern MAT_7BD38 D_800E78C0_7BD38 asm("g_ViewMatrix");
 extern MAT_7BD38 D_800F4910_7BD38 asm("D_800F4910");
 extern u8 D_800E7D00_7BD38[] asm("g_ProjVerts");
-extern u8 *D_800EC358_7BD38 asm("D_800EC358");
+extern u8 *D_800EC358_7BD38 asm("g_GameOt");
 extern SVECTOR D_800F51D0_7BD38[2] asm("D_800F51D0");
-extern struct { Obj_7BD38 o; SVECTOR dirB; SVECTOR dirA; } D_800F50B0_7BD38 asm("D_800F50B0");
-#define D_800F50B0 D_800F50B0_7BD38.o
-extern s16 D_800F5174_7BD38 asm("D_800F5174");
+extern struct { Obj_7BD38 o; SVECTOR dirB; SVECTOR dirA; } D_800F50B0_7BD38 asm("Gadget_HeldModel");
+#define Gadget_HeldModel D_800F50B0_7BD38.o
+extern s16 D_800F5174_7BD38 asm("Gadget_GrowTimer");
 extern Anim_7BD38 *D_800B4DA0_7BD38 asm("D_800B4DA0");
 extern u8 D_800AEBF8_7BD38[] asm("D_800AEBF8");
 extern Mdl_7BD38 D_800F4630_7BD38[] asm("g_MonkeyPropModels");
@@ -1086,11 +1086,11 @@ s32 func_80032E58_7BD38(void) asm("Monkey_GetCaughtType");
 /* Draws Spike's hands with the current gadget model held between them. Normal: hand model D_800EC070
    on bone matrix 15, hand vertices 0 / 0x51 / 8; underwater: the swimming body D_800EC0E0 and hand
    model D_800EC140 placed at D_800F51D0 facing D_800F51D8, vertices 2 / 0xC / 0xB. Unless in area
-   0x20, the gadget (D_800F50B0, a boned model) is centred between hand vertices a and c and aimed
-   along (mid - b) / (a - mid), grows in over its first 8 frames (D_800F5174, scaled and spun), and
+   0x20, the gadget (Gadget_HeldModel, a boned model) is centred between hand vertices a and c and aimed
+   along (mid - b) / (a - mid), grows in over its first 8 frames (Gadget_GrowTimer, scaled and spun), and
    is drawn with the attachment g_MonkeyPropModels[D_800AEBF8[Monkey_GetCaughtType() >> 6]]. Once fully grown, six
    points of the hand model (D_800B2140 / D_800B2188) are projected through their bones. */
-void func_8007BD38(void) {
+void Spike_DrawHandsAndGadget(void) {
     register u8 *vb asm("$16");
     MAT_7BD38 m;
     SVECTOR a, b, c, mid, d1, pad, d2;
@@ -1131,40 +1131,40 @@ void func_8007BD38(void) {
     RotTransSV_7BD38(&verts[ia], &a, &flag);
     RotTransSV_7BD38(&verts[ib], &b, &flag);
     RotTransSV_7BD38(&verts[ic], &c, &flag);
-    D_800F50B0.anim = 0;
+    Gadget_HeldModel.anim = 0;
     mid.vx = (a.vx + c.vx) / 2;
     mid.vy = (a.vy + c.vy) / 2;
     mid.vz = (a.vz + c.vz) / 2;
-    D_800F50B0.x = mid.vx;
-    D_800F50B0.y = mid.vy;
-    D_800F50B0.z = mid.vz;
+    Gadget_HeldModel.x = mid.vx;
+    Gadget_HeldModel.y = mid.vy;
+    Gadget_HeldModel.z = mid.vz;
     d1.vx = mid.vx - b.vx;
     d1.vy = mid.vy - b.vy;
     d1.vz = mid.vz - b.vz;
     d2.vx = a.vx - mid.vx;
     d2.vy = a.vy - mid.vy;
     d2.vz = a.vz - mid.vz;
-    D_800F50B0.frame++;
-    if (D_800F50B0.frame < D_800B4DA0_7BD38->start || D_800B4DA0_7BD38->end < D_800F50B0.frame) {
-        D_800F50B0.frame = D_800B4DA0_7BD38->start;
+    Gadget_HeldModel.frame++;
+    if (Gadget_HeldModel.frame < D_800B4DA0_7BD38->start || D_800B4DA0_7BD38->end < Gadget_HeldModel.frame) {
+        Gadget_HeldModel.frame = D_800B4DA0_7BD38->start;
     }
     VectorNormalSS_7BD38(&d1, &D_800F50B0_7BD38.dirA);
     VectorNormalSS_7BD38(&d2, &D_800F50B0_7BD38.dirB);
-    Matrix_LookAt_7BD38(&D_800F50B0_7BD38.dirB, &D_800F50B0_7BD38.dirA, D_800F50B0.mat, 0);
+    Matrix_LookAt_7BD38(&D_800F50B0_7BD38.dirB, &D_800F50B0_7BD38.dirA, Gadget_HeldModel.mat, 0);
     if (D_800F5174_7BD38 > 0) {
         if (D_800F5174_7BD38 < 9) {
             s = (D_800F5174_7BD38 << 12) / 9;
             scale.vz = s;
             scale.vx = s;
             scale.vy = 0x2000 - s;
-            ScaleMatrixL_7BD38(D_800F50B0.mat, &scale);
-            RotMatrixY_7BD38(s * 2, D_800F50B0.mat);
+            ScaleMatrixL_7BD38(Gadget_HeldModel.mat, &scale);
+            RotMatrixY_7BD38(s * 2, Gadget_HeldModel.mat);
         }
-        func_80014EF0_7BD38(&D_800F50B0, &D_800B4DA0_7BD38[D_800F50B0.anim]);
-        Model_CalcJointMatrices_7BD38(&D_800F50B0, 1);
-        Model_ProjectBonedVerts_7BD38(&D_800F50B0);
+        func_80014EF0_7BD38(&Gadget_HeldModel, &D_800B4DA0_7BD38[Gadget_HeldModel.anim]);
+        Model_CalcJointMatrices_7BD38(&Gadget_HeldModel, 1);
+        Model_ProjectBonedVerts_7BD38(&Gadget_HeldModel);
         k = func_80032E58_7BD38();
-        func_80017D94_7BD38(G_DRAW.db[G_DRAW.cur].ot, D_800E7D00_7BD38, &D_800F50B0, k);
+        func_80017D94_7BD38(G_DRAW.db[G_DRAW.cur].ot, D_800E7D00_7BD38, &Gadget_HeldModel, k);
         {
             Mdl_7BD38 *gm = &D_800F4630_7BD38[D_800AEBF8_7BD38[k >> 6]];
             Model_ProjectVerts_7BD38(gm, &D_800E9C60_7BD38[((u16 *)gm->f_0)[2]], D_800E7D00_7BD38);
@@ -1205,12 +1205,12 @@ void func_8007BD38(void) {
         func_80017CD4_7BD38(G_DRAW.db[G_DRAW.cur].ot, D_800E7D00_7BD38, mdl);
     }
 }
-#undef D_800F50B0
+#undef Gadget_HeldModel
 
 /* Spike_Update's handler for game sub-mode 8 (g_Game+0x8150). Draws Spike, then counts
  * g_GadgetState+0x54 down to 0: strong rumble pulses every 5 frames while >= 13, a light one
- * from 12 to 4; at 38 calls func_8006896C(5) and func_8004BC9C, at 37 sets g_Game+0x8100 bits
- * 0xE, at 9 calls func_8006896C(6); at 0 Spike_SetPlayMode(0) ends it. Which scene this is is not
+ * from 12 to 4; at 38 calls Spike_PlayVoice(5) and Camera_StartRandomEventCam, at 37 sets g_Game+0x8100 bits
+ * 0xE, at 9 calls Spike_PlayVoice(6); at 0 Spike_SetPlayMode(0) ends it. Which scene this is is not
  * known yet. */
 void Spike_UpdateMode8Scene(void) {
     s16 t;
@@ -1219,7 +1219,7 @@ void Spike_UpdateMode8Scene(void) {
     Model_CalcJointMatrices(SPK_7C2A0, 3);
     Model_ProjectBonedVerts(SPK_7C2A0);
     Model_Draw(((struct GameDb_8007C2A0 *)&g_Game)->db[((struct GameDb_8007C2A0 *)&g_Game)->cur].ot, g_ProjVerts, SPK_7C2A0);
-    func_8007BD38();
+    Spike_DrawHandsAndGadget();
     t = GS_7C2A0->f_54;
     if (t >= 13) {
         if (t % 5 == 0) {
@@ -1230,15 +1230,15 @@ void Spike_UpdateMode8Scene(void) {
     }
     switch (GS_7C2A0->f_54) {
     case 0x26:
-        func_8006896C(5);
-        func_8004BC9C();
-        func_8006C6A4(&D_800F50D4);
+        Spike_PlayVoice(5);
+        Camera_StartRandomEventCam();
+        Fx_StartBlastSequence(&D_800F50D4);
         break;
     case 0x25:
         ((struct Game_8007C2A0 *)&g_Game)->f_8100 |= 0xE;
         break;
     case 9:
-        func_8006896C(6);
+        Spike_PlayVoice(6);
         break;
     }
     if (--GS_7C2A0->f_54 == 0) {
@@ -1329,7 +1329,7 @@ void WaterNet_UpdateShot(void) {
     a <<= 4;
     Light_SetColorMode(2, a, a, a);
     if (t < 0x10 || (t & 1)) {
-        Model_Draw(D_800EC358, g_ProjVerts, D_800EC130);
+        Model_Draw(g_GameOt, g_ProjVerts, D_800EC130);
     }
     Light_SetColorMode(3, 0, 0, 0);
     if (t < 0x10) {
@@ -1380,7 +1380,7 @@ void Gadget_RestoreSlots(void) {
     g_CurrentGadget = g_GadgetState.f_90;
 }
 
-s32 func_8007CA48(void)
+s32 Spike_CanUseGadget(void)
 {
   struct 
   {
@@ -1457,7 +1457,7 @@ void Club_Draw(struct S_D_800E78C0 *parent, s32 len, s32 save) {
     }
     CompMatrix(&g_ViewMatrix, &m, &m);
     Model_ProjectVerts(&D_800EC0B0, &m, g_ProjVerts);
-    Model_Draw((*(u32 * *)&D_800EC358), g_ProjVerts, &D_800EC0B0);
+    Model_Draw((*(u32 * *)&g_GameOt), g_ProjVerts, &D_800EC0B0);
     s = len * 3;
     s = s < 0x1000 ? 0x1000 : (s > 0x2000 ? 0x2000 : s);
     sc.vx = s;
@@ -1466,12 +1466,12 @@ void Club_Draw(struct S_D_800E78C0 *parent, s32 len, s32 save) {
     CompMatrix(&g_ViewMatrix, &m2, &m2);
     ScaleMatrix(&m2, &sc);
     Model_ProjectVerts(&D_800EC100, &m2, g_ProjVerts);
-    Model_Draw((*(u32 * *)&D_800EC358), g_ProjVerts, &D_800EC100);
+    Model_Draw((*(u32 * *)&g_GameOt), g_ProjVerts, &D_800EC100);
 }
 
-void func_8007CD0C(s32 a) {
+void Gadget_SetHeldVariant(s32 a) {
     if (g_GadgetState.f_A3 != a) {
-        func_8006CDE0();
+        Fx_GadgetSwitch();
         g_GadgetState.f_A3 = a;
     }
 }

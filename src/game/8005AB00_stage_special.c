@@ -41,11 +41,11 @@ s32 Stage_GetSpecialKind(void) {
     return 0;
 }
 
-s32 func_8005AB6C(void) {
+s32 Stage_IsArea53(void) {
     return g_Game.f_8126 == 0x53;
 }
 
-void func_8005AB90(void) {
+void Stage_InitSpecial(void) {
     s32 temp_v0;
 
     D_800AF840 = 0;
@@ -112,7 +112,7 @@ s32 Camera_UpdateSpecial(void *a) {
 
 
 
-void func_8005ACE8(void) {
+void Stage_UpdateSpecial(void) {
     if (D_800AF840 == 0) {
         switch (Stage_GetSpecialKind()) {
         case 1:

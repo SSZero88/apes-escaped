@@ -24,15 +24,15 @@ typedef struct { u8 pad[0x20]; } S_4D64_80090370;
 typedef struct { u8 pad0[0xE]; s16 f_E; u8 pad10[8]; u16 f_18; u8 pad1A[0x1E]; } S_820C_80090370_80090370;
 typedef struct { u8 pad0[2]; s16 f_2; s16 f_4; u8 pad6[2]; u16 f_8; s16 f_A; s16 f_C; s16 f_E; s16 f_10; s16 f_12; } S_L_80090370_80090370;
 
-extern S_4D64 *D_800B4D64;
+extern S_4D64 *g_StageMeshes;
 void Model_BindStageMesh(S_4D64 *, s16);
 
-s32 func_80090E54(s16 a, s16 b, s16 c, s16 d);
+s32 Link_SetMesh(s16 a, s16 b, s16 c, s16 d);
 extern struct S_D_800EC350 { u8 pad_0[0x820C]; s32 f_820C; } g_Game;
 
-s32 func_80090D94();
+s32 MonkeyGate_Update();
 s32 Stage_CountCaughtMonkeys(s32 *);
-s32 func_80097504(void);
+s32 Level_CountCaughtMonkeys(void);
 struct S_D_800EC350_800905A4 { u8 pad0[0x820C]; S_820C_800905A4 *f_820C; };
 struct S_D_800EC350_800909A8 { u8 pad0[0x820C]; S_820C_800909A8 *f_820C; };
 /* Returns 1 if anything stands in box `b` (centre x,y,z; half sizes rx, rz; height h below y):
@@ -61,14 +61,14 @@ typedef struct { s16 f_0; s16 f_2; s16 f_4; u8 pad6[8]; s16 f_E; u8 pad10[2]; u1
 typedef struct { u8 pad0[0x16]; u16 f_16; u8 pad18[8]; } M_8FC30;
 struct Game_8FC30 { u8 pad0[0x8124]; u16 f_8124; u16 f_8126; u8 pad8128[0xE4]; O_8FC30 *f_820C; u8 pad8210[0x10]; L_8FC30 *f_8220; };
 extern struct Game_8FC30 g_Game_8FC30 asm("g_Game");
-extern M_8FC30 *D_800B4D64_8FC30 asm("D_800B4D64");
+extern M_8FC30 *D_800B4D64_8FC30 asm("g_StageMeshes");
 s32 Box_SwingAroundCorner(void *o, s16 dir, s16 m);
 void Sound_PlayAt_8FC30(s32, void *) asm("Sound_PlayAt");
 s32 Link_ResetTree_8FC30(L_8FC30 *) asm("Link_ResetTree");
 void func_801414A0(L_8FC30 *);
 void Sound_PlayFixed(s32);
 
-s32 func_8008FC30(s16 idx, L_8FC30 *from) {
+s32 Link_Activate(s16 idx, L_8FC30 *from) {
     L_8FC30 *l;
     O_8FC30 *o;
     L_8FC30 *l2;
@@ -134,10 +134,10 @@ s32 func_8008FC30(s16 idx, L_8FC30 *from) {
             Sound_PlayAt_8FC30(0x75, o);
             if (l->f_2 == 2) {
                 l->f_2 = 0;
-                func_80090E54(o->f_E, l->f_E, l->f_E, 0);
+                Link_SetMesh(o->f_E, l->f_E, l->f_E, 0);
             } else if (l->f_2 == 0) {
                 l->f_2 = 2;
-                func_80090E54(o->f_E, l->f_12, l->f_12, 0);
+                Link_SetMesh(o->f_E, l->f_12, l->f_12, 0);
             }
         }
         break;
@@ -182,7 +182,7 @@ s32 func_8008FC30(s16 idx, L_8FC30 *from) {
         } else {
             o->f_12 |= 0x500;
         }
-        func_8008FC30(l->f_C, l);
+        Link_Activate(l->f_C, l);
         l->f_2 = 2;
         if (g_Game_8FC30.f_8126 == 0x10) {
             Sound_PlayFixed(0xB0);
@@ -239,15 +239,15 @@ s32 func_8008FC30(s16 idx, L_8FC30 *from) {
         break;
     case 0x1B:
         if (((from->f_2 == 0) && (from->f_0 == 2)) || (from->f_0 == 0x1B)) {
-            func_8008FC30(l->f_C, l);
+            Link_Activate(l->f_C, l);
             l->f_2 = 1;
         }
         break;
     case 0x1C:
         if (from->f_2 == 0) {
-            func_80090E54(o->f_E, l->f_10, l->f_10, 0);
+            Link_SetMesh(o->f_E, l->f_10, l->f_10, 0);
         } else {
-            func_80090E54(o->f_E, l->f_E, l->f_E, 0);
+            Link_SetMesh(o->f_E, l->f_E, l->f_E, 0);
         }
         break;
     case 0x1E:
@@ -278,7 +278,7 @@ s32 Link_ResetTree(S_Node_80090230_80090230 *n) {
     e = &d->f_820C[idx];
     n->f_2 = 1;
     if (e->f_E >= 0) {
-        (*(S_4D64_80090230_80090230 **)&D_800B4D64)[e->f_E].f_16 = 0xFFFF;
+        (*(S_4D64_80090230_80090230 **)&g_StageMeshes)[e->f_E].f_16 = 0xFFFF;
     }
     e->f_18 = (e->f_18 & 0xFFF0) | 2;
     if (n->f_E >= 0) {
@@ -306,11 +306,11 @@ s32 Link_ToggleSwitch(S_L_80090370_80090370 *l) {
             l->f_2 = 0;
         } else {
             m = l->f_10;
-            func_8008FC30(l->f_C, l);
+            Link_Activate(l->f_C, l);
             l->f_2 = 1;
             e->f_18 |= 0x8000;
         }
-        func_80090E54(e->f_E, m, l->f_E, l->f_10);
+        Link_SetMesh(e->f_E, m, l->f_E, l->f_10);
     } else if ((u16)(l->f_8 - 0x2E) < 4) {
         k = l->f_A;
         if (k == 0) {
@@ -318,7 +318,7 @@ s32 Link_ToggleSwitch(S_L_80090370_80090370 *l) {
             l->f_2 = 0;
         } else if (k == 1) {
             m = l->f_10;
-            func_8008FC30(l->f_C, l);
+            Link_Activate(l->f_C, l);
             l->f_2 = k;
             e->f_18 |= 0x8000;
         } else {
@@ -326,38 +326,38 @@ s32 Link_ToggleSwitch(S_L_80090370_80090370 *l) {
             l->f_2 = 2;
         }
         if (l->f_E >= 0 && l->f_10 >= 0 && l->f_12 >= 0 && e->f_E >= 0) {
-            Model_BindStageMesh(&(*(S_4D64_80090370 * *)&D_800B4D64)[e->f_E], m);
+            Model_BindStageMesh(&(*(S_4D64_80090370 * *)&g_StageMeshes)[e->f_E], m);
         }
     }
     return 0;
 }
 
-s32 func_80090500(void *arg0) {
+s32 HitSwitch_Update(void *arg0) {
     s16 temp_a1;
     void *temp_s0;
 
     temp_s0 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
     if ((M2C_FIELD(arg0, s16 *, 2) == 0) && (M2C_FIELD(temp_s0, s16 *, 0x1E) >= 0)) {
-        func_8008FC30(M2C_FIELD(arg0, s16 *, 0xC), arg0);
+        Link_Activate(M2C_FIELD(arg0, s16 *, 0xC), arg0);
         M2C_FIELD(arg0, s16 *, 2) = 1;
         M2C_FIELD(temp_s0, u16 *, 0x18) = (u16) (M2C_FIELD(temp_s0, u16 *, 0x18) | 0x8000);
         temp_a1 = M2C_FIELD(arg0, s16 *, 0x10);
-        func_80090E54(M2C_FIELD(temp_s0, s16 *, 0xE), temp_a1, temp_a1, 0);
+        Link_SetMesh(M2C_FIELD(temp_s0, s16 *, 0xE), temp_a1, temp_a1, 0);
     }
     return 0;
 }
 
-s32 func_800905A4(S_905A4_800905A4 *a) {
+s32 PressurePlate_Init(S_905A4_800905A4 *a) {
     S_820C_800905A4 *r = &((struct S_D_800EC350_800905A4 *)&g_Game)->f_820C[a->f_4];
     if (a->f_A == 0) {
         a->f_2 = 0;
         r->f_18 |= 0x8000;
-        func_80090E54(r->f_E, a->f_E, a->f_E, a->f_10);
+        Link_SetMesh(r->f_E, a->f_E, a->f_E, a->f_10);
     } else {
-        func_8008FC30(a->f_C, a);
+        Link_Activate(a->f_C, a);
         a->f_2 = 1;
         r->f_18 |= 0x8000;
-        func_80090E54(r->f_E, a->f_10, a->f_E, a->f_10);
+        Link_SetMesh(r->f_E, a->f_10, a->f_E, a->f_10);
     }
     return 0;
 }
@@ -369,18 +369,18 @@ s32 Link_UpdatePressurePlate(S_90660_80090660 *s) {
         if (Box_IsOccupied(1, r) == 0) {
             break;
         }
-        func_8008FC30(s->f_C, s);
+        Link_Activate(s->f_C, s);
         s->f_2 = 1;
         Sound_PlayAt(0x75, r);
-        func_80090E54(r->f_E, s->f_10, s->f_E, s->f_10);
+        Link_SetMesh(r->f_E, s->f_10, s->f_E, s->f_10);
         break;
     case 1:
         if (Box_IsOccupied(1, r) != 0) {
             break;
         }
-        func_8008FC30(s->f_C, s);
+        Link_Activate(s->f_C, s);
         s->f_2 = 0;
-        func_80090E54(r->f_E, s->f_E, s->f_E, s->f_10);
+        Link_SetMesh(r->f_E, s->f_E, s->f_E, s->f_10);
         break;
     }
     return 0;
@@ -421,7 +421,7 @@ s32 Box_ContainsPoint(s16 *b, s32 x, s32 y, s32 z) {
     return 0;
 }
 
-s32 func_800909A8(S_909A8_800909A8 *a)
+s32 Rotor_Init(S_909A8_800909A8 *a)
 {
   S_820C_800909A8 *new_var;
   new_var = &((struct S_D_800EC350_800909A8 *)&g_Game)->f_820C[a->f_4];
@@ -544,21 +544,21 @@ s32 Rotor_Update(Mech_909FC_800909FC *m)
 
     }
 
-    RotMatrixZYX(&r, ((Mdl_909FC_800909FC *)D_800B4D64)[m->f_8[i + 1]].f_1C);
+    RotMatrixZYX(&r, ((Mdl_909FC_800909FC *)g_StageMeshes)[m->f_8[i + 1]].f_1C);
   }
 
   return 0;
 }
 
-s32 func_80090D6C(void *arg0) {
+s32 MonkeyGate_Init(void *arg0) {
     M2C_FIELD(arg0, s16 *, 2) = 0;
     M2C_FIELD(arg0, s16 *, 6) = 0;
     M2C_FIELD(arg0, s16 *, 0x16) = 0;
-    func_80090D94();
+    MonkeyGate_Update();
     return 0;
 }
 
-s32 func_80090D94(s)
+s32 MonkeyGate_Update(s)
 S_90D94_80090D94 *s;
 {
     s32 n;
@@ -571,23 +571,23 @@ S_90D94_80090D94 *s;
             goto trigger;
         }
     } else {
-        n = func_80097504();
+        n = Level_CountCaughtMonkeys();
         if (n >= s->f_A) {
             goto trigger;
         }
     }
     goto done;
 trigger:
-    func_8008FC30(s->f_C, s);
+    Link_Activate(s->f_C, s);
     s->f_6 = 1;
 done:
     s->f_16 = n;
     return 0;
 }
 
-s32 func_80090E54(s16 a, s16 b, s16 c, s16 d) {
+s32 Link_SetMesh(s16 a, s16 b, s16 c, s16 d) {
     if (c >= 0 && d >= 0 && a >= 0) {
-        Model_BindStageMesh(&D_800B4D64[a], b);
+        Model_BindStageMesh(&g_StageMeshes[a], b);
     }
     return 0;
 }

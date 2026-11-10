@@ -74,7 +74,7 @@ M2C_UNK bios_printf(M2C_UNK *, s32);
 extern M2C_UNK D_800A5E80;
 
 extern s32 D_800B2130;
-extern void *D_800B20B0;
+extern void *Coll_Cells;
 extern s32 D_800EC250;
 extern s32 g_CollisionTail;
 s32 CollShape_Clear(void *arg0);
@@ -87,15 +87,15 @@ extern s16 D_800B213E;
 extern u32 D_800E53C0;
 s16 Sound_Play(s32, s32);
 M2C_UNK Pad_Vibrate(M2C_UNK, M2C_UNK, M2C_UNK);
-extern S_P_8007734C_8007734C *D_800B20B4;
-s32 func_8004F548(S_A_8007734C_8007734C *, S_P_8007734C_8007734C *);
+extern S_P_8007734C_8007734C *Coll_Pos;
+s32 Coll_RampPieceHeight(S_A_8007734C_8007734C *, S_P_8007734C_8007734C *);
 s32 Coll_HeightOverlap(s32, s32, s32, s32);
 extern s16 D_800F5A78;
 /* Spike picks up an item of `type` (sound 0xE for a Specter coin, 0xD for a life, else 0x7A):
  *   1  cookie: heals Spike by 1 (Spike_Heal(1))
  *   2  extra life: lives (g_Game+0x813C) + 1, at most 100
  *   3  energy chip (+1), 5 big energy chip (+5): chips (g_Game+0x8168) go up, the HUD shows the
- *      amount (D_800F4DB0+2/+3); at 100 chips, 100 are taken for an extra life (sound 0xD).
+ *      amount (g_HudState+2/+3); at 100 chips, 100 are taken for an extra life (sound 0xD).
  *      In game mode 0x13 (probably Time Trial) they stop the clock instead (TimeTrial_AddClockStop).
  *   4  Specter coin: coins (g_Game+0x816A) + 1, at most 60; SpecterCoin_Add(stage)
  *   6  explosive / 7 guided Slingback ammo: + 1 up to the capacity g_Game+0x8154 / +0x8156
@@ -105,31 +105,31 @@ s32 Collider_GetCentre(s16 k, S_77C28_80077C28 *s, s16 *out);
 s32 Vec_Length(s32, s32, s32);
 extern char D_800A5D20[];
 S_BBDA0 *Collision_AllocEntry(void);
-s32 func_8005BB98(s16);
+s32 Link_GetKindSound(s16);
 extern s32 D_800B2134;
 extern s32 D_800B2138;
 int abs(int);
 void Sound_PlayAt(s32, SVECTOR *);
 void Sound_UpdateVoice3D(s32, s16, s32, SVECTOR *);
-void func_80087C28(s32, s16, s32);
+void Sound_SetVoicePitch(s32, s16, s32);
 struct S_D_800B20D0_80072A14 { s16 voice; s16 on; };
 struct Game_80078A18 { u8 pad0[0x8120]; u16 mode; u8 pad8122[4]; u16 stage; u8 pad8128[0x14]; u16 lives; u8 pad813E[0x16]; u16 explosiveMax; u16 guidedMax; u8 pad8158[0x10]; s16 chips; s16 coins; };
 struct GS_80078A18 { u8 pad0[0xA1]; u8 explosive; u8 guided; };
 struct Hud_80078A18 { u8 pad0[2]; u8 f_2; u8 f_3; };
 extern M2C_UNK g_GadgetState;
-extern M2C_UNK D_800F4DB0;
+extern M2C_UNK g_HudState;
 void Sound_PlayFixed(s32);
 void Spike_Heal(s32);
-void func_80095600(s32, s32);
+void Hud_ShowLives(s32, s32);
 void TimeTrial_AddClockStop(s32);
-void func_800958C0(s32);
+void Hud_ShowChips(s32);
 void SpecterCoin_Add(s32);
 s32 SquareRoot0(s32);
 struct Game_800792C8 { u8 pad0[0x8150]; u16 f_8150; u8 pad8152[0xBA]; A_792C8_800792C8 *f_820C; u8 pad8210[0x74]; u16 f_8284; };
 extern struct { u8 pad0[0x5E]; u16 f_5E; u8 pad60[0x10]; s32 f_70; } g_Spike;
 s32 Coll_HalfCylinderHeight(s32, s16 *, V3_792C8_800792C8 *, V3_792C8_800792C8 *);
 s32 Surface_CylinderHeight(s32, s16 *, V3_792C8_800792C8 *, V3_792C8_800792C8 *);
-s32 func_8004F884(s32, A_792C8_800792C8 *, V3_792C8_800792C8 *, V3_792C8_800792C8 *);
+s32 Surface_QueryShape(s32, A_792C8_800792C8 *, V3_792C8_800792C8 *, V3_792C8_800792C8 *);
 s32 Coll_CurvedCorner(O_76AC8_80076AC8 *, P_76AC8_80076AC8 *, s32 *, s16 *);
 void CurvedCorner_GetCentre(O_76AC8_80076AC8 *, s32 *);
 extern P_73BC8_80073BC8 *D_800B20B8;
@@ -146,11 +146,11 @@ extern s16 D_800EBFA0[2];
 extern s16 g_SpikeHealth;
 s32 CollShape_Free_p(void *) asm("CollShape_Free");
 s32 Collision_Remove_p(void *) asm("Collision_Remove");
-s32 func_80072DC4_p(void *) asm("func_80072DC4");
+s32 func_80072DC4_p(void *) asm("Coll_Nop");
 s32 Contact_ClearSeen_p(void) asm("Contact_ClearSeen");
 s32 Contact_Expire_p(void) asm("Contact_Expire");
-s32 func_8007304C_p(s32, void *) asm("func_8007304C");
-s32 func_80073450(s32, void *);
+s32 func_8007304C_p(s32, void *) asm("Coll_GatherCells");
+s32 Coll_ResolveBody(s32, void *);
 s32 func_80072DCC_p(void *, s32, s32) asm("Body_FallToFloor");
 s32 Collision_UpdateMoveRumble_p(void *) asm("Collision_UpdateMoveRumble");
 s32 Coll_ClipColumnHeight_p(void *) asm("Coll_ClipColumnHeight");
@@ -521,7 +521,7 @@ s32 Collision_UpdateAll(void) {
             Coll_ClipColumnHeight_p(o);
             func_80072DC4_p(o);
             func_8007304C_p(1, o);
-            func_80072DCC_p(o, c->kind, func_80073450(c->kind, o));
+            func_80072DCC_p(o, c->kind, Coll_ResolveBody(c->kind, o));
             Spike_TryGrabLedge();
             Zone_FindIndexAt_p(o, 1);
             break;
@@ -532,7 +532,7 @@ s32 Collision_UpdateAll(void) {
             Coll_ClipColumnHeight_p(o);
             func_80072DC4_p(o);
             func_8007304C_p(2, o);
-            func_80072DCC_p(o, c->kind, func_80073450(c->kind, o));
+            func_80072DCC_p(o, c->kind, Coll_ResolveBody(c->kind, o));
             Zone_FindIndexAt_p(o, 2);
             break;
         case 3:
@@ -593,7 +593,7 @@ s32 Collision_UpdateAll(void) {
 
 
 
-s32 func_8007292C(void) {
+s32 Pause_MuteSounds(void) {
     if (D_800B20D0.f_2 != 0) {
         Sound_Stop(0x16, D_800B20D0.f_0);
         D_800B20D0.f_2 = 0;
@@ -609,7 +609,7 @@ s32 func_8007292C(void) {
     return 0;
 }
 
-s32 func_800729CC(void) {
+s32 Pause_RestoreSounds(void) {
     if (g_Game.f_8124 == 0x1B) {
         func_8013FB20(1);
     }
@@ -655,7 +655,7 @@ s32 Roller_UpdateSound(Roll_80072A14_80072A14 *o) {
         p = 0;
     }
     if (D_800B2134 != p) {
-        func_80087C28(0x16, ((struct S_D_800B20D0_80072A14 *)&D_800B20D0)->voice, p);
+        Sound_SetVoicePitch(0x16, ((struct S_D_800B20D0_80072A14 *)&D_800B20D0)->voice, p);
     }
     D_800B2134 = p;
     D_800B2138 = (s16)e;
@@ -713,7 +713,7 @@ loop:
     goto loop;
 }
 
-s32 func_80072DC4(void) {
+s32 Coll_Nop(void) {
     return 0;
 }
 
@@ -795,11 +795,11 @@ typedef struct { u8 pad0[0x820C]; Obj_7304C *f_820C; u8 pad8210[0x74]; u16 f_828
 typedef struct { u8 pad0[0x2A8]; u16 f_2A8; u8 pad2AA[2]; u16 f_2AC; } G8_7304C;
 extern Game_7304C g_Game_7304C asm("g_Game");
 extern G8_7304C D_800F4350_7304C asm("D_800F4350");
-extern Probe_7304C *D_800B20B0_7304C asm("D_800B20B0");
-extern u8 *D_800B20C0;
-s16 *func_8004F6E8(Probe_7304C *);
+extern Probe_7304C *D_800B20B0_7304C asm("Coll_Cells");
+extern u8 *Coll_NearObjects;
+s16 *Coll_FindCell(Probe_7304C *);
 
-s32 func_8007304C(s32 mode, Pos_7304C *pos) {
+s32 Coll_GatherCells(s32 mode, Pos_7304C *pos) {
     Probe_7304C *t;
     s16 *r;
     s16 i;
@@ -846,7 +846,7 @@ s32 func_8007304C(s32 mode, Pos_7304C *pos) {
         break;
     }
     for (i = 7; i >= 0; i--) {
-        r = func_8004F6E8(&D_800B20B0_7304C[i]);
+        r = Coll_FindCell(&D_800B20B0_7304C[i]);
         {
         Probe_7304C *e;
         e = (Probe_7304C *)((i << 4) + (s32)D_800B20B0_7304C);
@@ -863,10 +863,10 @@ s32 func_8007304C(s32 mode, Pos_7304C *pos) {
     }
     for (i = g_Game_7304C.f_8284 - 1; i >= 0; i--) {
         Obj_7304C *o;
-        D_800B20C0[i] = 0;
+        Coll_NearObjects[i] = 0;
         o = (Obj_7304C *)(i * 56 + (s32)g_Game_7304C.f_820C);
         if (o->f_18 & 0x8000) {
-            D_800B20C0[i] = 1;
+            Coll_NearObjects[i] = 1;
             continue;
         }
         { u16 k = o->f_12;
@@ -877,21 +877,21 @@ s32 func_8007304C(s32 mode, Pos_7304C *pos) {
             o->f_32 = -1;
         }
         if (Box_NearPoint((s16 *)&g_Game_7304C.f_820C[i], (s32 *)pos) != 0) {
-            D_800B20C0[i] = 1;
+            Coll_NearObjects[i] = 1;
         }}
     }
     return 0;
 }
 
 s32 Probe_ShiftCorners(s32 arg0, s32 arg1) {
-    M2C_FIELD(D_800B20B0, u16 *, 0x14) = (u16) (M2C_FIELD(D_800B20B0, u16 *, 0x14) + arg1);
-    M2C_FIELD(D_800B20B0, u16 *, 0x24) = (u16) (M2C_FIELD(D_800B20B0, u16 *, 0x24) + arg1);
-    M2C_FIELD(D_800B20B0, u16 *, 0x20) = (u16) (M2C_FIELD(D_800B20B0, u16 *, 0x20) + arg0);
-    M2C_FIELD(D_800B20B0, u16 *, 0x30) = (u16) (M2C_FIELD(D_800B20B0, u16 *, 0x30) + arg0);
-    M2C_FIELD(D_800B20B0, u16 *, 0x44) = (u16) (M2C_FIELD(D_800B20B0, u16 *, 0x44) + arg1);
-    M2C_FIELD(D_800B20B0, u16 *, 0x54) = (u16) (M2C_FIELD(D_800B20B0, u16 *, 0x54) + arg1);
-    M2C_FIELD(D_800B20B0, u16 *, 0x50) = (u16) (M2C_FIELD(D_800B20B0, u16 *, 0x50) + arg0);
-    M2C_FIELD(D_800B20B0, u16 *, 0x60) = (u16) (M2C_FIELD(D_800B20B0, u16 *, 0x60) + arg0);
+    M2C_FIELD(Coll_Cells, u16 *, 0x14) = (u16) (M2C_FIELD(Coll_Cells, u16 *, 0x14) + arg1);
+    M2C_FIELD(Coll_Cells, u16 *, 0x24) = (u16) (M2C_FIELD(Coll_Cells, u16 *, 0x24) + arg1);
+    M2C_FIELD(Coll_Cells, u16 *, 0x20) = (u16) (M2C_FIELD(Coll_Cells, u16 *, 0x20) + arg0);
+    M2C_FIELD(Coll_Cells, u16 *, 0x30) = (u16) (M2C_FIELD(Coll_Cells, u16 *, 0x30) + arg0);
+    M2C_FIELD(Coll_Cells, u16 *, 0x44) = (u16) (M2C_FIELD(Coll_Cells, u16 *, 0x44) + arg1);
+    M2C_FIELD(Coll_Cells, u16 *, 0x54) = (u16) (M2C_FIELD(Coll_Cells, u16 *, 0x54) + arg1);
+    M2C_FIELD(Coll_Cells, u16 *, 0x50) = (u16) (M2C_FIELD(Coll_Cells, u16 *, 0x50) + arg0);
+    M2C_FIELD(Coll_Cells, u16 *, 0x60) = (u16) (M2C_FIELD(Coll_Cells, u16 *, 0x60) + arg0);
     return 0;
 }
 
@@ -904,15 +904,15 @@ typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; } Rc_73450;
 typedef struct { u8 pad0[0x820C]; Obj_73450 *f_820C; u8 pad8210[0x74]; u16 f_8284; } Game_73450;
 extern Game_73450 g_Game_73450 asm("g_Game");
 extern Rc_73450 g_RcCar_73450 asm("g_RcCar");
-extern Hit_73450 *D_800B20B0_73450 asm("D_800B20B0");
-extern P_73450 *D_800B20B4_73450 asm("D_800B20B4");
+extern Hit_73450 *D_800B20B0_73450 asm("Coll_Cells");
+extern P_73450 *D_800B20B4_73450 asm("Coll_Pos");
 extern s16 D_800B20C6;
 extern s32 (*D_800B20E0[])(void *, s32 *, s32 *);
 extern s32 (*D_800B2108[])(void *, s32 *, s32 *);
 s32 Coll_HeightRangeHit(s16, s16, s16, s16);
 void Effect_SpawnAt_73450(s32, s16 *) asm("Effect_SpawnAt");
 
-s32 func_80073450(s32 mode, void *a) {
+s32 Coll_ResolveBody(s32 mode, void *a) {
     s32 *box = (s32 *)0x1F8000F0;
     s32 *res = (s32 *)0x1F800100;
     s32 *acc;
@@ -964,7 +964,7 @@ s32 func_80073450(s32 mode, void *a) {
     }
     for (i = g_Game_73450.f_8284 - 1; i >= 0; i--) {
         D_800B20C6 = i;
-        if (D_800B20C0[i] != 0) {
+        if (Coll_NearObjects[i] != 0) {
             continue;
         }
         D_800B20C4++;
@@ -1070,7 +1070,7 @@ miss:
     return 0;
 }
 
-/* Push Spike (D_800B20B4) out of a solid box o (x/z half sizes +6/+0xA, height +8 below its top
+/* Push Spike (Coll_Pos) out of a solid box o (x/z half sizes +6/+0xA, height +8 below its top
  * +2) using box b (radius b+0, height b+8); kinds 0x3C..0x3F (b+4) first shift the box by one
  * half size towards -z/-x/+z/+x. The face is chosen by the quadrant (diagonals) he is in, or by
  * corner region outside both extents; out[0] or out[2] gets the correction, and out[3] the
@@ -1102,23 +1102,23 @@ s32 Coll_PushBox(O_73BC8_80073BC8 *o, B_73BC8_80073BC8 *b, s32 *out) {
     }
     ex = o->w + b->r;
     ez = o->d + b->r;
-    if (o->x + ex < (*(P_73BC8_80073BC8 * *)&D_800B20B4)->x) {
+    if (o->x + ex < (*(P_73BC8_80073BC8 * *)&Coll_Pos)->x) {
         goto miss;
     }
-    if ((*(P_73BC8_80073BC8 * *)&D_800B20B4)->x < o->x - ex) {
+    if ((*(P_73BC8_80073BC8 * *)&Coll_Pos)->x < o->x - ex) {
         return 0;
     }
-    if (o->z + ez < (*(P_73BC8_80073BC8 * *)&D_800B20B4)->z) {
+    if (o->z + ez < (*(P_73BC8_80073BC8 * *)&Coll_Pos)->z) {
         return 0;
     }
-    if ((*(P_73BC8_80073BC8 * *)&D_800B20B4)->z < o->z - ez) {
+    if ((*(P_73BC8_80073BC8 * *)&Coll_Pos)->z < o->z - ez) {
         return 0;
     }
-    if (Coll_HeightOverlap((*(P_73BC8_80073BC8 * *)&D_800B20B4)->y, b->h, o->y, o->h) == 0) {
+    if (Coll_HeightOverlap((*(P_73BC8_80073BC8 * *)&Coll_Pos)->y, b->h, o->y, o->h) == 0) {
         return 0;
     }
-    dx = (*(P_73BC8_80073BC8 * *)&D_800B20B4)->x - o->x;
-    dz = (*(P_73BC8_80073BC8 * *)&D_800B20B4)->z - o->z;
+    dx = (*(P_73BC8_80073BC8 * *)&Coll_Pos)->x - o->x;
+    dz = (*(P_73BC8_80073BC8 * *)&Coll_Pos)->z - o->z;
     if (o->w < ABS(dx) && o->d < ABS(dz)) {
         dx = o->w < dx ? dx - o->w : dx + o->w;
         dz = o->d < dz ? dz - o->d : dz + o->d;
@@ -1128,17 +1128,17 @@ s32 Coll_PushBox(O_73BC8_80073BC8 *o, B_73BC8_80073BC8 *b, s32 *out) {
         side = ((dx * o->d / o->w < dz) << 1) | (dx * -o->d / o->w < dz);
     }
     if (side == 0 || side == 3) {
-        t = o->z - (*(P_73BC8_80073BC8 * *)&D_800B20B4)->z;
+        t = o->z - (*(P_73BC8_80073BC8 * *)&Coll_Pos)->z;
         out[2] = t;
-        out[2] = (*(P_73BC8_80073BC8 * *)&D_800B20B4)->z < o->z ? t - ez : t + ez;
+        out[2] = (*(P_73BC8_80073BC8 * *)&Coll_Pos)->z < o->z ? t - ez : t + ez;
     } else if (side == 1 || side == 2) {
-        t = o->x - (*(P_73BC8_80073BC8 * *)&D_800B20B4)->x;
+        t = o->x - (*(P_73BC8_80073BC8 * *)&Coll_Pos)->x;
         out[0] = t;
-        out[0] = (*(P_73BC8_80073BC8 * *)&D_800B20B4)->x < o->x ? t - ex : t + ex;
+        out[0] = (*(P_73BC8_80073BC8 * *)&Coll_Pos)->x < o->x ? t - ex : t + ex;
     }
-    if ((*(P_73BC8_80073BC8 * *)&D_800B20B4)->y - b->h < o->y && o->y - o->h < (*(P_73BC8_80073BC8 * *)&D_800B20B4)->y) {
-        if (Box_ContainsXZ((P_73B64_80073B64 *)D_800B20B4, (O_73B64_80073B64 *)o) && Box_ContainsXZ((P_73B64_80073B64 *)D_800B20B8, (O_73B64_80073B64 *)o)) {
-            out[3] = o->y - ((*(P_73BC8_80073BC8 * *)&D_800B20B4)->y - b->h);
+    if ((*(P_73BC8_80073BC8 * *)&Coll_Pos)->y - b->h < o->y && o->y - o->h < (*(P_73BC8_80073BC8 * *)&Coll_Pos)->y) {
+        if (Box_ContainsXZ((P_73B64_80073B64 *)Coll_Pos, (O_73B64_80073B64 *)o) && Box_ContainsXZ((P_73B64_80073B64 *)D_800B20B8, (O_73B64_80073B64 *)o)) {
+            out[3] = o->y - ((*(P_73BC8_80073BC8 * *)&Coll_Pos)->y - b->h);
         }
     }
     return 1;
@@ -1149,9 +1149,9 @@ miss:
 typedef struct { s16 x, y, z, w, h, d; } O_73FD4;
 typedef struct { s32 x, y, z; } P_73FD4;
 typedef struct { u16 r; u8 pad2[2]; s32 flags; s32 h; } B_73FD4;
-extern P_73FD4 *D_800B20B4_73FD4 asm("D_800B20B4");
+extern P_73FD4 *D_800B20B4_73FD4 asm("Coll_Pos");
 extern P_73FD4 *D_800B20B8_73FD4 asm("D_800B20B8");
-s32 func_8004F884_73FD4(s32, O_73FD4 *, P_73FD4 *, s32 *) asm("func_8004F884");
+s32 func_8004F884_73FD4(s32, O_73FD4 *, P_73FD4 *, s32 *) asm("Surface_QueryShape");
 s32 Box_ContainsXZ_73FD4(P_73FD4 *, O_73FD4 *) asm("Box_ContainsXZ");
 
 s32 func_80073FD4(O_73FD4 *o, B_73FD4 *b, s32 *out) {
@@ -1261,7 +1261,7 @@ miss:
     return 0;
 }
 
-/* Push Spike (D_800B20B4) out of a wedge: box o (x/z half sizes +6/+0xA, height +8 below +2) cut
+/* Push Spike (Coll_Pos) out of a wedge: box o (x/z half sizes +6/+0xA, height +8 below +2) cut
  * along a 45-degree diagonal (b[1] & 0xF00, see Geo_DiagonalDistance). On the square faces he is
  * pushed out along x or z like Coll_PushBox; on the diagonal face he is pushed back along the
  * perpendicular (signs from D_800A5D84), and out[3] gets the step up onto it from below. */
@@ -1283,22 +1283,22 @@ s32 Coll_PushWedge(O_7449C_8007449C *o, B_7449C_8007449C *b, s32 *out) {
 
     ex = o->w + b->r;
     ez = o->d + b->r;
-    if (o->x + ex < (*(P_7449C_8007449C * *)&D_800B20B4)->x) {
+    if (o->x + ex < (*(P_7449C_8007449C * *)&Coll_Pos)->x) {
         goto miss;
     }
-    if ((*(P_7449C_8007449C * *)&D_800B20B4)->x < o->x - ex) {
+    if ((*(P_7449C_8007449C * *)&Coll_Pos)->x < o->x - ex) {
         return 0;
     }
-    if (o->z + ez < (*(P_7449C_8007449C * *)&D_800B20B4)->z) {
+    if (o->z + ez < (*(P_7449C_8007449C * *)&Coll_Pos)->z) {
         return 0;
     }
-    if ((*(P_7449C_8007449C * *)&D_800B20B4)->z < o->z - ez) {
+    if ((*(P_7449C_8007449C * *)&Coll_Pos)->z < o->z - ez) {
         return 0;
     }
-    if (Coll_HeightOverlap((*(P_7449C_8007449C * *)&D_800B20B4)->y, b->h, o->y, o->h) == 0) {
+    if (Coll_HeightOverlap((*(P_7449C_8007449C * *)&Coll_Pos)->y, b->h, o->y, o->h) == 0) {
         goto miss;
     }
-    d = Geo_DiagonalDistance(b->flags, (*(P_7449C_8007449C * *)&D_800B20B4), o, q);
+    d = Geo_DiagonalDistance(b->flags, (*(P_7449C_8007449C * *)&Coll_Pos), o, q);
     if (b->r + 0x20 < d) {
         return 0;
     }
@@ -1306,8 +1306,8 @@ s32 Coll_PushWedge(O_7449C_8007449C *o, B_7449C_8007449C *b, s32 *out) {
         return 0;
     }
     k = Dir_QuadrantIndex(b->flags);
-    dx = (*(P_7449C_8007449C * *)&D_800B20B4)->x - o->x;
-    dz = (*(P_7449C_8007449C * *)&D_800B20B4)->z - o->z;
+    dx = (*(P_7449C_8007449C * *)&Coll_Pos)->x - o->x;
+    dz = (*(P_7449C_8007449C * *)&Coll_Pos)->z - o->z;
     side = ((dx * o->d / o->w < dz) << 1) | (dx * -o->d / o->w < dz);
     switch (k) {
     case 0:
@@ -1335,18 +1335,18 @@ s32 Coll_PushWedge(O_7449C_8007449C *o, B_7449C_8007449C *b, s32 *out) {
         side = 4;
     }
     if (side == 0 || side == 3) {
-        t = o->z - (*(P_7449C_8007449C * *)&D_800B20B4)->z;
+        t = o->z - (*(P_7449C_8007449C * *)&Coll_Pos)->z;
         out[2] = t;
-        out[2] = (*(P_7449C_8007449C * *)&D_800B20B4)->z < o->z ? t - ez : t + ez;
+        out[2] = (*(P_7449C_8007449C * *)&Coll_Pos)->z < o->z ? t - ez : t + ez;
     } else if (side == 1 || side == 2) {
-        t = o->x - (*(P_7449C_8007449C * *)&D_800B20B4)->x;
+        t = o->x - (*(P_7449C_8007449C * *)&Coll_Pos)->x;
         out[0] = t;
-        out[0] = (*(P_7449C_8007449C * *)&D_800B20B4)->x < o->x ? t - ex : t + ex;
+        out[0] = (*(P_7449C_8007449C * *)&Coll_Pos)->x < o->x ? t - ex : t + ex;
     } else {
         sx = tbl.v[k].vx / 2048;
         sz = tbl.v[k].vz / 2048;
-        ax = ABS(q->x - (*(P_7449C_8007449C * *)&D_800B20B4)->x);
-        az = ABS(q->z - (*(P_7449C_8007449C * *)&D_800B20B4)->z);
+        ax = ABS(q->x - (*(P_7449C_8007449C * *)&Coll_Pos)->x);
+        az = ABS(q->z - (*(P_7449C_8007449C * *)&Coll_Pos)->z);
         if (d > 0) {
             out[0] = sx * (ax * (b->r + 0x20) / d - ax);
             out[2] = sz * (az * (b->r + 0x20) / d - az);
@@ -1358,9 +1358,9 @@ s32 Coll_PushWedge(O_7449C_8007449C *o, B_7449C_8007449C *b, s32 *out) {
             out[2] = sz * (az * (b->r + 0x20) / d + az);
         }
     }
-    if ((*(P_7449C_8007449C * *)&D_800B20B4)->y - b->h < o->y && o->y - o->h < (*(P_7449C_8007449C * *)&D_800B20B4)->y) {
-        if (Box_ContainsXZ((void *)D_800B20B4, (void *)o) && Box_ContainsXZ((void *)D_800B20B8, (void *)o) && d < 0) {
-            out[3] = o->y - ((*(P_7449C_8007449C * *)&D_800B20B4)->y - b->h);
+    if ((*(P_7449C_8007449C * *)&Coll_Pos)->y - b->h < o->y && o->y - o->h < (*(P_7449C_8007449C * *)&Coll_Pos)->y) {
+        if (Box_ContainsXZ((void *)Coll_Pos, (void *)o) && Box_ContainsXZ((void *)D_800B20B8, (void *)o) && d < 0) {
+            out[3] = o->y - ((*(P_7449C_8007449C * *)&Coll_Pos)->y - b->h);
         }
     }
     return 1;
@@ -1375,23 +1375,23 @@ typedef struct { s16 x, y, z, r, h, rz; } Shape_74BBC;
 typedef struct { s32 radius; u8 kind; u8 pad5[3]; s32 height; } Col_74BBC;
 typedef struct { s32 x, y, z; } Pos_74BBC;
 extern struct { u8 pad0[0x8150]; u16 f_8150; } g_Game_74BBC asm("g_Game");
-extern Pos_74BBC *D_800B20B4_74BBC asm("D_800B20B4");
+extern Pos_74BBC *D_800B20B4_74BBC asm("Coll_Pos");
 extern s32 D_800B20B8_74BBC asm("D_800B20B8");
 extern s16 D_800B20C6_74BBC asm("D_800B20C6");
 extern s16 D_800B20CA_74BBC asm("D_800B20CA");
 extern s16 D_800B20CC_74BBC asm("D_800B20CC");
-extern u16 D_800EC238_74BBC asm("D_800EC238");
+extern u16 D_800EC238_74BBC asm("g_SpikeStandObj");
 s32 SquareRoot0_74BBC(s32) asm("SquareRoot0");
 s32 Coll_PastEdge_74BBC(Shape_74BBC *, Pos_74BBC *) asm("Coll_PastEdge");
 s32 Coll_HeightOverlap_74BBC(s32, s32, s32, s32) asm("Coll_HeightOverlap");
 s32 Box_ContainsXZ_74BBC(s32, Shape_74BBC *) asm("Box_ContainsXZ");
-void func_80066E28_74BBC(s32, s32, s32, s32, s32, s32) asm("func_80066E28");
+void func_80066E28_74BBC(s32, s32, s32, s32, s32, s32) asm("Spike_SetClimbPole");
 s32 Coll_PushCurvedCorner_74BBC(Shape_74BBC *, Col_74BBC *, s32 *) asm("Coll_PushCurvedCorner");
 s32 Coll_PushHalfCylinder_74BBC(Shape_74BBC *, Col_74BBC *, s32 *) asm("Coll_PushHalfCylinder");
-s32 func_80075A40_74BBC(Shape_74BBC *, Col_74BBC *, s32 *) asm("func_80075A40");
+s32 func_80075A40_74BBC(Shape_74BBC *, Col_74BBC *, s32 *) asm("Coll_PushLyingCylinder");
 s32 func_80076E80_74BBC(Shape_74BBC *, Col_74BBC *, s32 *) asm("func_80076E80");
 
-s32 func_80074BBC(Shape_74BBC *s, Col_74BBC *c, s32 *out) {
+s32 Coll_PushObjectShape(Shape_74BBC *s, Col_74BBC *c, s32 *out) {
     s32 rad = c->radius;
     s32 d;
     s32 k;
@@ -1580,25 +1580,25 @@ s32 Coll_PushHalfCylinder(O_75630_80075630 *o, B_75630_80075630 *b, s32 *out) {
     ex = o->w + b->r;
     ez = o->d + b->r;
     if (b->kind == 0x24) {
-        if (o->d < ABS(o->z - (*(P_75630_80075630 * *)&D_800B20B4)->z)) {
+        if (o->d < ABS(o->z - (*(P_75630_80075630 * *)&Coll_Pos)->z)) {
             return 0;
         }
-        r = SquareRoot0(o->d * o->d - (o->z - (*(P_75630_80075630 * *)&D_800B20B4)->z) * (o->z - (*(P_75630_80075630 * *)&D_800B20B4)->z));
+        r = SquareRoot0(o->d * o->d - (o->z - (*(P_75630_80075630 * *)&Coll_Pos)->z) * (o->z - (*(P_75630_80075630 * *)&Coll_Pos)->z));
     } else if (b->kind == 0x53) {
-        r = SquareRoot0(o->d * o->d - (o->z - (*(P_75630_80075630 * *)&D_800B20B4)->z) * (o->z - (*(P_75630_80075630 * *)&D_800B20B4)->z));
+        r = SquareRoot0(o->d * o->d - (o->z - (*(P_75630_80075630 * *)&Coll_Pos)->z) * (o->z - (*(P_75630_80075630 * *)&Coll_Pos)->z));
     } else if (b->kind == 0x25) {
-        if (o->w < ABS(o->x - (*(P_75630_80075630 * *)&D_800B20B4)->x)) {
+        if (o->w < ABS(o->x - (*(P_75630_80075630 * *)&Coll_Pos)->x)) {
             return 0;
         }
-        r = SquareRoot0(o->w * o->w - (o->x - (*(P_75630_80075630 * *)&D_800B20B4)->x) * (o->x - (*(P_75630_80075630 * *)&D_800B20B4)->x));
+        r = SquareRoot0(o->w * o->w - (o->x - (*(P_75630_80075630 * *)&Coll_Pos)->x) * (o->x - (*(P_75630_80075630 * *)&Coll_Pos)->x));
     } else {
-        r = SquareRoot0(o->w * o->w - (o->x - (*(P_75630_80075630 * *)&D_800B20B4)->x) * (o->x - (*(P_75630_80075630 * *)&D_800B20B4)->x));
+        r = SquareRoot0(o->w * o->w - (o->x - (*(P_75630_80075630 * *)&Coll_Pos)->x) * (o->x - (*(P_75630_80075630 * *)&Coll_Pos)->x));
     }
-    if (Coll_HeightOverlap((*(P_75630_80075630 * *)&D_800B20B4)->y, b->h, o->y + r, r * 2) == 0) {
+    if (Coll_HeightOverlap((*(P_75630_80075630 * *)&Coll_Pos)->y, b->h, o->y + r, r * 2) == 0) {
         return 0;
     }
-    dx = (*(P_75630_80075630 * *)&D_800B20B4)->x - o->x;
-    dz = (*(P_75630_80075630 * *)&D_800B20B4)->z - o->z;
+    dx = (*(P_75630_80075630 * *)&Coll_Pos)->x - o->x;
+    dz = (*(P_75630_80075630 * *)&Coll_Pos)->z - o->z;
     if (o->w < ABS(dx) && o->d < ABS(dz)) {
         dx = o->w < dx ? dx - o->w : dx + o->w;
         dz = o->d < dz ? dz - o->d : dz + o->d;
@@ -1608,17 +1608,17 @@ s32 Coll_PushHalfCylinder(O_75630_80075630 *o, B_75630_80075630 *b, s32 *out) {
         side = ((dx * o->d / o->w < dz) << 1) | (dx * -o->d / o->w < dz);
     }
     if (side == 0 || side == 3) {
-        t = o->z - (*(P_75630_80075630 * *)&D_800B20B4)->z;
+        t = o->z - (*(P_75630_80075630 * *)&Coll_Pos)->z;
         out[2] = t;
-        out[2] = (*(P_75630_80075630 * *)&D_800B20B4)->z < o->z ? t - ez : t + ez;
+        out[2] = (*(P_75630_80075630 * *)&Coll_Pos)->z < o->z ? t - ez : t + ez;
     } else if (side == 1 || side == 2) {
-        t = o->x - (*(P_75630_80075630 * *)&D_800B20B4)->x;
+        t = o->x - (*(P_75630_80075630 * *)&Coll_Pos)->x;
         out[0] = t;
-        out[0] = (*(P_75630_80075630 * *)&D_800B20B4)->x < o->x ? t - ex : t + ex;
+        out[0] = (*(P_75630_80075630 * *)&Coll_Pos)->x < o->x ? t - ex : t + ex;
     }
-    if ((*(P_75630_80075630 * *)&D_800B20B4)->y - b->h < o->y + r && o->y - r < (*(P_75630_80075630 * *)&D_800B20B4)->y) {
-        if (Box_ContainsXZ((P_73B64_80073B64 *)D_800B20B4, (O_73B64_80073B64 *)o) && Box_ContainsXZ((P_73B64_80073B64 *)D_800B20B8, (O_73B64_80073B64 *)o)) {
-            out[3] = o->y + r - ((*(P_75630_80075630 * *)&D_800B20B4)->y - b->h);
+    if ((*(P_75630_80075630 * *)&Coll_Pos)->y - b->h < o->y + r && o->y - r < (*(P_75630_80075630 * *)&Coll_Pos)->y) {
+        if (Box_ContainsXZ((P_73B64_80073B64 *)Coll_Pos, (O_73B64_80073B64 *)o) && Box_ContainsXZ((P_73B64_80073B64 *)D_800B20B8, (O_73B64_80073B64 *)o)) {
+            out[3] = o->y + r - ((*(P_75630_80075630 * *)&Coll_Pos)->y - b->h);
             out[5] = r;
             out[4] = r;
         }
@@ -1627,11 +1627,11 @@ s32 Coll_PushHalfCylinder(O_75630_80075630 *o, B_75630_80075630 *b, s32 *out) {
 }
 
 typedef struct { s32 x, y, z; } P_75A40;
-extern P_75A40 *D_800B20B4_75A40 asm("D_800B20B4");
+extern P_75A40 *D_800B20B4_75A40 asm("Coll_Pos");
 s32 Surface_CylinderHeight_75A40(s16, s16 *, V3_792C8_800792C8 *, V3_792C8_800792C8 *) asm("Surface_CylinderHeight");
 s32 Coll_PushHalfCylinder(O_75630_80075630 *o, B_75630_80075630 *b, s32 *out);
 
-s32 func_80075A40(O_75630_80075630 *o, B_75630_80075630 *b, s32 *out) {
+s32 Coll_PushLyingCylinder(O_75630_80075630 *o, B_75630_80075630 *b, s32 *out) {
     P_75A40 *p = (P_75A40 *)0x1F800124;
     s32 *h1 = (s32 *)0x1F800130;
     s32 *h2 = (s32 *)0x1F800138;
@@ -1726,12 +1726,12 @@ s32 Coll_PushWallEdge(Box_80075F48_80075F48 *a, S_P_8007734C_8007734C_80075F48 *
     s32 t;
     s32 u;
 
-    if (Coll_HeightOverlap((*(S_P_8007734C_8007734C_80075F48 * *)&D_800B20B4)->f_4, b->f_8, a->y, a->h) == 0) {
+    if (Coll_HeightOverlap((*(S_P_8007734C_8007734C_80075F48 * *)&Coll_Pos)->f_4, b->f_8, a->y, a->h) == 0) {
     miss:
         return 0;
     }
-    dz = (*(S_P_8007734C_8007734C_80075F48 * *)&D_800B20B4)->f_8 - a->z;
-    dx = (*(S_P_8007734C_8007734C_80075F48 * *)&D_800B20B4)->f_0 - a->x;
+    dz = (*(S_P_8007734C_8007734C_80075F48 * *)&Coll_Pos)->f_8 - a->z;
+    dx = (*(S_P_8007734C_8007734C_80075F48 * *)&Coll_Pos)->f_0 - a->x;
     if ((ang & 0xF000) == 0x1000) {
         side = 2;
         if (ang & 0xC00) {
@@ -1818,7 +1818,7 @@ s32 Coll_PushWallEdge(Box_80075F48_80075F48 *a, S_P_8007734C_8007734C_80075F48 *
     return side;
 }
 
-/* Push Spike (D_800B20B4) out of a wall piece o whose face sits 0x100 off its centre
+/* Push Spike (Coll_Pos) out of a wall piece o whose face sits 0x100 off its centre
  * (orientation b[1] & 0xF00; type 0x6000 = one fixed face, else the face is picked from the
  * quadrant he is in) using radius b[0] + 12: returns 1 and corrects out[0] (x face) or 2 and
  * out[2] (z face); 0 if not touching (height test Coll_HeightOverlap first). */
@@ -1832,12 +1832,12 @@ s32 Coll_PushWallSegment(O_761AC_800761AC *o, B_761AC_800761AC *b, P_761AC_80076
     s32 ez;
     s32 h;
 
-    if (Coll_HeightOverlap((*(P_761AC_800761AC * *)&D_800B20B4)->y, b->y, o->y, o->f_8) == 0) {
+    if (Coll_HeightOverlap((*(P_761AC_800761AC * *)&Coll_Pos)->y, b->y, o->y, o->f_8) == 0) {
         miss:
         return 0;
     }
-    dz = (*(P_761AC_800761AC * *)&D_800B20B4)->z - o->z;
-    dx = (*(P_761AC_800761AC * *)&D_800B20B4)->x - o->x;
+    dz = (*(P_761AC_800761AC * *)&Coll_Pos)->z - o->z;
+    dx = (*(P_761AC_800761AC * *)&Coll_Pos)->x - o->x;
     if ((fl & 0xF000) == 0x6000) {
         switch (fl & 0xF00) {
         case 0:
@@ -1938,14 +1938,14 @@ s32 Coll_PushWallSegment(O_761AC_800761AC *o, B_761AC_800761AC *b, P_761AC_80076
     return side;
 }
 
-/* Push Spike (D_800B20B4) out of a 45-degree wall piece o (orientation b[1] & 0xF00, see
+/* Push Spike (Coll_Pos) out of a 45-degree wall piece o (orientation b[1] & 0xF00, see
  * Geo_DiagonalDistance) using box b (radius b[0], height b[2]): when within radius + 12 of the
  * diagonal, out[0]/out[2] move him back onto the side he is on along the perpendicular. */
 s32 Coll_PushDiagonalWall(O_76488_80076488 *o, B_76488_80076488 *b, s32 *out) {
     P_76488_80076488 *q = (P_76488_80076488 *)0x1F800124;
     s32 r = b->r + 12;
-    s32 dz = (*(P_76488_80076488 * *)&D_800B20B4)->z - o->z;
-    s32 dx = (*(P_76488_80076488 * *)&D_800B20B4)->x - o->x;
+    s32 dz = (*(P_76488_80076488 * *)&Coll_Pos)->z - o->z;
+    s32 dx = (*(P_76488_80076488 * *)&Coll_Pos)->x - o->x;
     s32 d;
     s32 ax;
     s32 az;
@@ -1962,10 +1962,10 @@ s32 Coll_PushDiagonalWall(O_76488_80076488 *o, B_76488_80076488 *b, s32 *out) {
     if (dz < -(o->d + b->r)) {
         goto miss;
     }
-    if (Coll_HeightOverlap((*(P_76488_80076488 * *)&D_800B20B4)->y, b->h, o->y, o->h) == 0) {
+    if (Coll_HeightOverlap((*(P_76488_80076488 * *)&Coll_Pos)->y, b->h, o->y, o->h) == 0) {
         goto miss;
     }
-    d = Geo_DiagonalDistance(b->flags, (void *)D_800B20B4, (void *)o, (void *)q);
+    d = Geo_DiagonalDistance(b->flags, (void *)Coll_Pos, (void *)o, (void *)q);
     if (r < ABS(d)) {
 miss:
         return 0;
@@ -1973,8 +1973,8 @@ miss:
     if (d == 0) {
         d = 1;
     }
-    ax = ABS(q->x - (*(P_76488_80076488 * *)&D_800B20B4)->x);
-    az = ABS(q->z - (*(P_76488_80076488 * *)&D_800B20B4)->z);
+    ax = ABS(q->x - (*(P_76488_80076488 * *)&Coll_Pos)->x);
+    az = ABS(q->z - (*(P_76488_80076488 * *)&Coll_Pos)->z);
     switch (b->flags & 0xF00) {
     case 0:
         if (d > 0) {
@@ -2016,7 +2016,7 @@ miss:
     return 1;
 }
 
-/* Push Spike (D_800B20B4) out of a quarter-round corner wall piece o (see Coll_CurvedCorner) using
+/* Push Spike (Coll_Pos) out of a quarter-round corner wall piece o (see Coll_CurvedCorner) using
  * box b (radius b[0], height b[2]): on top of the ring (within its width) only out[3] gets the
  * step up to its top; otherwise his x/z (out[0]/out[2]) are moved radially to radius
  * outer -/+ width -/+ b[0] (inside/outside the ring). Returns 1 on contact. */
@@ -2033,18 +2033,18 @@ s32 Coll_PushCurvedCorner(O_76AC8_80076AC8 *o, s32 *b, s32 *out) {
     s32 dz;
     s32 nx;
 
-    h = Coll_CurvedCorner(o, (*(P_76AC8_80076AC8 * *)&D_800B20B4), b, sl);
+    h = Coll_CurvedCorner(o, (*(P_76AC8_80076AC8 * *)&Coll_Pos), b, sl);
     if (h < 0) {
         return 0;
     }
     h = o->f_2 - h;
-    if ((*(P_76AC8_80076AC8 * *)&D_800B20B4)->y < h + 0x40) {
+    if ((*(P_76AC8_80076AC8 * *)&Coll_Pos)->y < h + 0x40) {
         return 0;
     }
     CurvedCorner_GetCentre(o, c);
     inner = o->f_6 - o->f_24;
     outer = o->f_24 + o->f_6;
-    d = SquareRoot0((c[0] - (*(P_76AC8_80076AC8 * *)&D_800B20B4)->x) * (c[0] - (*(P_76AC8_80076AC8 * *)&D_800B20B4)->x) + (c[1] - (*(P_76AC8_80076AC8 * *)&D_800B20B4)->z) * (c[1] - (*(P_76AC8_80076AC8 * *)&D_800B20B4)->z));
+    d = SquareRoot0((c[0] - (*(P_76AC8_80076AC8 * *)&Coll_Pos)->x) * (c[0] - (*(P_76AC8_80076AC8 * *)&Coll_Pos)->x) + (c[1] - (*(P_76AC8_80076AC8 * *)&Coll_Pos)->z) * (c[1] - (*(P_76AC8_80076AC8 * *)&Coll_Pos)->z));
     if (d == 0) {
         d = 1;
     }
@@ -2054,25 +2054,25 @@ s32 Coll_PushCurvedCorner(O_76AC8_80076AC8 *o, s32 *b, s32 *out) {
         } else {
             lo = o->f_8;
         }
-        if ((*(P_76AC8_80076AC8 * *)&D_800B20B4)->y - b[2] < o->f_2 && o->f_2 - lo < (*(P_76AC8_80076AC8 * *)&D_800B20B4)->y) {
-            out[3] = o->f_2 - ((*(P_76AC8_80076AC8 * *)&D_800B20B4)->y - b[2]);
+        if ((*(P_76AC8_80076AC8 * *)&Coll_Pos)->y - b[2] < o->f_2 && o->f_2 - lo < (*(P_76AC8_80076AC8 * *)&Coll_Pos)->y) {
+            out[3] = o->f_2 - ((*(P_76AC8_80076AC8 * *)&Coll_Pos)->y - b[2]);
             return 1;
         }
         return 0;
     }
     if (d < outer) {
         k = outer - inner - b[0];
-        dx = (*(P_76AC8_80076AC8 * *)&D_800B20B4)->x - c[0];
+        dx = (*(P_76AC8_80076AC8 * *)&Coll_Pos)->x - c[0];
         nx = k * dx / d;
-        dz = (*(P_76AC8_80076AC8 * *)&D_800B20B4)->z - c[1];
+        dz = (*(P_76AC8_80076AC8 * *)&Coll_Pos)->z - c[1];
         d = k * dz / d;
         if (nx == dx && d == dz) {
-            if (c[0] < (*(P_76AC8_80076AC8 * *)&D_800B20B4)->x) {
+            if (c[0] < (*(P_76AC8_80076AC8 * *)&Coll_Pos)->x) {
                 nx--;
             } else {
                 nx++;
             }
-            if ((*(P_76AC8_80076AC8 * *)&D_800B20B4)->z > c[1]) {
+            if ((*(P_76AC8_80076AC8 * *)&Coll_Pos)->z > c[1]) {
                 d--;
             } else {
                 d++;
@@ -2080,25 +2080,25 @@ s32 Coll_PushCurvedCorner(O_76AC8_80076AC8 *o, s32 *b, s32 *out) {
         }
     } else {
         k = outer + inner + b[0];
-        dx = (*(P_76AC8_80076AC8 * *)&D_800B20B4)->x - c[0];
+        dx = (*(P_76AC8_80076AC8 * *)&Coll_Pos)->x - c[0];
         nx = k * dx / d;
-        dz = (*(P_76AC8_80076AC8 * *)&D_800B20B4)->z - c[1];
+        dz = (*(P_76AC8_80076AC8 * *)&Coll_Pos)->z - c[1];
         d = k * dz / d;
         if (nx == dx && d == dz) {
-            if (c[0] < (*(P_76AC8_80076AC8 * *)&D_800B20B4)->x) {
+            if (c[0] < (*(P_76AC8_80076AC8 * *)&Coll_Pos)->x) {
                 nx++;
             } else {
                 nx--;
             }
-            if ((*(P_76AC8_80076AC8 * *)&D_800B20B4)->z > c[1]) {
+            if ((*(P_76AC8_80076AC8 * *)&Coll_Pos)->z > c[1]) {
                 d++;
             } else {
                 d--;
             }
         }
     }
-    out[0] = c[0] + nx - (*(P_76AC8_80076AC8 * *)&D_800B20B4)->x;
-    out[2] = c[1] + d - (*(P_76AC8_80076AC8 * *)&D_800B20B4)->z;
+    out[0] = c[0] + nx - (*(P_76AC8_80076AC8 * *)&Coll_Pos)->x;
+    out[2] = c[1] + d - (*(P_76AC8_80076AC8 * *)&Coll_Pos)->z;
     return 1;
 }
 
@@ -2106,9 +2106,9 @@ typedef struct { s16 x, y, z; u8 pad6[0x1E]; s16 f_24, f_26, f_28; } O_76E80;
 typedef struct { s32 x, y, z; } P_76E80;
 struct Game_76E80 { u8 pad0[0x8150]; u16 f_8150; };
 extern struct Game_76E80 g_Game_76E80 asm("g_Game");
-extern P_76E80 *D_800B20B4_76E80 asm("D_800B20B4");
-extern s16 D_800EC238_76E80 asm("D_800EC238");
-void func_80066E8C_76E80(s16 *, s16 *) asm("func_80066E8C");
+extern P_76E80 *D_800B20B4_76E80 asm("Coll_Pos");
+extern s16 D_800EC238_76E80 asm("g_SpikeStandObj");
+void func_80066E8C_76E80(s16 *, s16 *) asm("Spike_SetHangBar");
 
 s32 func_80076E80(O_76E80 *o, s32 *b) {
     s32 *q = (s32 *)0x1F800124;
@@ -2197,17 +2197,17 @@ s32 func_80076E80(O_76E80 *o, s32 *b) {
 
 s32 Coll_PushFlatWall(S_A_8007734C_8007734C *a, S_B_8007734C_8007734C *b, S_B_8007734C_8007734C *out) {
     s32 r = b->f_0 + 12;
-    s32 dx = D_800B20B4->f_0 - a->f_0;
-    s32 dz = D_800B20B4->f_8 - a->f_4;
+    s32 dx = Coll_Pos->f_0 - a->f_0;
+    s32 dz = Coll_Pos->f_8 - a->f_4;
     s32 t;
     s32 ret;
     if (a->f_10 == 0x4A || a->f_10 == 0x4C) {
-        t = func_8004F548(a, D_800B20B4);
+        t = Coll_RampPieceHeight(a, Coll_Pos);
         if (t == 0) {
             return 0;
         }
         ret = 2;
-        if (Coll_HeightOverlap(D_800B20B4->f_4, b->f_8, a->f_2, t) == 0) {
+        if (Coll_HeightOverlap(Coll_Pos->f_4, b->f_8, a->f_2, t) == 0) {
             return 0;
         }
         if (dz > 0) {
@@ -2216,12 +2216,12 @@ s32 Coll_PushFlatWall(S_A_8007734C_8007734C *a, S_B_8007734C_8007734C *b, S_B_80
             out->f_8 = -r - dz;
         }
     } else {
-        t = func_8004F548(a, D_800B20B4);
+        t = Coll_RampPieceHeight(a, Coll_Pos);
         if (t == 0) {
             return 0;
         }
         ret = 1;
-        if (Coll_HeightOverlap(D_800B20B4->f_4, b->f_8, a->f_2, t) == 0) {
+        if (Coll_HeightOverlap(Coll_Pos->f_4, b->f_8, a->f_2, t) == 0) {
             return 0;
         }
         if (dx > 0) {
@@ -2722,7 +2722,7 @@ s32 Collider_HitSound(s16 a, s16 b) {
     if (a == 3) {
         return 0x29;
     }
-    v = func_8005BB98(b);
+    v = Link_GetKindSound(b);
     if (v < 0 || v == 0x80 || v == 0x82 || v == 0x81) {
         return 0x29;
     }
@@ -2778,7 +2778,7 @@ void Pickup_Collect(s16 type) {
         if (++GM_78A18->lives > 100) {
             GM_78A18->lives = 100;
         }
-        func_80095600(0, 1);
+        Hud_ShowLives(0, 1);
         break;
     case 3:
     case 5:
@@ -2789,18 +2789,18 @@ void Pickup_Collect(s16 type) {
         chips = GM_78A18->chips;
         n = type == 5 ? 5 : 1;
         chips += n;
-        ((struct Hud_80078A18 *)&D_800F4DB0)->f_2 = n;
-        ((struct Hud_80078A18 *)&D_800F4DB0)->f_3 = 3;
+        ((struct Hud_80078A18 *)&g_HudState)->f_2 = n;
+        ((struct Hud_80078A18 *)&g_HudState)->f_3 = 3;
         if (chips >= 100) {
             chips -= 100;
             if (++GM_78A18->lives > 100) {
                 GM_78A18->lives = 100;
             }
             Sound_PlayFixed(0xD);
-            func_80095600(0, 1);
+            Hud_ShowLives(0, 1);
         }
         GM_78A18->chips = chips;
-        func_800958C0(0);
+        Hud_ShowChips(0);
         break;
     case 4:
         if (++GM_78A18->coins > 60) {
@@ -2834,8 +2834,8 @@ typedef struct { u8 pad0[0x10]; u16 f_10; u8 pad12[2]; u16 f_14; u16 f_16; u8 pa
 typedef struct { s32 x, y, z, f_C, f_10; } Q_78C9C;
 typedef struct { u8 pad0[0x820C]; Obj_78C9C *f_820C; u8 pad8210[0x74]; u16 f_8284; } Game_78C9C;
 extern Game_78C9C g_Game_78C9C asm("g_Game");
-extern Probe_78C9C *D_800B20B0_78C9C asm("D_800B20B0");
-extern s32 *D_800B20B4_78C9C asm("D_800B20B4");
+extern Probe_78C9C *D_800B20B0_78C9C asm("Coll_Cells");
+extern s32 *D_800B20B4_78C9C asm("Coll_Pos");
 extern Obj_78C9C *D_800B20BC;
 s32 func_80079A28(s16 type, s16 flag);
 s32 Contact_Add(s32 a, s32 b);
@@ -2891,7 +2891,7 @@ s32 func_80078C9C(s32 arg, Q_78C9C *q, s16 *out) {
         }
     }
     for (i = g_Game_78C9C.f_8284 - 1; i >= 0; i--) {
-        if (D_800B20C0[i] != 0) {
+        if (Coll_NearObjects[i] != 0) {
             continue;
         }
         *D_800B20BC = *(Obj_78C9C *)(i * 56 + (s32)g_Game_78C9C.f_820C);
@@ -3029,10 +3029,10 @@ s32 Zone_FindIndexAt(P_792C8_800792C8 *p, s16 mode) {
                 || p->y < a->y - a->f_8 || a->y < p->y) {
                 continue;
             }
-            *(s32 *)(*(V3_792C8_800792C8 * *)&D_800B20B4) = p->x;
-            (*(V3_792C8_800792C8 * *)&D_800B20B4)->y = p->y;
-            (*(V3_792C8_800792C8 * *)&D_800B20B4)->z = p->z;
-            if (Geo_DiagonalDistance(a->f_10, (*(V3_792C8_800792C8 * *)&D_800B20B4), a, f) <= 0) {
+            *(s32 *)(*(V3_792C8_800792C8 * *)&Coll_Pos) = p->x;
+            (*(V3_792C8_800792C8 * *)&Coll_Pos)->y = p->y;
+            (*(V3_792C8_800792C8 * *)&Coll_Pos)->z = p->z;
+            if (Geo_DiagonalDistance(a->f_10, (*(V3_792C8_800792C8 * *)&Coll_Pos), a, f) <= 0) {
                 p->f_34 = i;
             }
         } else if (k == 0x2000) {
@@ -3040,10 +3040,10 @@ s32 Zone_FindIndexAt(P_792C8_800792C8 *p, s16 mode) {
                 || p->y < a->y - a->f_8 || a->y < p->y) {
                 continue;
             }
-            *(s32 *)(*(V3_792C8_800792C8 * *)&D_800B20B4) = p->x;
-            (*(V3_792C8_800792C8 * *)&D_800B20B4)->y = p->y;
-            (*(V3_792C8_800792C8 * *)&D_800B20B4)->z = p->z;
-            if (func_8004F884((u8)a->f_10, a, (*(V3_792C8_800792C8 * *)&D_800B20B4), e) == 0) {
+            *(s32 *)(*(V3_792C8_800792C8 * *)&Coll_Pos) = p->x;
+            (*(V3_792C8_800792C8 * *)&Coll_Pos)->y = p->y;
+            (*(V3_792C8_800792C8 * *)&Coll_Pos)->z = p->z;
+            if (Surface_QueryShape((u8)a->f_10, a, (*(V3_792C8_800792C8 * *)&Coll_Pos), e) == 0) {
                 continue;
             }
             if (p->y < a->y - e->y || a->y < p->y) {

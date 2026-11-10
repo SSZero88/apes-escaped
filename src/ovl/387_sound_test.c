@@ -14,7 +14,7 @@ void DrawSync(s32);
 s32 VSync(s32 mode);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-void func_8008C390(void);
+void DebugFont_Init(void);
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
@@ -34,7 +34,7 @@ s32 func_80136000(void) {
     D_80136B4C = 0;
     D_80136B50 = 0;
     g_Game_80136000.f_82BA |= 2;
-    while (func_8001325C(2), Gfx_BeginFrame(), func_8008C390(), func_801361BC() >= 0) {
+    while (func_8001325C(2), Gfx_BeginFrame(), DebugFont_Init(), func_801361BC() >= 0) {
         DrawSync(0);
         VSync(0);
         g_Game_80136000.frame++;
@@ -87,8 +87,8 @@ extern Song_80136244 D_80136B54[];
 extern s32 D_80136B44;
 extern s32 D_80136B48;
 extern u16 D_80136FB4;
-void func_8008CC60(s32, s32);
-void func_8008CBFC(u8 *, ...);
+void DebugFont_Locate(s32, s32);
+void DebugFont_PrintfAlways(u8 *, ...);
 s32 Sound_PlayFixed(s32);
 void Cd_StartLoadList(void *);
 s32 Cd_PollLoadList(void);
@@ -99,16 +99,16 @@ s32 func_80136244(void) {
     s32 y;
     u32 b;
 
-    func_8008CC60(0x64, 0x28);
-    func_8008CBFC(D_80136AA0);
+    DebugFont_Locate(0x64, 0x28);
+    DebugFont_PrintfAlways(D_80136AA0);
     for (i = 0; i < 3; i++) {
-        func_8008CC60(0xA0, 0x64 + i * 0x14);
-        func_8008CBFC(D_80136AB8, D_80136FC4[i]);
+        DebugFont_Locate(0xA0, 0x64 + i * 0x14);
+        DebugFont_PrintfAlways(D_80136AB8, D_80136FC4[i]);
     }
-    func_8008CC60(0xBE, 0x96);
-    func_8008CBFC(D_80136AB8, D_80136B54[D_80136B40].name);
-    func_8008CC60(0x104, 0x96);
-    func_8008CBFC(D_80136AB8, D_80136B54[D_80136B40].s10);
+    DebugFont_Locate(0xBE, 0x96);
+    DebugFont_PrintfAlways(D_80136AB8, D_80136B54[D_80136B40].name);
+    DebugFont_Locate(0x104, 0x96);
+    DebugFont_PrintfAlways(D_80136AB8, D_80136B54[D_80136B40].s10);
     ((PolyG4_80136244 *)g_Game_80136000.prim)->len = 8;
     ((PolyG4_80136244 *)g_Game_80136000.prim)->code = 0x38;
     ((PolyG4_80136244 *)g_Game_80136000.prim)->code |= 2;
@@ -192,20 +192,20 @@ extern s32 D_80136B44;
 extern s32 D_80136FD0;
 extern s32 D_80136FD4;
 extern s32 D_80136FD8;
-void func_8008C3C0(s32, s32);
+void DebugFont_SetPos(s32, s32);
 void DebugFont_Printf(u8 *, ...);
 s32 Sound_PlayFixed(s32);
 void func_800A342C(s32);
-s32 func_80088548(s32, s32 *, s32 *);
+s32 Sound_GetTableEntry(s32, s32 *, s32 *);
 
 s32 func_80136698(void) {
     u32 b;
 
-    func_8008C3C0(0x82, 0x46);
+    DebugFont_SetPos(0x82, 0x46);
     DebugFont_Printf(D_80136ABC);
-    func_8008C3C0(0x82, 0xC4);
+    DebugFont_SetPos(0x82, 0xC4);
     DebugFont_Printf(D_80136ACC);
-    func_8008C3C0(0x82, 0xD2);
+    DebugFont_SetPos(0x82, 0xD2);
     DebugFont_Printf(D_80136AE4);
     if (g_Pad_80136698.held & g_Pad_80136698.pressed & PAD_START) {
         Sound_PlayFixed(2);
@@ -230,13 +230,13 @@ s32 func_80136698(void) {
     } else if (b & PAD_SELECT) {
         func_800A342C(0);
     }
-    func_80088548(D_80136B44, &D_80136FD0, &D_80136FD4);
-    func_8008C3C0(0x82, 0x82);
+    Sound_GetTableEntry(D_80136B44, &D_80136FD0, &D_80136FD4);
+    DebugFont_SetPos(0x82, 0x82);
     DebugFont_Printf(D_80136AF8, D_80136B44, D_80136FD0, D_80136FD4, D_80136FD8);
     return 0;
 }
 
-/* returns s32 0: change the file prototype at the top of 387_sound_test.c to s32 func_8013684C(void); needs func_80136698's draft (decls of func_8008C3C0, DebugFont_Printf, Sound_PlayFixed, func_800A342C, func_80088548) merged above */
+/* returns s32 0: change the file prototype at the top of 387_sound_test.c to s32 func_8013684C(void); needs func_80136698's draft (decls of DebugFont_SetPos, DebugFont_Printf, Sound_PlayFixed, func_800A342C, Sound_GetTableEntry) merged above */
 extern struct { u8 pad0[0x158]; u32 held; u8 pad15C[4]; u32 pressed; u8 pad164[4]; u32 repeat; } g_Pad_8013684C asm("g_Pad");
 extern u8 D_80136B18[];
 extern u8 D_80136B28[];
@@ -254,13 +254,13 @@ extern s32 D_80136FE4;
 s32 func_8013684C(void) {
     u32 b;
 
-    func_8008C3C0(0x82, 0x46);
+    DebugFont_SetPos(0x82, 0x46);
     DebugFont_Printf(D_80136B18);
-    func_8008C3C0(0x82, 0xB4);
+    DebugFont_SetPos(0x82, 0xB4);
     DebugFont_Printf(D_80136B28);
-    func_8008C3C0(0x82, 0xC4);
+    DebugFont_SetPos(0x82, 0xC4);
     DebugFont_Printf(D_80136ACC_684C);
-    func_8008C3C0(0x82, 0xD2);
+    DebugFont_SetPos(0x82, 0xD2);
     DebugFont_Printf(D_80136AE4_684C);
     if (g_Pad_8013684C.held & g_Pad_8013684C.pressed & PAD_START) {
         Sound_PlayFixed(2);
@@ -293,8 +293,8 @@ s32 func_8013684C(void) {
     } else if (b & PAD_SELECT) {
         func_800A342C(0);
     }
-    func_80088548(D_80136B44_684C, &D_80136FDC, &D_80136FE0);
-    func_8008C3C0(0x82, 0x82);
+    Sound_GetTableEntry(D_80136B44_684C, &D_80136FDC, &D_80136FE0);
+    DebugFont_SetPos(0x82, 0x82);
     DebugFont_Printf(D_80136AF8_684C, D_80136B44_684C, D_80136FDC, D_80136FE0, D_80136FE4);
     return 0;
 }

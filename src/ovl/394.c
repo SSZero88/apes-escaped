@@ -92,7 +92,7 @@ extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100
 extern s16 D_80136E30;
 extern u8 D_80136E34[];
 extern s32 g_Cd;
-void func_8008C01C(void);
+void Mem_Init(void);
 s32 Gfx_InitDisplay(void);
 s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
 s32 DrawSync(s32 mode);
@@ -113,7 +113,7 @@ void func_80136C04(void);
 void func_80136C6C(void);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-void func_8008C390(void);
+void DebugFont_Init(void);
 void func_801368CC(void);
 void func_80136AA0(void);
 s32 func_80136724(void);
@@ -126,7 +126,7 @@ s32 func_80136208(void) {
     s32 n, dx, dy, dz;
     u32 *ot;
 
-    func_8008C01C();
+    Mem_Init();
     Gfx_InitDisplay();
     ClearImage(&r, 0, 0, 0);
     DrawSync(0);
@@ -166,7 +166,7 @@ s32 func_80136208(void) {
     for (;;) {
         func_8001325C(0);
         Gfx_BeginFrame();
-        func_8008C390();
+        DebugFont_Init();
         p = (SprtTp *)g_Game_80136208.prim;
         ot = g_Game_80136208.ot;
         ((u8 *)p)[3] = 5;
@@ -243,10 +243,10 @@ s32 func_80136724(void) {
 }
 
 extern struct { u8 pad0[0x8280]; s32 f_8280; } g_Game_80136780 asm("g_Game");
-extern s32 D_800B4D64;
+extern s32 g_StageMeshes;
 typedef struct { u8 pad0[0x18]; u8 *f_18; u8 pad1C[0x40]; s16 f_5C, f_5E, f_60, f_62, f_64; u8 pad66[0xA]; s16 f_70, f_72; u8 *f_74; u8 pad78[0x10]; } Obj_80136780;
 extern Obj_80136780 D_80136F00[];
-u8 *func_8008C09C(s32);
+u8 *Mem_AllocPages(s32);
 void Model_BindMesh(void *, u32 *);
 void Model_BindBoned(void *, u8 *);
 
@@ -258,9 +258,9 @@ s32 func_80136780(void) {
 
     h = (u8 *)0x80154000;
     g_Game_80136780.f_8280 = 2;
-    D_800B4D64 = (s32)func_8008C09C(0x40);
+    g_StageMeshes = (s32)Mem_AllocPages(0x40);
     for (i = 0; i < g_Game_80136780.f_8280; i++) {
-        Model_BindMesh((void *)(D_800B4D64 + i * 0x20), (u32 *)(h + *(u16 *)(h + i * 4 + 0x14) * 4));
+        Model_BindMesh((void *)(g_StageMeshes + i * 0x20), (u32 *)(h + *(u16 *)(h + i * 4 + 0x14) * 4));
     }
     for (i = 0; i < 2; i++) {
         Model_BindBoned(&D_80136F00[i], h + *(u16 *)(h + i * 4 + 4) * 4);
@@ -314,8 +314,8 @@ void func_801368CC(void) {
     Model_CalcKeyedJointMatrices(m, 1);
     Model_ProjectBonedVerts(m);
     func_80017CD4_801368CC(g_Game_801368CC.f_8, D_800E7D00_801368CC, m);
-    Model_ProjectVertsAlt((void *)D_800B4D64, M2C_FIELD(m, void **, 0x14), D_800E7D00_801368CC);
-    Model_DrawColorAnim(g_Game_801368CC.f_8, D_800E7D00_801368CC, (void *)D_800B4D64, 0);
+    Model_ProjectVertsAlt((void *)g_StageMeshes, M2C_FIELD(m, void **, 0x14), D_800E7D00_801368CC);
+    Model_DrawColorAnim(g_Game_801368CC.f_8, D_800E7D00_801368CC, (void *)g_StageMeshes, 0);
     r.vx = 0;
     r.vz = 0;
     r.vy = g_Game_801368CC.f_0 * -64;
@@ -329,8 +329,8 @@ void func_801368CC(void) {
     mat.t[1] = -0x80;
     mat.t[2] = 0x60;
     CompMatrix(M2C_FIELD(m, void **, 0x14), &mat, &mat);
-    Model_ProjectVertsAlt((void *)(D_800B4D64 + 0x20), &mat, D_800E7D00_801368CC);
-    Model_DrawColorAnim(g_Game_801368CC.f_8, D_800E7D00_801368CC, (void *)(D_800B4D64 + 0x20), 0);
+    Model_ProjectVertsAlt((void *)(g_StageMeshes + 0x20), &mat, D_800E7D00_801368CC);
+    Model_DrawColorAnim(g_Game_801368CC.f_8, D_800E7D00_801368CC, (void *)(g_StageMeshes + 0x20), 0);
 }
 
 typedef struct { u8 pad0[0x14]; s16 *f_14; u8 pad18[0xC]; s32 f_24, f_28, f_2C; u8 pad30[0x2C]; u16 f_5C; u16 f_5E; SVECTOR f_60; u8 pad68[8]; s16 f_70, f_72; s16 *f_74; } Obj_80136AA0;
@@ -410,7 +410,7 @@ extern Ent_80136C94 D_80136E4C_80136C94[] asm("D_80136E4C");
 extern struct { u8 pad0[0x48]; s32 f48, f4C, f50, f54; } D_80137010_80136C94 asm("D_80137010");
 extern u16 D_80136E3C_80136C94 asm("D_80136E3C");
 s32 SaveByte_Get(s32);
-s32 func_80096580(s32);
+s32 World_GetProgress(s32);
 
 void func_80136C94(void) {
     u32 i;
@@ -420,14 +420,14 @@ void func_80136C94(void) {
     case 0:
     case 1:
     case 2:
-        if (func_80096580(0x11) > 0 && SaveByte_Get(4) != 5) {
+        if (World_GetProgress(0x11) > 0 && SaveByte_Get(4) != 5) {
             i += 6;
         }
         break;
     case 3:
     case 4:
     case 5:
-        if (func_80096580(0x11) > 0 && SaveByte_Get(5) != 5) {
+        if (World_GetProgress(0x11) > 0 && SaveByte_Get(5) != 5) {
             i += 3;
         }
         break;

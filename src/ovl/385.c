@@ -240,7 +240,7 @@ s32 func_80136528(void) {
 /* uses Rect_801362A4, g_Game_801362A4 and the decls above func_801362A4 in src/ovl/385.c */
 s32 Cd_ReadFile(s32, s32);
 void Cd_WaitIdle(s32);
-void func_80068D10(s32);
+void Tex_LoadPack(s32);
 
 s32 func_801366EC(void) {
     Rect_801362A4 r;
@@ -261,7 +261,7 @@ s32 func_801366EC(void) {
     VSync(0);
     Cd_ReadFile(0x22, 0x80154000);
     Cd_WaitIdle(0);
-    func_80068D10(0x80154000);
+    Tex_LoadPack(0x80154000);
     DrawSync(0);
     VSync(2);
     t = 0;

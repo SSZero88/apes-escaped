@@ -2,23 +2,23 @@
 #include "common.h"
 typedef struct { s16 x, y, w, h; } RECT_800690E8_800690E8;
 typedef struct { u8 f_0; u8 f_1; u8 pad2[2]; u16 f_4; u16 f_6; u16 f_8; u16 f_A; u8 f_C; u8 f_D; u8 padE[2]; } E_800690E8_800690E8;
-void *func_8008C09C(s32);
-extern struct S_D_800B98F0 { s32 f_0; E_800690E8_800690E8 *f_4; } D_800B98F0;
+void *Mem_AllocPages(s32);
+extern struct S_D_800B98F0 { s32 f_0; E_800690E8_800690E8 *f_4; } Tex_Anims;
 void MoveImage(RECT_800690E8_800690E8 *, s32, s32);
 
 typedef struct { s16 x, y, w, h; } RECT_68D10;
-void func_8008D064(char *, s32);
+void DebugMsg_Queue(char *, s32);
 s32 LoadImage2(void *rect, u32 *p);
 s32 DrawSync(s32);
 void bios_printf(const char *, ...);
 void bios_exit(s32) __attribute__((noreturn));
 u8 *Image_DecodeNibbleRuns(u8 *src, u32 n);
 u8 *Image_DecodeRle4(u8 *src, u32 n);
-void func_8008C064(void *);
+void Mem_Free(void *);
 extern char D_800A5BD0[];
 extern char D_800A5BE0[];
 
-void func_80068D10(u32 *p) {
+void Tex_LoadPack(u32 *p) {
     s32 n = 0;
     u32 id;
     u32 size;
@@ -32,7 +32,7 @@ void func_80068D10(u32 *p) {
           goto Ld; }
         {
         Ld:
-            func_8008D064(D_800A5BD0, n);
+            DebugMsg_Queue(D_800A5BD0, n);
             return;
         L0:
             p++;
@@ -74,7 +74,7 @@ void func_80068D10(u32 *p) {
                     id = (u32)Image_DecodeRle4((u8 *)(p + 3), size);
                 }
                 LoadImage2(p + 1, (u32 *)id);
-                func_8008C064((void *)id);
+                Mem_Free((void *)id);
                 p += *p >> 2;
                 DrawSync(0);
             } else {
@@ -94,7 +94,7 @@ INCLUDE_RODATA("asm/nonmatchings/game/80068D10_texture", D_800A5BE0);
    count + 1 pixels of that colour, until n bytes of output are filled. */
 u8 *Image_DecodeNibbleRuns(u8 *src, u32 n) {
     u32 j = 0;
-    u8 *dst = func_8008C09C(n);
+    u8 *dst = Mem_AllocPages(n);
     u32 k;
     u32 cnt;
     u32 val;
@@ -129,7 +129,7 @@ u8 *Image_DecodeRle4(u8 *src, u32 n) {
     u8 *p;
     u32 c;
     i = 0;
-    dst = func_8008C09C(n);
+    dst = Mem_AllocPages(n);
     while (i / 2 < n) {
         hi = *src >> 4;
         lo = *src & 0xF;
@@ -172,15 +172,15 @@ u8 *Image_DecodeRle4(u8 *src, u32 n) {
     return dst;
 }
 
-void func_800690E8(E_800690E8_800690E8 *e) {
+void Tex_InitAnims(E_800690E8_800690E8 *e) {
     RECT_800690E8_800690E8 r;
 
     if (e == NULL) {
-        D_800B98F0.f_0 = 0;
-        D_800B98F0.f_4 = NULL;
+        Tex_Anims.f_0 = 0;
+        Tex_Anims.f_4 = NULL;
         return;
     }
-    D_800B98F0.f_4 = e;
+    Tex_Anims.f_4 = e;
     while (e->f_0 != 0) {
         switch (e->f_0) {
         case 1:
@@ -195,7 +195,7 @@ void func_800690E8(E_800690E8_800690E8 *e) {
             MoveImage(&r, e->f_8, e->f_A);
             break;
         }
-        D_800B98F0.f_0++;
+        Tex_Anims.f_0++;
         e++;
     }
 }
@@ -209,7 +209,7 @@ void SetDrawMove(void *p, void *rect, s32 x, s32 y);
     ((P_TAG_691F8 *)(p))->addr = ((P_TAG_691F8 *)ot)->addr; \
     ((P_TAG_691F8 *)ot)->addr = (u32)(p);
 
-/* Texture animations of the stage (D_800B98F0 list, 16-byte entries up to type 0), as VRAM moves at
+/* Texture animations of the stage (Tex_Anims list, 16-byte entries up to type 0), as VRAM moves at
    the back of the OT: 2 scrolls a texture by frame * speed / 4 (two moves when it wraps), 1 copies a
    frame every n frames, 3 copies from the current display buffer */
 void Tex_UpdateAnims(void) {
@@ -220,10 +220,10 @@ void Tex_UpdateAnims(void) {
     s32 off;
     Rect_691F8 r;
 
-    if (D_800B98F0.f_0 == 0) {
+    if (Tex_Anims.f_0 == 0) {
         return;
     }
-    e = (TexAnim_691F8 *)D_800B98F0.f_4;
+    e = (TexAnim_691F8 *)Tex_Anims.f_4;
     p = G_DRAW.prim;
     ot = &G_DRAW.db[G_DRAW.cur].ot[0xFFF];
     frame = *(s32 *)g_Game;

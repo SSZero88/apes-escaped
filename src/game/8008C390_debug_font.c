@@ -4,52 +4,52 @@
 extern struct { u8 pad0[0x82BA]; s16 unk82BA; } g_Game;
 void DebugFont_Printf(void);
 
-extern struct S_D_800DF7D8 { s32 f_0; s32 f_4; s32 f_8; s32 f_C; s32 f_10; s32 f_14; s32 f_18; s32 f_1C; u8 f_20; u8 f_21; u8 f_22; } D_800DF7D8;
+extern struct S_D_800DF7D8 { s32 f_0; s32 f_4; s32 f_8; s32 f_C; s32 f_10; s32 f_14; s32 f_18; s32 f_1C; u8 f_20; u8 f_21; u8 f_22; } g_DebugFontCursor;
 
 
 
 INCLUDE_RODATA("asm/nonmatchings/game/8008C390_debug_font", D_800A6460);
 
-void func_8008C390(void) {
-    D_800DF7D8.f_0 = 0;
-    D_800DF7D8.f_4 = 0x10;
-    D_800DF7D8.f_8 = 0;
-    D_800DF7D8.f_C = 0;
-    D_800DF7D8.f_20 = 0x80;
-    D_800DF7D8.f_21 = 0x80;
-    D_800DF7D8.f_22 = 0x80;
+void DebugFont_Init(void) {
+    g_DebugFontCursor.f_0 = 0;
+    g_DebugFontCursor.f_4 = 0x10;
+    g_DebugFontCursor.f_8 = 0;
+    g_DebugFontCursor.f_C = 0;
+    g_DebugFontCursor.f_20 = 0x80;
+    g_DebugFontCursor.f_21 = 0x80;
+    g_DebugFontCursor.f_22 = 0x80;
 }
 
-void func_8008C3C0(s32 arg0, s32 arg1) {
-    D_800DF7D8.f_0 = arg0;
-    D_800DF7D8.f_4 = arg1;
-    D_800DF7D8.f_8 = 0;
-    D_800DF7D8.f_C = 0;
+void DebugFont_SetPos(s32 arg0, s32 arg1) {
+    g_DebugFontCursor.f_0 = arg0;
+    g_DebugFontCursor.f_4 = arg1;
+    g_DebugFontCursor.f_8 = 0;
+    g_DebugFontCursor.f_C = 0;
 }
 
-void func_8008C3DC(void) {
-    D_800DF7D8.f_10 = (s32) D_800DF7D8.f_0;
-    D_800DF7D8.f_14 = (s32) D_800DF7D8.f_4;
-    D_800DF7D8.f_18 = (s32) D_800DF7D8.f_8;
-    D_800DF7D8.f_1C = (s32) D_800DF7D8.f_C;
+void DebugFont_SaveCursor(void) {
+    g_DebugFontCursor.f_10 = (s32) g_DebugFontCursor.f_0;
+    g_DebugFontCursor.f_14 = (s32) g_DebugFontCursor.f_4;
+    g_DebugFontCursor.f_18 = (s32) g_DebugFontCursor.f_8;
+    g_DebugFontCursor.f_1C = (s32) g_DebugFontCursor.f_C;
 }
 
-void func_8008C408(void) {
-    D_800DF7D8.f_0 = (s32) D_800DF7D8.f_10;
-    D_800DF7D8.f_4 = (s32) D_800DF7D8.f_14;
-    D_800DF7D8.f_8 = (s32) D_800DF7D8.f_18;
-    D_800DF7D8.f_C = (s32) D_800DF7D8.f_1C;
+void DebugFont_RestoreCursor(void) {
+    g_DebugFontCursor.f_0 = (s32) g_DebugFontCursor.f_10;
+    g_DebugFontCursor.f_4 = (s32) g_DebugFontCursor.f_14;
+    g_DebugFontCursor.f_8 = (s32) g_DebugFontCursor.f_18;
+    g_DebugFontCursor.f_C = (s32) g_DebugFontCursor.f_1C;
 }
 
 extern u8 g_Game_8C434[] asm("g_Game");
 #define G_DRAW_8C434 (*(GameDraw *)g_Game_8C434)
 typedef struct { u8 r, g, b, cd; } Col_8C434;
 typedef struct { s32 x, y, cx, line; s32 save[4]; Col_8C434 col; } Con_8C434;
-extern Con_8C434 D_800DF7D8_8C434 asm("D_800DF7D8");
-extern s32 D_800DF7FC;
-extern s32 D_800DF800;
+extern Con_8C434 D_800DF7D8_8C434 asm("g_DebugFontCursor");
+extern s32 DebugFont_Colour;
+extern s32 DebugFont_TPage;
 typedef struct { u8 u, w; } Glyph_8C434;
-extern Glyph_8C434 D_800B3390[];
+extern Glyph_8C434 DebugFont_Glyphs[];
 typedef struct { u32 tag; Col_8C434 c; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8C434;
 typedef struct { u32 tag; Col_8C434 c; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad2; s16 x3, y3; u8 u3, v3; u16 pad3; } PolyFT4_8C434;
 typedef struct { u32 addr : 24; u32 len : 8; } PT_8C434;
@@ -59,7 +59,7 @@ void DebugFont_PutChar(s32 c) {
     u32 *ot = G_DRAW_8C434.db[G_DRAW_8C434.cur].hud;
     s16 x, y; u16 w; s32 h; s16 v;
 
-    if (D_800DF7FC < 4) {
+    if (DebugFont_Colour < 4) {
         Sprt_8C434 *p = (Sprt_8C434 *)G_DRAW_8C434.prim;
         if (c != 0) {
             *(u32 *)&p->c = *(u32 *)&CON_8C434.col;
@@ -71,7 +71,7 @@ void DebugFont_PutChar(s32 c) {
             p->v0 = (c / 32) * 8;
             p->w = 8;
             p->h = 8;
-            p->clut = ((D_800DF7FC + 0x1F1) << 6) | 0x3F;
+            p->clut = ((DebugFont_Colour + 0x1F1) << 6) | 0x3F;
             ((PT_8C434 *)p)->addr = ((PT_8C434 *)ot)->addr;
             ((PT_8C434 *)ot)->addr = (u32)p;
             p++;
@@ -85,7 +85,7 @@ void DebugFont_PutChar(s32 c) {
         x = CON_8C434.x + CON_8C434.cx;
         p = (PolyFT4_8C434 *)G_DRAW_8C434.prim;
         y = CON_8C434.y + CON_8C434.line * 8;
-        w = D_800B3390[c].w;
+        w = DebugFont_Glyphs[c].w;
         h = 16;
         v = (c >= 0x4F) + (c >= 0x34);
         if (c >= 0x1C) {
@@ -104,20 +104,20 @@ void DebugFont_PutChar(s32 c) {
         p->y2 = y + h;
         p->x3 = x + w;
         p->y3 = y + h;
-        p->u0 = D_800B3390[c].u;
+        p->u0 = DebugFont_Glyphs[c].u;
         p->v0 = v;
-        p->u1 = D_800B3390[c].u + w;
+        p->u1 = DebugFont_Glyphs[c].u + w;
         p->v1 = v;
-        p->u2 = D_800B3390[c].u;
+        p->u2 = DebugFont_Glyphs[c].u;
         p->v2 = v + h;
-        p->u3 = D_800B3390[c].u + w;
+        p->u3 = DebugFont_Glyphs[c].u + w;
         p->v3 = v + h;
         p->clut = 0x7D7F;
-        p->tpage = D_800DF800;
+        p->tpage = DebugFont_TPage;
         ((PT_8C434 *)p)->addr = ((PT_8C434 *)ot)->addr;
         ((PT_8C434 *)ot)->addr = (u32)p;
         p++;
-        CON_8C434.cx += D_800B3390[c].w;
+        CON_8C434.cx += DebugFont_Glyphs[c].w;
         G_DRAW_8C434.prim = (u8 *)p;
     }
 }
@@ -126,14 +126,14 @@ typedef char *va_list_8C474;
 #define VA_START(ap, last) (ap = (va_list_8C474)&last + 4)
 #define VA_ARG(ap, t) (*(t *)((ap += 4) - 4))
 typedef struct { u8 pad0[0x82BA]; s16 debugText; } GameDbg_8C474;
-extern s32 D_800DF7FC;
-extern s32 D_800DF800;
+extern s32 DebugFont_Colour;
+extern s32 DebugFont_TPage;
 void DebugFont_PutChar(s32 c);
 void DebugFont_Printf_Va(s8 *fmt, ...) asm("DebugFont_Printf");
 
 /* Debug-font printf. The font uses the game's text codes (ASCII - 0x20): `\n` starts a new line,
    "`N" switches to colour N, %d (with an optional width digit, right-aligned), %x, %s (which may
-   contain "`N" too) and %c. Ends with a draw-mode primitive (texture page D_800DF800) linked into the
+   contain "`N" too) and %c. Ends with a draw-mode primitive (texture page DebugFont_TPage) linked into the
    HUD ordering table. Prints nothing unless g_Game + 0x82BA is set. */
 void DebugFont_Printf_Va(s8 *fmt, ...) {
     s8 buf[32];
@@ -151,18 +151,18 @@ void DebugFont_Printf_Va(s8 *fmt, ...) {
     ot = G_HUD_OT;
     if (((GameDbg_8C474 *)&g_Game)->debugText != 0) {
         VA_START(ap, fmt);
-        D_800DF800 = 0x1F;
-        D_800DF7FC = 0;
+        DebugFont_TPage = 0x1F;
+        DebugFont_Colour = 0;
         c = fmt[0];
         i = 1;
         while (c != 0) {
             switch (c) {
             case '\n':
-                D_800DF7D8.f_8 = 0;
-                D_800DF7D8.f_C++;
+                g_DebugFontCursor.f_8 = 0;
+                g_DebugFontCursor.f_C++;
                 break;
             case '`':
-                D_800DF7FC = fmt[i++] - '0';
+                DebugFont_Colour = fmt[i++] - '0';
                 break;
             case '%':
                 c = fmt[i++];
@@ -187,7 +187,7 @@ void DebugFont_Printf_Va(s8 *fmt, ...) {
                         buf[n++] = '-' - 0x20;
                     }
                     if (width != 0) {
-                        D_800DF7D8.f_8 += (width - n) * 8;
+                        g_DebugFontCursor.f_8 += (width - n) * 8;
                     }
                     for (n--; n >= 0; n--) {
                         width = 0;
@@ -211,7 +211,7 @@ void DebugFont_Printf_Va(s8 *fmt, ...) {
                     while (*s != 0) {
                         if (*s == '`') {
                             s++;
-                            D_800DF7FC = *s++ - '0';
+                            DebugFont_Colour = *s++ - '0';
                         }
                         DebugFont_PutChar(*s++ - 0x20);
                     }
@@ -229,7 +229,7 @@ void DebugFont_Printf_Va(s8 *fmt, ...) {
         }
         p = (u32 *)G_DRAW.prim;
         ((u8 *)p)[3] = 1;
-        p[1] = (D_800DF800 & 0x9FF) | 0xE1000200;
+        p[1] = (DebugFont_TPage & 0x9FF) | 0xE1000200;
         p[0] = (p[0] & 0xFF000000) | (*ot & 0xFFFFFF);
         *ot = (*ot & 0xFF000000) | ((u32)p & 0xFFFFFF);
         G_DRAW.prim = (u8 *)(p + 2);
@@ -238,7 +238,7 @@ void DebugFont_Printf_Va(s8 *fmt, ...) {
 
 typedef struct { u32 addr : 24; u32 len : 8; } PT_8CAD4;
 typedef struct { u16 x, px, y, py, cx, pcx; s32 line; } Con16_8CAD4;
-extern Con16_8CAD4 D_800DF7D8_8CAD4 asm("D_800DF7D8");
+extern Con16_8CAD4 D_800DF7D8_8CAD4 asm("g_DebugFontCursor");
 typedef struct { u32 tag; u32 rgbc; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad2; s16 x3, y3; u8 u3, v3; u16 pad3; } PolyFT4_8CAD4;
 
 void DebugFont_DrawBox(s32 w, s32 h) {
@@ -272,16 +272,16 @@ void DebugFont_DrawBox(s32 w, s32 h) {
     G_DRAW.prim = (u8 *)p;
 }
 
-void func_8008CBFC(s32 a0, ...) {
+void DebugFont_PrintfAlways(s32 a0, ...) {
     s32 old = g_Game.unk82BA;
     g_Game.unk82BA = 1;
     DebugFont_Printf();
-    func_8008C3C0(0, 0);
+    DebugFont_SetPos(0, 0);
     g_Game.unk82BA = old;
 }
 
-void func_8008CC60(s32 arg0, s32 arg1) {
-    func_8008C3C0(arg0, arg1);
+void DebugFont_Locate(s32 arg0, s32 arg1) {
+    DebugFont_SetPos(arg0, arg1);
 }
 
 extern u8 g_Game_8CC80[] asm("g_Game");
@@ -290,13 +290,13 @@ typedef struct { u32 addr : 24; u32 len : 8; } PTag_8CC80;
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8CC80;
 typedef struct { u32 tag; u32 code; } DrTpage_8CC80;
 typedef struct { u16 x; u16 pad; u16 y; } DbgCursor_8CC80;
-extern s16 D_800B34BC[][12];
-extern u8 D_800B3450[][2];
-extern DbgCursor_8CC80 D_800DF7D8_8CC80 asm("D_800DF7D8");
+extern s16 DebugFont_Words[][12];
+extern u8 DebugFont_WordGlyphUV[][2];
+extern DbgCursor_8CC80 D_800DF7D8_8CC80 asm("g_DebugFontCursor");
 #define ADD_PRIM_C_8CC80(ot, p) (((PTag_8CC80 *)(p))->addr = ((PTag_8CC80 *)(ot))->addr, ((PTag_8CC80 *)(ot))->addr = (u32)(p))
 
-/* Draws word `word` of the debug font's word table D_800B34BC (rows of glyph ids, ended by a
-   negative id) at the debug console cursor D_800DF7D8: 24x24 glyphs (id 21 is 32x16, ids >= 30
+/* Draws word `word` of the debug font's word table DebugFont_Words (rows of glyph ids, ended by a
+   negative id) at the debug console cursor g_DebugFontCursor: 24x24 glyphs (id 21 is 32x16, ids >= 30
    16x16), id 49 doesn't advance. Words 0-6 use texture page 0x298, the rest 0x20D. */
 void DebugFont_DrawWord(s16 word) {
     Sprt_8CC80 *p = (Sprt_8CC80 *)G_DRAW_8CC80.prim;
@@ -307,8 +307,8 @@ void DebugFont_DrawWord(s16 word) {
     s16 c;
     DrTpage_8CC80 *t;
 
-    for (i = 0; D_800B34BC[word][i] >= 0; i++) {
-        c = D_800B34BC[word][i];
+    for (i = 0; DebugFont_Words[word][i] >= 0; i++) {
+        c = DebugFont_Words[word][i];
         *(u32 *)&p->r0 = 0x808080;
         ((u8 *)p)[3] = 4;
         p->code = 0x64;
@@ -324,8 +324,8 @@ void DebugFont_DrawWord(s16 word) {
             w = h = 0x10;
             p->clut = 0x1874;
         }
-        p->u0 = D_800B3450[c][0];
-        p->v0 = D_800B3450[c][1];
+        p->u0 = DebugFont_WordGlyphUV[c][0];
+        p->v0 = DebugFont_WordGlyphUV[c][1];
         if (c == 21) {
             p->w = w;
             p->h = h;
@@ -354,7 +354,7 @@ void DebugFont_DrawWord(s16 word) {
 }
 
 typedef struct { u16 x, px, y, py; } Con16_8CF04;
-#define C16 (*(Con16_8CF04 *)&D_800DF7D8)
+#define C16 (*(Con16_8CF04 *)&g_DebugFontCursor)
 typedef struct { u32 addr : 24; u32 len : 8; } P_TAG_8CF04;
 typedef struct { P_TAG_8CF04 tag; u32 rgbc; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8CF04;
 typedef struct { P_TAG_8CF04 tag; u32 code; } DrTpage_8CF04;
@@ -389,35 +389,35 @@ void DebugFont_DrawIcon(s16 n) {
     }
 }
 
-extern void *D_800DF7A0[8];
-extern s16 D_800DF7C0[8];
-extern u8 D_800DF7D0[8];
-extern u8 D_800B35C4;
+extern void *DebugMsg_Formats[8];
+extern s16 DebugMsg_Values[8];
+extern u8 DebugMsg_Ages[8];
+extern u8 DebugMsg_Count;
 void DebugFont_Printf_8D064(void *fmt, s16 v) asm("DebugFont_Printf");
 
 /* Timed debug messages: a == -1 clears the 8-slot ring; p == NULL ages every queued message one frame
    (saturating at 255) and prints those younger than 80 frames; otherwise queues format p with value a. */
-void func_8008D064(void *p, s32 a) {
+void DebugMsg_Queue(void *p, s32 a) {
     s32 i;
     if (a == -1) {
         for (i = 7; i >= 0; i--) {
-            D_800DF7A0[i] = 0;
+            DebugMsg_Formats[i] = 0;
         }
-        D_800B35C4 = 0;
+        DebugMsg_Count = 0;
     } else if (p == 0) {
-        for (i = 0; i < D_800B35C4; i++) {
-            if (D_800DF7A0[i] != 0) {
-                { u8 *q = &D_800DF7D0[i]; *q = *q + (*q ? *q < 0xFF : 0); }
-                if (D_800DF7D0[i] < 0x50) {
-                    DebugFont_Printf_8D064(D_800DF7A0[i], D_800DF7C0[i]);
+        for (i = 0; i < DebugMsg_Count; i++) {
+            if (DebugMsg_Formats[i] != 0) {
+                { u8 *q = &DebugMsg_Ages[i]; *q = *q + (*q ? *q < 0xFF : 0); }
+                if (DebugMsg_Ages[i] < 0x50) {
+                    DebugFont_Printf_8D064(DebugMsg_Formats[i], DebugMsg_Values[i]);
                 }
             }
         }
     } else {
-        D_800DF7A0[D_800B35C4] = p;
-        D_800DF7C0[D_800B35C4] = a;
-        D_800DF7D0[D_800B35C4] = 1;
-        D_800B35C4 = (D_800B35C4 + 1) % 8;
+        DebugMsg_Formats[DebugMsg_Count] = p;
+        DebugMsg_Values[DebugMsg_Count] = a;
+        DebugMsg_Ages[DebugMsg_Count] = 1;
+        DebugMsg_Count = (DebugMsg_Count + 1) % 8;
     }
 }
 
@@ -444,7 +444,7 @@ void PutDrawEnv(void *);
 void DrawOTag(void *);
 void Gfx_BeginFrame(void);
 void func_8001325C(s32);
-void func_8008C390(void);
+void DebugFont_Init(void);
 s32 MinigameMenu_Update(void);
 void Minigame_Run(s32);
 void Cd_ReadFile(s32, s32);
@@ -474,7 +474,7 @@ s32 MinigameMenu_Main(void) {
     while (1) {
         func_8001325C(0);
         Gfx_BeginFrame();
-        func_8008C390();
+        DebugFont_Init();
         sel = MinigameMenu_Update();
         if (sel >= 0) {
             break;
@@ -540,7 +540,7 @@ extern s32 D_800B361C;
 extern s32 D_800B3620[];
 extern s32 D_800B362C;
 extern s32 D_800B3630;
-void func_8008CC60(s32, s32);
+void DebugFont_Locate(s32, s32);
 s32 Sound_PlayFixed(s32);
 
 /* The minigame menu (two rows of D_800B3620 text under the D_800A646C title, a translucent Gouraud
@@ -552,11 +552,11 @@ s32 MinigameMenu_Update(void) {
     s32 i;
     s32 btn;
 
-    func_8008CC60(0x82, 0x46);
-    func_8008CBFC(D_800A646C);
+    DebugFont_Locate(0x82, 0x46);
+    DebugFont_PrintfAlways(D_800A646C);
     for (i = 0; i < 2; i++) {
-        func_8008CC60(0xA0, i * 0xF + 0x6C);
-        func_8008CBFC(D_800A647C, D_800B3620[i]);
+        DebugFont_Locate(0xA0, i * 0xF + 0x6C);
+        DebugFont_PrintfAlways(D_800A647C, D_800B3620[i]);
     }
 
     ((u8 *)P_8D514)[3] = 8;

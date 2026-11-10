@@ -15,7 +15,7 @@ s32 rcos(s32);
 struct g_Spike_8009B6C8 { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; s32 f_30; u8 pad34[4]; s32 f_38; u8 pad3C[0x34]; s32 f_70; };
 #define G_SPIKE_8009B6C8 ((struct g_Spike_8009B6C8 *)&g_Spike)
 
-void func_8009B3B0(void) {
+void Spike_RequestBoard(void) {
     g_Spike.f_E0 = (s32) (g_Spike.f_E0 | 0x10);
 }
 
@@ -80,7 +80,7 @@ void Spike_CreateModel(S_File_8009B3CC *f, s32 flag) {
 INCLUDE_RODATA("asm/nonmatchings/game/8009B3B0_vehicle", jtbl_800A6840_pad);
 
 
-void func_8009B578(s32 type, s32 idx, s32 ang) {
+void Ride_PlaceAt(s32 type, s32 idx, s32 ang) {
     S_O_8009B578_8009B578 *o = D_800B4DC4;
     o->f_70 = &((struct S_D_800EC350_8009B578 *)&g_Game)->f_820C[idx];
     o->f_74 = idx;

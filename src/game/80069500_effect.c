@@ -4,86 +4,86 @@ typedef struct { s16 vx, vy, vz; u8 f_6; u8 pad7; } S_Pos_8006962C;
 typedef struct { u8 f_0; u8 f_1; u8 f_2; s8 f_3; u32 f_4; u8 pad8[0xA]; u8 f_12; u8 f_13; S_Pos_8006962C f_14; u8 pad1C[6]; s16 f_22; u8 pad24[6]; s16 f_2A; u8 pad2C[4]; u32 f_30; } S_Particle_8006962C;
 typedef struct { s16 vx, vy, vz, pad; } SVEC_8006AB10;
 
-struct S_D_800B9900_80069548 *func_80069548(void);
+struct S_D_800B9900_80069548 *Particle_Alloc(void);
 
-M2C_UNK func_8006DAC8();
-M2C_UNK func_8006E02C();
-M2C_UNK func_8006ED4C();
-M2C_UNK func_8006FE54();
+M2C_UNK SuperHoop_ClearSparkles();
+M2C_UNK Flare_ClearAll();
+M2C_UNK Fx_ClearFadeRings();
+M2C_UNK Shockwave_ClearAll();
 M2C_UNK Puff_ClearAll();
-M2C_UNK func_800710F8();
+M2C_UNK Debris_ClearAll();
 
 void Effect_Spawn(s32 id, s16 *pos, u32 *tbl, s16 **scripts);
-extern M2C_UNK D_800B175C;
-extern M2C_UNK D_800B1828;
+extern M2C_UNK Particle_GfxTable;
+extern M2C_UNK Effect_Scripts;
 
 void Fx_ClearAll(void);
-M2C_UNK func_8006B7DC();
-extern s8 D_800B9900;
-extern s8 D_800BAD50;
+M2C_UNK Spike_ResetFx();
+extern s8 Particle_Pool;
+extern s8 Particle_NextSlot;
 M2C_UNK Fx_UpdateSpikeEffects();
 M2C_UNK Fx_UpdateBlastSequence();
-M2C_UNK func_8006D5A8();
+M2C_UNK Dust_UpdateAll();
 M2C_UNK SuperHoop_DrawSparkles();
-M2C_UNK func_8006E1C0();
+M2C_UNK Flare_UpdateAll();
 M2C_UNK Fx_UpdateFadeRings();
 M2C_UNK Shockwave_UpdateAll();
-M2C_UNK func_80070560();
+M2C_UNK Rock_UpdateAll();
 M2C_UNK Puff_UpdateAll();
 M2C_UNK Debris_UpdateAll();
 struct S_D_800B9900_80069548 { u8 f_0; u8 pad1; u8 f_2; u8 pad3[0x31]; };
 extern u16 g_RandSeed;
-extern struct S_D_800B1BD4 { u8 pad[0x54]; } D_800B1BD4[];
-void func_80070284(s16 *pos, struct S_D_800B1BD4 *d, s32 a, s32 b, s32 c);
+extern struct S_D_800B1BD4 { u8 pad[0x54]; } Shockwave_Templates[];
+void Shockwave_Spawn(s16 *pos, struct S_D_800B1BD4 *d, s32 a, s32 b, s32 c);
 void Fx_SpawnFadeRing(s16 *pos, s32 a, s32 b, s32 c);
 extern struct { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; u8 pad30[0x30]; u16 f_60; u16 pad62; u16 f_64; } g_Spike;
 void memset(void *, s32, s32);
 void Effect_SpawnAt(s32, void *);
-void func_80071120(s16 *, s32);
+void Debris_SpawnBurst(s16 *, s32);
 void Sound_PlayFixed(s32);
 
-void func_80069500(void) {
+void Effect_ClearAll(void) {
     s32 var_v1;
     s8 *var_v0;
 
     var_v1 = 0x63;
-    var_v0 = &D_800B9900;
+    var_v0 = &Particle_Pool;
     do {
         *var_v0 = 0;
         var_v1 -= 1;
         var_v0 += 0x34;
     } while (var_v1 >= 0);
-    D_800BAD50 = 0;
+    Particle_NextSlot = 0;
     Fx_ClearAll();
-    func_8006B7DC();
+    Spike_ResetFx();
 }
 
-struct S_D_800B9900_80069548 *func_80069548(void) {
+struct S_D_800B9900_80069548 *Particle_Alloc(void) {
     s32 i;
     struct S_D_800B9900_80069548 *p;
     for (i = 99; i >= 0; i--) {
-        if (++(*(u8 *)&D_800BAD50) >= 100) {
-            (*(u8 *)&D_800BAD50) = 0;
+        if (++(*(u8 *)&Particle_NextSlot) >= 100) {
+            (*(u8 *)&Particle_NextSlot) = 0;
         }
-        p = &((struct S_D_800B9900_80069548 *)&D_800B9900)[(*(u8 *)&D_800BAD50)];
+        p = &((struct S_D_800B9900_80069548 *)&Particle_Pool)[(*(u8 *)&Particle_NextSlot)];
         if (p->f_0 == 0) {
             return p;
         }
     }
     for (i = 99; i >= 0; i--) {
-        if (++(*(u8 *)&D_800BAD50) >= 100) {
-            (*(u8 *)&D_800BAD50) = 0;
+        if (++(*(u8 *)&Particle_NextSlot) >= 100) {
+            (*(u8 *)&Particle_NextSlot) = 0;
         }
-        p = &((struct S_D_800B9900_80069548 *)&D_800B9900)[(*(u8 *)&D_800BAD50)];
+        p = &((struct S_D_800B9900_80069548 *)&Particle_Pool)[(*(u8 *)&Particle_NextSlot)];
         if (p->f_2 == 0) {
             return p;
         }
     }
-    return ((struct S_D_800B9900_80069548 *)&D_800B9900);
+    return ((struct S_D_800B9900_80069548 *)&Particle_Pool);
 }
 
 void Particle_Spawn(s32 type, SVECTOR *pos, u32 *tbl) {
-    S_Particle_8006962C *p = func_80069548();
+    S_Particle_8006962C *p = Particle_Alloc();
     p->f_0 = type;
     *(SVECTOR *)&p->f_14 = *pos;
     if (type < 200) {
@@ -104,7 +104,7 @@ void Particle_Spawn(s32 type, SVECTOR *pos, u32 *tbl) {
 
 /* Spawn effect `id` at pos. Ids below 0x100 are a single particle (Particle_Spawn); higher ids run
  * a script (scripts[id - 0x100], or scripts[id - 0x1C8] from 0x1C8 up) of 0-terminated commands,
- * each {type, y offset, ...}: 0x32 -> func_80070284(entry D_800B1BD4[a], b, c), 0x33 ->
+ * each {type, y offset, ...}: 0x32 -> Shockwave_Spawn(entry Shockwave_Templates[a], b, c), 0x33 ->
  * Fx_SpawnFadeRing(a, b, c), any other type -> n + rand * m / 256 particles of that type. */
 void Effect_Spawn(s32 id, s16 *pos, u32 *tbl, s16 **scripts) {
     s16 *s;
@@ -140,7 +140,7 @@ void Effect_Spawn(s32 id, s16 *pos, u32 *tbl, s16 **scripts) {
             a = *s++;
             b = *s++;
             c = *s++;
-            func_80070284(v, &D_800B1BD4[a], b, c, 0);
+            Shockwave_Spawn(v, &Shockwave_Templates[a], b, c, 0);
             break;
         case 0x33:
             {
@@ -157,7 +157,7 @@ void Effect_Spawn(s32 id, s16 *pos, u32 *tbl, s16 **scripts) {
 }
 
 void Effect_SpawnAt(s32 arg0, void *arg1) {
-    Effect_Spawn(arg0, arg1, (u32 *)&D_800B175C, (s16 **)&D_800B1828);
+    Effect_Spawn(arg0, arg1, (u32 *)&Particle_GfxTable, (s16 **)&Effect_Scripts);
 }
 
 void Effect_SpawnXYZ(s32 a0, s16 a1, s16 a2, s16 a3) {
@@ -165,7 +165,7 @@ void Effect_SpawnXYZ(s32 a0, s16 a1, s16 a2, s16 a3) {
     v[0] = a1;
     v[1] = a2;
     v[2] = a3;
-    Effect_Spawn(a0, v, (u32 *)&D_800B175C, (s16 **)&D_800B1828);
+    Effect_Spawn(a0, v, (u32 *)&Particle_GfxTable, (s16 **)&Effect_Scripts);
 }
 
 typedef struct { u8 active; u8 pad1[0x11]; u8 sx; u8 sy; SVECTOR pos; u8 pad1C[8]; u32 uv0; u32 uv1; u16 uv2; u16 uv3; u32 code; } Spr_69920;
@@ -173,19 +173,19 @@ typedef struct { u16 x; s16 y; u32 z; } Scr_69920;
 typedef struct { u32 tag; u32 code; u32 xy0; u32 uv0; u32 xy1; u32 uv1; u32 xy2; u16 uv2; u16 pad1E; u32 xy3; u16 uv3; u16 pad26; } FT4_69920;
 typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_69920;
 #define ADDPRIM_BF_69920(ot, p) (((PTag_69920 *)(p))->addr = ((PTag_69920 *)(ot))->addr, ((PTag_69920 *)(ot))->addr = (u32)(p))
-extern Spr_69920 D_800B9900_69920[] asm("D_800B9900");
+extern Spr_69920 D_800B9900_69920[] asm("Particle_Pool");
 extern u8 g_Game;
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 extern u8 g_ViewMatrix[];
 #define gte_ldv0_69920(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
 #define gte_rtps_69920() __asm__ volatile ("nop; nop; rtps")
 #define gte_stsxy_69920(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
 #define gte_stszotz_69920(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 
-/* Draws the 100 billboard sprites in D_800B9900 (0x34 each): every active, sized one is projected
+/* Draws the 100 billboard sprites in Particle_Pool (0x34 each): every active, sized one is projected
    and, when its centre is on screen (with a 0x20 margin), drawn as an FT4 sx x sy units across at
    the projected size (sy corrected by 19/24), with its own colour/code and texture words. */
-void func_80069920(void) {
+void Particle_DrawAll(void) {
     void SetRotMatrix(void *m); void SetTransMatrix(void *m);
     Scr_69920 *scr = (Scr_69920 *)0x1F800000;
     Spr_69920 *e;
@@ -237,29 +237,29 @@ void func_80069920(void) {
         ADDPRIM_BF_69920(ot + scr->z, p);
         p++;
     }
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
 }
 
 typedef struct { s16 vx, vy, vz, pad; } SV_69BEC;
 typedef struct { u16 vx, vy, vz, pad; } USV_69BEC;
 typedef struct { u8 id; u8 still; u8 blend; s8 depth; s16 *pc; s16 *ret[2]; u8 count[2]; u8 sx; u8 sy; s16 x, y, z; s8 fade; u8 pad1B; s16 vx, vy, vz; s16 wait; u8 u0, v0; u16 clut; u8 u1, v1; u16 tpage; u8 u2, v2; u8 u3, v3; union { u32 w; struct { u8 r, g, b, code; } c; } col; } Fx_69BEC;
 typedef struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; u8 pad2E[0xFE]; s32 f_12C; } Spk_69BEC;
-extern Fx_69BEC D_800B9900_69BEC[] asm("D_800B9900");
+extern Fx_69BEC D_800B9900_69BEC[] asm("Particle_Pool");
 extern Spk_69BEC g_Spike_69BEC asm("g_Spike");
-extern u16 D_800AE8F2;
-extern SV_69BEC D_800B4D80;
-extern SV_69BEC D_800B4D88;
+extern u16 g_RandSeed2;
+extern SV_69BEC Fx_SpikePos;
+extern SV_69BEC Fx_SpikeChestPos;
 #define VS_69BEC(x) (*(volatile s16 *)&(x))
 extern s16 D_800B4D90;
 extern u8 D_800B1E20[];
 extern u8 D_800B1B78[][8];
-void func_80069920_69BEC(s32, s32, s32) asm("func_80069920");
+void func_80069920_69BEC(s32, s32, s32) asm("Particle_DrawAll");
 void bios_printf(const char *, ...);
-void func_80070284_69BEC(SV_69BEC *, u8 *, s32, s32, s32) asm("func_80070284");
-void func_8006F3D0(SV_69BEC *, s32, u8 *, s32);
+void func_80070284_69BEC(SV_69BEC *, u8 *, s32, s32, s32) asm("Shockwave_Spawn");
+void Fx_DrawRibbon(SV_69BEC *, s32, u8 *, s32);
 #define RNG_69BEC(n) ((((u16)(seed = seed * 5 + 1) >> 8) * (n)) >> 8)
 
-void func_80069BEC(void) {
+void Particle_UpdateAll(void) {
     s32 i;
     Fx_69BEC *fx;
     s16 *pc;
@@ -276,17 +276,17 @@ void func_80069BEC(void) {
 
     i = 99;
     seed = g_RandSeed;
-    VS_69BEC(D_800B4D80.vx) = sx0 = g_Spike_69BEC.x;
+    VS_69BEC(Fx_SpikePos.vx) = sx0 = g_Spike_69BEC.x;
     __asm__ volatile("");
     sy0 = g_Spike_69BEC.y;
     sz0 = g_Spike_69BEC.z;
     __asm__ volatile("");
-    VS_69BEC(D_800B4D80.vy) = sy0;
-    VS_69BEC(D_800B4D80.vz) = sz0;
-    VS_69BEC(D_800B4D88.vx) = sx0;
+    VS_69BEC(Fx_SpikePos.vy) = sy0;
+    VS_69BEC(Fx_SpikePos.vz) = sz0;
+    VS_69BEC(Fx_SpikeChestPos.vx) = sx0;
     __asm__ volatile("");
-    VS_69BEC(D_800B4D88.vy) = sy0 -= 0x80;
-    D_800B4D88.vz = sz0;
+    VS_69BEC(Fx_SpikeChestPos.vy) = sy0 -= 0x80;
+    Fx_SpikeChestPos.vz = sz0;
     func_80069920_69BEC(sy0, sx0, sz0);
     for (fx = D_800B9900_69BEC; i >= 0; i--, fx++) {
         if (fx->id == 0) {
@@ -526,7 +526,7 @@ void func_80069BEC(void) {
                     run = 0;
                     fx->id = 0;
                 } else if (D_800B4D90 < fx->y) {
-                    D_800AE8F2 = D_800AE8F2 * 5 + 1;
+                    g_RandSeed2 = g_RandSeed2 * 5 + 1;
                     memset(&t28, 0, 8);
                     run = 0;
                     t28.vx = fx->x;
@@ -543,7 +543,7 @@ void func_80069BEC(void) {
                 seg[1].vx = fx->x + fx->vx * 3;
                 seg[1].vy = fx->y + fx->vy * 3;
                 seg[1].vz = fx->z + fx->vz * 3;
-                func_8006F3D0(seg, 2, D_800B1B78[*pc++], fx->sx);
+                Fx_DrawRibbon(seg, 2, D_800B1B78[*pc++], fx->sx);
                 break;
             case 4:
                 fx->id = 0;
@@ -587,12 +587,12 @@ INCLUDE_RODATA("asm/nonmatchings/game/80069500_effect", jtbl_800A5C48_pad);
 
 
 void Fx_ClearAll(void) {
-    func_800710F8();
-    func_8006FE54();
+    Debris_ClearAll();
+    Shockwave_ClearAll();
     Puff_ClearAll();
-    func_8006DAC8();
-    func_8006ED4C();
-    func_8006E02C();
+    SuperHoop_ClearSparkles();
+    Fx_ClearFadeRings();
+    Flare_ClearAll();
 }
 
 void Fx_UpdateAll(void) {
@@ -601,17 +601,17 @@ void Fx_UpdateAll(void) {
     Puff_UpdateAll();
     SuperHoop_DrawSparkles();
     Fx_UpdateFadeRings();
-    func_8006E1C0();
-    func_80070560();
+    Flare_UpdateAll();
+    Rock_UpdateAll();
     Fx_UpdateBlastSequence();
-    func_8006D5A8();
+    Dust_UpdateAll();
     Fx_UpdateSpikeEffects();
 }
 
 void Fx_Explosion(s16 *pos, s32 b, s32 kind) {
     s32 snd;
     Effect_SpawnAt(0x109, pos);
-    func_80071120(pos, b);
+    Debris_SpawnBurst(pos, b);
     switch (kind) {
     case 0:
     default:
@@ -632,7 +632,7 @@ void Fx_Explosion(s16 *pos, s32 b, s32 kind) {
 
 /* Spawn effects 0x105 and 0x108 just ahead of Spike: his position plus 1/12 of +0x60/+0x64,
    0x80 up. Only reached through a function pointer. */
-void func_8006AB10(void) {
+void Effect_SpawnAheadOfSpike(void) {
     SVEC_8006AB10 tmp;
     SVEC_8006AB10 v;
     memset(&v, 0, 8);

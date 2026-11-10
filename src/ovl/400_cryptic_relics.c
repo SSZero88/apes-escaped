@@ -3,7 +3,7 @@
 
 M2C_UNK VectorNormalSS(void *, void *);
 extern struct S_g_Spike { u8 pad_0[0x24]; u16 f_24; u8 pad_26[0x2]; u16 f_28; u8 pad_2A[0x2]; u16 f_2C; } g_Spike;
-extern s32 D_800B4D64;
+extern s32 g_StageMeshes;
 extern struct S_g_Game { u8 pad_0[0x820C]; s32 f_820C; u8 pad_8210[0x10]; s32 f_8220; } g_Game;
 M2C_UNK Sound_PlayFixed(M2C_UNK, void *);
 
@@ -13,7 +13,7 @@ M2C_UNK Object_StepOnGround(void *, M2C_UNK);
 s32 rcos(s16);
 s32 rsin(s16, s32);
 
-void func_8006D568(void *);
+void Dust_SpawnStill(void *);
 
 void func_8013D000(void *arg0) {
     SVECTOR v;
@@ -26,7 +26,7 @@ void func_8013D000(void *arg0) {
         v.vx = M2C_FIELD(arg0, u16 *, 0xBC);
         v.vy = M2C_FIELD(arg0, u16 *, 0xBE);
         v.vz = M2C_FIELD(arg0, u16 *, 0xC0);
-        func_8006D568(&v);
+        Dust_SpawnStill(&v);
         M2C_FIELD(arg0, s32 *, 0xB4) = Object_AddAttackSphereNear(arg0, 0x50, v.vx, v.vy, v.vz, M2C_FIELD(arg0, s16 *, 0x48), M2C_FIELD(arg0, s16 *, 0x4A));
         if (M2C_FIELD(arg0, u8 *, 0x8F) >= 0x33) {
             M2C_FIELD(arg0, u8 *, 0x8F) = 0;
@@ -80,8 +80,8 @@ void func_8013D254(void *arg0) {
 }
 
 typedef struct { u32 b0 : 3; u32 init : 1; u32 b4 : 18; u32 mode : 2; u32 b24 : 8; } Flags_8013D630;
-void func_80058134();
-void func_80054220(void *);
+void Object_DebugStub();
+void ObjKind4D_IdleSounds(void *);
 void func_8013D000(void *arg0);
 void func_8013D0D0(void *arg0);
 void func_8013D200(void *arg0);
@@ -107,7 +107,7 @@ void func_8013D2BC(u8 *e) {
         M2C_FIELD(e, u16 *, 0x5C) = *M2C_FIELD(e, u16 **, 0x88);
         M2C_FIELD(e, Flags_8013D630 *, 0xE0).init = 1;
     }
-    func_80058134(e, M2C_FIELD(e, s16 *, 0x44));
+    Object_DebugStub(e, M2C_FIELD(e, s16 *, 0x44));
     func_8013D254(e);
     switch (e[0x80]) {
     case 1:
@@ -136,7 +136,7 @@ void func_8013D2BC(u8 *e) {
         break;
     }
     func_8013D000(e);
-    func_80054220(e);
+    ObjKind4D_IdleSounds(e);
 }
 
 s16 Object_FloorAt(void *, s32, s32, s32);
@@ -204,8 +204,8 @@ void func_8013D670(void *arg0) {
 }
 
 void Object_PlaySound_8013D714(void *, s32) asm("Object_PlaySound");
-s32 func_800563E0(void *, s32);
-void func_80058134_8013D714(void *, s32) asm("func_80058134");
+s32 Object_FlyAboveFloor(void *, s32);
+void func_80058134_8013D714(void *, s32) asm("Object_DebugStub");
 void func_8013D514(void *arg0);
 void func_8013D5F0(void *arg0);
 void func_8013D670(void *arg0);
@@ -238,7 +238,7 @@ void func_8013D714(void *arg0) {
         }
         break;
     case 2:
-        if ((s16)func_800563E0(arg0, 0) == 0) {
+        if ((s16)Object_FlyAboveFloor(arg0, 0) == 0) {
             M2C_FIELD(arg0, u8 *, 0x80) = 3;
             M2C_FIELD(arg0, u8 *, 0x7F) = 2;
             M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(arg0, u16 **, 0x88)[4];
@@ -313,13 +313,13 @@ s32 func_8013DA34(void *arg0) {
     if (M2C_FIELD(arg0, s16 *, 8) == 0) {
         temp_a0 = M2C_FIELD(temp_a1, s16 *, 0xE);
         if (temp_a0 >= 0) {
-            M2C_FIELD(((temp_a0 << 5) + D_800B4D64), s16 *, 0x16) = 0;
+            M2C_FIELD(((temp_a0 << 5) + g_StageMeshes), s16 *, 0x16) = 0;
         }
     }
     if ((s16) M2C_FIELD(arg0, u16 *, 0x14) == 1) {
         temp_a0_2 = M2C_FIELD(temp_a1, s16 *, 0xE);
         if (temp_a0_2 >= 0) {
-            M2C_FIELD(((temp_a0_2 << 5) + D_800B4D64), u16 *, 0x16) = 0xFFFF;
+            M2C_FIELD(((temp_a0_2 << 5) + g_StageMeshes), u16 *, 0x16) = 0xFFFF;
         }
         M2C_FIELD(temp_a1, u16 *, 0x18) = (u16) ((M2C_FIELD(temp_a1, u16 *, 0x18) & 0xFFF0) | 2);
     }
@@ -327,7 +327,7 @@ s32 func_8013DA34(void *arg0) {
 }
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013DAFC asm("g_Game");
-extern u8 *D_800B4D64_8013DAFC asm("D_800B4D64");
+extern u8 *D_800B4D64_8013DAFC asm("g_StageMeshes");
 s32 Sound_PlayAt_8013DAFC(s32, void *) asm("Sound_PlayAt");
 s32 func_8013DC70(s32 arg0, s16 arg1);
 
@@ -378,7 +378,7 @@ s32 func_8013DC70(s32 arg0, s16 arg1) {
     if (M2C_FIELD(temp_a2, s16 *, 8) == 0) {
         temp_a0 = M2C_FIELD(temp_v1, s16 *, 0xE);
         if (temp_a0 >= 0) {
-            M2C_FIELD(((temp_a0 << 5) + D_800B4D64), u16 *, 0x16) = 0xFFFF;
+            M2C_FIELD(((temp_a0 << 5) + g_StageMeshes), u16 *, 0x16) = 0xFFFF;
         }
     }
     M2C_FIELD(temp_a2, s16 *, 2) = arg1;
@@ -403,7 +403,7 @@ s32 func_8013DD08(s16 *p) {
         } else {
             M2C_FIELD(e, u16 *, 0x12) |= 0x500;
         }
-        func_8008FC30(p[6], p);
+        Link_Activate(p[6], p);
         p[1] = 2;
     }
     p[3] = 0;
@@ -427,7 +427,7 @@ s32 func_8013DDD8(s16 *p) {
         } else {
             M2C_FIELD(e, u16 *, 0x12) |= 0x500;
         }
-        func_8008FC30(p[6], p);
+        Link_Activate(p[6], p);
         p[1] = 2;
         break;
     case 2:
@@ -437,8 +437,8 @@ s32 func_8013DDD8(s16 *p) {
 }
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013DE90 asm("g_Game");
-extern u8 *D_800B4D64_8013DE90 asm("D_800B4D64");
-s32 func_8008FC30(s16, void *);
+extern u8 *D_800B4D64_8013DE90 asm("g_StageMeshes");
+s32 Link_Activate(s16, void *);
 
 s32 func_8013DE90(s16 *p) {
     u8 *e = g_Game_8013DE90.f_820C + p[2] * 0x38;
@@ -451,7 +451,7 @@ s32 func_8013DE90(s16 *p) {
         M2C_FIELD(e, u16 *, 0x12) = (M2C_FIELD(e, u16 *, 0x12) & 0xF0FF) | 0x500;
     } else {
         p[1] = 2;
-        func_8008FC30(p[6], p);
+        Link_Activate(p[6], p);
         if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
             M2C_FIELD(D_800B4D64_8013DE90 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
         }
@@ -466,7 +466,7 @@ s32 func_8013DE90(s16 *p) {
 }
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013DFAC asm("g_Game");
-extern u8 *D_800B4D64_8013DFAC asm("D_800B4D64");
+extern u8 *D_800B4D64_8013DFAC asm("g_StageMeshes");
 extern struct { u8 pad0[0x24]; s32 x, y, z; } g_Spike_8013DFAC asm("g_Spike");
 
 s32 func_8013DFAC(s16 *p) {
@@ -484,7 +484,7 @@ s32 func_8013DFAC(s16 *p) {
         break;
     case 1:
         if (p[3] >= p[7]) {
-            func_8008FC30(p[6], p);
+            Link_Activate(p[6], p);
         }
         p[3] += 0x20;
         if (p[8] < p[3]) {
@@ -520,7 +520,7 @@ s32 func_8013E170(void *arg0) {
         M2C_FIELD(arg0, s16 *, 2) = 2;
         temp_a1 = M2C_FIELD(temp_a0, s16 *, 0xE);
         if (temp_a1 >= 0) {
-            M2C_FIELD(((temp_a1 << 5) + D_800B4D64), s16 *, 0x16) = 0;
+            M2C_FIELD(((temp_a1 << 5) + g_StageMeshes), s16 *, 0x16) = 0;
         }
         M2C_FIELD(temp_a0, u16 *, 0x18) = (u16) (M2C_FIELD(temp_a0, u16 *, 0x18) | 0x8000);
     }
@@ -528,7 +528,7 @@ s32 func_8013E170(void *arg0) {
 }
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013E208 asm("g_Game");
-extern u8 *D_800B4D64_8013E208 asm("D_800B4D64");
+extern u8 *D_800B4D64_8013E208 asm("g_StageMeshes");
 extern u8 D_8013E980[];
 typedef struct { s16 f0[4]; s16 v[8]; } Ctl_8013E208;
 void Camera_StartShake_8013E208(s32, s32) asm("Camera_StartShake");
@@ -536,9 +536,9 @@ void Fx_DebrisExplosion(s16, s16, s16);
 void Model_BindStageMesh(void *, s32);
 void Pad_Vibrate(s32, s32, s32);
 s32 Sound_PlayAt_8013E208(s32, void *) asm("Sound_PlayAt");
-void func_8006AB10(void);
-void func_800702B0(void *, void *);
-s32 func_80091598(void *, void *);
+void Effect_SpawnAheadOfSpike(void);
+void Rock_SpawnBurst(void *, void *);
+s32 Link_FallToFloor(void *, void *);
 
 s32 func_8013E208(s16 *p) {
     u8 *e = g_Game_8013E208.f_820C + p[2] * 0x38;
@@ -548,7 +548,7 @@ s32 func_8013E208(s16 *p) {
 
     if (p[1] == 0) {
         if (M2C_FIELD(e, s16 *, 0x1E) >= 0) {
-            func_8006AB10();
+            Effect_SpawnAheadOfSpike();
             if (++p[5] < p[6]) {
                 goto tick;
             }
@@ -560,7 +560,7 @@ s32 func_8013E208(s16 *p) {
                 if ((m = M2C_FIELD(e, s16 *, 0xE)) >= 0) {
                     M2C_FIELD(D_800B4D64_8013E208 + m * 32, s16 *, 0x16) = 0;
                     Camera_StartShake_8013E208(2, m);
-                    func_800702B0(e, D_8013E980);
+                    Rock_SpawnBurst(e, D_8013E980);
                     Fx_DebrisExplosion(M2C_FIELD(e, s16 *, 0), M2C_FIELD(e, s16 *, 2), M2C_FIELD(e, s16 *, 4));
                     Sound_PlayAt_8013E208(0x6C, e);
                     Pad_Vibrate(1, 0xA0, 7);
@@ -576,14 +576,14 @@ s32 func_8013E208(s16 *p) {
             }
         } else {
         tick:
-            func_80091598(e, p);
+            Link_FallToFloor(e, p);
         }
     }
     return 0;
 }
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013E3A4 asm("g_Game");
-extern u8 *D_800B4D64_8013E3A4 asm("D_800B4D64");
+extern u8 *D_800B4D64_8013E3A4 asm("g_StageMeshes");
 
 s32 func_8013E3A4(s16 *p) {
     u8 *e = g_Game_8013E3A4.f_820C + p[2] * 0x38;
@@ -626,8 +626,8 @@ s32 func_8013E4A8(void *arg0) {
 
 typedef struct { s16 x, y, z; u8 pad6[6]; s16 n; s16 next; } Node_8013E54C;
 extern struct { u8 pad_0[0x8214]; Node_8013E54C *f_8214; } g_Game_8013E54C asm("g_Game");
-extern u8 *D_800B4D64_8013E54C asm("D_800B4D64");
-s16 func_800889EC(s16 *);
+extern u8 *D_800B4D64_8013E54C asm("g_StageMeshes");
+s16 Box_QuadrantMask(s16 *);
 
 s32 func_8013E54C(s16 *e) {
     Node_8013E54C *n;
@@ -648,7 +648,7 @@ s32 func_8013E54C(s16 *e) {
     e[2] = z;
     e[0] = x;
     e[1] = y;
-    e[0x10] = func_800889EC(e);
+    e[0x10] = Box_QuadrantMask(e);
     e[6]++;
     e[0x19]++;
     if (e[6] >= n->n * 2) {

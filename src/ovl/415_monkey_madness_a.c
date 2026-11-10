@@ -29,8 +29,8 @@ extern s32 D_800EC250;
 s32 SaveByte_Get(s32);
 s32 Overlay_GetState_8013D0FC(void) asm("Overlay_GetState");
 void Overlay_Request(s8);
-s32 func_800863B0(s32, s32);
-s32 func_8008FC30(s16, void *);
+s32 Music_SetVolume(s32, s32);
+s32 Link_Activate(s16, void *);
 
 s32 func_8013D0FC(s16 *p) {
     s32 x;
@@ -60,14 +60,14 @@ s32 func_8013D0FC(s16 *p) {
         p[3] = 0;
         e = g_Game_8013D0FC.f_820C + p[2] * 0x38;
         M2C_FIELD(e, u16 *, 0x18) |= 0x8000;
-        func_800863B0(2, 0x28);
+        Music_SetVolume(2, 0x28);
         Overlay_Request(6);
         return 0;
     case 1:
         if (Overlay_GetState_8013D0FC() != 0) {
             return 0;
         }
-        func_800863B0(0, 0);
+        Music_SetVolume(0, 0);
         p[1] = 3;
         break;
     case 2:
@@ -77,8 +77,8 @@ s32 func_8013D0FC(s16 *p) {
             return 0;
         }
         p[1] = 5;
-        func_8008FC30(p[7], p);
-        func_8008FC30(p[8], p);
+        Link_Activate(p[7], p);
+        Link_Activate(p[8], p);
         break;
     case 5:
         break;
@@ -129,7 +129,7 @@ Shape_8013D388 *CollShape_Alloc(void);
 s32 Collision_Set(s32, void *, void *);
 void Sound_Stop(s32, s32);
 s32 Sound_UpdateVoice3D_8013D388(s32, s32, s32, void *) asm("Sound_UpdateVoice3D");
-void func_8006F274(void *, void *, u16);
+void Fx_DrawLightning(void *, void *, u16);
 
 s32 func_8013D388(s16 *p) {
     SVECTOR a;
@@ -159,8 +159,8 @@ s32 func_8013D388(s16 *p) {
             b.vz = -0x700;
             b.vy = w;
             a.vy = w;
-            func_8006F274(&a, &b, g_Game_8013D388.f_0 * ((g_RandSeed = g_RandSeed * 5 + 1) >> 8));
-            func_8006F274(&a, &b, g_Game_8013D388.f_0 * ((g_RandSeed = g_RandSeed * 5 + 1) >> 8));
+            Fx_DrawLightning(&a, &b, g_Game_8013D388.f_0 * ((g_RandSeed = g_RandSeed * 5 + 1) >> 8));
+            Fx_DrawLightning(&a, &b, g_Game_8013D388.f_0 * ((g_RandSeed = g_RandSeed * 5 + 1) >> 8));
         }
         c.vx = 0xD00;
         c.vy = -0x12E;

@@ -20,7 +20,7 @@ void Stage_GetSpawnPoint(u16, u16, S32x9_80032BBC_80032BBC *);
 s16 Floor_GetHeight(s32, s32, s32);
 void VectorNormalSS(void *, void *);
 void Collision_Set(s32, void *, void *);
-void func_80047754(void);
+void Camera_InitStage(void);
 struct Spike_80032ADC { u8 pad0[0x148]; s16 f_148; u8 f_14A; u8 f_14B; };
 struct D4DE0_80032ADC { u8 pad0[0xA0]; u32 *f_A0; u32 *f_A4; u32 *f_A8; u32 *f_AC; };
 extern Obj_80032ADC_80032ADC *D_800B4D70;
@@ -48,7 +48,7 @@ extern Ter_31B60 D_800EBFA0_31B60 asm("D_800EBFA0");
 extern s32 D_800A8A54;
 extern s32 D_800A8A58;
 extern u16 g_RandSeed;
-extern u16 D_800AE8F2;
+extern u16 g_RandSeed2;
 extern s32 D_800E38E4;
 extern struct { s32 v; } D_800F4DD0_s asm("D_800F4DD0");
 extern u8 D_800E9C60_31B60[][0x20] asm("g_ModelMatrices");
@@ -57,46 +57,46 @@ extern u8 g_ViewMatrix[];
 extern u8 D_800EC330[];
 extern C4_31B60 D_800AE914[];
 extern struct { u32 f_0; } g_GadgetState;
-void func_8008C01C(void);
-void func_8008C058(s32);
+void Mem_Init(void);
+void Mem_SetBumpPtr(s32);
 s16 Stage_GetEra(s32);
 s16 Stage_GetWorld(s32);
 void Matrix_SetIdentity(void *);
-void func_8007AFB8(void);
-void func_800690E8(void *);
+void Gadget_ClearFlags(void);
+void Tex_InitAnims(void *);
 void Zone_SetTable(void *);
-void func_800715A0(void);
-void func_8009B7C8(void *);
-void func_8009B7E4(void *);
-void func_8009B7F0(void *);
+void Tip_ClearAll(void);
+void Overlay_Reset(void *);
+void Overlay_SetDataB(void *);
+void Overlay_SetDataC(void *);
 void Spike_CreateModel(void *, s32);
-void func_8007163C(void *);
-void func_80071694(void *);
-s32 func_80086F00(s32, s32);
-s32 func_80087388(void);
-void func_8008745C(void);
+void Tip_SetMailboxModel(void *);
+void Tip_SetDispenserModel(void *);
+s32 Music_ChangesOnAreaSwitch(s32, s32);
+s32 Music_OpenSeq(void);
+void Music_Play(void);
 void Stage_ApplyFog(void);
 void Light_SetColorMode(s32, s32, s32, s32);
-void func_80086540(void);
+void Sound_StartAmbience(void);
 s32 Stage_InitScenery(void);
 u8 *Grid_BuildHalfResMap(void);
-void func_8007D0F0(void);
-void func_8005CB1C(void);
-void func_8005CC58(void);
-void func_8005CCDC(void);
-void func_8008DEE0(void);
+void DebugMenu_Init(void);
+void DebugMenu_InitMoveConsts(void);
+void DebugMenu_InitColor(void);
+void DebugMenu_InitF4614(void);
+void Msg_Reset(void);
 void Collision_Init(void);
 s32 Spike_SpawnAtStageStart(void);
-void func_8007CD60(void);
-void func_800505C8(void);
+void GuidedAmmo_ClearTargets(void);
+void Object_InitStage(void);
 void Monkey_InitAll(void);
-void func_8007BCB4(void);
+void Gadget_BindHeldModel(void);
 void Projectile_InitAll(void);
 void EnemyShot_InitAll(void);
-void func_80069500(void);
-void func_80088670(void);
+void Effect_ClearAll(void);
+void Platform_InitAll(void);
 void Link_InitArea(void);
-void func_8005AB90(void);
+void Stage_InitSpecial(void);
 void Pickup_SpawnArea(void);
 void Gadget_SetupForMode(void);
 void Tex_MakeFogLevels_31B60(C8_31B60 *, s32, C4_31B60) asm("Tex_MakeFogLevels");
@@ -130,7 +130,7 @@ s32 Stage_Load(s32 stage, s32 mode)
       D_800A8A58 = 1;
       g_Game_31B60.frame = 0;
       g_RandSeed = 12345;
-      D_800AE8F2 = 0xD432;
+      g_RandSeed2 = 0xD432;
       g_Game_31B60.f_8138 = 0;
     }
     else
@@ -146,7 +146,7 @@ s32 Stage_Load(s32 stage, s32 mode)
   {
     g_RandSeed = 12345;
     g_Game_31B60.frame = 0;
-    D_800AE8F2 = 0xD432;
+    g_RandSeed2 = 0xD432;
   }
   if (g_Game_31B60.f_812C == 1)
   {
@@ -156,10 +156,10 @@ s32 Stage_Load(s32 stage, s32 mode)
   {
     g_Game_31B60.f_8100 = 0;
   }
-  func_8008C01C();
+  Mem_Init();
   dir = (u32 *) 0x801544C4;
   dsz = (u32 *) 0x80154504;
-  func_8008C058(D_800E38E4);
+  Mem_SetBumpPtr(D_800E38E4);
   i = 0;
   prev = g_Game_31B60.f_8126;
   g_Game_31B60.f_8194 = (u32 *) (dir[3] + 0x80154000);
@@ -182,11 +182,11 @@ s32 Stage_Load(s32 stage, s32 mode)
 
   Matrix_SetIdentity(g_ViewMatrix);
   Matrix_SetIdentity(D_800EC330);
-  func_8007AFB8();
-  func_800690E8(0);
+  Gadget_ClearFlags();
+  Tex_InitAnims(0);
   Zone_SetTable(0);
-  func_800715A0();
-  func_8009B7C8(0);
+  Tip_ClearAll();
+  Overlay_Reset(0);
   for (i = 0; i < 8; i++)
   {
     type = *((u8 *) (&sd->f_34[i]));
@@ -206,15 +206,15 @@ s32 Stage_Load(s32 stage, s32 mode)
           break;
 
         case 0x20:
-          func_800690E8(sb);
+          Tex_InitAnims(sb);
           break;
 
         case 0x10:
-          func_8007163C(sb);
+          Tip_SetMailboxModel(sb);
           break;
 
         case 0x11:
-          func_80071694(sb);
+          Tip_SetDispenserModel(sb);
           break;
 
         case 0x8:
@@ -222,15 +222,15 @@ s32 Stage_Load(s32 stage, s32 mode)
           break;
 
         case 0x30:
-          func_8009B7C8(sb);
+          Overlay_Reset(sb);
           break;
 
         case 0x31:
-          func_8009B7E4(sb);
+          Overlay_SetDataB(sb);
           break;
 
         case 0x32:
-          func_8009B7F0(sb);
+          Overlay_SetDataC(sb);
           break;
 
       } }
@@ -244,7 +244,7 @@ s32 Stage_Load(s32 stage, s32 mode)
   g_Game_31B60.f_824C = (void *) (dir[9] + 0x80154000);
   g_Game_31B60.f_8240 = (void *) (dir[8] + 0x80154000);
   g_Game_31B60.f_8254 = (void *) 0x80102800;
-  if (func_80086F00(stage, (s16) prev))
+  if (Music_ChangesOnAreaSwitch(stage, (s16) prev))
   {
     dst = g_Game_31B60.f_8230;
     src = (u32 *) (dir[0] + 0x80154000);
@@ -257,13 +257,13 @@ s32 Stage_Load(s32 stage, s32 mode)
     {
       if (((((((((((stage == 0x4B) || (stage == 4)) || (stage == 3)) || (stage == 0x21)) || (stage == 0x22)) || (stage == 0x1E)) || (stage == 0x20)) || (stage == 6)) || (stage == 8)) || (stage == 9)) || (stage == 0xA))
       {
-        func_80087388();
-        func_8008745C();
+        Music_OpenSeq();
+        Music_Play();
       }
       else
         if (stage == 0x48)
       {
-        func_80087388();
+        Music_OpenSeq();
       }
     }
   }
@@ -322,26 +322,26 @@ s32 Stage_Load(s32 stage, s32 mode)
   D_800EBFA0_31B60.f_2C = (D_800EBFA0_31B60.f_28 * 4) + 0x400;
   Stage_ApplyFog();
   Light_SetColorMode(0, 0, 0, 0);
-  func_80086540();
+  Sound_StartAmbience();
   Stage_InitScenery();
   D_800EBFA0_31B60.f_18 = Grid_BuildHalfResMap();
-  func_8007D0F0();
-  func_8005CB1C();
-  func_8005CC58();
-  func_8005CCDC();
-  func_8008DEE0();
+  DebugMenu_Init();
+  DebugMenu_InitMoveConsts();
+  DebugMenu_InitColor();
+  DebugMenu_InitF4614();
+  Msg_Reset();
   Collision_Init();
   Spike_SpawnAtStageStart();
-  func_8007CD60();
-  func_800505C8();
+  GuidedAmmo_ClearTargets();
+  Object_InitStage();
   Monkey_InitAll();
-  func_8007BCB4();
+  Gadget_BindHeldModel();
   Projectile_InitAll();
   EnemyShot_InitAll();
-  func_80069500();
-  func_80088670();
+  Effect_ClearAll();
+  Platform_InitAll();
   Link_InitArea();
-  func_8005AB90();
+  Stage_InitSpecial();
   Pickup_SpawnArea();
   Gadget_SetupForMode();
   if ((*((u16 *) (((u8 *) sd) + 0x2A))) != 0)
@@ -370,7 +370,7 @@ typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_8003244C;
 struct Game_8003244C { u8 pad0[0x8194]; u32 *f_8194; u16 *f_8198; u8 pad819C[0x88]; u8 *f_8224; Place_8003244C *f_8228; u8 pad822C[0x54]; s32 f_8280; };
 extern struct Game_8003244C g_Game_3244C asm("g_Game");
 extern Grid_8003244C D_800EBFA0_3244C asm("D_800EBFA0");
-extern Mdl_8003244C *D_800B4D64;
+extern Mdl_8003244C *g_StageMeshes;
 extern MAT_8003244C g_SceneryMatrices[];
 extern char D_800A48E0[];
 void *Mem_Alloc(s32);
@@ -399,28 +399,28 @@ s32 Stage_InitScenery(void) {
         D_800EBFA0_3244C.f_14 = D_800EBFA0_3244C.f_10 + D_800EBFA0_3244C.f_0 * D_800EBFA0_3244C.f_2 * 8;
     }
     n = 0;
-    D_800B4D64 = Mem_Alloc(g_Game_3244C.f_8280 << 5);
+    g_StageMeshes = Mem_Alloc(g_Game_3244C.f_8280 << 5);
     for (i = 0; i < g_Game_3244C.f_8280; i++) {
-        Model_BindMesh_3244C(&D_800B4D64[i], g_Game_3244C.f_8224 + *(u16 *)(g_Game_3244C.f_8224 + g_Game_3244C.f_8228[i].model * 4 + 4) * 4);
-        D_800B4D64[i].x = g_Game_3244C.f_8228[i].x;
-        x = D_800B4D64[i].x;
-        D_800B4D64[i].y = g_Game_3244C.f_8228[i].y;
-        y = D_800B4D64[i].y;
-        D_800B4D64[i].z = g_Game_3244C.f_8228[i].z;
-        z = D_800B4D64[i].z;
-        k = *(u8 *)D_800B4D64[i].f_0;
+        Model_BindMesh_3244C(&g_StageMeshes[i], g_Game_3244C.f_8224 + *(u16 *)(g_Game_3244C.f_8224 + g_Game_3244C.f_8228[i].model * 4 + 4) * 4);
+        g_StageMeshes[i].x = g_Game_3244C.f_8228[i].x;
+        x = g_StageMeshes[i].x;
+        g_StageMeshes[i].y = g_Game_3244C.f_8228[i].y;
+        y = g_StageMeshes[i].y;
+        g_StageMeshes[i].z = g_Game_3244C.f_8228[i].z;
+        z = g_StageMeshes[i].z;
+        k = *(u8 *)g_StageMeshes[i].f_0;
         if (k < 6) {
             if (k >= 4) {
-                D_800B4D64[i].zone = 0xFFFF;
+                g_StageMeshes[i].zone = 0xFFFF;
                 goto next;
             }
         }
-        D_800B4D64[i].zone = Zone_FindAt(x, y, z, 0);
+        g_StageMeshes[i].zone = Zone_FindAt(x, y, z, 0);
     next:
-        if ((*D_800B4D64[i].f_0 & 0xF) != 3) {
-            D_800B4D64[i].f_1C = g_Game_3244C.f_8228[i].rot;
+        if ((*g_StageMeshes[i].f_0 & 0xF) != 3) {
+            g_StageMeshes[i].f_1C = g_Game_3244C.f_8228[i].rot;
         } else {
-            D_800B4D64[i].f_1C = (s32)&g_SceneryMatrices[n];
+            g_StageMeshes[i].f_1C = (s32)&g_SceneryMatrices[n];
             Matrix_SetIdentity(&g_SceneryMatrices[n]);
             RotMatrixY(g_Game_3244C.f_8228[i].rot, &g_SceneryMatrices[n]);
             n++;
@@ -429,7 +429,7 @@ s32 Stage_InitScenery(void) {
                 bios_exit(1);
             }
         }
-        *D_800B4D64[i].f_0 &= 0xFFFF1FFF;
+        *g_StageMeshes[i].f_0 &= 0xFFFF1FFF;
     }
     return 0;
 }
@@ -611,7 +611,7 @@ s32 Spike_SpawnAtStageStart(void) {
     s->f_60.vy = v.vy;
     s->f_60.vz = v.vz;
     Collision_Set(1, &s->f_24, s);
-    func_80047754();
+    Camera_InitStage();
     return 0;
 }
 

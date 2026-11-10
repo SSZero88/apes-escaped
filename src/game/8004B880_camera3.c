@@ -10,13 +10,13 @@ typedef struct { u8 pad0[3]; u8 f_3; u8 pad4[6]; SVEC_8004CA70 pos; SVEC_8004CA7
 typedef struct { u16 f_0; u16 f_2; u8 pad4[0x2C]; } S_30_8004BD0C;
 
 extern struct S_D_800EC350 { u8 pad0[0x8126]; u16 f_8126; u8 pad8128[2]; u16 f_812A; } g_Game;
-extern s16 D_800B4D88[3];
+extern s16 Fx_SpikeChestPos[3];
 void Game_SetMode(s32, s32, s32);
 void Effect_SpawnAt(s32, s16 *);
 void Pad_Vibrate(s32, s32, s32);
 
-void func_800470CC(u8 *);
-s32 func_800471E4(s32, u8 *);
+void Camera_GetEye(u8 *);
+s32 CameraSlot_Alloc(s32, u8 *);
 void Camera_SetSetting(s32);
 
 extern u16 g_RandSeed;
@@ -24,26 +24,26 @@ extern s32 g_RadarLiveTarget;
 
 extern struct S_D_800EC1E0 { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; u8 pad30[0x30]; SVEC unk60; } g_Spike;
 
-extern s32 D_800B4D40;
-M2C_UNK func_80048748();
+extern s32 g_CameraSlots;
+M2C_UNK Camera_ExitRadarLive();
 s32 Camera_StartEventCam(s32 a, s32 b, s32 c);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 
-extern struct S_D_800E68D0 { u16 f_0; u8 pad_2[0x19]; u8 f_1B; u8 pad_1C[0x14]; s16 f_30; u8 pad_32[0x6]; u8 f_38; u8 pad_39[0x5]; s8 f_3E; u8 pad_3F[0x2]; s8 f_41; u8 pad_42[0xA]; s32 f_4C; s32 f_50; s32 f_54; s32 f_58; s32 f_5C; } D_800E68D0;
+extern struct S_D_800E68D0 { u16 f_0; u8 pad_2[0x19]; u8 f_1B; u8 pad_1C[0x14]; s16 f_30; u8 pad_32[0x6]; u8 f_38; u8 pad_39[0x5]; s8 f_3E; u8 pad_3F[0x2]; s8 f_41; u8 pad_42[0xA]; s32 f_4C; s32 f_50; s32 f_54; s32 f_58; s32 f_5C; } g_CameraState;
 extern s8 g_AfterimageFrames;
 extern s8 D_800AF131;
 extern SVEC D_800E68C0;
-void func_8004B880(s32 a0, s32 mode, SVEC *out);
+void CamPoint_GetBaseDir(s32 a0, s32 mode, SVEC *out);
 struct S_D_800E68D0_8004BD98 { u16 count; u8 pad[0x4A]; Box_8004BD98_8004BD98 *boxes; };
 s32 rcos(s32);
 s32 rsin(s32);
 void VectorNormalSS(void *in, void *out);
-void func_8004B8F4(S_8004B8F4_8004B8F4 *o, s32 mode, SVEC *out);
+void CamPoint_GetLookPoint(S_8004B8F4_8004B8F4 *o, s32 mode, SVEC *out);
 void CamPoint_RunScript(Cam_8004CA70_8004CA70 *o, s32 mode);
 struct S_D_800EC1E0_8004CA70 { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; };
 struct S_D_800E68D0_8004BD0C { u16 f_0; u8 pad2[0x4A]; S_30_8004BD0C *f_4C; };
 
-void func_8004B880(s32 a0, s32 mode, SVEC *out) {
+void CamPoint_GetBaseDir(s32 a0, s32 mode, SVEC *out) {
     switch (mode) {
     case 0:
         *out = g_Spike.unk60;
@@ -61,7 +61,7 @@ void func_8004B880(s32 a0, s32 mode, SVEC *out) {
     }
 }
 
-void func_8004B8F4(S_8004B8F4_8004B8F4 *o, s32 mode, SVEC *out) {
+void CamPoint_GetLookPoint(S_8004B8F4_8004B8F4 *o, s32 mode, SVEC *out) {
     SVEC d;
 
     switch (mode) {
@@ -69,7 +69,7 @@ void func_8004B8F4(S_8004B8F4_8004B8F4 *o, s32 mode, SVEC *out) {
         out->vx = g_Spike.f_24;
         out->vy = g_Spike.f_28 - 0x80;
         out->vz = g_Spike.f_2C;
-        func_8004B880((s32)o, 0, &d);
+        CamPoint_GetBaseDir((s32)o, 0, &d);
         out->vx += (d.vx * o->f_A4) >> 12;
         out->vz += (d.vz * o->f_A4) >> 12;
         out->vy += o->f_A6;
@@ -89,11 +89,11 @@ void CamScript_Event(s32 a) {
     case 2:
         Game_SetMode(0x13, g_Game.f_8126, g_Game.f_812A);
         Camera_StartEventCam(1, 0, 0);
-        D_800E68D0.f_41 = 1;
-        D_800E68D0.f_30 = 0;
+        g_CameraState.f_41 = 1;
+        g_CameraState.f_30 = 0;
         break;
     case 3:
-        Effect_SpawnAt(0x119, D_800B4D88);
+        Effect_SpawnAt(0x119, Fx_SpikeChestPos);
         Pad_Vibrate(1, 0xB4, 9);
         break;
     case 4:
@@ -107,18 +107,18 @@ void CamScript_Event(s32 a) {
 
 
 
-void func_8004BAD8(s32 arg0, s32 arg1, s8 arg2, s32 arg3) {
+void CamPoint_SetScript(s32 arg0, s32 arg1, s8 arg2, s32 arg3) {
     s32 var_v0;
     void *temp_t0;
 
-    temp_t0 = D_800B4D40 + (arg0 * 0xB0);
+    temp_t0 = g_CameraSlots + (arg0 * 0xB0);
     M2C_FIELD(temp_t0, s8 *, 0x8E) = arg2;
     M2C_FIELD(temp_t0, s16 *, 0x8A) = 0;
     M2C_FIELD(temp_t0, s16 *, 0x88) = 0;
     if (arg3 == 0) {
-        var_v0 = D_800E68D0.f_50 + M2C_FIELD(((arg1 * 0x28) + D_800E68D0.f_58), u16 *, 2);
+        var_v0 = g_CameraState.f_50 + M2C_FIELD(((arg1 * 0x28) + g_CameraState.f_58), u16 *, 2);
     } else {
-        var_v0 = D_800E68D0.f_54 + M2C_FIELD(((arg1 * 0x28) + D_800E68D0.f_5C), u16 *, 2);
+        var_v0 = g_CameraState.f_54 + M2C_FIELD(((arg1 * 0x28) + g_CameraState.f_5C), u16 *, 2);
     }
     M2C_FIELD(temp_t0, s32 *, 0x84) = var_v0;
 }
@@ -126,75 +126,75 @@ void func_8004BAD8(s32 arg0, s32 arg1, s8 arg2, s32 arg3) {
 s32 Camera_StartEventCam(s32 a, s32 b, s32 c) {
     u8 buf[8];
     s32 r;
-    func_800470CC(buf);
-    r = func_800471E4(4, buf);
-    func_8004BAD8(r, a, 0, c);
+    Camera_GetEye(buf);
+    r = CameraSlot_Alloc(4, buf);
+    CamPoint_SetScript(r, a, 0, c);
     if (b == 0) {
         Camera_SetSetting(r);
-        D_800E68D0.f_1B = r;
+        g_CameraState.f_1B = r;
     }
     return r;
 }
 
-void func_8004BBF0(void) {
+void Camera_StartEventCam4(void) {
     Camera_StartEventCam(4, 0, 0);
-    D_800E68D0.f_41 = 1;
-    D_800E68D0.f_30 = 0;
-    func_80048748();
-    D_800E68D0.f_3E = 1;
+    g_CameraState.f_41 = 1;
+    g_CameraState.f_30 = 0;
+    Camera_ExitRadarLive();
+    g_CameraState.f_3E = 1;
     g_AfterimageFrames = 0x18;
     Sound_PlayFixed(9);
     Sound_PlayFixed(0xA);
 }
 
-void func_8004BC5C(void) {
+void Camera_StartEventCam1(void) {
     Camera_StartEventCam(1, 0, 0);
-    D_800E68D0.f_41 = 1;
-    D_800E68D0.f_30 = 0;
-    func_80048748();
+    g_CameraState.f_41 = 1;
+    g_CameraState.f_30 = 0;
+    Camera_ExitRadarLive();
 }
 
-void func_8004BC9C(void) {
+void Camera_StartRandomEventCam(void) {
     u16 r;
     Sound_PlayFixed(0x52);
     r = g_RandSeed * 5 + 1;
     g_RandSeed = r;
     Camera_StartEventCam(((r >> 8) & 1) | 2, 0, 0);
-    D_800E68D0.f_41 = 1;
-    D_800E68D0.f_30 = 0;
-    D_800E68D0.f_38 = 0;
+    g_CameraState.f_41 = 1;
+    g_CameraState.f_30 = 0;
+    g_CameraState.f_38 = 0;
     g_RadarLiveTarget = 0;
 }
 
-void func_8004BD0C(void) {
+void Camera_DisableAllZoneBoxes(void) {
     s32 i;
-    S_30_8004BD0C *p = ((struct S_D_800E68D0_8004BD0C *)&D_800E68D0)->f_4C;
-    for (i = 0; i < ((struct S_D_800E68D0_8004BD0C *)&D_800E68D0)->f_0; i++, p++) {
+    S_30_8004BD0C *p = ((struct S_D_800E68D0_8004BD0C *)&g_CameraState)->f_4C;
+    for (i = 0; i < ((struct S_D_800E68D0_8004BD0C *)&g_CameraState)->f_0; i++, p++) {
         p->f_2 |= 0x6000;
     }
 }
 
-void func_8004BD54(s32 arg0) {
+void Camera_DisableZoneBox(s32 arg0) {
     void *temp_v0;
 
-    if ((s32) D_800E68D0.f_0 >= arg0) {
-        temp_v0 = (arg0 * 0x30) + D_800E68D0.f_4C;
+    if ((s32) g_CameraState.f_0 >= arg0) {
+        temp_v0 = (arg0 * 0x30) + g_CameraState.f_4C;
         M2C_FIELD(temp_v0, u16 *, 2) = (u16) (M2C_FIELD(temp_v0, u16 *, 2) | 0x6000);
     }
 }
 
-/* Returns the index of the first box in D_800E68D0's list (0x30-byte records: centre at +4,
+/* Returns the index of the first box in g_CameraState's list (0x30-byte records: centre at +4,
  * size at +0xA) that contains point `p`, skipping boxes disabled by their flags; -1 if none. */
 s32 Zone_FindBoxContaining(V_8004BD98_8004BD98 *p)
 {
   V_8004BD98_8004BD98 c[4];
-  Box_8004BD98_8004BD98 *b = ((struct S_D_800E68D0_8004BD98 *)&D_800E68D0)->boxes;
+  Box_8004BD98_8004BD98 *b = ((struct S_D_800E68D0_8004BD98 *)&g_CameraState)->boxes;
   s32 i;
-  if (((struct S_D_800E68D0_8004BD98 *)&D_800E68D0)->count == 0)
+  if (((struct S_D_800E68D0_8004BD98 *)&g_CameraState)->count == 0)
   {
     return -1;
   }
-  for (i = 0; i < ((struct S_D_800E68D0_8004BD98 *)&D_800E68D0)->count; i++)
+  for (i = 0; i < ((struct S_D_800E68D0_8004BD98 *)&g_CameraState)->count; i++)
   {
     u16 f = b[i].flags;
     s16 x0;
@@ -257,15 +257,15 @@ typedef struct { s16 x, y, z, pad; s16 f_8, f_A, f_C; } P_8004BF20;
 typedef struct { u8 pad0[0xA]; SV_8004BF20 f_A; SV_8004BF20 f_12; u8 pad1A[0x6E]; u16 f_88; u16 f_8A; u8 pad8C[7]; u8 f_93; u8 pad94[0x1C]; } Set_8004BF20;
 typedef struct { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; } Spk_8004BF20;
 typedef struct { u8 pad0[0x8258]; SV_8004BF20 f_8258; SV_8004BF20 f_8260; } Game_8004BF20;
-extern C_8004BF20 D_800E68D0_BF20 asm("D_800E68D0");
+extern C_8004BF20 D_800E68D0_BF20 asm("g_CameraState");
 extern u8 D_800E68DD;
 extern P_8004BF20 D_800E68C0_BF20 asm("D_800E68C0");
-extern Set_8004BF20 *D_800B4D40_BF20 asm("D_800B4D40");
+extern Set_8004BF20 *D_800B4D40_BF20 asm("g_CameraSlots");
 extern Spk_8004BF20 g_Spike_BF20 asm("g_Spike");
 extern Game_8004BF20 g_Game_BF20 asm("g_Game");
 void memset(void *, s32, s32);
 s32 Zone_FindBoxContaining_BF20(SV_8004BF20 *) asm("Zone_FindBoxContaining");
-void func_80047290(s32);
+void CameraSlot_Free(s32);
 void Camera_SelectSetting(void);
 
 void Camera_UpdateZoneBox(void) {
@@ -311,7 +311,7 @@ void Camera_UpdateZoneBox(void) {
             f = bx->f_2;
             c = f & 0xF;
             if (c && ((f & 0x6000) == 0 || (f & 0x6000) == 0x6000)) {
-                func_80047290(c);
+                CameraSlot_Free(c);
             }
             D_800E68D0_BF20.f_1B = 0xFF;
             D_800E68D0_BF20.f_3F = 0;
@@ -326,7 +326,7 @@ void Camera_UpdateZoneBox(void) {
             f = bx->f_2;
             c = f & 0xF;
             if (c && !(f & 0x6000)) {
-                func_80047290(c);
+                CameraSlot_Free(c);
             }
         }
         D_800E68D0_BF20.f_3F = 0;
@@ -367,7 +367,7 @@ void Camera_UpdateZoneBox(void) {
     D_800E68DD = b;
 }
 
-void func_8004C2E4(void *arg0) {
+void CamPoint_Init(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x90) = 0;
     M2C_FIELD(arg0, s8 *, 0x91) = 0;
     M2C_FIELD(arg0, s8 *, 0x92) = 0;
@@ -383,16 +383,16 @@ void func_8004C2E4(void *arg0) {
 typedef struct { u8 pad0[2]; u8 f_2; u8 f_3; u8 pad4[6]; s16 x; s16 y; s16 z; u8 pad10[2]; SVEC tgt; u8 pad1A[0x1E]; s32 f_38; u8 pad3C[4]; s32 f_40; u8 pad44[0x40]; u16 *script; s16 f_88; s16 f_8A; s16 f_8C; u8 pad8E[2]; u8 f_90; u8 f_91; u8 f_92; u8 pad93; SVEC f_94; s16 f_9C; s16 f_9E; s16 f_A0; u8 padA2[2]; s16 f_A4; s16 f_A6; SVEC f_A8; } Cam_4C318;
 typedef struct { u8 pad0[0x34]; s16 f_34; s16 f_36; u8 pad38[7]; u8 f_3F; u8 f_40; } S_E68D0_4C318;
 typedef struct { u8 pad0[0x258]; s16 f_258; u8 pad25A[2]; s16 f_25C; } S_F4350_4C318;
-extern S_E68D0_4C318 D_800E68D0_4C318 asm("D_800E68D0");
+extern S_E68D0_4C318 D_800E68D0_4C318 asm("g_CameraState");
 extern S_F4350_4C318 D_800F4350_4C318 asm("D_800F4350");
 extern SVEC g_CameraTarget_4C318 asm("g_CameraTarget");
-void func_8004B880_4C318(Cam_4C318 *a0, s32 mode, SVEC *out) asm("func_8004B880");
-void func_8004B8F4_4C318(Cam_4C318 *o, s32 mode, SVEC *out) asm("func_8004B8F4");
+void func_8004B880_4C318(Cam_4C318 *a0, s32 mode, SVEC *out) asm("CamPoint_GetBaseDir");
+void func_8004B8F4_4C318(Cam_4C318 *o, s32 mode, SVEC *out) asm("CamPoint_GetLookPoint");
 s32 Math_Atan2(s32, s32);
 void Camera_ResetToStart(void);
 void bios_printf(char *, ...);
 
-void func_8004C318(Cam_4C318 *c) {
+void CamScript_Step(Cam_4C318 *c) {
     SVEC a;
     SVEC d;
     SVEC b;
@@ -535,7 +535,7 @@ void func_8004C318(Cam_4C318 *c) {
             break;
         case 2:
             done = 1;
-            func_80047290(c->f_2);
+            CameraSlot_Free(c->f_2);
             break;
         case 19:
             v = *p++;
@@ -633,7 +633,7 @@ void func_8004C318(Cam_4C318 *c) {
 
 /* Camera point object update (pos +0xA, look +0x12). Runs while the timer +0x88 is non-zero
  * (counting down if positive); a script (+3) is handed to CamPoint_RunScript. Otherwise look comes
- * from func_8004B8F4(+0x91) and the type +0x90 moves pos: 2 also from func_8004B8F4, 5 orbits the
+ * from CamPoint_GetLookPoint(+0x91) and the type +0x90 moves pos: 2 also from CamPoint_GetLookPoint, 5 orbits the
  * look point (radius +0x38 growing by +0x9C, angle +0x40 turning by +0x8C, height by +0x9E), 7
  * drifts by +0x9C/+0x9E/+0xA0, 8 follows Spike a quarter of the way from the base +0xA8 and 9
  * stays at +0xA8 (setting +0x33), both looking half-way towards Spike plus +0x94..+0x98.
@@ -655,11 +655,11 @@ void CamPoint_Update(Cam_8004CA70_8004CA70 *o) {
         CamPoint_RunScript(o, o->f_3);
         return;
     }
-    func_8004B8F4(o, o->f_91, &look);
+    CamPoint_GetLookPoint(o, o->f_91, &look);
     pos = o->pos;
     switch (o->f_90) {
     case 2:
-        func_8004B8F4(o, o->f_91, &pos);
+        CamPoint_GetLookPoint(o, o->f_91, &pos);
         break;
     case 7:
         pos.vx += o->f_9C;
@@ -709,7 +709,7 @@ void CamPoint_Update(Cam_8004CA70_8004CA70 *o) {
 
 
 
-void func_8004CEA8(s8 arg0) {
+void Screen_SetAfterimage(s8 arg0) {
     g_AfterimageFrames = arg0;
 }
 

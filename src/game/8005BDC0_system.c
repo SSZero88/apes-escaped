@@ -43,6 +43,6 @@ int main(void) {
     return 0;
 }
 
-s32 func_8005BEE4(void) {
+s32 System_Nop(void) {
     return 0;
 }

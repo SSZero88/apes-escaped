@@ -3,54 +3,54 @@
 
 void Msg_Update(void);
 void Msg_DrawWindow(void);
-extern struct S_D_800F5A00 { u8 f_0; u8 pad_1[0x1]; u16 f_2; u32 f_4; u32 f_8; u8 pad_C[0x4]; s16 f_10; s16 f_12; s16 f_14; s8 f_16; } D_800F5A00;
+extern struct S_D_800F5A00 { u8 f_0; u8 pad_1[0x1]; u16 f_2; u32 f_4; u32 f_8; u8 pad_C[0x4]; s16 f_10; s16 f_12; s16 f_14; s8 f_16; } g_MsgBox;
 
 M2C_UNK Msg_PutChar(u16, u16, M2C_UNK);
 u32 Msg_ReadChar(u32, u16 *);
-M2C_UNK func_8008DDB0(M2C_UNK, M2C_UNK);
+M2C_UNK Msg_SetPos(M2C_UNK, M2C_UNK);
 
 
-void func_8008DEE0(void) {
-    D_800F5A00.f_0 = 0;
+void Msg_Reset(void) {
+    g_MsgBox.f_0 = 0;
 }
 
-void func_8008DEEC(void) {
-    D_800F5A00.f_16 = 0;
-    D_800F5A00.f_0 = 1;
-    D_800F5A00.f_2 = 0x1F0;
-    D_800F5A00.f_10 = 0x80;
-    D_800F5A00.f_12 = 1;
-    D_800F5A00.f_14 = 0;
+void Msg_Open(void) {
+    g_MsgBox.f_16 = 0;
+    g_MsgBox.f_0 = 1;
+    g_MsgBox.f_2 = 0x1F0;
+    g_MsgBox.f_10 = 0x80;
+    g_MsgBox.f_12 = 1;
+    g_MsgBox.f_14 = 0;
 }
 
-void func_8008DF20(s32 arg0) {
-    D_800F5A00.f_16 = 1;
-    D_800F5A00.f_4 = arg0;
-    D_800F5A00.f_8 = arg0;
+void Msg_SetText(s32 arg0) {
+    g_MsgBox.f_16 = 1;
+    g_MsgBox.f_4 = arg0;
+    g_MsgBox.f_8 = arg0;
 }
 
-u8 func_8008DF3C(void) {
-    return D_800F5A00.f_0;
+u8 Msg_IsOpen(void) {
+    return g_MsgBox.f_0;
 }
 
-void func_8008DF4C(void) {
-    if (D_800F5A00.f_0 != 0) {
+void Msg_Frame(void) {
+    if (g_MsgBox.f_0 != 0) {
         Msg_Update();
         Msg_DrawWindow();
     }
 }
 
-void func_8008DF80(void)
+void Msg_DrawPage(void)
 {
   unsigned int sp10;
   s32 var_v0;
   long temp_s1;
   u32 temp_s2;
   u32 var_s0;
-  func_8008DDB0(0x20, 0x28);
-  var_s0 = D_800F5A00.f_8;
-  temp_s2 = D_800F5A00.f_4;
-  temp_s1 = D_800F5A00.f_2;
+  Msg_SetPos(0x20, 0x28);
+  var_s0 = g_MsgBox.f_8;
+  temp_s2 = g_MsgBox.f_4;
+  temp_s1 = g_MsgBox.f_2;
   ;
   loop_1:
   if ((var_s0 < temp_s2) != 0)
@@ -64,7 +64,7 @@ void func_8008DF80(void)
 }
 
 typedef struct { u8 state; u8 blink; u16 pal; u8 *p; u8 *page; u8 padC[4]; u16 t; u16 wait; u16 last; s8 f_16; } MsgSt_8DFFC;
-#define MS (*(MsgSt_8DFFC *)&D_800F5A00)
+#define MS (*(MsgSt_8DFFC *)&g_MsgBox)
 extern struct S_D_800E5320_8DFFC { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad;
 void Sound_PlayFixed(s32);
 
@@ -80,11 +80,11 @@ void Msg_Update(void) {
     if (MS.state == 1 || MS.state == 5) {
         return;
     }
-    func_8008DF80();
+    Msg_DrawPage();
     st = MS.state;
     ok = (g_Pad.f_158 & g_Pad.f_160 & 0xEA) != 0;
     if (st == 4) {
-        func_8008DDB0(0xB8, 0xA0);
+        Msg_SetPos(0xB8, 0xA0);
         Msg_PutChar(0x104, 0x1F0, 1);
         if (MS.state == st && ok) {
             goto close;
@@ -100,7 +100,7 @@ close:
     m = &MS;
     if (MS.state == 3) {
         if (!(++m->blink & 8)) {
-            func_8008DDB0(0xB8, 0xA0);
+            Msg_SetPos(0xB8, 0xA0);
             Msg_PutChar(0x104, 0x1F0, 1);
         }
         if (ok) {
@@ -157,7 +157,7 @@ scan:
 
 extern u8 g_Game[];
 typedef struct { u8 state; u8 pad1[0xF]; u16 t; u8 pad12[4]; u8 f_16; } MsgWin_8E23C;
-#define MW_8E23C (*(MsgWin_8E23C *)&D_800F5A00)
+#define MW_8E23C (*(MsgWin_8E23C *)&g_MsgBox)
 typedef struct { u32 addr : 24; u32 len : 8; } P_TAG_8E23C;
 typedef struct { P_TAG_8E23C tag; u32 tpage; u32 rgbc; u32 xy; u32 uvclut; u32 wh; } SprtTp_8E23C;
 typedef struct { P_TAG_8E23C tag; u32 tpage; u32 c0; u32 xy0; u32 c1; u32 xy1; } LineG2Tp_8E23C;
@@ -166,7 +166,7 @@ typedef struct { P_TAG_8E23C tag; u32 tpage; u32 c0; u32 xy0; u32 c1; u32 xy1; u
     (p)->tag.addr = ((P_TAG_8E23C *)ot)->addr; \
     ((P_TAG_8E23C *)ot)->addr = (u32)(p);
 
-/* Message window: state D_800F5A00 slides it in (1) and out (5) from the left as its timer +0x10
+/* Message window: state g_MsgBox slides it in (1) and out (5) from the left as its timer +0x10
    halves each frame; draws the animated top and bottom border tiles, seven gradient line stripes
    and the gradient background */
 void Msg_DrawWindow(void) {

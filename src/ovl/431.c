@@ -78,11 +78,11 @@ s32 func_80136000(void) {
 }
 
 extern GameDraw g_Game_801362B8 asm("g_Game");
-extern u8 *D_800EC354_801362B8 asm("D_800EC354");
+extern u8 *D_800EC354_801362B8 asm("g_GamePrim");
 extern u8 D_80136D18[12][0x20];
 s32 Text_GetWidth2(u8 *);
-void func_8008DDB0(s16, s16);
-void func_8008DDC8(u8 *);
+void Msg_SetPos(s16, s16);
+void Msg_DrawString(u8 *);
 
 s32 func_801362B8(void) {
     u8 *p = g_Game_801362B8.prim;
@@ -92,53 +92,53 @@ s32 func_801362B8(void) {
     s32 w0, w1, w2;
 
     if (D_80136CF0 == 0) {
-        func_8008DDB0(0x28, 0x46);
-        func_8008DDC8(D_80136D18[0]);
+        Msg_SetPos(0x28, 0x46);
+        Msg_DrawString(D_80136D18[0]);
         w0 = Text_GetWidth2(D_80136D18[0]);
         x = w0 + 0x30;
-        func_8008DDB0(x, 0x46);
-        func_8008DDC8(D_80136D18[1]);
+        Msg_SetPos(x, 0x46);
+        Msg_DrawString(D_80136D18[1]);
         t = Text_GetWidth2(D_80136D18[1]);
         w0 += 0x38;
         x = w0 + t;
-        func_8008DDB0(x, 0x46);
-        func_8008DDC8(D_80136D18[2]);
+        Msg_SetPos(x, 0x46);
+        Msg_DrawString(D_80136D18[2]);
         t = Text_GetWidth2(D_80136D18[2]);
         x += 8 + t;
-        func_8008DDB0(x, 0x46);
-        func_8008DDC8(D_80136D18[3]);
+        Msg_SetPos(x, 0x46);
+        Msg_DrawString(D_80136D18[3]);
 
-        func_8008DDB0(0x28, 0x5A);
-        func_8008DDC8(D_80136D18[4]);
+        Msg_SetPos(0x28, 0x5A);
+        Msg_DrawString(D_80136D18[4]);
         w1 = Text_GetWidth2(D_80136D18[4]);
         x = w1 + 0x30;
-        func_8008DDB0(x, 0x5A);
-        func_8008DDC8(D_80136D18[5]);
+        Msg_SetPos(x, 0x5A);
+        Msg_DrawString(D_80136D18[5]);
         t = Text_GetWidth2(D_80136D18[5]);
         w1 += 0x38;
         x = w1 + t;
-        func_8008DDB0(x, 0x5A);
-        func_8008DDC8(D_80136D18[6]);
+        Msg_SetPos(x, 0x5A);
+        Msg_DrawString(D_80136D18[6]);
         t = Text_GetWidth2(D_80136D18[6]);
         x += 8 + t;
-        func_8008DDB0(x, 0x5A);
-        func_8008DDC8(D_80136D18[7]);
+        Msg_SetPos(x, 0x5A);
+        Msg_DrawString(D_80136D18[7]);
 
-        func_8008DDB0(0x28, 0x6E);
-        func_8008DDC8(D_80136D18[8]);
+        Msg_SetPos(0x28, 0x6E);
+        Msg_DrawString(D_80136D18[8]);
         w2 = Text_GetWidth2(D_80136D18[8]);
         x = w2 + 0x30;
-        func_8008DDB0(x, 0x6E);
-        func_8008DDC8(D_80136D18[9]);
+        Msg_SetPos(x, 0x6E);
+        Msg_DrawString(D_80136D18[9]);
         t = Text_GetWidth2(D_80136D18[9]);
         w2 += 0x38;
         x = w2 + t;
-        func_8008DDB0(x, 0x6E);
-        func_8008DDC8(D_80136D18[10]);
+        Msg_SetPos(x, 0x6E);
+        Msg_DrawString(D_80136D18[10]);
         t = Text_GetWidth2(D_80136D18[10]);
         x += 0xC + t;
-        func_8008DDB0(x, 0x6E);
-        func_8008DDC8(D_80136D18[11]);
+        Msg_SetPos(x, 0x6E);
+        Msg_DrawString(D_80136D18[11]);
 
         p = g_Game_801362B8.prim;
         M2C_FIELD(p, u32 *, 4) = 0x808080;
@@ -350,7 +350,7 @@ s32 func_80136AFC(void) {
     return 0;
 }
 
-extern u8 *D_800EC354_80136BF4 asm("D_800EC354");
+extern u8 *D_800EC354_80136BF4 asm("g_GamePrim");
 extern u8 D_80136E98[];
 void SetDrawTPage(void *, s32, s32, s32);
 

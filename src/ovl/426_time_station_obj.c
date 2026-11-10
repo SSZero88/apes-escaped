@@ -1,13 +1,13 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-M2C_UNK func_8008FC30(s16, void *);
+M2C_UNK Link_Activate(s16, void *);
 extern struct S_g_Game { u8 pad_0[0x8160]; u16 f_8160; u8 pad_8162[0xAA]; s32 f_820C; } g_Game;
 s32 func_800978E0(s16);
 
 M2C_UNK Model_BindStageMesh(s32, s16);
 M2C_UNK Stage_CountCaughtMonkeys(s32 *);
-extern s32 D_800B4D64;
+extern s32 g_StageMeshes;
 M2C_UNK Collision_Set(M2C_UNK, void *, M2C_UNK *);
 extern struct S_D_8013DCE0 { u8 pad_0[0x24]; s32 f_24; s32 f_28; s32 f_2C; s32 f_30; s32 f_34; s32 f_38; u8 pad_3C[0x8]; s16 f_44; s16 f_46; s16 f_48; s16 f_4A; u8 pad_4C[0x14]; s16 f_60; s16 f_62; s16 f_64; } D_8013DCE0;
 s32 SpecterCoin_Count();
@@ -23,7 +23,7 @@ s32 func_8013D000(void *arg0) {
         if (M2C_FIELD(arg0, s16 *, 8) > 0) {
             do {
                 if (var_s0 < sp10) {
-                    Model_BindStageMesh(D_800B4D64 + ((M2C_FIELD(arg0, s16 *, 0xC) + var_s0) << 5), M2C_FIELD(arg0, s16 *, 0xE));
+                    Model_BindStageMesh(g_StageMeshes + ((M2C_FIELD(arg0, s16 *, 0xC) + var_s0) << 5), M2C_FIELD(arg0, s16 *, 0xE));
                 }
                 var_s0 += 1;
             } while (var_s0 < M2C_FIELD(arg0, s16 *, 8));
@@ -33,7 +33,7 @@ s32 func_8013D000(void *arg0) {
 }
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013D0B4 asm("g_Game");
-extern u8 *D_800B4D64_8013D0B4 asm("D_800B4D64");
+extern u8 *D_800B4D64_8013D0B4 asm("g_StageMeshes");
 
 s32 func_8013D0B4(s16 *p) {
     u8 *e;
@@ -55,7 +55,7 @@ s32 func_8013D0B4(s16 *p) {
 }
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013D158 asm("g_Game");
-extern u8 *D_800B4D64_8013D158 asm("D_800B4D64");
+extern u8 *D_800B4D64_8013D158 asm("g_StageMeshes");
 
 s32 func_8013D158(s16 *p) {
     u8 *e = g_Game_8013D158.f_820C + p[2] * 0x38;
@@ -77,7 +77,7 @@ typedef struct { s16 x, y, z; u8 pad6[8]; s16 f_E; u8 pad10[8]; u16 flags; u8 pa
 typedef struct { u8 pad0[2]; s16 f_2; u8 pad4[0x14]; } Coll_8013D208;
 typedef struct { u8 pad0[0x16]; u16 f_16; u8 pad18[8]; } Mesh_8013D208;
 extern struct { u32 frame; u8 pad_4[0x8208]; Ent_8013D208 *f_820C; u8 pad_8210[0x10]; Coll_8013D208 *f_8220; } g_Game_8013D208 asm("g_Game");
-extern Mesh_8013D208 *D_800B4D64_8013D208 asm("D_800B4D64");
+extern Mesh_8013D208 *D_800B4D64_8013D208 asm("g_StageMeshes");
 extern u16 g_RandSeed;
 void Camera_StartShake(s32);
 s32 Cd_PlayXaTrack(s32);
@@ -242,14 +242,14 @@ s32 func_8013D7E8(s16 *p) {
         }
     }
     if (n == 3) {
-        func_8008FC30(p[5], p);
+        Link_Activate(p[5], p);
     }
     return 0;
 }
 
 s32 func_8013D8A8(void *arg0) {
     if ((s32) g_Game.f_8160 >= M2C_FIELD(arg0, s16 *, 0xA)) {
-        func_8008FC30(M2C_FIELD(arg0, s16 *, 8), arg0);
+        Link_Activate(M2C_FIELD(arg0, s16 *, 8), arg0);
     }
     return 0;
 }
@@ -265,9 +265,9 @@ s32 func_8013D8F8(void *arg0) {
     D_8013DCE0.f_60 = 0x1000;
     D_8013DCE0.f_62 = 0;
     D_8013DCE0.f_64 = 0;
-    D_8013DCE0.f_24 = (s32) M2C_FIELD(((M2C_FIELD(arg0, s16 *, 0xC) << 5) + D_800B4D64), s16 *, 0x10);
-    D_8013DCE0.f_28 = (s32) M2C_FIELD(((M2C_FIELD(arg0, s16 *, 0xC) << 5) + D_800B4D64), s16 *, 0x12);
-    D_8013DCE0.f_2C = (s32) M2C_FIELD(((M2C_FIELD(arg0, s16 *, 0xC) << 5) + D_800B4D64), s16 *, 0x14);
+    D_8013DCE0.f_24 = (s32) M2C_FIELD(((M2C_FIELD(arg0, s16 *, 0xC) << 5) + g_StageMeshes), s16 *, 0x10);
+    D_8013DCE0.f_28 = (s32) M2C_FIELD(((M2C_FIELD(arg0, s16 *, 0xC) << 5) + g_StageMeshes), s16 *, 0x12);
+    D_8013DCE0.f_2C = (s32) M2C_FIELD(((M2C_FIELD(arg0, s16 *, 0xC) << 5) + g_StageMeshes), s16 *, 0x14);
     Collision_Set(3, (void *)((u8 *)&D_8013DCE0 + 0x24), &D_8013DCE0);
     M2C_FIELD(arg0, s16 *, 2) = 0;
     M2C_FIELD(arg0, s16 *, 6) = 0;
@@ -277,16 +277,16 @@ s32 func_8013D8F8(void *arg0) {
 }
 
 extern struct { u8 pad_0[0x24]; s32 f_24; s32 f_28; s32 f_2C; u8 pad_30[0x20]; u32 f_50; } D_8013DCE0_8013D9D4 asm("D_8013DCE0");
-extern struct { u8 pad_0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } D_800F50B0;
-extern u8 *D_800B4D64_8013D9D4 asm("D_800B4D64");
+extern struct { u8 pad_0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } Gadget_HeldModel;
+extern u8 *D_800B4D64_8013D9D4 asm("g_StageMeshes");
 
 s32 func_8013D9D4(s16 *p) {
-    D_800F50B0.f_24 = D_8013DCE0_8013D9D4.f_24;
-    D_800F50B0.f_28 = D_8013DCE0_8013D9D4.f_28;
-    D_800F50B0.f_2C = D_8013DCE0_8013D9D4.f_2C;
+    Gadget_HeldModel.f_24 = D_8013DCE0_8013D9D4.f_24;
+    Gadget_HeldModel.f_28 = D_8013DCE0_8013D9D4.f_28;
+    Gadget_HeldModel.f_2C = D_8013DCE0_8013D9D4.f_2C;
     if (p[1] == 0) {
         if ((D_8013DCE0_8013D9D4.f_50 >> 28) == 8) {
-            func_8008FC30(p[4], p);
+            Link_Activate(p[4], p);
             Collision_Remove((s32)&D_8013DCE0_8013D9D4.f_24);
             M2C_FIELD(D_800B4D64_8013D9D4 + p[6] * 32, s16 *, 0x16) = 0;
             p[1] = 1;
@@ -314,66 +314,66 @@ s32 func_8013D9D4(s16 *p) {
 __asm__(".section .text\n.balign 16");
 
 /* object type tables for the Time Station areas: {init, update, ?} triples, zero-terminated */
-s32 func_8008EF60();
+s32 LiftDoor_Init();
 s32 LiftDoor_Update();
-s32 func_800905A4();
+s32 PressurePlate_Init();
 s32 Link_UpdatePressurePlate();
-s32 func_80090EC0();
-s32 func_80091060();
+s32 Switch_Init();
+s32 Mailbox_Init();
 s32 Mailbox_Update();
 s32 Link_ToggleSwitch();
-s32 func_80090500();
-s32 func_80091704();
-s32 func_8009176C();
-s32 func_80091358();
-s32 func_800913EC();
+s32 HitSwitch_Update();
+s32 CounterLink_Init();
+s32 CounterLink_Update();
+s32 HitCounter_Init();
+s32 HitCounter_Update();
 void *D_8013DB30[24] = {
-    func_8008EF60, LiftDoor_Update, 0,
+    LiftDoor_Init, LiftDoor_Update, 0,
     func_8013D5C0, func_8013D7E8, 0,
-    func_800905A4, Link_UpdatePressurePlate, 0,
-    func_80090EC0, func_8013D0B4, 0,
+    PressurePlate_Init, Link_UpdatePressurePlate, 0,
+    Switch_Init, func_8013D0B4, 0,
     func_8013D158, func_8013D208, 0,
     func_8013D000, func_8013D000, 0,
-    func_80091060, Mailbox_Update, 0,
+    Mailbox_Init, Mailbox_Update, 0,
     0, 0, 0,
 };
 void *D_8013DB90[15] = {
-    func_8008EF60, LiftDoor_Update, 0,
-    Link_ToggleSwitch, func_80090500, 0,
-    func_80091060, Mailbox_Update, 0,
-    func_80090EC0, func_8013D8A8, 0,
+    LiftDoor_Init, LiftDoor_Update, 0,
+    Link_ToggleSwitch, HitSwitch_Update, 0,
+    Mailbox_Init, Mailbox_Update, 0,
+    Switch_Init, func_8013D8A8, 0,
     0, 0, 0,
 };
 void *D_8013DBCC[15] = {
-    func_8008EF60, LiftDoor_Update, 0,
-    func_800905A4, Link_UpdatePressurePlate, 0,
-    func_80090EC0, func_8013D8A8, 0,
-    func_80091060, Mailbox_Update, 0,
+    LiftDoor_Init, LiftDoor_Update, 0,
+    PressurePlate_Init, Link_UpdatePressurePlate, 0,
+    Switch_Init, func_8013D8A8, 0,
+    Mailbox_Init, Mailbox_Update, 0,
     0, 0, 0,
 };
 void *D_8013DC08[18] = {
-    func_8008EF60, LiftDoor_Update, 0,
-    func_80091704, func_8009176C, 0,
-    Link_ToggleSwitch, func_80090500, 0,
-    func_80091358, func_800913EC, 0,
-    func_80091060, Mailbox_Update, 0,
+    LiftDoor_Init, LiftDoor_Update, 0,
+    CounterLink_Init, CounterLink_Update, 0,
+    Link_ToggleSwitch, HitSwitch_Update, 0,
+    HitCounter_Init, HitCounter_Update, 0,
+    Mailbox_Init, Mailbox_Update, 0,
     0, 0, 0,
 };
 void *D_8013DC50[9] = {
-    func_8008EF60, LiftDoor_Update, 0,
-    func_80091060, Mailbox_Update, 0,
+    LiftDoor_Init, LiftDoor_Update, 0,
+    Mailbox_Init, Mailbox_Update, 0,
     0, 0, 0,
 };
 void *D_8013DC74[12] = {
-    func_8008EF60, LiftDoor_Update, 0,
-    func_800905A4, Link_UpdatePressurePlate, 0,
-    func_80091060, Mailbox_Update, 0,
+    LiftDoor_Init, LiftDoor_Update, 0,
+    PressurePlate_Init, Link_UpdatePressurePlate, 0,
+    Mailbox_Init, Mailbox_Update, 0,
     0, 0, 0,
 };
 void *D_8013DCA4[12] = {
-    func_8008EF60, LiftDoor_Update, 0,
+    LiftDoor_Init, LiftDoor_Update, 0,
     func_8013D8F8, func_8013D9D4, 0,
-    func_80091060, Mailbox_Update, 0,
+    Mailbox_Init, Mailbox_Update, 0,
     0, 0, 0,
 };
 __asm__("\t.balign 16");  /* GCC is still emitting .data here */

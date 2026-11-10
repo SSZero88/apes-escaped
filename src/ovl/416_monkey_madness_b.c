@@ -1,14 +1,14 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-extern s32 D_800B4D64;
+extern s32 g_StageMeshes;
 extern struct S_g_Game { u8 pad_0[0x8154]; u16 f_8154; u8 pad_8156[0xB6]; s32 f_820C; } g_Game;
 M2C_UNK Pickup_Drop(M2C_UNK, s32, M2C_UNK, M2C_UNK);
 extern u8 D_800F51C1;
 extern u16 g_RandSeed;
 extern s16 g_SpikeHealth;
 M2C_UNK Effect_Spawn(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK);
-extern M2C_UNK D_800B4D88;
+extern M2C_UNK Fx_SpikeChestPos;
 extern M2C_UNK D_80141640;
 extern struct S_D_80141880 { u8 pad_0[0x2]; u16 f_2; s16 f_4; u8 pad_6[0x2]; s16 f_8; u8 pad_A[0x6]; s32 f_10; s32 f_14; } D_80141880;
 extern struct S_g_Spike { u8 pad_0[0x2C]; s32 f_2C; s32 f_30; u8 pad_34[0x4]; s32 f_38; } g_Spike;
@@ -476,8 +476,8 @@ s32 Sound_PlayFixed_8013E2BC(s32) asm("Sound_PlayFixed");
 s32 VectorNormalSS_8013E2BC(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
 void Collision_Set_8013E2BC(s32, void *, void *) asm("Collision_Set");
 void Collision_Remove_8013E2BC(void *) asm("Collision_Remove");
-void func_8007CD88_8013E2BC(void *) asm("func_8007CD88");
-void func_8007CDC4_8013E2BC(void *) asm("func_8007CDC4");
+void func_8007CD88_8013E2BC(void *) asm("GuidedAmmo_AddTarget");
+void func_8007CDC4_8013E2BC(void *) asm("GuidedAmmo_RemoveTarget");
 void Puff_Spawn_8013E2BC(void *, s32, s32, s32) asm("Puff_Spawn");
 void func_8013D890(void *arg0, s32 arg1, s32 arg2, s16 arg3);
 s32 func_8013D63C(u8 *a, void *scale, s32 c);
@@ -828,7 +828,7 @@ void func_8013F0E0(void) {
         }
         D_80141880.f_4 = (s16) ((s32) (D_80141880.f_4 * 7) / 8);
         D_80141880.f_8 = (s16) ((s32) (D_80141880.f_8 * 7) / 8);
-        Effect_Spawn(0xCE, &D_800B4D88, &D_80141640, 0);
+        Effect_Spawn(0xCE, &Fx_SpikeChestPos, &D_80141640, 0);
     }
 }
 
@@ -842,9 +842,9 @@ extern s8 g_CurrentGadget;
 extern u8 D_800E6916;
 void Camera_ResetToStart(void);
 s32 Sound_PlayFixed_8013F1AC(s32) asm("Sound_PlayFixed");
-void func_8004AF78(void *);
-void func_80047464(void *, s32, s32, s32);
-void func_80047558(void *, s32, s32, s32);
+void Camera_DrawAimReticle(void *);
+void Camera_EaseEye(void *, s32, s32, s32);
+void Camera_EaseLookAt(void *, s32, s32, s32);
 
 s32 func_8013F1AC(void *cam) {
     Scr_8013F1AC *sc = (Scr_8013F1AC *)0x1F800000;
@@ -905,10 +905,10 @@ s32 func_8013F1AC(void *cam) {
     }
     sc->at.vx = sc->at.vx < 0x80 ? 0x80 : (sc->at.vx > 0xB80 ? 0xB80 : sc->at.vx);
     if (g_CurrentGadget == 3 && D_800E6916 != 1) {
-        func_8004AF78(cam);
+        Camera_DrawAimReticle(cam);
     }
-    func_80047558(cam, 8, 0x18, 0x10);
-    func_80047464(cam, 8, 0x18, 8);
+    Camera_EaseLookAt(cam, 8, 0x18, 0x10);
+    Camera_EaseEye(cam, 8, 0x18, 8);
     return 1;
 }
 
@@ -1052,7 +1052,7 @@ extern s32 D_8014188C;
 extern s32 D_80141890;
 extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013FA2C asm("g_Spike");
 extern u8 D_80141640_8013FA2C[] asm("D_80141640");
-extern u8 D_800B4D88_8013FA2C[] asm("D_800B4D88");
+extern u8 D_800B4D88_8013FA2C[] asm("Fx_SpikeChestPos");
 extern u8 D_80141660[];
 extern u8 D_801416B4[];
 extern u8 D_80141708[];
@@ -1063,15 +1063,15 @@ extern struct { s32 x, y, z; } D_800EC204_8013FA2C asm("D_800EC204");
 void Effect_Spawn_8013FA2C(s32, void *, void *, s32) asm("Effect_Spawn");
 s32 Sound_PlayFixed_8013FA2C(s32) asm("Sound_PlayFixed");
 void Fx_SpawnFadeRing_8013FA2C(void *, s32, s32, s32) asm("Fx_SpawnFadeRing");
-void func_80070284_8013FA2C(void *, void *, s32, s32, void *) asm("func_80070284");
-void func_8006F3D0_8013FA2C(void *, s32, void *, s32) asm("func_8006F3D0");
+void func_80070284_8013FA2C(void *, void *, s32, s32, void *) asm("Shockwave_Spawn");
+void func_8006F3D0_8013FA2C(void *, s32, void *, s32) asm("Fx_DrawRibbon");
 void Fx_DebrisExplosion_8013FA2C(s32, s32, s32) asm("Fx_DebrisExplosion");
 void Fx_GroundBlast_8013FA2C(s16, s16, s16) asm("Fx_GroundBlast");
 Shape_8013FA2C *Collision_GetShape_8013FA2C(s32) asm("Collision_GetShape");
 s32 Collision_GetId_8013FA2C(s32) asm("Collision_GetId");
 void Collision_Remove_8013FA2C(void *) asm("Collision_Remove");
 void Spike_SetPlayMode_8013FA2C(s32) asm("Spike_SetPlayMode");
-void func_8006D548_8013FA2C(void *) asm("func_8006D548");
+void func_8006D548_8013FA2C(void *) asm("Dust_SpawnDrift");
 void func_8004637C_8013FA2C(void *) asm("Matrix_SetIdentity");
 void *RotMatrixY_8013FA2C(s32, void *) asm("RotMatrixY");
 void *ApplyMatrixSV_8013FA2C(void *, void *, void *) asm("ApplyMatrixSV");

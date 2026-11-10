@@ -9,7 +9,7 @@ typedef struct { u32 frame; u8 pad4[8]; s32 cur; Db_9A574_8009A574 db[2]; } Game
 extern struct S_D_800EC1E0 { u8 pad_0[0x60]; SVECTOR f_60; } g_Spike;
 extern struct S_D_800F5120 { u8 pad_0[0x4]; SVECTOR f_4; s32 f_C; s32 f_10; s16 f_14; s16 f_16; s32 f_18; s32 f_1C; } g_GadgetState;
 
-void func_8007CD0C(s32);
+void Gadget_SetHeldVariant(s32);
 void Radar_DrawModel();
 extern u16 D_800EC23E;
 extern Game_9A574_8009A574 g_Game;
@@ -29,7 +29,7 @@ void Matrix_FromFacingXZ(SV_9A574_8009A574 *, struct S_D_800E78C0 *);
 void memset(void *, s32, s32);
 void ScaleMatrix(struct S_D_800E78C0 *, VEC_9A574_8009A574 *);
 
-void func_80099D20(void) {
+void Radar_ResetScan(void) {
     g_GadgetState.f_4 = g_Spike.f_60;
     g_GadgetState.f_C = 0;
     g_GadgetState.f_10 = 0;
@@ -52,19 +52,19 @@ extern u8 D_800E9E40[];
 extern u8 D_800F4910[];
 extern Mdl_99D70 D_800EC170;
 extern SVECTOR D_800EC240;
-s32 func_8007CA48(s32);
-void func_80066C90(SVECTOR *, SVECTOR *, s32);
+s32 Spike_CanUseGadget(s32);
+void Dir_TurnTowardMax(SVECTOR *, SVECTOR *, s32);
 s32 Radar_GetSignal(void);
-void func_8009A4E8(s32, s32, s32, s32);
+void Radar_DrawHeld(s32, s32, s32, s32);
 void Model_SetFlatColor(Mdl_99D70 *, s32, s32, s32, s32);
 void Model_DrawPrims(u32 *, void *, u8 *);
 void Sound_Stop(s32, s32);
 s16 Sound_Play(s32, s32);
-void func_80087C28(s32, s32, s32);
+void Sound_SetVoicePitch(s32, s32, s32);
 void Pad_Vibrate(s32, s32, s32);
-s32 func_8009A17C(void *);
+s32 Monkey_IsRadarTrackable(void *);
 
-void func_80099D70(void) {
+void Radar_Update(void) {
     s32 sig;
     u32 *ot;
     u32 c;
@@ -72,13 +72,13 @@ void func_80099D70(void) {
     u32 t;
 
     if (g_Game_99D70.f_8100 & 1) {
-        func_8009A4E8((s32)D_800E9E40, (s32)D_800F4910, (s32)&g_GadgetState.f_4, g_Game_99D70.frame << 7);
+        Radar_DrawHeld((s32)D_800E9E40, (s32)D_800F4910, (s32)&g_GadgetState.f_4, g_Game_99D70.frame << 7);
         return;
     }
-    if (func_8007CA48(2) && g_Pad.f_17A != 0 && g_SpikeHealth > 0) {
-        func_80066C90(&g_Pad.f_19C, &g_GadgetState.f_4, 0x155);
+    if (Spike_CanUseGadget(2) && g_Pad.f_17A != 0 && g_SpikeHealth > 0) {
+        Dir_TurnTowardMax(&g_Pad.f_19C, &g_GadgetState.f_4, 0x155);
         sig = Radar_GetSignal();
-        func_8009A4E8((s32)D_800E9E40, (s32)D_800F4910, (s32)&g_GadgetState.f_4, g_Game_99D70.frame << 7);
+        Radar_DrawHeld((s32)D_800E9E40, (s32)D_800F4910, (s32)&g_GadgetState.f_4, g_Game_99D70.frame << 7);
         if (sig > 0) {
             Scr_99D70 *scr;
             ot = &g_Game_99D70.db[g_Game_99D70.cur].ot[1];
@@ -119,7 +119,7 @@ void func_80099D70(void) {
             if (g_GadgetState.f_16 == -1) {
                 g_GadgetState.f_16 = Sound_Play(0, 0x26);
             } else {
-                func_80087C28(0x26, g_GadgetState.f_16, sig * 80 + 0x1000);
+                Sound_SetVoicePitch(0x26, g_GadgetState.f_16, sig * 80 + 0x1000);
                 Pad_Vibrate(1, sig * 4 + 0x28, 2);
             }
         } else {
@@ -134,8 +134,8 @@ void func_80099D70(void) {
             }
         }
     } else {
-        func_80066C90(&D_800EC240, &g_GadgetState.f_4, 0x155);
-        func_8009A4E8((s32)D_800E9E40, (s32)D_800F4910, (s32)&g_GadgetState.f_4, 0);
+        Dir_TurnTowardMax(&D_800EC240, &g_GadgetState.f_4, 0x155);
+        Radar_DrawHeld((s32)D_800E9E40, (s32)D_800F4910, (s32)&g_GadgetState.f_4, 0);
         if (g_GadgetState.f_14 != -1) {
             Sound_Stop(0x25, g_GadgetState.f_14);
             g_GadgetState.f_14 = -1;
@@ -145,12 +145,12 @@ void func_80099D70(void) {
             g_GadgetState.f_16 = -1;
         }
     }
-    if (g_GadgetState.f_1C != 0 && !func_8009A17C((void *)g_GadgetState.f_18)) {
+    if (g_GadgetState.f_1C != 0 && !Monkey_IsRadarTrackable((void *)g_GadgetState.f_18)) {
         g_GadgetState.f_1C = 0;
     }
 }
 
-s32 func_8009A17C(void *arg0) {
+s32 Monkey_IsRadarTrackable(void *arg0) {
     s32 var_a1;
 
     var_a1 = 0;
@@ -169,7 +169,7 @@ extern struct { u8 pad0[4]; s16 dx; u8 pad6[2]; s16 dz; u8 padA[0xE]; Mky_9A1A4 
 extern struct { u8 pad0[0x8238]; Zone_9A1A4 *zones; u8 pad823C[0x50]; s32 nzones; } g_Game_9A1A4 asm("g_Game");
 s32 VectorNormalSS_9A1A4(SV_9A1A4 *, SV_9A1A4 *) asm("VectorNormalSS");
 s32 Math_ISqrt(s32);
-u8 *func_80097E88_9A1A4(s32, s32 *) asm("func_80097E88");
+u8 *func_80097E88_9A1A4(s32, s32 *) asm("Save_GetLevelMonkeys");
 
 /* Monkey Radar signal strength (0..0x20): for each active monkey (state not 0/2/3), the cosine
    between the radar heading and the direction to it, scaled by distance; strongest one becomes the
@@ -256,16 +256,16 @@ s32 Radar_GetSignal(void) {
     return sum;
 }
 
-void func_8009A4E8(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void Radar_DrawHeld(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 v = D_800EC23E;
 
     if (v < 0x3D) {
         if (v >= 0x38) {
-            func_8007CD0C(0);
+            Gadget_SetHeldVariant(0);
             return;
         }
     }
-    func_8007CD0C(1);
+    Gadget_SetHeldVariant(1);
     Radar_DrawModel(arg0, arg1, arg2, arg3);
 }
 

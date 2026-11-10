@@ -22,15 +22,15 @@ void Cd_StartLoadList(void *);
 s32 Cd_PollLoadList(void);
 void Cd_Update(void);
 void func_80136AC0(u8 *b);
-void func_80069500(void);
+void Effect_ClearAll(void);
 void Stage_ApplyFog(void);
 void Light_SetColorMode(s32, s32, s32, s32);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-void func_8008C390(void);
+void DebugFont_Init(void);
 s32 func_801374E4(void);
 s32 func_80136C5C(void);
-void func_8008760C(void);
+void Music_FadeOut(void);
 void func_8013674C(void);
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
@@ -66,7 +66,7 @@ s32 func_80136000(void) {
         VSync(2);
     }
     func_80136AC0((u8 *)0x80154000);
-    func_80069500();
+    Effect_ClearAll();
     D_800EBFA0_80136000.f24 = 0xF000;
     D_800EBFA0_80136000.f28 = 0x600;
     D_800EBFA0_80136000.f2C = 0x4000;
@@ -78,7 +78,7 @@ s32 func_80136000(void) {
     D_8013781C = 0;
     D_80137818 = 0;
     D_800A8A58 = 0;
-    while (func_8001325C(2), Gfx_BeginFrame(), func_8008C390(), func_801374E4() >= 0) {
+    while (func_8001325C(2), Gfx_BeginFrame(), DebugFont_Init(), func_801374E4() >= 0) {
         v = func_80136C5C();
         if (v < 0 && D_80137818 == 1) {
             res = v;
@@ -92,7 +92,7 @@ s32 func_80136000(void) {
         if (D_80137818 == 1 && D_8013781C >= 0x709) {
             res = -9;
             D_80137818 = 2;
-            func_8008760C();
+            Music_FadeOut();
         }
         p = g_Game_80136000.prim;
         ot = g_Game_80136000.db[g_Game_80136000.cur].ot;
@@ -183,7 +183,7 @@ extern Mat_8013654C D_800E78C0_8013654C asm("g_ViewMatrix");
 extern u32 D_80137848;
 extern u8 D_80137960_8013654C[] asm("D_80137960");
 extern u8 D_800E7D00_8013654C[] asm("g_ProjVerts");
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 extern struct { u8 frame; } g_Game_8013654C asm("g_Game");
 #define GD_8013654C (*(GameDraw *)&g_Game_8013654C)
 void SetRotMatrix(void *m);
@@ -214,7 +214,7 @@ void func_8013654C(void) {
             Model_DrawColorAnim(GD_8013654C.ot + 0x40, D_800E7D00_8013654C, D_80137960_8013654C, 0);
         }
     }
-    p = D_800EC354;
+    p = g_GamePrim;
     z = 8 - (s16)(D_800E78C0_8013654C.m[2][1] / 18);
     if (z < -0x80) {
         y = -0x80;
@@ -338,7 +338,7 @@ typedef struct { u8 pad0[0x1C]; s32 f_1C; } Mesh_80136AC0;
 extern Obj_80136AC0 D_80137850[];
 extern Spr_80136AC0 D_80137960[];
 extern Mesh_80136AC0 D_801378A0[];
-void func_8008C01C(void);
+void Mem_Init(void);
 void Model_BindBoned(void *, u8 *);
 void Model_BindBoned16(void *, u8 *);
 void Model_BindRigid(void *, void *);
@@ -352,7 +352,7 @@ void func_80136AC0(u8 *b) {
     s32 i;
     s32 j;
 
-    func_8008C01C();
+    Mem_Init();
     for (i = 0; i < 4; i += 2) {
         o = &D_80137850[i >> 1];
         if (i == 0) {
@@ -502,8 +502,8 @@ extern s32 D_80137814;
 extern s32 D_800E54E0;
 s32 Sound_SetStereo(s32);
 void Pad_Vibrate(s32, s32, s32);
-void func_8008CBFC(s32, ...);
-void func_8008CC60(s32, s32);
+void DebugFont_PrintfAlways(s32, ...);
+void DebugFont_Locate(s32, s32);
 void Debug_DrawSticks(void);
 void Debug_DrawPadGraph(void);
 
@@ -563,8 +563,8 @@ s32 func_80136F54(void) {
             if (pow > 10) {
                 pow *= 2;
                 Pad_Vibrate(1, pow, 2);
-                func_8008CC60(0xC8, 0xC8);
-                func_8008CBFC((s32)"VibPow = %d\n", pow);
+                DebugFont_Locate(0xC8, 0xC8);
+                DebugFont_PrintfAlways((s32)"VibPow = %d\n", pow);
             }
         }
         break;
@@ -575,38 +575,38 @@ s32 func_80136F54(void) {
         }
         break;
     }
-    func_8008CC60(0x64, 0x3C);
-    func_8008CBFC((s32)"--- OPTION MENU ---\n");
-    func_8008CC60(0x64, 0x5A);
-    func_8008CBFC((s32)"%c Action Stick", D_80137814 == 0 ? '>' : ' ');
-    func_8008CC60(0xFA, 0x5A);
-    func_8008CBFC((s32)"%s", D_800E54E0 ? "Subjective" : "Objective");
-    func_8008CC60(0x64, 0x69);
-    func_8008CBFC((s32)"%c Stereo Type", D_80137814 == 1 ? '>' : ' ');
-    func_8008CC60(0xFA, 0x69);
+    DebugFont_Locate(0x64, 0x3C);
+    DebugFont_PrintfAlways((s32)"--- OPTION MENU ---\n");
+    DebugFont_Locate(0x64, 0x5A);
+    DebugFont_PrintfAlways((s32)"%c Action Stick", D_80137814 == 0 ? '>' : ' ');
+    DebugFont_Locate(0xFA, 0x5A);
+    DebugFont_PrintfAlways((s32)"%s", D_800E54E0 ? "Subjective" : "Objective");
+    DebugFont_Locate(0x64, 0x69);
+    DebugFont_PrintfAlways((s32)"%c Stereo Type", D_80137814 == 1 ? '>' : ' ');
+    DebugFont_Locate(0xFA, 0x69);
     if (g_Game_80136F54.stereo == 0) {
-        func_8008CBFC((s32)"OFF");
+        DebugFont_PrintfAlways((s32)"OFF");
     } else {
-        func_8008CBFC((s32)"ON");
+        DebugFont_PrintfAlways((s32)"ON");
     }
-    func_8008CC60(0x64, 0x78);
-    func_8008CBFC((s32)"%c VIBRATION", D_80137814 == 2 ? '>' : ' ');
-    func_8008CC60(0xFA, 0x78);
+    DebugFont_Locate(0x64, 0x78);
+    DebugFont_PrintfAlways((s32)"%c VIBRATION", D_80137814 == 2 ? '>' : ' ');
+    DebugFont_Locate(0xFA, 0x78);
     if (g_Game_80136F54.vibration) {
-        func_8008CBFC((s32)"ON");
+        DebugFont_PrintfAlways((s32)"ON");
     } else {
-        func_8008CBFC((s32)"OFF");
+        DebugFont_PrintfAlways((s32)"OFF");
     }
-    func_8008CC60(0x64, 0x87);
-    func_8008CBFC((s32)"%c Vibration TEST", D_80137814 == 3 ? '>' : ' ');
-    func_8008CC60(0xFA, 0x87);
-    func_8008CC60(0x64, 0x96);
-    func_8008CBFC((s32)"%c Remote VIB", D_80137814 == 4 ? '>' : ' ');
-    func_8008CC60(0xFA, 0x96);
+    DebugFont_Locate(0x64, 0x87);
+    DebugFont_PrintfAlways((s32)"%c Vibration TEST", D_80137814 == 3 ? '>' : ' ');
+    DebugFont_Locate(0xFA, 0x87);
+    DebugFont_Locate(0x64, 0x96);
+    DebugFont_PrintfAlways((s32)"%c Remote VIB", D_80137814 == 4 ? '>' : ' ');
+    DebugFont_Locate(0xFA, 0x96);
     if (g_Game_80136F54.remote_vib) {
-        func_8008CBFC((s32)"ON");
+        DebugFont_PrintfAlways((s32)"ON");
     } else {
-        func_8008CBFC((s32)"OFF");
+        DebugFont_PrintfAlways((s32)"OFF");
     }
     Debug_DrawSticks();
     Debug_DrawPadGraph();

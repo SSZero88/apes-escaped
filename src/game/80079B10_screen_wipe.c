@@ -1,19 +1,19 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-void func_80046990(s32 arg0);
+void Screen_DrawFadeTile(s32 arg0);
 extern struct S_D_800EC350 { u8 pad_0[0x8132]; s16 f_8132; } g_Game;
 void Gfx_BeginFrame(void);
 s32 ScreenWipe_DrawSpiral(void);
 struct S_D_800A5ED0 { s16 x, y, w, h; };
 extern struct S_D_800E3890 { s32 f_0; } g_Cd;
 struct Game_80079B10 { s32 frame; u8 pad4[0x8120]; u16 f_8124; u16 f_8126; u8 pad8128[2]; u16 f_812A; u8 f_812C; u8 pad812D[3]; u16 f_8130; s16 f_8132; };
-void func_80079E78(void);
+void ScreenWipe_Fade(void);
 s32 Game_IsTimed(void);
 void Game_SetMode(s32, s32, s32);
-void func_80095600(s32, s32);
-void func_80095244(s32);
-void func_8005E42C(s32);
+void Hud_ShowLives(s32, s32);
+void Hud_ShowMonkeyHeads(s32);
+void Hud_ShowHealth(s32);
 void ClearImage(void *, s32, s32, s32);
 void DrawSync(s32);
 void Sound_UnloadBanks(s32);
@@ -22,9 +22,9 @@ void VSync(s32);
 void Cd_ReadCurrentFile(void);
 s32 Cd_PollLoadList(void);
 
-/* Screen transition, state g_Game+0x8130 with timer +0x8132. 1: fade (func_80079E78) for the
+/* Screen transition, state g_Game+0x8130 with timer +0x8132. 1: fade (ScreenWipe_Fade) for the
  * timer, then per stage state +0x812C: 1 -> stage state 0x18 (0x19 in races / stage 0x21),
- * 0xD -> 3 and resets (func_80095600/func_80095244/func_8005E42C), else 3. 4: ring wipe
+ * 0xD -> 3 and resets (Hud_ShowLives/Hud_ShowMonkeyHeads/Hud_ShowHealth), else 3. 4: ring wipe
  * (ScreenWipe_DrawSpiral), then state 3. 2: fade out over 48 frames, clear VRAM, return -1. 3: fade out,
  * clear VRAM, wait for streaming and loads to finish (Cd_Update), then stage state 0xD. */
 s32 ScreenWipe_Update(void) {
@@ -37,7 +37,7 @@ s32 ScreenWipe_Update(void) {
             (*(struct Game_80079B10 *)&g_Game).f_8130 = 0;
             break;
         }
-        func_80079E78();
+        ScreenWipe_Fade();
         if (--(*(struct Game_80079B10 *)&g_Game).f_8132 > 0) {
             return 0;
         }
@@ -53,9 +53,9 @@ s32 ScreenWipe_Update(void) {
             break;
         case 0xD:
             Game_SetMode(3, (*(struct Game_80079B10 *)&g_Game).f_8126, (*(struct Game_80079B10 *)&g_Game).f_812A);
-            func_80095600(0, 0);
-            func_80095244(0);
-            func_8005E42C(0);
+            Hud_ShowLives(0, 0);
+            Hud_ShowMonkeyHeads(0);
+            Hud_ShowHealth(0);
             return 0;
         default:
             Game_SetMode(3, (*(struct Game_80079B10 *)&g_Game).f_8126, (*(struct Game_80079B10 *)&g_Game).f_812A);
@@ -72,7 +72,7 @@ s32 ScreenWipe_Update(void) {
         Game_SetMode(3, (*(struct Game_80079B10 *)&g_Game).f_8126, (*(struct Game_80079B10 *)&g_Game).f_812A);
         break;
     case 2:
-        func_80079E78();
+        ScreenWipe_Fade();
         if (++(*(struct Game_80079B10 *)&g_Game).f_8132 < 0x30) {
             return 0;
         }
@@ -82,7 +82,7 @@ s32 ScreenWipe_Update(void) {
         DrawSync(0);
         return -1;
     case 3:
-        func_80079E78();
+        ScreenWipe_Fade();
         if (++(*(struct Game_80079B10 *)&g_Game).f_8132 < 0x30) {
             return 0;
         }
@@ -112,15 +112,15 @@ s32 ScreenWipe_Update(void) {
 INCLUDE_RODATA("asm/nonmatchings/game/80079B10_screen_wipe", jtbl_800A5ED8_pad);
 
 
-void func_80079E78(void) {
-    func_80046990((g_Game.f_8132 * 0xFF) / 48);
+void ScreenWipe_Fade(void) {
+    Screen_DrawFadeTile((g_Game.f_8132 * 0xFF) / 48);
 }
 
 typedef struct { u32 tag; u32 c0; s16 x0, y0, x1, y1, x2, y2, x3, y3; } PolyF4_79ECC;
 s32 rsin(s32);
 extern DrawBuf D_800F03D0_db[2] asm("D_800F03D0"); /* g_Game.db[].hud seen from the HUD OT symbol */
 s32 rcos(s32);
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 
 /* Ring wipe (g_Game+0x8130 state 4): black POLY_F4 quads between a spiral and the screen edge,
    closing as the timer +0x8132 runs to 24. Returns 0. */
@@ -166,11 +166,11 @@ s32 ScreenWipe_DrawSpiral(void) {
         c0 = c1;
         r0 = r1;
     }
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
     return 0;
 }
 
-void func_8007A14C(void) {
+void ScreenWipe_DrawSpiralFrame(void) {
     s32 unused[2];
     Gfx_BeginFrame();
     ScreenWipe_DrawSpiral();

@@ -588,7 +588,7 @@ typedef struct { u8 pad0[0x80]; u8 proj[0x340]; s16 f_3C0; s16 f_3C2; s16 f_3C4;
 typedef struct { u8 pad0[0x194]; u32 *f_194; u8 pad198[0xC0]; s16 camX; s16 camY; s16 camZ; u8 pad25E[0x22]; s32 count; } G8_16F34;
 typedef struct { u8 pad0[0x24]; s32 x, y, z; } Spk_16F34;
 extern struct { u8 pad0[0x24]; u16 f_24; u8 pad26[2]; u16 f_28; u8 pad2A[2]; s32 f_2C; } D_800EBFA0_16F34 asm("D_800EBFA0");
-extern Obj_16F34 *D_800B4D64;
+extern Obj_16F34 *g_StageMeshes;
 extern Spk_16F34 g_Spike_16F34 asm("g_Spike");
 extern MATRIX_16F34 g_ViewMatrix;
 extern MATRIX_16F34 D_800AE840;
@@ -608,7 +608,7 @@ void Model_ProjectVertsAlt_16F34(Obj_16F34 *, MATRIX_16F34 *, void *) asm("Model
 void Model_DrawLit_16F34(u32 *, void *, Obj_16F34 *) asm("Model_DrawLit");
 void func_80017EFC_16F34(u32 *, void *, Obj_16F34 *, s32) asm("Model_DrawColorAnim");
 void Anim_StepFrame_16F34(Obj_16F34 *) asm("Anim_StepFrame");
-void func_8006D548_16F34(void *) asm("func_8006D548");
+void func_8006D548_16F34(void *) asm("Dust_SpawnDrift");
 void SetRotMatrix_16F34(MATRIX_16F34 *) asm("SetRotMatrix");
 void SetTransMatrix_16F34(MATRIX_16F34 *) asm("SetTransMatrix");
 void CompMatrix_16F34(MATRIX_16F34 *, MATRIX_16F34 *, MATRIX_16F34 *) asm("CompMatrix");
@@ -616,7 +616,7 @@ void CompMatrix_16F34(MATRIX_16F34 *, MATRIX_16F34 *, MATRIX_16F34 *) asm("CompM
 #define gte_stlvnl_16F34(p) __asm__ volatile ("swc2 $25, 0(%0); swc2 $26, 4(%0); swc2 $27, 8(%0)" : : "r"(p) : "memory")
 #define gte_SetTransVector_16F34(v) __asm__ volatile ("lw $12, 0(%0); lw $13, 4(%0); ctc2 $12, $5; lw $14, 8(%0); ctc2 $13, $6; ctc2 $14, $7" : : "r"(v) : "$12", "$13", "$14")
 
-/* Draws the stage's placed models (the object list at D_800B4D64, walked from the end): each entry
+/* Draws the stage's placed models (the object list at g_StageMeshes, walked from the end): each entry
    whose zone mask touches the zones of Spike and of the camera is transformed to camera space, culled
    against the view (x/y cones, near/far) and drawn by its kind (low flag byte): 0 plain, 1 / 8 with
    their own rotation, 3 own matrix, 4/5 sky models, 7 near-OT models, 16 effect spawners. */
@@ -657,8 +657,8 @@ void Stage_DrawPlacedModels(void) {
     flag4 = *((G8_16F34 *)gd)->f_194 & 4;
     while (i >= 0) {
         __asm__("" : "=r"(S) : "0"(S));
-        flags = D_800B4D64[i].mdl->flags;
-        if (!(D_800B4D64[i].mask & zones)) {
+        flags = g_StageMeshes[i].mdl->flags;
+        if (!(g_StageMeshes[i].mask & zones)) {
             i--;
             continue;
         }
@@ -681,20 +681,20 @@ void Stage_DrawPlacedModels(void) {
                 }
                 __asm__("" :: "r"(m), "r"(m));
                 S->f_3C0 = 0;
-                func_80016294_16F34(&D_800B4D64[i], m);
-                Model_DrawLit_16F34(ot + 0xFFF, m, &D_800B4D64[i]); 
+                func_80016294_16F34(&g_StageMeshes[i], m);
+                Model_DrawLit_16F34(ot + 0xFFF, m, &g_StageMeshes[i]); 
                 SetTransMatrix_16F34(&D_800E78C0_sky);
-            } while (--i >= 0 && (u32)(((flags = D_800B4D64[i].mdl->flags) & 0xFF) - 4) < 2);
+            } while (--i >= 0 && (u32)(((flags = g_StageMeshes[i].mdl->flags) & 0xFF) - 4) < 2);
             }
             S->f_3C0 = D_800EBFC4;
             break;
         case 0:
         default:
             do {
-                *(s32 *)&S->v.vz = *(s32 *)&D_800B4D64[i].z;
+                *(s32 *)&S->v.vz = *(s32 *)&g_StageMeshes[i].z;
                 if (S->v.pad & zones) {
                     s32 s, z1, z; void *mat;
-                    *(s32 *)&S->v.vx = *(s32 *)&D_800B4D64[i].x;
+                    *(s32 *)&S->v.vx = *(s32 *)&g_StageMeshes[i].x;
                     gte_ldv0(&S->v);
                     gte_rtv0tr_16F34();
                     if (flags & 0x1000) {
@@ -715,23 +715,23 @@ void Stage_DrawPlacedModels(void) {
                     if (far < z1 - s && (flags & 0xF00) != 0xF00) continue;
                     __asm__("" :: "r"(z1));
                     if ((flags & 0x300000) && !(flags & 0x2000)) {
-                        Anim_StepFrame_16F34(&D_800B4D64[i]);
+                        Anim_StepFrame_16F34(&g_StageMeshes[i]);
                     }
                     if (flags & 0x200000) {
-                        Model_ProjectMorphFrame_16F34(&D_800B4D64[i], mat); 
+                        Model_ProjectMorphFrame_16F34(&g_StageMeshes[i], mat); 
                     } else {
-                        func_80016294_16F34(&D_800B4D64[i], mat);
+                        func_80016294_16F34(&g_StageMeshes[i], mat);
                     }
-                    func_80017EFC_16F34((u32 *)((u8 *)ot + ((flags >> 12) & 0xF0)), mat, &D_800B4D64[i], flag4 | ((flags >> 24) & 0xF)); __asm__("" :: "r"(mat), "r"(mat));
+                    func_80017EFC_16F34((u32 *)((u8 *)ot + ((flags >> 12) & 0xF0)), mat, &g_StageMeshes[i], flag4 | ((flags >> 24) & 0xF)); __asm__("" :: "r"(mat), "r"(mat));
                 }
-            } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 0);
+            } while (--i >= 0 && ((flags = g_StageMeshes[i].mdl->flags) & 0xFF) == 0);
             break;
         case 7:
             do {
-                *(s32 *)&S->v.vz = *(s32 *)&D_800B4D64[i].z;
+                *(s32 *)&S->v.vz = *(s32 *)&g_StageMeshes[i].z;
                 if (S->v.pad & zones) {
                     s32 z1, z; void *mat;
-                    *(s32 *)&S->v.vx = *(s32 *)&D_800B4D64[i].x;
+                    *(s32 *)&S->v.vx = *(s32 *)&g_StageMeshes[i].x;
                     gte_ldv0(&S->v);
                     gte_rtv0tr_16F34();
                     gte_stlvnl_16F34(&S->r);
@@ -754,17 +754,17 @@ void Stage_DrawPlacedModels(void) {
                         __asm__ volatile("");
                         mat = D_800E7D00_k1;
                     }
-                    func_80016294_16F34(&D_800B4D64[i], mat);
-                    func_80017EFC_16F34(ot + 4, mat, &D_800B4D64[i], flag4);
+                    func_80016294_16F34(&g_StageMeshes[i], mat);
+                    func_80017EFC_16F34(ot + 4, mat, &g_StageMeshes[i], flag4);
                 }
-            } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 0);
+            } while (--i >= 0 && ((flags = g_StageMeshes[i].mdl->flags) & 0xFF) == 0);
             break;
         case 1:
             do {
-                *(s32 *)&S->v.vz = *(s32 *)&D_800B4D64[i].z;
+                *(s32 *)&S->v.vz = *(s32 *)&g_StageMeshes[i].z;
                 if (S->v.pad & zones) {
                     s32 z; void *mat;
-                    *(s32 *)&S->v.vx = *(s32 *)&D_800B4D64[i].x;
+                    *(s32 *)&S->v.vx = *(s32 *)&g_StageMeshes[i].x;
                     gte_ldv0(&S->v);
                     gte_rtv0tr_16F34();
                     gte_stlvnl_16F34(&S->r);
@@ -786,19 +786,19 @@ void Stage_DrawPlacedModels(void) {
                         __asm__ volatile("");
                         mat = D_800E7D00_k2;
                     }
-                    func_80016294_16F34(&D_800B4D64[i], mat);
-                    func_80017EFC_16F34(ot, mat, &D_800B4D64[i], flag4 | ((flags >> 24) & 0xF));
+                    func_80016294_16F34(&g_StageMeshes[i], mat);
+                    func_80017EFC_16F34(ot, mat, &g_StageMeshes[i], flag4 | ((flags >> 24) & 0xF));
                     gte_SetRotMatrix_(&g_ViewMatrix);
                     gte_SetTransMatrix_(&g_ViewMatrix);
                 }
-            } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 1);
+            } while (--i >= 0 && ((flags = g_StageMeshes[i].mdl->flags) & 0xFF) == 1);
             break;
         case 8:
             do {
-                *(s32 *)&S->v.vz = *(s32 *)&D_800B4D64[i].z;
+                *(s32 *)&S->v.vz = *(s32 *)&g_StageMeshes[i].z;
                 if (S->v.pad & zones) {
                     s32 z; void *mat;
-                    *(s32 *)&S->v.vx = *(s32 *)&D_800B4D64[i].x;
+                    *(s32 *)&S->v.vx = *(s32 *)&g_StageMeshes[i].x;
                     gte_ldv0(&S->v);
                     gte_rtv0tr_16F34();
                     gte_stlvnl_16F34(&S->r);
@@ -820,19 +820,19 @@ void Stage_DrawPlacedModels(void) {
                         __asm__ volatile("");
                         mat = D_800E7D00_k3;
                     }
-                    func_80016294_16F34(&D_800B4D64[i], mat);
-                    func_80017EFC_16F34(ot, mat, &D_800B4D64[i], flag4 | ((flags >> 24) & 0xF));
+                    func_80016294_16F34(&g_StageMeshes[i], mat);
+                    func_80017EFC_16F34(ot, mat, &g_StageMeshes[i], flag4 | ((flags >> 24) & 0xF));
                     gte_SetRotMatrix_(&g_ViewMatrix);
                     gte_SetTransMatrix_(&g_ViewMatrix);
                 }
-            } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 8);
+            } while (--i >= 0 && ((flags = g_StageMeshes[i].mdl->flags) & 0xFF) == 8);
             break;
         case 3:
             do {
-                *(s32 *)&S->v.vz = *(s32 *)&D_800B4D64[i].z;
+                *(s32 *)&S->v.vz = *(s32 *)&g_StageMeshes[i].z;
                 if (S->v.pad & zones) {
                     s32 z; void *mat;
-                    *(s32 *)&S->v.vx = *(s32 *)&D_800B4D64[i].x;
+                    *(s32 *)&S->v.vx = *(s32 *)&g_StageMeshes[i].x;
                     gte_ldv0(&S->v);
                     gte_rtv0tr_16F34();
                     gte_stlvnl_16F34(&S->r);
@@ -843,13 +843,13 @@ void Stage_DrawPlacedModels(void) {
                     if (z < -S->r.vx * 2) continue;
                     if (z < S->r.vy * 3) continue;
                     if (z < -S->r.vy * 3) continue;
-                    S->m = *D_800B4D64[i].mat;
-                    S->m.t[0] = D_800B4D64[i].x;
-                    S->m.t[1] = D_800B4D64[i].y;
-                    S->m.t[2] = D_800B4D64[i].z;
+                    S->m = *g_StageMeshes[i].mat;
+                    S->m.t[0] = g_StageMeshes[i].x;
+                    S->m.t[1] = g_StageMeshes[i].y;
+                    S->m.t[2] = g_StageMeshes[i].z;
                     CompMatrix_16F34(&g_ViewMatrix, &S->m, &S->m);
                     if ((flags & 0x102000) == 0x100000) {
-                        Anim_StepFrame_16F34(&D_800B4D64[i]);
+                        Anim_StepFrame_16F34(&g_StageMeshes[i]);
                     }
                     if (flags & 0x1000) {
                         mat = (void *)0x1F800080;
@@ -857,21 +857,21 @@ void Stage_DrawPlacedModels(void) {
                         __asm__ volatile("");
                         mat = D_800E7D00_k4;
                     }
-                    Model_ProjectVertsAlt_16F34(&D_800B4D64[i], &S->m, mat);
-                    func_80017EFC_16F34((u32 *)((u8 *)ot + ((flags >> 12) & 0xF0)), mat, &D_800B4D64[i], flag4 | ((flags >> 24) & 0xF));
+                    Model_ProjectVertsAlt_16F34(&g_StageMeshes[i], &S->m, mat);
+                    func_80017EFC_16F34((u32 *)((u8 *)ot + ((flags >> 12) & 0xF0)), mat, &g_StageMeshes[i], flag4 | ((flags >> 24) & 0xF));
                     SetRotMatrix_16F34(&g_ViewMatrix);
                     SetTransMatrix_16F34(&g_ViewMatrix);
                 }
-            } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 3);
+            } while (--i >= 0 && ((flags = g_StageMeshes[i].mdl->flags) & 0xFF) == 3);
             break;
         case 16:
             { SVEC_16F34 *v = &S->v;
             do {
                 s32 z;
                 { s32 dd0; } { s32 dd1; } { s32 dd2; } { s32 dd3; } { s32 dd4; } { s32 dd5; } { s32 dd6; } { s32 dd7; } { s32 dd8; } { s32 dd9; } { s32 dd10; } { s32 dd11; } { s32 dd12; } { s32 dd13; } { s32 dd14; } { s32 dd15; } { s32 dd16; } { s32 dd17; } { s32 dd18; } { s32 dd19; } { s32 dd20; } { s32 dd21; } { s32 dd22; } { s32 dd23; } { s32 dd24; } { s32 dd25; } { s32 dd26; } { s32 dd27; } { s32 dd28; } { s32 dd29; } { s32 dd30; } { s32 dd31; } { s32 dd32; } { s32 dd33; } { s32 dd34; } { s32 dd35; } { s32 dd36; } { s32 dd37; } { s32 dd38; } { s32 dd39; } { s32 dd40; } { s32 dd41; } { s32 dd42; } { s32 dd43; } { s32 dd44; } { s32 dd45; } { s32 dd46; } { s32 dd47; } { s32 dd48; } { s32 dd49; } { s32 dd50; } { s32 dd51; } { s32 dd52; } { s32 dd53; } { s32 dd54; } { s32 dd55; } { s32 dd56; } { s32 dd57; } { s32 dd58; } { s32 dd59; } { s32 dd60; } { s32 dd61; } { s32 dd62; } { s32 dd63; } { s32 dd64; } { s32 dd65; } { s32 dd66; } { s32 dd67; } { s32 dd68; } { s32 dd69; } { s32 dd70; } { s32 dd71; } { s32 dd72; } { s32 dd73; } { s32 dd74; } { s32 dd75; } { s32 dd76; } { s32 dd77; } { s32 dd78; } { s32 dd79; } { s32 dd80; } { s32 dd81; } { s32 dd82; } { s32 dd83; } { s32 dd84; } { s32 dd85; } { s32 dd86; } { s32 dd87; } { s32 dd88; } { s32 dd89; } { s32 dd90; } { s32 dd91; } { s32 dd92; } { s32 dd93; } { s32 dd94; } { s32 dd95; } { s32 dd96; } { s32 dd97; } { s32 dd98; } { s32 dd99; }
-                *(s32 *)&S->v.vz = *(s32 *)&D_800B4D64[i].z;
+                *(s32 *)&S->v.vz = *(s32 *)&g_StageMeshes[i].z;
                 __asm__("" : "=r"(S) : "0"(S));
-                *(s32 *)&S->v.vx = *(s32 *)&D_800B4D64[i].x;
+                *(s32 *)&S->v.vx = *(s32 *)&g_StageMeshes[i].x;
                 gte_ldv0(v);
                 gte_rtv0tr_16F34();
                 gte_stlvnl_16F34(&S->r);
@@ -883,9 +883,9 @@ void Stage_DrawPlacedModels(void) {
                 if (z < S->r.vy * 3) continue;
                 if (z < -S->r.vy * 3) continue;
                 if (g_Game.f_0 & 1) {
-                    func_8006D548_16F34(&D_800B4D64[i].x);
+                    func_8006D548_16F34(&g_StageMeshes[i].x);
                 }
-            } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 16);
+            } while (--i >= 0 && ((flags = g_StageMeshes[i].mdl->flags) & 0xFF) == 16);
             }
             break;
         }
@@ -1085,7 +1085,7 @@ void Model_DrawPrims(s32 ot, u8 *prim, s32 arg2) {
     }
 }
 
-extern u8 *D_800EC354_Model_AddG3 asm("D_800EC354");
+extern u8 *D_800EC354_Model_AddG3 asm("g_GamePrim");
 typedef struct { u32 sxy; s32 sz; } ScrVtx_Model_AddG3;
 typedef struct { u32 color[0xF0]; u16 fogScale, fogNear; u8 pad3C4[4]; u8 cidx[4]; union { u32 w; struct { s16 x, y; } s; } sxy[3]; u8 pad3D8[4]; s32 otz; s32 opz; u8 pad3E4[4]; union { u32 w; u8 b[4]; } hdr; union { u32 w; u16 h[2]; } idx01; union { u32 w; u16 h[2]; } idx2; u8 flags; } MdlScratch_Model_AddG3;
 
@@ -1234,7 +1234,7 @@ u8 *Model_AddG3(s32 otArg, u8 *primArg, s32 vtxArg)
   return prim;
 }
 
-extern u8 *D_800EC354_Model_AddG4 asm("D_800EC354");
+extern u8 *D_800EC354_Model_AddG4 asm("g_GamePrim");
 typedef struct { u32 sxy; s32 sz; } ScrVtx_Model_AddG4;
 typedef struct { u32 color[0xF0]; u16 fogScale, fogNear; u8 pad3C4[4]; union { u32 w; u8 c[4]; } cidx; union { u32 w; struct { s16 x, y; } s; } sxy[4]; s32 otz; s32 opz; s32 opz2; union { u32 w; u8 b[4]; } hdr; u32 idx01; u32 idx23; u8 flags; u8 fog; } MdlScratch_Model_AddG4;
 /* Model Gouraud quads (code 0x38 run). Each quad is tested as two triangles (nclip of v0-v1-v2 and
@@ -1521,7 +1521,7 @@ u8 *Model_AddG4(s32 otArg, u8 *primArg, s32 vtxArg)
     return prim;
 }
 
-extern u8 *D_800EC354_Model_AddF3 asm("D_800EC354");
+extern u8 *D_800EC354_Model_AddF3 asm("g_GamePrim");
 typedef struct { u32 sxy; s32 sz; } ScrVtx_Model_AddF3;
 typedef struct { u32 color[0xF0]; u16 fogScale, fogNear; u8 pad3C4[8]; union { u32 w; struct { s16 x, y; } s; } sxy[3]; u8 pad3D8[4]; s32 otz; s32 opz; u8 pad3E4[8]; u32 idx01; u32 idx2; u8 flags; } MdlScratch_Model_AddF3;
 
@@ -1708,7 +1708,7 @@ u8 *Model_AddF3(s32 otArg, u8 *prim, s32 vtxArg)
   return prim;
 }
 
-extern u8 *D_800EC354_Model_AddF4 asm("D_800EC354");
+extern u8 *D_800EC354_Model_AddF4 asm("g_GamePrim");
 typedef struct { u32 sxy; s32 sz; } ScrVtx_Model_AddF4;
 typedef struct { u32 color[0xF0]; u16 fogScale, fogNear; u8 pad3C4[4]; union { u32 w; u8 c[4]; } cidx; union { u32 w; struct { s16 x, y; } s; } sxy[4]; s32 otz; s32 opz; s32 opz2; union { u32 w; u8 b[4]; } hdr; u32 idx01; u32 idx23; u8 flags; } MdlScratch_Model_AddF4;
 
@@ -1928,7 +1928,7 @@ u8 *Model_AddF4(s32 otArg, u8 *prim, s32 vtxArg)
     return prim;
 }
 
-extern u8 *D_800EC354_Model_AddFT3 asm("D_800EC354");
+extern u8 *D_800EC354_Model_AddFT3 asm("g_GamePrim");
 typedef struct { u32 sxy; s32 sz; } ScrVtx_Model_AddFT3;
 typedef struct { u32 color[0xF0]; u16 fogScale, fogNear; u16 clut; u8 pad3C6[2]; u8 cidx[4]; union { u32 w; struct { s16 x, y; } s; } sxy[3]; u8 pad3D8[4]; s32 otz; s32 opz; u8 pad3E4[4]; union { u32 w; u8 b[4]; } hdr; union { u32 w; u16 h[2]; } idx01; union { u32 w; u16 h[2]; } idx2; u8 flags; u8 mode; u16 tpage; } MdlScratch_Model_AddFT3;
 
@@ -2133,7 +2133,7 @@ u8 *Model_AddFT3(s32 otArg, u8 *prim, s32 vtxArg)
     return prim;
 }
 
-extern u8 *D_800EC354_Model_AddGT3 asm("D_800EC354");
+extern u8 *D_800EC354_Model_AddGT3 asm("g_GamePrim");
 typedef struct { u32 sxy; s32 sz; } ScrVtx_Model_AddGT3;
 typedef struct { u32 color[0xF0]; u16 fogScale, fogNear; u16 clut; u8 pad3C6[2]; u8 cidx[4]; union { u32 w; struct { s16 x, y; } s; } sxy[3]; u8 pad3D8[4]; s32 otz; s32 opz; u8 pad3E4[4]; union { u32 w; u8 b[4]; } hdr; union { u32 w; u16 h[2]; } idx01; union { u32 w; u16 h[2]; } idx2; u8 flags; u8 mode; u16 tpage; } MdlScratch_Model_AddGT3;
 
@@ -2428,7 +2428,7 @@ void Model_DrawLit(s32 ot, s32 arg, LitMdl_1A42C *m) {
 INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4598_pad);
 
 
-extern u8 *D_800EC354_Model_AddFT4 asm("D_800EC354");
+extern u8 *D_800EC354_Model_AddFT4 asm("g_GamePrim");
 typedef struct { u32 sxy; s32 sz; } ScrVtx_Model_AddFT4;
 typedef struct { u32 color[0xF0]; u16 fogScale, fogNear; u16 clut; u8 pad3C6[2]; union { u32 w; u8 c[4]; } cidx; union { u32 w; struct { s16 x, y; } s; } sxy[4]; s32 otz; s32 opz; s32 opz2; union { u32 w; u8 b[4]; } hdr; u32 idx01; u32 idx23; u8 flags; u8 mode; u16 tpage; } MdlScratch_Model_AddFT4;
 typedef struct { u32 sxy0; u16 z0; u16 pad0; u32 sxy1; u16 z1; u16 pad1; u32 sxy2; u16 z2; u16 pad2; u32 sxy3; u16 z3; u16 pad3; u32 color; u32 uv0; u32 uv1; u32 uv23; u8 code; } SubQuad_Model_AddFT4;
@@ -2906,7 +2906,7 @@ u8 *Model_AddFT4(s32 otArg, u8 *primArg, s32 vtxArg)
     return prim;
 }
 
-extern u8 *D_800EC354_Model_AddGT4 asm("D_800EC354");
+extern u8 *D_800EC354_Model_AddGT4 asm("g_GamePrim");
 typedef struct { u32 sxy; s32 sz; } ScrVtx_Model_AddGT4;
 typedef struct { u32 color[0xF0]; u16 fogScale, fogNear; u16 clut; u16 uvoff; union { u32 w; u8 c[4]; } cidx; union { u32 w; struct { s16 x, y; } s; } sxy[4]; s32 otz; s32 opz; s32 opz2; union { u32 w; u8 b[4]; } hdr; u32 idx01; u32 idx23; u8 flags; u8 mode; u16 tpage; } MdlScratch_Model_AddGT4;
 typedef struct { u32 sxy0; u16 z0; u16 pad0; u32 sxy1; u16 z1; u16 pad1; u32 sxy2; u16 z2; u16 pad2; u32 sxy3; u16 z3; u16 pad3; u32 color[4]; u32 uv0; u32 uv1; u32 uv23; u8 code; } SubQuad_Model_AddGT4;
@@ -3499,7 +3499,7 @@ typedef struct { u32 sxy; u16 z; u16 pad; } Vtx_1C2E8;
 typedef struct { u8 pad0[8]; u8 *prims; } Mdl_1C2E8;
 typedef struct { u8 pad0[0x3C4]; u32 sxy[4]; s32 z; s32 opz; u16 idx[4]; } Scr_1C2E8;
 typedef struct { u32 tag; u8 r0, g0, b0, code; u16 x0, y0; u8 u0, v0; u16 clut; u16 x1, y1; u8 u1, v1; u16 tpage; u16 x2, y2; u8 u2, v2; u16 pad; u16 x3, y3; u8 u3, v3; u16 pad2; } Poly_1C2E8;
-extern u8 *D_800EC354_1C2E8 asm("D_800EC354");
+extern u8 *D_800EC354_1C2E8 asm("g_GamePrim");
 extern u8 g_Game_1C2E8 asm("g_Game");
 #define gte_ldsxy3_(p) __asm__ volatile ("lwc2 $12, 0(%0); lwc2 $13, 4(%0); lwc2 $14, 8(%0)" : : "r"(p))
 #define gte_nclip_() __asm__ volatile ("nop; nop; nclip")
@@ -3618,7 +3618,7 @@ typedef struct { u32 sxy; u16 z; u16 pad; } Vtx_1C918;
 typedef struct { u8 pad0[8]; u8 *prims; } Mdl_1C918;
 typedef struct { u8 pad0[0x3C4]; u32 sxy[4]; s32 z; s32 opz; u16 idx[4]; } Scr_1C918;
 typedef struct { u32 tag; u8 r0, g0, b0, code; u32 xy[6]; } Line_1C918;
-extern u8 *D_800EC354_1C918 asm("D_800EC354");
+extern u8 *D_800EC354_1C918 asm("g_GamePrim");
 #define gte_ldsxy3_1C918(p) __asm__ volatile ("lwc2 $12, 0(%0); lwc2 $13, 4(%0); lwc2 $14, 8(%0)" : : "r"(p))
 #define gte_nclip_1C918() __asm__ volatile ("nop; nop; nclip")
 #define gte_stopz_1C918(p) __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(p) : "memory")
@@ -3725,7 +3725,7 @@ typedef struct { u8 pad0[0x3CC]; XY_1CE54 sxy[4]; s32 z; s32 opz[2]; u8 pad3E8[4
 typedef struct { u32 tag; u8 r0, g0, b0, code; u32 xy0; u16 uv0; u16 clut; u32 xy1; u16 uv1; u16 tpage; u32 xy2; u16 uv2; u16 pad; u32 xy3; u16 uv3; u16 pad2; } Poly_1CE54;
 typedef struct { u16 uv; u8 pad2[6]; } Uv_1CE54;
 extern Uv_1CE54 D_800EA066[];
-extern u8 *D_800EC354_1CE54 asm("D_800EC354");
+extern u8 *D_800EC354_1CE54 asm("g_GamePrim");
 #define gte_ldsxy3_1CE54(p) __asm__ volatile ("lwc2 $12, 0(%0); lwc2 $13, 4(%0); lwc2 $14, 8(%0)" : : "r"(p))
 #define gte_ldsxy0_1CE54(r) __asm__ volatile ("mtc2 %0, $12" : : "r"(r))
 #define gte_nclip_1CE54() __asm__ volatile ("nop; nop; nclip")

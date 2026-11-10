@@ -6,8 +6,8 @@ s32 Spike_WithinRadiusXZ(s32, s32, M2C_UNK);
 
 typedef struct { u16 start; u16 end; } Rng_8013D770;
 typedef struct { s32 vx, vy, vz, pad; } Vec_8013D770;
-s32 func_8005588C(void *, s32);
-void func_80058134(void *, s32);
+s32 Object_Timer(void *, s32);
+void Object_DebugStub(void *, s32);
 s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
 s32 Floor_GetHeight_8013D770(s32, s32, s32) asm("Floor_GetHeight");
 s32 rcos_8013D770(s32) asm("rcos");
@@ -38,14 +38,14 @@ void func_8013D770(u8 *o) {
         } else {
             M2C_FIELD(o, u32 *, 0xE0) &= ~0x80000;
         }
-        func_8005588C(o, 0);
+        Object_Timer(o, 0);
         M2C_FIELD(o, u32 *, 0xE0) |= 8;
     }
-    func_80058134(o, M2C_FIELD(o, s16 *, 0x44));
+    Object_DebugStub(o, M2C_FIELD(o, s16 *, 0x44));
     if (M2C_FIELD(o, u8 *, 0xC9)) {
         M2C_FIELD(o, u8 *, 0xC9)--;
     } else {
-        func_8005588C(o, 0x16);
+        Object_Timer(o, 0x16);
         if (Spike_WithinRadiusXZ(M2C_FIELD(o, s16 *, 0x9A), M2C_FIELD(o, s16 *, 0x9E), 0x400)) {
             Object_PlaySound(o, 0x81);
         }
@@ -76,7 +76,7 @@ void func_8013DAA0(void *arg0, M2C_UNK arg1) {
     }
 }
 
-extern u16 D_800AE8F2;
+extern u16 g_RandSeed2;
 extern u16 g_RandSeed;
 extern u32 D_8013DF28[];
 extern s32 D_8013DDE0[];
@@ -84,8 +84,8 @@ extern s32 D_800B1F1C[];
 void Effect_Spawn(s32, s16 *, u32 *, s16 **);
 void Object_ApplyVelocity(void *);
 void Object_PlaceRandomAroundHome(void *, s16);
-s32 func_8005588C(void *, s32);
-void func_80070284(void *, s32 *, s32, s32, s32);
+s32 Object_Timer(void *, s32);
+void Shockwave_Spawn(void *, s32 *, s32, s32, s32);
 s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
 void func_8013DAA0(void *arg0, M2C_UNK arg1);
 typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; u8 pad30[0x14]; s16 f44, f46, f48, f4A; u8 pad4C[0x10]; u16 frame; u8 pad5E[0x21]; u8 anim; u8 pad80[8]; u16 *anims; u8 pad8C[8]; s16 vx, vy, vz; u8 pad9A[2]; s16 floor; u8 pad9E[2]; s16 fA0; u8 padA2[0xE]; s16 fB0; u8 padB2[0x17]; u8 timer; u8 padCA[0x16]; u32 b0:1, b1:1, b2:1, b3:1; } Obj_8013DAEC;
@@ -102,7 +102,7 @@ void func_8013DAEC(Obj_8013DAEC *e) {
         e->f46 = 1;
         e->f44 = 1;
         Object_PlaceRandomAroundHome(e, 0x64);
-        e->vy = -0x78 - (s32)((u32)(((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) * 5) >> 5);
+        e->vy = -0x78 - (s32)((u32)(((g_RandSeed2 = g_RandSeed2 * 5 + 1) >> 8) * 5) >> 5);
         e->anim = 0;
         e->y += 0x64;
         e->frame = e->anims[0];
@@ -126,8 +126,8 @@ void func_8013DAEC(Obj_8013DAEC *e) {
             v.vx = e->x;
             v.vy = e->floor;
             v.vz = e->z;
-            func_80070284(&v, D_8013DDE0, 1, 0, 0);
-            func_80070284(&v, D_800B1F1C, 1, 0, 0);
+            Shockwave_Spawn(&v, D_8013DDE0, 1, 0, 0);
+            Shockwave_Spawn(&v, D_800B1F1C, 1, 0, 0);
             for (i = 0; i < 0x10; i++) {
                 Effect_Spawn(0xCA, &v.vx, D_8013DF28, 0);
             }
@@ -135,8 +135,8 @@ void func_8013DAEC(Obj_8013DAEC *e) {
             e->vz = 0;
             e->vx = 0;
             e->y = e->floor;
-            e->vy = -0x78 - (s32)((u32)(((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) * 5) >> 5);
-            func_8005588C(e, 0x1E);
+            e->vy = -0x78 - (s32)((u32)(((g_RandSeed2 = g_RandSeed2 * 5 + 1) >> 8) * 5) >> 5);
+            Object_Timer(e, 0x1E);
             func_8013DAA0(e, 0x94);
             func_8013DAA0(e, 0x43);
         }

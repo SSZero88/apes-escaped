@@ -1,19 +1,19 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-extern u8 D_800B3640[];
+extern u8 Msg_GlyphWidths[];
 u8 *Msg_ReadChar(u8 *p, u16 *out);
 
 M2C_UNK Msg_PutChar(u16, M2C_UNK, M2C_UNK);
 
-extern M2C_UNK D_800DF810;
+extern M2C_UNK Msg_Cursor;
 
 extern u8 g_Game_8D9D0[] asm("g_Game");
 #define G_DRAW_8D9D0 (*(GameDraw *)g_Game_8D9D0)
 typedef struct { u16 x, y, x0; } MsgCur_8D9D0;
-extern MsgCur_8D9D0 D_800DF810_8D9D0 asm("D_800DF810");
+extern MsgCur_8D9D0 D_800DF810_8D9D0 asm("Msg_Cursor");
 typedef struct { u16 clut, uv, w, h; } Glyph_8D9D0;
-extern Glyph_8D9D0 D_800B3738[];
+extern Glyph_8D9D0 Msg_Glyphs[];
 extern Glyph_8D9D0 D_800B37A0;
 extern Glyph_8D9D0 D_800B37C0;
 typedef struct { u32 tag; u32 tpage; u32 rgbc; u32 xy; u32 uvclut; u32 wh; } SprtTp_8D9D0;
@@ -41,7 +41,7 @@ M2C_UNK Msg_PutChar(u16 c, M2C_UNK pal, M2C_UNK unused) {
     p = (SprtTp_8D9D0 *)G_DRAW_8D9D0.prim;
     ot = G_DRAW_8D9D0.db[G_DRAW_8D9D0.cur].hud;
     if (c & 0x100) { u32 mm; u32 hh;
-        g = &D_800B3738[c & 0xFF];
+        g = &Msg_Glyphs[c & 0xFF];
         yy = y;
         if ((c & 0xFF) == 0xB) {
             yy = y - 5;
@@ -81,14 +81,14 @@ M2C_UNK Msg_PutChar(u16 c, M2C_UNK pal, M2C_UNK unused) {
             p->tpage = 0xE1000257;
             p->rgbc = 0x67000000;
             p->xy = (y << 16) | (((s16)x + i) & 0xFFFF);
-            p->wh = D_800B3640[c] | 0x100000;
+            p->wh = Msg_GlyphWidths[c] | 0x100000;
             p->uvclut = ((c << 8) & 0x7000) | ((c % 16) << 4) | ((((pal + (c >> 7)) << 6) | 0x1C) << 16);
             ((PT_8D9D0 *)p)->addr = ((PT_8D9D0 *)ot)->addr;
             ((PT_8D9D0 *)ot)->addr = (u32)p;
             p++;
         }
         __asm__("" :: "r"(ot), "r"(ot));
-        x += D_800B3640[c];
+        x += Msg_GlyphWidths[c];
         if (c != 0xCC && c != 0xCE) {
             x++;
         }
@@ -110,13 +110,13 @@ u8 *Msg_ReadChar(u8 *p, u16 *out) {
     return p;
 }
 
-void func_8008DDB0(s16 arg0, s16 arg1) {
-    M2C_FIELD(&D_800DF810, s16 *, 0) = arg0;
-    M2C_FIELD(&D_800DF810, s16 *, 4) = arg0;
-    M2C_FIELD(&D_800DF810, s16 *, 2) = arg1;
+void Msg_SetPos(s16 arg0, s16 arg1) {
+    M2C_FIELD(&Msg_Cursor, s16 *, 0) = arg0;
+    M2C_FIELD(&Msg_Cursor, s16 *, 4) = arg0;
+    M2C_FIELD(&Msg_Cursor, s16 *, 2) = arg1;
 }
 
-void func_8008DDC8(s32 arg0)
+void Msg_DrawString(s32 arg0)
 {
   u16 sp10;
   s32 temp_s0;
@@ -132,16 +132,16 @@ void func_8008DDC8(s32 arg0)
   }
 }
 
-/* Same as Text_GetWidth with the width table D_800B3640 (another font). */
+/* Same as Text_GetWidth with the width table Msg_GlyphWidths (another font). */
 s32 Text_GetWidth2(u8 *s) {
     s32 w = 0;
     while (*s != 0 && *s != 0xD) {
-        w += D_800B3640[*s++];
+        w += Msg_GlyphWidths[*s++];
     }
     return w;
 }
 
-s32 func_8008DE68(u8 *p, u16 end) {
+s32 Msg_GetWidthUntil(u8 *p, u16 end) {
     s32 sum = 0;
     u16 c;
     while (1) {
@@ -149,7 +149,7 @@ s32 func_8008DE68(u8 *p, u16 end) {
         if (c == end) {
             break;
         }
-        sum += D_800B3640[c];
+        sum += Msg_GlyphWidths[c];
     }
     return sum;
 }

@@ -35,21 +35,21 @@ typedef struct { s32 vx, vy, vz; } VEC_8004F548_8004F548;
 
 s32 Vec_Length(s32, s32, s32);
 
-/* func_8004F548: height on a ramp collision shape o at point p: kinds 0x4A/0x4C slope along x,
+/* Coll_RampPieceHeight: height on a ramp collision shape o at point p: kinds 0x4A/0x4C slope along x,
  * others along z (direction by f_2C: 0 / 0x5A). Within the half-length f_6 on the slope axis and
  * 0x48 across it, the height runs linearly from f_A*2 to f_8; 0 outside. */
-s32 func_8004F548(S_O_8004F548_8004F548 *o, VEC_8004F548_8004F548 *p);
+s32 Coll_RampPieceHeight(S_O_8004F548_8004F548 *o, VEC_8004F548_8004F548 *p);
 extern s32 D_800AF2F0;
 extern s32 D_800AF2EC;
 extern struct S_D_800A4DF0 { s32 v[4]; } D_800A4DF0;
 s32 Geo_DiagonalDistance(s32, s32 *, SVEC_8004F330_8004F330 *, VEC_8004F330_8004F330 *);
-extern s32 (*D_800AF180[])(s16, SV_8004F884_8004F884 *, V_8004F884_8004F884 *, W_8004F884_8004F884 *);
+extern s32 (*Surface_Handlers[])(s16, SV_8004F884_8004F884 *, V_8004F884_8004F884 *, W_8004F884_8004F884 *);
 void VectorNormalS(void *, void *);
 s32 ratan2(s32, s32);
 /* Centre of a quarter-round corner piece 'F'..'I' (+0x10): its box centre (+0, +4) moved by the
  * half sizes (+6, +0xA) to the corner the arc is drawn around; out[0] x, out[1] z. */
 s32 CurvedCorner_GetCentre(S_4FE48_8004FE48 *b, s32 *out);
-s32 func_8004FC8C(O_8004FC8C_8004FC8C *o, P_8004FC8C_8004FC8C *p, s32 ext, s16 *out);
+s32 CurvedCorner_InBox(O_8004FC8C_8004FC8C *o, P_8004FC8C_8004FC8C *p, s32 ext, s16 *out);
 struct Game_4E444 { u8 pad0[0x8296]; s16 f_8296; };
 extern struct Game_4E444 g_Game;
 s32 SquareRoot0(s32);
@@ -69,11 +69,11 @@ extern Water_4D8C0 *D_800AF2E8;
 extern s16 *D_800B8CF0;
 extern Cell_4D8C0 *D_800B8CF4;
 s32 Collision_TickCounter(void);
-s32 func_800889B4(s16, s16);
-s32 func_8004DF38();
+s32 Quadrant_Bit(s16, s16);
+s32 Coll_ObjectFloorHeight();
 s32 Water_Query(s32, s32, s32);
 
-s32 func_8004D8C0(s32 x, s32 y, s32 z)
+s32 Floor_QueryCells(s32 x, s32 y, s32 z)
 {
   W_8004F884_8004F884 h;
   int new_var;
@@ -141,7 +141,7 @@ s32 func_8004D8C0(s32 x, s32 y, s32 z)
           {
             new_var = D_800B8CF4[i].f_12 & 0xFF;
             h.a = -(D_800B8CF4[i].f_2 << 9);
-            if (D_800AF180[new_var](new_var, &D_800B8CF4[i].f_6, &pos, &h) == 0)
+            if (Surface_Handlers[new_var](new_var, &D_800B8CF4[i].f_6, &pos, &h) == 0)
             {
               if (D_800B8CF4[i].f_2 < cy)
               {
@@ -191,14 +191,14 @@ s32 func_8004D8C0(s32 x, s32 y, s32 z)
     y = best;
   }
   objHit = -1;
-  mask = func_800889B4(x, z);
+  mask = Quadrant_Bit(x, z);
   for (;;)
   {
     for (j = g_Game_4D8C0.f_8284 - 1; j >= 0; j--)
     {
       if (((g_Game_4D8C0.f_820C[j].f_20 & mask) && (g_Game_4D8C0.f_8290 != j)) && (!(g_Game_4D8C0.f_820C[j].f_18 & 0x8000)))
       {
-        r = func_8004DF38(&g_Game_4D8C0.f_820C[j], x, y, z);
+        r = Coll_ObjectFloorHeight(&g_Game_4D8C0.f_820C[j], x, y, z);
         if ((r != 0) && ((r = g_Game_4D8C0.f_820C[j].f_2 - r) < objBest))
         {
           onx = D_800AF2EC;
@@ -281,18 +281,18 @@ s32 func_8004D8C0(s32 x, s32 y, s32 z)
 }
 
 typedef struct { s16 x, y, z, w, h, d; u8 padC[4]; u16 f_10; u8 pad12[2]; u16 f_14; } O_4DF38_8004DF38;
-extern s32 (*D_800AF180_DF38[])(s32, s16 *, s32 *, s32 *) asm("D_800AF180");
+extern s32 (*D_800AF180_DF38[])(s32, s16 *, s32 *, s32 *) asm("Surface_Handlers");
 s32 func_80079A28_DF38(s16, s16) asm("func_80079A28");
 s32 Coll_PastEdge_DF38(O_4DF38_8004DF38 *, s32 *) asm("Coll_PastEdge");
-s32 func_8004F438_DF38(O_4DF38_8004DF38 *, s32 *, s32 *) asm("func_8004F438");
+s32 func_8004F438_DF38(O_4DF38_8004DF38 *, s32 *, s32 *) asm("Coll_RingFloorHeight");
 s32 Coll_CurvedCorner_DF38(O_4DF38_8004DF38 *, s32 *, s32 *, s16 *) asm("Coll_CurvedCorner");
 s32 Coll_HalfCylinderHeight_DF38(s32, s16 *, s32 *, s32 *) asm("Coll_HalfCylinderHeight");
 s32 Surface_CylinderHeight_DF38(s16, s16 *, s32 *, s32 *) asm("Surface_CylinderHeight");
-s32 func_8004F514_DF38(O_4DF38_8004DF38 *, s32 *, s32 *) asm("func_8004F514");
+s32 func_8004F514_DF38(O_4DF38_8004DF38 *, s32 *, s32 *) asm("Coll_RampPieceFloor");
 
 /* Floor height of collision object o under point (x,y,z): dispatches on the shape kind (+0x10) to
  * ramps, curved corners, half-cylinders, cylinders and boxes; 0 when the point is outside or above. */
-s32 func_8004DF38(O_4DF38_8004DF38 *o, s32 x, s32 y, s32 z) {
+s32 Coll_ObjectFloorHeight(O_4DF38_8004DF38 *o, s32 x, s32 y, s32 z) {
     s32 pos[3];
     s32 res[2];
     s32 q[3];
@@ -431,7 +431,7 @@ miss:
     return 0;
 }
 
-s32 func_8004E33C(s16 k, S_8004E33C_8004E33C *b, s32 *p, s32 *out) {
+s32 Surface_FlatZero(s16 k, S_8004E33C_8004E33C *b, s32 *p, s32 *out) {
     s16 x;
     s16 z;
 
@@ -552,7 +552,7 @@ done:
 struct Game_4E63C { u8 pad0[0x8296]; s16 f_8296; };
 extern struct Game_4E63C g_Game_4E63C asm("g_Game");
 
-s32 func_8004E63C(s16 kind, s16 *b, s32 *p, s32 *out) {
+s32 Surface_SlopeEdgeHeight(s16 kind, s16 *b, s32 *p, s32 *out) {
     s16 dir;
     s16 oz;
     s16 ox;
@@ -693,10 +693,10 @@ s32 func_8004E63C(s16 kind, s16 *b, s32 *p, s32 *out) {
 
 
 
-/* func_8004E8F8: floor test for a diagonal collision shape (kinds from 0x37, direction from the
+/* Surface_DiagonalPathHeight: floor test for a diagonal collision shape (kinds from 0x37, direction from the
  * table D_800A4DF0): only while g_Game+0x8296 is 1, inside the box +-b->f_0 x +-b->f_4, and within
  * 0x40 of the diagonal (Geo_DiagonalDistance); then *out = height b->f_2 and it returns 1. */
-s32 func_8004E8F8(s16 k, S_8004E8F8_8004E8F8 *b, s32 *p, s32 *out) {
+s32 Surface_DiagonalPathHeight(s16 k, S_8004E8F8_8004E8F8 *b, s32 *p, s32 *out) {
     struct S_D_800A4DF0 tbl = D_800A4DF0;
     VEC_8004E8F8_8004E8F8 r;
     SVEC_8004E8F8_8004E8F8 sv;
@@ -807,11 +807,11 @@ INCLUDE_RODATA("asm/nonmatchings/game/8004D8C0_collision", jtbl_800A4E00_pad);
 
 
 s32 Coll_HalfCylinderHeight_EC3C(s16, s16 *, s32 *, s32 *) asm("Coll_HalfCylinderHeight");
-/* func_8004EC3C: floor test for collision shape kinds 0x24/0x25 (half cylinders, via
+/* Surface_RoundFloorHeight: floor test for collision shape kinds 0x24/0x25 (half cylinders, via
  * Coll_HalfCylinderHeight) and round floors (within radius e[0] of p: height e[1]); kinds
  * 0x46-0x49, 0x52-0x54 have no floor here. The no-op kind++/kind-- is a permuter find needed for
  * the register allocation. */
-s32 func_8004EC3C(u16 kind, s16 *e, s32 *p, s32 *out) {
+s32 Surface_RoundFloorHeight(u16 kind, s16 *e, s32 *p, s32 *out) {
     s32 h;
 
     *out = 0;
@@ -846,7 +846,7 @@ miss:
 typedef struct { s32 vx, vy, vz; } VEC_8004ED30;
 
 /* Height on a sloped-step collision box (kinds 11-18): a ramp rising along +-x or +-z; also sets the slope push (D_800AF2EC/F0). */
-s32 func_8004ED30(s16 k, SVECTOR *a, VEC_8004ED30 *b, s32 *out) {
+s32 Surface_StepRampHeight(s16 k, SVECTOR *a, VEC_8004ED30 *b, s32 *out) {
     if (b->vx < -a->vx || a->vx < b->vx || b->vz < -a->vz || a->vz < b->vz) {
         return 0;
     }
@@ -977,7 +977,7 @@ s32 Coll_RampHeight(s16 kind, s16 *e, V3_4F000_8004F000 *p, s32 *h) {
     return 1;
 }
 
-s32 func_8004F330(s16 k, S_8004F330_8004F330 *b, s32 *p, s32 *out) {
+s32 Surface_DiagonalHeight(s16 k, S_8004F330_8004F330 *b, s32 *p, s32 *out) {
     struct S_D_800A4DF0 tbl = D_800A4DF0;
     VEC_8004F330_8004F330 r;
     SVEC_8004F330_8004F330 sv;
@@ -999,7 +999,7 @@ s32 func_8004F330(s16 k, S_8004F330_8004F330 *b, s32 *p, s32 *out) {
     return 1;
 }
 
-s32 func_8004F438(S_4F438_8004F438 *a, s32 *pos, s32 *out) {
+s32 Coll_RingFloorHeight(S_4F438_8004F438 *a, s32 *pos, s32 *out) {
     s32 w;
     s32 ang;
     *out = 0;
@@ -1015,16 +1015,16 @@ s32 func_8004F438(S_4F438_8004F438 *a, s32 *pos, s32 *out) {
     return 1;
 }
 
-s32 func_8004F514(void *arg0, void *arg1, s32 *arg2) {
+s32 Coll_RampPieceFloor(void *arg0, void *arg1, s32 *arg2) {
     s32 temp_v0;
 
     *arg2 = 0;
-    temp_v0 = func_8004F548(arg0, arg1);
+    temp_v0 = Coll_RampPieceHeight(arg0, arg1);
     *arg2 = temp_v0;
     return temp_v0 != 0;
 }
 
-s32 func_8004F548(S_O_8004F548_8004F548 *o, VEC_8004F548_8004F548 *p) {
+s32 Coll_RampPieceHeight(S_O_8004F548_8004F548 *o, VEC_8004F548_8004F548 *p) {
     s32 lim = 0x48;
     s32 ox = o->f_0;
     s32 px = p->vx;
@@ -1066,7 +1066,7 @@ extern struct S_D_800EC350_8004F6E8 g_Game_4F6E8 asm("g_Game");
 extern S_Cell_8004F6E8 *D_800B8CF4_4F6E8 asm("D_800B8CF4");
 extern s16 *D_800B8CF0_4F6E8 asm("D_800B8CF0");
 
-S_Cell_8004F6E8 *func_8004F6E8(s16 *p) {
+S_Cell_8004F6E8 *Coll_FindCell(s16 *p) {
     S_Cell_8004F6E8 *bb;
     struct S_D_800EC350_8004F6E8 *d = &g_Game_4F6E8;
     s32 w = d->f_82A8;
@@ -1123,7 +1123,7 @@ end:
     return res;
 }
 
-s32 func_8004F884(s32 idx, S_8004F884_8004F884 *s, V_8004F884_8004F884 *p, s32 *out) {
+s32 Surface_QueryShape(s32 idx, S_8004F884_8004F884 *s, V_8004F884_8004F884 *p, s32 *out) {
     SV_8004F884_8004F884 sv[2];
     s32 unused[2];
     W_8004F884_8004F884 w;
@@ -1137,7 +1137,7 @@ s32 func_8004F884(s32 idx, S_8004F884_8004F884 *s, V_8004F884_8004F884 *p, s32 *
     sv[1].vy = s->f_8;
     sv[1].vz = s->f_A;
     w.a = s->f_2;
-    ret = D_800AF180[idx](idx, &sv[1], &v, &w);
+    ret = Surface_Handlers[idx](idx, &sv[1], &v, &w);
     if ((u32)(idx - 0x40) < 4) {
         out[0] = s->f_2 - w.b;
         out[1] = w.a - w.b;
@@ -1148,7 +1148,7 @@ s32 func_8004F884(s32 idx, S_8004F884_8004F884 *s, V_8004F884_8004F884 *p, s32 *
     return ret;
 }
 
-/* Quarter-round corner piece ('F'..'I', see func_8004FC8C): ring of radius +6 +- +0x24 around the
+/* Quarter-round corner piece ('F'..'I', see CurvedCorner_InBox): ring of radius +6 +- +0x24 around the
  * corner centre (CurvedCorner_GetCentre). Returns the floor height at p, interpolated from +0x26 to +8
  * along the arc, and the slope direction scaled by the height change in out[0..1]; -1 if p is
  * too far below, -2 off the ring (q[0] = p's radius), -3 outside the corner box. */
@@ -1179,7 +1179,7 @@ s32 Coll_CurvedCorner(O_8004F984_8004F984 *o, P_8004F984_8004F984 *p, s32 *q, s1
     if (inner + r < ABS(outer - d)) {
         return -2;
     }
-    if (func_8004FC8C(o, p, r, angs) < 0) {
+    if (CurvedCorner_InBox(o, p, r, angs) < 0) {
         return -3;
     }
     v.vx = p->x - c[0];
@@ -1214,7 +1214,7 @@ s32 Coll_CurvedCorner(O_8004F984_8004F984 *o, P_8004F984_8004F984 *p, s32 *q, s1
  * size +6/+0xA around (+0, +4), extended by ext towards one corner? On a hit writes that corner's
  * angle range to out[0..1] ('F' 0x800-0xC00, 'G' 0x400-0x800, 'H' 0-0x400, 'I' 0xC00-0) and
  * returns 0; a miss returns -1, other types 0. Used by Coll_CurvedCorner. */
-s32 func_8004FC8C(O_8004FC8C_8004FC8C *o, P_8004FC8C_8004FC8C *p, s32 ext, s16 *out) {
+s32 CurvedCorner_InBox(O_8004FC8C_8004FC8C *o, P_8004FC8C_8004FC8C *p, s32 ext, s16 *out) {
     s32 w = o->f_6;
     s32 d = o->f_A;
     s32 we = w + ext;

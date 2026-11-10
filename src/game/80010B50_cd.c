@@ -32,7 +32,7 @@ typedef struct { u8 com; u8 pad1[3]; s32 prm[3]; u8 *result; u8 *done; s32 *para
 typedef struct { u32 f_0; u8 pad4[0x28]; s32 f_2C; u8 pad30[0xC]; s32 f_3C; u8 pad40[4]; u8 f_44[8]; s32 f_4C; s32 f_50; u8 pad54[8]; s32 f_5C; s32 f_60; u8 pad64[4]; s32 f_68; s32 f_6C; u8 f_70[4]; s16 f_74; s16 f_76; CdReq_80012360_800125B8 q[16]; } Cd_800125B8_800125B8;
 typedef struct { s32 w[15]; } Exe_11A2C_80011A2C;
 
-void func_80068D10(s32);
+void Tex_LoadPack(s32);
 void DrawSync(s32);
 void Sound_LoadBanks(s32);
 
@@ -73,21 +73,21 @@ struct S_D_800EC350_800114D8 { u8 pad_0[0x8126]; s16 f_8126; };
 struct S_D_800A81B0_800114D8 { S_File_800114D8_800114D8 *f_0; s32 f_4; };
 extern struct S_D_800A8530 { s32 f_0; s32 f_4; u8 f_8; u8 f_9; u8 f_A; u8 f_B; } g_XaTracks[];
 struct S_D_800E3890_80011F6C { u8 pad0[0x30]; s32 f_30; u8 pad34[0xC]; s16 f_40; u8 pad42[2]; u8 f_44[0x2C]; };
-void func_80086248(s32);
-u8 *func_8009628C(void);
+void Sound_SetXaVolume(s32);
+u8 *Save_GetBlock(void);
 extern void *g_StageWork;
 extern u8 g_Objects[][0xE4];
-extern M2C_UNK D_800E68D0;
+extern M2C_UNK g_CameraState;
 extern M2C_UNK D_800E68C0;
 extern M2C_UNK g_GadgetState;
 extern M2C_UNK g_Spike;
 extern u8 g_Monkeys[8][0x250];
-void *func_8008C000(s32);
+void *Mem_PoolTail(s32);
 void Mem_ZeroWords(void *, s32);
 struct S_D_800A81B0_80010B50 { StageInfo_80010B50_80010B50 *f_0; s32 f_4; };
 
 /* Stage load: allocates the 0x7800-byte stage work buffer (kept in g_StageWork and the stage's
- * info record), then zeroes the 8 monkeys, Spike, the 16 g_Objects, the camera (D_800E68D0),
+ * info record), then zeroes the 8 monkeys, Spike, the 16 g_Objects, the camera (g_CameraState),
  * D_800E68C0 and g_GadgetState. */
 extern s32 D_800E38C4;
 s32 CdControl(u8 com, u8 *param, u8 *result);
@@ -111,8 +111,8 @@ void Gfx_InitDisplay(void);
 s32 Cd_StartFileLoad(s32, s32);
 s32 Cd_PollLoadList(void);
 void Gfx_BeginFrame(void);
-void func_8008DDB0(s32, s32);
-void func_8008DDC8(char *);
+void Msg_SetPos(s32, s32);
+void Msg_DrawString(char *);
 struct S_D_800EC350_80011754 { u8 pad0[0x8126]; s16 f_8126; };
 extern CdEnt_80011CF8_80011CF8 g_CdFileTable[];
 extern char Cd_ArchiveName[];
@@ -131,7 +131,7 @@ struct Game_11A2C { u8 pad0[0x8120]; u16 f_8120; u8 pad8122[0x16]; u8 f_8138; u8
 extern s8 g_MinigameExeFiles[];
 u8 *Minigame_GetSaveData(s32 n);
 s32 Exe_Load();
-void func_800864DC(void);
+void Sound_SaveVolumes(void);
 void Sound_RestoreVolumes(void);
 void System_Shutdown(void);
 void func_8002F210(void);
@@ -144,7 +144,7 @@ struct g_Game_800115F4 { u8 pad0[0x812C]; u8 f_812C; };
 extern u8 g_SharedAreaSet[];
 
 s32 Stage_ResetActors(s32 stage) {
-    void *p = func_8008C000(0x7800);
+    void *p = Mem_PoolTail(0x7800);
     s32 i;
     g_StageWork = p;
     ((struct S_D_800A81B0_80010B50 *)&g_AreaTable)[stage].f_0->f_1C = p;
@@ -155,7 +155,7 @@ s32 Stage_ResetActors(s32 stage) {
     for (i = 0; i < 16; i++) {
         Mem_ZeroWords(g_Objects[i], 0x39);
     }
-    Mem_ZeroWords(&D_800E68D0, 0x1F);
+    Mem_ZeroWords(&g_CameraState, 0x1F);
     Mem_ZeroWords(&D_800E68C0, 4);
     Mem_ZeroWords(&g_GadgetState, 0x2A);
     return 0;
@@ -448,7 +448,7 @@ block_4:
 }
 
 /* Startup loading screen: clears both display buffers, loads file 6 to 0x80154000 and hands it
- * to func_80068D10 (font/graphics), then streams the files listed in Boot_LoadFiles ({1, 7, 12}, -1
+ * to Tex_LoadPack (font/graphics), then streams the files listed in Boot_LoadFiles ({1, 7, 12}, -1
  * terminated) one by one while "Now Loading..." (Boot_NowLoadingText in the game's font codes) blinks at
  * 110,180 (shown when frame % 40 >= 21). Returns 0 when the list is done. */
 s32 Boot_LoadingScreen(void) {
@@ -468,7 +468,7 @@ s32 Boot_LoadingScreen(void) {
     DrawSync(0);
     Cd_ReadFile(6, 0x80154000);
     Cd_WaitIdle(0);
-    func_80068D10(0x80154000);
+    Tex_LoadPack(0x80154000);
     DrawSync(0);
     Gfx_InitDisplay();
     ResetGraph(1);
@@ -487,8 +487,8 @@ s32 Boot_LoadingScreen(void) {
             Cd_StartFileLoad(0, Boot_LoadFiles[i]);
         }
         if (G.frame % 40 >= 21) {
-            func_8008DDB0(0x6E, 0xB4);
-            func_8008DDC8(Boot_NowLoadingText);
+            Msg_SetPos(0x6E, 0xB4);
+            Msg_DrawString(Boot_NowLoadingText);
         }
         Cd_Update();
         DrawSync(0);
@@ -503,7 +503,7 @@ s32 Boot_LoadingScreen(void) {
 s32 Cd_ProcessLoaded(s32 a, s32 b) {
     switch (a) {
     case 1:
-        func_80068D10(b);
+        Tex_LoadPack(b);
         DrawSync(0);
         break;
     case 2:
@@ -520,7 +520,7 @@ s32 Cd_ProcessLoaded(s32 a, s32 b) {
 }
 
 u8 *Minigame_GetSaveData(s32 n) {
-    return func_8009628C() + (n * 0x84 + 0x168);
+    return Save_GetBlock() + (n * 0x84 + 0x168);
 }
 
 s32 Minigame_Run(s32 n) {
@@ -540,7 +540,7 @@ s32 Minigame_Run(s32 n) {
     for (i = 0; i < 0x40; i++) {
         sc[i + 1] = p[i];
     }
-    func_800864DC();
+    Sound_SaveVolumes();
     Exe_Load(g_MinigameExeFiles[n], &exe);
     System_Shutdown();
     exe.w[8] = 0x801EFFF0;
@@ -664,7 +664,7 @@ s32 Cd_PlayXaTrack(s32 n) {
         v = -1;
         break;
     }
-    func_80086248(v);
+    Sound_SetXaVolume(v);
     Cd_QueueCommand(0xB, 0, V_11F6C->f_44, 0);
     filt[0] = g_XaTracks[n].f_8;
     filt[1] = g_XaTracks[n].f_9;

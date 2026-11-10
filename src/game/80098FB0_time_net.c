@@ -19,7 +19,7 @@ extern SVECTOR D_800A6838;
 extern Mat_98FEC D_800F4910;
 extern Mat_98FEC D_800E78C0_98FEC asm("g_ViewMatrix");
 extern u8 g_ProjVerts[];
-extern u32 *D_800EC358;
+extern u32 *g_GameOt;
 void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
 void RotTransSV(SVECTOR *a, SVECTOR *b, s32 *flag);
@@ -92,7 +92,7 @@ void TimeNet_Update(void) {
     CompMatrix(&D_800E78C0_98FEC, &g_TimeNetModel.obj->handle, &g_TimeNetModel.obj->handle);
     CompMatrix(&D_800E78C0_98FEC, &g_TimeNetModel.obj->net, &g_TimeNetModel.obj->net);
     Model_ProjectBonedVerts(&g_TimeNetModel);
-    Model_Draw(D_800EC358, g_ProjVerts, &g_TimeNetModel);
+    Model_Draw(g_GameOt, g_ProjVerts, &g_TimeNetModel);
 }
 
 INCLUDE_RODATA("asm/nonmatchings/game/80098FB0_time_net", D_800A6830);

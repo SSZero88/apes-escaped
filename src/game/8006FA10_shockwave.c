@@ -13,18 +13,18 @@ typedef struct { u8 pad[0x20]; } Mdl_71370_80071370;
 typedef struct { u8 draw[0x5C]; u8 disp[0x14]; u32 ot[0x1000]; u8 pad[8]; } Db_71370_80071370;
 typedef struct { u32 frame; u8 pad4[8]; s32 cur; Db_71370_80071370 db[2]; } Game_71370_80071370;
 
-extern u8 D_800B1BD0;
+extern u8 Shockwave_NextSlot;
 
 extern struct S_D_800BAF00 { u8 pad_0[0x4A]; s8 f_4A; u8 pad_4B[0x9]; } g_Shockwaves[];
 
-extern s8 D_800B205C;
-extern M2C_UNK D_800BB840;
+extern s8 Puff_NextSlot;
+extern M2C_UNK Puff_Slots;
 
-void func_80070130(SVECTOR *pos, S_Obj_80070130_80070130 *tmpl, s32 n, s32 base, s32 step, s32 flag);
-extern struct S_D_800BB920 { u8 pad_0[0x3C]; s8 f_3C; u8 pad_3D[0x7]; } D_800BB920[];
+void Shockwave_SpawnRings(SVECTOR *pos, S_Obj_80070130_80070130 *tmpl, s32 n, s32 base, s32 step, s32 flag);
+extern struct S_D_800BB920 { u8 pad_0[0x3C]; s8 f_3C; u8 pad_3D[0x7]; } Debris_Pieces[];
 extern MAT_80070130_80070130 D_800B1BB0;
 void Matrix_FromDirection(s32, MAT_80070130_80070130 *);
-S_BAF00 *func_8006FE7C(void);
+S_BAF00 *Shockwave_Alloc(void);
 int abs(int);
 void Shockwave_Draw(struct S_D_800BAF00 *);
 Coll_8006FEE8_8006FEE8 *CollShape_Alloc(void);
@@ -34,10 +34,10 @@ extern u32 D_800B2054[];
 extern u16 g_RandSeed;
 struct S_D_800BB840_80070B70 { u32 *f_0; void *f_4; s16 f_8; s16 f_A; s16 f_C; u8 padE[2]; s16 f_10; s16 f_12; s16 f_14; u8 pad16[2]; u8 f_18; u8 f_19; s16 f_1A; };
 extern u8 D_800B1B78[];
-void func_8006F3D0(SV_70D94_80070D94 *, s32, u8 *, s32);
+void Fx_DrawRibbon(SV_70D94_80070D94 *, s32, u8 *, s32);
 struct S_D_800BB840_80070D94 { PuffGfx_80070D94 *f_0; void *f_4; s16 f_8; s16 f_A; s16 f_C; u8 padE[2]; s16 f_10; s16 f_12; s16 f_14; u8 pad16[2]; s8 f_18; u8 f_19; u16 f_1A; };
 extern Game_71370_80071370 g_Game;
-extern Mdl_71370_80071370 *D_800B4D64;
+extern Mdl_71370_80071370 *g_StageMeshes;
 extern MAT_71370_80071370 g_ViewMatrix;
 extern u8 g_ProjVerts[];
 void RotMatrixZYX(SV3_71370_80071370 *, MAT_71370_80071370 *);
@@ -56,7 +56,7 @@ typedef struct { s32 z[33]; s32 sxy[33][2]; MAT_71370_80071370 m; SVECTOR a; SVE
 #define SCR_M_6FA10 (&scr->m)
 #define SCR_A_6FA10 (&scr->a)
 #define SCR_B_6FA10 (&scr->b)
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 void Matrix_SetIdentity(MAT_71370_80071370 *);
 void RotMatrixZ(s32, MAT_71370_80071370 *);
 void SetRotMatrix(MAT_71370_80071370 *);
@@ -153,10 +153,10 @@ void Shockwave_Draw(struct S_D_800BAF00 *ep) {
         }
         prev = cur;
     }
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
 }
 
-void func_8006FE54(void) {
+void Shockwave_ClearAll(void) {
     s32 i;
 
     for (i = 15; i >= 0; i--) {
@@ -164,14 +164,14 @@ void func_8006FE54(void) {
     }
 }
 
-S_BAF00 *func_8006FE7C(void) {
-    S_BAF00 *p = &g_Shockwaves[D_800B1BD0];
+S_BAF00 *Shockwave_Alloc(void) {
+    S_BAF00 *p = &g_Shockwaves[Shockwave_NextSlot];
     p->unkE = 0x10;
     p->unk4E = 0;
     p->unkA = 0;
     p->unkC = 0;
     p->unk14 = 0;
-    D_800B1BD0 = (D_800B1BD0 + 1) % 16;
+    Shockwave_NextSlot = (Shockwave_NextSlot + 1) % 16;
     return p;
 }
 
@@ -233,7 +233,7 @@ void Shockwave_UpdateAll(void)
 
 }
 
-void func_80070130(SVECTOR *pos, S_Obj_80070130_80070130 *tmpl, s32 n, s32 base, s32 step, s32 flag) {
+void Shockwave_SpawnRings(SVECTOR *pos, S_Obj_80070130_80070130 *tmpl, s32 n, s32 base, s32 step, s32 flag) {
     MAT_80070130_80070130 m;
     MAT_80070130_80070130 *mp;
     S_Obj_80070130_80070130 *o;
@@ -247,7 +247,7 @@ void func_80070130(SVECTOR *pos, S_Obj_80070130_80070130 *tmpl, s32 n, s32 base,
         return;
     }
 loop:
-    o = func_8006FE7C();
+    o = Shockwave_Alloc();
     *o = *tmpl;
     o->f_0 = *pos;
     o->f_4E = base + (n - 1) * step;
@@ -258,19 +258,19 @@ loop:
     }
 }
 
-void func_80070284(void *arg0, s32 *arg1, s32 arg2, s32 arg3, s32 arg4) {
-    func_80070130(arg0, arg1, arg2, arg3, 6, arg4);
+void Shockwave_Spawn(void *arg0, s32 *arg1, s32 arg2, s32 arg3, s32 arg4) {
+    Shockwave_SpawnRings(arg0, arg1, arg2, arg3, 6, arg4);
 }
 
 typedef struct { s16 x; s16 y; s16 z; u8 state; u8 size; u8 dx; u8 dz; s16 dy; u16 f_C; u16 f_E; s32 f_10; s16 f_14; s16 f_16; s16 f_18; u8 pad1A[2]; s16 ground; u8 f_1E; u8 f_1F; } Debris_800702B0;
 typedef struct { u8 count; u8 spread; u8 smin; u8 smax; u16 f_4; u16 f_6; s32 f_8; } DebrisDef_800702B0;
 typedef struct { s16 vx, vy, vz, pad; } SV_800702B0;
-extern Debris_800702B0 D_800BB440[];
+extern Debris_800702B0 Rock_Pieces[];
 s32 Floor_GetHeight(s32, s32, s32);
 void VectorNormalSS(void *in, void *out);
 #define RAND_702B0() (g_RandSeed = g_RandSeed * 5 + 1)
 
-void func_800702B0(SV_800702B0 *pos, DebrisDef_800702B0 *p) {
+void Rock_SpawnBurst(SV_800702B0 *pos, DebrisDef_800702B0 *p) {
     SV_800702B0 d;
     s32 ground;
     s32 n;
@@ -279,7 +279,7 @@ void func_800702B0(SV_800702B0 *pos, DebrisDef_800702B0 *p) {
     Debris_800702B0 *s;
 
     ground = Floor_GetHeight(pos->vx, pos->vy, pos->vz);
-    s = D_800BB440;
+    s = Rock_Pieces;
     n = p->count;
     for (i = 31; i >= 0; i--, s++) {
         if (s->state != 0) {
@@ -319,7 +319,7 @@ typedef struct { s16 vx, vy, vz, pad; } SV_70560;
 typedef struct { s16 x, y, z; u8 life; u8 scale; s8 vx, vz; s16 vy; u16 clut; u16 tpage; u8 u, v, du, dv; SV_70560 rot; s16 floor; s8 spin1, spin0; } Rock_70560;
 typedef struct { u8 pad0[0x40]; u32 sxy[8]; s32 otz; s32 opz; MAT_70560 m; MAT_70560 cam; } Scr_70560;
 typedef struct { u32 addr : 24; u32 len : 8; } Tag_70560;
-extern Rock_70560 D_800BB440_70560[32] asm("D_800BB440");
+extern Rock_70560 D_800BB440_70560[32] asm("Rock_Pieces");
 extern SV_70560 D_800B1FC4_70560[8] asm("D_800B1FC4");
 extern u32 D_800B2004_70560[8] asm("D_800B2004");
 extern u8 D_800B2024_70560[12][4] asm("D_800B2024");
@@ -340,11 +340,11 @@ void Effect_SpawnAt_70560(s32, void *) asm("Effect_SpawnAt");
 #define gte_nclip_70560() __asm__ volatile ("nop; nop; nclip")
 #define gte_stopz_70560(p) __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(p) : "memory")
 
-/* Updates and draws the 32 bouncing rock fragments (D_800BB440): each active rock spins, is drawn
+/* Updates and draws the 32 bouncing rock fragments (Rock_Pieces): each active rock spins, is drawn
    as a small 8-vertex, 12-face gouraud-textured model (semi-transparent on stage 0x23), and while
    on screen falls under gravity; hitting its floor height halves its speed, bounces it up (at most
    0x30) and, until its bounces run out, spawns effect 4. */
-void func_80070560(void) {
+void Rock_UpdateAll(void) {
     Scr_70560 *sc = (Scr_70560 *)0x1F800000;
     Rock_70560 *r;
     s32 i, f;
@@ -443,21 +443,21 @@ void Puff_ClearAll(void) {
     s32 var_v1;
 
     var_v1 = 7;
-    var_v0 = &D_800BB840;
+    var_v0 = &Puff_Slots;
     do {
         M2C_FIELD(var_v0, s8 *, 0x18) = 0;
         var_v1 -= 1;
         var_v0 = (void *)((u8 *)var_v0 + (0x1C));
     } while (var_v1 >= 0);
-    D_800B205C = 0;
+    Puff_NextSlot = 0;
 }
 
-/* Spawns a particle in the 8-entry ring D_800BB840 (next slot D_800B205C): graphic
+/* Spawns a particle in the 8-entry ring Puff_Slots (next slot Puff_NextSlot): graphic
  * D_800B2054[flags & 0xFF], follows pos, kind, random spin +0x1A, random velocity
  * (x/z +-speed/2, y up to -speed) and, with flags 0x100, a mirrored second velocity, otherwise a
  * second random one at twice the scale. Lives 7 frames. */
 void Puff_Spawn(void *pos, s32 kind, s32 flags, s32 speed) {
-    struct S_D_800BB840_80070B70 *e = &((struct S_D_800BB840_80070B70 *)&D_800BB840)[(*(u8 *)&D_800B205C)];
+    struct S_D_800BB840_80070B70 *e = &((struct S_D_800BB840_80070B70 *)&Puff_Slots)[(*(u8 *)&Puff_NextSlot)];
     e->f_18 = 7;
     e->f_0 = &D_800B2054[flags & 0xFF];
     e->f_4 = pos;
@@ -476,7 +476,7 @@ void Puff_Spawn(void *pos, s32 kind, s32 flags, s32 speed) {
         e->f_12 = ((((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * speed) >> 7;
         e->f_14 = ((((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) * speed) >> 7;
     }
-    (*(u8 *)&D_800B205C) = ((*(u8 *)&D_800B205C) + 1) % 8;
+    (*(u8 *)&Puff_NextSlot) = ((*(u8 *)&Puff_NextSlot) + 1) % 8;
 }
 
 /* Each frame, for every live puff: interpolates 8 points from pos+v1 to pos+v1+v2, jitters
@@ -494,7 +494,7 @@ void Puff_UpdateAll(void) {
     u16 seed;
 
     i = 7;
-    e = ((struct S_D_800BB840_80070D94 *)&D_800BB840);
+    e = ((struct S_D_800BB840_80070D94 *)&Puff_Slots);
     for (; i >= 0; i--, e++) {
         if (e->f_18 == 0) {
             continue;
@@ -528,17 +528,17 @@ void Puff_UpdateAll(void) {
             }
         }
         if (e->f_18 & 1) {
-            func_8006F3D0(pts, e->f_18 + 1, &D_800B1B78[e->f_0->f_0 * 8], e->f_0->f_1);
+            Fx_DrawRibbon(pts, e->f_18 + 1, &D_800B1B78[e->f_0->f_0 * 8], e->f_0->f_1);
         }
         e->f_18--;
     }
 }
 
-void func_800710F8(void) {
+void Debris_ClearAll(void) {
     s32 i;
 
     for (i = 11; i >= 0; i--) {
-        D_800BB920[i].f_3C = 0;
+        Debris_Pieces[i].f_3C = 0;
     }
 }
 
@@ -546,15 +546,15 @@ typedef struct { s16 vx, vy, vz, pad; } SV_71120;
 typedef struct { SV_71120 rot; SV_71120 spin; s16 x, y, z; s16 vx, vy, vz; u8 state; u8 f_1D; s16 ground; s16 f_20; s16 pad22; } Deb_71120;
 typedef struct { u8 m[0x20]; Deb_71120 d; } Piece_71120;
 typedef struct { s16 x, y, z, rx, ry, rz; } Off_71120;
-extern Piece_71120 D_800BB920_71120[] asm("D_800BB920");
+extern Piece_71120 D_800BB920_71120[] asm("Debris_Pieces");
 extern Off_71120 D_800B2060[];
-extern u8 D_800B205D;
-extern u16 D_800AE8F2;
+extern u8 Debris_NextSlot;
+extern u16 g_RandSeed2;
 void func_800147D0_71120(SV_71120 *, void *) asm("Matrix_SetScale");
 #define RAND_71120() (g_RandSeed = g_RandSeed * 5 + 1)
-#define RAND2_71120() (D_800AE8F2 = D_800AE8F2 * 5 + 1)
+#define RAND2_71120() (g_RandSeed2 = g_RandSeed2 * 5 + 1)
 
-void func_80071120(SV_71120 *pos, s32 kind) {
+void Debris_SpawnBurst(SV_71120 *pos, s32 kind) {
     s32 i;
     s32 g;
     Piece_71120 *p;
@@ -585,11 +585,11 @@ void func_80071120(SV_71120 *pos, s32 kind) {
         r.vy = o->ry;
         r.vz = o->rz;
         func_800147D0_71120(&r, p->m);
-        D_800B205D = (D_800B205D + 1) % 12;
+        Debris_NextSlot = (Debris_NextSlot + 1) % 12;
     }
 }
 
-/* Updates and draws the 12 debris pieces at D_800BB920: each spins by its rotation speed,
+/* Updates and draws the 12 debris pieces at Debris_Pieces: each spins by its rotation speed,
  * moves, falls (vy += 10) and on passing its floor height bounces with effect 5 (vy = -vy / 3)
  * until its bounce count runs out. On its last bounce it is drawn only every other frame. */
 void Debris_UpdateAll(void) {
@@ -598,7 +598,7 @@ void Debris_UpdateAll(void) {
     s32 i;
     s16 vy;
 
-    for (i = 11, d = ((struct S_D_800BB920_80071370 *)&D_800BB920); i >= 0; i--, d++) {
+    for (i = 11, d = ((struct S_D_800BB920_80071370 *)&Debris_Pieces); i >= 0; i--, d++) {
         if (d->bounces == 0) {
             continue;
         }
@@ -612,8 +612,8 @@ void Debris_UpdateAll(void) {
         m.t[2] = d->z;
         MulMatrix0(&m, &d->base, &m);
         CompMatrix(&g_ViewMatrix, &m, &m);
-        Model_ProjectVertsAlt(&D_800B4D64[d->model], &m, g_ProjVerts);
-        Model_DrawSubdiv(g_Game.db[g_Game.cur].ot, g_ProjVerts, &D_800B4D64[d->model]);
+        Model_ProjectVertsAlt(&g_StageMeshes[d->model], &m, g_ProjVerts);
+        Model_DrawSubdiv(g_Game.db[g_Game.cur].ot, g_ProjVerts, &g_StageMeshes[d->model]);
         d->rot.vx += d->rv.vx;
         d->rot.vy += d->rv.vy;
         d->rot.vz += d->rv.vz;

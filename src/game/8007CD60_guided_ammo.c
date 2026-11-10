@@ -4,7 +4,7 @@
 extern struct S_D_800F51F0 { s32 f_0; } g_GuidedTargets[];
 
 
-void func_8007CD60(void) {
+void GuidedAmmo_ClearTargets(void) {
     s32 i;
 
     for (i = 31; i >= 0; i--) {
@@ -12,7 +12,7 @@ void func_8007CD60(void) {
     }
 }
 
-s32 func_8007CD88(s32 a) {
+s32 GuidedAmmo_AddTarget(s32 a) {
     s32 i;
     for (i = 0; i < 32; i++) {
         if (g_GuidedTargets[i].f_0 == 0) {
@@ -23,7 +23,7 @@ s32 func_8007CD88(s32 a) {
     return -1;
 }
 
-void func_8007CDC4(s32 arg0) {
+void GuidedAmmo_RemoveTarget(s32 arg0) {
     s32 *var_v1;
     s32 var_a1;
 

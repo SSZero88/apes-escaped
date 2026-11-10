@@ -361,7 +361,7 @@ extern struct { u8 f_0; u8 f_1; u8 pad2[6]; u8 f_8; u8 f_9; u8 padA[2]; u16 f_C;
 extern struct { u8 pad0[6]; u16 f_6; } *g_Spike_8013DB94 asm("g_Spike");
 extern u8 g_ViewMatrix[];
 extern u8 g_ProjVerts[];
-extern s32 D_800EC358;
+extern s32 g_GameOt;
 void SetRotMatrix(void *);
 void SetTransMatrix(void *);
 s32 RotTransPers(SVECTOR *, s32 *, s32 *, s32 *);
@@ -416,9 +416,9 @@ s32 func_8013DB94(Mdl_8013DB94 *m, void *scale, s32 flags) {
     Model_ProjectBonedVerts(m);
     if ((u32)(D_80142320_8013DB94.f_1 - 2) < 3 || D_80142320_8013DB94.f_8) {
         Model_CycleVertexColors(g_ProjVerts, g_Spike_8013DB94->f_6);
-        Model_DrawCycledColors(D_800EC358, g_ProjVerts, m);
+        Model_DrawCycledColors(g_GameOt, g_ProjVerts, m);
     } else {
-        func_8013D0A0_8013DB94(D_800EC358, (s32)g_ProjVerts, m, flags);
+        func_8013D0A0_8013DB94(g_GameOt, (s32)g_ProjVerts, m, flags);
     }
     return 0;
 }
@@ -547,7 +547,7 @@ extern u8 D_80141FB0_8013E120[] asm("D_80141FB0");
 extern u8 D_80142004_8013E120[] asm("D_80142004");
 extern u8 D_80142338_8013E120[] asm("D_80142338");
 extern u32 D_80141F88_8013E120[] asm("D_80141F88");
-void func_80070284(void *, s32 *, s32, s32, s32);
+void Shockwave_Spawn(void *, s32 *, s32, s32, s32);
 void Fx_SpawnFadeRing(void *, s32, s32, s32);
 void Fx_DrawFadeRing(void *, s32, s32, s32);
 
@@ -580,7 +580,7 @@ void func_8013E120(void) {
                 e->f_B = 0x41;
                 Fx_SpawnFadeRing(&e->x, 1, 0x400, 0);
                 Camera_StartShake(2);
-                func_80070284(&e->x, (s32 *)D_80141FB0_8013E120, 1, 0, 0);
+                Shockwave_Spawn(&e->x, (s32 *)D_80141FB0_8013E120, 1, 0, 0);
                 func_8013D364((SVECTOR *)&e->x);
                 func_8013DFB0((s32)&e->x);
                 Sound_PlayFixed(0xB1);
@@ -602,7 +602,7 @@ void func_8013E120(void) {
                 for (j = 16; j > 0; j--) {
                     Effect_Spawn(0xCA, (s32)&e->x, (M2C_UNK *)D_80141F88_8013E120, 0);
                 }
-                func_80070284(&e->x, (s32 *)(D_80142004_8013E120 + e->f_1A * 0x54), 1, 0, 0);
+                Shockwave_Spawn(&e->x, (s32 *)(D_80142004_8013E120 + e->f_1A * 0x54), 1, 0, 0);
                 e->f_1A = 1;
                 Sound_PlayFixed(0xB1);
             }
@@ -624,10 +624,10 @@ extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013E4B4 asm("g_S
 extern s8 g_CurrentGadget;
 extern u8 D_800E6916;
 s32 rcos(s32);
-void func_80047464(void *, s32, s32, s32);
-void func_80047558(void *, s32, s32, s32);
-void func_8004CEA8(s8);
-void func_8004AF78(void *);
+void Camera_EaseEye(void *, s32, s32, s32);
+void Camera_EaseLookAt(void *, s32, s32, s32);
+void Screen_SetAfterimage(s8);
+void Camera_DrawAimReticle(void *);
 
 s32 func_8013E4B4(void *cam) {
     SVECTOR v;
@@ -654,13 +654,13 @@ s32 func_8013E4B4(void *cam) {
         t += 0x1F4;
         s->at.vy = s->eye.vy - t;
         s->at.vz = s->eye.vz + ((rsin(ang) * r) >> 12);
-        func_80047558(cam, 2, 2, 2);
-        func_80047464(cam, 2, 2, 2);
+        Camera_EaseLookAt(cam, 2, 2, 2);
+        Camera_EaseEye(cam, 2, 2, 2);
         if (st->f_E != 0) {
             st->f_E--;
         }
         if (st->f_E < 0x33) {
-            func_8004CEA8(4);
+            Screen_SetAfterimage(4);
         }
         return 1;
     }
@@ -692,10 +692,10 @@ s32 func_8013E4B4(void *cam) {
         }
     }
     if (g_CurrentGadget == 3 && D_800E6916 != 1) {
-        func_8004AF78(cam);
+        Camera_DrawAimReticle(cam);
     }
-    func_80047558(cam, 8, 0x10, 8);
-    func_80047464(cam, 8, 0x10, 8);
+    Camera_EaseLookAt(cam, 8, 0x10, 8);
+    Camera_EaseEye(cam, 8, 0x10, 8);
     return 1;
 }
 
@@ -734,8 +734,8 @@ s32 func_8013E8A8(void *cam) {
         s->at.vy = g_Spike_8013E8A8.y - 0x12C;
         s->at.vz = g_Spike_8013E8A8.z - ((dz * 32) >> 8);
     }
-    func_80047558(cam, 0xC, 0x10, 0xC);
-    func_80047464(cam, 0xC, 0x10, 0xC);
+    Camera_EaseLookAt(cam, 0xC, 0x10, 0xC);
+    Camera_EaseEye(cam, 0xC, 0x10, 0xC);
     return 1;
 }
 
@@ -768,14 +768,14 @@ extern struct { u8 pad0[0x8126]; u16 f_8126; u8 pad8128[2]; u16 f_812A; } g_Game
 extern Ofs_8013EA9C D_801422F8_8013EA9C[] asm("D_801422F8");
 extern u8 D_80142250_8013EA9C[] asm("D_80142250");
 void Effect_SpawnAt_8013EA9C(s32, void *) asm("Effect_SpawnAt");
-s32 func_80070284_8013EA9C(void *, void *, s32, s32, s32) asm("func_80070284");
+s32 func_80070284_8013EA9C(void *, void *, s32, s32, s32) asm("Shockwave_Spawn");
 s32 Camera_StartShake_8013EA9C(s32) asm("Camera_StartShake");
 s32 Sound_PlayFixed_8013EA9C(s32) asm("Sound_PlayFixed");
 s32 Pad_Vibrate_8013EA9C(s32, s32, s32) asm("Pad_Vibrate");
 void *memset_8013EA9C(void *, s32, s32) asm("memset");
 s32 Game_SetMode(s32, s32, s32);
-void func_8004BC9C(void);
-void func_8006C6A4_8013EA9C(void *) asm("func_8006C6A4");
+void Camera_StartRandomEventCam(void);
+void func_8006C6A4_8013EA9C(void *) asm("Fx_StartBlastSequence");
 
 void func_8013EA9C(Cam_8013EA9C *cam) {
     SVECTOR sv;
@@ -826,7 +826,7 @@ void func_8013EA9C(Cam_8013EA9C *cam) {
             pos.vy = g_Spike_8013EA9C.y;
             pos.vz = g_Spike_8013EA9C.z + g_Spike_8013EA9C.f_64 / 16;
             copy = pos;
-            func_8004BC9C();
+            Camera_StartRandomEventCam();
             func_8006C6A4_8013EA9C(&copy);
             Sound_PlayFixed_8013EA9C(0x6C);
             Camera_StartShake_8013EA9C(1);
@@ -1013,10 +1013,10 @@ void Effect_SpawnAt_8013F464(s32, void *) asm("Effect_SpawnAt");
 void Sound_PlayFixed_8013F464(s32) asm("Sound_PlayFixed");
 void Puff_Spawn_8013F464(void *, s32, s32, s32) asm("Puff_Spawn");
 void VectorNormalSS_8013F464(void *, void *) asm("VectorNormalSS");
-void func_80070284_8013F464(void *, void *, s32, s32, void *) asm("func_80070284");
+void func_80070284_8013F464(void *, void *, s32, s32, void *) asm("Shockwave_Spawn");
 void Fx_SpawnFadeRing_8013F464(void *, s32, s32, s32) asm("Fx_SpawnFadeRing");
 void Fx_DebrisExplosion_8013F464(s32, s32, s32) asm("Fx_DebrisExplosion");
-void func_8006D548_8013F464(void *) asm("func_8006D548");
+void func_8006D548_8013F464(void *) asm("Dust_SpawnDrift");
 void func_8013DFB0_8013F464(void *) asm("func_8013DFB0");
 void func_8013EEC0_8013F464(void *, s32) asm("func_8013EEC0");
 void func_8013D364_8013F464(void *) asm("func_8013D364");
@@ -1338,7 +1338,7 @@ s32 Sound_PlayFixed_801400F4(s32) asm("Sound_PlayFixed");
 s32 VectorNormalSS_801400F4(void *, void *) asm("VectorNormalSS");
 s32 Camera_StartShake_801400F4(s32) asm("Camera_StartShake");
 void Effect_SpawnAt_801400F4(s32, void *) asm("Effect_SpawnAt");
-void func_80070284_801400F4(void *, void *, s32, s32, void *) asm("func_80070284");
+void func_80070284_801400F4(void *, void *, s32, s32, void *) asm("Shockwave_Spawn");
 void func_8013D914(s32 arg0);
 void func_8013D310(void *arg0, s32 arg1, s32 arg2, s16 arg3);
 void *memset_801400F4(void *, s32, s32) asm("memset");

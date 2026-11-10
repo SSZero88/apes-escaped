@@ -3,7 +3,7 @@
 
 M2C_UNK Seq_Tick();
 M2C_UNK func_8001300C();
-M2C_UNK func_80088578();
+M2C_UNK Sound_ClearFrameQueue();
 M2C_UNK func_80141B34();
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 M2C_UNK func_8013FB30(s16);
@@ -59,7 +59,7 @@ s32 func_80136120(u8 *s) {
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; u8 r1, g1, b1, p1; s16 x1, y1; u8 u1, v1; u16 tpage; u8 r2, g2, b2, p2; s16 x2, y2; u8 u2, v2; u16 pad2; u8 r3, g3, b3, p3; s16 x3, y3; u8 u3, v3; u16 pad3; } PolyGT4_80136160;
 extern struct { u32 frame; PolyGT4_80136160 *prim; u32 *ot; } g_Game_80136160 asm("g_Game");
-extern PolyGT4_80136160 *D_800EC354_80136160 asm("D_800EC354");
+extern PolyGT4_80136160 *D_800EC354_80136160 asm("g_GamePrim");
 
 s32 func_80136160(s32 x, s32 y, s32 w, s32 h) {
     PolyGT4_80136160 *p;
@@ -224,7 +224,7 @@ s32 func_80136160(s32 x, s32 y, s32 w, s32 h) {
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad2; s16 x3, y3; u8 u3, v3; u16 pad3; } PolyFT4_80136554;
 extern struct { u32 frame; PolyFT4_80136554 *prim; u32 *ot; } g_Game_80136554 asm("g_Game");
-extern PolyFT4_80136554 *D_800EC354_80136554 asm("D_800EC354");
+extern PolyFT4_80136554 *D_800EC354_80136554 asm("g_GamePrim");
 
 s32 func_80136554(s32 x, s32 y, s32 w, s32 h) {
     PolyFT4_80136554 *p = g_Game_80136554.prim;
@@ -396,7 +396,7 @@ void func_80141B90(void);
 void func_80141C00(void);
 void func_8002F1F0(s32);
 void func_80012CA0(s32);
-s32 func_80086408(void);
+s32 Music_GetSeq(void);
 s32 Cd_StartLoadList(void *);
 s32 Cd_PollLoadList(void);
 void Cd_Update(void);
@@ -425,7 +425,7 @@ s32 func_80136AB8(void) {
     func_8002F1F0(0);
     func_80012CA0(0);
     D_800E54E0 = 0;
-    if (func_80086408() < 0) {
+    if (Music_GetSeq() < 0) {
         Cd_StartLoadList(D_8013AF7C);
     } else {
         Cd_StartLoadList(D_8013AF84);
@@ -493,7 +493,7 @@ end:
 void func_80136D58(void) {
     func_8001300C();
     Seq_Tick();
-    func_80088578();
+    Sound_ClearFrameQueue();
     func_80141B34();
 }
 
@@ -504,8 +504,8 @@ extern s32 D_8013AF70;
 extern s32 D_8013AF74;
 extern s16 D_8013AF6A;
 extern s16 D_8013AF68;
-void func_8008C01C(void);
-u8 *func_8008C09C(s32);
+void Mem_Init(void);
+u8 *Mem_AllocPages(s32);
 void Model_BindMesh(void *, u32 *);
 s32 func_8002FAF0(s32);
 void Light_SetColorMode(s32, s32, s32, s32);
@@ -520,10 +520,10 @@ s32 func_80136D90(void) {
     s32 off;
 
     h = (u8 *)0x80154000;
-    func_8008C01C();
+    Mem_Init();
     n = h[0];
     i = 1;
-    D_8013B214 = (s32)func_8008C09C(n << 5);
+    D_8013B214 = (s32)Mem_AllocPages(n << 5);
     for (; i <= n; i++) {
         if (h[i * 4 + 2] == 2) {
             Model_BindMesh((void *)(D_8013B214 + (i - 1) * 0x20), (u32 *)(h + *(u16 *)(h + i * 4) * 4));
@@ -675,7 +675,7 @@ s32 func_80137104(void) {
 extern s16 D_8013AF68;
 extern s32 D_8013AF78;
 extern u8 D_80138370[] asm("func_80138370");
-s32 func_80096580(s32);
+s32 World_GetProgress(s32);
 s32 func_80137424(void);
 s32 Save_SumStageMonkeys(s32);
 u8 *func_8013FC20(void);
@@ -688,7 +688,7 @@ s32 func_8013730C(void) {
     s32 n;
     u8 *p;
 
-    has = func_80096580(0x18) > 0;
+    has = World_GetProgress(0x18) > 0;
     n = func_80137424();
     func_80137C84((s16)Save_SumStageMonkeys(0), a);
     if (has) {
@@ -1059,7 +1059,7 @@ extern s16 D_8013AF58;
 void func_8013FEFC(s32);
 s32 func_80139FC8(void);
 s32 func_8013784C(s32, s32);
-void func_80095E80(void);
+void Save_Load(void);
 void Save_CopyToSlot(void *);
 void func_8013BC64(void);
 s32 func_8013B6C4(void);
@@ -1156,7 +1156,7 @@ s32 func_80137E4C(void) {
             break;
         }
         if (v == 1) {
-            func_80095E80();
+            Save_Load();
             return -1;
         }
         func_8013784C(1, 5);

@@ -13,7 +13,7 @@ extern u32 D_800F4610;
 
 extern s32 D_800B000C;
 extern s32 D_800B0174;
-void func_8007D2D8(S_Menu *);
+void DebugMenu_Open(S_Menu *);
 extern void *D_800B00EC;
 extern S_7D23C D_800AFF10[];
 extern u8 D_800F4614[];
@@ -22,20 +22,20 @@ extern M2C_UNK D_800AFEC8;
 extern M2C_UNK *D_800B00C8;
 extern M2C_UNK D_800B01BC;
 
-void func_8005CA34(void);
+void DebugMenu_InitSound(void);
 M2C_UNK DebugItem_Init(M2C_UNK *, M2C_UNK *, M2C_UNK);
-M2C_UNK func_8007D29C(M2C_UNK *, M2C_UNK *);
+M2C_UNK DebugItem_SetCallback(M2C_UNK *, M2C_UNK *);
 extern M2C_UNK D_800AFC1C;
 extern struct S_D_800EC010 { s32 f_0; s32 f_4; s32 f_8; s32 f_C; s32 f_10; s32 f_14; s32 f_18; s32 f_1C; s32 f_20; s32 f_24; s32 f_28; s32 f_2C; s32 f_30; s32 f_34; s32 f_38; s32 f_3C; s32 f_40; s32 f_44; } D_800EC010;
-s32 func_8005CA84(void);
+s32 DebugMenu_ResetMoveConsts(void);
 
-M2C_UNK func_8005E000(M2C_UNK, M2C_UNK);
+M2C_UNK Debug_CpuMark(M2C_UNK, M2C_UNK);
 extern void *D_800B0080;
 extern struct S_D_800AFB68 { u8 pad[0x24]; } D_800AFB68[];
-void func_8005CB9C(void);
+void Debug_DrawColorSwatch(void);
 struct Game_5BF70 { s32 f_0; s32 f_4; u32 *f_8; s32 f_C; DB_5BF70_8005BF70 db[2]; s32 f_8100; u8 pad8104[0x1C]; u16 f_8120; u16 f_8122; u16 f_8124; u16 f_8126; u8 pad8128[2]; u16 f_812A; u16 f_812C; u8 pad812E[6]; u16 f_8134; u16 f_8136; u8 pad8138[4]; u16 f_813C; u8 pad813E[0x12]; u16 f_8150; u16 f_8152; u8 pad8154[6]; u16 f_815A; u8 pad815C[2]; u16 f_815E; u8 pad8160[0x150]; s32 f_82B0; };
 extern u16 g_RandSeed;
-extern u16 D_800AE8F2;
+extern u16 g_RandSeed2;
 extern s32 D_800A8A58;
 extern u8 D_800AFB60[];
 extern struct { u32 f_0; } g_GadgetState;
@@ -46,62 +46,62 @@ extern s32 D_800B97B0;
 extern u32 D_800EC230;
 extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad;
 void Game_SetMode(s32, s32, s32);
-void func_8005DDE0(void);
+void Gfx_ResetFlip(void);
 void func_8001325C(s32);
 void Stage_UpdateAreaState(void);
 s32 Pause_Update(void);
 void Gfx_BeginFrame(void);
-void func_8007D530(void);
-void func_8008DF4C(void);
+void DebugMenu_Update(void);
+void Msg_Frame(void);
 void Overlay_Update(void);
-void func_8008C390(void);
+void DebugFont_Init(void);
 s32 ScreenWipe_Update(void);
 void Text_Draw(void *, s32, s32, s32);
-void func_80047BD0(void);
+void Camera_UpdateAll(void);
 void Light_SetColorMode(s32, s32, s32, s32);
 void Spike_Draw(void);
 void Spike_Update(void);
 void Vehicle_UpdateSpikeOnTop(void);
 void RcCar_Update(void);
-void func_80099AE0(void);
+void RcCar_Draw(void);
 void Projectile_Frame(void);
 void Object_Frame(void);
 void Monkey_UpdateFrame(void);
-void func_8005ACE8(void);
+void Stage_UpdateSpecial(void);
 void Floor_DrawGrid(void);
 void Pickup_Frame(void);
 void Tip_DrawAll(void);
 void Stage_DrawPlacedModels(void);
-void func_80069BEC(void);
+void Particle_UpdateAll(void);
 void Fx_UpdateAll(void);
 void CenterSign_Draw(void);
 void Zone_UpdateAll(void);
 void Link_UpdateArea(void);
 void Spike_UpdateBlink(void);
 void Collision_UpdateAll(void);
-void func_8008686C(void);
+void Sound_UpdatePositional(void);
 void Hud_Draw(void);
 void Tex_UpdateAnims(void);
 s32 VSync(s32);
-s32 func_8005DC78(void);
-s32 func_8004D104(void);
-void func_8007292C(void);
-void func_8007F56C(s32);
+s32 Game_IsPlaying(void);
+s32 CamFlyby_IsActive(void);
+void Pause_MuteSounds(void);
+void Pause_Open(s32);
 void DrawSync(s32);
 void PutDispEnv(void *);
 void PutDrawEnv(void *);
 void DrawOTag(void *);
-s32 func_8007F5D4(void);
-void func_8005DEE0(void *, void *, void *, s32);
+s32 Pause_GetState(void);
+void Gfx_QueueFlip(void *, void *, void *, s32);
 void Gfx_WaitFlip(void);
 void Sound_UnloadBanks(s32);
 void Gadget_RestoreSlots(void);
 void func_800963DC(s32, s32);
-void func_8008745C(void);
+void Music_Play(void);
 void Record_UpdateBestTime(void);
 void Save_StoreGame(void);
 s32 Game_IsTimed(void);
-void func_80095CEC(void);
+void Save_StoreLinkStates(void);
 void Minigame_Run(s32);
 void func_80095D44(void);
 void Tutorial_Complete(void);
@@ -119,10 +119,10 @@ extern R_8005BEF0 D_800A5740;
 extern s32 D_800EBFC4;
 extern s32 D_800EC35C;
 extern u8 g_ViewMatrix[];
-/* func_8005BEF0: (re)initialise the display: Gfx_InitDisplay, clear VRAM rect D_800A5740 to black,
+/* Gfx_ResetDisplay: (re)initialise the display: Gfx_InitDisplay, clear VRAM rect D_800A5740 to black,
  * reset the GTE matrix g_ViewMatrix and clear D_800EBFC4 / D_800EC35C. Matches only with the callees
  * left undeclared here (with prototypes the registers of the struct copy shift by one). */
-s32 func_8005BEF0(void) {
+s32 Gfx_ResetDisplay(void) {
     R_8005BEF0 r = D_800A5740;
     Gfx_InitDisplay();
     ClearImage(&r, 0, 0, 0);
@@ -150,13 +150,13 @@ s32 Game_MainLoop(void) {
     u16 k;
     void (*fn)(s32);
 
-    func_8005BEF0();
+    Gfx_ResetDisplay();
     Game_SetMode(1, GM_5BF70->f_8126, 0);
-    func_8005DDE0();
+    Gfx_ResetFlip();
     for (;;) {
         func_8001325C(1);
         g_RandSeed = g_RandSeed * 5 + 1;
-        D_800AE8F2 = D_800AE8F2 * 5 + 1;
+        g_RandSeed2 = g_RandSeed2 * 5 + 1;
         if ((u8)GM_5BF70->f_812C == 6) {
             Stage_UpdateAreaState();
         } else {
@@ -171,18 +171,18 @@ s32 Game_MainLoop(void) {
                 break;
             }
             Gfx_BeginFrame();
-            func_8007D530();
-            func_8008DF4C();
+            DebugMenu_Update();
+            Msg_Frame();
             Overlay_Update();
             (*(struct Game_5BF70 *)&g_Game).f_0++;
-            func_8008C390();
+            DebugFont_Init();
             if (ScreenWipe_Update() < 0) {
                 break;
             }
             if (D_800A8A58 != 0 && ((*(struct Game_5BF70 *)&g_Game).f_0 & 0x10)) {
                 Text_Draw(D_800AFB60, 300, 210, 2);
             }
-            func_80047BD0();
+            Camera_UpdateAll();
             Light_SetColorMode(1, 0, 0, 0);
             if (GM_5BF70->f_8100 & 1) {
                 Spike_Draw();
@@ -209,17 +209,17 @@ s32 Game_MainLoop(void) {
                 if (!(GM_5BF70->f_8100 & 1)) {
                     RcCar_Update();
                 }
-                func_80099AE0();
+                RcCar_Draw();
             }
             Projectile_Frame();
             Object_Frame();
             Monkey_UpdateFrame();
-            func_8005ACE8();
+            Stage_UpdateSpecial();
             Floor_DrawGrid();
             Pickup_Frame();
             Tip_DrawAll();
             Stage_DrawPlacedModels();
-            func_80069BEC();
+            Particle_UpdateAll();
             Fx_UpdateAll();
             CenterSign_Draw();
             Zone_UpdateAll();
@@ -228,7 +228,7 @@ s32 Game_MainLoop(void) {
             if (GM_5BF70->f_8150 != 8 && GM_5BF70->f_8150 != 0xD && !(GM_5BF70->f_8100 & 1)) {
                 Collision_UpdateAll();
             }
-            func_8008686C();
+            Sound_UpdatePositional();
             Stage_UpdateAreaState();
             Hud_Draw();
             Tex_UpdateAnims();
@@ -238,18 +238,18 @@ s32 Game_MainLoop(void) {
                 D_800B97B0 = t + 0xFFFF;
             }
         }
-        if (func_8005DC78() && !func_8004D104() && GM_5BF70->f_8152 != 0xB && (D_800EC230 >> 28) != 8) {
+        if (Game_IsPlaying() && !CamFlyby_IsActive() && GM_5BF70->f_8152 != 0xB && (D_800EC230 >> 28) != 8) {
             b = g_Pad.f_160 & g_Pad.f_158;
             if (b & 0x800) {
-                func_8007292C();
+                Pause_MuteSounds();
                 a = 1;
                 goto pause;
             }
             if ((b & 0x100) && GM_5BF70->f_8124 != 7 && GM_5BF70->f_8124 != 0xE) {
-                func_8007292C();
+                Pause_MuteSounds();
                 a = 10;
             pause:
-                func_8007F56C(a);
+                Pause_Open(a);
                 Sound_PlayFixed(2);
             }
         }
@@ -267,10 +267,10 @@ s32 Game_MainLoop(void) {
             DrawOTag((*(struct Game_5BF70 *)&g_Game).f_8 + 0xFFF);
             continue;
         }
-        if (func_8007F5D4()) {
+        if (Pause_GetState()) {
             *(*(struct Game_5BF70 *)&g_Game).f_8 |= 0xFFFFFF;
         }
-        func_8005DEE0((*(struct Game_5BF70 *)&g_Game).db[(*(struct Game_5BF70 *)&g_Game).f_C].draw, (*(struct Game_5BF70 *)&g_Game).db[(*(struct Game_5BF70 *)&g_Game).f_C].disp, (*(struct Game_5BF70 *)&g_Game).f_8 + 0xFFF, 0);
+        Gfx_QueueFlip((*(struct Game_5BF70 *)&g_Game).db[(*(struct Game_5BF70 *)&g_Game).f_C].draw, (*(struct Game_5BF70 *)&g_Game).db[(*(struct Game_5BF70 *)&g_Game).f_C].disp, (*(struct Game_5BF70 *)&g_Game).f_8 + 0xFFF, 0);
     }
     Gfx_WaitFlip();
     if (GM_5BF70->f_8122 != 3) {
@@ -284,7 +284,7 @@ s32 Game_MainLoop(void) {
     case 8:
         if (GM_5BF70->f_8122 == 3) {
             func_800963DC(GM_5BF70->f_8126, 8);
-            func_8008745C();
+            Music_Play();
         }
         Record_UpdateBestTime();
         Save_StoreGame();
@@ -308,16 +308,16 @@ s32 Game_MainLoop(void) {
         GM_5BF70->f_8120 = 0xF;
         break;
     case 21:
-        func_80095CEC();
+        Save_StoreLinkStates();
         Minigame_Run(GM_5BF70->f_815E);
         GM_5BF70->f_8120 = 0xD;
         break;
     case 30:
-        func_80095CEC();
+        Save_StoreLinkStates();
         GM_5BF70->f_8120 = 0x21;
         break;
     case 23:
-        func_80095CEC();
+        Save_StoreLinkStates();
         func_80095D44();
         GM_5BF70->f_8120 = 0x15;
         break;
@@ -329,7 +329,7 @@ s32 Game_MainLoop(void) {
     case 26:
         func_800963DC(GM_5BF70->f_8126, 0x1A);
         Save_StoreGame();
-        func_8008745C();
+        Music_Play();
         GM_5BF70->f_8120 = 0x19;
         break;
     case 7:
@@ -347,7 +347,7 @@ s32 Game_MainLoop(void) {
                 GM_5BF70->f_8120 = 0xD;
                 break;
             }
-            func_80095CEC();
+            Save_StoreLinkStates();
         }
         GM_5BF70->f_8120 = 9;
         break;
@@ -361,7 +361,7 @@ s32 Game_MainLoop(void) {
         GM_5BF70->f_815A = 3;
         break;
     case 31:
-        func_80095CEC();
+        Save_StoreLinkStates();
         GM_5BF70->f_8120 = 0x1A;
         GM_5BF70->f_815A = 8;
         break;
@@ -442,41 +442,41 @@ INCLUDE_RODATA("asm/nonmatchings/game/8005BEF0_game_loop", D_800A58D0);
 INCLUDE_RODATA("asm/nonmatchings/game/8005BEF0_game_loop", D_800A58D8);
 
 
-s32 func_8005C98C(void) {
-    func_8005E000(1, 0xFF00FF);
+s32 Debug_CpuMarkFrame(void) {
+    Debug_CpuMark(1, 0xFF00FF);
     return 0;
 }
 
-void func_8005C9B4(void) {
+void DebugMenu_DrawAll(void) {
     S_Menu m;
     m.x = 0x14;
     m.y = 0x46;
     m.items = &D_800B000C;
-    func_8007D2D8(&m);
+    DebugMenu_Open(&m);
     m.x = 0x10E;
     m.y = 0xBE;
     m.items = &D_800B0174;
-    func_8007D2D8(&m);
+    DebugMenu_Open(&m);
 }
 
 void Sound_PlayFixed(void);
 
-s32 func_8005CA14(void) {
+s32 DebugMenu_PlaySound(void) {
     Sound_PlayFixed();
     return 0;
 }
 
-void func_8005CA34(void)
+void DebugMenu_InitSound(void)
 {
   M2C_UNK *new_var;
   new_var = &D_800AFEC8;
   D_800B00C8 = new_var;
   DebugItem_Init(&D_800AFEC8, &D_800B01BC, 1);
-  new_var = &func_8005CA14;
-  func_8007D29C(&D_800AFEC8, new_var);
+  new_var = &DebugMenu_PlaySound;
+  DebugItem_SetCallback(&D_800AFEC8, new_var);
 }
 
-s32 func_8005CA84(void) {
+s32 DebugMenu_ResetMoveConsts(void) {
     D_800EC010.f_4 = 0xAD;
     D_800EC010.f_8 = -0x672;
     D_800EC010.f_C = -0x29E;
@@ -497,7 +497,7 @@ s32 func_8005CA84(void) {
     return 1;
 }
 
-void func_8005CB1C(void) {
+void DebugMenu_InitMoveConsts(void) {
     M2C_UNK *var_s0;
     M2C_UNK *var_s1;
     u32 var_s2;
@@ -511,11 +511,11 @@ void func_8005CB1C(void) {
         var_s2 += 1;
         var_s0 = (void *)((u8 *)var_s0 + (0x24));
     } while (var_s2 < 0x12U);
-    func_8007D29C(&D_800AFC1C, &func_8005CA84);
-    func_8005CA34();
+    DebugItem_SetCallback(&D_800AFC1C, &DebugMenu_ResetMoveConsts);
+    DebugMenu_InitSound();
 }
 
-void func_8005CB9C(void) {
+void Debug_DrawColorSwatch(void) {
     POLY_F4_8005CB9C *p = (POLY_F4_8005CB9C *)g_Game.prim;
     u32 *ot = &g_Game.db[g_Game.cur].ot[0xFFF];
     *(u32 *)&p->r0 = D_800F4610;
@@ -534,7 +534,7 @@ void func_8005CB9C(void) {
     g_Game.prim = (u8 *)(p + 1);
 }
 
-void func_8005CC58(void)
+void DebugMenu_InitColor(void)
 {
   s32 i;
   void (*new_var2)(void);
@@ -543,17 +543,17 @@ void func_8005CC58(void)
   for (i = 0; 5 > i; i++)
   {
     new_var = &((u8 *)&D_800F4610)[i];
-    new_var2 = func_8005CB9C;
+    new_var2 = Debug_DrawColorSwatch;
     DebugItem_Init(&D_800AFB68[i], new_var, 3);
     if (1)
     {
-      func_8007D29C(&D_800AFB68[i], new_var2);
+      DebugItem_SetCallback(&D_800AFB68[i], new_var2);
     }
   }
 
 }
 
-void func_8005CCDC(void) {
+void DebugMenu_InitF4614(void) {
     s32 i;
     D_800B00EC = D_800AFF10;
     for (i = 0; i < 6; i++) {

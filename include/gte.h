@@ -43,7 +43,7 @@
 #define gte_stMAC2(r) __asm__ volatile ("mfc2 %0, $26" : "=r"(r))
 #define gte_stMAC3(r) __asm__ volatile ("mfc2 %0, $27" : "=r"(r))
 #define gte_stRGB2(p) __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(p))
-/* the same with PsyQ's "memory" clobber: later loads are redone after it (func_80051AA4) */
+/* the same with PsyQ's "memory" clobber: later loads are redone after it (Object_DrawLitModel) */
 #define gte_stRGB2_mem(p) __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(p) : "memory")
 
 /* perspective transform of one vertex (PsyQ inline_c.h forms) */

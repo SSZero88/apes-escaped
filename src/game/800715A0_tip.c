@@ -8,16 +8,16 @@ typedef struct { Loc_800717B4_800717B4 loc; u8 *buf; s32 n; } Req_800717B4_80071
 typedef struct { Loc_800717B4_800717B4 pos; u32 size; char name[16]; } File_800717B4_800717B4;
 typedef struct { s16 kind; s16 pad2; s16 x; s16 y; s16 z; s16 timer; u8 padC[8]; s16 f_14; u16 used; } Box_800717B4_800717B4;
 
-extern u8 D_800BBD99;
-s32 func_8008DF3C(void);
+extern u8 Tip_OpenState;
+s32 Msg_IsOpen(void);
 
-M2C_UNK func_8008C064(s32);
-extern struct S_D_800F4DB0 { u8 pad_0[0x20]; s32 f_20; } D_800F4DB0;
+M2C_UNK Mem_Free(s32);
+extern struct S_D_800F4DB0 { u8 pad_0[0x20]; s32 f_20; } g_HudState;
 
 extern struct S_D_800BBC50 { s32 f_0; u8 pad_4[0x140]; s32 f_144; u8 pad_148[0x1]; s8 f_149; } g_TipState;
 M2C_UNK Model_BindBoned(M2C_UNK *, void *);
-extern M2C_UNK D_800BBC54;
-extern M2C_UNK D_800BBCC4;
+extern M2C_UNK Tip_MailboxModel;
+extern M2C_UNK Tip_DispenserModel;
 void bios_exit(s32) __attribute__((noreturn));
 s32 rsin(s32);
 s32 rcos(s32);
@@ -26,8 +26,8 @@ struct Tip_800717B4 { u8 pad0[0xE4]; Box_800717B4_800717B4 box[4]; u8 *buf; u8 p
 struct Cd_800717B4 { u8 pad0[8]; s32 f_8; u8 padC[4]; s32 f_10; u8 pad14[0x30]; u8 f_44[0x2C]; };
 struct D4DB0_800717B4 { u8 pad0[0x20]; s32 f_20; };
 extern M2C_UNK g_Cd;
-void func_8008DEEC(void);
-u8 *func_8008C09C(s32);
+void Msg_Open(void);
+u8 *Mem_AllocPages(s32);
 void Cd_GetFileEntry(File_800717B4_800717B4 *, s32);
 s32 CdPosToInt(Loc_800717B4_800717B4 *);
 void CdIntToPos(s32, void *);
@@ -35,39 +35,39 @@ s32 Cd_QueueCommand(s32, void *, void *, void *);
 void Game_SetMode(s32, s32, s32);
 void Spike_SetPlayMode(s32);
 void Camera_ExitLook(void);
-void func_80048748(void);
+void Camera_ExitRadarLive(void);
 void Pickup_Drop(s32, SVECTOR *, s32, s32);
 void Sound_PlayFixed(s32);
 
-void func_800715A0(void) {
+void Tip_ClearAll(void) {
     g_TipState.f_0 = 0;
     g_TipState.f_149 = 0;
 }
 
-void func_800715B4(void) {
-    func_8008C064(g_TipState.f_144);
+void Tip_Close(void) {
+    Mem_Free(g_TipState.f_144);
     g_TipState.f_149 = 0;
-    D_800F4DB0.f_20 = (s32) (D_800F4DB0.f_20 | 0x10);
+    g_HudState.f_20 = (s32) (g_HudState.f_20 | 0x10);
 }
 
-s32 func_800715FC(void) {
-    if (D_800BBD99 == 2 && func_8008DF3C() == 0) {
+s32 Tip_IsFinished(void) {
+    if (Tip_OpenState == 2 && Msg_IsOpen() == 0) {
         return 1;
     }
     return 0;
 }
 
-void func_8007163C(void *arg0) {
-    Model_BindBoned(&D_800BBC54, arg0 + (M2C_FIELD(arg0, u16 *, 4) * 4));
-    M2C_FIELD(&D_800BBC54, void **, 0x18) = (void *) (arg0 + (M2C_FIELD(arg0, u16 *, 8) * 4));
+void Tip_SetMailboxModel(void *arg0) {
+    Model_BindBoned(&Tip_MailboxModel, arg0 + (M2C_FIELD(arg0, u16 *, 4) * 4));
+    M2C_FIELD(&Tip_MailboxModel, void **, 0x18) = (void *) (arg0 + (M2C_FIELD(arg0, u16 *, 8) * 4));
 }
 
-void func_80071694(void *arg0) {
-    Model_BindBoned(&D_800BBCC4, arg0 + (M2C_FIELD(arg0, u16 *, 4) * 4));
-    M2C_FIELD(&D_800BBCC4, void **, 0x18) = (void *) (arg0 + (M2C_FIELD(arg0, u16 *, 8) * 4));
+void Tip_SetDispenserModel(void *arg0) {
+    Model_BindBoned(&Tip_DispenserModel, arg0 + (M2C_FIELD(arg0, u16 *, 4) * 4));
+    M2C_FIELD(&Tip_DispenserModel, void **, 0x18) = (void *) (arg0 + (M2C_FIELD(arg0, u16 *, 8) * 4));
 }
 
-s32 func_800716EC(s32 a, SVECTOR *pos, s32 ang) {
+s32 Tip_AddBox(s32 a, SVECTOR *pos, s32 ang) {
     s32 n = ((struct S_D_800BBC50_800716EC *)&g_TipState)->f_0;
     S_BBD34_800716EC *r;
     if (n == 4) {
@@ -88,7 +88,7 @@ s32 func_800716EC(s32 a, SVECTOR *pos, s32 ang) {
 }
 
 /* Uses interactable `slot` (one of 4 in g_TipState+0xE4: mailboxes and dispensers). Kinds 0 and 1: unless already open or
- * func_8008DF3C says no, allocates a 2 KB buffer, reads one sector of CD file 0x14 (the tips
+ * Msg_IsOpen says no, allocates a 2 KB buffer, reads one sector of CD file 0x14 (the tips
  * file) at `sector` into it, switches to game mode 3 (the tip screen) and pauses the camera.
  * Kind 2 is a cookie dispenser (user: you hit them and they spawn cookies): unless used or
  * its timer (+0xA) is running, spawns three pickups (Pickup_Drop(1, pos, 3, 0); type 1 is the cookie,
@@ -105,13 +105,13 @@ void Mailbox_OpenTip(s32 slot, s32 sector) {
         if (b->used == 1) {
             return;
         }
-        if (func_8008DF3C() != 0) {
+        if (Msg_IsOpen() != 0) {
             return;
         }
-        func_8008DEEC();
+        Msg_Open();
         b->used = 1;
         b->f_14 = 0x1D;
-        TIP_717B4->buf = func_8008C09C(0x800);
+        TIP_717B4->buf = Mem_AllocPages(0x800);
         TIP_717B4->f_14A = 0;
         Cd_GetFileEntry(&pos, 0x14);
         CdIntToPos(CdPosToInt(&pos.pos) + sector, &req.loc);
@@ -126,9 +126,9 @@ void Mailbox_OpenTip(s32 slot, s32 sector) {
         CD_717B4->f_8 = 0;
         CD_717B4->f_10 = -1;
         Spike_SetPlayMode(0xB);
-        ((struct D4DB0_800717B4 *)&D_800F4DB0)->f_20 &= ~0x10;
+        ((struct D4DB0_800717B4 *)&g_HudState)->f_20 &= ~0x10;
         Camera_ExitLook();
-        func_80048748();
+        Camera_ExitRadarLive();
         break;
     case 2:
         if (b->used != 0) {
@@ -159,8 +159,8 @@ typedef struct { s32 n; TipMdl_71A28 mdlA; TipMdl_71A28 mdlB; u8 pad[0xE4 - 4 - 
 extern TipState_71A28 g_TipState_71A28 asm("g_TipState");
 extern struct { u8 pad0[8]; void *ot; u8 padC[0x80F4]; s32 f_8100; } g_Game_71A28 asm("g_Game");
 extern u8 g_ViewMatrix[];
-extern TipMdl_71A28 D_800BBC54_71A28 asm("D_800BBC54");
-extern TipMdl_71A28 D_800BBCC4_71A28 asm("D_800BBCC4");
+extern TipMdl_71A28 D_800BBC54_71A28 asm("Tip_MailboxModel");
+extern TipMdl_71A28 D_800BBCC4_71A28 asm("Tip_DispenserModel");
 extern u8 g_ProjVerts[];
 void SetRotMatrix(void *);
 void SetTransMatrix(void *);
@@ -169,10 +169,10 @@ void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void Model_DrawNoFog(void *, void *, void *, s32);
 void Shadow_Draw(void *, s32, s32, s32);
-s32 func_800715FC(void);
-void func_8007BC9C(void);
-void func_800715B4(void);
-void func_8008DF20(s32);
+s32 Tip_IsFinished(void);
+void Spike_ClearPlayMode(void);
+void Tip_Close(void);
+void Msg_SetText(s32);
 
 /* Draws the tip boxes (g_TipState: count, then up to 4 boxes at +0xE4). Each box is projected through
    the GTE (depth cue registers DQA 0x40 / DQB 0 give its screen radius in MAC0) and steps its
@@ -271,13 +271,13 @@ void Tip_DrawAll(void) {
         Model_DrawNoFog(g_Game_71A28.ot, g_ProjVerts, m, shade);
         Shadow_Draw(&m->x, b->pos.vy, 0x40, 0);
     }
-    if (D_800BBD99 == 2 && func_800715FC() == 1) {
-        func_8007BC9C();
-        func_800715B4();
+    if (Tip_OpenState == 2 && Tip_IsFinished() == 1) {
+        Spike_ClearPlayMode();
+        Tip_Close();
         g_Game_71A28.f_8100 = 0;
     }
     if ((g_TipState_71A28.f_148 & 0xFFFF00) == 0x10100) {
-        func_8008DF20((s32)g_TipState_71A28.buf);
+        Msg_SetText((s32)g_TipState_71A28.buf);
         ((u8 *)&g_TipState_71A28.f_148)[1] = 2;
     }
 }

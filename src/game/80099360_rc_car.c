@@ -11,7 +11,7 @@ typedef struct { u8 pad0[0xF2]; s8 f_F2; } Sp_99C44_80099C44;
 M2C_UNK Collision_Remove(void *);
 extern struct S_D_800F5A20 { u8 pad_0[0x70]; s32 f_70; } g_RcCar;
 extern struct S_D_800EC1E0 { u8 pad0[0x60]; SVEC_80099360_80099360 f_60; SVEC_80099360_80099360 f_68; } g_Spike;
-s32 func_8007CA48(s32);
+s32 Spike_CanUseGadget(s32);
 void RcCar_Remove(void);
 void Collision_Set(s32, s32 *, struct S_D_800F5A20 *);
 struct S_D_800F5A20_80099360 { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; s32 f_30; s32 f_34; s32 f_38; u8 pad3C[8]; s16 f_44; s16 f_46; u8 pad48[8]; s32 f_50; u8 pad54[0xC]; SVEC_80099360_80099360 f_60; SVEC_80099360_80099360 f_68; s32 f_70; u8 pad74[4]; s16 f_78; };
@@ -21,13 +21,13 @@ extern Mat_99C44_80099C44 g_ModelMatrices[];
 extern Mat_99C44_80099C44 g_JointWorldMatrices[];
 extern u8 g_ProjVerts[];
 void Model_ProjectVerts(struct S_D_800EC060 *, Mat_99C44_80099C44 *, u8 *);
-void func_8006CFBC(Mat_99C44_80099C44 *);
+void RcCar_SetExhaustPoint(Mat_99C44_80099C44 *);
 void Model_Draw(Db_99C44_80099C44 *, u8 *, struct S_D_800EC060 *);
 
 void RcCar_Place(s32 x, s32 y, s32 z) {
     struct S_D_800F5A20_80099360 *s;
 
-    if (func_8007CA48(7) == 0) {
+    if (Spike_CanUseGadget(7) == 0) {
         return;
     }
     s = ((struct S_D_800F5A20_80099360 *)&g_RcCar);
@@ -75,7 +75,7 @@ s32 Floor_GetHeight_9A8(s32, s32, s32) asm("Floor_GetHeight");
 void VectorNormalSS_9A8(void *, void *) asm("VectorNormalSS");
 void Effect_SpawnAt_9A8(s32, void *) asm("Effect_SpawnAt");
 void Sound_PlayFixed_9A8(s32) asm("Sound_PlayFixed");
-void func_80066C90_9A8(void *, void *, s32) asm("func_80066C90");
+void func_80066C90_9A8(void *, void *, s32) asm("Dir_TurnTowardMax");
 Col_9A8 *CollShape_Alloc_9A8(void) asm("CollShape_Alloc");
 s32 Collision_Set_9A8(s32, void *, void *) asm("Collision_Set");
 u16 Water_Query_9A8(s32, s32, s32) asm("Water_Query");
@@ -133,7 +133,7 @@ void RcCar_Update(void) {
             } }
         }
     }
-    if (func_8007CA48(7) && g_Spike_9A8.gadget == 7 && g_Spike_9A8.f_E8 > 0) {
+    if (Spike_CanUseGadget(7) && g_Spike_9A8.gadget == 7 && g_Spike_9A8.f_E8 > 0) {
         if (g_RcCar_9A8.y >= ground) {
             s32 m = g_Game_9A8.f_8150;
             if (m < 4) { if (m != 0) {
@@ -245,15 +245,15 @@ void RcCar_Update(void) {
 typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_80099AE0;
 extern struct S_D_800F5A20_80099360 g_RcCar_80099AE0 asm("g_RcCar");
 extern MAT_80099AE0 g_ViewMatrix;
-extern struct S_D_800EC060 D_800EC110;
+extern struct S_D_800EC060 RcCar_Model;
 extern s8 g_CurrentGadget;
 void Matrix_LookAt(SVEC_80099360_80099360 *, SVEC_80099360_80099360 *, MAT_80099AE0 *, s32);
 void CompMatrix(MAT_80099AE0 *, MAT_80099AE0 *, MAT_80099AE0 *);
 void Model_CycleVertexColors(u8 *, u16);
 void Model_DrawCycledColors(Db_99C44_80099C44 *, u8 *, struct S_D_800EC060 *);
-void func_8006D044(void);
+void RcCar_UpdateExhaust(void);
 
-void func_80099AE0(void) {
+void RcCar_Draw(void) {
     struct S_D_800F5A20_80099360 *o = &g_RcCar_80099AE0;
     MAT_80099AE0 m;
     struct S_D_800EC060 *obj;
@@ -266,7 +266,7 @@ void func_80099AE0(void) {
     m.t[1] = o->f_28;
     m.t[2] = o->f_2C;
     CompMatrix(&g_ViewMatrix, &m, &m);
-    obj = &D_800EC110;
+    obj = &RcCar_Model;
     buf = g_ProjVerts;
     Model_ProjectVerts(obj, (Mat_99C44_80099C44 *)&m, buf);
     __asm__("" :: "r"(buf), "r"(buf), "r"(buf), "r"(o), "r"(o), "r"(o));
@@ -282,11 +282,11 @@ void func_80099AE0(void) {
         g_RcCar_80099AE0.f_38 = 0;
         g_RcCar_80099AE0.f_34 += 7;
     }
-    func_8006D044();
+    RcCar_UpdateExhaust();
 }
 
-void func_80099C44(void) {
+void RcCar_DrawRemote(void) {
     Model_ProjectVerts(&g_GadgetModels[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2], &g_ModelMatrices[g_GadgetModels[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2].hdr->f_4], g_ProjVerts);
-    func_8006CFBC(&g_JointWorldMatrices[g_GadgetModels[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2].hdr->f_4]);
+    RcCar_SetExhaustPoint(&g_JointWorldMatrices[g_GadgetModels[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2].hdr->f_4]);
     Model_Draw(&g_Game.db[g_Game.cur], g_ProjVerts, &g_GadgetModels[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2]);
 }

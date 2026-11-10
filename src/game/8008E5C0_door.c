@@ -33,11 +33,11 @@ typedef struct { u8 pad0[8]; s16 f_8; u8 padA[0x1A]; s16 f_24; s16 f_26; s16 f_2
 typedef struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; s16 f_8; u8 padA[2]; s16 f_C; s16 f_E; s16 f_10; } T_8008E5C0_8008E5C0;
 typedef struct { u16 x; u16 y; u16 z; s16 w; u8 pad8[2]; s16 d; u8 padC[2]; s16 f_E; u8 pad10[8]; u16 f_18; u8 pad1A[0xA]; u16 f_24; u16 f_26; u16 f_28; u8 pad2A[0xE]; } O_8008E5C0_8008E5C0;
 
-s32 func_8005BB98(u16);
+s32 Link_GetKindSound(u16);
 M2C_UNK Sound_PlayFixed(s32);
 M2C_UNK Sound_PlayAt(s32, void *);
 extern struct S_D_800EC350 { u8 pad_0[0x8100]; s32 f_8100; } g_Game;
-extern S_4D64_8008FAD0_8008FAD0 *D_800B4D64;
+extern S_4D64_8008FAD0_8008FAD0 *g_StageMeshes;
 struct S_D_800EC350_8008EF60 { u8 pad0[0x820C]; S_820C_8008EF60_8008EF60 *f_820C; };
 void RotMatrixZYX(SVECTOR *, void *);
 extern s32 D_800EC204[];
@@ -50,7 +50,7 @@ s16 Sound_Play(s32, s32);
 void Sound_Stop(s32, s16);
 void Sound_UpdateVoice3D(s32, s16, s32, SVECTOR *);
 struct Game_8008F720 { u8 pad0[0x820C]; O_8008F720_8008F720 *f_820C; };
-s32 func_8008FAD0(S_O_8008FAD0_8008FAD0 *o, s16 dir, s32 amt);
+s32 Door_MoveBy(S_O_8008FAD0_8008FAD0 *o, s16 dir, s32 amt);
 struct Game_8008F8D4 { u8 pad0[0x820C]; O_8008F8D4_8008F8D4 *f_820C; };
 s32 Door_IsTriggered(s32 a, short r, s32 c);
 s32 Door_PlaySound(void *arg0);
@@ -225,7 +225,7 @@ s32 SwingDoor_Update(T_8008E90C_8008E90C *t) {
 s32 Door_PlaySound(void *arg0) {
     s32 temp_v0;
 
-    temp_v0 = func_8005BB98(M2C_FIELD(arg0, u16 *, 0x16));
+    temp_v0 = Link_GetKindSound(M2C_FIELD(arg0, u16 *, 0x16));
     if (temp_v0 >= 0) {
         if (g_Game.f_8100 & 1) {
             Sound_PlayFixed(temp_v0);
@@ -360,7 +360,7 @@ s32 Box_SwingAroundCorner(void *ov, s16 dir, s16 m) {
 
 
 
-s32 func_8008EF60(S_P_8008EF60_8008EF60 *p) {
+s32 LiftDoor_Init(S_P_8008EF60_8008EF60 *p) {
     S_820C_8008EF60_8008EF60 *e = &((struct S_D_800EC350_8008EF60 *)&g_Game)->f_820C[p->f_4];
     e->f_24 = e->f_0;
     e->f_26 = e->f_2;
@@ -387,11 +387,11 @@ s32 func_8008EF60(S_P_8008EF60_8008EF60 *p) {
         p->f_2 = 1;
         p->f_6 = e->f_8;
         if (e->f_E >= 0) {
-            (*(S_4D64_8008EF60_8008EF60 * *)&D_800B4D64)[e->f_E].f_12 -= e->f_8;
+            (*(S_4D64_8008EF60_8008EF60 * *)&g_StageMeshes)[e->f_E].f_12 -= e->f_8;
         }
         e->f_2 -= e->f_8;
         if (e->f_E >= 0) {
-            (*(S_4D64_8008EF60_8008EF60 * *)&D_800B4D64)[e->f_E].f_16 = 0;
+            (*(S_4D64_8008EF60_8008EF60 * *)&g_StageMeshes)[e->f_E].f_16 = 0;
         }
     }
     return 0;
@@ -421,12 +421,12 @@ s32 LiftDoor_Update(T_8008F0BC_8008F0BC *t) {
                 t->f_2 = 1;
             }
             if (o->f_E >= 0) {
-                (*(Mdl_8008F0BC_8008F0BC * *)&D_800B4D64)[o->f_E].f_16 = 0;
+                (*(Mdl_8008F0BC_8008F0BC * *)&g_StageMeshes)[o->f_E].f_16 = 0;
             }
         } else {
             o->y -= 0x20;
             if (o->f_E >= 0) {
-                (*(Mdl_8008F0BC_8008F0BC * *)&D_800B4D64)[o->f_E].f_12 -= 0x20;
+                (*(Mdl_8008F0BC_8008F0BC * *)&g_StageMeshes)[o->f_E].f_12 -= 0x20;
             }
         }
         break;
@@ -434,7 +434,7 @@ s32 LiftDoor_Update(T_8008F0BC_8008F0BC *t) {
         if (!Door_IsTriggered(o, 1, &t->f_E)) {
             t->f_2 = 2;
             if (o->f_E >= 0) {
-                (*(Mdl_8008F0BC_8008F0BC * *)&D_800B4D64)[o->f_E].f_16 = 0xFFFF;
+                (*(Mdl_8008F0BC_8008F0BC * *)&g_StageMeshes)[o->f_E].f_16 = 0xFFFF;
             }
         }
         break;
@@ -453,7 +453,7 @@ s32 LiftDoor_Update(T_8008F0BC_8008F0BC *t) {
         } else {
             o->y += 0x20;
             if (o->f_E >= 0) {
-                (*(Mdl_8008F0BC_8008F0BC * *)&D_800B4D64)[o->f_E].f_12 += 0x20;
+                (*(Mdl_8008F0BC_8008F0BC * *)&g_StageMeshes)[o->f_E].f_12 += 0x20;
             }
         }
         break;
@@ -468,7 +468,7 @@ s32 LiftDoor_Update(T_8008F0BC_8008F0BC *t) {
 
 s32 SwingDoor_SetModelRot(S_O_8008F308_8008F308 *o, s32 idx) {
     SVECTOR r;
-    if ((*(*(S_4D64_8008F308_8008F308 * *)&D_800B4D64)[idx].f_0 & 0xF) != 3) {
+    if ((*(*(S_4D64_8008F308_8008F308 * *)&g_StageMeshes)[idx].f_0 & 0xF) != 3) {
         return 0;
     }
     switch (o->f_0) {
@@ -505,7 +505,7 @@ s32 SwingDoor_SetModelRot(S_O_8008F308_8008F308 *o, s32 idx) {
     default:
         return 0;
     }
-    RotMatrixZYX(&r, (*(S_4D64_8008F308_8008F308 * *)&D_800B4D64)[idx].f_1C);
+    RotMatrixZYX(&r, (*(S_4D64_8008F308_8008F308 * *)&g_StageMeshes)[idx].f_1C);
     return 0;
 }
 
@@ -538,7 +538,7 @@ s32 PlateGate_Reset(T_8008F468_8008F468 *t) {
  * before it closes). Its opening is the sum of its one or two plates' +0x16 values
  * (g_Game+0x8220[t->f_E / t->f_10], how far each is pressed), capped by the gate's +0x8.
  * While it moves, loops the grinding sound 0x7F at it; when it comes to rest after moving it
- * plays its own sound (func_8005BB98(+0x16)). State t->f_2: 0 at the limit, 3 at rest, 5 moving.
+ * plays its own sound (Link_GetKindSound(+0x16)). State t->f_2: 0 at the limit, 3 at rest, 5 moving.
  * Its height is +0x26 minus the offset, mirrored into its model's +0x12. */
 s32 PlateGate_Update(T_8008F53C_8008F53C *t) {
     struct Game_8008F53C *g = (struct Game_8008F53C *)&(*(M2C_UNK *)&g_Game);
@@ -555,12 +555,12 @@ s32 PlateGate_Update(T_8008F53C_8008F53C *t) {
     }
     if (o->f_8 < s) {
         if (o->f_E >= 0) {
-            (*(Mdl_8008F53C_8008F53C * *)&D_800B4D64)[o->f_E].f_16 = 0;
+            (*(Mdl_8008F53C_8008F53C * *)&g_StageMeshes)[o->f_E].f_16 = 0;
         }
         t->f_2 = 0;
     } else if (s <= 0) {
         if (t->f_2 == 5) {
-            snd = func_8005BB98(o->f_16);
+            snd = Link_GetKindSound(o->f_16);
             if (snd >= 0) {
                 Sound_PlayAt(snd, o);
             }
@@ -568,7 +568,7 @@ s32 PlateGate_Update(T_8008F53C_8008F53C *t) {
         t->f_2 = 3;
     } else {
         if (o->f_E >= 0) {
-            (*(Mdl_8008F53C_8008F53C * *)&D_800B4D64)[o->f_E].f_16 = 0xFFFF;
+            (*(Mdl_8008F53C_8008F53C * *)&g_StageMeshes)[o->f_E].f_16 = 0xFFFF;
         }
         t->f_2 = 5;
     }
@@ -584,7 +584,7 @@ s32 PlateGate_Update(T_8008F53C_8008F53C *t) {
     }
     o->f_2 = *(u16 *)((u8 *)o + 0x26) - s;
     if (o->f_E >= 0) {
-        (*(Mdl_8008F53C_8008F53C * *)&D_800B4D64)[o->f_E].f_12 = *(u16 *)((u8 *)o + 0x26) - s;
+        (*(Mdl_8008F53C_8008F53C * *)&g_StageMeshes)[o->f_E].f_12 = *(u16 *)((u8 *)o + 0x26) - s;
     }
     return 0;
 }
@@ -637,10 +637,10 @@ s32 SlideDoor_Init(T_8008F720_8008F720 *t) {
     } else {
         t->f_2 = 1;
         if (o->f_E >= 0) {
-            (*(Mdl_8008F720_8008F720 * *)&D_800B4D64)[o->f_E].f_16 = 0;
+            (*(Mdl_8008F720_8008F720 * *)&g_StageMeshes)[o->f_E].f_16 = 0;
         }
         t->f_6 = t->f_12;
-        func_8008FAD0(o, t->f_8, t->f_12);
+        Door_MoveBy(o, t->f_8, t->f_12);
     }
     return 0;
 }
@@ -672,17 +672,17 @@ s32 SlideDoor_Update(T_8008F8D4_8008F8D4 *t) {
                 t->f_2 = 1;
             }
             if (o->f_E >= 0) {
-                (*(Mdl_8008F8D4_8008F8D4 * *)&D_800B4D64)[o->f_E].f_16 = 0;
+                (*(Mdl_8008F8D4_8008F8D4 * *)&g_StageMeshes)[o->f_E].f_16 = 0;
             }
         } else {
-            func_8008FAD0(o, t->f_8, 0x20);
+            Door_MoveBy(o, t->f_8, 0x20);
         }
         break;
     case 0:
         if (!Door_IsTriggered(o, 2, &t->f_E)) {
             t->f_2 = 2;
             if (o->f_E >= 0) {
-                (*(Mdl_8008F8D4_8008F8D4 * *)&D_800B4D64)[o->f_E].f_16 = 0xFFFF;
+                (*(Mdl_8008F8D4_8008F8D4 * *)&g_StageMeshes)[o->f_E].f_16 = 0xFFFF;
             }
         }
         break;
@@ -699,7 +699,7 @@ s32 SlideDoor_Update(T_8008F8D4_8008F8D4 *t) {
                 t->f_2 = 4;
             }
         } else {
-            func_8008FAD0(o, t->f_8, -0x20);
+            Door_MoveBy(o, t->f_8, -0x20);
         }
         break;
     case 1:
@@ -711,31 +711,31 @@ s32 SlideDoor_Update(T_8008F8D4_8008F8D4 *t) {
 
 
 
-s32 func_8008FAD0(S_O_8008FAD0_8008FAD0 *o, s16 dir, s32 amt) {
+s32 Door_MoveBy(S_O_8008FAD0_8008FAD0 *o, s16 dir, s32 amt) {
     s16 a = amt;
     if (o->f_E < 0) {
         return 0;
     }
     if ((u16)(dir - 8) < 8) {
         o->f_2 += amt;
-        D_800B4D64[o->f_E].f_12 += amt;
+        g_StageMeshes[o->f_E].f_12 += amt;
     }
     switch (dir) {
     case 0: case 5: case 8: case 13:
         o->f_0 += a;
-        D_800B4D64[o->f_E].f_10 += a;
+        g_StageMeshes[o->f_E].f_10 += a;
         break;
     case 1: case 4: case 9: case 12:
         o->f_0 -= a;
-        D_800B4D64[o->f_E].f_10 -= a;
+        g_StageMeshes[o->f_E].f_10 -= a;
         break;
     case 2: case 7: case 10: case 15:
         o->f_4 -= a;
-        D_800B4D64[o->f_E].f_14 -= a;
+        g_StageMeshes[o->f_E].f_14 -= a;
         break;
     case 3: case 6: case 11: case 14:
         o->f_4 += a;
-        D_800B4D64[o->f_E].f_14 += a;
+        g_StageMeshes[o->f_E].f_14 += a;
         break;
     }
     return 0;

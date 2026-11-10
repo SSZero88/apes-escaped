@@ -13,12 +13,12 @@ typedef struct { u8 pad0[0x24]; s16 x; u8 pad26[6]; s16 z; } Spike_856FC_800856F
 
 extern struct S_D_800F5090 { s32 f_0; s32 f_4; } g_GuidedLocks[];
 extern s32 D_800B2960[3];
-s32 func_80085254(void *, SVECTOR *, s32, s32);
+s32 BossShot_Spawn(void *, SVECTOR *, s32, s32);
 void Matrix_SetIdentity(MAT_80085630 *);
 void RotMatrixY(s32, MAT_80085630 *);
 void ApplyMatrixSV(MAT_80085630 *, SVECTOR *, SVECTOR *);
 
-extern M2C_UNK D_800BF300;
+extern M2C_UNK BossShot_Slots;
 extern Game_856FC_800856FC g_Game;
 extern Spike_856FC_800856FC g_Spike;
 extern u8 D_800B296C[];
@@ -41,12 +41,12 @@ void Model_ProjectVerts(struct S_D_800F4C30 *, struct S_D_800E78C0 *, u8 *);
 void Model_Draw(u32 *, u8 *, struct S_D_800F4C30 *);
 struct S_D_800BF300_800856FC { Coll_856FC_800856FC *f_0; Proj_856FC_800856FC *f_4; P3_856FC_800856FC *f_8; P3_856FC_800856FC pos; u8 f_12; u8 f_13; P3_856FC_800856FC vel; u8 pad1A[2]; };
 
-void func_80085230(void) {
+void BossShot_ClearAll(void) {
     M2C_UNK *var_v0;
     s32 var_v1;
 
     var_v1 = 3;
-    var_v0 = &D_800BF300;
+    var_v0 = &BossShot_Slots;
     do {
         M2C_FIELD(var_v0, s8 *, 0x12) = 0;
         var_v1 -= 1;
@@ -58,20 +58,20 @@ typedef struct { u8 pad0[3]; u8 f_3; u8 pad4[4]; void *f_8; u8 padC[0x12]; s16 f
 typedef struct { u8 pad0[4]; Proj_85254 *f_4; s32 f_8; P3_856FC_800856FC pos; u8 f_12; u8 f_13; u8 pad14[8]; } Shot_85254;
 typedef struct { u8 pad0[0x46]; u8 f_46; } S_E68D0_85254;
 typedef struct { u8 pad0[0x258]; s16 f_258; s16 f_25A; s16 f_25C; } S_F4350_85254;
-extern Shot_85254 D_800BF300_85254[] asm("D_800BF300");
-extern S_E68D0_85254 D_800E68D0_85254 asm("D_800E68D0");
+extern Shot_85254 D_800BF300_85254[] asm("BossShot_Slots");
+extern S_E68D0_85254 D_800E68D0_85254 asm("g_CameraState");
 extern S_F4350_85254 D_800F4350_85254 asm("D_800F4350");
 Proj_85254 *Projectile_Alloc_85254(void) asm("Projectile_Alloc");
-void func_80084BB8_85254(Proj_85254 *, s32) asm("func_80084BB8");
-void func_80084B48_85254(Proj_85254 *, P3_856FC_800856FC *, SV_856FC_800856FC *, s32) asm("func_80084B48");
-void func_80084C78_85254(Proj_85254 *, s32, s32, s32) asm("func_80084C78");
-void func_80084B74_85254(Proj_85254 *, s32) asm("func_80084B74");
+void func_80084BB8_85254(Proj_85254 *, s32) asm("Projectile_SetLife");
+void func_80084B48_85254(Proj_85254 *, P3_856FC_800856FC *, SV_856FC_800856FC *, s32) asm("Projectile_Launch");
+void func_80084C78_85254(Proj_85254 *, s32, s32, s32) asm("Projectile_SetHitEffect");
+void func_80084B74_85254(Proj_85254 *, s32) asm("Projectile_SetColour");
 void Fx_SpawnFadeRing_85254(P3_856FC_800856FC *, s32, s32, s32) asm("Fx_SpawnFadeRing");
 void Sound_PlayFixed_85254(s32) asm("Sound_PlayFixed");
 void Camera_StartShake_85254(s32) asm("Camera_StartShake");
 void Pad_Vibrate_85254(s32, s32, s32) asm("Pad_Vibrate");
 
-s32 func_80085254(void *pos, SVECTOR *dir, s32 type, s32 arg) {
+s32 BossShot_Spawn(void *pos, SVECTOR *dir, s32 type, s32 arg) {
     SV_856FC_800856FC v;
     Shot_85254 *s;
     Proj_85254 *p;
@@ -209,23 +209,23 @@ s32 Projectile_Spawn(void *a, SVECTOR *v, s32 mode) {
     SVECTOR out;
     s32 i;
     if (mode != 3) {
-        return func_80085254(a, v, mode, 0);
+        return BossShot_Spawn(a, v, mode, 0);
     }
     for (i = 0; i < 3; i++) {
         Matrix_SetIdentity(&m);
         RotMatrixY(D_800B2960[i], &m);
         ApplyMatrixSV(&m, v, &out);
-        func_80085254(a, &out, 3, g_GuidedLocks[i].f_0);
+        BossShot_Spawn(a, &out, 3, g_GuidedLocks[i].f_0);
     }
     return 0;
 }
 
-/* func_800856FC: update and draw the 4 boss/enemy shots at D_800BF300 (state f_12). For owners of
+/* BossShot_UpdateAll: update and draw the 4 boss/enemy shots at BossShot_Slots (state f_12). For owners of
  * kind 1-2, state 5 explodes the shot (effect 0x10D, then a stage-specific spawn toward Spike in
  * stages 0x42/0x38) and state 2 turns it into a projectile (effects 0x102/0x113); other states move
  * it, ground it on the floor (effect 4) and keep its collision shape (type 0x11) up to date; the
  * model is drawn with a spin from the frame counter. */
-void func_800856FC(void) {
+void BossShot_UpdateAll(void) {
     struct S_D_800E78C0 m;
     struct S_D_800E78C0 rot;
     SV_856FC_800856FC d;
@@ -234,7 +234,7 @@ void func_800856FC(void) {
     s16 h;
     Matrix_SetIdentity(&rot);
     RotMatrixZ((g_Game.frame & 0xF) << 8, &rot);
-    s = ((struct S_D_800BF300_800856FC *)&D_800BF300);
+    s = ((struct S_D_800BF300_800856FC *)&BossShot_Slots);
     for (i = 3; i >= 0; i--, s++) {
         if (s->f_12 == 0) {
             continue;

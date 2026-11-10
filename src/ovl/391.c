@@ -5,8 +5,8 @@ M2C_UNK Cd_PlayXaTrack(s32);
 extern s32 D_80139B6C;
 extern struct S_g_Game { u8 pad_0[0x8126]; u16 f_8126; } g_Game;
 
-M2C_UNK func_8008DDB0(s16, s16);
-M2C_UNK func_8008DDC8(s32);
+M2C_UNK Msg_SetPos(s16, s16);
+M2C_UNK Msg_DrawString(s32);
 extern M2C_UNK D_80139B20;
 
 typedef struct { s32 vx, vy, vz, pad; } VEC_391;
@@ -113,7 +113,7 @@ void *PutDrawEnv(void *env);
 void DrawOTag(u32 *p);
 void func_8002FAF0(s32);
 void Light_SetColorMode(s32, s32, s32, s32);
-void func_8008C01C(void);
+void Mem_Init(void);
 s32 Cd_StartLoadList(void *);
 void func_80138F38(void);
 void func_8001325C(s32);
@@ -124,7 +124,7 @@ void Cd_Update(void);
 s32 Cd_StopMusic(void);
 s32 Sound_UnloadBanks(s32);
 s32 func_800964B0(s32);
-s32 func_80096568(s32);
+s32 Movie_WasSeen(s32);
 
 s32 func_80136208(void) {
     Rect_80136208 r = { 0, 0, 0x180, 0x200 };
@@ -138,7 +138,7 @@ s32 func_80136208(void) {
     D_800EBFA0_80136208.f24 = 0;
     D_800EBFA0_80136208.f28 = 0x1000;
     D_800EBFA0_80136208.f2C = 0x1000;
-    func_8008C01C();
+    Mem_Init();
     DrawSync(0);
     D_80139B24 = 0x3FDF;
     switch (g_Game_80136208.f_8126) {
@@ -273,14 +273,14 @@ s32 func_80136208(void) {
     case 27:
     case 28:
     case 29:
-        if (func_80096568(4) != 0) {
+        if (Movie_WasSeen(4) != 0) {
             return 0;
         }
         g_Game_80136208.mode = 0x1A;
         g_Game_80136208.f_815A = 4;
         break;
     case 17:
-        if (func_80096568(1) != 0) {
+        if (Movie_WasSeen(1) != 0) {
             return 0;
         }
         g_Game_80136208.mode = 0x1A;
@@ -301,9 +301,9 @@ extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_8013
 extern s16 D_801399AC;
 extern s16 D_80139B4A;
 extern s16 D_801399AE;
-extern Ent_801368FC *D_800B4D64_801368FC asm("D_800B4D64");
+extern Ent_801368FC *D_800B4D64_801368FC asm("g_StageMeshes");
 extern Mdl_801368FC D_80139B80_801368FC[] asm("D_80139B80");
-extern u8 *D_800EC354_801368FC asm("D_800EC354");
+extern u8 *D_800EC354_801368FC asm("g_GamePrim");
 extern s16 D_801397F8[];
 extern s16 D_80139774[];
 extern s16 D_80139628[];
@@ -313,10 +313,10 @@ extern s16 D_801398BC[];
 s32 Cd_PollLoadList(void);
 s32 Sound_ResumeStreams(void);
 void Zone_SetTable(s32);
-void *func_8008C09C(s32);
+void *Mem_AllocPages(s32);
 void Model_BindMesh(void *, u32 *);
 void Model_BindBoned(void *, u8 *);
-s32 func_80096580(s32);
+s32 World_GetProgress(s32);
 void func_80138A9C(void);
 void func_801374C8(void);
 void func_80136000(SVECTOR *eye, SVECTOR *at);
@@ -353,7 +353,7 @@ s32 func_801368FC(void) {
         g_Game_801368FC.f_8224 = (u32 *)(h + *(u16 *)(h + 0x2C) * 4);
         g_Game_801368FC.f_8228 = (Rec_801368FC *)(h + *(u16 *)(h + 0x30) * 4 + 4);
         g_Game_801368FC.f_8280 = *(s32 *)(h + *(u16 *)(h + 0x30) * 4);
-        D_800B4D64_801368FC = func_8008C09C(g_Game_801368FC.f_8280 << 5);
+        D_800B4D64_801368FC = Mem_AllocPages(g_Game_801368FC.f_8280 << 5);
         for (i = 0; i < g_Game_801368FC.f_8280; i++) {
             D_800B4D64_801368FC[i].f10 = g_Game_801368FC.f_8228[i].f4;
             D_800B4D64_801368FC[i].f14 = g_Game_801368FC.f_8228[i].f8;
@@ -384,7 +384,7 @@ s32 func_801368FC(void) {
         } else {
             switch (g_Game_801368FC.mode) {
             case 0xC:
-                if (func_80096580(g_Game_801368FC.f_8124) >= 2) {
+                if (World_GetProgress(g_Game_801368FC.f_8124) >= 2) {
                     D_80139B20_801368FC.pc = D_80139628;
                     func_80138A9C();
                 } else {
@@ -662,7 +662,7 @@ s32 func_801368FC(void) {
     return 0;
 }
 
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 extern u8 D_801399B0[];
 typedef struct { s16 x, y; u16 clut, tpage; u32 *ot; s32 scale; } Pen_801372D0;
 extern Pen_801372D0 D_80139B20_801372D0 asm("D_80139B20");
@@ -674,7 +674,7 @@ void func_801372D0(u8 *s) {
     u32 c;
     u8 u, v;
 
-    p = (PolyFT4_801372D0 *)D_800EC354;
+    p = (PolyFT4_801372D0 *)g_GamePrim;
     x = D_80139B20_801372D0.x;
     y = D_80139B20_801372D0.y;
     sc = D_80139B20_801372D0.scale;
@@ -709,12 +709,12 @@ void func_801372D0(u8 *s) {
         s++;
     }
     D_80139B20_801372D0.x = x;
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
 }
 
 void func_801373F8(s32 arg0) {
-    func_8008DDB0(M2C_FIELD(&D_80139B20, s16 *, 0), M2C_FIELD(&D_80139B20, s16 *, 2));
-    func_8008DDC8(arg0);
+    Msg_SetPos(M2C_FIELD(&D_80139B20, s16 *, 0), M2C_FIELD(&D_80139B20, s16 *, 2));
+    Msg_DrawString(arg0);
 }
 
 s32 Text_GetWidth2(u8 *);
@@ -1039,7 +1039,7 @@ typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; 
 typedef struct { s16 x, y; } Pos_80137DC4;
 extern Pos_80137DC4 D_80139B20_80137DC4 asm("D_80139B20");
 extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x66]; s16 f_8166; } g_Game_80137DC4 asm("g_Game");
-extern Sprt_80137DC4 *D_800EC354_80137DC4 asm("D_800EC354");
+extern Sprt_80137DC4 *D_800EC354_80137DC4 asm("g_GamePrim");
 
 void func_80137DC4(void) {
     Sprt_80137DC4 *p;
@@ -1139,7 +1139,7 @@ void func_80137F4C(Model_80137F4C *base) {
     }
 }
 
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 typedef struct { u32 tag; u32 rgbc; s16 x0, y0; u8 u0, v0; u16 clut; } Sprt8_80138258;
 
 void func_80138258(s32 x0, s32 y0, s32 w, s32 h) {
@@ -1182,12 +1182,12 @@ void func_80138258(s32 x0, s32 y0, s32 w, s32 h) {
     p->rgbc = 0xE100025A;
     ADD_PRIM_ASM(ot, p);
     p = (Sprt8_80138258 *)((u8 *)p + 8);
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
 }
 
 extern struct { u8 pad0[4]; u8 *prim; u32 *ot; u8 pad0C[0x8114]; u16 f_8120; u8 pad8122[2]; u16 f_8124; } g_Game_8013836C asm("g_Game");
 extern s32 D_80139AB0;
-s32 func_80096580(s32);
+s32 World_GetProgress(s32);
 void func_80138258(s32 x0, s32 y0, s32 w, s32 h);
 
 void func_8013836C(void) {
@@ -1204,7 +1204,7 @@ void func_8013836C(void) {
         D_80139AB0 = 1;
     }
     mode = g_Game_8013836C.f_8120;
-    r = func_80096580(g_Game_8013836C.f_8124);
+    r = World_GetProgress(g_Game_8013836C.f_8124);
     ((u8 *)p)[3] = 5;
     p->tpage = 0xE1000238;
     p->code = 0x67;
@@ -1231,7 +1231,7 @@ void func_8013836C(void) {
     p->clut = clut;
     ADD_PRIM_ASM2(ot, p);
     p++;
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
     func_80138258(0x18, 0x16, 0x110, 0x30);
 }
 
@@ -1338,7 +1338,7 @@ void func_801386B8(void) {
         ADD_PRIM_ASM(ot, p);
         p += 0x30;
     }
-    D_800EC354 = p;
+    g_GamePrim = p;
     n = D_80139AFC--;
     if (n > 10) {
         amp = 0;
@@ -1390,7 +1390,7 @@ void func_801386B8(void) {
             }
         }
     }
-    D_800EC354 = p;
+    g_GamePrim = p;
 }
 
 extern s8 D_80139B00[];
@@ -1401,7 +1401,7 @@ void func_80138A9C(void) {
     s32 i;
 
     for (i = 0; D_80139B00[i] > 0; i++) {
-        if (func_80096580(D_80139B00[i]) < 2) {
+        if (World_GetProgress(D_80139B00[i]) < 2) {
             ok = 0;
             break;
         }
@@ -1410,7 +1410,7 @@ void func_80138A9C(void) {
 }
 
 typedef struct { s16 x, y; s32 z; } Pt_391;
-void *func_8008C09C(s32);
+void *Mem_AllocPages(s32);
 s32 rcos(s32);
 s32 rsin(s32);
 extern Pt_391 *D_80139E28_80138B0C asm("D_80139E28");
@@ -1423,7 +1423,7 @@ void func_80138B0C(void)
   s32 a;
   s32 a0;
   s32 rad;
-  p = (D_80139E28_80138B0C = func_8008C09C(0x600));
+  p = (D_80139E28_80138B0C = Mem_AllocPages(0x600));
   for (a0 = 0, r = 0; r < 12; r++, a0 += 0x80)
   {
     rad = ((r * r) * 300) / 144;
@@ -1543,17 +1543,17 @@ void func_80138F38(void) {
     D_80139B20_80138F38.msg = 0;
     D_80139B20_80138F38.result = 0;
     if (g_Game_80138F38.mode == 12 || g_Game_80138F38.mode == 20) {
-        if (func_80096580(0x11) > 0 && SaveByte_Get(4) != 5) {
+        if (World_GetProgress(0x11) > 0 && SaveByte_Get(4) != 5) {
             D_80139B20_80138F38.flags |= 1;
         }
-        if (func_80096580(0x11) > 0 && SaveByte_Get(5) != 5) {
+        if (World_GetProgress(0x11) > 0 && SaveByte_Get(5) != 5) {
             D_80139B20_80138F38.flags |= 2;
         }
     }
     switch (g_Game_80138F38.mode) {
     case 12:
         if (!(D_80139B20_80138F38.flags & 2)) {
-            if (func_80096580(g_Game_80138F38.f_8124) >= 2) {
+            if (World_GetProgress(g_Game_80138F38.f_8124) >= 2) {
                 D_80139B20_80138F38.msg = 0x20;
             } else {
                 D_80139B20_80138F38.msg = 0x1F;
@@ -1634,7 +1634,7 @@ typedef struct { u8 pad_0[4]; s16 x, y, z; u8 pad_A[0xB]; u8 rot; } Obj_801392B0
 typedef struct { u8 *f0; u8 pad[0xC]; } Mdl_801392B0;
 extern Mdl_801392B0 D_800F4C30[];
 extern u8 D_800E7D00_801392B0[] asm("g_ProjVerts");
-extern void *D_800EC358;
+extern void *g_GameOt;
 void Matrix_RotateY(s32, Mat_801392B0 *);
 void Model_ProjectVerts(Mdl_801392B0 *, Mat_801392B0 *, void *);
 void Model_CalcEnvMapUVs64(Mdl_801392B0 *);
@@ -1656,7 +1656,7 @@ void func_801392B0(s32 id, Obj_801392B0 *o) {
     Model_ProjectVerts(mdl, &m, buf);
     Model_CalcEnvMapUVs64(mdl);
     *(u8 *)0x1F8003F4 = 2;
-    Model_DrawEnvMapped(D_800EC358, buf, mdl);
+    Model_DrawEnvMapped(g_GameOt, buf, mdl);
 }
 
 extern struct { u8 f_0; u8 pad_1[0x8125]; u16 f_8126; } g_Game_8013939C asm("g_Game");

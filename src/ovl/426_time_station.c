@@ -1,13 +1,13 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-M2C_UNK func_8008FC30(s16, void *);
+M2C_UNK Link_Activate(s16, void *);
 extern struct S_g_Game { u8 pad_0[0x8160]; u16 f_8160; u8 pad_8162[0xAA]; s32 f_820C; } g_Game;
 s32 func_800978E0(s16);
 
 M2C_UNK Model_BindStageMesh(s32, s16);
 M2C_UNK Stage_CountCaughtMonkeys(s32 *);
-extern s32 D_800B4D64;
+extern s32 g_StageMeshes;
 M2C_UNK Collision_Set(M2C_UNK, void *, M2C_UNK *);
 extern struct S_D_8013DCE0 { u8 pad_0[0x24]; s32 f_24; s32 f_28; s32 f_2C; s32 f_30; s32 f_34; s32 f_38; u8 pad_3C[0x8]; s16 f_44; s16 f_46; s16 f_48; s16 f_4A; u8 pad_4C[0x14]; s16 f_60; s16 f_62; s16 f_64; } D_8013DCE0;
 s32 SpecterCoin_Count();
@@ -19,13 +19,13 @@ s32 func_8013DD50(s16 *p) {
     return 0;
 }
 
-s32 func_80097F2C(void);
+s32 Save_AllLevelsComplete(void);
 s32 Overlay_GetState(void);
 
 s32 func_8013DD64(s16 *p) {
     switch (p[1]) {
     case 0:
-        if (func_80097F2C() != 0) {
+        if (Save_AllLevelsComplete() != 0) {
             p[1] = 1;
         }
         break;
@@ -81,7 +81,7 @@ s32 func_8013DE28(s16 *p) {
 typedef struct { u8 pad_0[0x100]; s32 f_100; u8 pad_104[0x22]; u16 f_126; u8 pad_128[2]; u16 f_12A; } GameHi_8013DEFC;
 extern struct { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x22]; u16 f_8126; u8 pad_8128[2]; u16 f_812A; u8 pad_812C[0x32]; s16 f_815E; } g_Game_8013DEFC asm("g_Game");
 extern struct { u8 pad_0[0x24]; s32 x; u8 pad_28[4]; s32 z; s32 f_30; u8 pad_34[4]; s32 f_38; } g_Spike_8013DEFC asm("g_Spike");
-extern s16 D_800EC238_8013DEFC asm("D_800EC238");
+extern s16 D_800EC238_8013DEFC asm("g_SpikeStandObj");
 s32 func_8013E2DC(void);
 
 s32 func_8013DEFC(s16 *p) {
@@ -147,7 +147,7 @@ s32 func_8013E0E8(void *arg0) {
     M2C_FIELD(arg0, s16 *, 2) = 0;
     M2C_FIELD(arg0, s16 *, 6) = 0;
     if (func_800978E0(M2C_FIELD(arg0, s16 *, 8)) != 0) {
-        Model_BindStageMesh(D_800B4D64 + (M2C_FIELD(arg0, s16 *, 0xC) << 5), M2C_FIELD(arg0, s16 *, 0xE));
+        Model_BindStageMesh(g_StageMeshes + (M2C_FIELD(arg0, s16 *, 0xC) << 5), M2C_FIELD(arg0, s16 *, 0xE));
     }
     return 0;
 }
@@ -182,7 +182,7 @@ s32 func_8013E280(s16 *p) {
     s32 n = p[4];
 
     if (func_8013E2DC() >= n) {
-        Model_BindStageMesh(D_800B4D64 + p[6] * 32, p[7]);
+        Model_BindStageMesh(g_StageMeshes + p[6] * 32, p[7]);
     }
     return 0;
 }
@@ -203,7 +203,7 @@ s32 func_8013E2DC(void) {
 }
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013E334 asm("g_Game");
-extern s16 D_800EC238_8013E334 asm("D_800EC238");
+extern s16 D_800EC238_8013E334 asm("g_SpikeStandObj");
 s32 Sound_PlayAt_8013E334() asm("Sound_PlayAt");
 
 s32 func_8013E334(s16 *p) {

@@ -2,44 +2,44 @@
 #include "m2c_macros.h"
 #include "common.h"
 
-u8 *func_8008C09C(s32 size);
+u8 *Mem_AllocPages(s32 size);
 extern char D_800A6340[];
 extern char D_800A6350[];
 void bios_printf(const char *, ...);
 void bios_exit(s32) __attribute__((noreturn));
 
-extern s32 D_800BF790;
-extern struct S_D_800BF690 { s32 f_0; } D_800BF690[];
+extern s32 Mem_PageSearchStart;
+extern struct S_D_800BF690 { s32 f_0; } Mem_PageOwners[];
 
 
-extern s32 D_800DF798;
-extern u8 D_800BF798[];
+extern s32 g_MemBumpPtr;
+extern u8 Mem_PagePool[];
 u8 *Mem_AllocFailed(s32 size);
 
-void* func_8008C000(s32 size) {
-    return (u8*)&D_800DF798 - ((size + 3) >> 2) * 4;
+void* Mem_PoolTail(s32 size) {
+    return (u8*)&g_MemBumpPtr - ((size + 3) >> 2) * 4;
 }
 
-void func_8008C01C(void) {
+void Mem_Init(void) {
     s32 i;
 
     for (i = 63; i >= 0; i--) {
-        D_800BF690[i].f_0 = 0;
+        Mem_PageOwners[i].f_0 = 0;
     }
-    D_800BF790 = 0;
-    D_800DF798 = 0x80102800;
+    Mem_PageSearchStart = 0;
+    g_MemBumpPtr = 0x80102800;
 }
 
-void func_8008C058(s32 arg0) {
-    D_800DF798 = arg0;
+void Mem_SetBumpPtr(s32 arg0) {
+    g_MemBumpPtr = arg0;
 }
 
-void func_8008C064(s32 arg0) {
+void Mem_Free(s32 arg0) {
     s32 *var_v1;
     s32 var_a1;
 
     var_a1 = 0;
-    var_v1 = &D_800BF690[0].f_0;
+    var_v1 = &Mem_PageOwners[0].f_0;
     do {
         if (*var_v1 == arg0) {
             *var_v1 = 0;
@@ -49,7 +49,7 @@ void func_8008C064(s32 arg0) {
     } while (var_a1 < 0x40);
 }
 
-u8 *func_8008C09C(s32 size)
+u8 *Mem_AllocPages(s32 size)
 {
   s32 n = (size + 0x7FF) / 0x800;
   s32 i;
@@ -63,26 +63,26 @@ u8 *func_8008C09C(s32 size)
   {
     return (void *) 0;
   }
-  if ((64 - D_800BF790) < n)
+  if ((64 - Mem_PageSearchStart) < n)
   {
     Mem_AllocFailed(size);
   }
   run = 0;
-  for (i = D_800BF790; i < 64; i++)
+  for (i = Mem_PageSearchStart; i < 64; i++)
   {
-    if (((u8 * *)&D_800BF690)[i] == ((void *) 0))
+    if (((u8 * *)&Mem_PageOwners)[i] == ((void *) 0))
     {
       if ((++run) == n)
       {
         j = i;
         k = j - run;
-        p = D_800BF798 + ((k + 1) * 0x800);
+        p = Mem_PagePool + ((k + 1) * 0x800);
         for (start = k; (*(new_var = &start)) < j; j--)
         {
-          ((u8 * *)&D_800BF690)[j] = p;
+          ((u8 * *)&Mem_PageOwners)[j] = p;
         }
 
-        D_800BF790 = 0;
+        Mem_PageSearchStart = 0;
         return p;
       }
     }
@@ -98,12 +98,12 @@ u8 *func_8008C09C(s32 size)
 /* Bump allocator in the work area; prints an error and stops when it runs out.
  */
 void *Mem_Alloc(s32 size) {
-    u8 *cur = D_800DF798;
+    u8 *cur = g_MemBumpPtr;
     if ((u32)(cur + size) <= 0x801027FF) {
-        D_800DF798 = cur + (((size + 3) >> 2) << 2);
+        g_MemBumpPtr = cur + (((size + 3) >> 2) << 2);
         return cur;
     }
-    return func_8008C09C(size);
+    return Mem_AllocPages(size);
 }
 
 /* Debug: draws 64 one-pixel bars coloured from a status table.
@@ -113,7 +113,7 @@ typedef struct { u32 addr : 24; u32 len : 8; } P_TAG_8C214;
 typedef struct { u8 r, g, b, cd; } CVec_8C214;
 typedef struct { P_TAG_8C214 tag; CVec_8C214 c; s16 x0, y0, x1, y1; } LineF2_8C214;
 
-/* Debug: a strip of 64 one-pixel lines at x 0x118, one per D_800BF690 slot: black when the slot
+/* Debug: a strip of 64 one-pixel lines at x 0x118, one per Mem_PageOwners slot: black when the slot
    is empty, else coloured by its flag bits 0x800 / 0x1000 / 0x2000 (red / green / blue) */
 void Debug_DrawMeter(void) {
     s32 i;
@@ -122,14 +122,14 @@ void Debug_DrawMeter(void) {
     LineF2_8C214 *p = (LineF2_8C214 *)G_DRAW.prim;
 
     for (i = 0; i < 64; i++) {
-        if (D_800BF690[i].f_0 == 0) {
+        if (Mem_PageOwners[i].f_0 == 0) {
             c.r = 0;
             c.g = 0;
             c.b = 0;
         } else {
-            c.r = (((u32)D_800BF690[i].f_0 & 0x800) >> 4) + 0x40;
-            c.g = (((u32)D_800BF690[i].f_0 & 0x1000) >> 5) + 0x40;
-            c.b = (((u32)D_800BF690[i].f_0 & 0x2000) >> 6) + 0x40;
+            c.r = (((u32)Mem_PageOwners[i].f_0 & 0x800) >> 4) + 0x40;
+            c.g = (((u32)Mem_PageOwners[i].f_0 & 0x1000) >> 5) + 0x40;
+            c.b = (((u32)Mem_PageOwners[i].f_0 & 0x2000) >> 6) + 0x40;
         }
     *(u32 *)&p->c = *(u32 *)&c;
         p->x1 = i + 0x118;
@@ -149,7 +149,7 @@ void Debug_DrawMeter(void) {
  */
 u8 *Mem_AllocFailed(s32 size) {
     bios_printf(D_800A6340);
-    bios_printf(D_800A6350, size, D_800BF790);
+    bios_printf(D_800A6350, size, Mem_PageSearchStart);
     bios_exit(1);
 }
 

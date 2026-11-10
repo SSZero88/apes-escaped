@@ -19,7 +19,7 @@ void Sound_ResumeStreams(void);
 void Sound_UnloadBanks(s32);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-void func_8008C390(void);
+void DebugFont_Init(void);
 void func_80136590(void);
 void func_80136E58(void);
 void *PutDrawEnv(void *env);
@@ -53,7 +53,7 @@ s32 func_80136000(void) {
     func_80136590();
     func_80136E58();
     func_80137374();
-    while (func_8001325C(0), Gfx_BeginFrame(), func_8008C390(), func_80136730() == 0) {
+    while (func_8001325C(0), Gfx_BeginFrame(), DebugFont_Init(), func_80136730() == 0) {
         DrawSync(0);
         VSync(2);
         g_Game_80136000.frame++;
@@ -75,7 +75,7 @@ s32 func_80136000(void) {
 typedef struct { u32 addr : 24; u32 len : 8; } Tag_8013626C;
 typedef struct { u32 tag; u32 tpage; u32 code; u32 xy; u32 uvclut; u32 wh; } Sprt_8013626C;
 extern GameDraw g_Game_8013626C asm("g_Game");
-extern Sprt_8013626C *D_800EC354_8013626C asm("D_800EC354");
+extern Sprt_8013626C *D_800EC354_8013626C asm("g_GamePrim");
 extern u16 D_80137980[];
 extern u8 D_80137880[];
 
@@ -234,7 +234,7 @@ void func_80136494(s32 n, s32 row);
 void func_80136624(s32 y);
 void func_80136E7C(void);
 void func_801376EC(void);
-s32 func_8008760C(void);
+s32 Music_FadeOut(void);
 typedef struct { u32 tag; u32 code; u32 xy; u32 wh; } Tile_80136730;
 typedef struct { u32 tag; u32 code; } Mode_80136730;
 extern u16 D_80137988[];
@@ -399,7 +399,7 @@ s32 func_80136730(void) {
             return 1;
         }
         if (D_80138310_80136730.f_1C == 0x258) {
-            func_8008760C();
+            Music_FadeOut();
         }
         if (D_80138310_80136730.f_1C == 0x21C) {
             D_80138310_80136730.f_20 = 0x3C;
@@ -544,7 +544,7 @@ void func_80136E7C(void) {
 }
 
 typedef struct { s16 x, y; s32 z; } Pt_391;
-void *func_8008C09C(s32);
+void *Mem_AllocPages(s32);
 s32 rcos(s32);
 s32 rsin(s32);
 extern Pt_391 *D_80139E28_80138B0C asm("D_801387B8");
@@ -557,7 +557,7 @@ void func_80137374(void)
   s32 a;
   s32 a0;
   s32 rad;
-  p = (D_80139E28_80138B0C = func_8008C09C(0x600));
+  p = (D_80139E28_80138B0C = Mem_AllocPages(0x600));
   for (a0 = 0, r = 0; r < 12; r++, a0 += 0x80)
   {
     rad = ((r * r) * 300) / 144;
@@ -635,7 +635,7 @@ typedef struct { u32 xy; u32 col; } Vtx_801376EC;
 typedef struct { u32 addr : 24; u32 len : 8; } Tag_801376EC;
 typedef struct { Tag_801376EC tag; u32 c0; u32 xy0; u32 c1; u32 xy1; u32 c2; u32 xy2; u32 c3; u32 xy3; } PolyG4_801376EC;
 extern struct { u32 frame; PolyG4_801376EC *prim; u32 *ot; } g_Game_801376EC asm("g_Game");
-extern PolyG4_801376EC *D_800EC354_801376EC asm("D_800EC354");
+extern PolyG4_801376EC *D_800EC354_801376EC asm("g_GamePrim");
 extern Vtx_801376EC *D_801387B8_801376EC asm("D_801387B8");
 
 void func_801376EC(void) {

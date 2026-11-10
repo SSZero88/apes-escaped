@@ -192,8 +192,8 @@ typedef struct { SVECTOR at; SVECTOR eye; SVECTOR spike; } Scr_8013D57C;
 extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013D57C asm("g_Spike");
 extern struct { u8 pad0[0x10]; s32 f_10; u8 pad14[0x24]; s16 f_38; u8 f_3A; } D_801408C0_8013D57C_t asm("D_801408C0");
 s32 SquareRoot0(s32);
-void func_80047464(void *, s32, s32, s32);
-void func_80047558(void *, s32, s32, s32);
+void Camera_EaseEye(void *, s32, s32, s32);
+void Camera_EaseLookAt(void *, s32, s32, s32);
 
 s32 func_8013D57C(u8 *cam) {
     Scr_8013D57C *sc = (Scr_8013D57C *)0x1F800000;
@@ -223,8 +223,8 @@ s32 func_8013D57C(u8 *cam) {
         sc->at.vy = M2C_FIELD(e, u16 *, 0x28) - 0x280;
     }
     sc->at.vz = M2C_FIELD(e, s32 *, 0x2C);
-    func_80047558(cam, 0x10, 0x10, 0x10);
-    func_80047464(cam, 8, 0x10, 8);
+    Camera_EaseLookAt(cam, 0x10, 0x10, 0x10);
+    Camera_EaseEye(cam, 8, 0x10, 8);
     D_801408C0_8013D57C_t.f_38 = M2C_FIELD(cam, u16 *, 0xC) + 0x3690;
     return 1;
 }
@@ -426,14 +426,14 @@ extern u8 D_801403A0[];
 extern u8 D_80140448[];
 extern u8 D_80140394[];
 void Fx_DrawFadeRing_8013DEEC(void *, s32, s32, s32) asm("Fx_DrawFadeRing");
-void func_80070284_8013DEEC(void *, void *, s32, s32, void *) asm("func_80070284");
+void func_80070284_8013DEEC(void *, void *, s32, s32, void *) asm("Shockwave_Spawn");
 s32 Camera_StartShake_8013DEEC(s32) asm("Camera_StartShake");
 void Effect_SpawnAt_8013DEEC(s32, void *) asm("Effect_SpawnAt");
 void Effect_Spawn_8013DEEC(s32, void *, void *, s32) asm("Effect_Spawn");
 s32 Sound_PlayFixed_8013DEEC(s32) asm("Sound_PlayFixed");
 s32 VectorNormalSS_8013DEEC(void *, void *) asm("VectorNormalSS");
 void Shadow_Draw_8013DEEC(void *, s32, s32, s32) asm("Shadow_Draw");
-void func_8006F3D0_8013DEEC(void *, s32, void *, s32) asm("func_8006F3D0");
+void func_8006F3D0_8013DEEC(void *, s32, void *, s32) asm("Fx_DrawRibbon");
 void func_8013D078(s32 arg0);
 #define RAND_8013DEEC() (g_RandSeed = g_RandSeed * 5 + 1)
 
@@ -585,7 +585,7 @@ void func_8013E500(SVECTOR *pos, s32 a1, s32 rnd, u8 a3, u8 a4) {
 typedef struct { SVECTOR start; SVECTOR *end; u8 padC[0x10]; u8 n; u8 pad1D; u16 seed; u8 pad20[4]; } Bolt_8013E650;
 extern Bolt_8013E650 D_80140AB8_8013E650[] asm("D_80140AB8");
 extern u8 D_800B1B90[];
-void func_8006F3D0(SVECTOR *, s32, void *, s32);
+void Fx_DrawRibbon(SVECTOR *, s32, void *, s32);
 
 void func_8013E650(void) {
     SVECTOR pts[9];
@@ -615,7 +615,7 @@ void func_8013E650(void) {
             p->vy += (((s16)(seed = seed * 5 + 1) >> 8) - 0x80) / 2;
             p->vz += (((s16)(seed = seed * 5 + 1) >> 8) - 0x80) / 2;
         }
-        func_8006F3D0(pts, e->n, D_800B1B90, 8);
+        Fx_DrawRibbon(pts, e->n, D_800B1B90, 8);
         e->n--;
     }
 }
@@ -934,7 +934,7 @@ extern struct { u8 pad0[0x1A]; s16 f_1A; s16 f_1C; s16 f_1E; s16 f_20; } D_80140
 extern s32 D_801403F4;
 void VectorNormalSS(void *, void *);
 void Effect_SpawnAt(s32, SVECTOR *);
-void func_80070284(void *, s32 *, s32, s32, s32);
+void Shockwave_Spawn(void *, s32 *, s32, s32, s32);
 void Camera_StartShake(s32);
 void func_8013D000(void);
 
@@ -963,7 +963,7 @@ void func_8013F694(u8 *obj, s32 div) {
     v.vx = M2C_FIELD(obj, u16 *, 0x24);
     v.vy = g_Spike_8013F694.y;
     v.vz = M2C_FIELD(obj, u16 *, 0x2C);
-    func_80070284(&v, &D_801403F4, 1, 0, 0);
+    Shockwave_Spawn(&v, &D_801403F4, 1, 0, 0);
     Camera_StartShake(0);
     Sound_PlayFixed(0x82);
     Sound_PlayFixed(0x4B);
@@ -974,7 +974,7 @@ typedef struct { u32 addr : 24; u32 len : 8; } Tag_8013F848;
 typedef struct { s32 cur; s32 wait; u8 seed[0x12]; u8 len[0x12]; } Bars_8013F848;
 extern Bars_8013F848 D_80140D30_8013F848 asm("D_80140D30");
 extern s32 D_801408C0_8013F848 asm("D_801408C0");
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 #define RAND_8013F848() (g_RandSeed = g_RandSeed * 5 + 1)
 
 void func_8013F848(void) {
@@ -1047,7 +1047,7 @@ void func_8013F848(void) {
         n--;
         D_80140D30_8013F848.seed[D_80140D30_8013F848.cur] = RAND_8013F848() >> 8;
     }
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
 }
 
 extern struct { u8 pad0[4]; s32 f_4; u8 pad8[0x32]; u8 f_3A; } D_801408C0;

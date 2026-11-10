@@ -8,14 +8,14 @@ typedef struct { u8 pad0[0xA]; u16 f_A; u8 padC[4]; u16 f_10; } SCR_84C94_80084C
 
 extern struct S_D_800F5380 { u8 f_0; u8 f_1; u8 f_2; u8 f_3; s32 f_4; s32 f_8; s32 f_C; u8 pad10[0x16]; u8 f_26; u8 f_27; u8 pad28[2]; s16 f_2A; s16 f_2C; u8 pad2E[2]; s16 f_30; u8 pad32[2]; } D_800F5380[];
 
-extern M2C_UNK D_800B2950;
+extern M2C_UNK Projectile_Colours;
 
 void Projectile_UpdateAll(void);
-M2C_UNK func_800856FC();
+M2C_UNK BossShot_UpdateAll();
 void Effect_HitCallback(E_80084C04_80084C04 *e, s32 kind);
 void Effect_SpawnAt(s32, s32);
 void Sound_PlayAt(s32, s32);
-void func_80085230(void);
+void BossShot_ClearAll(void);
 struct S_D_800F5380_80084A60 { u8 f_0; u8 pad[0x33]; };
 extern u8 D_800B1B78[][8];
 void Projectile_End(void *arg0, s32 kind);
@@ -24,7 +24,7 @@ s32 Water_Query(s32, s32, s32);
 void memset(void *, s32, s32);
 Col_84C94_80084C94 *CollShape_Alloc(void);
 void Collision_Set(s32, void *, s32);
-void func_8006F3D0(SV_84C94_80084C94 *, s32, void *, s32);
+void Fx_DrawRibbon(SV_84C94_80084C94 *, s32, void *, s32);
 struct S_D_800F5380_80084C94 { u8 state; u8 f_1; u8 life; u8 f_3; void *cb; s32 f_8; Col_84C94_80084C94 *col; SV_84C94_80084C94 *pos; SV_84C94_80084C94 dir; s16 vx; s16 vy; s16 vz; s8 grav; u8 f_23; u8 f_24; u8 f_25; u8 f_26; u8 f_27; u16 water; s16 f_2A; s16 f_2C; u8 pad2E[2]; s16 f_30; s16 f_32; };
 
 void Projectile_InitAll(void) {
@@ -32,12 +32,12 @@ void Projectile_InitAll(void) {
     for (i = 31; i >= 0; i--) {
         ((struct S_D_800F5380_80084A60 *)&D_800F5380)[i].f_0 = 0;
     }
-    func_80085230();
+    BossShot_ClearAll();
 }
 
 void Projectile_Frame(void) {
     Projectile_UpdateAll();
-    func_800856FC();
+    BossShot_UpdateAll();
 }
 
 struct S_D_800F5380 *Projectile_Alloc(void) {
@@ -63,7 +63,7 @@ struct S_D_800F5380 *Projectile_Alloc(void) {
     return 0;
 }
 
-void func_80084B48(void *arg0, s32 arg1, void *arg2, s8 arg3) {
+void Projectile_Launch(void *arg0, s32 arg1, void *arg2, s8 arg3) {
     M2C_FIELD(arg0, s8 *, 1) = arg3;
     M2C_FIELD(arg0, s32 *, 0x10) = arg1;
     M2C_FIELD(arg0, u16 *, 0x1C) = (u16) M2C_FIELD(arg2, u16 *, 0);
@@ -71,19 +71,19 @@ void func_80084B48(void *arg0, s32 arg1, void *arg2, s8 arg3) {
     M2C_FIELD(arg0, u16 *, 0x20) = (u16) M2C_FIELD(arg2, u16 *, 4);
 }
 
-void func_80084B74(void *arg0, s32 arg1)
+void Projectile_SetColour(void *arg0, s32 arg1)
 {
   u8 *new_var;
   void *temp_v0;
   *((u8 *) (((s8 *) arg0) + 1)) = (u8) ((*((u8 *) (((s8 *) arg0) + 1))) | 0x10);
-  new_var = (u8 *) (&D_800B2950);
+  new_var = (u8 *) (&Projectile_Colours);
   temp_v0 = (void *) (new_var + (arg1 * 3));
   *((u8 *) (((s8 *) arg0) + 0x23)) = (u8) (*((u8 *) (((s8 *) temp_v0) + 0)));
   *((u8 *) (((s8 *) arg0) + 0x24)) = (u8) (*((u8 *) (((s8 *) temp_v0) + 1)));
   *((u8 *) (((s8 *) arg0) + 0x25)) = (u8) (*((u8 *) (((s8 *) temp_v0) + 2)));
 }
 
-void func_80084BB8(void *arg0, s8 arg1) {
+void Projectile_SetLife(void *arg0, s8 arg1) {
     M2C_FIELD(arg0, s8 *, 2) = arg1;
 }
 
@@ -121,7 +121,7 @@ void Effect_HitCallback(E_80084C04_80084C04 *e, s32 kind) {
     }
 }
 
-void func_80084C78(void *arg0, s16 arg1, s8 arg2, s8 arg3) {
+void Projectile_SetHitEffect(void *arg0, s16 arg1, s8 arg2, s8 arg3) {
     M2C_FIELD(arg0, M2C_UNK **, 4) = &Effect_HitCallback;
     M2C_FIELD(arg0, s16 *, 0x32) = arg1;
     M2C_FIELD(arg0, s8 *, 0x26) = arg2;
@@ -240,7 +240,7 @@ void Projectile_UpdateAll(void) {
             t.vx = pos->vx + (-t.vx * p->f_25 >> 8);
             t.vy = pos->vy + (-t.vy * p->f_25 >> 8);
             t.vz = pos->vz + (-t.vz * p->f_25 >> 8);
-            func_8006F3D0(&t, 2, D_800B1B78[p->f_23], p->f_24);
+            Fx_DrawRibbon(&t, 2, D_800B1B78[p->f_23], p->f_24);
         }
     }
 }

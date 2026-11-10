@@ -31,12 +31,12 @@ extern u8 *D_800E68D8;
 
 extern struct S_D_800EC350 { u8 pad_0[0x8126]; u16 f_8126; u8 pad_8128[0x28]; u16 f_8150; } g_Game;
 
-s32 func_8005AB6C();
+s32 Stage_IsArea53();
 M2C_UNK Sound_PlayFixed(M2C_UNK);
-extern struct S_D_800E68D0 { u8 pad_0[0x46]; u8 f_46; } D_800E68D0;
+extern struct S_D_800E68D0 { u8 pad_0[0x46]; u8 f_46; } g_CameraState;
 
 extern s8 D_800E6912;
-extern s32 D_800B4D40;
+extern s32 g_CameraSlots;
 extern u8 D_800E68E8;
 extern void (*D_80141390[])(s32);
 extern void (*D_8014440C[])(s32);
@@ -55,16 +55,16 @@ struct Spike_8004B5FC { u8 pad0[0x24]; s32 x, y, z; };
 struct Pad_8004B5FC { u8 pad0[0x158]; u32 held; };
 s32 rcos(s32);
 s32 rsin(s32);
-void func_80047558(Cam_8004B5FC_8004B5FC *, s32, s32, s32);
-void func_80047464(Cam_8004B5FC_8004B5FC *, s32, s32, s32);
+void Camera_EaseLookAt(Cam_8004B5FC_8004B5FC *, s32, s32, s32);
+void Camera_EaseEye(Cam_8004B5FC_8004B5FC *, s32, s32, s32);
 extern struct S_D_800E5320 { u8 pad0[0xA2]; s8 sx; s8 sy; u8 padA4[0xB4]; u32 held; } g_Pad;
 struct Game_8004AC84 { u8 pad0[0x8150]; u16 f_8150; };
-void func_80048D10(void *arg0, void *arg1, s32 arg2);
+void Camera_PlaceBehindSpike(void *arg0, void *arg1, s32 arg2);
 void Matrix_SetIdentity(void *);
 void RotMatrixY(s32, void *);
 void ApplyMatrixSV(void *, void *, void *);
-void func_8004B590(s32 i, s32 arg);
-void func_8004AF78(Cam_8004AC84_8004AC84 *);
+void Camera_CallStageHook(s32 i, s32 arg);
+void Camera_DrawAimReticle(Cam_8004AC84_8004AC84 *);
 struct S_D_800E68D0_8004AC84 { u8 pad0[6]; u16 f_6; u8 pad8[0x10]; u8 f_18; u8 pad19[0x19]; u8 f_32; u8 f_33; u8 pad34[0x12]; u8 f_46; };
 s32 SquareRoot0(s32);
 extern s8 g_CurrentGadget;
@@ -79,7 +79,7 @@ extern u16 D_800E68D6;
 void SetRotMatrix(void *);
 void SetTransMatrix(void *);
 s32 RotTransPers(SVECTOR *, s32 *, s32 *, s32 *);
-void func_800495F4();
+void Camera_UpdateFollow();
 
 void Camera_UpdateOrientation(S_C_80048DD0_80048DD0 *o) {
     S_Sc_80048DD0_80048DD0 *sc = (S_Sc_80048DD0_80048DD0 *)0x1F800000;
@@ -165,7 +165,7 @@ struct Pad_8004923C { u8 pad0[0xA2]; s8 f_A2; s8 f_A3; u8 padA4[0xDC]; u16 f_180
 extern u8 g_Pad_CHMI[] asm("g_Pad");
 extern u8 D_800E6908_CHMI asm("D_800E6908");
 extern struct { u32 v; } D_800E5478_s asm("D_800E5478");
-s32 func_8005DC78(void);
+s32 Game_IsPlaying(void);
 /* Camera_HandleManualInput: manual camera control from the right stick (pad +0xA2/+0xA3, when an
  * analog pad is in mode 1 with +0x180 > 100) or the buttons in D_800E5478: yaw speed f_6E = +-0x22
  * (0x2000 / 0x8000), pitch f_6C = -0x30 / +0x30 (0x1000 / 0x4000) clamped to the limits from
@@ -175,7 +175,7 @@ void Camera_HandleManualInput(Cam_8004923C *c) {
     s32 rx = 0;
     s32 ry = 0;
     s16 lim;
-    if (func_8005DC78() == 0) {
+    if (Game_IsPlaying() == 0) {
         return;
     }
     if (D_800E6908_CHMI == 1 && ((struct Pad_8004923C *)&g_Pad_CHMI)->f_180 > 100) {
@@ -214,7 +214,7 @@ void Camera_HandleManualInput(Cam_8004923C *c) {
 }
 
 
-void func_800493D4(S_800493D4_800493D4 *o) {
+void Camera_InitFollow(S_800493D4_800493D4 *o) {
     S_EC1E0_800493D4_800493D4 *s = (S_EC1E0_800493D4_800493D4 *)&g_Spike;
     o->f_40 = Math_Atan2(-s->f_60, -s->f_64);
     o->f_38 = 0x460;
@@ -249,7 +249,7 @@ void func_800493D4(S_800493D4_800493D4 *o) {
 
 void Camera_ResetToStart(void)
 {
-  S_B4D40_80049514 *p = &(*(S_B4D40_80049514 * *)&D_800B4D40)[D_800E68E8];
+  S_B4D40_80049514 *p = &(*(S_B4D40_80049514 * *)&g_CameraSlots)[D_800E68E8];
   SVEC_80049514 v;
   p->f_33 = 1;
   p->f_32 = 0;
@@ -267,7 +267,7 @@ void Camera_ResetToStart(void)
 /* scratch pad while the camera updates */
 typedef struct { SVECTOR eye;                /* 0x00 wanted eye */ SVECTOR at;                 /* 0x08 wanted look-at point */ u16 x; u16 pad12; u16 z; u8 pad16[4]; u16 y; /* 0x10 Spike (x, z, y at 0x1A) */ u8 pad1C[0x10]; s32 f_2C; u8 pad30[0x10]; u16 dx; u16 pad42; u16 dz;  /* 0x40 Spike's facing */ u8 pad46[0x1A]; s32 sx, sy;                 /* 0x60 Spike on screen */ s32 vx, vy, vz;             /* 0x68 Spike's velocity */ s32 pad74; s32 dot;                    /* 0x78 */ } CamScr_495F4;
 typedef struct { u8 pad0[4]; s16 dist;                   /* 0x04 */ s16 height;                 /* 0x06 */ s16 atHeight;               /* 0x08 */ SVECTOR eye;                /* 0x0A x, y, z (unaligned) */ SVECTOR at;                 /* 0x12 */ s16 lastX, lastY, lastZ;    /* 0x1A */ u8 pad20[0x10]; u8 still;                   /* 0x30 */ u8 moving;                  /* 0x31 */ u8 turn;                    /* 0x32 */ u8 snap;                    /* 0x33 */ u8 slow;                    /* 0x34 */ u8 probe;                   /* 0x35 */ u8 f_36; u8 f_37; s32 range;                  /* 0x38 */ u8 pad3C[4]; s32 yaw;                    /* 0x40 */ s32 lastYaw;                /* 0x44 */ s32 f_48; s32 spin;                   /* 0x4C */ u8 pad50[2]; s16 bobY;                   /* 0x52 */ u8 pad54[6]; s16 bobAt;                  /* 0x5A */ u8 pad5C[4]; s32 f_60; u8 pad64[8]; s16 f_6C; s16 f_6E; s32 f_70; s32 f_74; u8 pad78[8]; u8 rcZoom;                  /* 0x80 */ } Cam_495F4;
-extern struct { u8 pad0[0x34]; s16 f_34; s16 f_36; u8 pad38[7]; u8 f_3F; u8 f_40; u8 pad41[6]; u8 busy; u8 f_48; } D_800E68D0_495F4 asm("D_800E68D0");
+extern struct { u8 pad0[0x34]; s16 f_34; s16 f_36; u8 pad38[7]; u8 f_3F; u8 f_40; u8 pad41[6]; u8 busy; u8 f_48; } D_800E68D0_495F4 asm("g_CameraState");
 extern struct { u8 pad0[0x8100]; s32 f_8100; u8 pad8104[0x22]; u16 f_8126; u8 pad8128[0x28]; u16 f_8150; } g_Game_495F4 asm("g_Game");
 extern struct { u8 pad0[0xA2]; s8 sx; } g_Pad_495F4 asm("g_Pad");
 extern struct { u8 pad0[0x5E]; u16 state; u8 pad60[0x10]; s32 animFlags; } g_Spike_495F4 asm("g_Spike");
@@ -283,23 +283,23 @@ void Camera_HandleManualInput_495F4(Cam_495F4 *) asm("Camera_HandleManualInput")
 s32 Camera_RcCarActive_495F4(void) asm("Camera_RcCarActive");
 void Camera_ProbeDrop_495F4(Cam_495F4 *, s32) asm("Camera_ProbeDrop");
 void Camera_KeepAboveFloor_495F4(Cam_495F4 *) asm("Camera_KeepAboveFloor");
-s32 func_8006B9F8_495F4(void) asm("func_8006B9F8");
+s32 func_8006B9F8_495F4(void) asm("Spike_IsDeepInWater");
 void VectorNormalSS_495F4(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
 s16 Floor_GetHeight_495F4(s32, s32, s32) asm("Floor_GetHeight");
 void memset_495F4(void *, s32, s32) asm("memset");
 s32 SquareRoot0_495F4(s32) asm("SquareRoot0");
 s32 rcos_495F4(s32) asm("rcos");
 s32 rsin_495F4(s32) asm("rsin");
-void func_8004AF78_495F4(Cam_495F4 *) asm("func_8004AF78");
+void func_8004AF78_495F4(Cam_495F4 *) asm("Camera_DrawAimReticle");
 s32 Math_Atan2_495F4(s32, s32) asm("Math_Atan2");
 
 /* The normal follow camera (mode 0, or 1 = behind Spike). Works out how far behind and above
-   Spike to sit (the defaults in the camera, overridden by D_800E68D0 settings, when Spike is in a
-   tight spot (state group 0x80), in mode 0xA and when func_8006B9F8 says so), runs the
+   Spike to sit (the defaults in the camera, overridden by g_CameraState settings, when Spike is in a
+   tight spot (state group 0x80), in mode 0xA and when Spike_IsDeepInWater says so), runs the
    orientation and manual-control steps, damps the spin and eases the range, checks the ground
    between Spike and the camera when the stick turns it, pulls in when something blocks the view,
    bobs with Spike's jumps, then moves the eye and look-at points towards their goals. */
-void func_800495F4(Cam_495F4 *cam, s32 mode) {
+void Camera_UpdateFollow(Cam_495F4 *cam, s32 mode) {
     CamScr_495F4 *scr = (CamScr_495F4 *)0x1F800000;
     SVECTOR v;
     SVECTOR d;
@@ -642,7 +642,7 @@ void func_800495F4(Cam_495F4 *cam, s32 mode) {
     cam->lastYaw = cam->yaw;
 }
 
-s32 func_8004A940(void)
+s32 Camera_StageHookActive(void)
 {
   s32 var_a0;
   int new_var;
@@ -675,10 +675,10 @@ end:
     return r;
 }
 
-void func_8004AA24(void)
+void Camera_ForceFloorCheck(void)
 {
   s8 *new_var;
-  new_var = (s8 *) (((s8 *) (D_800B4D40 + (D_800E68E8 * 0xB0))) + 0x81);
+  new_var = (s8 *) (((s8 *) (g_CameraSlots + (D_800E68E8 * 0xB0))) + 0x81);
   *new_var = 1;
 }
 
@@ -743,18 +743,18 @@ void Camera_FollowRcCar(Cam_8004AA58_8004AA58 *cam) {
         ((SVECTOR *)(scratch + 0x40))->vz = z - SP_4AA58->z;
         VectorNormalSS((SVEC_80049514 *)(scratch + 0x40), (SVEC_80049514 *)(scratch + 0x40));
     }
-    func_800495F4(cam, 0);
+    Camera_UpdateFollow(cam, 0);
 }
 
 /* Look / aim camera (run by Camera_HandleViewButtons). Unless the current setting type
- * (D_800E68D0+6) is 2 it only eases towards the normal camera. Otherwise the eye is at Spike's
+ * (g_CameraState+6) is 2 it only eases towards the normal camera. Otherwise the eye is at Spike's
  * head (0x50 higher when his flags +0x70 say 0x80), the right stick X / D-pad Left-Right turn
  * Spike's facing (+0x60), and stick Y / D-pad Up-Down tilt the look point, clamped between
  * +0x400 (aiming) or +0x734 above and 0xABC below the base +0xC. In sub-mode 1 it hands over
- * to func_8004B590(2); while aiming (+0x46) it calls func_8004AF78. */
+ * to Camera_CallStageHook(2); while aiming (+0x46) it calls Camera_DrawAimReticle. */
 void Camera_UpdateLook(Cam_8004AC84_8004AC84 *cam) {
     Scr_8004AC84_8004AC84 *scr = (Scr_8004AC84_8004AC84 *)0x1F800000;
-    struct S_D_800E68D0_8004AC84 *d = ((struct S_D_800E68D0_8004AC84 *)&D_800E68D0);
+    struct S_D_800E68D0_8004AC84 *d = ((struct S_D_800E68D0_8004AC84 *)&g_CameraState);
     Sp_8004AC84_8004AC84 *sp;
     u16 c;
     u8 m[0x20];
@@ -769,7 +769,7 @@ void Camera_UpdateLook(Cam_8004AC84_8004AC84 *cam) {
         d->f_32 = 0;
     }
     if (d->f_6 != 2) {
-        func_80048D10(cam, &scr->tgt, cam->dist);
+        Camera_PlaceBehindSpike(cam, &scr->tgt, cam->dist);
         cam->f_14 = scr->v18.vy - 300;
         cam->f_C = scr->v18.vy - 300;
         cam->dist = (cam->dist + 0xE00) / 8;
@@ -818,14 +818,14 @@ void Camera_UpdateLook(Cam_8004AC84_8004AC84 *cam) {
     scr->eye.vx = sp->x;
     scr->eye.vy = sp->y + dy;
     scr->eye.vz = sp->z;
-    func_80047558(cam, 4, 3, 4);
-    func_80047464(cam, 4, 3, 4);
+    Camera_EaseLookAt(cam, 4, 3, 4);
+    Camera_EaseEye(cam, 4, 3, 4);
     d->f_33 = 0;
-    func_80048D10(&(*(A_8004AC84_8004AC84 * *)&D_800B4D40)[d->f_18], &scr->tgt, 0x333);
+    Camera_PlaceBehindSpike(&(*(A_8004AC84_8004AC84 * *)&g_CameraSlots)[d->f_18], &scr->tgt, 0x333);
     if ((*(struct Game_8004AC84 *)&g_Game).f_8150 == one) {
-        func_8004B590(2, (s32)cam);
+        Camera_CallStageHook(2, (s32)cam);
     } else if (d->f_46 == one) {
-        func_8004AF78(cam);
+        Camera_DrawAimReticle(cam);
     }
 }
 
@@ -842,11 +842,11 @@ extern u8 D_800E6916;
 extern u16 D_800EC23E;
 extern s8 D_800E53C3;
 extern u8 D_800B8CB0;
-s32 func_8004D104(void);
+s32 CamFlyby_IsActive(void);
 s32 Floor_GetHeight_4AF78(s32, s32, s32) asm("Floor_GetHeight");
 s32 RotTransPers_4AF78(SVECTOR *, s32 *, s32 *, s32 *) asm("RotTransPers");
 
-void func_8004AF78(Cam_8004AC84_8004AC84 *cam) {
+void Camera_DrawAimReticle(Cam_8004AC84_8004AC84 *cam) {
     CamAim_4AF78 *c = (CamAim_4AF78 *)cam;
     SVECTOR v;
     s32 sxy;
@@ -865,7 +865,7 @@ void func_8004AF78(Cam_8004AC84_8004AC84 *cam) {
     mode = 1;
     half = 0;
     __asm__("" : "=r"(scr) : "0"(0x1F800000));
-    if (func_8004D104() != 0) {
+    if (CamFlyby_IsActive() != 0) {
         return;
     }
     if (D_800E6916 != 0) {
@@ -968,20 +968,20 @@ void func_8004AF78(Cam_8004AC84_8004AC84 *cam) {
 }
 
 void Camera_EnterAim(void) {
-    if ((D_800E68D0.f_46 != 1) && (func_8005AB6C() == 0)) {
-        D_800E68D0.f_46 = 1U;
+    if ((g_CameraState.f_46 != 1) && (Stage_IsArea53() == 0)) {
+        g_CameraState.f_46 = 1U;
         Sound_PlayFixed(4);
     }
 }
 
 void Camera_ExitAim(void) {
-    if (D_800E68D0.f_46 != 0) {
-        D_800E68D0.f_46 = 0U;
+    if (g_CameraState.f_46 != 0) {
+        g_CameraState.f_46 = 0U;
         Sound_PlayFixed(5);
     }
 }
 
-void func_8004B54C(SVECTOR *arg0) {
+void Camera_GetLookAt(SVECTOR *arg0) {
     *arg0 = *(SVECTOR *)(D_800E68D8 + 0x12);
 }
 
@@ -989,7 +989,7 @@ void func_8004B580(void) {
     D_800E6912 = 1;
 }
 
-void func_8004B590(s32 i, s32 arg) {
+void Camera_CallStageHook(s32 i, s32 arg) {
     void (**tbl)(s32);
     if (g_Game.f_8126 == 0x38) {
         tbl = D_80141390;
@@ -1039,14 +1039,14 @@ void Camera_UpdateOrbit(Cam_8004B5FC_8004B5FC *cam) {
         scr->eye.vy -= 0x200;
         scr->at.vy += 0x100;
     }
-    func_80047558(cam, 8, 8, 8);
-    func_80047464(cam, 5, 8, 5);
+    Camera_EaseLookAt(cam, 8, 8, 8);
+    Camera_EaseEye(cam, 5, 8, 5);
 }
 
 void func_8004B83C(void) {
     void *temp_v1;
 
-    temp_v1 = D_800B4D40 + (D_800E68E8 * 0xB0);
+    temp_v1 = g_CameraSlots + (D_800E68E8 * 0xB0);
     M2C_FIELD(temp_v1, s8 *, 0x34) = 0;
     M2C_FIELD(temp_v1, s8 *, 0x36) = 0;
     M2C_FIELD(temp_v1, s8 *, 0x35) = 0;

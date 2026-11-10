@@ -16,7 +16,7 @@ typedef struct { u8 pad0[0x24]; s32 x, y, z; } Spk_8435C_8008435C;
 extern u16 g_RandSeed;
 extern s32 D_800F51C4;
 
-extern struct S_D_800BF2B8 { s32 f_0; } D_800BF2B8[];
+extern struct S_D_800BF2B8 { s32 f_0; } Pickup_AreaMasks[];
 
 void Pickup_UpdateAll(void);
 void Pickup_DrawAll(void);
@@ -36,14 +36,14 @@ void CompMatrix(struct S_D_800E78C0 *, struct S_D_800E78C0 *, struct S_D_800E78C
 void Model_ProjectVerts(struct S_D_800F4C30 *, struct S_D_800E78C0 *, u8 *);
 void Model_Draw(u32 *, u8 *, struct S_D_800F4C30 *);
 struct S_D_800EC350_800845E0 { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf_800845E0 db[2]; };
-extern u32 *D_800EC358;
+extern u32 *g_GameOt;
 void Model_CalcEnvMapUVs64(struct S_D_800F4C30 *);
 void Model_DrawEnvMapped(u32 *, u8 *, struct S_D_800F4C30 *);
 struct S_D_800F4C30_800846D8 { S_Mdl_800846D8 *f_0; u8 pad4[0xC]; };
 struct Game_83470 { u8 pad0[0x8124]; u16 f_8124; u16 f_8126; u8 pad8128[0x120]; Hdr_83470_80083470 *f_8248; };
 extern u8 D_800B2920[];
 extern u8 D_800BF2F8;
-extern u8 D_800B28B0;
+extern u8 Pickup_Kind2Cooldown;
 extern u8 D_800B28B1;
 extern u8 g_SpecterCoinTimer;
 extern u8 D_800BF2B5;
@@ -53,7 +53,7 @@ void Pickup_Spawn(s32 kind, Pos_83470_80083470 *pos, s32 mode, s32 slot);
 /* Clears the 32 pickup slots, then, if the loaded area data (g_Game+0x8248) starts with the tag
  * 0x492E 0x4D54 (marked as read by overwriting its first byte), spawns its pickups: 16-byte
  * records (kind, x, y, z; kind 0xFF ends the list), skipping those whose bit is set in this
- * area's collected mask D_800BF2B8[area] and the Specter coin (kind 4) when this stage's is already collected (SpecterCoin_IsCollected). Then picks the
+ * area's collected mask Pickup_AreaMasks[area] and the Specter coin (kind 4) when this stage's is already collected (SpecterCoin_IsCollected). Then picks the
  * stage's drop table D_800BF2F8 (D_800B2920[stage], at most 4) and resets the drop counters. */
 extern Pk_8435C_8008435C D_800BF2A0;
 extern Spk_8435C_8008435C g_Spike;
@@ -62,9 +62,9 @@ void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
 s32 RotTransPers(void *v0, s32 *sxy, s32 *p, s32 *flag);
 void Effect_SpawnAt(s32, void *);
-void func_800845E0(s32 i, S_846D8_800845E0 *o);
-void func_800846D8(s32 i, S_846D8_800846D8 *o);
-extern u16 D_800AE8F2;
+void Pickup_DrawModel(s32 i, S_846D8_800845E0 *o);
+void Pickup_DrawModelEnvMap(s32 i, S_846D8_800846D8 *o);
+extern u16 g_RandSeed2;
 typedef struct { u8 pad0[0x813C]; u16 f_813C; } Game_83790;
 
 void Pickup_SpawnArea(void) {
@@ -97,7 +97,7 @@ void Pickup_SpawnArea(void) {
         a = 0;
     }
     i = 0;
-    mask = ((u32 *)&D_800BF2B8)[a];
+    mask = ((u32 *)&Pickup_AreaMasks)[a];
     D_800B28B1 = 1;
     for (; i < hdr->count; i++, r++) {
         if (r->kind == 0xFF) {
@@ -123,7 +123,7 @@ void Pickup_SpawnArea(void) {
     if (D_800BF2F8 >= 5) {
         D_800BF2F8 = 4;
     }
-    D_800B28B0 = 3;
+    Pickup_Kind2Cooldown = 3;
     g_SpecterCoinTimer = 0;
     D_800BF2B5 = 0;
     D_800B28B1 = 0;
@@ -132,7 +132,7 @@ void Pickup_SpawnArea(void) {
 INCLUDE_RODATA("asm/nonmatchings/game/80083470_pickup", D_800A6160);
 
 
-void func_800836E0(void *arg0) {
+void Pickup_SetCollShape(void *arg0) {
     M2C_FIELD(M2C_FIELD(arg0, void **, 0), s32 *, 0) = (s32) M2C_FIELD(arg0, s16 *, 4);
     M2C_FIELD(M2C_FIELD(arg0, void **, 0), s32 *, 4) = (s32) M2C_FIELD(arg0, s16 *, 6);
     M2C_FIELD(M2C_FIELD(arg0, void **, 0), s32 *, 8) = (s32) M2C_FIELD(arg0, s16 *, 8);
@@ -141,7 +141,7 @@ void func_800836E0(void *arg0) {
     M2C_FIELD(M2C_FIELD(arg0, void **, 0), s16 *, 0x20) = 0x80;
 }
 
-s32 func_8008373C(void) {
+s32 Pickup_RollAmmoDrop(void) {
     s32 ret = 7;
     u16 r = g_RandSeed * 5 + 1;
     u8 bit;
@@ -156,21 +156,21 @@ s32 func_8008373C(void) {
     return ret;
 }
 
-/* func_80083790: pick the item for a kind-2 drop (Pickup_Drop): roll 1..25 and return 5 when the
+/* Pickup_RollKind2Drop: pick the item for a kind-2 drop (Pickup_Drop): roll 1..25 and return 5 when the
  * roll is below (n - 1) * 10, n = g_Game+0x813C (the lives counter? 5 at a new game) clamped to
- * 1..10, else 2. While the cooldown D_800B28B0 runs it returns 5; otherwise it restarts it at 9. */
-s32 func_80083790(void) {
+ * 1..10, else 2. While the cooldown Pickup_Kind2Cooldown runs it returns 5; otherwise it restarts it at 9. */
+s32 Pickup_RollKind2Drop(void) {
     s32 ret = 2;
-    u16 r = D_800AE8F2 * 5 + 1;
+    u16 r = g_RandSeed2 * 5 + 1;
     u8 p = ((u32)((r >> 8) * 25) >> 6) + 1;
     s32 n;
     s32 c;
-    D_800AE8F2 = r;
+    g_RandSeed2 = r;
     n = ((Game_83790 *)&g_Game)->f_813C;
-    if (D_800B28B0 != 0) {
+    if (Pickup_Kind2Cooldown != 0) {
         return 5;
     }
-    D_800B28B0 = 9;
+    Pickup_Kind2Cooldown = 9;
     c = (n <= 0) ? 1 : (n >= 11) ? 10 : n;
     if (p < (c - 1) * 10) {
         ret = 5;
@@ -212,7 +212,7 @@ void Pickup_Spawn(s32 kind, Pos_83470_80083470 *pos, s32 mode, s32 slot) {
         case 1:
             p->x = pos->x + rcos(((g_RandSeed = g_RandSeed * 5 + 1) >> 4) & 0xFF0) / 16;
             p->y = pos->y;
-            p->z = pos->z + rsin(((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 4) & 0xFF0) / 16;
+            p->z = pos->z + rsin(((g_RandSeed2 = g_RandSeed2 * 5 + 1) >> 4) & 0xFF0) / 16;
             p->vy = 0xC;
             p->vz = 0;
             p->vx = 0;
@@ -230,7 +230,7 @@ void Pickup_Spawn(s32 kind, Pos_83470_80083470 *pos, s32 mode, s32 slot) {
             p->y = pos->y;
             p->z = pos->z;
             p->vx = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x1F) - 0x10;
-            p->vz = (((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) & 0x1F) - 0x10;
+            p->vz = (((g_RandSeed2 = g_RandSeed2 * 5 + 1) >> 8) & 0x1F) - 0x10;
             p->vy = 0xFFE1 - (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 0x1F);
             return;
         }
@@ -273,9 +273,9 @@ void Pickup_Drop(s32 type, Pos_83470_80083470 *pos, s32 mode, s32 table) {
             t += 5;
         }
         kind = 1;
-        r = D_800AE8F2 * 5 + 1;
+        r = g_RandSeed2 * 5 + 1;
         sum = ((u32)((r >> 8) * 25) >> 6) + 1;
-        D_800AE8F2 = r;
+        g_RandSeed2 = r;
         for (i = 0; i < 5; i++) {
             if (sum < cum[i]) {
                 kind = D_800B28B4[i];
@@ -283,14 +283,14 @@ void Pickup_Drop(s32 type, Pos_83470_80083470 *pos, s32 mode, s32 table) {
             }
         }
         if (kind == 7) {
-            kind = func_8008373C();
+            kind = Pickup_RollAmmoDrop();
         } else if (kind == 2) {
-            kind = func_80083790();
+            kind = Pickup_RollKind2Drop();
         } else if (kind == 3) {
             n = (((g_RandSeed = g_RandSeed * 5 + 1) >> 8) & 1) + 2;
         }
-        if (D_800B28B0 != 0) {
-            D_800B28B0--;
+        if (Pickup_Kind2Cooldown != 0) {
+            Pickup_Kind2Cooldown--;
         }
         if (Game_IsTimed()) {
             kind = 3;
@@ -311,7 +311,7 @@ extern u8 D_800BEFA0_83CB8[] asm("D_800BEFA0");
 extern u8 g_Spike_83CB8[] asm("g_Spike");
 extern u8 g_RcCar_83CB8[] asm("g_RcCar");
 Col_80083CB8 *CollShape_Alloc(void);
-void func_800836E0(void *arg0);
+void Pickup_SetCollShape(void *arg0);
 s32 Collision_Set(s32, void *, void *);
 s32 CollShape_Free(void *);
 s32 Collision_Remove(void *);
@@ -357,7 +357,7 @@ void Pickup_UpdateAll(void)
           it->col = c;
           if (c != 0)
           {
-            func_800836E0(it);
+            Pickup_SetCollShape(it);
             if (Collision_Set(9, it->col, 0) < 0)
             {
               CollShape_Free(it->col);
@@ -525,7 +525,7 @@ void Pickup_UpdateAll(void)
 
 /* Draws every live pickup: those blinking out (timer +0x17 in 1..45) skip odd frames; culled by
  * RotTransPers depth (<= min(D_800EBFC8, 0x800)) and screen bounds, then the kind (1-7) picks the
- * model (0xD-0x13) and drawer (func_800845E0 or func_800846D8). While g_SpecterCoinTimer counts down it
+ * model (0xD-0x13) and drawer (Pickup_DrawModel or Pickup_DrawModelEnvMap). While g_SpecterCoinTimer counts down it
  * also draws model 0xD spinning down onto Spike, with effect 0x104 every 8th frame. */
 void Pickup_DrawAll(void) {
     SV_8435C_8008435C pos;
@@ -568,25 +568,25 @@ void Pickup_DrawAll(void) {
         }
         switch (p->kind) {
         case 4:
-            func_800846D8(0xD, p);
+            Pickup_DrawModelEnvMap(0xD, p);
             break;
         case 1:
-            func_800845E0(0xE, p);
+            Pickup_DrawModel(0xE, p);
             break;
         case 3:
-            func_800846D8(0xF, p);
+            Pickup_DrawModelEnvMap(0xF, p);
             break;
         case 6:
-            func_800845E0(0x12, p);
+            Pickup_DrawModel(0x12, p);
             break;
         case 7:
-            func_800845E0(0x13, p);
+            Pickup_DrawModel(0x13, p);
             break;
         case 2:
-            func_800845E0(0x11, p);
+            Pickup_DrawModel(0x11, p);
             break;
         case 5:
-            func_800846D8(0x10, p);
+            Pickup_DrawModelEnvMap(0x10, p);
             break;
         }
     }
@@ -602,7 +602,7 @@ void Pickup_DrawAll(void) {
         q->f_4 = pos.vx;
         q->f_6 = pos.vy;
         q->f_8 = pos.vz;
-        func_800846D8(0xD, q);
+        Pickup_DrawModelEnvMap(0xD, q);
         g_SpecterCoinTimer--;
     }
 }
@@ -617,7 +617,7 @@ void Pickup_Frame(void) {
     Pickup_DrawAll();
 }
 
-void func_800845E0(s32 i, S_846D8_800845E0 *o) {
+void Pickup_DrawModel(s32 i, S_846D8_800845E0 *o) {
     struct S_D_800E78C0 m;
     struct S_D_800F4C30 *s;
     u8 *buf;
@@ -637,7 +637,7 @@ void func_800845E0(s32 i, S_846D8_800845E0 *o) {
     Model_Draw(((struct S_D_800EC350_800845E0 *)&g_Game)->db[((struct S_D_800EC350_800845E0 *)&g_Game)->cur].ot, buf, s);
 }
 
-void func_800846D8(s32 i, S_846D8_800846D8 *o) {
+void Pickup_DrawModelEnvMap(s32 i, S_846D8_800846D8 *o) {
     struct S_D_800E78C0 m;
     struct S_D_800F4C30_800846D8 *s;
     u8 *buf;
@@ -656,14 +656,14 @@ void func_800846D8(s32 i, S_846D8_800846D8 *o) {
     Model_ProjectVerts(s, &m, buf);
     Model_CalcEnvMapUVs64(s);
     *(u8 *)0x1F8003F4 = 2;
-    Model_DrawEnvMapped(D_800EC358, buf, s);
+    Model_DrawEnvMapped(g_GameOt, buf, s);
 }
 
-void func_800847C4(void) {
+void Pickup_ClearAreaMasks(void) {
     s32 i;
 
     for (i = 7; i >= 0; i--) {
-        D_800BF2B8[i].f_0 = 0;
+        Pickup_AreaMasks[i].f_0 = 0;
     }
 }
 
@@ -682,9 +682,9 @@ void Pickup_SaveAreaMask(void) {
             bits |= 1;
         }
     }
-    ((u32 *)&D_800BF2B8)[k] = bits;
+    ((u32 *)&Pickup_AreaMasks)[k] = bits;
 }
 
-void func_800848B0(void) {
+void Pickup_Nop(void) {
 
 }

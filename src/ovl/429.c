@@ -45,7 +45,7 @@ s32 func_80136120(u8 *s) {
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; u8 r1, g1, b1, p1; s16 x1, y1; u8 u1, v1; u16 tpage; u8 r2, g2, b2, p2; s16 x2, y2; u8 u2, v2; u16 pad2; u8 r3, g3, b3, p3; s16 x3, y3; u8 u3, v3; u16 pad3; } PolyGT4_80136160;
 extern struct { u32 frame; PolyGT4_80136160 *prim; u32 *ot; } g_Game_80136160 asm("g_Game");
-extern PolyGT4_80136160 *D_800EC354_80136160 asm("D_800EC354");
+extern PolyGT4_80136160 *D_800EC354_80136160 asm("g_GamePrim");
 
 s32 func_80136160(s32 x, s32 y, s32 w, s32 h) {
     PolyGT4_80136160 *p;
@@ -210,7 +210,7 @@ s32 func_80136160(s32 x, s32 y, s32 w, s32 h) {
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad2; s16 x3, y3; u8 u3, v3; u16 pad3; } PolyFT4_80136554;
 extern struct { u32 frame; PolyFT4_80136554 *prim; u32 *ot; } g_Game_80136554 asm("g_Game");
-extern PolyFT4_80136554 *D_800EC354_80136554 asm("D_800EC354");
+extern PolyFT4_80136554 *D_800EC354_80136554 asm("g_GamePrim");
 
 s32 func_80136554(s32 x, s32 y, s32 w, s32 h) {
     PolyFT4_80136554 *p = g_Game_80136554.prim;
@@ -437,11 +437,11 @@ extern u8 D_80139470[];
 extern s32 D_80139478;
 extern void *D_8013947C;
 extern u8 D_800E78C0_80136CC4[] asm("g_ViewMatrix");
-s32 func_80096580(s32);
+s32 World_GetProgress(s32);
 s32 func_80138ABC(void);
 s32 Save_SumStageMonkeys(u8 *);
-void func_8008C01C(void);
-u8 *func_8008C09C(s32);
+void Mem_Init(void);
+u8 *Mem_AllocPages(s32);
 void Model_BindMesh(void *, u32 *);
 void func_8002FAF0(s32);
 void Light_SetColorMode(s32, s32, s32, s32);
@@ -455,7 +455,7 @@ s32 func_80136CC4(void) {
     u8 *base = (u8 *)0x80154000;
 
     D_801391AA = 0;
-    if (func_80096580(0x18) > 0) {
+    if (World_GetProgress(0x18) > 0) {
         D_801391AA = 1;
     }
     D_801391AC = func_80138ABC();
@@ -471,10 +471,10 @@ s32 func_80136CC4(void) {
     D_801391BC = 1;
     for (i = 1; i < 25; i++) {
         D_80139340[i] = 0;
-        if (func_80096580(i) >= 2) {
+        if (World_GetProgress(i) >= 2) {
             D_80139340[i] = 1;
         }
-        if (func_80096580(i) > 0) {
+        if (World_GetProgress(i) > 0) {
             D_801391BC = i;
         }
     }
@@ -494,9 +494,9 @@ s32 func_80136CC4(void) {
     D_801391B6 = 0;
     D_801391B8 = 0x1E;
     func_80136FF0();
-    func_8008C01C();
+    Mem_Init();
     n = *base;
-    D_8013947C = func_8008C09C(n << 5);
+    D_8013947C = Mem_AllocPages(n << 5);
     for (i = 1; i <= n; i++) {
         if (((Ent_80136CC4 *)base)[i].type == 2) {
             Model_BindMesh((u8 *)D_8013947C + (i - 1) * 0x20, (u32 *)base + ((Ent_80136CC4 *)base)[i].off);
@@ -512,7 +512,7 @@ s32 func_80136CC4(void) {
     Matrix_SetIdentity(D_800E78C0_80136CC4);
     D_801391C0 = 0;
     D_801391C4 = 0x10;
-    D_80139478 = (s32)func_8008C09C(0x4800);
+    D_80139478 = (s32)Mem_AllocPages(0x4800);
     return 0;
 }
 
@@ -522,7 +522,7 @@ typedef struct { s16 f_0; u16 f_2; u8 *f_4; } Slot_80136FF0;
 extern Slot_80136FF0 D_80139368_80136FF0[] asm("D_80139368");
 extern s16 D_801391B4;
 s32 World_FirstStage(s32);
-u8 *func_800962A4_80136FF0(void) asm("func_800962A4");
+u8 *func_800962A4_80136FF0(void) asm("Save_GetStageMonkeys");
 
 s32 func_80136FF0(void) {
     s32 i, j, n, base, k;
@@ -885,7 +885,7 @@ extern volatile u8 D_80139200_x[] asm("D_80139200");
 s32 func_80137D40(void) {
     u8 *p = G_DRAW.prim;
 
-    if (func_80096580(D_80139200_x[D_801391BA]) < 2) {
+    if (World_GetProgress(D_80139200_x[D_801391BA]) < 2) {
         return 0;
     }
     if (*(u32 *)g_Game % 40 > 20) {
@@ -925,7 +925,7 @@ s32 func_80137D40(void) {
 
 typedef struct { s16 f_0; s16 f_2; u8 *f_4; } Slot_80137EF8;
 extern Slot_80137EF8 D_80139368_80137EF8[] asm("D_80139368");
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 
 s32 func_80137EF8(void) {
     u8 *p;
@@ -934,7 +934,7 @@ s32 func_80137EF8(void) {
     s32 i, j, k;
     Slot_80137EF8 *s;
 
-    p = D_800EC354;
+    p = g_GamePrim;
     if (D_801391BE == 0) {
         off = 0;
     } else if (D_801391BE >= 16) {
@@ -1088,7 +1088,7 @@ s32 MinigameMenu_DrawScoreBars(void) {
     buf[0] = D_801391E0[k];
     buf[1] = 0;
     func_80136000(buf, 0x140, 0x74, 0);
-    p = D_800EC354;
+    p = g_GamePrim;
     if (D_80139334 == 1) {
         if ((D_80139330 += 4) > 0xD0) {
             D_80139334 = -1;
@@ -1171,7 +1171,7 @@ s32 MinigameMenu_DrawScoreBars(void) {
             p += 0x24;
         }
     }
-    D_800EC354 = p;
+    g_GamePrim = p;
     return 0;
 }
 

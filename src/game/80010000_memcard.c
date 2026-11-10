@@ -21,7 +21,7 @@ extern S32B_80010A10 MemCard_IconClut;
 extern S128B_80010A10 MemCard_IconImage;
 extern u8 MemCard_SlotNameTemplate[16];
 extern u8 g_MemCardSlot;
-Save7A0_8001078C *func_8009628C(void);
+Save7A0_8001078C *Save_GetBlock(void);
 s32 MemCardClose(void);
 s32 MemCard_Retry(void);
 extern char MemCard_SaveFileName[];
@@ -340,7 +340,7 @@ s32 Save_CopyToSlot(Save7A0_8001078C *s) {
             buf[i] = s->f_18[i];
         }
     }
-    *s = *func_8009628C();
+    *s = *Save_GetBlock();
     for (i = 0; i < 16; i++) {
         s->f_18[i] = buf[i];
     }

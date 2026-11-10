@@ -158,14 +158,14 @@ extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_8
 s32 Cd_StartLoadList(void *);
 s32 Cd_PollLoadList(void);
 void Cd_Update(void);
-s32 func_8005BEF0(void);
+s32 Gfx_ResetDisplay(void);
 void Stage_Load(s32, s32);
 void Overlay_Request(s32);
 void Overlay_Update(void);
 void Gfx_BeginFrame(void);
 s32 Overlay_GetState(void);
 s32 DrawSync(s32 mode);
-void func_8005DEE0(s32, s32, s32, s32);
+void Gfx_QueueFlip(s32, s32, s32, s32);
 void func_8001325C(s32);
 
 s32 func_80146500(void) {
@@ -173,7 +173,7 @@ s32 func_80146500(void) {
     while (Cd_PollLoadList() >= 0) {
         Cd_Update();
     }
-    func_8005BEF0();
+    Gfx_ResetDisplay();
     Stage_Load(D_80146878[D_80146774].a, 0);
     Overlay_Request(D_80146878[D_80146774].b);
     while (1) {
@@ -186,7 +186,7 @@ s32 func_80146500(void) {
         }
         Cd_Update();
         DrawSync(0);
-        func_8005DEE0((s32)g_Game_80146500.db[g_Game_80146500.cur].env, (s32)&g_Game_80146500.db[g_Game_80146500.cur].env[0x5C],
+        Gfx_QueueFlip((s32)g_Game_80146500.db[g_Game_80146500.cur].env, (s32)&g_Game_80146500.db[g_Game_80146500.cur].env[0x5C],
                       (s32)(g_Game_80146500.ot + 0xFFF), (s32)g_Game_80146500.db[g_Game_80146500.cur].hud);
     }
     D_80146770 = 0;
@@ -194,7 +194,7 @@ s32 func_80146500(void) {
 }
 
 extern u8 g_Game[];
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 extern u8 D_801469D0[];
 void SetDrawTPage(void *p, s32 dfe, s32 dtd, s32 tpage);
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; } Sprt16_8014666C;
@@ -222,5 +222,5 @@ void func_8014666C(u8 *s, s32 x, s32 y, s32 pal) {
     SetDrawTPage(p, 0, 1, 0x16);
     ADD_PRIM_ASM2(ot, p);
     p++;
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
 }

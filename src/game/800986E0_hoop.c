@@ -21,12 +21,12 @@ void Hoop_UpdateModel(void);
 s32 Sound_Stop(s32, s32);
 s16 Sound_Play(s32, s32);
 void Matrix_SetIdentity(void *);
-s32 func_8007CA48(s32);
+s32 Spike_CanUseGadget(s32);
 void CompMatrix(void *, void *, void *);
-void func_8007CD0C(s32);
+void Gadget_SetHeldVariant(s32);
 void Effect_SpawnAt(s32, void *);
 void Spike_SetState(s32);
-void func_80087BA4(s32, s32, s32, s32);
+void Sound_SetVoiceVolumeRatio(s32, s32, s32, s32);
 void Pad_Vibrate(s32, s32, s32);
 Col_986E0 *CollShape_Alloc(void);
 s32 rsin(s32);
@@ -89,7 +89,7 @@ void Hoop_Update(void) {
         }
         Matrix_SetIdentity(sc->m);
         g->f_6 = 0;
-        if (func_8007CA48(4)) {
+        if (Spike_CanUseGadget(4)) {
             p = g->power;
             g->f_18 = (g_Pad.f_19C * sc->f_66) >> 13;
             sc->f_3C = g->f_18;
@@ -118,10 +118,10 @@ void Hoop_Update(void) {
         case 0x31:
         case 0x32:
         case 0x33:
-            func_8007CD0C(0);
+            Gadget_SetHeldVariant(0);
             break;
         default:
-            func_8007CD0C(1);
+            Gadget_SetHeldVariant(1);
             Hoop_UpdateModel();
             break;
         }
@@ -172,11 +172,11 @@ void Hoop_Update(void) {
     case 0x31:
     case 0x32:
     case 0x33:
-        func_8007CD0C(0);
+        Gadget_SetHeldVariant(0);
         D_800F5128 = 0;
         break;
     default:
-        func_8007CD0C(1);
+        Gadget_SetHeldVariant(1);
         Hoop_UpdateModel();
         break;
     }
@@ -186,7 +186,7 @@ void Hoop_Update(void) {
         g_GadgetState.state = 0;
     } else {
         if (g_GadgetState.snd1 != (-1)) {
-            func_80087BA4(0x2C, g_GadgetState.snd1, (n << 3) + 0x200, 0x1000);
+            Sound_SetVoiceVolumeRatio(0x2C, g_GadgetState.snd1, (n << 3) + 0x200, 0x1000);
         }
         v = (n << 8) / 320;
         if (v > 0x78) {

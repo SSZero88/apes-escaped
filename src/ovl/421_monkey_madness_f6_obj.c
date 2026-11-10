@@ -202,9 +202,9 @@ s32 func_8014149C(s16 *p)
 typedef struct { s32 type; s32 x; s32 y; s32 z; s32 f_10; s32 f_14; s32 f_18; s32 f_1C; s32 f_20; s32 f_24; } Obj_801414F8;
 extern struct { u8 pad_0[0x8126]; u16 f_8126; u8 pad_8128[2]; u16 f_812A; u8 pad_812C[0x10C]; Obj_801414F8 *f_8238; u8 pad_823C[0x50]; s32 f_828C; } g_Game_801414F8 asm("g_Game");
 extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_801414F8 asm("g_Spike");
-extern s16 D_800EC238;
+extern s16 g_SpikeStandObj;
 extern u16 D_800E69BE_801414F8 asm("D_800E69BE");
-void func_800863B0(s32, s32);
+void Music_SetVolume(s32, s32);
 void Overlay_Request(s32);
 s32 Overlay_GetState(void);
 void func_8013FC74(void);
@@ -217,21 +217,21 @@ s32 func_801414F8(s16 *p) {
 
     switch (p[1]) {
     case 0:
-        if (D_800EC238 == p[2]) {
+        if (g_SpikeStandObj == p[2]) {
             p[1] = 1;
-            func_800863B0(2, 0x28);
+            Music_SetVolume(2, 0x28);
             Overlay_Request(9);
         }
         break;
     case 1:
         if (Overlay_GetState() == 0) {
-            func_800863B0(0, 0);
+            Music_SetVolume(0, 0);
             p[1] = 3;
             func_8013FC74();
         }
         break;
     case 2:
-        if (D_800EC238 == p[2]) {
+        if (g_SpikeStandObj == p[2]) {
             p[1] = 3;
             func_8013FC74();
         }
@@ -246,7 +246,7 @@ s32 func_801414F8(s16 *p) {
     case 4:
         if (Overlay_GetState() == 0) {
             p[1] = 5;
-            func_800863B0(0, 0);
+            Music_SetVolume(0, 0);
             Spike_SetPlayMode(0xB);
             o = g_Game_801414F8.f_8238;
             for (i = 0; i < g_Game_801414F8.f_828C; i++) {
@@ -277,14 +277,14 @@ s32 func_801414F8(s16 *p) {
 __asm__(".section .rodata\n\t.align 4\n\t.section .text");
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_801416D8 asm("g_Game");
-extern s16 D_800EC238;
+extern s16 g_SpikeStandObj;
 
 s32 func_801416D8(s16 *p) {
     u8 *e = g_Game_801416D8.f_820C + p[2] * 0x38;
 
     switch (p[1]) {
     case 0:
-        if (D_800EC238 == p[2]) {
+        if (g_SpikeStandObj == p[2]) {
             if (p[3] == 0) {
                 M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
                 p[3] = 1;
@@ -303,7 +303,7 @@ s32 func_801416D8(s16 *p) {
             M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
             p[1] = 0;
             Sound_PlayAt(0x9C, (s32)e);
-            p[3] = D_800EC238 == p[2];
+            p[3] = g_SpikeStandObj == p[2];
         }
         break;
     }

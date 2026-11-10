@@ -36,7 +36,7 @@ s16 Floor_GetHeightAndSlope(s32 a0, s32 a1, s32 a2, s16 *out)
 typedef struct { s16 f_0, f_2, f_4, f_6; u16 f_8; s16 f_A, f_C, f_E; } Hit_FGH;
 extern struct { u16 w; u16 h; u8 pad4[4]; u32 *cells; u8 padC[8]; s16 *heights; } D_800EBFA0_FGH asm("D_800EBFA0");
 extern struct { u8 pad0[0x8194]; u32 *f_8194; } g_Game_FGH asm("g_Game");
-s32 func_8004D8C0(s32, s32, s32);
+s32 Floor_QueryCells(s32, s32, s32);
 
 s32 Floor_GetHeight(s32 x, s32 y, s32 z) {
     Hit_FGH *hit = (Hit_FGH *)0x1F8003F0;
@@ -129,9 +129,9 @@ s32 Floor_GetHeight(s32 x, s32 y, s32 z) {
         }
     }
     if (y < (s16)res) {
-        obj = func_8004D8C0(x, y, z);
+        obj = Floor_QueryCells(x, y, z);
     } else {
-        obj = func_8004D8C0(x, (s16)res, z);
+        obj = Floor_QueryCells(x, (s16)res, z);
     }
     if (obj > (s16)res) {
         hit->f_C = slope[0];
@@ -524,7 +524,7 @@ __asm__("" :: "r"(s3 * 3), "r"(j * 2 + s3), "r"(k * 2));
 typedef struct { s16 x, y; s16 z, zpad; } V_80044EF4;
 typedef struct { V_80044EF4 v[4]; u32 col[4]; u32 uvA; u32 uvB; u32 uvC; u8 code; u8 pad[3]; } Sub_80044EF4;
 typedef struct { u32 color[0x80]; V_80044EF4 v[4]; u8 pad220[0x78]; u16 uv[4]; u8 pad2A0[8]; s32 nc0; s32 nc1; s32 otz; u8 idx[4]; u16 clut; u16 tpage; u16 code; u16 tpage2; u16 zb; u16 pad2C2; u32 *ot; u8 pad2C8[0x14]; s32 fog; u8 pad2E0[0x5C]; Sub_80044EF4 sub; u8 pad37C[0x78]; u8 f3F4; } Scr_80044EF4;
-extern u8 *D_800EC354_80044EF4 asm("D_800EC354");
+extern u8 *D_800EC354_80044EF4 asm("g_GamePrim");
 u8 *Model_SubdivideGT4(u32 *ot, u8 *prim, Sub_80044EF4 *s, s32 n);
 #define W_4EF4(p, o) (*(u32 *)((p) + (o)))
 #define H_4EF4(p, o) (*(u16 *)((p) + (o)))

@@ -210,7 +210,7 @@ void GadgetTrail_Push(void) {
     TRAIL.head = n;
 }
 
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 typedef struct { u32 tag; u32 tpage; u32 c0; u32 xy0; u32 c1; u32 xy1; u32 c2; u32 xy2; u32 c3; u32 xy3; } PolyG4Tp_1F954;
 #define gte_ldv3m(a, b, c) __asm__ volatile ("lwc2 $0, %0; lwc2 $1, %1; lwc2 $2, %2; lwc2 $3, %3; lwc2 $4, %4; lwc2 $5, %5" : : "m"(*(u32 *)&(a)), "m"(*((u32 *)&(a) + 1)), "m"(*(u32 *)&(b)), "m"(*((u32 *)&(b) + 1)), "m"(*(u32 *)&(c)), "m"(*((u32 *)&(c) + 1)))
 #define gte_ldv0m(a) __asm__ volatile ("lwc2 $0, %0; lwc2 $1, %1" : : "m"(*(u32 *)&(a)), "m"(*((u32 *)&(a) + 1)))
@@ -266,7 +266,7 @@ void Weapon_DrawSwingTrail(void) {
         cur = (cur + 11) % 12;
         e = &TRAIL.seg[cur];
     }
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
 }
 
 extern struct { s32 frame; } g_Game_1FB98 asm("g_Game");
@@ -521,7 +521,7 @@ void Fx_DrawGlowBeam(ScrPt_2020C *a, ScrPt_2020C *b, s32 width, u32 color) {
     p->y2 = p->y3 + (bx >> 13);
     ADD_PRIM_ASM(ot, p);
     p++;
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
 }
 
 typedef struct { u8 pad0[8]; u16 nColors; u16 padA; u32 colors[1]; } MdlHdr_207A0;

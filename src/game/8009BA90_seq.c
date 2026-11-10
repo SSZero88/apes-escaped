@@ -47,10 +47,10 @@ extern M2C_UNK g_SeqChannels;
 extern void *D_800B4DE0;
 extern s32 D_800E1854;
 extern u8 *D_800B4DE4;
-extern M2C_UNK D_800F75C0;
+extern M2C_UNK g_SeqDriver;
 
 M2C_UNK DMACallback(M2C_UNK, s32);
-extern s32 D_800B4424;
+extern s32 Seq_InTick;
 extern s16 D_800F75DC;
 struct S_D_800F5AC0_8009FF38 { u8 f_0; u8 pad1[2]; u8 f_3; u8 pad4[8]; s32 f_C; u8 pad10[0x18]; s32 f_28; u8 pad2C[5]; u8 f_31; u8 pad32; u8 f_33; u8 pad34; u8 f_35; u8 pad36[0xE3]; u8 f_119; u8 f_11A; u8 f_11B; u8 f_11C; u8 pad11D[3]; };
 extern S_800A1718_800A1718 *D_800E1874;
@@ -60,24 +60,24 @@ void func_8002F210(void);
 void func_8002F5D0(s32);
 void func_8002F230(void);
 struct S_D_800F75C0_800A1718 { u8 pad0[0x18]; s32 f_18; };
-void func_8009E4D8(s32 arg0, s32 arg1);
+void Seq_MarkKeyOff(s32 arg0, s32 arg1);
 struct S_D_800F5AC0_8009E2DC { u8 f_0; u8 pad1; u8 f_2; u8 pad3[9]; s32 f_C; u8 pad10[0x10]; u8 f_20; u8 pad21[0xFF]; };
 void Seq_VoiceBindSample(u16 v);
 struct S_D_800F5AC0_800A1018 { u8 f_0; u8 pad1; u8 f_2; u8 pad3[9]; s32 f_C; u8 *f_10; u8 pad14[0xC]; u8 f_20; u8 pad21[0xFF]; };
 struct S_D_800F5AC0_8009F8A8 { u8 f_0; u8 pad1; u8 f_2; u8 pad3[9]; s32 f_C; u8 *f_10; u8 pad14[0xC]; u8 f_20; u8 pad21[0xFF]; };
 extern u8 D_800B4422;
 void func_800A23E0(s16, s16);
-void *func_8009E82C(u8, u8, u8);
+void *Seq_LookupTone(u8, u8, u8);
 struct S_D_800F5AC0_8009E940 { u8 pad0[0xC]; s32 f_C; void *f_10; u8 pad14[0xC]; u8 f_20; u8 pad21[3]; u8 f_24; u8 f_25; u8 f_26; u8 f_27; u8 pad28[9]; u8 f_31; u8 pad32; u8 f_33; u8 pad34[0xAE]; u8 f_E2; u8 f_E3; u8 padE4; u8 f_E5; u8 f_E6; u8 padE7; u16 f_E8; u16 f_EA; u16 f_EC; u8 padEE[0x26]; s32 f_114; u8 pad118[8]; };
 struct S_F75C0_800A1A5C { u8 pad0[0x1C]; u16 busy; u8 pad1E[0x17]; u8 qcount; };
 extern union S_D_800E1780 { struct { void *src; void *dst; u32 size; } e; u32 v[3]; } g_SpuUploadQueue[];
 s16 Spu_StartTransfer(u8, u32, u32, u32);
 struct S_D_800E1180_800A1A5C { s32 used; Hdr_800A1A5C_800A1A5C *h; u32 size; };
-extern u8 D_800B3D90[];
+extern u8 Seq_VelocityTable[];
 extern u8 *D_800B4DE8;
 struct S_D_800F75C0_8009F060 { u8 pad0[0x3E]; u16 f_3E; };
 struct S_D_800F75C0_800A01BC { u8 pad0[0x3E]; u16 f_3E; };
-extern void (*D_800B4DEC)(void);
+extern void (*Seq_TickCallback)(void);
 struct S_D_800F75C0_800A0700 { u8 pad0[0x1C]; u16 busy; u8 pad1E[0x16]; u8 f_34; u8 qcount; };
 u8 Sound_LerpU8(u8 a, u8 b, u8 c, u8 d);
 void func_800A2428(u8, u8);
@@ -100,9 +100,9 @@ s32 func_8002F5B0(u32, s32, s32, s32);
 void func_8002F5C0(s32);
 void Sound_BusyWait(s32);
 s16 Spu_Upload(u32, u32, u32);
-s16 func_800A1A24(void);
+s16 Spu_TransferBusy(void);
 struct S_D_800F75C0_800A13EC { u8 f_0; u8 pad1[2]; u8 f_3; u8 pad4[9]; u8 f_D; u8 padE[0xA]; s32 f_18; u8 pad1C[0x22]; u16 f_3E; };
-u8 func_8009E784(u8 cmd, u8 n);
+u8 Seq_VelocityCurve(u8 cmd, u8 n);
 u16 Seq_NoteVolume(u8, u8, u8);
 struct S_D_800F75C0_8009F218 { u8 pad0[0x3E]; u16 f_3E; };
 struct S_D_800F75C0_8009F568 { u8 pad0[0x3E]; u16 f_3E; };
@@ -111,9 +111,9 @@ void func_800A20F4(u8, u8);
 void func_800A222C(u8);
 void func_800A2184(u8);
 struct S_D_800F75C0_800A048C { u8 f_0; u8 pad1[0xC]; u8 f_D; u8 padE[0x10]; u8 f_1E; };
-s32 func_800A1378(s32 arg0);
+s32 Seq_TickLock(s32 arg0);
 void Seq_ReleaseFinishedVoices(void);
-u8 *func_8009D7C8(u8);
+u8 *Seq_SelectBank(u8);
 s32 SeqDriver_ReadEvent(u8);
 u8 func_8009D870(u8);
 void Seq_EndOfTrack(u8 ch);
@@ -133,9 +133,9 @@ void Seq_CmdNrpnMsb(u8 ch);
 void Seq_PitchBend(u8 ch);
 u8 Seq_NoteOff(u8 ch);
 void func_8009BFFC(u8);
-void func_8009C77C(u8);
+void Seq_NoteOn(u8);
 void Seq_UpdateChannelFades(u8);
-void func_8009CE18(void);
+void Seq_UpdateVoices(void);
 void Sound_UpdateFade(void);
 struct S_D_800F75C0_8009BA90 { u8 pad0; u8 f_1; u8 pad2[2]; u8 f_4; u8 pad5[0xB]; u16 f_10; u16 f_12; u16 f_14; u16 f_16; u8 pad18[0x1A]; u16 f_32; u8 pad34[2]; u16 f_36; u16 f_38; u16 f_3A; u16 f_3C; };
 extern S_Bank_800A0900_800A0900 *D_800E1870;
@@ -144,13 +144,13 @@ struct S_D_800F75C0_8009DAB4 { u8 f_0; u8 pad1[0xE]; u8 f_F; };
 
 void Seq_Tick(void) {
     Ch_9BA90_8009BA90 *c = ((Ch_9BA90_8009BA90 *)&g_SeqChannels);
-    struct S_D_800F75C0_8009BA90 *s = ((struct S_D_800F75C0_8009BA90 *)&D_800F75C0);
+    struct S_D_800F75C0_8009BA90 *s = ((struct S_D_800F75C0_8009BA90 *)&g_SeqDriver);
 
-    func_800A1378(1);
+    Seq_TickLock(1);
     Seq_ReleaseFinishedVoices();
     for (s->f_1 = 0; s->f_1 < 24; s->f_1++, c++) {
         if (c->f_25 == 1 || c->f_27 == 1) {
-            func_8009D7C8(s->f_1);
+            Seq_SelectBank(s->f_1);
             while (c->f_114 == 0) {
                 SeqDriver_ReadEvent(s->f_1);
                 if (func_8009D870(s->f_1) == 0) {
@@ -226,7 +226,7 @@ void Seq_Tick(void) {
                         func_8009BFFC(s->f_1);
                         break;
                     case 0x90:
-                        func_8009C77C(s->f_1);
+                        Seq_NoteOn(s->f_1);
                         break;
                     }
                 }
@@ -280,9 +280,9 @@ void Seq_Tick(void) {
     s->f_36 = 0;
     s->f_3C = 0;
     s->f_3A = 0;
-    func_8009CE18();
+    Seq_UpdateVoices();
     Sound_UpdateFade();
-    func_800A1378(0);
+    Seq_TickLock(0);
 }
 
 INCLUDE_RODATA("asm/nonmatchings/game/8009BA90_seq", jtbl_800A68C0_pad);
@@ -300,15 +300,15 @@ extern Note_BFFC *D_800B4DF0_BFFC asm("D_800B4DF0");
 extern Trk_BFFC *D_800B4DE0_BFFC asm("D_800B4DE0");
 extern Ch_BFFC g_SeqChannels_BFFC[] asm("g_SeqChannels");
 extern Vo_BFFC g_SeqVoices_BFFC[] asm("g_SeqVoices");
-extern Seq_BFFC D_800F75C0_BFFC asm("D_800F75C0");
+extern Seq_BFFC D_800F75C0_BFFC asm("g_SeqDriver");
 extern Spu_BFFC *D_800E1874_BFFC asm("D_800E1874");
 extern Bank_BFFC g_SoundBanks_BFFC[] asm("g_SoundBanks");
 u8 func_8009E124(u8 ch);
-u8 func_8009DCA0(u8 ch, u8 prio);
+u8 Seq_AllocVoiceByPriority(u8 ch, u8 prio);
 s16 Seq_ScaleParam(u16, s32);
 s32 Math_MaxS16(s16, s16);
-void func_8009E434(s32, s32);
-void func_8009E490(s32 a0, u8 bit);
+void Seq_MarkKeyOn(s32, s32);
+void Seq_MarkKeyOnGlobal(s32 a0, u8 bit);
 
 void func_8009BFFC(u8 ch) {
     Ch_BFFC *c;
@@ -334,7 +334,7 @@ void func_8009BFFC(u8 ch) {
     }
     D_800B4DF0_BFFC += k;
     D_800B4DE0_BFFC->f_A = 0x40;
-    v = func_8009DCA0(D_800B4DF0_BFFC->f_0, D_800B4DF0_BFFC->f_1);
+    v = Seq_AllocVoiceByPriority(D_800B4DF0_BFFC->f_0, D_800B4DF0_BFFC->f_1);
     { s32 i0; __asm__("" : "=r"(i0) : "0"(v));
     if (i0 == 0xFF) {
         c->f_C += 4;
@@ -368,8 +368,8 @@ void func_8009BFFC(u8 ch) {
     g_SeqVoices_BFFC[v].f_2A = D_800B4DE8[1];
     g_SeqVoices_BFFC[v].f_2C = D_800E1860[c->f_3 + 2];
     g_SeqVoices_BFFC[v].f_2E = D_800B4DF0_BFFC->f_B;
-    g_SeqVoices_BFFC[v].f_30 = D_800B4190[(func_8009E784(4, 0) >> 1) & 0x7E];
-    { u8 *q = &D_800B4190[((func_8009E784(4, 0) >> 1) & 0x7E)]; g_SeqVoices_BFFC[v].f_32 = q[1]; }
+    g_SeqVoices_BFFC[v].f_30 = D_800B4190[(Seq_VelocityCurve(4, 0) >> 1) & 0x7E];
+    { u8 *q = &D_800B4190[((Seq_VelocityCurve(4, 0) >> 1) & 0x7E)]; g_SeqVoices_BFFC[v].f_32 = q[1]; }
     g_SeqVoices_BFFC[v].f_34 = D_800B4DE0_BFFC->f_3;
     g_SeqVoices_BFFC[v].f_36 = D_800B4DF0_BFFC->f_3;
     g_SeqVoices_BFFC[v].f_38 = D_800B4DE0_BFFC->f_A;
@@ -394,8 +394,8 @@ void func_8009BFFC(u8 ch) {
     } else {
         g_SeqVoices_BFFC[v].f_14 = 0;
     }
-    l = Seq_NoteVolume((u8)ch, func_8009E784(4, 0), 0);
-    r = Seq_NoteVolume((u8)ch, func_8009E784(4, 0), 1);
+    l = Seq_NoteVolume((u8)ch, Seq_VelocityCurve(4, 0), 0);
+    r = Seq_NoteVolume((u8)ch, Seq_VelocityCurve(4, 0), 1);
     if (D_800B4DF0_BFFC->f_F & 0x10) {
         adsr = D_800B4DE8[4];
     } else {
@@ -429,7 +429,7 @@ void func_8009BFFC(u8 ch) {
         sv->f_8 = D_800B4DF0_BFFC->f_6;
         sv->f_A = D_800B4DF0_BFFC->f_8;
     }
-    func_8009E434((u8)ch, v);
+    Seq_MarkKeyOn((u8)ch, v);
     if (c->f_E6 != 0) {
         if (j < 0x10) {
             sq->f_10 |= 1 << j;
@@ -448,7 +448,7 @@ void func_8009BFFC(u8 ch) {
         sq->f_12 &= ~(1 << (j - 0x10));
     }
     if (D_800B4DF0_BFFC->f_F & 2) {
-        func_8009E490((u8)ch, v);
+        Seq_MarkKeyOnGlobal((u8)ch, v);
         D_800E1874_BFFC->f_1AA = (D_800E1874_BFFC->f_1AA & 0xC0FF) | (D_800B4DF0_BFFC->f_2 << 8);
     } else {
         s32 j2; __asm__("" : "=r"(j2) : "0"(v));
@@ -468,7 +468,7 @@ typedef struct { s16 volL; s16 volR; s16 pad4; s16 pitch; u16 adsr1; u16 adsr2; 
 typedef struct { u8 nvoice; u8 pad1[0xB]; u8 f_C; u8 pad0D[3]; u16 f_10; u16 f_12; u16 f_14; u16 f_16; u8 pad18[0x1A]; u16 f_32; } SeqState_C77C;
 extern SeqCh_C77C g_SeqChannels_C77C[] asm("g_SeqChannels");
 extern SeqVoice_C77C g_SeqVoices_[] asm("g_SeqVoices");
-extern SeqState_C77C D_800F75C0_ asm("D_800F75C0");
+extern SeqState_C77C D_800F75C0_ asm("g_SeqDriver");
 extern u8 *D_800B4DE0_C77C asm("D_800B4DE0");
 extern u8 *D_800B4DE8_C77C asm("D_800B4DE8");
 extern u8 *D_800B4DF0_C77C asm("D_800B4DF0");
@@ -478,14 +478,14 @@ extern u8 D_800B4190_C77C[] asm("D_800B4190");
 extern s32 g_SoundBanks_C77C[][3] asm("g_SoundBanks");
 u8 Seq_NoteOff_C77C(u8 ch) asm("Seq_NoteOff");
 s32 Seq_AllocVoice_C77C(void) asm("Seq_AllocVoice");
-void func_8009E434_C77C(s32, s32) asm("func_8009E434");
-u8 func_8009E534_C77C(u8, u8, u8) asm("func_8009E534");
+void func_8009E434_C77C(s32, s32) asm("Seq_MarkKeyOn");
+u8 func_8009E534_C77C(u8, u8, u8) asm("Seq_NoteInRange");
 u16 func_8009E594_C77C(u8, u8, s8, u8, u8) asm("Seq_NotePitch");
-u8 func_8009E784_C77C(u8 cmd, u8 n) asm("func_8009E784");
+u8 func_8009E784_C77C(u8 cmd, u8 n) asm("Seq_VelocityCurve");
 u16 Seq_NoteVolume_C77C(u8, u8, u8) asm("Seq_NoteVolume");
 s16 Math_MaxS16_C77C(s16, s16) asm("Math_MaxS16");
 
-void func_8009C77C(u8 ch) {
+void Seq_NoteOn(u8 ch) {
     SeqCh_C77C *c = (SeqCh_C77C *)g_SeqChannels_C77C;
     SeqState_C77C *st = &D_800F75C0_;
     s16 k;
@@ -638,7 +638,7 @@ extern SpuV_9CE18_CE18 *D_800E1874_CE18 asm("D_800E1874");
 extern u16 *D_800E1864_CE18 asm("D_800E1864");
 extern u8 *D_800E1868_CE18 asm("D_800E1868");
 extern u8 D_800B4190_CE18[] asm("D_800B4190");
-extern struct Snd_9CE18 D_800F75C0_CE18 asm("D_800F75C0");
+extern struct Snd_9CE18 D_800F75C0_CE18 asm("g_SeqDriver");
 s16 Math_MaxS16_CE18(s16, s16) asm("Math_MaxS16");
 s16 Seq_VoiceVolume_CE18(u16, s32) asm("Seq_VoiceVolume");
 u8 Sound_LerpU8_CE18(u8 a, u8 b, u8 c, u8 d) asm("Sound_LerpU8");
@@ -648,7 +648,7 @@ s16 Seq_ScaleParam_CE18(u16 a, s32 b) asm("Seq_ScaleParam");
 typedef struct { u8 a, b; } Pair_9CE18_CE18;
 extern Pair_9CE18_CE18 D_800B4190P[] asm("D_800B4190");
 
-void func_8009CE18(void) {
+void Seq_UpdateVoices(void) {
     Ch_9CE18_CE18 *c;
     s16 i;
     u8 t2;
@@ -809,7 +809,7 @@ typedef struct { s32 unk0; u8 *unk4; s32 unk8; } Bank_9D7C8;
 typedef struct { u8 pad0[8]; u8 *f_8; } Snd_9D7C8;
 extern SeqCh_9D7C8 g_SeqChannels_9D7C8[] asm("g_SeqChannels");
 extern Bank_9D7C8 g_SoundBanks_9D7C8[] asm("g_SoundBanks");
-extern Snd_9D7C8 D_800F75C0_9D7C8 asm("D_800F75C0");
+extern Snd_9D7C8 D_800F75C0_9D7C8 asm("g_SeqDriver");
 extern u8 *D_800E1870_9D7C8 asm("D_800E1870");
 extern u8 *D_800E1864;
 extern u8 *D_800E1868;
@@ -818,7 +818,7 @@ extern u8 *D_800E185C;
 
 /* Loads sound bank `p->unk20` of sequence channel i: sets the bank header pointer and its section
    pointers (offsets at +0x14/+0x18 and the program table entry unk27 at +0x10); returns the bank. */
-u8 *func_8009D7C8(u8 i) {
+u8 *Seq_SelectBank(u8 i) {
     SeqCh_9D7C8 *p;
     u8 *h;
     u8 *e;
@@ -840,7 +840,7 @@ typedef struct { u8 f_0; u8 pad1[0xB]; s32 f_C; s32 f_10; u8 pad14[0x10]; u32 f_
 typedef struct { u8 pad0[0x10]; s32 f_10; u8 pad14[0xC]; s32 f_20; } Bank_9D870;
 typedef struct { u8 pad0[8]; s32 f_8; } Snd_9D870;
 extern Ch_9D870 g_SeqChannels_9D870[] asm("g_SeqChannels");
-extern Snd_9D870 D_800F75C0_9D870 asm("D_800F75C0");
+extern Snd_9D870 D_800F75C0_9D870 asm("g_SeqDriver");
 extern Bank_9D870 *D_800E1870_9D870 asm("D_800E1870");
 extern u16 *D_800E1858_9D870 asm("D_800E1858");
 extern s32 D_800E1854_9D870 asm("D_800E1854");
@@ -901,12 +901,12 @@ end:
 }
 
 /* Seq_AllocVoice: pick a sequencer voice (24 voices, g_SeqVoices). Round-robin from the last one
- * (D_800F75C0+0xF) to the first free voice ([0] == 0); otherwise steal the unlocked ([0xD] == 0)
+ * (g_SeqDriver+0xF) to the first free voice ([0] == 0); otherwise steal the unlocked ([0xD] == 0)
  * voice in state [4] == 1 with the lowest rank [5], else the first unlocked voice ranked below 24,
  * else none (0xFF). After a steal, ranks above the stolen one move down and the count f_0 drops. */
 u8 Seq_AllocVoice(void) {
     u16 best = 24;
-    struct S_D_800F75C0_8009DAB4 *s = ((struct S_D_800F75C0_8009DAB4 *)&D_800F75C0);
+    struct S_D_800F75C0_8009DAB4 *s = ((struct S_D_800F75C0_8009DAB4 *)&g_SeqDriver);
     s32 next;
     u16 i;
     u8 n;
@@ -948,9 +948,9 @@ end:
 
 typedef struct { u8 f_0; u8 pad1[2]; u8 f_3; u8 pad4[9]; u8 f_D; u8 padE; u8 f_F; } Snd_9DCA0;
 
-u8 func_8009DCA0(u8 ch, u8 prio) {
+u8 Seq_AllocVoiceByPriority(u8 ch, u8 prio) {
     u16 best = 0;
-    Snd_9DCA0 *s = (Snd_9DCA0 *)&D_800F75C0;
+    Snd_9DCA0 *s = (Snd_9DCA0 *)&g_SeqDriver;
     u16 min = 24;
     u16 i;
     u16 j;
@@ -1054,7 +1054,7 @@ u8 func_8009E124(u8 ch) {
     }
     for (i = 0; i < 24; i++) {
         if (found & (1 << i)) {
-            func_8009E4D8(ch, (u8)i);
+            Seq_MarkKeyOff(ch, (u8)i);
             g_SeqVoices[i][4] = 1;
         }
     }
@@ -1080,14 +1080,14 @@ u8 Seq_NoteOff(u8 ch) {
                 r[4] = 1;
                 r[0xC] = 0;
             }
-            func_8009E4D8(ch, (u8)i);
+            Seq_MarkKeyOff(ch, (u8)i);
         }
     }
     c->f_C += 3;
     return ch;
 }
 
-void func_8009E434(s32 arg0, s32 arg1)
+void Seq_MarkKeyOn(s32 arg0, s32 arg1)
 {
   u32 temp_a1;
   void *temp_a2;
@@ -1102,8 +1102,8 @@ void func_8009E434(s32 arg0, s32 arg1)
   *((u16 *) (((s8 *) temp_a2) + 0xDC)) = (u16) ((*((u16 *) (((s8 *) temp_a2) + 0xDC))) | (1 << (temp_a1 - 0x10)));
 }
 
-void func_8009E490(s32 a0, u8 bit) {
-    S_F75C0 *p = &D_800F75C0;
+void Seq_MarkKeyOnGlobal(s32 a0, u8 bit) {
+    S_F75C0 *p = &g_SeqDriver;
     if (bit < 16) {
         p->unk14 |= 1 << bit;
     } else {
@@ -1111,7 +1111,7 @@ void func_8009E490(s32 a0, u8 bit) {
     }
 }
 
-void func_8009E4D8(s32 arg0, s32 arg1)
+void Seq_MarkKeyOff(s32 arg0, s32 arg1)
 {
   u32 temp_a1;
   void *temp_a2;
@@ -1126,7 +1126,7 @@ void func_8009E4D8(s32 arg0, s32 arg1)
   *((u16 *) (((s8 *) temp_a2) + 0xE0)) = (u16) ((*((u16 *) (((s8 *) temp_a2) + 0xE0))) | (1 << (temp_a1 - 0x10)));
 }
 
-u8 func_8009E534(u8 a, u8 b, u8 c)
+u8 Seq_NoteInRange(u8 a, u8 b, u8 c)
 {
   if (a == 0xFF)
   {
@@ -1176,7 +1176,7 @@ u16 Seq_NoteVolume(u8 ch, u8 b, u8 c) {
     return t;
 }
 
-u8 func_8009E784(u8 cmd, u8 n)
+u8 Seq_VelocityCurve(u8 cmd, u8 n)
 {
   (*(Ev_8009E784_8009E784 * *)&D_800B4DF0) += n;
   if (cmd == 4)
@@ -1185,8 +1185,8 @@ u8 func_8009E784(u8 cmd, u8 n)
   }
   else
   {
-    cmd = D_800B3D90[((*(Ev_8009E784_8009E784 * *)&D_800B4DF0)->f_C >> 2) + ((D_800B4DE8[2] >> 2) * 32)];
-    cmd = D_800B3D90[(cmd >> 2) + (((*(u8 * *)&D_800B4DE0)[4] >> 2) * 32)];
+    cmd = Seq_VelocityTable[((*(Ev_8009E784_8009E784 * *)&D_800B4DF0)->f_C >> 2) + ((D_800B4DE8[2] >> 2) * 32)];
+    cmd = Seq_VelocityTable[(cmd >> 2) + (((*(u8 * *)&D_800B4DE0)[4] >> 2) * 32)];
   }
   (*(Ev_8009E784_8009E784 * *)&D_800B4DF0) -= n;
   return cmd;
@@ -1195,14 +1195,14 @@ u8 func_8009E784(u8 cmd, u8 n)
 typedef struct { u8 pad0[0x14]; s32 f_14; u8 pad18[4]; s32 f_1C; s32 f_20; } Bank_8009E82C;
 typedef struct { s32 f_0; Bank_8009E82C *f_4; s32 f_8; } Ent_8009E82C;
 typedef struct { u8 pad0[3]; u8 f_3; u8 pad4[4]; Bank_8009E82C *f_8; } S_F75C0_8009E82C;
-extern S_F75C0_8009E82C D_800F75C0_9E82C asm("D_800F75C0");
+extern S_F75C0_8009E82C D_800F75C0_9E82C asm("g_SeqDriver");
 extern Ent_8009E82C g_SoundBanks_9E82C[] asm("g_SoundBanks");
 extern Bank_8009E82C *D_800E1870_9E82C asm("D_800E1870");
 extern u16 *D_800E186C_9E82C asm("D_800E186C");
 extern u8 *D_800E1858_9E82C asm("D_800E1858");
 extern u8 *D_800E1860_9E82C asm("D_800E1860");
 
-void *func_8009E82C(u8 idx, u8 prog, u8 tone) {
+void *Seq_LookupTone(u8 idx, u8 prog, u8 tone) {
     S_F75C0_8009E82C *s = &D_800F75C0_9E82C;
     Ent_8009E82C *e;
     Bank_8009E82C *b;
@@ -1232,11 +1232,11 @@ s16 SeqDriver_AllocChannel(u8 a, u8 b, u8 c)
 {
   s16 r = -1;
   struct S_D_800F5AC0_8009E940 *base = ((struct S_D_800F5AC0_8009E940 *)&g_SeqChannels);
-  S_G_8009E940_8009E940 *g = (S_G_8009E940_8009E940 *) (&D_800F75C0);
+  S_G_8009E940_8009E940 *g = (S_G_8009E940_8009E940 *) (&g_SeqDriver);
   struct S_D_800F5AC0_8009E940 *ch;
   void *p;
   s16 i;
-  p = func_8009E82C(a, b, c);
+  p = Seq_LookupTone(a, b, c);
   if (p != 0)
   {
     ch = base;
@@ -1418,7 +1418,7 @@ void Seq_CmdPortamento(u8 ch) {
     struct S_D_800F75C0_8009F060 *s;
 
     c = ((Ch_9F060_8009F060 *)&g_SeqChannels);
-    s = ((struct S_D_800F75C0_8009F060 *)&D_800F75C0);
+    s = ((struct S_D_800F75C0_8009F060 *)&g_SeqDriver);
     c += ch;
     for (i = 0; i < 24; i++) {
         r = g_SeqVoices[i];
@@ -1444,7 +1444,7 @@ void Seq_CmdVolume(u8 ch) {
 
     c = ((Ch_9F218_8009F218 *)&g_SeqChannels);
     c += ch;
-    s = ((struct S_D_800F75C0_8009F218 *)&D_800F75C0);
+    s = ((struct S_D_800F75C0_8009F218 *)&g_SeqDriver);
     if (c->f_27 != 0) {
         for (i = 0; i < 24; i++) {
             r = g_SeqVoices[i];
@@ -1464,8 +1464,8 @@ void Seq_CmdVolume(u8 ch) {
             q = g_SeqVoices[i];
             if (q[0] == 1 && q[2] == (c->f_0 & 0xF) && q[0x11] == c->f_20 && q[4] != 1 && q[3] == ch) {
                 c->f_3 = ((u8 *)q)[0x2C];
-                *(u16 *)((*(u8 * *)&D_800E1874) + (i << 4)) = Seq_NoteVolume(ch, func_8009E784(0, ((u8 *)q)[0xE]), 0);
-                *(u16 *)((*(u8 * *)&D_800E1874) + (i << 4) + 2) = Seq_NoteVolume(ch, func_8009E784(0, ((u8 *)q)[0xE]), 1);
+                *(u16 *)((*(u8 * *)&D_800E1874) + (i << 4)) = Seq_NoteVolume(ch, Seq_VelocityCurve(0, ((u8 *)q)[0xE]), 0);
+                *(u16 *)((*(u8 * *)&D_800E1874) + (i << 4) + 2) = Seq_NoteVolume(ch, Seq_VelocityCurve(0, ((u8 *)q)[0xE]), 1);
             }
         }
         c->f_C += 3;
@@ -1481,7 +1481,7 @@ void Seq_CmdPan(u8 ch) {
 
     c = ((Ch_9F568_8009F568 *)&g_SeqChannels);
     c += ch;
-    s = ((struct S_D_800F75C0_8009F568 *)&D_800F75C0);
+    s = ((struct S_D_800F75C0_8009F568 *)&g_SeqDriver);
     if (c->f_27 != 0) {
         for (i = 0; i < 24; i++) {
             r = g_SeqVoices[i];
@@ -1501,8 +1501,8 @@ void Seq_CmdPan(u8 ch) {
             if (q[2] == (c->f_0 & 0xF) && q[0x11] == c->f_20 && q[3] == ch && q[4] != 1 && q[0] == 1) {
                 q[0x26] = ((u8 *)(c->f_C + D_800E1854))[2];
                 c->f_3 = ((u8 *)q)[0x2C];
-                *(u16 *)((*(u8 * *)&D_800E1874) + (i << 4)) = Seq_NoteVolume(ch, func_8009E784(0, ((u8 *)q)[0xE]), 0);
-                *(u16 *)((*(u8 * *)&D_800E1874) + (i << 4) + 2) = Seq_NoteVolume(ch, func_8009E784(0, ((u8 *)q)[0xE]), 1);
+                *(u16 *)((*(u8 * *)&D_800E1874) + (i << 4)) = Seq_NoteVolume(ch, Seq_VelocityCurve(0, ((u8 *)q)[0xE]), 0);
+                *(u16 *)((*(u8 * *)&D_800E1874) + (i << 4) + 2) = Seq_NoteVolume(ch, Seq_VelocityCurve(0, ((u8 *)q)[0xE]), 1);
             }
         }
         c->f_C += 3;
@@ -1520,7 +1520,7 @@ void Seq_CmdSustain(u8 ch) {
             r = g_SeqVoices[i];
             if (r[2] == (c->f_0 & 0xF) && r[0x11] == c->f_20 && r[3] == ch && r[6] != 0) {
                 if (((u8 *)D_800B4DE0)[0xB] == 0) {
-                    func_8009E4D8(ch, (u8)i);
+                    Seq_MarkKeyOff(ch, (u8)i);
                     r[4] = 1;
                 } else {
                     r[0xC] = 1;
@@ -1719,7 +1719,7 @@ void Seq_PitchBend(u8 ch) {
 
 /* Reads a MIDI variable-length delta time for channel ch (up to 4 bytes from the sequence data
  * at D_800E1854 + c->pos) into +0x114, then converts it to the playback rate: ticks * 10 scaled
- * by the channel tempo (+0x104 * +0x106, 60/480 when +0x27) over D_800F75C0+0x3E * 60, carrying the
+ * by the channel tempo (+0x104 * +0x106, 60/480 when +0x27) over g_SeqDriver+0x3E * 60, carrying the
  * rounding remainder in +0x10C/+0x108. */
 void Seq_ReadDeltaTime(u8 ch) {
     Ch_A01BC_800A01BC *c;
@@ -1732,7 +1732,7 @@ void Seq_ReadDeltaTime(u8 ch) {
     s32 r;
 
     c = ((Ch_A01BC_800A01BC *)&g_SeqChannels);
-    s = ((struct S_D_800F75C0_800A01BC *)&D_800F75C0);
+    s = ((struct S_D_800F75C0_800A01BC *)&g_SeqDriver);
     c += ch;
     for (; i < 4; i++) {
         b = *(u8 *)(D_800E1854 + c->f_C++);
@@ -1803,7 +1803,7 @@ void Seq_ReleaseFinishedVoices(void) {
     u16 j;
     u16 *r;
 
-    s = ((struct S_D_800F75C0_800A048C *)&D_800F75C0);
+    s = ((struct S_D_800F75C0_800A048C *)&g_SeqDriver);
     c = ((Ch_A048C_800A048C *)&g_SeqChannels);
     for (i = 0; i < 24; i++, c++) {
         if (c->f_E3 == 1 && c->f_26 == 1) {
@@ -1854,8 +1854,8 @@ void Spu_SetDmaCallback(s32 arg0) {
 }
 
 /* Called when an SPU transfer finished: starts the next queued upload (g_SpuUploadQueue, count
- * D_800F75C0+0x35; bit 31 of the destination selects transfer mode 1), dropping empty entries;
- * when the queue is empty runs the completion callback D_800B4DEC if one is armed. */
+ * g_SeqDriver+0x35; bit 31 of the destination selects transfer mode 1), dropping empty entries;
+ * when the queue is empty runs the completion callback Seq_TickCallback if one is armed. */
 void Spu_ProcessUploadQueue(void) {
     struct S_D_800F75C0_800A0700 *s;
     u16 i;
@@ -1863,7 +1863,7 @@ void Spu_ProcessUploadQueue(void) {
     u32 d;
 
     (*(S_A0700_800A0700 * *)&D_800E1874)->f_1AA &= 0xFFCF;
-    s = ((struct S_D_800F75C0_800A0700 *)&D_800F75C0);
+    s = ((struct S_D_800F75C0_800A0700 *)&g_SeqDriver);
     s->busy = 0;
 loop:
     if (s->qcount != 0) {
@@ -1892,7 +1892,7 @@ loop:
         }
     }
     if (s->f_34 != 0) {
-        D_800B4DEC();
+        Seq_TickCallback();
     }
 }
 
@@ -2024,7 +2024,7 @@ u8 func_800A0DB0(s16 arg0, s8 arg1, s32 arg2, s8 arg3)
 /* One step of a volume fade-in or fade-out.
  */
 void Sound_UpdateFade(void) {
-    S_G_800A0E84_800A0E84 *g = (S_G_800A0E84_800A0E84 *)&D_800F75C0;
+    S_G_800A0E84_800A0E84 *g = (S_G_800A0E84_800A0E84 *)&g_SeqDriver;
     s16 v;
     s32 n;
     s16 l, r;
@@ -2126,7 +2126,7 @@ s16 Seq_ScaleParam(u16 a, s32 b) {
 typedef struct { u8 pad0[0x1A6]; u16 f_1A6; u8 pad1A8[2]; u16 f_1AA; } SpuReg_A124C;
 typedef struct { u8 pad0[0x1C]; u16 f_1C; } Snd_A124C;
 extern SpuReg_A124C *D_800E1874_ST asm("D_800E1874");
-extern Snd_A124C D_800F75C0_ST asm("D_800F75C0");
+extern Snd_A124C D_800F75C0_ST asm("g_SeqDriver");
 /* Starts a DMA transfer between main RAM (src) and SPU RAM (addr): mode 0 writes to the SPU,
  * otherwise reads. Sets the SPU transfer address and mode bits in SPUCNT, enables the SPU DMA
  * channel in DPCR, then programs the channel (size in 64-byte blocks, rounded up) and starts it.
@@ -2171,16 +2171,16 @@ s16 Spu_StartTransfer(u8 mode, u32 src, u32 size, u32 addr) {
     return n;
 }
 
-s32 func_800A1378(s32 arg0) {
+s32 Seq_TickLock(s32 arg0) {
     if (arg0 < 2) {
-        D_800B4424 = arg0;
+        Seq_InTick = arg0;
     }
-    return D_800B4424;
+    return Seq_InTick;
 }
 
-s32 func_800A1398(void) {
+s32 Seq_WaitTickDone(void) {
     u32 i = 0;
-    while (func_800A1378(2) != 0) {
+    while (Seq_TickLock(2) != 0) {
         if (i > 0x89CFF) {
             return 1;
         }
@@ -2190,7 +2190,7 @@ s32 func_800A1398(void) {
 }
 
 void Sound_Init(void) {
-    struct S_D_800F75C0_800A13EC *s = ((struct S_D_800F75C0_800A13EC *)&D_800F75C0);
+    struct S_D_800F75C0_800A13EC *s = ((struct S_D_800F75C0_800A13EC *)&g_SeqDriver);
     u16 *spu = (u16 *)0x1F801C00;
     u16 i;
     u16 j;
@@ -2219,7 +2219,7 @@ void Sound_Init(void) {
     (*(SpuRegs_A13EC_800A13EC * *)&D_800E1874)->f_1AA = 0xC000;
     Sound_BusyWait(2);
     Spu_Upload((u32)&buf, 0x1010, 0x10);
-    while (func_800A1A24() != 0) {
+    while (Spu_TransferBusy() != 0) {
     }
     for (i = 0; i < 24; i++) {
         (*(SpuRegs_A13EC_800A13EC * *)&D_800E1874)->v[i].f_0 = 0;
@@ -2252,8 +2252,8 @@ void Sound_Init(void) {
 INCLUDE_RODATA("asm/nonmatchings/game/8009BA90_seq", D_800A6AA0);
 
 
-void func_800A1718(void) {
-    struct S_D_800F75C0_800A1718 *s = ((struct S_D_800F75C0_800A1718 *)&D_800F75C0);
+void SeqDriver_Quit(void) {
+    struct S_D_800F75C0_800A1718 *s = ((struct S_D_800F75C0_800A1718 *)&g_SeqDriver);
     u16 i;
     u16 j;
 
@@ -2278,7 +2278,7 @@ void func_800A1718(void) {
 }
 
 s16 Spu_Upload(u32 a0, u32 a1, u32 a2) {
-    struct S_D_800F75C0_800A1830 *p = ((struct S_D_800F75C0_800A1830 *)&D_800F75C0);
+    struct S_D_800F75C0_800A1830 *p = ((struct S_D_800F75C0_800A1830 *)&g_SeqDriver);
     s16 ret;
     u8 old;
 
@@ -2308,7 +2308,7 @@ end:
 }
 
 s16 Spu_Download(u32 a, u32 b, u32 c) {
-    struct S_D_800F75C0_800A192C *p = ((struct S_D_800F75C0_800A192C *)&D_800F75C0);
+    struct S_D_800F75C0_800A192C *p = ((struct S_D_800F75C0_800A192C *)&g_SeqDriver);
     s16 ret;
     u8 old;
 
@@ -2337,28 +2337,28 @@ end:
     return ret;
 }
 
-s16 func_800A1A24(void) {
+s16 Spu_TransferBusy(void) {
     return D_800F75DC;
 }
 
-void func_800A1A34(s32 arg0)
+void SeqDriver_SetTickCallback(s32 arg0)
 {
   M2C_UNK *new_var;
-  new_var = &D_800F75C0;
+  new_var = &g_SeqDriver;
   if (arg0 == 0)
   {
     *((s8 *) (((s8 *) new_var) + 0x34)) = 0;
     return;
   }
-  D_800B4DEC = (void (*)(void))arg0;
-  *((s8 *) (((s8 *) (&D_800F75C0)) + 0x34)) = 1;
+  Seq_TickCallback = (void (*)(void))arg0;
+  *((s8 *) (((s8 *) (&g_SeqDriver)) + 0x34)) = 1;
 }
 
 /* Loads a sound bank: checks alignment, size (<= 512 KB, multiple of 16) and the "SShd" magic
  * at +0xC, then uploads `size` bytes from `src` to SPU RAM address h->f_4 (or queues the upload
  * in g_SpuUploadQueue while a transfer is running). Returns the g_SoundBanks slot it took, or -1. */
 s16 Sound_LoadBank(void *src, Hdr_800A1A5C_800A1A5C *h, u32 size) {
-    struct S_F75C0_800A1A5C *s = (struct S_F75C0_800A1A5C *)&D_800F75C0;
+    struct S_F75C0_800A1A5C *s = (struct S_F75C0_800A1A5C *)&g_SeqDriver;
     void *dst;
     s32 i;
     s32 r;

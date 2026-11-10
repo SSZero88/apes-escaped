@@ -160,7 +160,7 @@ extern char D_80138A08[];
 extern char D_80138A18[];
 s32 Sound_UnloadBanks(s32);
 s32 Sound_PlayFixed(s32);
-void func_8008C3C0(s32, s32);
+void DebugFont_SetPos(s32, s32);
 void DebugFont_Printf(char *, ...);
 s32 Cd_PollLoadList(void);
 s32 func_800976B8(s32, s32);
@@ -226,7 +226,7 @@ s32 func_80137950(void) {
                 D_80139BC4 = 10;
             }
         }
-        func_8008C3C0(0x82, 10);
+        DebugFont_SetPos(0x82, 10);
         DebugFont_Printf(D_80138A08);
         for (i = 0; i < 11; i++) {
             if (i == D_80139BC4) {
@@ -234,7 +234,7 @@ s32 func_80137950(void) {
             } else {
                 d = 0;
             }
-            func_8008C3C0((i % 3) * 80 + 0x82 + d / 2, (i / 3) * 15 + 0x1C);
+            DebugFont_SetPos((i % 3) * 80 + 0x82 + d / 2, (i / 3) * 15 + 0x1C);
             DebugFont_Printf(D_80138A18, D_80138A20_80137950[i].name);
         }
         {
@@ -382,7 +382,7 @@ s32 func_80137950(void) {
 
 extern u8 D_80139914[];
 s32 Stage_GetWorld(s32);
-s32 func_80096580_801382D8(s32) asm("func_80096580");
+s32 func_80096580_801382D8(s32) asm("World_GetProgress");
 extern s8 D_801399A8[][4];
 extern s8 D_801399D4[];
 
@@ -408,10 +408,10 @@ s32 func_801382D8(s32 world, s32 stage) {
 
 extern u8 D_80139914[];
 s32 Stage_GetWorld(s32);
-void func_80096580(s32);
+void World_GetProgress(s32);
 
 void func_801383EC(s32 world, s32 stage) {
-    func_80096580(Stage_GetWorld(D_80138A20[world].world[D_80139914[stage * 2 + world * 9 + 1]]));
+    World_GetProgress(Stage_GetWorld(D_80138A20[world].world[D_80139914[stage * 2 + world * 9 + 1]]));
 }
 
 typedef struct { u8 pad0[0xE]; u16 f_E; } Info_80138468;
@@ -429,7 +429,7 @@ s32 func_80138468(s32 world, s32 stage) {
     case 30:
         return 0;
     default:
-        return func_80097FB0(w) == (s16)((volatile Info_80138468 *)0x1F800000)->f_E;
+        return SpecterCoin_CountInWorld(w) == (s16)((volatile Info_80138468 *)0x1F800000)->f_E;
     }
 }
 
@@ -478,8 +478,8 @@ void StageSelect_SetCamera(SVECTOR *eye, SVECTOR *at) {
     CompMatrix(&D_800AF0A0, &g_ViewMatrix, &g_ViewMatrix);
 }
 
-extern u16 D_800AE8F2;
-extern u8 *D_800EC354;
+extern u16 g_RandSeed2;
+extern u8 *g_GamePrim;
 extern u8 D_80139BF0[];
 typedef struct { s16 x, y; u16 clut; u16 tpage; u32 *ot; } Pen_80138700;
 extern Pen_80138700 D_80139CF0;
@@ -489,12 +489,12 @@ void func_80138700(u8 *s) {
     u32 c;
     u32 r;
 
-    p = (SprtTp *)D_800EC354;
+    p = (SprtTp *)g_GamePrim;
     while ((c = *s) != 0) {
         ((u8 *)p)[3] = 5;
         p->tpage = (D_80139CF0.tpage & 0x9FF) | 0xE1000200;
         p->code = 0x67;
-        r = ((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8) & 1;
+        r = ((g_RandSeed2 = g_RandSeed2 * 5 + 1) >> 8) & 1;
         p->x0 = D_80139CF0.x;
         p->y0 = D_80139CF0.y - r;
         p->u0 = (c & 0xF) << 4;
@@ -507,7 +507,7 @@ void func_80138700(u8 *s) {
         D_80139CF0.x += D_80139BF0[c];
         s++;
     }
-    D_800EC354 = (u8 *)p;
+    g_GamePrim = (u8 *)p;
 }
 
 u8 *func_801387FC(u8 *arg0, s32 arg1)

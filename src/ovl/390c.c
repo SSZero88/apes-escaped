@@ -11,9 +11,9 @@ void DrawSync(s32);
 s32 VSync(s32 mode);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-void func_8008C390(void);
-void func_8008CC60(s32, s32);
-void func_8008CBFC(u8 *);
+void DebugFont_Init(void);
+void DebugFont_Locate(s32, s32);
+void DebugFont_PrintfAlways(u8 *);
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
@@ -1064,7 +1064,7 @@ typedef struct { s16 id; s16 tpx, tpy; u16 cx, cy; s16 x, y, w, h; u8 u, pad13, 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8013E438;
 extern Elem_8013E438 D_8013F29C_8013E438[] asm("D_8013F29C");
 extern GameDraw g_Game_8013E438 asm("g_Game");
-extern u8 *D_800EC354;
+extern u8 *g_GamePrim;
 
 s32 func_8013E438(void) {
     u8 *p;
@@ -1104,7 +1104,7 @@ s32 func_8013E438(void) {
         ADD_PRIM_R(ot, p, "$4", "$3");
         p += 8;
     }
-    D_800EC354 = p;
+    g_GamePrim = p;
     func_8013EB14(1);
     return 0;
 }
@@ -1318,7 +1318,7 @@ s32 func_8013ED0C(void) {
         ADD_PRIM_R(ot, p, "$4", "$3");
         p += 8;
     }
-    D_800EC354 = p;
+    g_GamePrim = p;
     return 0;
 }
 

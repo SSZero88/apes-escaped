@@ -32,7 +32,7 @@ Identifications so far, with the evidence. Confirmed ones get readable names via
 ## Misc
 - `bios_printf`: BIOS printf (A0 table). `bios_exit`: BIOS exit (B0:0x38).
 - `Mem_AllocFailed`: "Smalloc Error!" handler (prints size, then exits). `Mem_Alloc` is the
-  allocator: bump pointer `D_800DF798`, limit 0x801027FF, 4-byte rounding.
+  allocator: bump pointer `g_MemBumpPtr`, limit 0x801027FF, 4-byte rounding.
 - `g_RandSeed`: 16-bit random seed, `seed = seed * 5 + 1`; callers use bits 8+.
 - `g_Game + 0x8140`: frame counter capped at 359999 (= 99:59:59 at 60 fps?): play time.
 - `D_800B000C`, `D_800B00C8..D_800B0174`: debug menu tables; entries name `COLTEST`, `SOUND`,
@@ -40,7 +40,7 @@ Identifications so far, with the evidence. Confirmed ones get readable names via
 - Original source file names from asserts: `zako.c` (enemies, file 80050580), `item.c`
   (gadgets, file 80083470).
 - `Spike_TakeDamage(dmg)`: Spike takes damage. Health is `g_Spike + 0xE8` (floored at 0); the
-  HUD gets the amount at `D_800F4DB0 + 0x14` (shown for 12 frames); `+0xEA` = 60 is an
+  HUD gets the amount at `g_HudState + 0x14` (shown for 12 frames); `+0xEA` = 60 is an
   invulnerability timer (`g_SpikeInvulnTimer`, which the monkey code also checks). Ignored in game
   modes 0x1F/0x20 (`g_Game + 0x8124`).
 - `g_Game` layout: `+0` frame counter, `+4` primitive write pointer, `+8` ordering table,
@@ -149,7 +149,7 @@ Identifications so far, with the evidence. Confirmed ones get readable names via
   Water Net controls (user): R1/R2 swim faster, L3 (pad bit 0x200) descends, R3 (0x400) shoots the net.
 - `g_RcCar` is probably the RC car (user's suggestion; it is the only other thing moving
   platforms carry besides Spike): same layout as Spike's record (position at `+0x24`, platform
-  id at `+0x58`), drawn by `func_80099AE0` from its own rotation/translation when `+0x70` is set,
+  id at `+0x58`), drawn by `RcCar_Draw` from its own rotation/translation when `+0x70` is set,
   and given gravity (`+0x34 += 7`) while Spike's `g_CurrentGadget` is not 7.
 - Super Hoop and Sky Flyer both activate the same way (user): rotate the right stick fast enough and the
   gadget activates, which starts the rumble. Only the Super Hoop leaves a trail (a dust trail) as Spike moves.
@@ -159,13 +159,13 @@ Identifications so far, with the evidence. Confirmed ones get readable names via
   sound 0xAD looping (handle in `D_800B20D4`) and vibrates in pulses: strength 0x6E for 2 frames,
   then off for 2, via `Pad_Vibrate(1, D_800B213C, D_800B213E)`. Otherwise it stops the sound.
 - Guided ammo (slingback): `GuidedAmmo_UpdateLockOn` is the lock-on. It takes an aim direction (from
-  `func_8004B54C` minus Spike's position when `D_800E6916 == 1`, else Spike's facing at `+0x60`),
+  `Camera_GetLookAt` minus Spike's position when `D_800E6916 == 1`, else Spike's facing at `+0x60`),
   picks the nearest target within 400 with `GuidedAmmo_FindTarget` (32 candidate positions at
-  `g_GuidedTargets`), registers it with `func_8007A48C`, then projects and draws up to 3 lock markers
+  `g_GuidedTargets`), registers it with `GuidedAmmo_AddLock`, then projects and draws up to 3 lock markers
   from `g_GuidedLocks` (3 entries: target pointer, countdown) via `GuidedAmmo_DrawReticle`. The user confirms
   guided ammo tracks up to 3 targets and the bullets chase them.
   The slingback has a first-person view on L2 (user); `D_800E6916 == 1` is probably that mode, so
-  the lock-on aims along the view (`func_8004B54C` point minus Spike) instead of Spike's facing.
+  the lock-on aims along the view (`Camera_GetLookAt` point minus Spike) instead of Spike's facing.
 - `g_CurrentGadget` (s8): the gadget currently in hand.
 - `g_GadgetState + 0x88`: four gadget slots (s8, -1 = empty), one per face button.
 - `Gadget_SelectFromButtons`: gadget selection. Takes newly pressed buttons (`*(0x1F800058) & *(0x1F800054)`
@@ -187,12 +187,12 @@ Identifications so far, with the evidence. Confirmed ones get readable names via
 
 ## Drawing
 - `Image_DecodeRle4(src, n)`: decodes 4-bit pixel data with run-length encoding into a buffer from
-  `func_8008C09C(n)`. A byte whose two nibbles are equal starts a run: the next byte + 2 is the
+  `Mem_AllocPages(n)`. A byte whose two nibbles are equal starts a run: the next byte + 2 is the
   run length. Other bytes are copied as two pixels.
 - `Debug_DrawMeter` draws 64 one-pixel vertical lines (LINE_F2, x = 0x118 + i, y 10..26), coloured
-  from bits 11-13 of `D_800BF690[i]`: a debug meter, probably.
+  from bits 11-13 of `Mem_PageOwners[i]`: a debug meter, probably.
 - GPU primitives use the PsyQ layouts and `addPrim` as a 24-bit bitfield link
-  (`func_8005CB9C` builds a POLY_F4). A second form, which copies the link with `lwl/swl`,
+  (`Debug_DrawColorSwatch` builds a POLY_F4). A second form, which copies the link with `lwl/swl`,
   appears in other files (`Spike_SetBlinkFrame`, `Menu_DrawCaps`); its source shape is not known yet.
   It gates about 51 functions (`grep -l "swl .*, 0x2(" asm/nonmatchings`). The two forms live in
   different source files (none has both), so it is probably a per-file difference (a different
@@ -329,7 +329,7 @@ enemy-shot spawner), homing missile for green (0x37 `Monkey_FireShot(3/4)`?), fl
   behaviour varies a lot by monkey type).
 - Attacks: each kind has 8 attack windows at kind+0x1E (`{on, ?, min, max}` distance in `+0x20C`).
   State 0x21 uses window 0 and calls `Monkey_AimAndShoot(0)`, 0x38 window 5 with `Monkey_AimAndShoot(5)` (both
-  aim at Spike and fire with `func_80059304`, the enemy-shot spawner), 0x22 window 1 calls `Monkey_FireMissile`
+  aim at Spike and fire with `EnemyShot_Spawn`, the enemy-shot spawner), 0x22 window 1 calls `Monkey_FireMissile`
   every 5 frames, 0x1C window 4 calls `Monkey_ThrowStone` 10 frames before the animation ends, 0x1B window 3
   calls `Monkey_ThrowCoconut` 25 before, and 0x37 window 7 fires `Monkey_FireShot(3)` with sound 0x48 on frames
   3 and 7 of every 10 (`Monkey_FireShot(4)` when its count `+0x222` runs out). Question for the user:
@@ -353,7 +353,7 @@ enemy-shot spawner), homing missile for green (0x37 `Monkey_FireShot(3/4)`?), fl
 - `Seq_AllocVoice` (8009DAB4) picks one of the 24 sequencer voices (`g_SeqVoices`, 16-bit fields):
   round-robin from the last one to the first free voice; otherwise it steals by rank (`[5]`),
   preferring voices in state `[4] == 1` (released?), never locked ones (`[0xD]`).
-- `func_80087EE0`: volume of a positional sound source against the listener `D_800BF688`: full
+- `Sound_CalcVolumePlanar`: volume of a positional sound source against the listener `g_SoundListenerPos`: full
   (0x1000) within 0x800 of it, falling linearly to 0 at the source radius (+0xA, or +0xE for
   type 0x3000 sources measured in the y/z plane instead of y/x).
 - `Spu_StartTransfer` sets up an SPU transfer (SPU register block at `*D_800E1874`, DMA4 registers
@@ -377,7 +377,7 @@ enemy-shot spawner), homing missile for green (0x37 `Monkey_FireShot(3/4)`?), fl
   and starts the idle animation at 0x385 (901 frames, ~15 s); code 4 sets it to 0x37A (890), so
   Spike goes idle about 11 frames after unpausing. Another path counts it down to 0.
 - Where: `Cheat_CheckCodes` is called only from state 1 of the menu state machine in
-  `PauseMenu_Update` (state byte `D_800BEF74`), which `Pause_Update` runs while the game is
+  `PauseMenu_Update` (state byte `g_PauseState`), which `Pause_Update` runs while the game is
   paused. That menu draws the strings at `D_800B269C`: "Return", "Stage", "Best time", "Retry",
   "Target time", "Success Rate", "Total Game Overs", "Ultra time" (text is stored as
   char - 0x31, 0xFF = space). So the codes are entered on the in-stage pause screen.
@@ -401,7 +401,7 @@ enemy-shot spawner), homing missile for green (0x37 `Monkey_FireShot(3/4)`?), fl
   a looping sound (0xAD) and pulses `Pad_Vibrate(1, 0x6E, 2)` while some flag set
   (`arg->f_C`, `arg->f_14`, or pad bits `D_800E53C0 & 0xFF00FF00`) holds in mode `0x8150 == 1`.
 - `g_Pad + 0x158` and `+0x160` are pad button words; `CamFlyby_StepSegments` closes something
-  (text/tutorial sequence at `D_800B8CC0`) on Start/cross/circle/square (mask 0x8E0).
+  (text/tutorial sequence at `CamFlyby_State`) on Start/cross/circle/square (mask 0x8E0).
 - `Spike_SwapGadgetState`: swaps Spike's action state (`D_800EC23E` = `g_Spike + 0x5E`) between plain
   and gadget-holding variants (0<->1, 3<->4, 5<->7, 0x13<->0x14) depending on the gadget.
 
@@ -434,7 +434,7 @@ racing game. On disc: `MINIGAME/MINI1`, `MINI2`, `MINI3` (not split or decompile
 - `Gadget_Select(g, prev)` (func_8007AC64): selecting the Slingback while it is already selected
   cycles the ammo type `g_GadgetState+0xA0` (regular -> explosive -> guided, sound 3). Current and
   previous gadget are stored at `g_Spike+0xF2/+0xF3`; a change plays sound 0x24.
-- View buttons (`Camera_HandleViewButtons`): L2 enters first-person look (D_800E68D0+0x32), or with
+- View buttons (`Camera_HandleViewButtons`): L2 enters first-person look (g_CameraState+0x32), or with
   the Slingback toggles aiming (+0x46); L1 recentres the camera / leaves aiming; L1 or L2 leaves look.
   Look is refused (sound 0x30, HUD icon blink) in game modes 0x13/0x24 and sub-modes 2-3.
 - `Radar_GetSignal` (still asm): Monkey Radar strength 0..32 from uncaught monkeys in a ~30 degree
@@ -445,11 +445,11 @@ racing game. On disc: `MINIGAME/MINI1`, `MINI2`, `MINI3` (not split or decompile
   (collision kind 8), 0x15 frames.
 - `PushBlock_Update`: pushable blocks (Spike state kind 0x70 = pushing), scraping sounds 0xAE in
   stage 0xB, 0xB1 in stages 0xF / 0x65.
-- `CamFlyby_Update`: scripted camera paths (segments of D_800E68D0+0x60) with a fade at the end.
+- `CamFlyby_Update`: scripted camera paths (segments of g_CameraState+0x60) with a fade at the end.
 - Item drops (`Pickup_Drop`, still asm): the drop is picked from a table row D_800B28A2[table*25]
   indexed by Spike's current health (g_Spike+0xE8), five cumulative weights out of 100 for the
   five drop kinds D_800B28B4[0..4]; kind 3 (energy chip) drops 2-3 at once, kinds 7 and 2 are
-  resolved further (func_8008373C, func_80083790). In races everything becomes 2 chips.
+  resolved further (Pickup_RollAmmoDrop, Pickup_RollKind2Drop). In races everything becomes 2 chips.
 
 ## Text encoding (Boot_LoadingScreen)
 The game's own font uses one byte per glyph: e.g. "Now Loading..." is
@@ -468,7 +468,7 @@ f_76) by Cd_QueueCommand and issued by Cd_IssueRequest; Cd_PollStatus restarts l
   flag 0x4000000, 0x400 special action (Node_GetJointRef, state 0x29), 0x800/0x20000/0x40000 send link
   events 0/1/2 to object f_10, 0x1000 jump (state 0x27), 0x4000 Object_SetFlagCF(f_10), 0x8000
   stop when closer than 1500, 0x10000 "end of route" (route look-ahead stops; object f_10/100
-  checked with func_80052C4C), 0x80000 calm monkeys do Monkey_StartNodeAnim (Monkey_NodeEvents).
+  checked with Object_GetStatus), 0x80000 calm monkeys do Monkey_StartNodeAnim (Monkey_NodeEvents).
 - f_B is the link count, Node_GetLink(n, i) the i-th neighbour; f_14[kind] is a per-monkey-type
   attraction value used by Monkey_PickGoalLink to pick where a monkey heads.
 - Monkey +0xF2..+0xFC is a 6-entry history of visited nodes (newest first), +0xEC the node it came
@@ -476,7 +476,7 @@ f_76) by Cd_QueueCommand and issued by Cd_IssueRequest; Cd_PollStatus restarts l
   distance to Spike (Monkey_SelectActive keeps the 4 nearest in g_ActiveMonkeys).
 
 ## Objects
-- Object_UpdateAll walks the 0xE4-byte g_Objects slots; type handlers are D_800AF350[type];
+- Object_UpdateAll walks the 0xE4-byte g_Objects slots; type handlers are Object_TypeHandlers[type];
   objects 0x800 below their floor are destroyed with a poof (Object_Destroy).
 - Bouncy_Update (func_8009398C): bouncy object; landing on it bounces Spike with a stage sound
   (0xB5 stage 7, 0xB3 stages 0x51/0x52/0x54, 0xB6 0x32, 0xAE 0x47), touching its side knocks him
@@ -487,16 +487,16 @@ f_76) by Cd_QueueCommand and issued by Cd_IssueRequest; Cd_PollStatus restarts l
 - Platform_UpdateOrbit: platforms circling a centre (own start or object +0x22) in the plane
   chosen by flags & 0xF00; kind 5 bobs, kind 4 offsets the model, kind 3 turns the model.
 - Object_SpawnFromRecord sets an object up from a stage placement record and records the slot
-  of placement id k in D_800E77B0.
-- Puff particles: 8 slots at D_800BB840 (Puff_Spawn / Puff_UpdateAll / Puff_ClearAll), each a
+  of placement id k in Object_SlotForRecord.
+- Puff particles: 8 slots at Puff_Slots (Puff_Spawn / Puff_UpdateAll / Puff_ClearAll), each a
   jittered 8-point strip drawn on odd frames for 7 frames.
 
 ## Collision
 - Coll_PushBox / Coll_PushWedge / Coll_PushDiagonalWall / Coll_PushCurvedCorner /
-  Coll_PushHalfCylinder push Spike (D_800B20B4) out of the shape kinds; Coll_PushWedge is a box cut
+  Coll_PushHalfCylinder push Spike (Coll_Pos) out of the shape kinds; Coll_PushWedge is a box cut
   along a 45-degree diagonal (sign table D_800A5D84).
-- func_80078C9C (still asm) is the "what is at this point" query: 8 probe tiles (D_800B20B0,
-  filled by func_8007304C), then every object, then the floor height; type handlers in the
+- func_80078C9C (still asm) is the "what is at this point" query: 8 probe tiles (Coll_Cells,
+  filled by Coll_GatherCells), then every object, then the floor height; type handlers in the
   tables D_800B20E0 (tiles) and D_800B2108 (objects).
 - Contact list D_800BEEA0 (16 entries): Contact_IsNew / Contact_Add / Contact_Expire /
   Contact_ClearSeen fire touch events once per contact.
@@ -504,7 +504,7 @@ f_76) by Cd_QueueCommand and issued by Cd_IssueRequest; Cd_PollStatus restarts l
 ## Stage start
 - Stage_Begin(lvl): world/stage ids, subsystem resets, and for a stage's first area the monkey
   count and list (stage table 0x80102400, 16 bytes per stage: monkeys +0, +2, +3, +4) plus the
-  per-area caught flags D_800DFE00 (mode 0x13 clears them, except stages 0x1B/0x1C copy them from
+  per-area caught flags g_LevelMonkeyRows (mode 0x13 clears them, except stages 0x1B/0x1C copy them from
   D_800DFF20). Stage 0x21 gets one monkey; 0x1F/0x20/0x22 and world 3 none.
 
 ## Input
@@ -521,15 +521,15 @@ f_76) by Cd_QueueCommand and issued by Cd_IssueRequest; Cd_PollStatus restarts l
 Model draw functions in 80015F70 first light the model's vertex colours with the GTE and
 write them to 0x1F800000 (one word per colour), then call the primitive walker
 (Model_DrawPrims / Model_DrawLit) that reads them back:
-- Model_Draw, Model_DrawNoFog, Model_DrawSubdiv, func_80051AA4: `cc` (colour * light colour)
-  per colour; func_80051AA4 can OR extra bits into each colour (used by Object_Draw).
+- Model_Draw, Model_DrawNoFog, Model_DrawSubdiv, Object_DrawLitModel: `cc` (colour * light colour)
+  per colour; Object_DrawLitModel can OR extra bits into each colour (used by Object_Draw).
 - Model_DrawColorAnim (vertex-colour animation, header flag 0x100000): blends frame k>>12 to the
   next frame with `dpcs`, factor k & 0xFFF, then restores the far colour from D_800EBFA0+0x1C.
 - Model_DrawLit switches on each primitive's code byte (& 0xFC, 0x20..0x3C = F3, FT3, F4,
   FT4, G3, GT3, G4, GT4), and each per-type function returns the next primitive.
 - Scratch 0x3F4 (u8) = draw mode (2, 6, 7, or a caller value); 0x3C0/0x3C2 = D_800EBFA0
   +0x24/+0x28; 0x3C4 = an extra value (Model_DrawNoFog arg 3), 0x3C6 = 0.
-- func_8007F8F4 is a 9-tap colour blur on a 382-pixel 15-bit image row (taps at D_800B2704,
+- PauseBg_BlurRow is a 9-tap colour blur on a 382-pixel 15-bit image row (taps at D_800B2704,
   {offset, shift}, sum >> 4) via the GTE IRGB/ORGB registers, written two rows down.
 
 ## HUD and 2D drawing (2026-10-16)
@@ -544,7 +544,7 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   (depth sorted, ot[0xFFF] = back), HUD OT[2]. Screen_DrawAfterimage reads DRAWENV clip.y (+2) and
   flips bit 0x100 to sample the previous frame.
 - HUD (Hud_Draw): sky/ground tiles split at the horizon (y = 120 - camera m[2][1]/16) in the stage fog
-  colours (g_Game+0x8194 env +0x1C/+0x18), then by D_800F4DB0+0x20 flags: 0x10 health cookies
+  colours (g_Game+0x8194 env +0x1C/+0x18), then by g_HudState+0x20 flags: 0x10 health cookies
   (Hud_DrawHealth, g_Spike+0xE8), 0x20 gadget slots (Hud_DrawGadgets), 8 lives (Hud_DrawLives), 2 status
   icons, 4/1 two more parts. Races add a lap icon + time (g_Game+0x8140).
 - Gadget HUD: four face-button slots at D_800B2234 with icon uv/clut D_800B2254[gadget]; a 48x48 cursor
@@ -566,11 +566,11 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
 - Depth fog textures: Tex_MakeFogLevels builds 7 copies of a texture blended k/8 towards the fog colour
   in VRAM (0x240.., 0x100..); Tex_DrawFogLevels copies them back with DR_MOVE at increasing OT depths.
 - Matching notes for draw code: many functions store the advanced prim pointer through the separate
-  symbol `D_800EC354` (g_Game+4) rather than via g_Game (`lui %hi(D_800EC354)` at the end), so declare
-  `extern u8 *D_800EC354` and assign it. Some use the plain libgpu C addPrim (24-bit tag bitfields,
+  symbol `g_GamePrim` (g_Game+4) rather than via g_Game (`lui %hi(g_GamePrim)` at the end), so declare
+  `extern u8 *g_GamePrim` and assign it. Some use the plain libgpu C addPrim (24-bit tag bitfields,
   `and`/`or` with 0xFFFFFF/0xFF000000) instead of the asm one. Depth comes from PsyQ's `gte_stszotz`
   (mfc2 into hardcoded $12, nop, sra 2, sw). An unsigned divide whose magic has no post-shift after a
-  `sll 11; srl 11` is a divide by d << 11 (the billboards func_80069920: h * 23930880 / 92160).
+  `sll 11; srl 11` is a divide by d << 11 (the billboards Particle_DrawAll: h * 23930880 / 92160).
 - Centre-screen sign (CenterSign_Draw, g_CenterSign): time-limit seconds (CenterSign_ShowDigit from
   TimeLimit_Update; n == 1 is the wide 160px sign at zero) and the 62x62 sign for the Specter coin (pickup kind 4, user);
   4 shrinking afterimages, then state 5 zooms out and fades for 8 frames.
@@ -581,7 +581,7 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   frame-to-frame motion (x64, clamped) is stored at g_GadgetState+0x68.. and bent into the handle
   matrix and, halved, into the net matrix, so the net lags and swings behind Spike's hand (user: the net swings in a vertical arc in his hands).
 - Fx_DrawGlowBeam: additive glow beam between two projected points (6 POLY_G4), width scaled by the
-  GTE projection distance (cfc2 $26) over depth; used by a gadget model (8009A800) and func_800687D8.
+  GTE projection distance (cfc2 $26) over depth; used by a gadget model (8009A800) and Spike_UpdateRide.
 
 ## Open questions for the user (2026-10-14)
 - Stage numbers: which stages are 0, 7, 14, 18, 19 and 23? `Save_GetCompletion` skips them for the
@@ -594,11 +594,11 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
 - Pickups (`Pickup_DrawAll`): kinds 1-7 use models 0xE, 0x11, 0xF, 0xD, 0x10, 0x12, 0x13. Kinds (Pickup_Collect, confirmed by the user):
   1 cookie, 2 extra life, 3 energy chip, 4 Specter coin, 5 big energy chip, 6 explosive and 7 guided Slingback ammo. `g_SpecterCoinTimer` counts down while
   model 0xD (kind 4 = Specter coin, user) spins down onto Spike with effect 0x104 every 8 frames: the coin collect animation.
-- Drops (`Pickup_Drop`, `func_80083790`): a kind-2 drop becomes kind 5 when a 1..25 roll is below
+- Drops (`Pickup_Drop`, `Pickup_RollKind2Drop`): a kind-2 drop becomes kind 5 when a 1..25 roll is below
   (n - 1) * 10 with n = g_Game+0x813C clamped to 1..10 (0x813C is 5 after `Game_NewGameReset`: the
-  lives counter?), and while the cooldown `D_800B28B0` runs. Which items are kinds 2 and 5?
+  lives counter?), and while the cooldown `Pickup_Kind2Cooldown` runs. Which items are kinds 2 and 5?
 - Pause menu (`PauseMenu_DrawItemModel`): item models D_800F4CA0[0..3]; items 0/1/2 map to 2/3/1 and
-  `func_80082030` greys some out per stage (stage 0x13, 0x24, 0x5C-0x62 for item 0).
+  `PauseMenu_ItemEnabled` greys some out per stage (stage 0x13, 0x24, 0x5C-0x62 for item 0).
 - Earlier: the four-armed rotor (kinds 0x37..0x3A), stages with bumpers (0x15, 0x54) and push-blocks,
   (answered: Spike climbs trees, e.g. in level 1, states 0x38..0x3C), and the pad layout for jump/crouch (scratchpad input slots
   0x54/0x58/0x5C/0x5E/0x64/0x66/0x70/0x72/0x74/0x7C).
@@ -641,7 +641,7 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   when ours saves them in argument order: copy the first argument into a local at the top
   (`T *ff = f;`) and use only the copy (Spike_CreateModel).
 - A delay-slot `li` copy of a constant used to store a field (`move v1,a1; sh v1,..`): store through
-  a second variable (`t = 40; f = t; x = t;`), func_8009529C.
+  a second variable (`t = 40; f = t; x = t;`), Hud_UpdateMonkeyHeads.
 - C-side addPrim (`and` with 0xFFFFFF / 0xFF000000 instead of the lwl/swl macro) is PsyQ's own
   bitfield macro: `((P_TAG *)p)->addr = ((P_TAG *)ot)->addr; ((P_TAG *)ot)->addr = (u32)p;` with
   `struct { unsigned addr : 24; unsigned len : 8; }`. The bitfield form keeps 0xFFFFFF in a saved
@@ -662,7 +662,7 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
 - `%hi(sym)` kept in its own saved register next to the full address (MinigameMenu_Main's frame
   counter): the same symbol is used both as a scalar (`g_Game` frame, `%lo(g_Game)(s2)`) and
   through its address. Declare it once as a scalar and reach the struct through a cast.
-- func_8004F6E8 (floor cell lookup): `if (A || (dd = ..., B) || C) return 0;` puts the shared
+- Coll_FindCell (floor cell lookup): `if (A || (dd = ..., B) || C) return 0;` puts the shared
   `return 0` inline after the last test, which all earlier tests branch to. A while loop that the
   original enters at its bottom test, reloading globals each pass, is a goto loop (goto check;
   loop: ...; check: if (c) goto loop;). Store-before-load ordering again needed the globals
@@ -708,7 +708,7 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
 - A copy loop that reloads its count from the model header every pass, but walks the source with
   one pointer, was `src = mdl->hdr->colors; ... scratch[i] = src[i]` (Model_DrawOnScreen).
 - `sll 11; srl 11; multu 0x5B05B33; mfhi` is GCC's unsigned divide by 0x16800 (45 << 11): the
-  pre-shift strips the 11 trailing zeros. func_80069920's sprite height is
+  pre-shift strips the 11 trailing zeros. Particle_DrawAll's sprite height is
   `sy * 0x148 * 0x11D00 / 0x16800` (0x148 times 19/24).
 - decomp-permuter's C parser rejects arithmetic inside asm operands (`"r"(p + 0xA28)`): assign it
   to a separate pointer variable first. Reusing an existing variable changes the allocation.
@@ -732,13 +732,13 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
   full build: case values must be listed exactly as the table has them. Spike_Draw's 10-entry
   gadget table needed `case 8:` on the default (so the default label is a table target and
   g_CurrentGadget is reloaded there) and `case 9: break;` (entry points at the join, not the
-  default); func_8008FC30 needed `case 7:` placed before case 0x1B so 0x1B falls into its store.
+  default); Link_Activate needed `case 7:` placed before case 0x1B so 0x1B falls into its store.
 - Stack temps that the original shares between two branches (same sp offsets) came from block
   initialisers (`V s = { 0x1000, expr, 0x1000 };`): GCC builds them in a reused temp slot with
   memset + stores and then copies them. memset is the BIOS A0:2A stub at 0x800A3740.
 - One register-pinned local (`register u32 y asm("$4");`) was the only way to match
-  func_800687D8's a0 choice for a copied coordinate.
-- Register-starved functions (PauseMenu_Update, func_8007D530, func_80070560, Fx_DrawFadeRing):
+  Spike_UpdateRide's a0 choice for a copied coordinate.
+- Register-starved functions (PauseMenu_Update, DebugMenu_Update, Rock_UpdateAll, Fx_DrawFadeRing):
   when the original reloads values from stack slots into s4/s5/s7/t6-t9 right before each use
   (`lw s7, 0x30(sp)`, `lui t8, %hi(x)` + `addu t9, t8, zero`), those are pseudos that lost their
   hard register and are rematerialised by reload; the same C gives the same pattern only when the
@@ -748,7 +748,7 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
 - Loop pointer shape matters: if the original walks one pointer and reads p[0], p[1], p[2], GCC
   makes one extra induction register (p+1) and indexes it with 0/2 offsets; two separate source
   pointers produce a different (larger) giv set. Conversely, separate per-array pointers in the
-  original (one register each) need separate pointer variables in C (func_8006F3D0).
+  original (one register each) need separate pointer variables in C (Fx_DrawRibbon).
 - The order of a for loop's increments matters: `for (...; k++, i++)` vs `i++, k++` changes the
   order GCC's loop pass handles the induction variables, and so the order of the strength-reduced
   register set-ups in the preheader (Model_CalcJointMatrices).

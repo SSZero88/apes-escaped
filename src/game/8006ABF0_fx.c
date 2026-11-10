@@ -25,36 +25,36 @@ typedef struct { s16 vx, vy, vz, pad; } SV_6B168_8006B168;
 typedef struct { s16 vx, vy, vz, pad; } SV_6C6D4_8006C6D4;
 typedef struct { s16 vx, vy, vz, pad; } SVEC_8006B3F0_8006B3F0;
 
-extern M2C_UNK D_800B1BD4;
+extern M2C_UNK Shockwave_Templates;
 
 void func_8013F0C0(void);
 void memset(void *, s32, s32);
 
 M2C_UNK Camera_StartShake(M2C_UNK);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
-extern M2C_UNK D_800BAD68;
+extern M2C_UNK Fx_ExplosionSmoke;
 
 void Fx_GroundBlast(s16 x, s16 y, s16 z);
 extern struct S_D_800EC1E0 { u8 pad_0[0x24]; s32 f_24; s32 f_28; s32 f_2C; s32 f_30; s32 f_34; s32 f_38; u8 pad_3C[0x24]; u16 f_60; u16 pad62; u16 f_64; u8 pad_66[0xC6]; s32 f_12C; } g_Spike;
 
 void* ApplyMatrixSV(void* m, void* v0, void* v1);
-extern struct S_D_800BAD90 { u16 f_0; u16 f_2; u16 f_4; u8 pad_6[0x2]; s8 f_8; s8 f_9; } D_800BAD90;
+extern struct S_D_800BAD90 { u16 f_0; u16 f_2; u16 f_4; u8 pad_6[0x2]; s8 f_8; s8 f_9; } RcCar_Exhaust;
 extern s32 D_800EC0DC;
 
-extern M2C_UNK D_800B4D88;
-M2C_UNK func_80070284(M2C_UNK *, M2C_UNK *, M2C_UNK, M2C_UNK, M2C_UNK *);
+extern M2C_UNK Fx_SpikeChestPos;
+M2C_UNK Shockwave_Spawn(M2C_UNK *, M2C_UNK *, M2C_UNK, M2C_UNK, M2C_UNK *);
 extern M2C_UNK D_800B1C28;
 extern M2C_UNK D_800EC240;
 
 M2C_UNK Effect_SpawnAt(M2C_UNK, s32);
 extern s32 D_800BAD70;
-extern struct S_D_800BAD78 { u8 f_0; u8 f_1; u8 pad2; u8 f_3; s16 f_4; s16 f_6; } D_800BAD78;
-s32 func_8005DC78();
+extern struct S_D_800BAD78 { u8 f_0; u8 f_1; u8 pad2; u8 f_3; s16 f_4; s16 f_6; } Spike_WaterFx;
+s32 Game_IsPlaying();
 void Fx_UpdateExplosionSmoke(void);
 void Spike_UpdateWaterFx(void);
-/* A timed damage effect on Spike (D_800BAD78: kind +2, frames left +6). Kind 1: two random
+/* A timed damage effect on Spike (Spike_WaterFx: kind +2, frames left +6). Kind 1: two random
  * particles (0x24 and 3) around him each frame; kind 2: particle 2 plus 7 / 0x1C on alternate
- * frames and func_8006D588 every 4 frames; kind 3: Puff_Spawn every 4 frames. When the timer
+ * frames and Dust_SpawnSmall every 4 frames; kind 3: Puff_Spawn every 4 frames. When the timer
  * runs out his tint (g_Spike+0xF8, D_800EC2D8) goes back to white. Started by
  * Spike_StartDamageEffect from Spike_HandleHit by damage type: 0x300 -> kind 1, 0x200 -> kind 2
  * (most likely the electric shock: the shockwave rings and spinning arm deal type 0x200),
@@ -64,7 +64,7 @@ void Ripple_DrawAll(void);
 s32 Floor_GetHeight(s32, s32, s32);
 extern u16 g_RandSeed;
 extern struct S_D_800EC350 { s32 f_0; u8 pad_4[0x8122]; u16 f_8126; } g_Game;
-extern struct S_D_800E68D0 { u8 pad0[0x32]; u8 f_32; u8 pad33[0x13]; u8 f_46; } D_800E68D0;
+extern struct S_D_800E68D0 { u8 pad0[0x32]; u8 f_32; u8 pad33[0x13]; u8 f_46; } g_CameraState;
 struct S_D_800EC1E0_8006CDE0 { u8 pad0[0x30]; s32 f_30; s32 f_34; s32 f_38; u8 pad3C[0x24]; s16 f_60; s16 pad62; s16 f_64; };
 struct S_D_800B4D88_8006CDE0 { u16 f_0; u16 f_2; u16 f_4; };
 extern u8 D_800BAD7B;
@@ -85,8 +85,8 @@ void Ripple_Spawn(SVECTOR *);
 struct St_8006C334 { u8 pad0[2]; u8 kind; u8 pad3[3]; u16 timer; };
 struct Spike_8006C334 { u8 pad0[0x24]; s32 x, y, z; };
 extern u16 D_800BAD7E;
-extern M2C_UNK D_800B4D80;
-void func_8006D588(SVECTOR *);
+extern M2C_UNK Fx_SpikePos;
+void Dust_SpawnSmall(SVECTOR *);
 void Puff_Spawn(void *, s32, s32, s32);
 extern struct S_D_800BAD60 { s16 vx, vy, vz, pad; } D_800BAD60;
 struct Spike_8006C92C { u8 pad0[0x24]; u16 x; u8 pad26[2]; u16 y; u8 pad2A[2]; u16 z; u8 pad2E[0xD2]; s16 f_100; };
@@ -95,7 +95,7 @@ extern u8 D_800B1A38[];
 void Fx_SpawnFadeRing(void *, s32, s32, s32);
 extern s16 D_800EC2E0;
 extern u8 D_800B1990[];
-extern u16 D_800AE8F2;
+extern u16 g_RandSeed2;
 extern s16 D_800BAD7C;
 extern u8 D_800E6902;
 void Spike_WaterSplashOut(void);
@@ -113,7 +113,7 @@ extern u8 g_ViewMatrix[];
 #define RAND_6ABF0() (g_RandSeed = g_RandSeed * 5 + 1)
 extern Game_6ABF0 g_Game_6ABF0 asm("g_Game");
 extern u16 D_800B1890_6ABF0[] asm("D_800B1890");
-extern u8 *D_800EC354_6ABF0 asm("D_800EC354");
+extern u8 *D_800EC354_6ABF0 asm("g_GamePrim");
 #define GD_6ABF0 (*(GameDraw *)&g_Game_6ABF0)
 #define gte_ldv0_6ABF0(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
 #define gte_rtps_6ABF0() __asm__ volatile ("nop; nop; rtps")
@@ -191,7 +191,7 @@ void Monkey_DrawHelmetLight(SVECTOR *pos, s32 kind, s32 near) {
             xy1 = top | xb;
             bot = (sy + (s16)hh) << 16;
             xy2 = bot | xa;
-            r2 = (D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8 & 0x1F;
+            r2 = (g_RandSeed2 = g_RandSeed2 * 5 + 1) >> 8 & 0x1F;
             xy3 = bot | xb;
             rc = rb & 0x1F;
             switch (kind) {
@@ -238,7 +238,7 @@ void Monkey_DrawHelmetLight(SVECTOR *pos, s32 kind, s32 near) {
 }
 
 void Fx_UpdateExplosionSmoke(void) {
-    struct S_D_800BAD68_8006B168 *e = ((struct S_D_800BAD68_8006B168 *)&D_800BAD68);
+    struct S_D_800BAD68_8006B168 *e = ((struct S_D_800BAD68_8006B168 *)&Fx_ExplosionSmoke);
     SV_6B168_8006B168 p;
 
     if (e->timer == 0) {
@@ -247,11 +247,11 @@ void Fx_UpdateExplosionSmoke(void) {
     p = e->pos;
     if ((--e->timer & 3) == 0) {
         p.vy = e->pos.vy - (RAND() >> 9);
-        func_80070284(&p, D_800B1894, 1, 0, 0);
+        Shockwave_Spawn(&p, D_800B1894, 1, 0, 0);
         p.vy = e->pos.vy - (RAND() >> 9);
-        func_80070284(&p, D_800B1894 + 0x54, 1, 0, 0);
+        Shockwave_Spawn(&p, D_800B1894 + 0x54, 1, 0, 0);
     }
-    p.vx = ((struct S_D_800BAD68_8006B168 *)&D_800BAD68)->pos.vx + ((RAND() >> 8) - 0x80);
+    p.vx = ((struct S_D_800BAD68_8006B168 *)&Fx_ExplosionSmoke)->pos.vx + ((RAND() >> 8) - 0x80);
     p.vy = e->pos.vy - (RAND() >> 8) * 2;
     p.vz = e->pos.vz + ((RAND() >> 8) - 0x80);
     Effect_SpawnAt(5, &p);
@@ -267,14 +267,14 @@ void Fx_BigExplosion(void *arg0) {
         var_s0 += 1;
     } while (var_s0 < 0x28);
     Effect_SpawnAt(0x112, arg0);
-    func_80070284(arg0, &D_800B1C28, 2, 0, 0);
-    M2C_FIELD(&D_800BAD68, SVECTOR *, 0) = M2C_FIELD(arg0, SVECTOR *, 0);
-    M2C_FIELD(&D_800BAD68, s32 *, 8) = 0x10F;
+    Shockwave_Spawn(arg0, &D_800B1C28, 2, 0, 0);
+    M2C_FIELD(&Fx_ExplosionSmoke, SVECTOR *, 0) = M2C_FIELD(arg0, SVECTOR *, 0);
+    M2C_FIELD(&Fx_ExplosionSmoke, s32 *, 8) = 0x10F;
     Camera_StartShake(1);
     Sound_PlayFixed(0xA7);
 }
 
-void func_8006B3CC(s32 arg0) {
+void Fx_SpawnHitSpark(s32 arg0) {
     Effect_SpawnAt(0x113, arg0);
 }
 
@@ -288,9 +288,9 @@ void Fx_DebrisExplosion(x, y, z)
     p.vz = z;
     Effect_SpawnAt(0x10D, &p);
     Fx_SpawnFadeRing(&p, 0, 800, 0);
-    func_80070284((M2C_UNK *)&p, (M2C_UNK *)D_800B1F1C, 1, 0, 0);
+    Shockwave_Spawn((M2C_UNK *)&p, (M2C_UNK *)D_800B1F1C, 1, 0, 0);
     p.vy -= 0x20;
-    func_80070284((M2C_UNK *)&p, (M2C_UNK *)(D_800B1F1C - 0x24C), 1, 0, 0);
+    Shockwave_Spawn((M2C_UNK *)&p, (M2C_UNK *)(D_800B1F1C - 0x24C), 1, 0, 0);
     for (i = 0; i < 16; i++) {
         Effect_SpawnAt(0x17, &p);
     }
@@ -312,7 +312,7 @@ void Fx_GroundBlast(s16 x, s16 y, s16 z)
   p.vx = x;
   p.vy = h;
   p.vz = z;
-  func_80070284((M2C_UNK *) (&p), &D_800B1BD4, 1, 4, 0);
+  Shockwave_Spawn((M2C_UNK *) (&p), &Shockwave_Templates, 1, 4, 0);
   Camera_StartShake(1);
   for (i = 24; i >= 0; i--)
   {
@@ -324,7 +324,7 @@ void Fx_GroundBlast(s16 x, s16 y, s16 z)
 
 }
 
-void func_8006B6B0(void) {
+void Spike_FxFloorPuff(void) {
     s16 v[3];
     v[0] = g_Spike.f_24;
     v[1] = Floor_GetHeight(g_Spike.f_24, g_Spike.f_28, g_Spike.f_2C);
@@ -332,10 +332,10 @@ void func_8006B6B0(void) {
     Effect_SpawnAt(5, v);
 }
 
-void func_8006B704(void) {
+void Spike_FxNone(void) {
 }
 
-void func_8006B70C(void) {
+void Spike_FxRunDust(void) {
     SVEC_8006B70C tmp;
     SVEC_8006B70C v;
     if (g_Game.f_8126 == 2) {
@@ -352,17 +352,17 @@ void func_8006B70C(void) {
     }
 }
 
-void func_8006B7DC(void) {
-    D_800BAD78.f_0 = 0;
-    D_800BAD78.f_1 = 0;
-    D_800BAD78.f_3 = 0;
-    D_800BAD78.f_6 = 0;
+void Spike_ResetFx(void) {
+    Spike_WaterFx.f_0 = 0;
+    Spike_WaterFx.f_1 = 0;
+    Spike_WaterFx.f_3 = 0;
+    Spike_WaterFx.f_6 = 0;
     D_800BAD70 = 0;
 }
 
 void Fx_UpdateSpikeEffects(void) {
     Fx_UpdateExplosionSmoke();
-    if (func_8005DC78() != 0) {
+    if (Game_IsPlaying() != 0) {
         Spike_UpdateWaterFx();
         Spike_UpdateDamageEffect();
         Ripple_DrawAll();
@@ -373,9 +373,9 @@ void Spike_WaterSplashIn(void) {
     SVEC_8006B848_8006B848 n;
     SVEC_8006B848_8006B848 v;
     SCR_8006B848_8006B848 *sc = (SCR_8006B848_8006B848 *)0x1F8003D4;
-    struct S_D_800BAD78 *d = &D_800BAD78;
+    struct S_D_800BAD78 *d = &Spike_WaterFx;
 
-    if (D_800BAD78.f_0 == 0) {
+    if (Spike_WaterFx.f_0 == 0) {
         Water_Query(((struct S_D_800EC1E0_8006B848 *)&g_Spike)->f_24, ((struct S_D_800EC1E0_8006B848 *)&g_Spike)->f_28, ((struct S_D_800EC1E0_8006B848 *)&g_Spike)->f_2C);
         D_800B4D90 = d->f_4 = sc->f_A - sc->f_10;
         memset(&v, 0, 8);
@@ -386,9 +386,9 @@ void Spike_WaterSplashIn(void) {
         Effect_SpawnAt(0x100, &n);
         Sound_PlayFixed(0x72);
         d->f_1 = 0;
-        D_800BAD78.f_0 = ((struct S_D_800EC1E0_8006B848 *)&g_Spike)->f_34 / 2;
-        if (D_800BAD78.f_0 > 20) {
-            D_800BAD78.f_0 = 20;
+        Spike_WaterFx.f_0 = ((struct S_D_800EC1E0_8006B848 *)&g_Spike)->f_34 / 2;
+        if (Spike_WaterFx.f_0 > 20) {
+            Spike_WaterFx.f_0 = 20;
         }
     }
 }
@@ -397,7 +397,7 @@ void Spike_WaterSplashOut(void) {
     s16 v[3];
     s32 id;
     v[0] = g_Spike.f_24;
-    v[1] = D_800BAD78.f_4;
+    v[1] = Spike_WaterFx.f_4;
     v[2] = g_Spike.f_2C;
     Effect_SpawnAt(0x101, v);
     id = 0x74;
@@ -405,11 +405,11 @@ void Spike_WaterSplashOut(void) {
         id = 0x9D;
     }
     Sound_PlayFixed(id);
-    D_800BAD78.f_1 = 0x34;
-    D_800BAD78.f_0 = 0;
+    Spike_WaterFx.f_1 = 0x34;
+    Spike_WaterFx.f_0 = 0;
 }
 
-s32 func_8006B9F8(void)
+s32 Spike_IsDeepInWater(void)
 {
   int new_var;
   s32 var_v1;
@@ -424,8 +424,8 @@ s32 func_8006B9F8(void)
 }
 
 /* Per-frame water effects for Spike. Detects entering water (f_138 >> 12 == 1, kept in
- * D_800BAD78.f_3): on entry reads the surface height and, if falling fast from 0x31..0x8F
- * above it, makes a splash (0x101) and sound 0x9D. Then drips (D_800BAD78.f_0 frames, effects
+ * Spike_WaterFx.f_3): on entry reads the surface height and, if falling fast from 0x31..0x8F
+ * above it, makes a splash (0x101) and sound 0x9D. Then drips (Spike_WaterFx.f_0 frames, effects
  * 0x12/0x15), bubbles (f_1 frames, 1-3 effect 0x11 per frame), and while in water a wake at
  * the surface (f_13C) when near it, random ripples (D_800B1D24) and effect 0x14 when moving. */
 void Spike_UpdateWaterFx(void) {
@@ -444,7 +444,7 @@ void Spike_UpdateWaterFx(void) {
     SV_6BA2C_8006BA2C w;
 
     in = (sp->f_138 >> 12) == 1;
-    d = &D_800BAD78;
+    d = &Spike_WaterFx;
     if (in != d->f_3 && in) {
         Water_Query(sp->x, sp->y, sp->z);
         D_800B4D90 = d->f_4 = sc->f_A - sc->f_10;
@@ -459,13 +459,13 @@ void Spike_UpdateWaterFx(void) {
             d->f_1 = 0;
         }
     }
-    d2 = &D_800BAD78;
+    d2 = &Spike_WaterFx;
     d2->f_3 = in;
     if (D_800E6902 == 1) {
         return;
     }
-    if (D_800BAD78.f_0 != 0) {
-        D_800BAD78.f_0--;
+    if (Spike_WaterFx.f_0 != 0) {
+        Spike_WaterFx.f_0--;
         t.vx = SPK->x;
         t.vy = SPK->y - 0x80;
         t.vz = SPK->z;
@@ -483,15 +483,15 @@ void Spike_UpdateWaterFx(void) {
             v.vz = SPK->z + (RAND() >> 8 & 0x7F) - 0x3F;
             Effect_SpawnAt(0x11, &v);
         }
-        D_800BAD78.f_1--;
+        Spike_WaterFx.f_1--;
     }
-    if (D_800BAD78.f_3 == 0) {
+    if (Spike_WaterFx.f_3 == 0) {
         return;
     }
     p = SPK;
     mv = (p->vx != 0) | (p->vz != 0);
     if (p->y - 0x100 < p->water && p->water < p->y - 0x40) {
-        if ((p->f_70 & 0xF0) == 0x40 && p->vy < 0 && D_800BAD78.f_1 == 0 && p->y - p->water < 0xC8) {
+        if ((p->f_70 & 0xF0) == 0x40 && p->vy < 0 && Spike_WaterFx.f_1 == 0 && p->y - p->water < 0xC8) {
             Spike_WaterSplashOut();
         }
         if (!(g_Game.f_0 & 1)) {
@@ -502,24 +502,24 @@ void Spike_UpdateWaterFx(void) {
             u = w;
             Ripple_Spawn(&u);
             if ((RAND() >> 8 & 3) == 0) {
-                func_80070284(&u, ((u8 *)&D_800B1D24), 1, 0, 0);
+                Shockwave_Spawn(&u, ((u8 *)&D_800B1D24), 1, 0, 0);
             }
-            if (mv || D_800BAD78.f_0 != 0) {
-                Effect_SpawnAt(0x14, ((u8 *)&D_800B4D80));
+            if (mv || Spike_WaterFx.f_0 != 0) {
+                Effect_SpawnAt(0x14, ((u8 *)&Fx_SpikePos));
             }
         }
     }
     if (SPK->y - 0x80 < SPK->water) {
-        if (((D_800AE8F2 = D_800AE8F2 * 5 + 1) >> 8 & 0x1F) == 0) {
+        if (((g_RandSeed2 = g_RandSeed2 * 5 + 1) >> 8 & 0x1F) == 0) {
             u.vx = SPK->x;
             u.vy = D_800BAD7C;
             u.vz = SPK->z;
-            func_80070284(&u, ((u8 *)&D_800B1D24), 1, 0, 0);
+            Shockwave_Spawn(&u, ((u8 *)&D_800B1D24), 1, 0, 0);
         }
     }
     if (SPK->water < SPK->y - 0x80) {
-        if (mv || D_800BAD78.f_0 != 0) {
-            Effect_SpawnAt(0x14, ((u8 *)&D_800B4D80));
+        if (mv || Spike_WaterFx.f_0 != 0) {
+            Effect_SpawnAt(0x14, ((u8 *)&Fx_SpikePos));
         }
     }
 }
@@ -533,14 +533,14 @@ void func_8006BF10(void) {
     Effect_SpawnAt(0x15, v);
 }
 
-void func_8006BF84(void) {
+void Spike_GroundBlast(void) {
     Fx_GroundBlast(g_Spike.f_24, g_Spike.f_28, g_Spike.f_2C);
 }
 
 /* Spike's foot dust (user: shows with every gadget except the Monkey Radar and RC car, which take
  * over control, so it runs with his normal movement; the Super Hoop's dust trail is likely this too).
  * Body object D_800B4DC4. Every other frame: Ripple_Spawn behind him
- * (offset by velocity / 64), and a func_80070284 dust puff every 8 frames, or every 16 while the
+ * (offset by velocity / 64), and a Shockwave_Spawn dust puff every 8 frames, or every 16 while the
  * analog stick is pushed. When a foot's contact flag (object +0x8D / +0x8C, bit 0x10) is set,
  * a dust puff plus effect 0x10F to that side (velocity / 20 sideways). */
 void Spike_UpdateFootEffects(void) {
@@ -556,25 +556,25 @@ void Spike_UpdateFootEffects(void) {
         if (!((*(s32 *)&g_Game) & (m + 7))) {
             p.vx = o->x;
             p.vz = o->z;
-            func_80070284(&p, &D_800B1D24, 1, 0, 0);
+            Shockwave_Spawn(&p, &D_800B1D24, 1, 0, 0);
         }
     }
     p.vy = o->y;
     if (D_800B4DC4->f_8D & 0x10) {
         p.vx = o->x - SP_6BFB8->vz / 20;
         p.vz = o->z + SP_6BFB8->vx / 20;
-        func_80070284(&p, &D_800B1D24, 1, 0, 0);
+        Shockwave_Spawn(&p, &D_800B1D24, 1, 0, 0);
         Effect_SpawnAt(0x10F, &p);
     }
     if (D_800B4DC4->f_8C & 0x10) {
         p.vx = o->x + SP_6BFB8->vz / 20;
         p.vz = o->z - SP_6BFB8->vx / 20;
-        func_80070284(&p, &D_800B1D24, 1, 0, 0);
+        Shockwave_Spawn(&p, &D_800B1D24, 1, 0, 0);
         Effect_SpawnAt(0x10F, &p);
     }
 }
 
-void func_8006C204(void) {
+void Spike_FxDripBurst(void) {
     s32 i;
     s16 v[3];
     for (i = 0; i < 10; i++) {
@@ -585,16 +585,16 @@ void func_8006C204(void) {
     }
 }
 
-void func_8006C2C0(void) {
-    Effect_SpawnAt(0x10C, &D_800B4D88);
+void Spike_FxHit(void) {
+    Effect_SpawnAt(0x10C, &Fx_SpikeChestPos);
 }
 
 void Spike_StartDamageEffect(s32 a)
 {
   int new_var2;
   s32 new_var;
-  ((struct S_D_800BAD78_8006C2E8 *)&D_800BAD78)->f_2 = a;
-  ((struct S_D_800BAD78_8006C2E8 *)&D_800BAD78)->f_6 = (new_var2 = 0x32);
+  ((struct S_D_800BAD78_8006C2E8 *)&Spike_WaterFx)->f_2 = a;
+  ((struct S_D_800BAD78_8006C2E8 *)&Spike_WaterFx)->f_6 = (new_var2 = 0x32);
   new_var = a;
   switch (new_var)
   {
@@ -623,12 +623,12 @@ void Spike_StartDamageEffect(s32 a)
 void Spike_UpdateDamageEffect(void) {
     SVECTOR p;
     s32 i;
-    if ((*(struct St_8006C334 *)&D_800BAD78).timer == 0) {
+    if ((*(struct St_8006C334 *)&Spike_WaterFx).timer == 0) {
         (*(u32 *)&D_800EC2D8) = 0xFFFFFF;
         return;
     }
-    (*(struct St_8006C334 *)&D_800BAD78).timer--;
-    switch ((*(struct St_8006C334 *)&D_800BAD78).kind) {
+    (*(struct St_8006C334 *)&Spike_WaterFx).timer--;
+    switch ((*(struct St_8006C334 *)&Spike_WaterFx).kind) {
     case 1:
         for (i = 0; i < 2; i++) {
             p.vx = SP_6C334->x + ((RAND_6C334() >> 8) & 0x7F) - 0x40;
@@ -643,20 +643,20 @@ void Spike_UpdateDamageEffect(void) {
         p.vy = SP_6C334->y - (((RAND_6C334() >> 8) & 0x3F) + 0x20);
         p.vz = SP_6C334->z + ((RAND_6C334() >> 8) & 0x3F) - 0x20;
         Effect_SpawnAt(2, &p);
-        Effect_SpawnAt(((*(struct St_8006C334 *)&D_800BAD78).timer & 1) ? 7 : 0x1C, &p);
+        Effect_SpawnAt(((*(struct St_8006C334 *)&Spike_WaterFx).timer & 1) ? 7 : 0x1C, &p);
         if (!(D_800BAD7E & 3)) {
-            func_8006D588(&p);
+            Dust_SpawnSmall(&p);
         }
         break;
     case 3:
-        if (!((*(struct St_8006C334 *)&D_800BAD78).timer & 3)) {
-            Puff_Spawn(&D_800B4D80, 0, 0, 0x40);
+        if (!((*(struct St_8006C334 *)&Spike_WaterFx).timer & 3)) {
+            Puff_Spawn(&Fx_SpikePos, 0, 0, 0x40);
         }
         break;
     }
 }
 
-void func_8006C58C(void) {
+void Spike_FxBump(void) {
     SVEC_8006C58C_8006C58C n;
     SVEC_8006C58C_8006C58C a;
     SVEC_8006C58C_8006C58C b;
@@ -672,7 +672,7 @@ void func_8006C58C(void) {
     b.vy = ((struct S_D_800EC1E0_8006C58C *)&g_Spike)->f_34;
     b.vz = ((struct S_D_800EC1E0_8006C58C *)&g_Spike)->f_38;
     a = b;
-    func_80070284(&n, D_800B1E74, 1, 0, &a);
+    Shockwave_Spawn(&n, D_800B1E74, 1, 0, &a);
     for (i = 0; i < 2; i++) {
         Effect_SpawnAt(4, &n);
         Effect_SpawnAt(3, &n);
@@ -681,8 +681,8 @@ void func_8006C58C(void) {
 
 typedef struct { s16 vx; s16 vy; s16 vz; } SV_6C6A4;
 typedef struct { u8 pad0[8]; u8 f_8; u8 pad9[3]; SV_6C6A4 pos; } S_BAD78_6C6A4;
-#define BAD78_6C6A4 (*(S_BAD78_6C6A4 *)&D_800BAD78)
-void func_8006C6A4(s16 *a) {
+#define BAD78_6C6A4 (*(S_BAD78_6C6A4 *)&Spike_WaterFx)
+void Fx_StartBlastSequence(s16 *a) {
     SV_6C6A4 *p = &BAD78_6C6A4.pos;
     p->vx = a[0];
     p->vy = a[2] - 0x40;
@@ -705,9 +705,9 @@ void Fx_UpdateBlastSequence(void) {
             r.vx = RAND() >> 4 & 0xFF0;
             r.vy = RAND() >> 4 & 0xFF0;
             r.vz = RAND() >> 4 & 0xFF0;
-            func_80070284(&p, D_800B1A8C, 1, i, &r);
+            Shockwave_Spawn(&p, D_800B1A8C, 1, i, &r);
         }
-        func_80070284(&p, D_800B1AE0, 1, 0, 0);
+        Shockwave_Spawn(&p, D_800B1AE0, 1, 0, 0);
         Effect_SpawnAt(0x112, &p);
         Effect_SpawnAt(0x108, &p);
         Fx_SpawnFadeRing(&p, 1, -0x258, 0);
@@ -721,7 +721,7 @@ void Fx_UpdateBlastSequence(void) {
         Sound_PlayFixed(0x39);
     }
     if (t == 5) {
-        func_80070284(&p, D_800B1A38, 2, 3, 0);
+        Shockwave_Spawn(&p, D_800B1A38, 2, 3, 0);
     }
     if (t == 1) {
         for (i = 0; i < 20; i++) {
@@ -730,8 +730,8 @@ void Fx_UpdateBlastSequence(void) {
         Effect_SpawnAt(0x112, &p);
         Effect_SpawnAt(0x109, &p);
         Effect_SpawnAt(0x108, &p);
-        func_80070284(&p, D_800B193C, 1, 2, 0);
-        func_80070284(&p, D_800B193C + 0x54, 1, 0, 0);
+        Shockwave_Spawn(&p, D_800B193C, 1, 2, 0);
+        Shockwave_Spawn(&p, D_800B193C + 0x54, 1, 0, 0);
         Sound_PlayFixed(0x3A);
         Sound_PlayFixed(0x3B);
         Sound_PlayFixed(0x3C);
@@ -740,7 +740,7 @@ void Fx_UpdateBlastSequence(void) {
 }
 
 /* Timed effects for a Spike sequence driven by the frame counter g_Spike+0x100 (called from
- * func_80068ADC while D_800EC2E0 < 0x1E): every frame a random point around Spike (D_800BAD60);
+ * Spike_DrawWarpA while D_800EC2E0 < 0x1E): every frame a random point around Spike (D_800BAD60);
  * frame 1 sound 0xA; 6: 40 particles 0x29 + sound 0xB; 10: effect + sound 0xC; 0x12: effect at
  * D_800EC240; 0x14: three rotated pieces (D_800B1A8C); 0x11-0x1D: two puffs per frame (and
  * particle 0x112 every 4th); 0x1D: sounds 8 and 9. */
@@ -752,7 +752,7 @@ void func_8006C92C(void) {
     D_800BAD60.vx = SPIKE_6C92C->x + (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 4;
     D_800BAD60.vy = SPIKE_6C92C->y - (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 11) + 0x60);
     D_800BAD60.vz = SPIKE_6C92C->z + (((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80) / 4;
-    pos = ((u8 *)&D_800B4D88);
+    pos = ((u8 *)&Fx_SpikeChestPos);
     if (kind == 0x1D) {
         Sound_PlayFixed(8);
         Sound_PlayFixed(9);
@@ -770,16 +770,16 @@ void func_8006C92C(void) {
             r.vx = ((g_RandSeed = g_RandSeed * 5 + 1) >> 4) & 0xFF0;
             r.vy = ((g_RandSeed = g_RandSeed * 5 + 1) >> 4) & 0xFF0;
             r.vz = ((g_RandSeed = g_RandSeed * 5 + 1) >> 4) & 0xFF0;
-            func_80070284(pos, D_800B1A8C, 1, i * 2, &r);
+            Shockwave_Spawn(pos, D_800B1A8C, 1, i * 2, &r);
         }
     }
     if (kind == 0x12) {
         Fx_SpawnFadeRing(pos, 1, -0xE6, 0);
-        func_80070284(pos, ((u8 *)&D_800B1C28), 1, 0, ((u8 *)&D_800EC240));
+        Shockwave_Spawn(pos, ((u8 *)&D_800B1C28), 1, 0, ((u8 *)&D_800EC240));
     }
     if (kind == 10) {
         Fx_SpawnFadeRing(pos, 1, 0xF0, 0);
-        func_80070284(pos, D_800B1A38, 1, 4, 0);
+        Shockwave_Spawn(pos, D_800B1A38, 1, 4, 0);
         Sound_PlayFixed(0xC);
     }
     if (kind == 6) {
@@ -793,14 +793,14 @@ void func_8006C92C(void) {
     }
 }
 
-/* Shorter companion of func_8006C92C, run by func_80068B1C for the first 16 frames of a Spike
+/* Shorter companion of func_8006C92C, run by Spike_DrawWarpB for the first 16 frames of a Spike
  * sequence (frame counter g_Spike+0x100 = D_800EC2E0): particle 0x112 every 4th frame before
  * frame 8; frame 1: four rotated pieces (D_800B1A8C), effects D_800B1A38 / D_800B1C28 and sound
  * 0xC; frame 7: 40 particles 0x29, effect D_800B1990 and sound 0xA. */
 void func_8006CC28(void) {
     SV_8006CC28_8006CC28 r;
     s32 t = D_800EC2E0;
-    u8 *pos = ((u8 *)&D_800B4D88);
+    u8 *pos = ((u8 *)&Fx_SpikeChestPos);
     s32 i;
     if (t < 8 && !(t & 3)) {
         Effect_SpawnAt(0x112, pos);
@@ -810,39 +810,39 @@ void func_8006CC28(void) {
             r.vx = ((g_RandSeed = g_RandSeed * 5 + 1) >> 4) & 0xFF0;
             r.vy = ((g_RandSeed = g_RandSeed * 5 + 1) >> 4) & 0xFF0;
             r.vz = ((g_RandSeed = g_RandSeed * 5 + 1) >> 4) & 0xFF0;
-            func_80070284(pos, D_800B1A8C, 1, i * 2, &r);
+            Shockwave_Spawn(pos, D_800B1A8C, 1, i * 2, &r);
         }
         Fx_SpawnFadeRing(pos, 1, 0xE0, 0);
-        func_80070284(pos, D_800B1A38, 2, 4, 0);
-        func_80070284(pos, ((u8 *)&D_800B1C28), 1, 0, ((u8 *)&D_800EC240));
+        Shockwave_Spawn(pos, D_800B1A38, 2, 4, 0);
+        Shockwave_Spawn(pos, ((u8 *)&D_800B1C28), 1, 0, ((u8 *)&D_800EC240));
         Sound_PlayFixed(0xC);
     }
     if (t == 7) {
         for (i = 0; i < 0x28; i++) {
             Effect_SpawnAt(0x29, pos);
         }
-        func_80070284(pos, D_800B1990, 1, 0, 0);
+        Shockwave_Spawn(pos, D_800B1990, 1, 0, 0);
         Sound_PlayFixed(0xA);
     }
 }
 
-void func_8006CDE0(void) {
+void Fx_GadgetSwitch(void) {
     s16 v[3];
-    if (D_800E68D0.f_32 == 1 || D_800E68D0.f_46 == 1) {
+    if (g_CameraState.f_32 == 1 || g_CameraState.f_46 == 1) {
         return;
     }
-    v[0] = ((struct S_D_800B4D88_8006CDE0 *)&D_800B4D88)->f_0 + ((struct S_D_800EC1E0_8006CDE0 *)&g_Spike)->f_60 / 64 + ((struct S_D_800EC1E0_8006CDE0 *)&g_Spike)->f_30 * 4;
-    v[1] = ((struct S_D_800B4D88_8006CDE0 *)&D_800B4D88)->f_2 + ((struct S_D_800EC1E0_8006CDE0 *)&g_Spike)->f_34 * 4;
-    v[2] = ((struct S_D_800B4D88_8006CDE0 *)&D_800B4D88)->f_4 + ((struct S_D_800EC1E0_8006CDE0 *)&g_Spike)->f_64 / 64 + ((struct S_D_800EC1E0_8006CDE0 *)&g_Spike)->f_38 * 4;
+    v[0] = ((struct S_D_800B4D88_8006CDE0 *)&Fx_SpikeChestPos)->f_0 + ((struct S_D_800EC1E0_8006CDE0 *)&g_Spike)->f_60 / 64 + ((struct S_D_800EC1E0_8006CDE0 *)&g_Spike)->f_30 * 4;
+    v[1] = ((struct S_D_800B4D88_8006CDE0 *)&Fx_SpikeChestPos)->f_2 + ((struct S_D_800EC1E0_8006CDE0 *)&g_Spike)->f_34 * 4;
+    v[2] = ((struct S_D_800B4D88_8006CDE0 *)&Fx_SpikeChestPos)->f_4 + ((struct S_D_800EC1E0_8006CDE0 *)&g_Spike)->f_64 / 64 + ((struct S_D_800EC1E0_8006CDE0 *)&g_Spike)->f_38 * 4;
     Effect_SpawnAt(0x115, v);
 }
 
-void func_8006CE9C(void) {
-    func_80070284(&D_800B4D88, &D_800B1C28, 1, 0, &D_800EC240);
-    Effect_SpawnAt(0x116, &D_800B4D88);
+void Spike_FxKnockback(void) {
+    Shockwave_Spawn(&Fx_SpikeChestPos, &D_800B1C28, 1, 0, &D_800EC240);
+    Effect_SpawnAt(0x116, &Fx_SpikeChestPos);
 }
 
-void func_8006CEF0(void) {
+void SkyFlyer_FxTrail(void) {
     s16 v[3];
     v[0] = g_Spike.f_24 + ((u16)(g_RandSeed = g_RandSeed * 5 + 1) >> 8) - 0x80;
     v[1] = g_Spike.f_28 - 0x100;
@@ -853,16 +853,16 @@ void func_8006CEF0(void) {
     }
 }
 
-void func_8006CFA4(void) {
-    D_800BAD90.f_8 = 0;
-    D_800BAD90.f_9 = 0x10;
+void RcCar_ResetExhaust(void) {
+    RcCar_Exhaust.f_8 = 0;
+    RcCar_Exhaust.f_9 = 0x10;
 }
 
-void func_8006CFBC(void *arg0) {
-    ApplyMatrixSV(arg0, D_800EC0DC + 0x60, &D_800BAD90.f_0);
-    D_800BAD90.f_0 = (u16) (D_800BAD90.f_0 + M2C_FIELD(arg0, u16 *, 0x14));
-    D_800BAD90.f_2 = (u16) (D_800BAD90.f_2 + M2C_FIELD(arg0, u16 *, 0x18));
-    D_800BAD90.f_4 = (u16) (D_800BAD90.f_4 + M2C_FIELD(arg0, u16 *, 0x1C));
+void RcCar_SetExhaustPoint(void *arg0) {
+    ApplyMatrixSV(arg0, D_800EC0DC + 0x60, &RcCar_Exhaust.f_0);
+    RcCar_Exhaust.f_0 = (u16) (RcCar_Exhaust.f_0 + M2C_FIELD(arg0, u16 *, 0x14));
+    RcCar_Exhaust.f_2 = (u16) (RcCar_Exhaust.f_2 + M2C_FIELD(arg0, u16 *, 0x18));
+    RcCar_Exhaust.f_4 = (u16) (RcCar_Exhaust.f_4 + M2C_FIELD(arg0, u16 *, 0x1C));
 }
 
 typedef struct { s16 vx, vy, vz, pad; } SV_6D044;
@@ -871,7 +871,7 @@ typedef struct { u8 pad0[0x24]; s32 x, y, z; } Car_6D044;
 typedef struct { s32 z; s32 sxy; } Scr_6D044;
 typedef struct { u32 tag; u32 code; u32 xy0; u32 uv0; u32 xy1; u32 uv1; u32 xy2; u16 uv2; u16 pad1E; u32 xy3; u16 uv3; u16 pad26; } FT4_6D044;
 typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_6D044;
-extern Smoke_6D044 D_800BAD90_6D044 asm("D_800BAD90");
+extern Smoke_6D044 D_800BAD90_6D044 asm("RcCar_Exhaust");
 extern Car_6D044 g_RcCar_6D044 asm("g_RcCar");
 extern struct { s32 frame; u8 pad4[0x814C]; u16 f_8150; } g_Game_6D044 asm("g_Game");
 extern u8 g_Game_6D044b asm("g_Game");
@@ -879,16 +879,16 @@ extern s8 g_CurrentGadget;
 extern u8 D_800B1BA0[];
 extern u8 g_ViewMatrix[];
 s32 Spike_IsUnderwater(void);
-void func_8006F3D0(SV_6D044 *, s32, void *, s32);
+void Fx_DrawRibbon(SV_6D044 *, s32, void *, s32);
 void SetRotMatrix(void *);
 void SetTransMatrix(void *);
 
 /* RC Car exhaust smoke. While the RC Car is the current gadget (not in menu state 0xA, not with
-   D_800E6902, func_8005DC78() true, Spike not underwater): on odd frames spawns two pairs of puffs
-   (func_8006F3D0, kind D_800B1BA0, size 2-5) on the line from the car (0x20 up) to the trailing
-   point D_800BAD90, at weights stepping by 2/16 from the cycling counter +9; on even frames draws
+   D_800E6902, Game_IsPlaying() true, Spike not underwater): on odd frames spawns two pairs of puffs
+   (Fx_DrawRibbon, kind D_800B1BA0, size 2-5) on the line from the car (0x20 up) to the trailing
+   point RcCar_Exhaust, at weights stepping by 2/16 from the cycling counter +9; on even frames draws
    a 3-frame animated sprite at the trailing point, sized by its depth. */
-void func_8006D044(void)
+void RcCar_UpdateExhaust(void)
 {
   Scr_6D044 *scr = (Scr_6D044 *) 0x1F800000;
   Smoke_6D044 *s;
@@ -907,7 +907,7 @@ void func_8006D044(void)
   s32 u;
   FT4_6D044 *f;
   u32 *ot;
-  if (((((g_CurrentGadget != 7) || (g_Game_6D044.f_8150 == 0xA)) || (D_800E6902 == 1)) || (func_8005DC78() == 0)) || (Spike_IsUnderwater() != 0))
+  if (((((g_CurrentGadget != 7) || (g_Game_6D044.f_8150 == 0xA)) || (D_800E6902 == 1)) || (Game_IsPlaying() == 0)) || (Spike_IsUnderwater() != 0))
   {
     return;
   }
@@ -927,7 +927,7 @@ void func_8006D044(void)
         k += 2;
       }
 
-      func_8006F3D0(pts, 2, D_800B1BA0, (((g_RandSeed = (g_RandSeed * 5) + 1) >> 8) & 3) + 2);
+      Fx_DrawRibbon(pts, 2, D_800B1BA0, (((g_RandSeed = (g_RandSeed * 5) + 1) >> 8) & 3) + 2);
       k = (k + 5) % 14;
     }
 
