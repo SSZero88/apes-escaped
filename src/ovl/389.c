@@ -1,25 +1,25 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-extern s32 D_80146770;
-s32 func_8014607C(void);
-s32 func_80146500(void);
+extern s32 CutsceneTest_State;
+s32 CutsceneTest_RunMenu(void);
+s32 CutsceneTest_PlayEntry(void);
 
-s32 func_80146000(void) {
+s32 CutsceneTest_Main(void) {
     s32 s;
 
-    D_80146770 = 0;
+    CutsceneTest_State = 0;
     for (;;) {
-        s = D_80146770;
+        s = CutsceneTest_State;
     again:
         switch (s) {
         case 0:
-            if (func_8014607C() < 0) {
+            if (CutsceneTest_RunMenu() < 0) {
                 return 0;
             }
             break;
         case 1:
-            func_80146500();
+            CutsceneTest_PlayEntry();
             break;
         default:
             goto again;
@@ -30,7 +30,7 @@ s32 func_80146000(void) {
 typedef struct { s16 x, y, w, h; } Rect_8014607C;
 typedef struct { u8 pad0[0x19]; u8 r0, g0, b0; } DrawEnv_8014607C;
 extern Rect_8014607C D_80146760;
-extern s32 D_80146774;
+extern s32 CutsceneTest_Cursor;
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_8014607C asm("g_Game");
 s32 Gfx_InitDisplay(void);
 s32 ResetGraph(s32 mode);
@@ -38,13 +38,13 @@ s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
 s32 VSync(s32 mode);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-s32 func_80146230(void);
+s32 CutsceneTest_UpdateMenu(void);
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
 void Cd_Update(void);
 
-s32 func_8014607C(void) {
+s32 CutsceneTest_RunMenu(void) {
     Rect_8014607C r;
     s32 v;
 
@@ -62,11 +62,11 @@ s32 func_8014607C(void) {
     ((DrawEnv_8014607C *)&g_Game_8014607C.db[1])->g0 = 0;
     ((DrawEnv_8014607C *)&g_Game_8014607C.db[1])->b0 = 0x7F;
     g_Game_8014607C.cur = 0;
-    D_80146774 = 0;
+    CutsceneTest_Cursor = 0;
     while (1) {
         func_8001325C(0);
         Gfx_BeginFrame();
-        v = func_80146230();
+        v = CutsceneTest_UpdateMenu();
         if (v != 0) {
             break;
         }
@@ -87,19 +87,19 @@ s32 func_8014607C(void) {
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, p1; s16 x1, y1; u8 r2, g2, b2, p2; s16 x2, y2; u8 r3, g3, b3, p3; s16 x3, y3; } PolyG4_80146230;
 extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_80146230 asm("g_Pad");
 extern struct { s32 frame; PolyG4_80146230 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_80146230 asm("g_Game");
-extern s32 D_80146770;
-extern u8 D_80146908[];
-extern u8 D_80146910[];
+extern s32 CutsceneTest_State;
+extern u8 CutsceneTest_TitleText[];
+extern u8 CutsceneTest_RowText[];
 s32 Sound_PlayFixed(s32);
-void func_8014666C(u8 *s, s32 x, s32 y, s32 pal);
+void CutsceneTest_DrawText(u8 *s, s32 x, s32 y, s32 pal);
 
-s32 func_80146230(void) {
+s32 CutsceneTest_UpdateMenu(void) {
     s32 i;
     u32 *ot;
 
     if ((g_Pad_80146230.f_160 & g_Pad_80146230.f_158) & 0x860) {
         Sound_PlayFixed(2);
-        D_80146770 = 1;
+        CutsceneTest_State = 1;
         return 1;
     }
     if ((g_Pad_80146230.f_160 & g_Pad_80146230.f_158) & 0x100) {
@@ -107,31 +107,31 @@ s32 func_80146230(void) {
     }
     if ((g_Pad_80146230.f_160 & g_Pad_80146230.f_158) & 0x1000) {
         Sound_PlayFixed(0);
-        if (--D_80146774 < 0) {
-            D_80146774 = 0xB;
+        if (--CutsceneTest_Cursor < 0) {
+            CutsceneTest_Cursor = 0xB;
         }
     }
     if ((g_Pad_80146230.f_160 & g_Pad_80146230.f_158) & 0x4000) {
         Sound_PlayFixed(0);
-        if (++D_80146774 >= 0xC) {
-            D_80146774 = 0;
+        if (++CutsceneTest_Cursor >= 0xC) {
+            CutsceneTest_Cursor = 0;
         }
     }
-    func_8014666C(D_80146908, 0xA0, 0x28, 0);
+    CutsceneTest_DrawText(CutsceneTest_TitleText, 0xA0, 0x28, 0);
     for (i = 0; i < 12; i++) {
-        func_8014666C(D_80146910 + i * 16, 0x6E, 0x46 + i * 20, 1);
+        CutsceneTest_DrawText(CutsceneTest_RowText + i * 16, 0x6E, 0x46 + i * 20, 1);
     }
     ((u8 *)g_Game_80146230.prim)[3] = 8;
     g_Game_80146230.prim->code = 0x38;
     g_Game_80146230.prim->code |= 2;
     g_Game_80146230.prim->x0 = 0x6E;
-    g_Game_80146230.prim->y0 = D_80146774 * 20 + 0x46;
+    g_Game_80146230.prim->y0 = CutsceneTest_Cursor * 20 + 0x46;
     g_Game_80146230.prim->x1 = 0x104;
-    g_Game_80146230.prim->y1 = D_80146774 * 20 + 0x46;
+    g_Game_80146230.prim->y1 = CutsceneTest_Cursor * 20 + 0x46;
     g_Game_80146230.prim->x2 = 0x6E;
-    g_Game_80146230.prim->y2 = D_80146774 * 20 + 0x56;
+    g_Game_80146230.prim->y2 = CutsceneTest_Cursor * 20 + 0x56;
     g_Game_80146230.prim->x3 = 0x104;
-    g_Game_80146230.prim->y3 = D_80146774 * 20 + 0x56;
+    g_Game_80146230.prim->y3 = CutsceneTest_Cursor * 20 + 0x56;
     g_Game_80146230.prim->r0 = 0xF5;
     g_Game_80146230.prim->g0 = 0xDC;
     g_Game_80146230.prim->b0 = 0xC8;
@@ -151,9 +151,9 @@ s32 func_80146230(void) {
 }
 
 typedef struct { s32 a; s32 b; void *c; } Entry_80146500;
-extern Entry_80146500 D_80146878[];
-extern s32 D_80146774;
-extern s32 D_80146770;
+extern Entry_80146500 CutsceneTest_Entries[];
+extern s32 CutsceneTest_Cursor;
+extern s32 CutsceneTest_State;
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_80146500 asm("g_Game");
 s32 Cd_StartLoadList(void *);
 s32 Cd_PollLoadList(void);
@@ -168,14 +168,14 @@ s32 DrawSync(s32 mode);
 void Gfx_QueueFlip(s32, s32, s32, s32);
 void func_8001325C(s32);
 
-s32 func_80146500(void) {
-    Cd_StartLoadList(D_80146878[D_80146774].c);
+s32 CutsceneTest_PlayEntry(void) {
+    Cd_StartLoadList(CutsceneTest_Entries[CutsceneTest_Cursor].c);
     while (Cd_PollLoadList() >= 0) {
         Cd_Update();
     }
     Gfx_ResetDisplay();
-    Stage_Load(D_80146878[D_80146774].a, 0);
-    Overlay_Request(D_80146878[D_80146774].b);
+    Stage_Load(CutsceneTest_Entries[CutsceneTest_Cursor].a, 0);
+    Overlay_Request(CutsceneTest_Entries[CutsceneTest_Cursor].b);
     while (1) {
         func_8001325C(1);
         Overlay_Update();
@@ -189,17 +189,17 @@ s32 func_80146500(void) {
         Gfx_QueueFlip((s32)g_Game_80146500.db[g_Game_80146500.cur].env, (s32)&g_Game_80146500.db[g_Game_80146500.cur].env[0x5C],
                       (s32)(g_Game_80146500.ot + 0xFFF), (s32)g_Game_80146500.db[g_Game_80146500.cur].hud);
     }
-    D_80146770 = 0;
+    CutsceneTest_State = 0;
     return 0;
 }
 
 extern u8 g_Game[];
 extern u8 *g_GamePrim;
-extern u8 D_801469D0[];
+extern u8 CutsceneTest_GlyphWidths[];
 void SetDrawTPage(void *p, s32 dfe, s32 dtd, s32 tpage);
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; } Sprt16_8014666C;
 
-void func_8014666C(u8 *s, s32 x, s32 y, s32 pal) {
+void CutsceneTest_DrawText(u8 *s, s32 x, s32 y, s32 pal) {
     Sprt16_8014666C *p;
     u32 *ot;
     u8 c;
@@ -217,7 +217,7 @@ void func_8014666C(u8 *s, s32 x, s32 y, s32 pal) {
         ADD_PRIM_ASM(ot, p);
         p++;
         s++;
-        x += D_801469D0[c];
+        x += CutsceneTest_GlyphWidths[c];
     }
     SetDrawTPage(p, 0, 1, 0x16);
     ADD_PRIM_ASM2(ot, p);

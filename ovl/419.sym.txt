@@ -1,3 +1,3 @@
-func_8013D000 = 0x8013D000; // type:func
-func_8013D020 = 0x8013D020; // type:func
-func_8013D1C4 = 0x8013D1C4; // type:func
+SlamDoors_Init = 0x8013D000; // type:func
+SlamDoors_Update = 0x8013D020; // type:func
+SlamDoors_Apply = 0x8013D1C4; // type:func

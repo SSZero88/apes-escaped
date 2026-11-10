@@ -3,9 +3,9 @@
 
 typedef struct { s16 x, y, w, h; } Rect_80136000;
 extern Rect_80136000 D_80136A80;
-extern s32 D_80136B40;
-extern s32 D_80136B4C;
-extern s32 D_80136B50;
+extern s32 SoundTest_Stage;
+extern s32 SoundTest_Page;
+extern s32 SoundTest_MenuRow;
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; s16 f_8120; u8 pad8122[0x198]; u16 f_82BA; } g_Game_80136000 asm("g_Game");
 s32 Gfx_InitDisplay(void);
 s32 ResetGraph(s32 mode);
@@ -19,7 +19,7 @@ void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
 
-s32 func_80136000(void) {
+s32 SoundTest_Main(void) {
     Rect_80136000 r;
 
     r = D_80136A80;
@@ -29,12 +29,12 @@ s32 func_80136000(void) {
     DrawSync(0);
     g_Game_80136000.db[1].env[0x18] = 1;
     g_Game_80136000.db[0].env[0x18] = 1;
-    D_80136B40 = 0;
+    SoundTest_Stage = 0;
     g_Game_80136000.cur = 0;
-    D_80136B4C = 0;
-    D_80136B50 = 0;
+    SoundTest_Page = 0;
+    SoundTest_MenuRow = 0;
     g_Game_80136000.f_82BA |= 2;
-    while (func_8001325C(2), Gfx_BeginFrame(), DebugFont_Init(), func_801361BC() >= 0) {
+    while (func_8001325C(2), Gfx_BeginFrame(), DebugFont_Init(), SoundTest_Update() >= 0) {
         DrawSync(0);
         VSync(0);
         g_Game_80136000.frame++;
@@ -46,16 +46,16 @@ s32 func_80136000(void) {
     return 0;
 }
 
-extern s32 D_80136B4C;
-s32 func_80136244(void);
+extern s32 SoundTest_Page;
+s32 SoundTest_UpdateMainMenu(void);
 
-s32 func_801361BC(void)
+s32 SoundTest_Update(void)
 {
   int new_var;
-  switch (D_80136B4C)
+  switch (SoundTest_Page)
   {
     case 0:
-      new_var = func_80136244() < 0;
+      new_var = SoundTest_UpdateMainMenu() < 0;
       if (new_var)
     {
       new_var = 1;
@@ -64,11 +64,11 @@ s32 func_801361BC(void)
       return 0;
 
     case 1:
-      func_80136698();
+      SoundTest_UpdateCommonTest();
       return 0;
 
     case 2:
-      func_8013684C();
+      SoundTest_UpdateSightTest();
       return 0;
 
   }
@@ -82,11 +82,11 @@ typedef struct { u8 tag[3]; u8 len; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, 
 extern struct { u8 pad0[0x158]; u32 held; u8 pad15C[4]; u32 pressed; u8 pad164[4]; u32 repeat; } g_Pad_80136244 asm("g_Pad");
 extern u8 D_80136AA0[];
 extern u8 D_80136AB8[];
-extern s32 D_80136FC4[];
-extern Song_80136244 D_80136B54[];
-extern s32 D_80136B44;
-extern s32 D_80136B48;
-extern u16 D_80136FB4;
+extern s32 SoundTest_MenuLabels[];
+extern Song_80136244 SoundTest_Stages[];
+extern s32 SoundTest_SoundId;
+extern s32 SoundTest_BgmMuted;
+extern u16 SoundTest_BankFile;
 void DebugFont_Locate(s32, s32);
 void DebugFont_PrintfAlways(u8 *, ...);
 s32 Sound_PlayFixed(s32);
@@ -94,7 +94,7 @@ void Cd_StartLoadList(void *);
 s32 Cd_PollLoadList(void);
 void Cd_Update(void);
 
-s32 func_80136244(void) {
+s32 SoundTest_UpdateMainMenu(void) {
     s32 i;
     s32 y;
     u32 b;
@@ -103,17 +103,17 @@ s32 func_80136244(void) {
     DebugFont_PrintfAlways(D_80136AA0);
     for (i = 0; i < 3; i++) {
         DebugFont_Locate(0xA0, 0x64 + i * 0x14);
-        DebugFont_PrintfAlways(D_80136AB8, D_80136FC4[i]);
+        DebugFont_PrintfAlways(D_80136AB8, SoundTest_MenuLabels[i]);
     }
     DebugFont_Locate(0xBE, 0x96);
-    DebugFont_PrintfAlways(D_80136AB8, D_80136B54[D_80136B40].name);
+    DebugFont_PrintfAlways(D_80136AB8, SoundTest_Stages[SoundTest_Stage].name);
     DebugFont_Locate(0x104, 0x96);
-    DebugFont_PrintfAlways(D_80136AB8, D_80136B54[D_80136B40].s10);
+    DebugFont_PrintfAlways(D_80136AB8, SoundTest_Stages[SoundTest_Stage].s10);
     ((PolyG4_80136244 *)g_Game_80136000.prim)->len = 8;
     ((PolyG4_80136244 *)g_Game_80136000.prim)->code = 0x38;
     ((PolyG4_80136244 *)g_Game_80136000.prim)->code |= 2;
     ((PolyG4_80136244 *)g_Game_80136000.prim)->x0 = 0x90;
-    y = D_80136B50 * 0x14;
+    y = SoundTest_MenuRow * 0x14;
     ((PolyG4_80136244 *)g_Game_80136000.prim)->y0 = y + 0x66;
     ((PolyG4_80136244 *)g_Game_80136000.prim)->x1 = 0x108;
     ((PolyG4_80136244 *)g_Game_80136000.prim)->y1 = y + 0x66;
@@ -138,18 +138,18 @@ s32 func_80136244(void) {
     g_Game_80136000.prim += sizeof(PolyG4_80136244);
     if (g_Pad_80136244.held & g_Pad_80136244.pressed & 0x800) {
         Sound_PlayFixed(2);
-        if (D_80136B50 == 0) {
+        if (SoundTest_MenuRow == 0) {
             return -1;
         }
-        if (D_80136B50 == 1) {
-            D_80136B4C = 1;
-            D_80136B44 = 0;
+        if (SoundTest_MenuRow == 1) {
+            SoundTest_Page = 1;
+            SoundTest_SoundId = 0;
         } else {
-            D_80136B4C = 2;
-            D_80136B44 = 0xAC;
-            D_80136B48 = 0;
-            D_80136FB4 = D_80136B54[D_80136B40].f18;
-            Cd_StartLoadList(&D_80136FB4);
+            SoundTest_Page = 2;
+            SoundTest_SoundId = 0xAC;
+            SoundTest_BgmMuted = 0;
+            SoundTest_BankFile = SoundTest_Stages[SoundTest_Stage].f18;
+            Cd_StartLoadList(&SoundTest_BankFile);
             while (Cd_PollLoadList() >= 0) {
                 Cd_Update();
             }
@@ -159,46 +159,46 @@ s32 func_80136244(void) {
         b = g_Pad_80136244.repeat;
         if (b & 0x1000) {
             Sound_PlayFixed(0);
-            if (--D_80136B50 < 0) {
-                D_80136B50 = 2;
+            if (--SoundTest_MenuRow < 0) {
+                SoundTest_MenuRow = 2;
             }
         } else if (b & 0x4000) {
             Sound_PlayFixed(0);
-            if (++D_80136B50 >= 3) {
-                D_80136B50 = 0;
+            if (++SoundTest_MenuRow >= 3) {
+                SoundTest_MenuRow = 0;
             }
         } else if (b & 0x8000) {
             Sound_PlayFixed(0);
-            if (--D_80136B40 < 0) {
-                D_80136B40 = 0x2A;
+            if (--SoundTest_Stage < 0) {
+                SoundTest_Stage = 0x2A;
             }
         } else if (b & 0x2000) {
             Sound_PlayFixed(0);
-            if (++D_80136B40 >= 0x2B) {
-                D_80136B40 = 0;
+            if (++SoundTest_Stage >= 0x2B) {
+                SoundTest_Stage = 0;
             }
         }
     }
     return 0;
 }
 
-/* returns s32 0: change the file prototype at the top of 387_sound_test.c to s32 func_80136698(void); */
+/* returns s32 0: change the file prototype at the top of 387_sound_test.c to s32 SoundTest_UpdateCommonTest(void); */
 extern struct { u8 pad0[0x158]; u32 held; u8 pad15C[4]; u32 pressed; u8 pad164[4]; u32 repeat; } g_Pad_80136698 asm("g_Pad");
 extern u8 D_80136ABC[];
 extern u8 D_80136ACC[];
 extern u8 D_80136AE4[];
 extern u8 D_80136AF8[];
-extern s32 D_80136B44;
+extern s32 SoundTest_SoundId;
 extern s32 D_80136FD0;
 extern s32 D_80136FD4;
-extern s32 D_80136FD8;
+extern s32 SoundTest_CommonVoice;
 void DebugFont_SetPos(s32, s32);
 void DebugFont_Printf(u8 *, ...);
 s32 Sound_PlayFixed(s32);
 void func_800A342C(s32);
 s32 Sound_GetTableEntry(s32, s32 *, s32 *);
 
-s32 func_80136698(void) {
+s32 SoundTest_UpdateCommonTest(void) {
     u32 b;
 
     DebugFont_SetPos(0x82, 0x46);
@@ -209,49 +209,49 @@ s32 func_80136698(void) {
     DebugFont_Printf(D_80136AE4);
     if (g_Pad_80136698.held & g_Pad_80136698.pressed & PAD_START) {
         Sound_PlayFixed(2);
-        D_80136B4C = 0;
+        SoundTest_Page = 0;
         return 0;
     }
     b = g_Pad_80136698.repeat;
     if (b & PAD_UP) {
         Sound_PlayFixed(0);
-        if (--D_80136B44 < 0) {
-            D_80136B44 = 0xAB;
+        if (--SoundTest_SoundId < 0) {
+            SoundTest_SoundId = 0xAB;
         }
     } else if (b & PAD_DOWN) {
         Sound_PlayFixed(0);
-        if (++D_80136B44 >= 0xAC) {
-            D_80136B44 = 0;
+        if (++SoundTest_SoundId >= 0xAC) {
+            SoundTest_SoundId = 0;
         }
     } else if (b & PAD_SQUARE) {
-        D_80136FD8 = Sound_PlayFixed(D_80136B44);
+        SoundTest_CommonVoice = Sound_PlayFixed(SoundTest_SoundId);
     } else if (b & PAD_CIRCLE) {
-        D_80136FD8 = Sound_PlayFixed(D_80136B44);
+        SoundTest_CommonVoice = Sound_PlayFixed(SoundTest_SoundId);
     } else if (b & PAD_SELECT) {
         func_800A342C(0);
     }
-    Sound_GetTableEntry(D_80136B44, &D_80136FD0, &D_80136FD4);
+    Sound_GetTableEntry(SoundTest_SoundId, &D_80136FD0, &D_80136FD4);
     DebugFont_SetPos(0x82, 0x82);
-    DebugFont_Printf(D_80136AF8, D_80136B44, D_80136FD0, D_80136FD4, D_80136FD8);
+    DebugFont_Printf(D_80136AF8, SoundTest_SoundId, D_80136FD0, D_80136FD4, SoundTest_CommonVoice);
     return 0;
 }
 
-/* returns s32 0: change the file prototype at the top of 387_sound_test.c to s32 func_8013684C(void); needs func_80136698's draft (decls of DebugFont_SetPos, DebugFont_Printf, Sound_PlayFixed, func_800A342C, Sound_GetTableEntry) merged above */
+/* returns s32 0: change the file prototype at the top of 387_sound_test.c to s32 SoundTest_UpdateSightTest(void); needs SoundTest_UpdateCommonTest's draft (decls of DebugFont_SetPos, DebugFont_Printf, Sound_PlayFixed, func_800A342C, Sound_GetTableEntry) merged above */
 extern struct { u8 pad0[0x158]; u32 held; u8 pad15C[4]; u32 pressed; u8 pad164[4]; u32 repeat; } g_Pad_8013684C asm("g_Pad");
 extern u8 D_80136B18[];
 extern u8 D_80136B28[];
-extern s32 D_80136B48;
+extern s32 SoundTest_BgmMuted;
 void Sound_SetVolumes(s32, s32);
 void Sound_UnloadBanks(s32);
 extern u8 D_80136ACC_684C[] asm("D_80136ACC");
 extern u8 D_80136AE4_684C[] asm("D_80136AE4");
 extern u8 D_80136AF8_684C[] asm("D_80136AF8");
-extern s32 D_80136B44_684C asm("D_80136B44");
+extern s32 D_80136B44_684C asm("SoundTest_SoundId");
 extern s32 D_80136FDC;
 extern s32 D_80136FE0;
-extern s32 D_80136FE4;
+extern s32 SoundTest_SightVoice;
 
-s32 func_8013684C(void) {
+s32 SoundTest_UpdateSightTest(void) {
     u32 b;
 
     DebugFont_SetPos(0x82, 0x46);
@@ -264,7 +264,7 @@ s32 func_8013684C(void) {
     DebugFont_Printf(D_80136AE4_684C);
     if (g_Pad_8013684C.held & g_Pad_8013684C.pressed & PAD_START) {
         Sound_PlayFixed(2);
-        D_80136B4C = 0;
+        SoundTest_Page = 0;
         Sound_UnloadBanks(1);
         return 0;
     }
@@ -280,21 +280,21 @@ s32 func_8013684C(void) {
             D_80136B44_684C = 0xAC;
         }
     } else if (b & PAD_R1) {
-        if (D_80136B48) {
+        if (SoundTest_BgmMuted) {
             Sound_SetVolumes(0x7F, 0x30);
         } else {
             Sound_SetVolumes(0x7F, 0);
         }
-        D_80136B48 = !D_80136B48;
+        SoundTest_BgmMuted = !SoundTest_BgmMuted;
     } else if (b & PAD_SQUARE) {
-        D_80136FE4 = Sound_PlayFixed(D_80136B44_684C);
+        SoundTest_SightVoice = Sound_PlayFixed(D_80136B44_684C);
     } else if (b & PAD_CIRCLE) {
-        D_80136FE4 = Sound_PlayFixed(D_80136B44_684C);
+        SoundTest_SightVoice = Sound_PlayFixed(D_80136B44_684C);
     } else if (b & PAD_SELECT) {
         func_800A342C(0);
     }
     Sound_GetTableEntry(D_80136B44_684C, &D_80136FDC, &D_80136FE0);
     DebugFont_SetPos(0x82, 0x82);
-    DebugFont_Printf(D_80136AF8_684C, D_80136B44_684C, D_80136FDC, D_80136FE0, D_80136FE4);
+    DebugFont_Printf(D_80136AF8_684C, D_80136B44_684C, D_80136FDC, D_80136FE0, SoundTest_SightVoice);
     return 0;
 }

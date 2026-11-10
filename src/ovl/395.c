@@ -3,7 +3,7 @@
 
 M2C_UNK Msg_SetPos(s16, s16);
 M2C_UNK Msg_DrawString(s32);
-extern M2C_UNK D_80138CA0;
+extern M2C_UNK GadgetGet_Scene;
 M2C_UNK Cd_PlayXaTrack(s32);
 extern s32 D_80138CEC;
 
@@ -18,7 +18,7 @@ void CompMatrix(void *, void *, void *);
 void Matrix_SetIdentity(void *);
 void ScaleMatrixL(void *, void *);
 
-void func_80136000(SVECTOR *eye, SVECTOR *at) {
+void GadgetGet_SetCamera(SVECTOR *eye, SVECTOR *at) {
     VEC_391 d;
     VEC_391 n;
     MAT_391 m;
@@ -91,12 +91,12 @@ u8 *func_801361D8(u8 *arg0, s32 arg1)
 
 typedef struct { s16 x, y, w, h; } Rect_80136208;
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; u16 mode; u8 pad8122[4]; u16 stage; } g_Game_80136208 asm("g_Game");
-extern struct { u8 pad0[4]; s16 f4; s16 f6; u32 *f8; s32 fC; SVECTOR eye; SVECTOR at; u8 pad20[8]; s16 sub; s16 pad2A; s16 buf; u8 pad2E[0x1A]; s32 f48; s32 f4C; } D_80138CA0_80136208 asm("D_80138CA0");
+extern struct { u8 pad0[4]; s16 f4; s16 f6; u32 *f8; s32 fC; SVECTOR eye; SVECTOR at; u8 pad20[8]; s16 sub; s16 pad2A; s16 buf; u8 pad2E[0x1A]; s32 f48; s32 f4C; } D_80138CA0_80136208 asm("GadgetGet_Scene");
 extern struct { u8 pad0[0x24]; s32 f24; s32 f28; s32 f2C; } D_800EBFA0_80136208 asm("D_800EBFA0");
 extern struct { u8 pad0[8]; s16 f8; u8 padA[6]; s16 f10; } D_801389B4_80136208 asm("D_801389B4");
 extern struct { u8 pad0[0xA1]; u8 f_A1; u8 f_A2; } g_GadgetState_80136208 asm("g_GadgetState");
-extern s16 D_801389B0;
-extern s32 D_80138CE8;
+extern s16 GadgetGet_State;
+extern s32 GadgetGet_Gadget;
 s32 Gfx_InitDisplay(void);
 s32 ResetGraph(s32 mode);
 s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
@@ -110,15 +110,15 @@ void Light_SetColorMode(s32, s32, s32, s32);
 s32 Cd_StartLoadList(void *);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-s32 func_80136954(void);
-void func_80137CD4(void);
+s32 GadgetGet_Update(void);
+void GadgetGet_SetMaskBit(void);
 void Cd_Update(void);
 s32 Cd_StopMusic(void);
 s32 Sound_UnloadBanks(s32);
 s32 Cd_StartFileLoad(s32, s32);
 s32 Cd_PollLoadList(void);
 
-s32 func_80136208(void) {
+s32 GadgetGet_Main(void) {
     Rect_80136208 r = { 0, 0, 0x180, 0x200 };
     s32 s;
 
@@ -131,7 +131,7 @@ s32 func_80136208(void) {
     D_800EBFA0_80136208.f28 = 0x1000;
     D_800EBFA0_80136208.f2C = 0x1000;
     DrawSync(0);
-    D_80138CE8 = 0;
+    GadgetGet_Gadget = 0;
     switch (g_Game_80136208.stage) {
     case 2:
         g_Game_80136208.stage = 0x62;
@@ -184,7 +184,7 @@ s32 func_80136208(void) {
     D_80138CA0_80136208.f6 = 0x26;
     D_80138CA0_80136208.fC = 0x20;
     D_80138CA0_80136208.eye.vz = -0x1000;
-    D_801389B0 = 0;
+    GadgetGet_State = 0;
     D_80138CA0_80136208.eye.vx = 0;
     D_80138CA0_80136208.eye.vy = 0;
     D_80138CA0_80136208.at.vx = 0;
@@ -204,16 +204,16 @@ s32 func_80136208(void) {
         g_Game_80136208.frame++;
         Gfx_BeginFrame();
         D_80138CA0_80136208.f8 = g_Game_80136208.db[g_Game_80136208.cur].hud;
-        if (func_80136954() < 0) {
+        if (GadgetGet_Update() < 0) {
             break;
         }
         DrawSync(0);
         VSync(2);
-        switch (D_801389B0) {
+        switch (GadgetGet_State) {
         case 1:
             s = D_80138CA0_80136208.sub;
             if (s == 0) {
-                func_80137CD4();
+                GadgetGet_SetMaskBit();
                 PutDispEnv(&g_Game_80136208.db[g_Game_80136208.cur].env[0x5C]);
                 PutDrawEnv(g_Game_80136208.db[g_Game_80136208.cur].env);
                 D_80138CA0_80136208.sub = 1;
@@ -228,7 +228,7 @@ s32 func_80136208(void) {
                 PutDrawEnv(g_Game_80136208.db[(s16)(D_80138CA0_80136208.buf ^ 1)].env);
                 g_Game_80136208.db[1].env[0x18] = 1;
                 g_Game_80136208.db[0].env[0x18] = 1;
-                D_801389B0 = s;
+                GadgetGet_State = s;
             }
             break;
         case 3:
@@ -245,7 +245,7 @@ s32 func_80136208(void) {
             } else if (D_80138CA0_80136208.sub == 2) {
                 PutDispEnv(&g_Game_80136208.db[D_80138CA0_80136208.buf].env[0x5C]);
                 PutDrawEnv(g_Game_80136208.db[(s16)(D_80138CA0_80136208.buf ^ 1)].env);
-                D_801389B0 = 4;
+                GadgetGet_State = 4;
             }
             break;
         default:
@@ -255,7 +255,7 @@ s32 func_80136208(void) {
         }
         DrawOTag(&g_Game_80136208.db[g_Game_80136208.cur].ot[0xFFF]);
         Cd_Update();
-    } while (D_801389B0 != 4);
+    } while (GadgetGet_State != 4);
     DrawSync(0);
     VSync(0);
     Cd_StopMusic();
@@ -272,7 +272,7 @@ typedef struct { u32 tag; u32 code; s16 x, y, w, h; } Tile_80136954;
 typedef struct { u16 f0, f2, f4, f6, f8, fA; } Rec_80136954;
 typedef struct { u32 *f0; u8 pad4[0xC]; s16 f10, f12, f14; u16 f16; u8 pad18[4]; s32 f1C; } Ent_80136954;
 typedef struct { u8 pad0[0x18]; u8 *f18; u8 pad1C[0x40]; u16 frame; u16 anim; u8 pad60[0x10]; s16 next; u16 flags; u8 *anims; u8 pad78[0x10]; } Mdl_80136954;
-extern struct { s16 x, y; u8 pad4[0xC]; SVECTOR eye; SVECTOR at; s16 *pc; s16 *mark; s16 sub; s16 cnt; s16 f2C; u8 pad2E[2]; u8 *tbl; u8 pad34[0x14]; s32 f48; u8 pad4C[0x10]; s32 timer; } D_80138CA0_80136954 asm("D_80138CA0");
+extern struct { s16 x, y; u8 pad4[0xC]; SVECTOR eye; SVECTOR at; s16 *pc; s16 *mark; s16 sub; s16 cnt; s16 f2C; u8 pad2E[2]; u8 *tbl; u8 pad34[0x14]; s32 f48; u8 pad4C[0x10]; s32 timer; } D_80138CA0_80136954 asm("GadgetGet_Scene");
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; u16 mode; u8 pad8122[2]; u16 f_8124; u16 stage; u8 pad8128[4]; u16 f_812C; u8 pad812E[0xF6]; u32 *f_8224; Rec_80136954 *f_8228; u8 pad822C[0x54]; s32 f_8280; u8 pad8284[0x4A]; u8 f_82CE; } g_Game_80136954 asm("g_Game");
 extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_80136954 asm("g_Pad");
 extern s16 D_80138B8C;
@@ -288,14 +288,14 @@ void Zone_SetTable(s32);
 void *Mem_AllocPages(s32);
 void Model_BindMesh(void *, u32 *);
 void Model_BindBoned(void *, u8 *);
-void func_801374D0(void);
-void func_80136000(SVECTOR *eye, SVECTOR *at);
+void GadgetGet_RunScript(void);
+void GadgetGet_SetCamera(SVECTOR *eye, SVECTOR *at);
 void Stage_DrawPlacedModels(void);
 void Sound_PlayFixed(s32);
-void func_801383B8(void);
-void func_80138490(void);
+void GadgetGet_InitScript(void);
+void GadgetGet_DrawScanlines(void);
 
-s32 func_80136954(void) {
+s32 GadgetGet_Update(void) {
     u8 *h;
     s16 i;
     Ent_80136954 *e;
@@ -305,7 +305,7 @@ s32 func_80136954(void) {
     u8 unused[8];
     s32 v;
 
-    switch (D_801389B0) {
+    switch (GadgetGet_State) {
     case 0:
         if (D_80138B8C != 0 && Cd_PollLoadList() < 0) {
             Sound_ResumeStreams();
@@ -347,17 +347,17 @@ s32 func_80136954(void) {
             D_80138D00_80136954[i].next = 0;
             D_80138D00_80136954[i].flags = 0;
         }
-        func_801383B8();
+        GadgetGet_InitScript();
         if (D_80138CA0_80136954.f48 == 7) {
             D_80138CA0_80136954.pc = D_80138A64;
         } else {
             D_80138CA0_80136954.pc = D_801389D4;
         }
-        func_801374D0();
-        func_80136000(&D_80138CA0_80136954.eye, &D_80138CA0_80136954.at);
+        GadgetGet_RunScript();
+        GadgetGet_SetCamera(&D_80138CA0_80136954.eye, &D_80138CA0_80136954.at);
         Stage_DrawPlacedModels();
-        func_80137DF0(D_80138D00_80136954);
-        D_801389B0 = 1;
+        GadgetGet_DrawCharacter(D_80138D00_80136954);
+        GadgetGet_State = 1;
         D_80138CA0_80136954.sub = 0;
         D_80138CA0_80136954.cnt = 0;
         Sound_PlayFixed(0xAC);
@@ -458,14 +458,14 @@ s32 func_80136954(void) {
         return 0;
     }
     case 2:
-        func_801374D0();
-        func_80136000(&D_80138CA0_80136954.eye, &D_80138CA0_80136954.at);
+        GadgetGet_RunScript();
+        GadgetGet_SetCamera(&D_80138CA0_80136954.eye, &D_80138CA0_80136954.at);
         Stage_DrawPlacedModels();
-        func_80137DF0(D_80138D00_80136954);
-        func_80138490();
+        GadgetGet_DrawCharacter(D_80138D00_80136954);
+        GadgetGet_DrawScanlines();
         if ((g_Pad_80136954.f_158 & g_Pad_80136954.f_160 & 0x860) || *D_80138CA0_80136954.pc == 0x3FC0) {
             Sound_PlayFixed(0xAD);
-            D_801389B0 = 3;
+            GadgetGet_State = 3;
             D_80138CA0_80136954.sub = 0;
             D_80138CA0_80136954.cnt = 10;
         }
@@ -609,10 +609,10 @@ s32 func_80136954(void) {
 extern u8 *g_GamePrim;
 extern u8 D_80138B90[];
 typedef struct { s16 x, y; u16 clut, tpage; u32 *ot; s32 scale; } Pen_80137214;
-extern Pen_80137214 D_80138CA0_80137214 asm("D_80138CA0");
+extern Pen_80137214 D_80138CA0_80137214 asm("GadgetGet_Scene");
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad1; s16 x3, y3; u8 u3, v3; u16 pad2; } PolyFT4_80137214;
 
-void func_80137214(u8 *s) {
+void GadgetGet_DrawText(u8 *s) {
     PolyFT4_80137214 *p;
     s32 x, y, sc;
     u32 c;
@@ -656,10 +656,10 @@ void func_80137214(u8 *s) {
     g_GamePrim = (u8 *)p;
 }
 
-void func_80137334(s32 arg0) {
-    Msg_SetPos(M2C_FIELD(&D_80138CA0, s16 *, 0), M2C_FIELD(&D_80138CA0, s16 *, 2));
+void GadgetGet_SetTextPos(s32 arg0) {
+    Msg_SetPos(M2C_FIELD(&GadgetGet_Scene, s16 *, 0), M2C_FIELD(&GadgetGet_Scene, s16 *, 2));
     Msg_DrawString(arg0);
-    Msg_SetPos((s16) ((u16) M2C_FIELD(&D_80138CA0, s16 *, 0) + 1), M2C_FIELD(&D_80138CA0, s16 *, 2));
+    Msg_SetPos((s16) ((u16) M2C_FIELD(&GadgetGet_Scene, s16 *, 0) + 1), M2C_FIELD(&GadgetGet_Scene, s16 *, 2));
     Msg_DrawString(arg0);
 }
 
@@ -710,17 +710,17 @@ void func_801373A4(void) {
 typedef struct { u8 pad0[0x5C]; u16 frame; u16 anim; u8 pad60[0x10]; s16 next; u16 flags; s16 (*anims)[2]; s16 tr[3]; s16 rsteps; s16 tp[3]; s16 psteps; } Mdl_801374D0;
 typedef struct { s32 n; struct { s16 a; s16 b; s32 c; } e[1]; } Tbl_801374D0;
 typedef struct { u16 x; u16 y; u16 str; s8 type; s8 on; } Txt_801374D0;
-extern struct { s16 x, y; u8 pad4[8]; s32 fC; SVECTOR eye; SVECTOR at; s16 *pc; s16 *mark; u8 pad28[8]; Tbl_801374D0 *tbl; s16 eyeT[3]; s16 eyeN; s16 atT[3]; s16 atN; s32 wait; s32 f48; u8 pad4C[0xC]; s32 flags; s32 timer; } D_80138CA0_801374D0 asm("D_80138CA0");
+extern struct { s16 x, y; u8 pad4[8]; s32 fC; SVECTOR eye; SVECTOR at; s16 *pc; s16 *mark; u8 pad28[8]; Tbl_801374D0 *tbl; s16 eyeT[3]; s16 eyeN; s16 atT[3]; s16 atN; s32 wait; s32 f48; u8 pad4C[0xC]; s32 flags; s32 timer; } D_80138CA0_801374D0 asm("GadgetGet_Scene");
 extern Mdl_801374D0 D_80138D00[];
 extern Txt_801374D0 D_80138B7C[];
 extern u8 D_80138AAC[];
-void func_80138468(void);
+void GadgetGet_PlayVoice(void);
 void func_801373A4(void);
-void func_80137214(u8 *s);
-void func_80137334(s32 arg0);
-void func_801380D8(void);
+void GadgetGet_DrawText(u8 *s);
+void GadgetGet_SetTextPos(s32 arg0);
+void GadgetGet_DrawGadget(void);
 
-void func_801374D0(void) {
+void GadgetGet_RunScript(void) {
     s16 *p;
     s32 f;
     s32 t;
@@ -912,7 +912,7 @@ void func_801374D0(void) {
             }
             break;
         case 0x3C0:
-            func_80138468();
+            GadgetGet_PlayVoice();
             break;
         }
         p++;
@@ -953,13 +953,13 @@ done2:
         D_80138CA0_801374D0.y = e->y;
         switch (e->type) {
         case 0:
-            func_80137214(func_801361D8(D_80138AAC, e->str));
+            GadgetGet_DrawText(func_801361D8(D_80138AAC, e->str));
             break;
         case 1:
-            func_80137334((s32)func_801361D8(D_80138AAC, e->str));
+            GadgetGet_SetTextPos((s32)func_801361D8(D_80138AAC, e->str));
             break;
         case 2:
-            func_801380D8();
+            GadgetGet_DrawGadget();
             break;
         }
         e++;
@@ -968,7 +968,7 @@ done2:
 
 void SetDrawStp(void *, s32);
 
-void func_80137CD4(void) {
+void GadgetGet_SetMaskBit(void) {
     u8 *p;
     u32 *ot;
 
@@ -1011,7 +1011,7 @@ void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void Model_Draw(void *, void *, void *);
 
-void func_80137DF0(Mdl_80137DF0 *arr) {
+void GadgetGet_DrawCharacter(Mdl_80137DF0 *arr) {
     Mdl_80137DF0 *o;
     SVECTOR m;
     s32 i;
@@ -1059,7 +1059,7 @@ typedef struct { u8 b[0x10]; } Mdl_801380D8;
 extern MAT_801380D8 D_800E78C0_801380D8 asm("g_ViewMatrix");
 extern MAT_801380D8 D_800AF0A0_801380D8 asm("D_800AF0A0");
 extern MAT_801380D8 D_800AE840;
-extern s32 D_80138CE8;
+extern s32 GadgetGet_Gadget;
 extern Mdl_801380D8 g_GadgetModels[];
 extern Mdl_801380D8 D_800EC0D0;
 typedef struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } Game_801380D8;
@@ -1075,7 +1075,7 @@ void Club_Draw(void *, s32, s32);
 void Model_ProjectVerts(void *, void *, void *);
 void Radar_DrawModel(void *, void *, void *, s32);
 
-void func_801380D8(void) {
+void GadgetGet_DrawGadget(void) {
     MAT_801380D8 m;
     SVECTOR q;
     SVECTOR r;
@@ -1084,7 +1084,7 @@ void func_801380D8(void) {
     s32 st;
     s32 a;
 
-    st = D_80138CE8;
+    st = GadgetGet_Gadget;
     ot = g_Game_801380D8.db[g_Game_801380D8.cur].ot;
     D_800E78C0_801380D8 = D_800AF0A0_801380D8;
     m = D_800AE840;
@@ -1133,7 +1133,7 @@ void func_801380D8(void) {
 
 extern u32 *D_80138CD0;
 
-void func_801383B8(void) {
+void GadgetGet_InitScript(void) {
     u32 *b = (u32 *)0x80154000;
 
     D_80138CD0 = b + M2C_FIELD(b, u16 *, 0x1C);
@@ -1164,7 +1164,7 @@ s32 func_801383D8(u8 *s) {
     return (0x180 - w) >> 1;
 }
 
-void func_80138468(void) {
+void GadgetGet_PlayVoice(void) {
     Cd_PlayXaTrack(D_80138CEC);
 }
 
@@ -1176,7 +1176,7 @@ extern u16 g_RandSeed;
 int abs(int);
 #define ADD_PRIM_RR_80138490(ot, p) { unsigned int _t1, _t2; __asm__ volatile("lwl %0, 2(%2)\n\tsll %1, %3, 8\n\tswl %1, 2(%2)\n\tswl %0, 2(%3)" : "=&r"(_t1), "=&r"(_t2) : "r"(ot), "r"(p) : "memory"); }
 
-void func_80138490(void) {
+void GadgetGet_DrawScanlines(void) {
     Rect_80138490 r;
     u8 *p;
     u32 *ot;

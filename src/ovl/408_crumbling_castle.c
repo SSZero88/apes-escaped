@@ -28,11 +28,11 @@ s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 M2C_UNK Object_PlaySound(void *, M2C_UNK);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 M2C_UNK Object_SpawnHitSpark(void *, M2C_UNK, M2C_UNK, M2C_UNK);
-void func_801401D4(void *arg0);
+void Obj_ApplyHitKeepAnim(void *arg0);
 extern s32 D_80145D24;
 extern M2C_UNK D_80145D30;
 s32 Spike_WithinRadiusXZ(s16, s16, s16);
-s32 func_8013D118(void);
+s32 Castle_ProgressIs5(void);
 void func_80140530(void *arg0);
 extern s32 D_80145D20;
 M2C_UNK Puff_Spawn(void *, M2C_UNK, M2C_UNK, M2C_UNK);
@@ -44,7 +44,7 @@ s32 rcos(s16);
 s32 rsin(s16, s32);
 s16 Sound_Play(M2C_UNK, M2C_UNK);
 
-void func_8013D000(void) {
+void Castle_DespawnGateObjects(void) {
     s32 temp_v0;
     s32 temp_v0_2;
     s32 temp_v0_3;
@@ -65,7 +65,7 @@ void func_8013D000(void) {
 
 s32 Link_GetState(s32);
 
-s32 func_8013D0C8(void) {
+s32 Castle_ProgressReached2(void) {
     s32 r;
 
     r = 0;
@@ -75,7 +75,7 @@ s32 func_8013D0C8(void) {
     return r;
 }
 
-s32 func_8013D118(void) {
+s32 Castle_ProgressIs5(void) {
     return SaveByte_Get(1) == 5;
 }
 
@@ -86,9 +86,9 @@ extern s16 D_800E77E0;
 extern s32 D_80144F30;
 extern Slot_8013D13C *D_80144F34_8013D13C asm("D_80144F34");
 s32 Hook_Add(void *);
-void func_8013DAFC(void);
+void Shard_UpdateAll(void);
 
-void func_8013D13C(void) {
+void Shard_InitPool(void) {
     s32 i;
 
     D_80144F34_8013D13C = (Slot_8013D13C *)&g_Objects_8013D13C[D_800E77E0];
@@ -101,7 +101,7 @@ void func_8013D13C(void) {
         D_80144F34_8013D13C[i].g = 0;
         D_80144F34_8013D13C[i].h = -1;
     }
-    Hook_Add(func_8013DAFC);
+    Hook_Add(Shard_UpdateAll);
 }
 
 /* Crumbling Castle gradient quad (4 projected corners, two fade colours) + tpage. MERGE: the later file prototype void func_8013D230(B8_8013D628 *, s32, s32, s32); must become void func_8013D230(); (definition takes SVECTOR *). Overlay build verified. */
@@ -168,7 +168,7 @@ typedef struct { u8 pad0[0x10]; s8 f; u8 pad11[3]; } Slot_406;
 extern s32 D_80144F30;
 extern Slot_406 *D_80144F34;
 
-s32 func_8013D4F8(void) {
+s32 Shard_FindFree(void) {
     s32 i;
 
     for (i = 0; i < D_80144F30; i++) {
@@ -182,10 +182,10 @@ s32 func_8013D4F8(void) {
 typedef struct { u8 b[8]; } B8_8013D54C;
 typedef struct { B8_8013D54C a; B8_8013D54C b; s8 f; s8 g; s8 h; s8 k; } Slot_8013D54C;
 extern Slot_8013D54C *D_80144F34_8013D54C asm("D_80144F34");
-s32 func_8013D4F8(void);
+s32 Shard_FindFree(void);
 
 s32 func_8013D54C(s32 kind, s32 h, B8_8013D54C *a, B8_8013D54C *b, s32 g) {
-    s32 i = func_8013D4F8();
+    s32 i = Shard_FindFree();
     Slot_8013D54C *s;
 
     if (i == -1) {
@@ -327,7 +327,7 @@ extern Obj_8013DAFC g_Objects_8013DAFC[] asm("g_Objects");
 extern Slot_8013DAFC *D_80144F34_8013DAFC asm("D_80144F34");
 extern void (*D_80144950[])(Slot_8013DAFC *);
 
-void func_8013DAFC(void) {
+void Shard_UpdateAll(void) {
     s32 i;
     Slot_8013DAFC *s;
 
@@ -471,7 +471,7 @@ void func_8013E17C(void *arg0) {
     Object_DisableCollision(arg0);
 }
 
-void func_8013E1D0(void *arg0) {
+void Guard_ApplyHit(void *arg0) {
     M2C_FIELD(arg0, u8 *, 0xCE) = (u8) M2C_FIELD(arg0, u8 *, 0x7F);
     Object_ApplyHit();
 }
@@ -495,7 +495,7 @@ void func_8013E1F4(void *arg0, s32 arg1) {
         M2C_FIELD(arg0, s8 *, 0x80) = 5;
         M2C_FIELD(arg0, s8 *, 0x7F) = 6;
         M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0x18);
-        func_8013E1D0(arg0);
+        Guard_ApplyHit(arg0);
     }
 }
 
@@ -649,9 +649,9 @@ void func_8013E8EC(void *arg0) {
 s32 func_80057140_8013E930(void *, s32, s32) asm("Object_AddAttachPoint");
 void Object_PlaceAtPathPoint(void *, s32);
 void Object_FacePathPoint(void *, s32);
-void func_8013D13C(void);
+void Shard_InitPool(void);
 
-void func_8013E930(u8 *o) {
+void Guard_Init(u8 *o) {
     M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
     M2C_FIELD(o, u8 *, 0x81) = 16;
     M2C_FIELD(o, s16 *, 0x46) = 0x2BC;
@@ -672,7 +672,7 @@ void func_8013E930(u8 *o) {
         Object_PlaceAtPathPoint(o, 0);
         Object_FacePathPoint(o, 1);
     }
-    func_8013D13C();
+    Shard_InitPool();
     M2C_FIELD(o, u8 *, 0xDE) = 0;
     M2C_FIELD(o, u8 *, 0x7F) = 3;
     M2C_FIELD(o, u16 *, 0x5C) = *(u16 *)(M2C_FIELD(o, u8 *, 0x7F) * 4 + M2C_FIELD(o, u8 **, 0x88));
@@ -693,13 +693,13 @@ s32 func_800585D0_8013EA4C(void *, s32, s32, s32) asm("Object_FollowPath");
 void Object_EnableCollision_8013EA4C(void *) asm("Object_EnableCollision");
 u32 Object_DetachLink_8013EA4C(void *, s32) asm("Object_DetachLink");
 
-void func_8013EA4C(O_8013EA4C *o) {
+void Guard_Update(O_8013EA4C *o) {
     SVECTOR v;
     SVECTOR w;
     register Anim_8013EA4C *an asm("$2");
 
     if (!((o->f_E0 >> 3) & 1)) {
-        func_8013E930(o);
+        Guard_Init(o);
         o->f_E0 |= 8;
     }
     func_80058134_8013EA4C(o, o->f_44);
@@ -863,17 +863,17 @@ void func_8013EA4C(O_8013EA4C *o) {
 
 typedef struct { u8 pad0[0x5C]; s16 f5C; u8 pad5E[2]; s16 f60, f62, f64, f66; u8 pad68[0x20]; } Mdl_408;
 s32 Hook_Add(void *);
-void func_8013F4B4(void);
+void Debris_Draw(void);
 void Object_SetModel(void *, s32);
 void Object_GetAnimTable(void *, s32);
 extern Mdl_408 D_80145280_s[] asm("D_80145280");
 
-void func_8013F124(void) {
+void Debris_InitModels(void) {
     s32 i;
     Mdl_408 *m;
     s32 k;
 
-    if (Hook_Add(func_8013F4B4) == 1) {
+    if (Hook_Add(Debris_Draw) == 1) {
         for (i = 0; i < 20; i++) {
             m = &D_80145280_s[i];
             k = (i & 1) + 0xA1;
@@ -929,7 +929,7 @@ extern M2C_UNK g_ProjVerts;
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013F4B4 asm("g_Game");
 extern Deb_8013F4B4 D_80145280_8013F4B4[] asm("D_80145280");
 
-void func_8013F4B4(void) {
+void Debris_Draw(void) {
     s32 i;
     Deb_8013F4B4 *m;
     s32 v[3];
@@ -971,7 +971,7 @@ void func_8013F65C(void *arg0) {
     }
 }
 
-void func_8013F6DC(void *arg0) {
+void Faller_AddAttackSphere(void *arg0) {
     s32 var_a0;
 
     var_a0 = 0;
@@ -983,8 +983,8 @@ void func_8013F6DC(void *arg0) {
 
 typedef struct { u8 pad0[0x1C]; s16 f_1C; s16 f_1E; s16 f_20; u8 pad22[0x6]; s32 f_28; u8 pad2C[0x18]; s16 f_44; s16 f_46; s16 f_48; s16 f_4A; u8 pad4C[0x10]; u16 f_5C; u8 pad5E[0x2]; s16 f_60; u8 pad62[0x2]; s16 f_64; u8 pad66[0x16]; s8 f_7C; u8 pad7D[0x2]; u8 f_7F; u8 f_80; u8 pad81[0xB]; u8 f_8C; u8 pad8D[0x1]; u8 f_8E; u8 f_8F; u8 pad90[0x4]; s16 f_94; s16 f_96; s16 f_98; u8 pad9A[0x6]; s16 f_A0; u8 padA2[0x8]; s16 f_AA; u8 padAC[0x2]; s16 f_AE; u8 padB0[0x18]; u8 f_C8; u8 padC9[0x14]; u8 f_DD; u8 padDE[0x2]; u32 f_E0; } O_8013F740;
 void func_8013F65C(void *arg0);
-void func_8013F6DC(void *arg0);
-void func_8013F124_8013F740() asm("func_8013F124");
+void Faller_AddAttackSphere(void *arg0);
+void func_8013F124_8013F740() asm("Debris_InitModels");
 void func_80058134_8013F740(void *, s32) asm("Object_DebugStub");
 s16 Object_FloorAt_8013F740(void *, s32, s32, s32) asm("Object_FloorAt");
 s32 Sound_ReserveSlot_8013F740(s32, s32, void *) asm("Sound_ReserveSlot");
@@ -992,7 +992,7 @@ s32 func_800585D0_8013F740(void *, s32, s32, s32) asm("Object_FollowPath");
 s16 Object_PathPointNear_8013F740(void *, void *, s32, s32) asm("Object_PathPointNear");
 u32 Object_DetachLink_8013F740(void *, s32) asm("Object_DetachLink");
 
-void func_8013F740(O_8013F740 *o) {
+void Faller_Update(O_8013F740 *o) {
     s32 flags;
     s32 f;
 
@@ -1079,7 +1079,7 @@ void func_8013F740(O_8013F740 *o) {
             Object_Timer(o, 10);
         }
         if (Object_Timer(o, -1) == 0) {
-            func_8013F6DC(o);
+            Faller_AddAttackSphere(o);
         }
         break;
     }
@@ -1180,7 +1180,7 @@ s32 Object_SpikeNear(void *, s32);
 s32 Object_StepGrowShrink(void *, s16, s16, s16);
 void func_80058134_8013FF2C(void *, s32) asm("Object_DebugStub");
 
-void func_8013FF2C(u8 *o) {
+void Circler_Update(u8 *o) {
     if (!((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1)) {
         M2C_FIELD(o, s16 *, 0xA0) = 0x32;
         M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
@@ -1253,7 +1253,7 @@ void func_801400B4(u8 *o, s32 big) {
     }
 }
 
-void func_801401D4(void *arg0) {
+void Obj_ApplyHitKeepAnim(void *arg0) {
     M2C_FIELD(arg0, u8 *, 0xCE) = (u8) M2C_FIELD(arg0, u8 *, 0x7F);
     Object_ApplyHit();
 }
@@ -1279,7 +1279,7 @@ s32 func_80140244(void *arg0) {
     Object_PlaySound(arg0, 0xB4);
     M2C_FIELD(arg0, s8 *, 0x7F) = 5;
     M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 0x14);
-    func_801401D4(arg0);
+    Obj_ApplyHitKeepAnim(arg0);
     return 1;
 }
 
@@ -1502,7 +1502,7 @@ void func_80140A18(u8 *o) {
     }
     M2C_FIELD(o, u8 *, 0x7F) = 0;
     M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
-    func_8013D13C();
+    Shard_InitPool();
     M2C_FIELD(o, u8 *, 0xDE) = 0;
 }
 
@@ -1574,7 +1574,7 @@ void func_80140C54(u8 *o) {
 }
 
 void func_80140EE0(void *arg0) {
-    if ((func_8013D0C8() != 0) && (func_8013D118() == 0) && (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA4)) != 0)) {
+    if ((Castle_ProgressReached2() != 0) && (Castle_ProgressIs5() == 0) && (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), M2C_FIELD(arg0, s16 *, 0xA4)) != 0)) {
         M2C_FIELD(arg0, s8 *, 0x80) = 0xB;
         Object_Timer(arg0, 0x3C);
         func_80140530(arg0);
@@ -1615,7 +1615,7 @@ void func_80140EE0(void *arg0);
 void func_80140F5C(void);
 #define RAND_80140F84() (g_RandSeed = g_RandSeed * 5 + 1)
 
-void func_80140F84(O_80140F84 *o) {
+void Guardian_Update(O_80140F84 *o) {
     SVECTOR v;
     s32 i;
 
@@ -1915,10 +1915,10 @@ void func_80141AE0(u8 *o) {
     }
 }
 
-s32 func_8013D0C8(void);
+s32 Castle_ProgressReached2(void);
 void func_80058134_80141C90(void *, s32) asm("Object_DebugStub");
 
-void func_80141C90(u8 *o) {
+void ProgressBlocker_Update(u8 *o) {
     if (!((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1)) {
         M2C_FIELD(o, s16 *, 0xA0) = 100;
         M2C_FIELD(o, s16 *, 0xB0) = 0x5B;
@@ -1931,7 +1931,7 @@ void func_80141C90(u8 *o) {
         M2C_FIELD(o, u16 *, 0x5C) = *M2C_FIELD(o, u16 **, 0x88);
         M2C_FIELD(o, u32 *, 0xE0) |= 8;
     }
-    if (func_8013D0C8()) {
+    if (Castle_ProgressReached2()) {
         Object_Despawn(o, 0);
     } else {
         func_80058134_80141C90(o, M2C_FIELD(o, s16 *, 0x44));
@@ -1943,14 +1943,14 @@ void func_80141C90(u8 *o) {
 
 s16 Object_FloorAt(void *, s32, s32, s32);
 
-s32 func_80141D64(void *arg0)
+s32 Burrower_SpikeAbove(void *arg0)
 {
   s16 new_var;
   new_var = Object_FloorAt(arg0, 0, 0, 0);
   return ((D_800EC208 <= new_var) && ((*((s32 *) (((s8 *) arg0) + 0x28))) < D_800EC208)) && Spike_WithinRadiusXZ(*((s16 *) (((s8 *) arg0) + 0x9A)), *((s16 *) (((s8 *) arg0) + 0x9E)), 0x600);
 }
 
-void func_80141DDC(void *arg0) {
+void Burrower_Circle(void *arg0) {
     s16 temp_a0;
     s16 temp_v0;
     s32 temp_a1;
@@ -1975,7 +1975,7 @@ void func_80141DDC(void *arg0) {
     Object_StepOnGround(arg0, 0x40);
 }
 
-void func_80141EB8(void *arg0) {
+void Burrower_CheckReturn(void *arg0) {
     if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), 0xA00) == 0 && ((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1)) {
         M2C_FIELD(arg0, s8 *, 0x80) = 1;
         M2C_FIELD(arg0, s8 *, 0x7F) = 0;
@@ -1988,7 +1988,7 @@ void func_80141EB8(void *arg0) {
 
 u32 Object_DetachLink(void *, s32);
 
-void func_80141F38(void *arg0) {
+void Burrower_Attack(void *arg0) {
     if (Object_DetachLink(arg0, 0) == 6) {
         M2C_FIELD(arg0, s8 *, 0x80) = 4;
         M2C_FIELD(arg0, s8 *, 0x7F) = 3;
@@ -2003,7 +2003,7 @@ typedef struct { u16 start; u16 end; } Rng_80141FDC;
 s16 func_800563E0_80141FDC(void *, s32) asm("Object_FlyAboveFloor");
 void func_80058134_80141FDC(void *, s32) asm("Object_DebugStub");
 
-void func_80141FDC(u8 *o) {
+void Burrower_Update(u8 *o) {
     if (!((M2C_FIELD(o, u32 *, 0xE0) >> 3) & 1)) {
         M2C_FIELD(o, s16 *, 0x48) = 1;
         M2C_FIELD(o, s16 *, 0xA0) = 0x32;
@@ -2022,7 +2022,7 @@ void func_80141FDC(u8 *o) {
     func_80058134_80141FDC(o, M2C_FIELD(o, s16 *, 0x44));
     switch (M2C_FIELD(o, u8 *, 0x80)) {
     case 1:
-        if (func_80141D64(o)) {
+        if (Burrower_SpikeAbove(o)) {
             M2C_FIELD(o, u8 *, 0x80) = 2;
             M2C_FIELD(o, u8 *, 0x7F) = 1;
             M2C_FIELD(o, u16 *, 0x5C) = M2C_FIELD(o, Rng_80141FDC **, 0x88)[1].start;
@@ -2045,9 +2045,9 @@ void func_80141FDC(u8 *o) {
         }
         break;
     case 3:
-        func_80141F38(o);
-        func_80141DDC(o);
-        func_80141EB8(o);
+        Burrower_Attack(o);
+        Burrower_Circle(o);
+        Burrower_CheckReturn(o);
         break;
     case 4:
         if (M2C_FIELD(o, u16 *, 0x5C) >= M2C_FIELD(o, Rng_80141FDC **, 0x88)[M2C_FIELD(o, u8 *, 0x7F)].end) {
@@ -2061,7 +2061,7 @@ void func_80141FDC(u8 *o) {
 
 void Dust_SpawnStill(void *);
 
-void func_80142218(void *arg0) {
+void Gunner_UpdateShot(void *arg0) {
     SVECTOR v;
 
     if (M2C_FIELD(arg0, u8 *, 0x8F) != 0) {
@@ -2080,7 +2080,7 @@ void func_80142218(void *arg0) {
     }
 }
 
-void func_801422E8(void *arg0) {
+void Gunner_Fire(void *arg0) {
     u8 st;
 
     if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1)) {
@@ -2099,12 +2099,12 @@ void func_801422E8(void *arg0) {
     }
 }
 
-s32 func_801423E4(void *arg0) {
+s32 Gunner_SpikeInRange(void *arg0) {
     return Object_SpikeOutOfRange(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s16 *, 0x9E), (s32) M2C_FIELD(arg0, s16 *, 0xA4)) == 0;
 }
 
-void func_80142418(void *arg0) {
-    if (func_801423E4(arg0) != 0) {
+void Gunner_TryAlert(void *arg0) {
+    if (Gunner_SpikeInRange(arg0) != 0) {
         M2C_FIELD(arg0, s8 *, 0x80) = 2;
         M2C_FIELD(arg0, s8 *, 0x7F) = 1;
         M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 4);
@@ -2113,7 +2113,7 @@ void func_80142418(void *arg0) {
     }
 }
 
-void func_8014246C(void *arg0) {
+void Gunner_AimAtSpike(void *arg0) {
     void *temp_a0;
 
     M2C_FIELD(arg0, s16 *, 0x60) = (s16) (g_Spike.f_24 - M2C_FIELD(arg0, u16 *, 0x24));
@@ -2126,12 +2126,12 @@ void func_8014246C(void *arg0) {
 typedef struct { u32 b0 : 3; u32 init : 1; u32 b4 : 18; u32 mode : 2; u32 b24 : 8; } Flags_8013D630;
 void Object_DebugStub();
 void ObjKind4D_IdleSounds(void *);
-void func_80142218(void *arg0);
-void func_801422E8(void *arg0);
-void func_80142418(void *arg0);
-void func_8014246C(void *arg0);
+void Gunner_UpdateShot(void *arg0);
+void Gunner_Fire(void *arg0);
+void Gunner_TryAlert(void *arg0);
+void Gunner_AimAtSpike(void *arg0);
 
-void func_801424D4(u8 *e) {
+void Gunner_Update(u8 *e) {
     u8 state;
 
     if (!M2C_FIELD(e, Flags_8013D630 *, 0xE0).init) {
@@ -2152,11 +2152,11 @@ void func_801424D4(u8 *e) {
         M2C_FIELD(e, Flags_8013D630 *, 0xE0).init = 1;
     }
     Object_DebugStub(e, M2C_FIELD(e, s16 *, 0x44));
-    func_8014246C(e);
+    Gunner_AimAtSpike(e);
     switch (e[0x80]) {
     case 1:
         if (e[0xC9] == 0) {
-            func_80142418(e);
+            Gunner_TryAlert(e);
         }
         if (M2C_FIELD(e, u16 *, 0x5C) >= M2C_FIELD(e, u16 **, 0x88)[e[0x7F] * 2 + 1]) {
             if (e[0xC9] != 0) {
@@ -2165,7 +2165,7 @@ void func_801424D4(u8 *e) {
         }
         break;
     case 2:
-        func_801422E8(e);
+        Gunner_Fire(e);
         if (M2C_FIELD(e, u16 *, 0x5C) >= M2C_FIELD(e, u16 **, 0x88)[e[0x7F] * 2 + 1]) {
             if (e[0x7F] == 2) {
                 e[0x80] = 1;
@@ -2179,7 +2179,7 @@ void func_801424D4(u8 *e) {
         }
         break;
     }
-    func_80142218(e);
+    Gunner_UpdateShot(e);
     ObjKind4D_IdleSounds(e);
 }
 
@@ -2560,7 +2560,7 @@ s32 func_80143344(s16 *p) {
     return 0;
 }
 
-s32 func_80143524(void *arg0) {
+s32 LevelObj_ResetState(void *arg0) {
     M2C_FIELD(arg0, s16 *, 2) = 0;
     M2C_FIELD(arg0, s16 *, 6) = 0;
     return 0;

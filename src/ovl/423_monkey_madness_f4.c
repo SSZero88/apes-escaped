@@ -9,13 +9,13 @@ extern M2C_UNK D_8013FB90;
 s8 Sound_ReserveSlot(M2C_UNK, M2C_UNK, void *);
 M2C_UNK Sound_FreeSlot(s8);
 s32 Spike_WithinRadiusXZ(s32, s32, M2C_UNK);
-void func_8013E22C(void *arg0);
+void Mech_StartLoopSound(void *arg0);
 void *Collision_GetShape(s32);
 M2C_UNK Object_DisableCollision(void *);
 M2C_UNK Object_TakeHitDamage(void *, void *);
 M2C_UNK Object_HitFeedback(void *);
 M2C_UNK Object_Timer(void *, M2C_UNK);
-void func_8013E26C(void *arg0);
+void Obj_StopLoopSound(void *arg0);
 
 s32 func_8013D000(void) {
     s32 i;
@@ -31,7 +31,7 @@ extern struct { s16 x, y, z, floor; s8 vx, vy, vz; u8 life; } D_80144590_8013D02
 #define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
 #define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
 
-void func_8013D028(SVECTOR *arg0, s32 arg1) {
+void BreakShard_Spawn(SVECTOR *arg0, s32 arg1) {
     s32 i;
     u16 x = arg0->vx;
     u16 y = arg0->vy;
@@ -185,14 +185,14 @@ void Fx_SpawnFadeRing(SVECTOR *, s32, s32, s32);
 void Effect_SpawnAt(s32, SVECTOR *);
 void *memset(void *, s32, s32);
 
-void func_8013D6B8(s16 x, s16 y, s16 z) {
+void BreakBurst_Spawn(s16 x, s16 y, s16 z) {
     SVECTOR v;
 
     memset(&v, 0, 8);
     v.vx = x;
     v.vy = y - 0x60;
     v.vz = z;
-    func_8013D028(&v, 0x10);
+    BreakShard_Spawn(&v, 0x10);
     Effect_SpawnAt(0x112, &v);
     Fx_SpawnFadeRing(&v, 5, 0x80, 0);
 }
@@ -460,13 +460,13 @@ void func_8013E1C4(void) {
     p->f_A = 0xB6;
 }
 
-void func_8013E22C(void *arg0) {
+void Mech_StartLoopSound(void *arg0) {
     if (M2C_FIELD(arg0, s8 *, 0x7C) == -1) {
         M2C_FIELD(arg0, s8 *, 0x7C) = Sound_ReserveSlot(0x7065, 0x1000, arg0 + 0x24);
     }
 }
 
-void func_8013E26C(void *arg0) {
+void Obj_StopLoopSound(void *arg0) {
     s8 temp_a0;
 
     temp_a0 = M2C_FIELD(arg0, s8 *, 0x7C);
@@ -628,7 +628,7 @@ void func_8013E8A0(void *arg0) {
     }
     M2C_FIELD(arg0, s8 *, 0x80) = 6;
     M2C_FIELD(arg0, s16 *, 0xA8) = 0;
-    func_8013E22C(arg0);
+    Mech_StartLoopSound(arg0);
 }
 
 s32 rsin(s16);
@@ -698,7 +698,7 @@ void func_8013EB3C(void *arg0) {
     if ((M2C_FIELD(arg0, u8 *, 0x80) != 9) && (temp_s1 = (u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C, (temp_s1 == 0xB)) && (temp_v0_2 = Collision_GetShape((u16) M2C_FIELD(arg0, u32 *, 0x50) & 0xFFF), ((M2C_FIELD(temp_v0_2, s16 *, 0x24) & 0xFF00) != 0xD00))) {
         Object_TakeHitDamage(arg0, temp_v0_2);
         M2C_FIELD(arg0, s8 *, 0x84) = 0x14;
-        func_8013E26C(arg0);
+        Obj_StopLoopSound(arg0);
         Object_HitFeedback(arg0);
         if (M2C_FIELD(arg0, u8 *, 0x81) != 0) {
             M2C_FIELD(arg0, u8 *, 0x80) = 9U;
@@ -803,7 +803,7 @@ void func_8013EDBC(u8 *o) {
             o[0xC8] = 0xF;
             M2C_FIELD(o, s16 *, 0x96) = -0x70;
             M2C_FIELD(o, s16 *, 0xAA) = 0;
-            func_8013E22C(o);
+            Mech_StartLoopSound(o);
         }
         break;
     case 2:
@@ -816,7 +816,7 @@ void func_8013EDBC(u8 *o) {
             o[0x80] = 3;
             o[0x7F] = 1;
             FRAME_8013EDBC = TBL_8013EDBC[1].start;
-            func_8013E26C(o);
+            Obj_StopLoopSound(o);
             Object_PlaySound((s32)o, 0x9F);
         }
         break;
@@ -873,7 +873,7 @@ void func_8013EDBC(u8 *o) {
                 o[0x7F] = 6;
                 FRAME_8013EDBC = TBL_8013EDBC[6].start;
             }
-            func_8013E26C(o);
+            Obj_StopLoopSound(o);
             Object_PlaySound((s32)o, 0x9F);
         }
         break;

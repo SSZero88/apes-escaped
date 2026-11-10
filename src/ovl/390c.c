@@ -20,37 +20,37 @@ void DrawOTag(u32 *p);
 s32 Sound_PlayFixed(s32);
 
 extern struct { u8 pad0[0x8120]; s16 f_8120; } g_Game_8013C7F0 asm("g_Game");
-extern s16 D_8013AF56;
-extern s32 D_8013F280;
+extern s16 SaveMenu_Screen;
+extern s32 PocketMenu_State;
 extern s16 D_8013F284;
 extern s32 D_8013F288;
 void Gfx_InitDisplay(void);
 s32 ResetGraph(s32);
-s32 func_8013C8E8(void);
-s32 func_8013F630(void);
-s32 func_8013C954(void);
-s32 func_8013CB30(void);
+s32 PocketMenu_CollectStats(void);
+s32 PocketMenu_RunSelect(void);
+s32 PocketMenu_RunUpload(void);
+s32 PocketMenu_RunDownload(void);
 
-s32 func_8013C7F0(void) {
+s32 PocketMenu_Main(void) {
     Gfx_InitDisplay();
     ResetGraph(1);
-    D_8013AF56 = 0xE;
-    D_8013F280 = 0;
+    SaveMenu_Screen = 0xE;
+    PocketMenu_State = 0;
     D_8013F284 = 1;
     D_8013F288 = 0;
-    func_8013C8E8();
+    PocketMenu_CollectStats();
     while (1) {
-        switch (D_8013F280) {
+        switch (PocketMenu_State) {
         case 0:
-            if (func_8013F630() < 0) {
+            if (PocketMenu_RunSelect() < 0) {
                 goto end;
             }
             break;
         case 1:
-            func_8013C954();
+            PocketMenu_RunUpload();
             break;
         case 2:
-            func_8013CB30();
+            PocketMenu_RunDownload();
             break;
         }
     }
@@ -61,35 +61,35 @@ end:
 
 extern struct S_g_Game { u8 pad_0[0x813C]; u16 f_813C; u8 pad_813E[0x16]; u16 f_8154; u16 f_8156; } g_Game;
 extern struct { u8 pad0[0xA1]; u8 f_A1; u8 f_A2; } g_GadgetState;
-extern struct { s16 f_0, f_2, f_4, f_6, f_8, f_A; } D_8013F5E4;
+extern struct { s16 f_0, f_2, f_4, f_6, f_8, f_A; } PocketMenu_Stats;
 s32 Save_SumStageMonkeys(s32);
 
-s32 func_8013C8E8(void) {
-    D_8013F5E4.f_0 = Save_SumStageMonkeys(0);
-    D_8013F5E4.f_2 = g_Game.f_813C;
-    D_8013F5E4.f_4 = g_Game.f_8154;
-    D_8013F5E4.f_6 = g_Game.f_8156;
-    D_8013F5E4.f_8 = g_GadgetState.f_A1;
-    D_8013F5E4.f_A = g_GadgetState.f_A2;
+s32 PocketMenu_CollectStats(void) {
+    PocketMenu_Stats.f_0 = Save_SumStageMonkeys(0);
+    PocketMenu_Stats.f_2 = g_Game.f_813C;
+    PocketMenu_Stats.f_4 = g_Game.f_8154;
+    PocketMenu_Stats.f_6 = g_Game.f_8156;
+    PocketMenu_Stats.f_8 = g_GadgetState.f_A1;
+    PocketMenu_Stats.f_A = g_GadgetState.f_A2;
     return 0;
 }
 
-/* D_8013AF66 and D_8013F280 come from the externs at the top of src/ovl/390c.c */
-extern s16 D_8013AF66;
+/* SaveMenu_FadeState and PocketMenu_State come from the externs at the top of src/ovl/390c.c */
+extern s16 SaveMenu_FadeState;
 typedef struct { s16 x, y, w, h; } Rect_8013C954;
 typedef struct { u8 pad0[0x19]; u8 r0, g0, b0; } DrawEnv_8013C954;
 extern Rect_8013C954 D_8013EEE0;
 extern u8 D_8013D688[];
-extern s16 D_8013AF68;
+extern s16 SaveMenu_FadeTimer;
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_8013C954 asm("g_Game");
 s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
 void DrawSync(s32);
 s32 VSync(s32 mode);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-s32 func_8013A634(void);
-s32 func_8013D19C(void);
-s32 func_8013D1F8(void);
+s32 SaveMenu_UpdateFade(void);
+s32 PocketMenu_StartCardCheck(void);
+s32 PocketMenu_UpdateUpload(void);
 void func_80141A10(u8 *);
 void func_80141B00(void);
 void func_80141AB4(void);
@@ -98,7 +98,7 @@ void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
 
-s32 func_8013C954(void) {
+s32 PocketMenu_RunUpload(void) {
     Rect_8013C954 r;
 
     r = D_8013EEE0;
@@ -111,13 +111,13 @@ s32 func_8013C954(void) {
     ((DrawEnv_8013C954 *)&g_Game_8013C954.db[1])->g0 = 0;
     ((DrawEnv_8013C954 *)&g_Game_8013C954.db[1])->b0 = 0;
     g_Game_8013C954.cur = 0;
-    func_8013D19C();
+    PocketMenu_StartCardCheck();
     func_80141A10(D_8013D688);
-    D_8013AF66 = 0;
-    D_8013AF68 = 0x1E;
-    while (func_8001325C(2), Gfx_BeginFrame(), func_8013A634() >= 0) {
-        if (func_8013D1F8() != 0) {
-            D_8013AF66 = 2;
+    SaveMenu_FadeState = 0;
+    SaveMenu_FadeTimer = 0x1E;
+    while (func_8001325C(2), Gfx_BeginFrame(), SaveMenu_UpdateFade() >= 0) {
+        if (PocketMenu_UpdateUpload() != 0) {
+            SaveMenu_FadeState = 2;
         }
         func_80141B00();
         DrawSync(0);
@@ -131,20 +131,20 @@ s32 func_8013C954(void) {
     MemCard_Request(9, 0);
     ClearImage(&r, 0, 0, 0);
     DrawSync(0);
-    D_8013F280 = 0;
+    PocketMenu_State = 0;
     return 0;
 }
 
-/* D_8013AF66, D_8013F280 and D_8013F288 come from the externs at the top of src/ovl/390c.c */
+/* SaveMenu_FadeState, PocketMenu_State and D_8013F288 come from the externs at the top of src/ovl/390c.c */
 typedef struct { s16 x, y, w, h; } Rect_8013CB30;
 typedef struct { u8 pad0[0x19]; u8 r0, g0, b0; } DrawEnv_8013CB30;
 extern Rect_8013CB30 D_8013EEE0_8013CB30 asm("D_8013EEE0");
 extern u8 D_8013D764[];
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_8013CB30 asm("g_Game");
-s32 func_8013D218(void);
+s32 PocketMenu_UpdateDownload(void);
 void func_80095D44(void);
 
-s32 func_8013CB30(void) {
+s32 PocketMenu_RunDownload(void) {
     Rect_8013CB30 r;
 
     r = D_8013EEE0_8013CB30;
@@ -157,14 +157,14 @@ s32 func_8013CB30(void) {
     ((DrawEnv_8013CB30 *)&g_Game_8013CB30.db[1])->g0 = 0;
     ((DrawEnv_8013CB30 *)&g_Game_8013CB30.db[1])->b0 = 0;
     g_Game_8013CB30.cur = 0;
-    func_8013D19C();
+    PocketMenu_StartCardCheck();
     func_80141A10(D_8013D764);
-    D_8013AF68 = 0x1E;
-    D_8013AF66 = 0;
+    SaveMenu_FadeTimer = 0x1E;
+    SaveMenu_FadeState = 0;
     D_8013F288 = 0;
-    while (func_8001325C(2), Gfx_BeginFrame(), func_8013A634() >= 0) {
-        if (func_8013D218() != 0) {
-            D_8013AF66 = 2;
+    while (func_8001325C(2), Gfx_BeginFrame(), SaveMenu_UpdateFade() >= 0) {
+        if (PocketMenu_UpdateDownload() != 0) {
+            SaveMenu_FadeState = 2;
         }
         func_80141B00();
         DrawSync(0);
@@ -179,31 +179,31 @@ s32 func_8013CB30(void) {
     ClearImage(&r, 0, 0, 0);
     DrawSync(0);
     func_80095D44();
-    D_8013F280 = 0;
+    PocketMenu_State = 0;
     return 0;
 }
 
 INCLUDE_RODATA("asm/ovl/390/nonmatchings/390c", D_8013EEE0);
 
-extern s16 D_8013F5E4_8013CD1C[] asm("D_8013F5E4");
+extern s16 D_8013F5E4_8013CD1C[] asm("PocketMenu_Stats");
 extern s16 D_8013F5FC[];
 extern s16 D_8013F614[];
 extern s32 D_800E1990[];
 extern u8 *D_800E388C;
-extern s16 D_8013AF5A;
+extern s16 SaveMenu_YesNo;
 extern s16 D_8013F28C;
 extern s32 D_8013F290;
 extern s32 D_8013F294;
 extern s32 D_8013F298;
 extern s16 D_800E3884;
 
-s32 func_8013CD1C(s32 msg, s32 arg) {
+s32 PocketMenu_SetScreen(s32 msg, s32 arg) {
     s32 i;
     s32 *dst;
     s32 *src;
     s32 *t;
 
-    D_8013AF56 = msg;
+    SaveMenu_Screen = msg;
     switch (msg) {
     case 21:
         D_8013F298 = VSync(-1);
@@ -287,13 +287,13 @@ s32 func_8013CD1C(s32 msg, s32 arg) {
     case 24:
     case 31:
     case 40:
-        D_8013AF5A = 1;
+        SaveMenu_YesNo = 1;
         break;
     case 26:
     case 37:
     case 39:
         D_8013F290 = 0;
-        D_8013AF5A = 1;
+        SaveMenu_YesNo = 1;
         break;
     case 25:
         D_8013F28C = 0;
@@ -311,12 +311,12 @@ s32 func_8013CD1C(s32 msg, s32 arg) {
     return 0;
 }
 
-extern s16 D_8013AF56;
+extern s16 SaveMenu_Screen;
 extern struct { s16 f_0; u8 pad2[6]; s16 f_8; u8 padA[2]; void *f_C; } g_MemCard;
 void MemCard_Request(s32, s32);
 
-s32 func_8013D19C(void) {
-    D_8013AF56 = 0x13;
+s32 PocketMenu_StartCardCheck(void) {
+    SaveMenu_Screen = 0x13;
     MemCard_Request(8, 0);
     g_MemCard.f_C = (void *)0x80158000;
     g_MemCard.f_0 = 1;
@@ -325,27 +325,27 @@ s32 func_8013D19C(void) {
     return 0;
 }
 
-s32 func_8013D238(void);
+s32 PocketMenu_UpdateScreen(void);
 
-s32 func_8013D1F8(void) {
-    return func_8013D238() != 0;
+s32 PocketMenu_UpdateUpload(void) {
+    return PocketMenu_UpdateScreen() != 0;
 }
 
-s32 func_8013D218(void) {
-    return func_8013D238() != 0;
+s32 PocketMenu_UpdateDownload(void) {
+    return PocketMenu_UpdateScreen() != 0;
 }
 
 extern struct { s16 f_0; s16 f_2; s16 f_4; } D_800E3880_8013D238 asm("g_MemCard");
-s32 func_8013CD1C(s32 msg, s32 arg);
-void func_80139A3C(s32);
-void func_80139A68(void);
+s32 PocketMenu_SetScreen(s32 msg, s32 arg);
+void SaveMenu_DrawMainFrame(s32);
+void SaveMenu_DrawModel(void);
 void func_8013FEFC(s32);
 s32 func_8014016C(void);
-s32 func_80139F08(void);
+s32 SaveMenu_UpdateYesNo(void);
 s32 func_80136554(s32 x, s32 y, s32 w, s32 h);
 s32 func_8013E290(void);
 s32 func_8013E30C(void);
-s32 func_8013A400(void);
+s32 SaveMenu_ConfirmPressed(void);
 s32 func_8013ED0C(void);
 s32 func_8013D834(void);
 s32 func_8013D92C(void);
@@ -358,19 +358,19 @@ s32 func_8013DDF0(void);
 s32 func_8013DEB4(void);
 s32 func_8013DF40(void);
 
-s32 func_8013D238(void) {
+s32 PocketMenu_UpdateScreen(void) {
     s32 r;
     s32 i;
     s32 n;
 
-    switch (D_8013AF56) {
+    switch (SaveMenu_Screen) {
     case 19:
     case 28:
         func_8013FEFC(0);
         goto show;
     case 14:
-        func_80139A3C(4);
-        func_80139A68();
+        SaveMenu_DrawMainFrame(4);
+        SaveMenu_DrawModel();
         return 1;
     case 29:
         func_8013E290();
@@ -381,7 +381,7 @@ s32 func_8013D238(void) {
     case 31:
     case 40:
         func_8014016C();
-        r = func_80139F08();
+        r = SaveMenu_UpdateYesNo();
         func_80136554(0x60, 0x50, 0xC0, 0x84);
         func_8013E290();
         if (r == 0) {
@@ -390,22 +390,22 @@ s32 func_8013D238(void) {
         if (r == 2) {
             goto back;
         }
-        func_8013CD1C(0x20, 0);
+        PocketMenu_SetScreen(0x20, 0);
         return 0;
     case 49:
         func_8014016C();
         func_80136554(0x60, 0x50, 0xC0, 0x84);
         func_8013E290();
-        if (func_8013A400() == 0) {
+        if (SaveMenu_ConfirmPressed() == 0) {
             return 0;
         }
         Sound_PlayFixed(3);
     back:
-        func_8013CD1C(0x1D, 1);
+        PocketMenu_SetScreen(0x1D, 1);
         return 0;
     case 34:
         if (++D_8013F294 >= 0x5B) {
-            func_8013CD1C(0x1D, 1);
+            PocketMenu_SetScreen(0x1D, 1);
         } else if (D_8013F288 == 0) {
             D_8013F5E4_8013CD1C[6] = D_8013F5E4_8013CD1C[0] * D_8013F294 / 90;
         } else {
@@ -429,10 +429,10 @@ s32 func_8013D238(void) {
         } else {
             func_8014016C();
         }
-        func_80139A3C(4);
-        func_80139A68();
+        SaveMenu_DrawMainFrame(4);
+        SaveMenu_DrawModel();
         if (D_800E3884 == 0xB) {
-            if (func_8013A400() == 0) {
+            if (SaveMenu_ConfirmPressed() == 0) {
                 return 0;
             }
             Sound_PlayFixed(3);
@@ -453,33 +453,33 @@ s32 func_8013D238(void) {
     case 46:
     case 47:
         func_8014016C();
-        func_80139A3C(4);
-        func_80139A68();
-        if (func_8013A400() == 0) {
+        SaveMenu_DrawMainFrame(4);
+        SaveMenu_DrawModel();
+        if (SaveMenu_ConfirmPressed() == 0) {
             return 0;
         }
         Sound_PlayFixed(3);
         return 1;
     case 24:
         func_8014016C();
-        r = func_80139F08();
-        func_80139A3C(4);
-        func_80139A68();
+        r = SaveMenu_UpdateYesNo();
+        SaveMenu_DrawMainFrame(4);
+        SaveMenu_DrawModel();
         if (r == 0) {
             break;
         }
         if (r == 2) {
             return 1;
         }
-        func_8013CD1C(0x19, 0);
+        PocketMenu_SetScreen(0x19, 0);
         return 0;
     case 26:
     case 37:
     case 39:
         func_8014016C();
-        r = func_80139F08();
-        func_80139A3C(4);
-        func_80139A68();
+        r = SaveMenu_UpdateYesNo();
+        SaveMenu_DrawMainFrame(4);
+        SaveMenu_DrawModel();
         if (r == 0) {
             break;
         }
@@ -494,8 +494,8 @@ s32 func_8013D238(void) {
     case 25:
         func_8014016C();
     show:
-        func_80139A3C(4);
-        func_80139A68();
+        SaveMenu_DrawMainFrame(4);
+        SaveMenu_DrawModel();
         break;
     }
     return 0;
@@ -504,7 +504,7 @@ s32 func_8013D238(void) {
 void MemCard_SaveThread_8013D688(void) asm("D_8013D688");
 void MemCard_SaveThread_8013D688(void) {
     while (1) {
-        switch (D_8013AF56) {
+        switch (SaveMenu_Screen) {
         case 19:
             func_8013D834();
             if (D_800E3880_8013D238.f_4 == 0xD) {
@@ -547,7 +547,7 @@ void MemCard_SaveThread_8013D688(void) {
 void MemCard_LoadThread_8013D764(void) asm("D_8013D764");
 void MemCard_LoadThread_8013D764(void) {
     while (1) {
-        switch (D_8013AF56) {
+        switch (SaveMenu_Screen) {
         case 19:
             func_8013D92C();
             if (D_800E3880_8013D238.f_4 == 0xD) {
@@ -586,26 +586,26 @@ s32 func_8013D834(void) {
     switch (D_800E3880_8013D834) {
     case -5:
         func_8013E098();
-        func_8013CD1C(D_8013F284 == 0 ? 0x25 : 0x24, 0);
+        PocketMenu_SetScreen(D_8013F284 == 0 ? 0x25 : 0x24, 0);
         break;
     case 0:
         if (D_800E3884 == 10) {
             MemCard_Request(0xC, 0);
         } else {
             func_8013E098();
-            func_8013CD1C(D_8013F284 == 0 ? 0x27 : 0x24, 0);
+            PocketMenu_SetScreen(D_8013F284 == 0 ? 0x27 : 0x24, 0);
         }
         break;
     case -7:
-        func_8013CD1C(0x12, 0);
+        PocketMenu_SetScreen(0x12, 0);
         break;
     case -8:
         func_8013E098();
-        func_8013CD1C(D_8013F284 == 0 ? 0x18 : 0x24, 0);
+        PocketMenu_SetScreen(D_8013F284 == 0 ? 0x18 : 0x24, 0);
         break;
     case -2:
     case -1:
-        func_8013CD1C(0x29, 0);
+        PocketMenu_SetScreen(0x29, 0);
         break;
     case 1:
         break;
@@ -624,20 +624,20 @@ s32 func_8013D92C(void) {
             MemCard_Request(0xC, 0);
         } else {
             func_8013E098();
-            func_8013CD1C(D_8013F284 == 0 ? 0x1D : 0x24, 0);
+            PocketMenu_SetScreen(D_8013F284 == 0 ? 0x1D : 0x24, 0);
         }
         break;
     case -7:
-        func_8013CD1C(0x12, 0);
+        PocketMenu_SetScreen(0x12, 0);
         break;
     case -8:
     case -5:
         func_8013E098();
-        func_8013CD1C(D_8013F284 == 0 ? 0x1E : 0x24, 0);
+        PocketMenu_SetScreen(D_8013F284 == 0 ? 0x1E : 0x24, 0);
         break;
     case -2:
     case -1:
-        func_8013CD1C(0x29, 0);
+        PocketMenu_SetScreen(0x29, 0);
         break;
     case 1:
         break;
@@ -650,13 +650,13 @@ extern s16 D_800E3880_8013DA00 asm("g_MemCard");
 s32 func_8013DA00(void) {
     switch (D_800E3880_8013DA00) {
     case -7:
-        if (D_8013AF56 != 0x26) {
-            func_8013CD1C(0x12, 0);
+        if (SaveMenu_Screen != 0x26) {
+            PocketMenu_SetScreen(0x12, 0);
         }
         break;
     case -2:
     case -1:
-        func_8013CD1C(0x29, 0);
+        PocketMenu_SetScreen(0x29, 0);
         break;
     case -8:
         break;
@@ -672,19 +672,19 @@ s32 func_8013DA7C(void) {
     switch (D_800E3880_8013DA7C) {
     case -5:
         func_8013E098();
-        func_8013CD1C(D_8013F284 == 0 ? 0x25 : 0x24, 0);
+        PocketMenu_SetScreen(D_8013F284 == 0 ? 0x25 : 0x24, 0);
         break;
     case 0:
         func_8013E098();
-        func_8013CD1C(D_8013F284 == 0 ? 0x27 : 0x24, 0);
+        PocketMenu_SetScreen(D_8013F284 == 0 ? 0x27 : 0x24, 0);
         break;
     case -8:
         func_8013E098();
-        func_8013CD1C(D_8013F284 == 0 ? 0x18 : 0x24, 0);
+        PocketMenu_SetScreen(D_8013F284 == 0 ? 0x18 : 0x24, 0);
         break;
     case -2:
     case -1:
-        func_8013CD1C(0x29, 0);
+        PocketMenu_SetScreen(0x29, 0);
         break;
     case 1:
         break;
@@ -699,16 +699,16 @@ s32 func_8013DB48(void) {
     switch (D_800E3880_8013DB48) {
     case 0:
         func_8013E098();
-        func_8013CD1C(D_8013F284 == 0 ? 0x1D : 0x24, 0);
+        PocketMenu_SetScreen(D_8013F284 == 0 ? 0x1D : 0x24, 0);
         break;
     case -8:
     case -5:
         func_8013E098();
-        func_8013CD1C(D_8013F284 == 0 ? 0x1E : 0x24, 0);
+        PocketMenu_SetScreen(D_8013F284 == 0 ? 0x1E : 0x24, 0);
         break;
     case -2:
     case -1:
-        func_8013CD1C(0x29, 0);
+        PocketMenu_SetScreen(0x29, 0);
         break;
     case 1:
         break;
@@ -722,18 +722,18 @@ s32 func_8013DBF0(void) {
     switch (D_800E3880_8013DBF0) {
     case 0:
         func_8013E22C(0);
-        func_8013CD1C(0x26, 0);
+        PocketMenu_SetScreen(0x26, 0);
         break;
     case -4:
         func_8013E22C(-4);
-        func_8013CD1C(0x17, 0);
+        PocketMenu_SetScreen(0x17, 0);
         break;
     case -7:
-        func_8013CD1C(0x12, 0);
+        PocketMenu_SetScreen(0x12, 0);
         break;
     case -2:
     case -1:
-        func_8013CD1C(0x2E, 0);
+        PocketMenu_SetScreen(0x2E, 0);
         break;
     case -8:
         break;
@@ -755,49 +755,49 @@ s32 func_8013DC78(void) {
         if (D_8013F290 == 0) {
             break;
         }
-        if (D_8013AF56 == 0x27) {
-            func_8013CD1C(0x1A, 0);
+        if (SaveMenu_Screen == 0x27) {
+            PocketMenu_SetScreen(0x1A, 0);
         } else {
             func_8013E098();
             if (D_8013F284 != 0) {
-                func_8013CD1C(0x24, 0);
+                PocketMenu_SetScreen(0x24, 0);
             } else if (func_8013E114() != 0) {
-                func_8013CD1C(0x14, 0);
+                PocketMenu_SetScreen(0x14, 0);
             } else {
                 func_8013E188(1);
-                if (D_8013AF56 == 0x25) {
-                    func_8013CD1C(0x30, 0);
+                if (SaveMenu_Screen == 0x25) {
+                    PocketMenu_SetScreen(0x30, 0);
                     MemCard_Request(0xD, 0);
                     if (D_800E3880_8013DC78 == 0) {
                         D_800E3880_8013DC78 = 1;
                     } else {
                         if (D_800E3880_8013DC78 == -4) {
                             func_8013E22C(-4);
-                            func_8013CD1C(0x17, 0);
+                            PocketMenu_SetScreen(0x17, 0);
                         } else if (D_800E3880_8013DC78 == -7) {
                             func_8013E22C(-7);
-                            func_8013CD1C(0x12, 0);
+                            PocketMenu_SetScreen(0x12, 0);
                         } else if (D_800E3880_8013DC78 == -2 || D_800E3880_8013DC78 == -1) {
                             func_8013E22C(-1);
-                            func_8013CD1C(0x2E, 0);
+                            PocketMenu_SetScreen(0x2E, 0);
                         } else {
-                            func_8013CD1C(0x15, 0);
+                            PocketMenu_SetScreen(0x15, 0);
                         }
                         break;
                     }
                 } else {
                     MemCard_Request(0xE, 0);
                 }
-                func_8013CD1C(0x15, 0);
+                PocketMenu_SetScreen(0x15, 0);
             }
         }
         break;
     case -7:
-        func_8013CD1C(0x12, 0);
+        PocketMenu_SetScreen(0x12, 0);
         break;
     case -2:
     case -1:
-        func_8013CD1C(0x2E, 0);
+        PocketMenu_SetScreen(0x2E, 0);
         break;
     case -8:
         break;
@@ -828,14 +828,14 @@ s32 func_8013DDF0(void) {
             MemCard_Request(0xF, 0);
             a = 0x21;
         }
-        func_8013CD1C(a, 0);
+        PocketMenu_SetScreen(a, 0);
         break;
     case -7:
-        func_8013CD1C(0x12, 0);
+        PocketMenu_SetScreen(0x12, 0);
         break;
     case -2:
     case -1:
-        func_8013CD1C(0x2F, 0);
+        PocketMenu_SetScreen(0x2F, 0);
         break;
     case -8:
         break;
@@ -854,14 +854,14 @@ s32 func_8013DEB4(void) {
         if (D_8013F288 == 0) {
             func_8013E22C(0);
         }
-        func_8013CD1C(0x22, 0);
+        PocketMenu_SetScreen(0x22, 0);
         break;
     case -7:
-        func_8013CD1C(0x12, 0);
+        PocketMenu_SetScreen(0x12, 0);
         break;
     case -2:
     case -1:
-        func_8013CD1C(0x2F, 0);
+        PocketMenu_SetScreen(0x2F, 0);
         break;
     case -8:
         break;
@@ -873,7 +873,7 @@ s32 func_8013DEB4(void) {
 
 extern s16 D_800E3880_8013DF40 asm("g_MemCard");
 extern s16 D_8013F28C;
-void func_8013784C(s32, s32);
+void SaveMenu_SetScreen(s32, s32);
 
 s32 func_8013DF40(void) {
     if (++D_8013F28C < 3) {
@@ -881,35 +881,35 @@ s32 func_8013DF40(void) {
     }
     MemCard_Request(3, 0);
     if (D_800E3880_8013DF40 == -2 || D_800E3880_8013DF40 == -1) {
-        func_8013784C(0x2A, 0);
+        SaveMenu_SetScreen(0x2A, 0);
         return 0;
     }
     if (D_800E3880_8013DF40 != 0) {
-        func_8013CD1C(0x12, 0);
+        PocketMenu_SetScreen(0x12, 0);
     } else {
         func_8013E098();
         if (D_8013F284 != 0) {
-            func_8013CD1C(0x24, 0);
+            PocketMenu_SetScreen(0x24, 0);
         } else if (func_8013E114() != 0) {
-            func_8013CD1C(0x14, 0);
+            PocketMenu_SetScreen(0x14, 0);
         } else {
             func_8013E188(1);
-            func_8013CD1C(0x30, 0);
+            PocketMenu_SetScreen(0x30, 0);
             MemCard_Request(0xD, 0);
             if (D_800E3880_8013DF40 == 0) {
                 D_800E3880_8013DF40 = 1;
-                func_8013CD1C(0x15, 0);
+                PocketMenu_SetScreen(0x15, 0);
             } else if (D_800E3880_8013DF40 == -4) {
                 func_8013E22C(-4);
-                func_8013CD1C(0x17, 0);
+                PocketMenu_SetScreen(0x17, 0);
             } else if (D_800E3880_8013DF40 == -7) {
                 func_8013E22C(-7);
-                func_8013CD1C(0x12, 0);
+                PocketMenu_SetScreen(0x12, 0);
             } else if (D_800E3880_8013DF40 == -2 || D_800E3880_8013DF40 == -1) {
                 func_8013E22C(-1);
-                func_8013CD1C(0x2E, 0);
+                PocketMenu_SetScreen(0x2E, 0);
             } else {
-                func_8013CD1C(0x15, 0);
+                PocketMenu_SetScreen(0x15, 0);
             }
         }
     }
@@ -956,7 +956,7 @@ s32 func_8013E114(void) {
 }
 
 extern u8 *D_800E388C;
-extern s16 D_8013F5E4_8013E188 asm("D_8013F5E4");
+extern s16 D_8013F5E4_8013E188 asm("PocketMenu_Stats");
 void func_80143F54(s32, s32, s32);
 
 s32 func_8013E188(s32 clear) {
@@ -1001,32 +1001,32 @@ s32 func_8013E22C(void) {
 s32 func_8013E438(void);
 s32 func_8013E604(void);
 s32 func_8013FEA0(void);
-void func_80136160(s32, s32, s32, s32);
-void func_80139A68(void);
+void SaveMenu_DrawFrame(s32, s32, s32, s32);
+void SaveMenu_DrawModel(void);
 
 s32 func_8013E290(void) {
     func_8013E438();
     func_8013E604();
-    if (D_8013AF56 == 0x1D) {
+    if (SaveMenu_Screen == 0x1D) {
         func_8013EBD0();
         func_8013FEA0();
     }
-    func_80136160(0xC, 0x14, 0x160, 0x5E);
-    func_80136160(0xC, 0x6E, 0x160, 0x6A);
-    func_80139A68();
+    SaveMenu_DrawFrame(0xC, 0x14, 0x160, 0x5E);
+    SaveMenu_DrawFrame(0xC, 0x6E, 0x160, 0x6A);
+    SaveMenu_DrawModel();
     return 0;
 }
 
 extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_8013E30C asm("g_Pad");
-extern struct { s16 f_0, f_2, f_4, f_6, f_8, f_A, f_C; } D_8013F5E4_8013E30C asm("D_8013F5E4");
+extern struct { s16 f_0, f_2, f_4, f_6, f_8, f_A, f_C; } D_8013F5E4_8013E30C asm("PocketMenu_Stats");
 extern s32 D_800E5488;
-extern s16 D_8013AF66;
+extern s16 SaveMenu_FadeState;
 s32 Sound_PlayFixed(s32);
 
 s32 func_8013E30C(void) {
     u32 b;
 
-    if (D_8013AF66 == 1) {
+    if (SaveMenu_FadeState == 1) {
         if (D_800E5488 == 0x1000) {
             Sound_PlayFixed(0);
             if (--D_8013F288 < 0) {
@@ -1048,12 +1048,12 @@ s32 func_8013E30C(void) {
             Sound_PlayFixed(3);
             if (D_8013F288 == 0) {
                 if (D_8013F5E4_8013E30C.f_0 > D_8013F5E4_8013E30C.f_C) {
-                    func_8013CD1C(0x1F, 0);
+                    PocketMenu_SetScreen(0x1F, 0);
                 } else {
-                    func_8013CD1C(0x31, 0);
+                    PocketMenu_SetScreen(0x31, 0);
                 }
             } else {
-                func_8013CD1C(0x28, 0);
+                PocketMenu_SetScreen(0x28, 0);
             }
         }
     }
@@ -1073,7 +1073,7 @@ s32 func_8013E438(void) {
 
     p = g_Game_8013E438.prim;
     for (i = 0; i < 20; i++) {
-        if (D_8013F29C_8013E438[i].id == D_8013F288 && D_8013AF56 == 0x1D) {
+        if (D_8013F29C_8013E438[i].id == D_8013F288 && SaveMenu_Screen == 0x1D) {
             p[3] = 4;
             ((Sprt_8013E438 *)p)->code = 0x65;
         } else {
@@ -1114,7 +1114,7 @@ typedef struct { u8 u, pad1, v, pad3; s16 w; } Glyph_8013E604;
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_8013E604;
 extern Elem_8013E604 D_8013F454_8013E604[] asm("D_8013F454");
 extern Glyph_8013E604 D_8013F594_8013E604[] asm("D_8013F594");
-extern s16 D_8013F5E4_8013E604[] asm("D_8013F5E4");
+extern s16 D_8013F5E4_8013E604[] asm("PocketMenu_Stats");
 extern GameDraw g_Game_8013E604 asm("g_Game");
 
 s32 func_8013E604(void) {
@@ -1128,7 +1128,7 @@ s32 func_8013E604(void) {
     p = g_Game_8013E604.prim;
     for (i = 0; i < 12; i++) {
         e = &D_8013F454_8013E604[i];
-        if (e->id == D_8013F288 && D_8013AF56 == 0x1D) {
+        if (e->id == D_8013F288 && SaveMenu_Screen == 0x1D) {
             p[3] = 4;
             ((Sprt_8013E604 *)p)->code = 0x65;
         } else {
@@ -1183,7 +1183,7 @@ s32 func_8013E604(void) {
             x = e->x + 0x26;
         }
         for (j = 0; j < k; j++) {
-            if (D_8013F454_8013E604[i].id == D_8013F288 && D_8013AF56 == 0x1D) {
+            if (D_8013F454_8013E604[i].id == D_8013F288 && SaveMenu_Screen == 0x1D) {
                 p[3] = 4;
                 ((Sprt_8013E604 *)p)->code = 0x65;
             } else {
@@ -1291,7 +1291,7 @@ s32 func_8013ED0C(void) {
     now = VSync(-1);
     for (i = 0; i < 10; i++) {
         v = 0;
-        if (now - D_8013F298 > (i + 1) * 0x96 && D_8013AF56 == 0x15) {
+        if (now - D_8013F298 > (i + 1) * 0x96 && SaveMenu_Screen == 0x15) {
             p[3] = 4;
             ((Sprt_8013ED0C *)p)->code = 0x65;
             v = (now % 40 >= 0x15) ? 0x20 : 0;

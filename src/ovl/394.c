@@ -15,7 +15,7 @@ void CompMatrix(void *, void *, void *);
 void Matrix_SetIdentity(void *);
 void ScaleMatrixL(void *, void *);
 
-void func_80136000(SVECTOR *eye, SVECTOR *at) {
+void Loading_SetCamera(SVECTOR *eye, SVECTOR *at) {
     VEC_391 d;
     VEC_391 n;
     MAT_391 m;
@@ -86,10 +86,10 @@ u8 *func_801361D8(u8 *arg0, s32 arg1)
 
 typedef struct { s16 x, y, w, h; } Rect_80136208;
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x, y, w, h; } Tile_80136208;
-extern struct { u8 pad0[0x10]; SVECTOR eye; SVECTOR at; u8 pad20[0x14]; s16 tx, ty, tz, n; u8 pad3C[0x20]; s32 f5C; } D_80137010_80136208 asm("D_80137010");
+extern struct { u8 pad0[0x10]; SVECTOR eye; SVECTOR at; u8 pad20[0x14]; s16 tx, ty, tz, n; u8 pad3C[0x20]; s32 f5C; } D_80137010_80136208 asm("Loading_Scene");
 extern struct { u8 pad0[0x24]; s32 f24; s32 f28; s32 f2C; } D_800EBFA0_80136208 asm("D_800EBFA0");
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; u16 mode; } g_Game_80136208 asm("g_Game");
-extern s16 D_80136E30;
+extern s16 Loading_Timer;
 extern u8 D_80136E34[];
 extern s32 g_Cd;
 void Mem_Init(void);
@@ -100,26 +100,26 @@ s32 VSync(s32 mode);
 void *PutDispEnv(void *env);
 void *PutDrawEnv(void *env);
 void DrawOTag(u32 *p);
-void func_80136C94(void);
+void Loading_PickEntry(void);
 s32 Cd_StartLoadList(void *);
 s32 Cd_PollLoadList(void);
 void Cd_Update(void);
 void Cd_WaitIdle();
-s32 func_80136780(void);
+s32 Loading_LoadModels(void);
 s32 Sound_ResumeStreams(void);
 void func_8002FAF0(s32);
 void Light_SetColorMode(s32, s32, s32, s32);
-void func_80136C04(void);
-void func_80136C6C(void);
+void Loading_StartAnim(void);
+void Loading_PlayVoice(void);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
 void DebugFont_Init(void);
-void func_801368CC(void);
-void func_80136AA0(void);
-s32 func_80136724(void);
-void func_80136000(SVECTOR *eye, SVECTOR *at);
+void Loading_DrawProp(void);
+void Loading_DrawCharacter(void);
+s32 Loading_Update(void);
+void Loading_SetCamera(SVECTOR *eye, SVECTOR *at);
 
-s32 func_80136208(void) {
+s32 Loading_Main(void) {
     Rect_80136208 r = { 0, 0, 0x180, 0x200 };
     SprtTp *p;
     Tile_80136208 *t;
@@ -134,15 +134,15 @@ s32 func_80136208(void) {
     PutDispEnv(&g_Game_80136208.db[g_Game_80136208.cur].env[0x5C]);
     PutDrawEnv(g_Game_80136208.db[g_Game_80136208.cur].env);
     VSync(0);
-    D_80136E30 = 0;
-    func_80136C94();
+    Loading_Timer = 0;
+    Loading_PickEntry();
     Cd_StartLoadList(D_80136E34);
     while (Cd_PollLoadList() >= 0) {
         VSync(2);
         Cd_Update();
     }
     Cd_WaitIdle(0);
-    func_80136780();
+    Loading_LoadModels();
     Sound_ResumeStreams();
     func_8002FAF0(0x148);
     Light_SetColorMode(0, 0, 0, 0);
@@ -160,9 +160,9 @@ s32 func_80136208(void) {
     D_80137010_80136208.at.vy = -0x80;
     D_80137010_80136208.at.vz = 0;
     D_80137010_80136208.f5C = 0;
-    func_80136000(&D_80137010_80136208.eye, &D_80137010_80136208.at);
-    func_80136C04();
-    func_80136C6C();
+    Loading_SetCamera(&D_80137010_80136208.eye, &D_80137010_80136208.at);
+    Loading_StartAnim();
+    Loading_PlayVoice();
     for (;;) {
         func_8001325C(0);
         Gfx_BeginFrame();
@@ -182,8 +182,8 @@ s32 func_80136208(void) {
         ADD_PRIM_R(&ot[0xFFF], p, "$4", "$2");
         p++;
         g_Game_80136208.prim = (u8 *)p;
-        func_801368CC();
-        func_80136AA0();
+        Loading_DrawProp();
+        Loading_DrawCharacter();
         t = (Tile_80136208 *)g_Game_80136208.prim;
         *(u32 *)&t->r0 = 0;
         ((u8 *)t)[3] = 3;
@@ -193,7 +193,7 @@ s32 func_80136208(void) {
         ADD_PRIM_R(&g_Game_80136208.db[g_Game_80136208.cur].ot[0xFFF], t, "$5", "$3");
         t++;
         g_Game_80136208.prim = (u8 *)t;
-        if (func_80136724() < 0 && g_Cd == 0) {
+        if (Loading_Update() < 0 && g_Cd == 0) {
             break;
         }
         DrawSync(0);
@@ -213,7 +213,7 @@ s32 func_80136208(void) {
             D_80137010_80136208.eye.vy += dy;
             D_80137010_80136208.eye.vz += dz;
         }
-        func_80136000(&D_80137010_80136208.eye, &D_80137010_80136208.at);
+        Loading_SetCamera(&D_80137010_80136208.eye, &D_80137010_80136208.at);
         D_80137010_80136208.f5C++;
     }
     g_Game_80136208.mode = 0xD;
@@ -229,14 +229,14 @@ s32 func_80136208(void) {
     return 0;
 }
 
-extern s16 D_80136E30;
+extern s16 Loading_Timer;
 extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_80136724 asm("g_Pad");
 
-s32 func_80136724(void) {
+s32 Loading_Update(void) {
     if (g_Pad_80136724.f_158 & g_Pad_80136724.f_160 & 0x800) {
         return -1;
     }
-    if (++D_80136E30 >= 0x259) {
+    if (++Loading_Timer >= 0x259) {
         return -1;
     }
     return 0;
@@ -250,7 +250,7 @@ u8 *Mem_AllocPages(s32);
 void Model_BindMesh(void *, u32 *);
 void Model_BindBoned(void *, u8 *);
 
-s32 func_80136780(void) {
+s32 Loading_LoadModels(void) {
     u8 *h;
     s32 i;
     Obj_80136780 *e;
@@ -292,7 +292,7 @@ void func_80017CD4_801368CC(void *, void *, void *) asm("Model_Draw");
 void Model_ProjectVertsAlt(void *, void *, void *);
 void Model_DrawColorAnim(void *, void *, void *, s32);
 
-void func_801368CC(void) {
+void Loading_DrawProp(void) {
     MAT_801368CC mat;
     SVECTOR r;
     VEC_801368CC s;
@@ -335,7 +335,7 @@ void func_801368CC(void) {
 
 typedef struct { u8 pad0[0x14]; s16 *f_14; u8 pad18[0xC]; s32 f_24, f_28, f_2C; u8 pad30[0x2C]; u16 f_5C; u16 f_5E; SVECTOR f_60; u8 pad68[8]; s16 f_70, f_72; s16 *f_74; } Obj_80136AA0;
 extern Obj_80136AA0 D_80136F88;
-extern struct { u8 pad0[0x54]; u32 f_54; u8 pad58[4]; u32 f_5C; } D_80137010_80136AA0 asm("D_80137010");
+extern struct { u8 pad0[0x54]; u32 f_54; u8 pad58[4]; u32 f_5C; } D_80137010_80136AA0 asm("Loading_Scene");
 extern s32 D_80137060;
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_80136AA0 asm("g_Game");
 extern u8 D_800E7D00_80136AA0[] asm("g_ProjVerts");
@@ -346,7 +346,7 @@ void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void func_80017CD4_80136AA0(void *, void *, void *) asm("Model_Draw");
 
-void func_80136AA0(void) {
+void Loading_DrawCharacter(void) {
     SVECTOR v;
     Obj_80136AA0 *o;
     s32 stop;
@@ -383,13 +383,13 @@ void func_80136AA0(void) {
 }
 
 typedef struct { u8 f_0; u8 f_1; u8 pad2[10]; } Ent_394;
-extern Ent_394 D_80136E4C[];
+extern Ent_394 Loading_Entries[];
 extern s32 D_80137058;
 extern struct { u8 pad0[0x28]; s32 f_28; u8 pad2C[0x30]; u16 f_5C; u16 f_5E; s16 f_60; u8 pad62[2]; s16 f_64; u8 pad66[0xA]; s16 f_70; u8 pad72[2]; u8 *f_74; } D_80136F88_80136C04 asm("D_80136F88");
 
-void func_80136C04(void) {
+void Loading_StartAnim(void) {
     s32 i = D_80137058;
-    s32 n = D_80136E4C[i].f_1;
+    s32 n = Loading_Entries[i].f_1;
     u16 fr = *(u16 *)(n * 4 + D_80136F88_80136C04.f_74);
 
     D_80136F88_80136C04.f_60 = -0x400;
@@ -400,19 +400,19 @@ void func_80136C04(void) {
     D_80136F88_80136C04.f_5C = fr;
 }
 
-void func_80136C6C(void) {
+void Loading_PlayVoice(void) {
     Cd_PlayXaTrack(D_8013705C);
 }
 
 typedef struct { s16 f0; u16 f2; s16 f4; s16 f6; u16 f8; s16 fA; } Ent_80136C94;
 extern struct { u32 f0; } g_Game_80136C94 asm("g_Game");
-extern Ent_80136C94 D_80136E4C_80136C94[] asm("D_80136E4C");
-extern struct { u8 pad0[0x48]; s32 f48, f4C, f50, f54; } D_80137010_80136C94 asm("D_80137010");
+extern Ent_80136C94 D_80136E4C_80136C94[] asm("Loading_Entries");
+extern struct { u8 pad0[0x48]; s32 f48, f4C, f50, f54; } D_80137010_80136C94 asm("Loading_Scene");
 extern u16 D_80136E3C_80136C94 asm("D_80136E3C");
 s32 SaveByte_Get(s32);
 s32 World_GetProgress(s32);
 
-void func_80136C94(void) {
+void Loading_PickEntry(void) {
     u32 i;
 
     i = g_Game_80136C94.f0 % 14;

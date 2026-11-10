@@ -1,4 +1,4 @@
-func_80136000 = 0x80136000; // type:func
-func_80136038 = 0x80136038; // type:func
-func_801361D0 = 0x801361D0; // type:func
-func_80136350 = 0x80136350; // type:func
+StageDemo_Main = 0x80136000; // type:func
+StageDemo_LoadStage0 = 0x80136038; // type:func
+StageDemo_Run = 0x801361D0; // type:func
+StageDemo_Update = 0x80136350; // type:func

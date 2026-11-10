@@ -9,16 +9,16 @@ extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; } g_Game;
 M2C_UNK StSetRing(s32, s32);
 M2C_UNK StSetStream(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32);
 s32 Mem_AllocPages(s32);
-extern s32 D_8013C1A8;
+extern s32 Fmv_Ring;
 s32 CdControl(s32, void *, void *);
 s32 CdRead2(M2C_UNK);
 M2C_UNK CdSync(M2C_UNK, M2C_UNK);
 extern s32 D_8013C544;
 extern s32 D_8013C548;
 M2C_UNK Mem_Free(s32);
-extern s32 D_8013C560;
-extern s32 D_8013C564;
-extern s32 D_8013C574;
+extern s32 Fmv_ModelEntries;
+extern s32 Fmv_Models;
+extern s32 Fmv_ModelFlags;
 M2C_UNK Model_BindMesh();
 M2C_UNK Model_BindBoned();
 extern s32 D_8013C760;
@@ -30,17 +30,17 @@ extern s32 D_8013C778;
 extern s32 D_8013C77C;
 extern M2C_UNK D_8013C7B0;
 
-void func_80136000(s32 arg0, s32 arg1) {
+void Fmv_InitStreamRing(s32 arg0, s32 arg1) {
     s32 var_s0;
 
     var_s0 = arg1;
     if (var_s0 == 0) {
         var_s0 = 0x28;
     }
-    if (D_8013C1A8 == 0) {
-        D_8013C1A8 = Mem_AllocPages(var_s0 << 0xB);
+    if (Fmv_Ring == 0) {
+        Fmv_Ring = Mem_AllocPages(var_s0 << 0xB);
     }
-    StSetRing(D_8013C1A8, var_s0);
+    StSetRing(Fmv_Ring, var_s0);
     StSetStream(0, 0, -1, 0, 0);
 }
 
@@ -86,13 +86,13 @@ INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", jtbl_8013C058);
 
 INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C07C);
 
-INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C090);
+INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", Fmv_Scenes);
 
 INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C150);
 
-INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C1A8);
+INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", Fmv_Ring);
 
-INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C1AC);
+INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", Fmv_RecHandlers);
 
 INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C1B8);
 
@@ -105,21 +105,21 @@ INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C254);
 typedef struct { u8 pad0[0x14]; u32 f_14; u8 pos[4]; } Fmv_80136074;
 extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_80136074 asm("g_Game");
 extern struct { u8 pad0[0x158]; u16 f_158; u8 pad15A[2]; s32 f_15C; } g_Pad_80136074 asm("g_Pad");
-extern Fmv_80136074 *D_8013C484_80136074 asm("D_8013C484");
-extern void (*D_8013C1AC_80136074[])(u8 *, u8 *) asm("D_8013C1AC");
+extern Fmv_80136074 *D_8013C484_80136074 asm("Fmv_CurScene");
+extern void (*D_8013C1AC_80136074[])(u8 *, u8 *) asm("Fmv_RecHandlers");
 extern DrawBuf D_800F03D0_80136074[] asm("D_800F03D0");
 extern s32 D_8013C4B0_80136074 asm("D_8013C4B0");
 extern s32 D_8013C4B4_80136074 asm("D_8013C4B4");
-s32 func_8013668C(s32 *mode, s32 idx);
+s32 Fmv_OpenScene(s32 *mode, s32 idx);
 s32 CdPosToInt(void *p);
 void *CdIntToPos(s32 i, void *p);
-void func_80136454(s32, s32);
-s32 func_80136E00(void *, void *);
-void func_801369E0(s32 arg0);
+void Fmv_StartStreamRead(s32, s32);
+s32 Fmv_GetNextFrame(void *, void *);
+void Fmv_CloseScene(s32 arg0);
 void SetDispMask(s32 mask);
 s32 VSync_80136074(s32) asm("VSync");
 void Gfx_BeginFrame(void);
-void func_80139E00(void);
+void Fmv_ClearModelFlags(void);
 void Particle_UpdateAll(void);
 void Fx_UpdateAll(void);
 u32 StFreeRing(u32 *base);
@@ -132,7 +132,7 @@ void func_8001325C(s32);
 __asm__(".section .rodata\n\t.globl D_8013C480\nD_8013C480:\n\t.word 0x00000000\n\t.section .text");
 extern s32 D_8013C480;
 
-s32 func_80136074(s32 idx) {
+s32 Fmv_PlayDemo(s32 idx) {
     u8 *ring;
     u32 *head;
     s16 st0;
@@ -149,14 +149,14 @@ s32 func_80136074(s32 idx) {
     skip = 0;
     pad = 0;
     lag = 0;
-    while (func_8013668C(&D_8013C480, idx) != 0) {
+    while (Fmv_OpenScene(&D_8013C480, idx) != 0) {
     }
     CdIntToPos(CdPosToInt(D_8013C484_80136074->pos) + 5, D_8013C484_80136074->pos);
-    func_80136454((s32)D_8013C484_80136074->pos, D_8013C480);
-    if (func_80136E00(&ring, &head) != 0) {
+    Fmv_StartStreamRead((s32)D_8013C484_80136074->pos, D_8013C480);
+    if (Fmv_GetNextFrame(&ring, &head) != 0) {
         code = 2;
 fail:
-        func_801369E0(code);
+        Fmv_CloseScene(code);
         return 1;
     }
     SetDispMask(1);
@@ -167,7 +167,7 @@ fail:
         for (rec = ring; *(u16 *)rec != 0; rec += *(u16 *)rec * 2) {
             D_8013C1AC_80136074[rec[2]](rec, rec + 4);
         }
-        func_80139E00();
+        Fmv_ClearModelFlags();
         Particle_UpdateAll();
         Fx_UpdateAll();
         if (*(u16 *)(rec + 2) == 0xFFFF) {
@@ -183,7 +183,7 @@ fail:
             goto fail;
         }
         g_Game_80136074.frame++;
-        if (func_80136E00(&ring, &head) != 0) {
+        if (Fmv_GetNextFrame(&ring, &head) != 0) {
             code = 1;
             goto fail;
         }
@@ -195,7 +195,7 @@ fail:
                 StRingStatus(&st0, &st1);
                 if (st1 >= 4) {
                     StFreeRing((u32 *)ring);
-                    if (func_80136E00(&ring, &head) != 0) {
+                    if (Fmv_GetNextFrame(&ring, &head) != 0) {
                         code = 1;
                         goto fail;
                     }
@@ -225,11 +225,11 @@ fail:
     VSync_80136074(D_8013C4B4_80136074);
     PutDispEnv(&g_Game_80136074.db[g_Game_80136074.cur].env[0x5C]);
     PutDrawEnv(g_Game_80136074.db[g_Game_80136074.cur].env);
-    func_801369E0(0);
+    Fmv_CloseScene(0);
     return 0;
 }
 
-void func_80136454(s32 arg0, M2C_UNK arg1) {
+void Fmv_StartStreamRead(s32 arg0, M2C_UNK arg1) {
     do {
 loop_1:
         if (CdControl(2, arg0, 0) == 0) {
@@ -245,7 +245,7 @@ s32 CdReady(s32 mode, u8 *result);
 s32 CdPosToInt(void *p);
 void func_8001325C(s32);
 
-void func_801364B0(u8 *pos, u8 *end, u8 mode, s32 seek) {
+void Fmv_PlayCdUntilButton(u8 *pos, u8 *end, u8 mode, s32 seek) {
     u8 result[8];
     u8 loc[8];
     u8 param[4];
@@ -298,7 +298,7 @@ extern struct { u8 pad0[0x1C]; Col_384b f_1C; Col_384b f_20; s32 f_24; s32 f_28;
 s32 VSyncCallback(void *);
 s32 func_800315D0(void);
 
-void func_80136604(void)
+void Fmv_SaveGfxState(void)
 {
   struct 
   {
@@ -318,45 +318,45 @@ void func_80136604(void)
 }
 
 typedef struct { u8 f_0; u8 f_1; u8 pad2[0xE]; u32 f_10; u8 pad14[8]; } Fmv_8013668C;
-extern Fmv_8013668C *D_8013C484_8013668C asm("D_8013C484");
-extern Fmv_8013668C D_8013C090[];
+extern Fmv_8013668C *D_8013C484_8013668C asm("Fmv_CurScene");
+extern Fmv_8013668C Fmv_Scenes[];
 extern s32 D_8013C4B0;
 extern s32 D_8013C4B4;
 void Mem_Init(void);
 void func_800A3750(s32);
-void func_80137D20(void);
-void func_80136000(s32 arg0, s32 arg1);
+void Fmv_AllocModelBuffers(void);
+void Fmv_InitStreamRing(s32 arg0, s32 arg1);
 void Sound_SetXaVolume(s32);
 s32 CdControlB(s32, void *, void *);
-void func_80136EA8(void);
-void func_80136BD4(void);
+void Fmv_LetterboxIn(void);
+void Fmv_InitDisplay(void);
 
-s32 func_8013668C(s32 *mode, s32 idx) {
-    func_8013BA80(0);
-    func_80136604();
+s32 Fmv_OpenScene(s32 *mode, s32 idx) {
+    Fmv_SaveRestoreVram(0);
+    Fmv_SaveGfxState();
     Mem_Init();
     func_800A3750(1);
-    D_8013C484_8013668C = &D_8013C090[idx];
-    if (func_80136884(idx) != 0) {
+    D_8013C484_8013668C = &Fmv_Scenes[idx];
+    if (Fmv_LoadSceneFiles(idx) != 0) {
         return 1;
     }
     D_8013C4B0 = D_8013C4B4 = D_8013C484_8013668C->f_0;
     Fmv_LoadModelTable((void *)0x80148000);
-    func_80137D20();
-    func_80136000(0, D_8013C484_8013668C->f_1);
+    Fmv_AllocModelBuffers();
+    Fmv_InitStreamRing(0, D_8013C484_8013668C->f_1);
     *mode = 0x120;
     if (D_8013C484_8013668C->f_10 & 1) {
         *mode = 0x1A0;
     }
     if ((D_8013C484_8013668C->f_10 >> 1) & 1) {
         *mode |= 0x48;
-        func_80136E68(1);
+        Fmv_SetXaChannel(1);
     }
     Sound_SetXaVolume(-1);
     while (CdControlB(0xC, 0, 0) == 0) {
     }
-    func_80136EA8();
-    func_80136BD4();
+    Fmv_LetterboxIn();
+    Fmv_InitDisplay();
     return 0;
 }
 
@@ -365,7 +365,7 @@ typedef struct { u8 pad0[0x6E]; u16 y; u8 pad70[0x4078 - 0x70]; } Db_801367DC;
 extern struct { u8 pad0[0xC]; s32 f_C; } g_Game_801367DC asm("g_Game");
 void MoveImage(Rect_801367DC *, s32, s32);
 
-void func_801367DC(void) {
+void Fmv_CopyFrontBuffer(void) {
     Rect_801367DC r;
     Rect_801367DC c;
 
@@ -382,14 +382,14 @@ typedef struct { Loc_80136884 pos; u32 size; char name[16]; } File_80136884;
 typedef struct { s32 a, b, c; } Tri_80136884;
 typedef struct { u8 pad0[4]; char *f_4; char *f_8; Tri_80136884 f_C; Loc_80136884 f_18; } Fmv_80136884;
 typedef struct { s32 f_0; s32 f_4; u8 pad8[8]; s32 f_10; s32 f_14; Tri_80136884 f_18; } Hdr_80136884;
-extern Fmv_80136884 *D_8013C484_80136884 asm("D_8013C484");
+extern Fmv_80136884 *D_8013C484_80136884 asm("Fmv_CurScene");
 void *CdSearchFile(void *fp, char *name);
 s32 CdPosToInt(void *p);
 void *CdIntToPos(s32 i, void *p);
-s32 func_8013AE80(void);
+s32 Fmv_CdReadBusy(void);
 void Tex_LoadPack(s32);
 
-s32 func_80136884(void) {
+s32 Fmv_LoadSceneFiles(void) {
     File_80136884 fp;
     Hdr_80136884 *h;
     s32 base;
@@ -400,23 +400,23 @@ s32 func_80136884(void) {
     while (CdSearchFile(&fp, D_8013C484_80136884->f_4) == 0) {
     }
     fp.size = 0x800;
-    func_8013ADA0((s32)h, &fp);
-    while (func_8013AE80() != 0) {
+    Fmv_CdReadStart((s32)h, &fp);
+    while (Fmv_CdReadBusy() != 0) {
     }
     D_8013C484_80136884->f_C = h->f_18;
     base = CdPosToInt(&fp);
     if (h->f_4 != 0) {
         CdIntToPos(base + h->f_0, &fp);
         fp.size = h->f_4;
-        func_8013ADA0(tex, &fp);
-        while (func_8013AE80() != 0) {
+        Fmv_CdReadStart(tex, &fp);
+        while (Fmv_CdReadBusy() != 0) {
         }
         Tex_LoadPack(tex);
     }
     CdIntToPos(base + h->f_10, &fp);
     fp.size = h->f_14;
-    func_8013ADA0(0x80148000, &fp);
-    while (func_8013AE80() != 0) {
+    Fmv_CdReadStart(0x80148000, &fp);
+    while (Fmv_CdReadBusy() != 0) {
     }
     while (CdSearchFile(&fp, D_8013C484_80136884->f_8) == 0) {
     }
@@ -431,14 +431,14 @@ extern Col_801369E0 D_8013C498_801369E0 asm("D_8013C498");
 extern Col_801369E0 D_8013C49C_801369E0 asm("D_8013C49C");
 extern u8 D_8013C150[];
 void StUnSetRing(void);
-void func_801364B0(u8 *pos, u8 *end, u8 mode, s32 seek);
-void func_80139DAC(void);
+void Fmv_PlayCdUntilButton(u8 *pos, u8 *end, u8 mode, s32 seek);
+void Fmv_FreeModels(void);
 s32 func_8002FAF0(s32);
-void func_8013AA70(void);
-void func_8013BA80(s32 load);
+void Fmv_RestoreFontClut(void);
+void Fmv_SaveRestoreVram(s32 load);
 void DrawSync(s32);
 
-void func_801369E0(s32 arg0) {
+void Fmv_CloseScene(s32 arg0) {
     u8 loc0[4];
     u8 loc1[4];
     s32 base;
@@ -454,19 +454,19 @@ void func_801369E0(s32 arg0) {
         loc1[1] = 0x42;
         loc1[2] = 0x33;
         CdIntToPos(base + CdPosToInt(loc1), loc1);
-        func_801364B0(loc0, loc1, 1, 0);
+        Fmv_PlayCdUntilButton(loc0, loc1, 1, 0);
     }
     Sound_SetXaVolume(2);
-    func_80136E68(0);
+    Fmv_SetXaChannel(0);
     while (CdControl(9, 0, 0) == 0) {
     }
-    func_80136E68(0);
+    Fmv_SetXaChannel(0);
     while (CdControl(9, 0, 0) == 0) {
     }
-    func_80136FF0(arg0);
-    func_80139DAC();
-    Mem_Free(D_8013C1A8);
-    D_8013C1A8 = 0;
+    Fmv_FadeOut(arg0);
+    Fmv_FreeModels();
+    Mem_Free(Fmv_Ring);
+    Fmv_Ring = 0;
     VSyncCallback((void *)D_8013C488);
     func_8002FAF0(D_8013C48C);
     g_Game_801369E0.db[0].hud[1] = 0x801A8000;
@@ -475,8 +475,8 @@ void func_801369E0(s32 arg0) {
     D_800EBFA0_801369E0.f_28 = D_8013C494;
     D_800EBFA0_801369E0.f_20 = D_8013C498_801369E0;
     D_800EBFA0_801369E0.f_1C = D_8013C49C_801369E0;
-    func_8013AA70();
-    func_8013BA80(1);
+    Fmv_RestoreFontClut();
+    Fmv_SaveRestoreVram(1);
     DrawSync(0);
 }
 
@@ -488,7 +488,7 @@ typedef struct { Rect_80136BD4 disp; Rect_80136BD4 screen; u8 isinter, isrgb24, 
 typedef struct { DrawEnv_80136BD4 draw; DispEnv_80136BD4 disp; u32 ot[0x1000]; u32 hud; u8 *primbase; } Db_80136BD4;
 extern struct { u8 pad0[0x10]; Db_80136BD4 db[2]; } g_Game_80136BD4 asm("g_Game");
 extern Rect_80136BD4 D_8013C050;
-extern Fmv_80136BD4 *D_8013C484_80136BD4 asm("D_8013C484");
+extern Fmv_80136BD4 *D_8013C484_80136BD4 asm("Fmv_CurScene");
 extern struct { u8 pad0[0x1C]; s32 f_1C; u8 f_20, f_21, f_22, f_23; s32 f_24; s32 f_28; } D_800EBFA0_80136BD4 asm("D_800EBFA0");
 void *memset(void *, s32, s32);
 void SetGeomOffset(s32 ofx, s32 ofy);
@@ -497,7 +497,7 @@ void *SetDefDispEnv(void *env, s32 x, s32 y, s32 w, s32 h);
 void SetBackColor(s32, s32, s32);
 void SetColorMatrix(void *);
 
-void func_80136BD4(void) {
+void Fmv_InitDisplay(void) {
     s32 o[2];
     Rect_80136BD4 r;
     Mat_80136BD4 cm;
@@ -561,7 +561,7 @@ void func_80136BD4(void) {
 
 s32 StGetNext(void *, void *);
 
-s32 func_80136E00(void *a, void *b) {
+s32 Fmv_GetNextFrame(void *a, void *b) {
     u32 i = 0;
 
     while (StGetNext(a, b) != 0) {
@@ -574,7 +574,7 @@ s32 func_80136E00(void *a, void *b) {
 
 s32 CdControlB(s32, void *, void *);
 
-void func_80136E68(u8 chan)
+void Fmv_SetXaChannel(u8 chan)
 {
   struct 
   {
@@ -601,8 +601,8 @@ void func_80136E68(u8 chan)
 }
 
 typedef struct { u8 pad0[0x10]; u32 f_10; } Fmv_80136EA8;
-extern Fmv_80136EA8 *D_8013C484;
-void func_801367DC(void);
+extern Fmv_80136EA8 *Fmv_CurScene;
+void Fmv_CopyFrontBuffer(void);
 void DrawSync(s32);
 void VSync(s32);
 void Gfx_BeginFrame(void);
@@ -611,13 +611,13 @@ void *PutDispEnv(void *);
 void *PutDrawEnv(void *);
 void DrawOTag(u32 *);
 
-void func_80136EA8(void) {
+void Fmv_LetterboxIn(void) {
     s32 i;
 
     i = 0;
-    if ((D_8013C484->f_10 >> 3) & 1) {
+    if ((Fmv_CurScene->f_10 >> 3) & 1) {
         G_DRAW.cur ^= 1;
-        func_801367DC();
+        Fmv_CopyFrontBuffer();
         DrawSync(i);
         G_DRAW.db[1].env[0x18] = 0;
         G_DRAW.db[0].env[0x18] = 0;
@@ -636,13 +636,13 @@ void func_80136EA8(void) {
 }
 
 typedef struct { u8 pad0[3]; u8 f_3; u8 pad4[0xC]; u32 f_10; } Fmv_80136FF0;
-extern Fmv_80136FF0 *D_8013C484_80136FF0 asm("D_8013C484");
+extern Fmv_80136FF0 *D_8013C484_80136FF0 asm("Fmv_CurScene");
 extern GameDraw g_Game_80136FF0 asm("g_Game");
 extern void *jtbl_8013C058[];
 s32 VSync_80136FF0(s32) asm("VSync");
-void func_80138354(void *arg0, u8 *c);
+void Fmv_DrawFadeTile(void *arg0, u8 *c);
 
-void func_80136FF0(s32 arg0) {
+void Fmv_FadeOut(s32 arg0) {
     u8 col[4];
     u8 rec[8];
     s32 i;
@@ -677,7 +677,7 @@ start:
     VSync_80136FF0(D_8013C4B4);
     PutDispEnv(&g_Game_80136FF0.db[g_Game_80136FF0.cur].env[0x5C]);
     PutDrawEnv(g_Game_80136FF0.db[g_Game_80136FF0.cur].env);
-    func_801367DC();
+    Fmv_CopyFrontBuffer();
     SetDefDrawEnv(&g_Game_80136FF0.db[0], i, i, 0x180, 0xF0);
     SetDefDrawEnv(&g_Game_80136FF0.db[1], i, 0x100, 0x180, 0xF0);
     g_Game_80136FF0.db[1].env[0x18] = 0;
@@ -688,7 +688,7 @@ start:
         col[2] = i;
         col[1] = i;
         col[0] = i;
-        func_80138354(rec, col);
+        Fmv_DrawFadeTile(rec, col);
         DrawSync(0);
         VSync_80136FF0(D_8013C4B4);
         PutDispEnv(&g_Game_80136FF0.db[g_Game_80136FF0.cur].env[0x5C]);
@@ -712,7 +712,7 @@ extern struct { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } D_800EBFA0_801372
 extern struct { u8 pad0[8]; void *f_8; s32 f_C; s32 f_10; } D_800F5AA0_80137248 asm("g_OverlayState");
 extern Ent_80137248 *D_800B4D64_80137248 asm("g_StageMeshes");
 extern FmvEnt_80137248 D_8013C244_80137248[] asm("D_8013C244");
-extern void (*D_8013C1AC_80137248[])(u8 *, u8 *) asm("D_8013C1AC");
+extern void (*D_8013C1AC_80137248[])(u8 *, u8 *) asm("Fmv_RecHandlers");
 extern void *D_8013C1B8_80137248 asm("D_8013C1B8");
 extern u32 D_8013C250_80137248 asm("D_8013C250");
 extern char D_8013C07C_80137248[] asm("D_8013C07C");
@@ -725,14 +725,14 @@ void Gfx_WaitFlip(void);
 void bios_printf(char *, ...);
 void bios_exit(s32);
 void *Cd_GetFileEntry(void *, s32);
-void func_80137878(void);
-void func_80136000(s32, s32);
-void func_8013A8A0(s32 *);
-void func_80138094();
-void func_80136E68(u8);
-void func_80136454(s32, s32);
-s32 func_80136E00(void *, void *);
-void func_80137A64(void);
+void Fmv_SetLetterboxDrawEnv(void);
+void Fmv_InitStreamRing(s32, s32);
+void Fmv_LoadSubtitles(s32 *);
+void Fmv_RecCameraZoomed();
+void Fmv_SetXaChannel(u8);
+void Fmv_StartStreamRead(s32, s32);
+s32 Fmv_GetNextFrame(void *, void *);
+void Fmv_ClearVram(void);
 void Stage_DrawPlacedModels(void);
 void Hud_Draw(void);
 void Stage_UpdateSpecial(void);
@@ -741,9 +741,9 @@ void Fx_UpdateAll(void);
 void Tex_UpdateAnims(void);
 u32 StFreeRing(u32 *base);
 s32 StRingStatus(s16 *, s16 *);
-void func_801378F0(s32, u8 *);
+void Fmv_EndInGame(s32, u8 *);
 
-s32 func_80137248(s32 idx) {
+s32 Fmv_PlayInGame(s32 idx) {
     s16 st0;
     s16 st1;
     u32 *head;
@@ -773,8 +773,8 @@ s32 func_80137248(s32 idx) {
     }
     Cd_GetFileEntry(D_8013C244_80137248[idx].file, D_8013C244_80137248[idx].name);
     mode = 0x120;
-    func_80137878();
-    func_80136000(0, 0);
+    Fmv_SetLetterboxDrawEnv();
+    Fmv_InitStreamRing(0, 0);
     Fmv_LoadModelTable(D_800F5AA0_80137248.f_8);
     switch (idx) {
     case 1:
@@ -791,20 +791,20 @@ s32 func_80137248(s32 idx) {
         break;
     }
     if (D_800F5AA0_80137248.f_C != 0) {
-        func_8013A8A0((s32 *)D_800F5AA0_80137248.f_C);
+        Fmv_LoadSubtitles((s32 *)D_800F5AA0_80137248.f_C);
     }
     if (idx == 6) {
-        D_8013C1B8_80137248 = func_80138094;
+        D_8013C1B8_80137248 = Fmv_RecCameraZoomed;
     }
     if ((D_8013C244_80137248[idx].flags >> 1) & 1) {
         mode |= 0x48;
-        func_80136E68(1);
+        Fmv_SetXaChannel(1);
     }
     Sound_SetXaVolume(-1);
     while (CdControlB(0xC, 0, 0) == 0) {
     }
-    func_80136454((s32)CdIntToPos(CdPosToInt(D_8013C244_80137248[idx].file) + 5, D_8013C244_80137248[idx].file), mode);
-    if (func_80136E00(&ring, &head) != 0) {
+    Fmv_StartStreamRead((s32)CdIntToPos(CdPosToInt(D_8013C244_80137248[idx].file) + 5, D_8013C244_80137248[idx].file), mode);
+    if (Fmv_GetNextFrame(&ring, &head) != 0) {
         goto fail;
     }
     {
@@ -816,7 +816,7 @@ s32 func_80137248(s32 idx) {
         D_8013C4A0 = a;
         D_8013C4A4 = b;
     }
-    func_80137A64();
+    Fmv_ClearVram();
     D_8013C4B4 = 2;
     now = VSync_80137248(-1);
     g_Game_80137248.frame = 1;
@@ -841,7 +841,7 @@ s32 func_80137248(s32 idx) {
         }
         StFreeRing((u32 *)ring);
         g_Game_80137248.frame++;
-        while (func_80136E00(&ring, &head) != 0) {
+        while (Fmv_GetNextFrame(&ring, &head) != 0) {
         }
         if (skip) {
             n = lag >> 1;
@@ -852,7 +852,7 @@ s32 func_80137248(s32 idx) {
                 StRingStatus(&st0, &st1);
                 if (st1 >= 4) {
                     StFreeRing((u32 *)ring);
-                    while (func_80136E00(&ring, &head) != 0) {
+                    while (Fmv_GetNextFrame(&ring, &head) != 0) {
                     }
                 }
             } while (--n);
@@ -875,7 +875,7 @@ s32 func_80137248(s32 idx) {
         pad = g_Pad_80137248.f_158 | (g_Pad_80137248.f_15C << 16);
     } while (old == pad || !(pad & 0x860));
 fail:
-    func_801378F0(unk, tbl);
+    Fmv_EndInGame(unk, tbl);
     return 1;
 done:
     DrawSync(0);
@@ -884,7 +884,7 @@ done:
     PutDrawEnv(G2_80137248.db[G2_80137248.cur].env);
     DrawOTag(&G2_80137248.db[G2_80137248.cur].ot[0xFFF]);
     G2_80137248.cur ^= 1;
-    func_801378F0(unk, tbl);
+    Fmv_EndInGame(unk, tbl);
     Gfx_BeginFrame();
     return 0;
 }
@@ -893,7 +893,7 @@ typedef struct { u8 pad0[8]; s16 x; s16 y; u8 padC[0x406C]; } Buf_80137878;
 extern struct { u8 pad0[0x10]; Buf_80137878 db[2]; } g_Game_80137878 asm("g_Game");
 void SetDefDrawEnv(void *, s32, s32, s32, s32);
 
-void func_80137878(void) {
+void Fmv_SetLetterboxDrawEnv(void) {
     SetDefDrawEnv(&g_Game_80137878.db[0], 0, 0x1E, 0x180, 0xB4);
     SetDefDrawEnv(&g_Game_80137878.db[1], 0, 0x11E, 0x180, 0xB4);
     g_Game_80137878.db[0].y = 0;
@@ -910,11 +910,11 @@ extern s32 D_8013C4A0;
 extern s32 D_8013C4A4;
 s32 func_8002FAF0(s32);
 void StUnSetRing(void);
-void func_80139DAC(void);
+void Fmv_FreeModels(void);
 s32 Stage_SpecialSetup(void);
 s32 Gfx_InitDisplay(void);
 
-void func_801378F0(s32 arg0, u8 *tbl) {
+void Fmv_EndInGame(s32 arg0, u8 *tbl) {
     s32 i;
     Ent_801378F0 *e;
 
@@ -932,8 +932,8 @@ void func_801378F0(s32 arg0, u8 *tbl) {
     StUnSetRing();
     while (CdControl(9, 0, 0) == 0) {
     }
-    func_80139DAC();
-    Mem_Free(D_8013C1A8);
+    Fmv_FreeModels();
+    Mem_Free(Fmv_Ring);
     Stage_SpecialSetup();
     Gfx_InitDisplay();
     DrawSync(0);
@@ -950,7 +950,7 @@ void ClearImage(Rect_384 *, s32, s32, s32);
 void DrawSync(s32);
 void VSync(s32);
 
-void func_80137A64(void) {
+void Fmv_ClearVram(void) {
     Rect_384 r;
 
     r.w = 0x180;
@@ -964,7 +964,7 @@ void func_80137A64(void) {
 
 __asm__(".section .text\n.balign 16");
 
-INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C484);
+INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", Fmv_CurScene);
 
 INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C488);
 
@@ -987,16 +987,16 @@ INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C4B0);
 INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C4B4);
 
 extern struct { u8 pad0[0x8120]; u16 f_8120; u8 pad8122[4]; u16 f_8126; u8 pad8128[0x32]; u16 f_815A; } g_Game_80137AC0 asm("g_Game");
-s32 func_80136074(s32);
+s32 Fmv_PlayDemo(s32);
 s32 Cd_StartFileLoad(s32, s32);
 s32 Cd_PollLoadList(void);
 void Cd_Update(void);
 s32 Movie_SetSeen(s32);
 s32 SaveByte_Set(s32, s32);
 
-s32 func_80137AC0(void) {
+s32 Fmv_Main(void) {
     VSync(2);
-    func_80136074(g_Game_80137AC0.f_815A);
+    Fmv_PlayDemo(g_Game_80137AC0.f_815A);
     Cd_StartFileLoad(0, 0xC);
     while (Cd_PollLoadList() == 0) {
         Cd_Update();
@@ -1053,26 +1053,26 @@ s32 func_80137AC0(void) {
 }
 __asm__(".section .rodata\n\t.align 3\n\t.section .text\n\t.balign 16");
 
-void func_80137D20(void) {
+void Fmv_AllocModelBuffers(void) {
     s32 sp10;
     s32 sp14;
     s32 temp_v0;
 
-    func_801398B0(&sp10, &sp14);
+    Fmv_GetMaxModelCounts(&sp10, &sp14);
     temp_v0 = Mem_AllocPages((sp10 * 8) + (sp14 * 4));
     D_8013C544 = temp_v0;
     D_8013C548 = temp_v0 + (sp14 * 4);
 }
 
-void func_80137D74(void) {
+void Fmv_FreeModelBuffers(void) {
     Mem_Free(D_8013C544);
     Mem_Free(D_8013C548);
 }
 
-void func_80137DAC(void) {
+void Fmv_RecNop(void) {
 }
 
-/* func_8013B9B0 prototype is the one at the top of src/ovl/384_fmv.c */
+/* Fmv_DrawModel prototype is the one at the top of src/ovl/384_fmv.c */
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_80137DB4;
 extern Mat_80137DB4 D_800E78C0_80137DB4 asm("g_ViewMatrix");
 extern struct { void (*f_0)(u8 *, s16 *); s16 *f_4; } D_8013C550_80137DB4 asm("D_8013C550");
@@ -1080,19 +1080,19 @@ extern struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } D_8013C558_80137DB4 asm("D
 extern s32 D_800E7D00_80137DB4 asm("g_ProjVerts");
 extern struct { u8 pad0[0x20]; u8 r, g, b; } D_800EBFA0_80137DB4 asm("D_800EBFA0");
 extern struct { u8 pad0[0xC]; s32 cur; } g_Game_80137DB4 asm("g_Game");
-s32 func_801398D0(s16 i);
-u8 func_80139DE4(s32 i);
+s32 Fmv_GetModel(s16 i);
+u8 Fmv_GetModelFlags(s32 i);
 void CompMatrix(void *, void *, void *);
 void Model_ProjectVertsAlt(void *, void *, void *);
 
-void func_80137DB4(u8 *arg0, s16 *arg1) {
+void Fmv_RecModelScaled(u8 *arg0, s16 *arg1) {
     Mat_80137DB4 m;
     s32 model;
 
-    model = func_801398D0(arg0[3]);
-    D_8013C550_80137DB4.f_0 = func_80137DB4;
+    model = Fmv_GetModel(arg0[3]);
+    D_8013C550_80137DB4.f_0 = Fmv_RecModelScaled;
     D_8013C550_80137DB4.f_4 = arg1;
-    func_80139668(&m, arg1, 1);
+    Fmv_KeyToMatrix(&m, arg1, 1);
     CompMatrix(&D_800E78C0_80137DB4, &m, &m);
     Model_ProjectVertsAlt((void *)model, &m, &D_800E7D00_80137DB4);
     D_8013C558_80137DB4.f_0 = 4;
@@ -1103,31 +1103,31 @@ void func_80137DB4(u8 *arg0, s16 *arg1) {
     D_8013C558_80137DB4.f_2 = 0;
     D_8013C558_80137DB4.f_4 = 0;
     D_8013C558_80137DB4.f_6 = 0;
-    if (func_80139DE4(arg0[3]) & 1) {
+    if (Fmv_GetModelFlags(arg0[3]) & 1) {
         SetBackColor(0xFF, 0xFF, 0xFF);
-        func_8013B9B0((u8 *)(g_Game_80137DB4.cur * 0x4078 + (u8 *)&g_Game_80137DB4 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
+        Fmv_DrawModel((u8 *)(g_Game_80137DB4.cur * 0x4078 + (u8 *)&g_Game_80137DB4 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
                       &D_800E7D00_80137DB4, model, (M2C_UNK *)&D_8013C558_80137DB4);
         SetBackColor(D_800EBFA0_80137DB4.r, D_800EBFA0_80137DB4.g, D_800EBFA0_80137DB4.b);
     } else {
-        func_8013B9B0((u8 *)(g_Game_80137DB4.cur * 0x4078 + (u8 *)&g_Game_80137DB4 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
+        Fmv_DrawModel((u8 *)(g_Game_80137DB4.cur * 0x4078 + (u8 *)&g_Game_80137DB4 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
                       &D_800E7D00_80137DB4, model, (M2C_UNK *)&D_8013C558_80137DB4);
     }
 }
 
-void func_80137F64(void *arg0, s32 arg1) {
+void Fmv_RecBonedModelScaled(void *arg0, s32 arg1) {
     s32 temp_a1;
     s32 temp_s0;
 
-    temp_s0 = func_801398D0(M2C_FIELD(arg0, u8 *, 3));
+    temp_s0 = Fmv_GetModel(M2C_FIELD(arg0, u8 *, 3));
     temp_a1 = temp_s0;
-    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = func_80137F64;
+    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = Fmv_RecBonedModelScaled;
     D_8013C550.f_4 = arg1;
-    func_8013973C(arg1, temp_a1, 1);
+    Fmv_PoseFromKeys(arg1, temp_a1, 1);
     D_8013C558.f_0 = 0;
     D_8013C558.f_2 = 0;
     D_8013C558.f_4 = 2;
     D_8013C558.f_6 = 0;
-    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, temp_s0, &D_8013C558);
+    Fmv_DrawModel((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, temp_s0, &D_8013C558);
 }
 
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_384;
@@ -1137,7 +1137,7 @@ s32 func_8002FAF0(s32);
 void CompMatrix(void *, void *, void *);
 typedef struct { s32 f_0; Mat_384 m; } CamKey_384;
 
-void func_8013800C(void *arg0, CamKey_384 *k)
+void Fmv_RecCamera(void *arg0, CamKey_384 *k)
 {
   Mat_384 *new_var;
   func_8002FAF0(k->f_0);
@@ -1150,7 +1150,7 @@ void ScaleMatrix(void *, void *);
 void Matrix_SetIdentity(void *);
 typedef struct { s32 vx, vy, vz, pad; } Vec_80138094;
 
-void func_80138094(void *arg0, CamKey_384 *k) {
+void Fmv_RecCameraZoomed(void *arg0, CamKey_384 *k) {
     Mat_384 m;
     Vec_80138094 v;
     s32 s;
@@ -1171,7 +1171,7 @@ typedef struct { s16 x, y; u16 w, h; } Rect_8013818C;
 typedef struct { Rect_8013818C r; u16 n; } Src_8013818C;
 void SetDrawMove(void *, Rect_8013818C *, s32, s32);
 
-void func_8013818C(void *arg0, Src_8013818C *s) {
+void Fmv_RecMoveImage(void *arg0, Src_8013818C *s) {
     Rect_8013818C r;
     s16 pos[2];
     u8 *p;
@@ -1189,27 +1189,27 @@ void func_8013818C(void *arg0, Src_8013818C *s) {
     G_DRAW.prim = p + 0x18;
 }
 
-void func_80138254(void *arg0, s32 arg1) {
+void Fmv_RecBonedModel(void *arg0, s32 arg1) {
     s32 temp_a1;
     s32 temp_s0;
 
-    temp_s0 = func_801398D0(M2C_FIELD(arg0, u8 *, 3));
+    temp_s0 = Fmv_GetModel(M2C_FIELD(arg0, u8 *, 3));
     temp_a1 = temp_s0;
-    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = func_80138254;
+    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = Fmv_RecBonedModel;
     D_8013C550.f_4 = arg1;
-    func_8013973C(arg1, temp_a1, 0);
+    Fmv_PoseFromKeys(arg1, temp_a1, 0);
     D_8013C558.f_0 = 0;
     D_8013C558.f_2 = 0;
     D_8013C558.f_4 = 2;
     D_8013C558.f_6 = 0;
-    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, temp_s0, &D_8013C558);
+    Fmv_DrawModel((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, temp_s0, &D_8013C558);
 }
 
 typedef struct { u8 r, g, b, pad; } Col_384;
 extern struct { u8 pad0[0x20]; Col_384 back; } D_800EBFA0;
 void SetBackColor(s32, s32, s32);
 
-void func_801382FC(void *arg0, Col_384 *c) {
+void Fmv_RecBackColor(void *arg0, Col_384 *c) {
     D_800EBFA0.back = *c;
     SetBackColor(D_800EBFA0.back.r, D_800EBFA0.back.g, D_800EBFA0.back.b);
 }
@@ -1222,7 +1222,7 @@ void func_8013834C(void) {
 
 extern GameDraw g_Game_80138354 asm("g_Game");
 
-void func_80138354(void *arg0, u8 *c) {
+void Fmv_DrawFadeTile(void *arg0, u8 *c) {
     u8 *p = g_Game_80138354.prim;
     u32 code;
 
@@ -1252,13 +1252,13 @@ extern s32 D_800E7D00_80138404 asm("g_ProjVerts");
 extern struct { u8 pad0[0x20]; u8 r, g, b; } D_800EBFA0_80138404 asm("D_800EBFA0");
 extern struct { u8 pad0[0xC]; s32 cur; } g_Game_80138404 asm("g_Game");
 
-void func_80138404(u8 *arg0, Mat_80138404 *arg1) {
+void Fmv_RecModelMatrix(u8 *arg0, Mat_80138404 *arg1) {
     Mat_80138404 m;
     s32 model;
 
-    model = func_801398D0(arg0[3]);
+    model = Fmv_GetModel(arg0[3]);
     m = *arg1;
-    D_8013C550_80138404.f_0 = func_80138404;
+    D_8013C550_80138404.f_0 = Fmv_RecModelMatrix;
     D_8013C550_80138404.f_4 = arg1;
     CompMatrix(&D_800E78C0_80138404, &m, &m);
     Model_ProjectVertsAlt((void *)model, &m, &D_800E7D00_80138404);
@@ -1266,36 +1266,36 @@ void func_80138404(u8 *arg0, Mat_80138404 *arg1) {
     D_8013C558_80138404.f_2 = 0;
     D_8013C558_80138404.f_4 = 0;
     D_8013C558_80138404.f_6 = 0;
-    if (func_80139DE4(arg0[3]) & 1) {
+    if (Fmv_GetModelFlags(arg0[3]) & 1) {
         SetBackColor(0xFF, 0xFF, 0xFF);
-        func_8013B9B0((u8 *)(g_Game_80138404.cur * 0x4078 + (u8 *)&g_Game_80138404 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
+        Fmv_DrawModel((u8 *)(g_Game_80138404.cur * 0x4078 + (u8 *)&g_Game_80138404 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
                       &D_800E7D00_80138404, model, (M2C_UNK *)&D_8013C558_80138404);
         SetBackColor(D_800EBFA0_80138404.r, D_800EBFA0_80138404.g, D_800EBFA0_80138404.b);
     } else {
-        func_8013B9B0((u8 *)(g_Game_80138404.cur * 0x4078 + (u8 *)&g_Game_80138404 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
+        Fmv_DrawModel((u8 *)(g_Game_80138404.cur * 0x4078 + (u8 *)&g_Game_80138404 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
                       &D_800E7D00_80138404, model, (M2C_UNK *)&D_8013C558_80138404);
     }
 }
 
-void func_801385CC(void *arg0, s32 arg1) {
+void Fmv_RecBonedModelMatrices(void *arg0, s32 arg1) {
     s32 temp_a1;
     s32 temp_s0;
 
-    temp_s0 = func_801398D0(M2C_FIELD(arg0, u8 *, 3));
+    temp_s0 = Fmv_GetModel(M2C_FIELD(arg0, u8 *, 3));
     temp_a1 = temp_s0;
-    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = func_801385CC;
+    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = Fmv_RecBonedModelMatrices;
     D_8013C550.f_4 = arg1;
-    func_8013980C(arg1, temp_a1);
+    Fmv_PoseFromMatrices(arg1, temp_a1);
     D_8013C558.f_0 = 0;
     D_8013C558.f_2 = 0;
     D_8013C558.f_4 = 2;
     D_8013C558.f_6 = 0;
-    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, temp_s0, &D_8013C558);
+    Fmv_DrawModel((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, temp_s0, &D_8013C558);
 }
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, p1; s16 x1, y1; u8 r2, g2, b2, p2; s16 x2, y2; u8 r3, g3, b3, p3; s16 x3, y3; } PolyG4_80138670;
 
-void func_80138670(void *arg0, u32 *col) {
+void Fmv_RecGradientScreen(void *arg0, u32 *col) {
     PolyG4_80138670 *p;
     u32 *ot;
 
@@ -1328,7 +1328,7 @@ extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_8
 extern s32 D_8013C530;
 extern u32 *D_8013C540_80138730 asm("D_8013C540");
 
-void func_80138730(void *arg0, Win_80138730 *w) {
+void Fmv_RecCopyWindows(void *arg0, Win_80138730 *w) {
     u8 *p;
     Rect_80138730 r;
     register u32 *ot asm("$3");
@@ -1432,7 +1432,7 @@ void func_80138980(void) {
 
 void Effect_SpawnAt(s32, void *);
 
-void func_80138A6C(void *arg0, s16 *e) {
+void Fmv_RecSpawnEffect(void *arg0, s16 *e) {
     s16 *p = e;
     switch (e[0]) {
     case 0:
@@ -1448,7 +1448,7 @@ void func_80138A6C(void *arg0, s16 *e) {
 
 void SetDrawStp(void *, s32);
 
-void func_80138AC8(void) {
+void Fmv_RecSetMaskBit(void) {
     u8 *p;
     u32 *ot;
 
@@ -1462,7 +1462,7 @@ void func_80138AC8(void) {
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_80138B40;
 extern GameDraw g_Game_80138B40 asm("g_Game");
 
-void func_80138B40(void) {
+void Fmv_RecDrawScreenCopy(void) {
     register Sprt_80138B40 *p asm("$15");
     s32 y;
     u32 *ot;
@@ -1529,52 +1529,52 @@ void func_80138CE4(void *arg0, s16 *src)
   Fx_DrawLightning(&v, &w, ((g_RandSeed = (g_RandSeed * 5) + 1) >> 4) & 0xFF0);
 }
 
-void func_80138D60(void *arg0, u16 *arg1) {
+void Fmv_RecBonedModelScaledOfs(void *arg0, u16 *arg1) {
     s32 key;
     s32 model;
 
     key = (s32)(arg1 + 2);
-    model = func_801398D0(M2C_FIELD(arg0, u8 *, 3));
-    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = func_80137F64;
+    model = Fmv_GetModel(M2C_FIELD(arg0, u8 *, 3));
+    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = Fmv_RecBonedModelScaled;
     D_8013C550.f_4 = key;
-    func_8013973C(key, model, 1);
+    Fmv_PoseFromKeys(key, model, 1);
     D_8013C558.f_0 = 0;
     D_8013C558.f_2 = *arg1 << 6;
     D_8013C558.f_4 = 2;
     D_8013C558.f_6 = 0;
-    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, model, &D_8013C558);
+    Fmv_DrawModel((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, model, &D_8013C558);
 }
 
-void func_80138E1C(void *arg0, u16 *arg1) {
+void Fmv_RecBonedModelOfs(void *arg0, u16 *arg1) {
     s32 key;
     s32 model;
 
     key = (s32)(arg1 + 2);
-    model = func_801398D0(M2C_FIELD(arg0, u8 *, 3));
-    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = func_80137F64;
+    model = Fmv_GetModel(M2C_FIELD(arg0, u8 *, 3));
+    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = Fmv_RecBonedModelScaled;
     D_8013C550.f_4 = key;
-    func_8013973C(key, model, 0);
+    Fmv_PoseFromKeys(key, model, 0);
     D_8013C558.f_0 = 0;
     D_8013C558.f_2 = *arg1 << 6;
     D_8013C558.f_4 = 2;
     D_8013C558.f_6 = 0;
-    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, model, &D_8013C558);
+    Fmv_DrawModel((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, model, &D_8013C558);
 }
 
-void func_80138ED8(void *arg0, u16 *arg1) {
+void Fmv_RecBonedModelMatricesOfs(void *arg0, u16 *arg1) {
     s32 key;
     s32 model;
 
     key = (s32)(arg1 + 2);
-    model = func_801398D0(M2C_FIELD(arg0, u8 *, 3));
-    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = func_801385CC;
+    model = Fmv_GetModel(M2C_FIELD(arg0, u8 *, 3));
+    M2C_FIELD(&D_8013C550, void (**)(void *, s32), 0) = Fmv_RecBonedModelMatrices;
     D_8013C550.f_4 = key;
-    func_8013980C(key, model);
+    Fmv_PoseFromMatrices(key, model);
     D_8013C558.f_0 = 0;
     D_8013C558.f_2 = *arg1 << 6;
     D_8013C558.f_4 = 2;
     D_8013C558.f_6 = 0;
-    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, model, &D_8013C558);
+    Fmv_DrawModel((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, model, &D_8013C558);
 }
 
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_80138F90;
@@ -1584,31 +1584,31 @@ extern struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } D_8013C558_80138F90 asm("D
 extern s32 D_800E7D00_80138F90 asm("g_ProjVerts");
 extern struct { u8 pad0[0x20]; u8 r, g, b; } D_800EBFA0_80138F90 asm("D_800EBFA0");
 extern struct { u8 pad0[0xC]; s32 cur; } g_Game_80138F90 asm("g_Game");
-s32 func_801398D0(s16 i);
-u8 func_80139DE4(s32 i);
+s32 Fmv_GetModel(s16 i);
+u8 Fmv_GetModelFlags(s32 i);
 void Model_ProjectVertsAlt(void *, void *, void *);
 
-void func_80138F90(u8 *arg0, s16 *arg1) {
+void Fmv_RecModelKeyed(u8 *arg0, s16 *arg1) {
     Mat_80138F90 m;
     s32 model;
 
-    model = func_801398D0(arg0[3]);
-    D_8013C550_80138F90.f_0 = func_80138F90;
+    model = Fmv_GetModel(arg0[3]);
+    D_8013C550_80138F90.f_0 = Fmv_RecModelKeyed;
     D_8013C550_80138F90.f_4 = arg1;
-    func_80139668(&m, arg1, 0);
+    Fmv_KeyToMatrix(&m, arg1, 0);
     CompMatrix(&D_800E78C0_80138F90, &m, &m);
     Model_ProjectVertsAlt((void *)model, &m, &D_800E7D00_80138F90);
     D_8013C558_80138F90.f_0 = 0;
     D_8013C558_80138F90.f_2 = 0;
     D_8013C558_80138F90.f_4 = 0;
     D_8013C558_80138F90.f_6 = 0;
-    if (func_80139DE4(arg0[3]) & 1) {
+    if (Fmv_GetModelFlags(arg0[3]) & 1) {
         SetBackColor(0xFF, 0xFF, 0xFF);
-        func_8013B9B0((u8 *)(g_Game_80138F90.cur * 0x4078 + (u8 *)&g_Game_80138F90 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
+        Fmv_DrawModel((u8 *)(g_Game_80138F90.cur * 0x4078 + (u8 *)&g_Game_80138F90 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
                       &D_800E7D00_80138F90, model, (M2C_UNK *)&D_8013C558_80138F90);
         SetBackColor(D_800EBFA0_80138F90.r, D_800EBFA0_80138F90.g, D_800EBFA0_80138F90.b);
     } else {
-        func_8013B9B0((u8 *)(g_Game_80138F90.cur * 0x4078 + (u8 *)&g_Game_80138F90 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
+        Fmv_DrawModel((u8 *)(g_Game_80138F90.cur * 0x4078 + (u8 *)&g_Game_80138F90 + 0x80) + ((*(u16 **)model)[1] & 0xF) * 16,
                       &D_800E7D00_80138F90, model, (M2C_UNK *)&D_8013C558_80138F90);
     }
 }
@@ -1616,7 +1616,7 @@ void func_80138F90(u8 *arg0, s16 *arg1) {
 void SetFarColor(s32, s32, s32);
 void DpqColor(void *, s32, void *);
 
-void func_80139124(u8 *arg0, u8 *col) {
+void Fmv_RecDepthCueModel(u8 *arg0, u8 *col) {
     s32 i;
     s32 *model;
     s32 n;
@@ -1625,7 +1625,7 @@ void func_80139124(u8 *arg0, u8 *col) {
     s32 p;
 
     i = 0;
-    model = (s32 *)func_801398D0(arg0[3]);
+    model = (s32 *)Fmv_GetModel(arg0[3]);
     n = *(u16 *)(model[0] + 8);
     SetFarColor(col[0], col[1], col[2]);
     src = (u32 *)model[6];
@@ -1649,7 +1649,7 @@ void *MulMatrix0(void *, void *, void *);
 void ApplyMatrixSV(void *, void *, void *);
 #define ADDPRIM1_801391C8(ot, p) __asm__ volatile("addiu %0, %0, 4\n\tlwl $4, 2(%0)\n\tsll $3, %2, 8\n\tswl $3, 2(%0)\n\tswl $4, %1" : : "r"(ot), "m"(*((u8 *)(p) + 2)), "r"(p) : "$3", "$4")
 
-void func_801391C8(u8 *arg0, s32 *arg1) {
+void Fmv_RecZoomScreen(u8 *arg0, s32 *arg1) {
     Rect_801391C8 r;
     Rect_801391C8 r2;
     Mat_801391C8 m;
@@ -1761,7 +1761,7 @@ typedef struct { s32 vx, vy, vz, pad; } Vec_80139668;
 void RotMatrixZYX(void *, void *);
 void ScaleMatrix(void *, void *);
 
-void func_80139668(Mat_80139668 *m, s16 *a, s32 mode) {
+void Fmv_KeyToMatrix(Mat_80139668 *m, s16 *a, s32 mode) {
     Vec_80139668 v;
 
     if (mode == 1) {
@@ -1793,12 +1793,12 @@ void func_80139734(void) {
 extern Mat_80139668 D_800E9C80_8013973C[] asm("D_800E9C80");
 void Model_ProjectBonedVerts(void *);
 
-M2C_UNK func_8013973C(key, model, n) s16 *key; u8 **model; M2C_UNK n; {
+M2C_UNK Fmv_PoseFromKeys(key, model, n) s16 *key; u8 **model; M2C_UNK n; {
     s32 i;
     s32 step = n * 3 + 6;
 
     for (i = 0; i < *(u16 *)(*model + 4); i++, key += step) {
-        func_80139668(&D_800E9C80_8013973C[i], key, n);
+        Fmv_KeyToMatrix(&D_800E9C80_8013973C[i], key, n);
         CompMatrix(&g_ViewMatrix, &D_800E9C80_8013973C[i], &D_800E9C80_8013973C[i]);
     }
     Model_ProjectBonedVerts(model);
@@ -1806,7 +1806,7 @@ M2C_UNK func_8013973C(key, model, n) s16 *key; u8 **model; M2C_UNK n; {
 
 extern Mat_384 D_800E9C80_8013980C[] asm("D_800E9C80");
 
-M2C_UNK func_8013980C(s32 arg0, s32 arg1) {
+M2C_UNK Fmv_PoseFromMatrices(s32 arg0, s32 arg1) {
     s32 i;
     u8 **model = (u8 **)arg1;
 
@@ -1821,35 +1821,35 @@ __asm__(".section .text\n.balign 16");
 extern s32 D_8013C56C;
 extern s32 D_8013C570;
 
-void func_801398B0(s32 *arg0, s32 *arg1) {
+void Fmv_GetMaxModelCounts(s32 *arg0, s32 *arg1) {
     *arg0 = D_8013C56C;
     *arg1 = D_8013C570;
 }
 
-extern s32 *D_8013C564_801398D0 asm("D_8013C564");
+extern s32 *D_8013C564_801398D0 asm("Fmv_Models");
 
-s32 func_801398D0(s16 i) {
+s32 Fmv_GetModel(s16 i) {
     return D_8013C564_801398D0[i];
 }
 
-u8 func_801398F0(s32 arg0) {
-    return M2C_FIELD(((arg0 * 4) + D_8013C560), u8 *, 3);
+u8 Fmv_GetModelType(s32 arg0) {
+    return M2C_FIELD(((arg0 * 4) + Fmv_ModelEntries), u8 *, 3);
 }
 
 typedef struct { u8 pad0[2]; u16 f2; u8 pad4[2]; u16 f6; u16 f8; u8 padA[4]; u16 fE; u8 pad10[2]; u16 f12; u8 pad14[2]; u16 f16; } MdlHdr_8013990C;
 typedef struct { MdlHdr_8013990C *f0; u8 *f4; u8 *f8; u8 padC[0xC]; u8 *f18; } MdlObj_8013990C;
-extern u32 *D_8013C560_8013990C asm("D_8013C560");
-extern MdlObj_8013990C **D_8013C564_8013990C asm("D_8013C564");
-extern u32 D_8013C568_8013990C asm("D_8013C568");
+extern u32 *D_8013C560_8013990C asm("Fmv_ModelEntries");
+extern MdlObj_8013990C **D_8013C564_8013990C asm("Fmv_Models");
+extern u32 D_8013C568_8013990C asm("Fmv_ModelCount");
 extern u32 D_8013C56C_8013990C asm("D_8013C56C");
 extern u32 D_8013C570_8013990C asm("D_8013C570");
 void func_80139E44_8013990C(void *, void *) asm("func_80139E44");
 void func_80139E88_8013990C(void *, void *) asm("func_80139E88");
 s32 func_80139F38_8013990C(void *, s32) asm("func_80139F38");
 s32 func_80139F6C_8013990C(void *, s32) asm("func_80139F6C");
-void func_80139F0C_8013990C(u32) asm("func_80139F0C");
+void func_80139F0C_8013990C(u32) asm("Fmv_AllocModelFlags");
 void func_800A3760(void *, void *, s32);
-s32 func_8013B8D0(void *arg0, s32 arg1, void *arg2);
+s32 Fmv_SetPrimFlags(void *arg0, s32 arg1, void *arg2);
 
 void Fmv_LoadModelTable(void *arg0) {
     u8 buf[4];
@@ -1956,12 +1956,12 @@ void Fmv_LoadModelTable(void *arg0) {
                     buf[3] = 3;
                     buf[0] = 1;
                     buf[2] = (*ent >> 1) & 3;
-                    func_8013B8D0(dst, m, buf);
+                    Fmv_SetPrimFlags(dst, m, buf);
                 }
                 if (*ent & 8) {
                     buf[3] = 4;
                     buf[1] = 0;
-                    func_8013B8D0(dst, m, buf);
+                    Fmv_SetPrimFlags(dst, m, buf);
                 }
                 if (*ent & 0x10) {
                     s32 sz2;
@@ -1984,24 +1984,24 @@ void Fmv_LoadModelTable(void *arg0) {
     func_80139F0C_8013990C(D_8013C568_8013990C);
 }
 
-void func_80139DAC(void) {
-    Mem_Free(D_8013C574);
-    Mem_Free(D_8013C564);
+void Fmv_FreeModels(void) {
+    Mem_Free(Fmv_ModelFlags);
+    Mem_Free(Fmv_Models);
 }
 
-extern u8 *D_8013C574_80139DE4 asm("D_8013C574");
+extern u8 *D_8013C574_80139DE4 asm("Fmv_ModelFlags");
 
-u8 func_80139DE4(s32 i) {
+u8 Fmv_GetModelFlags(s32 i) {
     return D_8013C574_80139DE4[i];
 }
 
-extern u32 D_8013C568;
-extern u8 *D_8013C574_80139E00 asm("D_8013C574");
+extern u32 Fmv_ModelCount;
+extern u8 *D_8013C574_80139E00 asm("Fmv_ModelFlags");
 
-void func_80139E00(void) {
+void Fmv_ClearModelFlags(void) {
     u32 i;
 
-    for (i = 0; i < D_8013C568; i++) {
+    for (i = 0; i < Fmv_ModelCount; i++) {
         D_8013C574_80139E00[i] = 0;
     }
 }
@@ -2025,9 +2025,9 @@ void func_80139E88(void *arg0, s32 arg1) {
 }
 
 typedef struct { s16 i; u8 v; u8 pad; } Set_384;
-extern u8 *D_8013C574_80139EC4 asm("D_8013C574");
+extern u8 *D_8013C574_80139EC4 asm("Fmv_ModelFlags");
 
-void func_80139EC4(u16 *len, Set_384 *e) {
+void Fmv_RecSetModelFlags(u16 *len, Set_384 *e) {
     s32 i;
     s32 n;
 
@@ -2039,11 +2039,11 @@ void func_80139EC4(u16 *len, Set_384 *e) {
 
 s32 func_8008C09C_80139F0C(void) asm("Mem_AllocPages");
 
-void func_80139F0C(void)
+void Fmv_AllocModelFlags(void)
 {
   s32 new_var;
-  D_8013C574 = (new_var = func_8008C09C_80139F0C());
-  func_80139E00();
+  Fmv_ModelFlags = (new_var = func_8008C09C_80139F0C());
+  Fmv_ClearModelFlags();
 }
 
 s32 func_80139F38(void *arg0, s32 arg1) {
@@ -2089,7 +2089,7 @@ __asm__(".section .text\n.balign 16");
 extern s16 D_8013C582;
 extern u8 D_8013C580;
 
-void func_80139FA0(u8 *a) {
+void Fmv_RecStartWipe(u8 *a) {
     u8 v = a[4];
 
     D_8013C582 = 0;
@@ -2103,7 +2103,7 @@ u16 GetTPage(s32, s32, s32, s32);
 extern u8 D_800EC3D0[];
 #define OT_80139FB8 ((u32 *)(g_Game_80139FB8.cur * 0x4078 + ob))
 
-void func_80139FB8(void) {
+void Fmv_RecDrawWipe(void) {
     u8 *ob;
     Sprt_80139FB8 *s;
     PolyFT4_80139FB8 *p1;
@@ -2236,7 +2236,7 @@ void *MulMatrix0(void *, void *, void *);
 void SetRotMatrix(void *);
 s32 RotTrans(void *, void *, void *);
 
-void func_8013A460(Pt_8013A460 *pos, s16 a, s16 b) {
+void Fmv_InitCircle(Pt_8013A460 *pos, s16 a, s16 b) {
     SVECTOR v0;
     SVECTOR v1;
     Vec_8013A460 out;
@@ -2274,7 +2274,7 @@ void func_8013A460(Pt_8013A460 *pos, s16 a, s16 b) {
 extern SVECTOR D_8013C590_8013A684[4][15] asm("D_8013C590");
 void gteMIMefunc(void *, void *, s32, s32);
 
-u8 *func_8013A684(u32 *ot, u8 *p, s16 *c, s32 n) {
+u8 *Fmv_DrawCircle(u32 *ot, u8 *p, s16 *c, s32 n) {
     Pt_8013A460 pos;
     s32 i;
     s32 k;
@@ -2283,7 +2283,7 @@ u8 *func_8013A684(u32 *ot, u8 *p, s16 *c, s32 n) {
     v = D_8013C590_8013A684[0];
     if (*(s32 *)&v[45].vz == 0) {
         memset(&pos, 0, 4);
-        func_8013A460(&pos, 0x180, 0xF0);
+        Fmv_InitCircle(&pos, 0x180, 0xF0);
     }
     for (i = 0; i < 15; i++) {
         *(s32 *)&v[i] = *(s32 *)c;
@@ -2318,13 +2318,13 @@ __asm__(".section .text\n.balign 16");
 
 typedef struct { u16 lo, hi, off, n; } Sub_8013A8A0;
 typedef struct { s16 x, y, w, h; } Rect_8013A8A0;
-extern Sub_8013A8A0 *D_8013C758_A8A0 asm("D_8013C758");
-extern s32 D_8013C710;
-extern s32 D_8013C714;
+extern Sub_8013A8A0 *D_8013C758_A8A0 asm("Fmv_Subtitles");
+extern s32 Fmv_SubtitleIdx;
+extern s32 Fmv_SubtitleCount;
 extern Rect_8013A8A0 D_8013C700_A8A0 asm("D_8013C700");
 extern u8 D_8013C718[];
 
-void func_8013A8A0(s32 *data) {
+void Fmv_LoadSubtitles(s32 *data) {
     Rect_8013A8A0 r;
     u16 clut[32];
     u8 *text;
@@ -2333,9 +2333,9 @@ void func_8013A8A0(s32 *data) {
 
     n = *data;
     D_8013C758_A8A0 = (Sub_8013A8A0 *)(data + 1);
-    D_8013C710 = 0;
-    D_8013C714 = n;
-    for (i = 0; i < D_8013C714; i++) {
+    Fmv_SubtitleIdx = 0;
+    Fmv_SubtitleCount = n;
+    for (i = 0; i < Fmv_SubtitleCount; i++) {
         lines = 1;
         text = (u8 *)data + D_8013C758_A8A0[i].off;
         for (j = 0; j < D_8013C758_A8A0[i].n; j++) {
@@ -2363,14 +2363,14 @@ extern Rect_384 D_8013C700;
 extern u8 D_8013C718[];
 void LoadImage(Rect_384 *, void *);
 
-void func_8013AA70(void) {
+void Fmv_RestoreFontClut(void) {
     Rect_384 r = D_8013C700;
 
     LoadImage(&r, D_8013C718);
     DrawSync(0);
 }
 
-void func_8013AAC8(s32 *arg0, s32 arg1) {
+void Fmv_ZeroWords(s32 *arg0, s32 arg1) {
     s32 *var_a0;
     s32 temp_a1;
     s32 var_v1;
@@ -2388,22 +2388,22 @@ void func_8013AAC8(s32 *arg0, s32 arg1) {
 }
 
 typedef struct { u16 lo, hi, off, n; } Sub_8013AAF0;
-extern Sub_8013AAF0 *D_8013C758_AAF0 asm("D_8013C758");
-s32 func_8013AC98(u32 x);
+extern Sub_8013AAF0 *D_8013C758_AAF0 asm("Fmv_Subtitles");
+s32 Fmv_FindSubtitle(u32 x);
 s32 Msg_GetWidthUntil(u8 *, u16);
 void Msg_SetPos(s16, s16);
 void Msg_PutChar(u16, s32, s32);
 
-void func_8013AAF0(u32 frame) {
-    s32 idx = D_8013C710;
+void Fmv_RecDrawSubtitle(u32 frame) {
+    s32 idx = Fmv_SubtitleIdx;
     Sub_8013AAF0 *e = (Sub_8013AAF0 *)((idx << 3) + (s32)D_8013C758_AAF0);
     u8 *text = (u8 *)D_8013C758_AAF0 + (e->off - 4);
     s32 n = e->n;
     u8 *p;
     s32 i, k, w, maxw, pos, y;
 
-    D_8013C710 = func_8013AC98(frame);
-    if (D_8013C710 < 0) {
+    Fmv_SubtitleIdx = Fmv_FindSubtitle(frame);
+    if (Fmv_SubtitleIdx < 0) {
         return;
     }
     i = 0;
@@ -2425,7 +2425,7 @@ void func_8013AAF0(u32 frame) {
         y = 0xAE;
         for (i = 0; i < n; i++) {
             Msg_SetPos(maxw + k, y + k);
-            func_8013AD40(text + pos, k ? 0x1F6 : 0x1F0);
+            Fmv_PutText(text + pos, k ? 0x1F6 : 0x1F0);
             while (text[pos]) {
                 pos++;
             }
@@ -2437,21 +2437,21 @@ void func_8013AAF0(u32 frame) {
 }
 
 typedef struct { u16 lo, hi; u8 pad4[4]; } Range_384;
-extern s32 D_8013C714;
-extern Range_384 *D_8013C758;
+extern s32 Fmv_SubtitleCount;
+extern Range_384 *Fmv_Subtitles;
 
-s32 func_8013AC98(u32 x) {
+s32 Fmv_FindSubtitle(u32 x) {
     s32 i;
 
-    for (i = 0; i < D_8013C714; i++) {
-        if (x >= D_8013C758[i].lo && D_8013C758[i].hi >= x) {
+    for (i = 0; i < Fmv_SubtitleCount; i++) {
+        if (x >= Fmv_Subtitles[i].lo && Fmv_Subtitles[i].hi >= x) {
             return i;
         }
     }
     return -1;
 }
 
-s32 func_8013AD04(u8 *arg0) {
+s32 Fmv_CountLineBreaks(u8 *arg0) {
     s32 var_v1;
     u8 *var_a0;
     u8 temp_v0;
@@ -2472,7 +2472,7 @@ s32 func_8013AD04(u8 *arg0) {
 
 u8 *Msg_ReadChar(u8 *, u16 *);
 
-void func_8013AD40(u8 *s, s32 color) {
+void Fmv_PutText(u8 *s, s32 color) {
     u16 c;
 
     while (s = Msg_ReadChar(s, &c), c != 0) {
@@ -2486,9 +2486,9 @@ extern u32 D_8013C770_ADA0 asm("D_8013C770");
 extern s32 D_8013C774_ADA0 asm("D_8013C774");
 extern u32 D_8013C778_ADA0 asm("D_8013C778");
 extern s32 D_8013C77C_ADA0 asm("D_8013C77C");
-void func_8013AE90(s32);
+void Fmv_CdReadCallback(s32);
 
-void func_8013ADA0(s32 arg0, Req_8013ADA0 *req) {
+void Fmv_CdReadStart(s32 arg0, Req_8013ADA0 *req) {
     s32 mode;
     u32 n;
 
@@ -2504,14 +2504,14 @@ void func_8013ADA0(s32 arg0, Req_8013ADA0 *req) {
     VSync(3);
     while (CdControl(6, req, 0) == 0) {
     }
-    D_8013C77C_ADA0 = CdReadyCallback((s32)func_8013AE90);
+    D_8013C77C_ADA0 = CdReadyCallback((s32)Fmv_CdReadCallback);
 }
 
-s32 func_8013AE80(void) {
+s32 Fmv_CdReadBusy(void) {
     return D_8013C760;
 }
 
-void func_8013AE90(s32 arg0) {
+void Fmv_CdReadCallback(s32 arg0) {
     s32 temp_a0;
     s32 temp_v0;
 
@@ -2541,7 +2541,7 @@ extern u32 D_800EC35C;
 int abs(int);
 #define ADD_PRIM_RR_8013AF50(ot, p) { unsigned int _t1, _t2; __asm__ volatile("lwl %0, 2(%2)\n\tsll %1, %3, 8\n\tswl %1, 2(%2)\n\tswl %0, 2(%3)" : "=&r"(_t1), "=&r"(_t2) : "r"(ot), "r"(p) : "memory"); }
 
-void func_8013AF50(void) {
+void Fmv_RecDrawScanlines(void) {
     Rect_8013AF50 r;
     u8 *p;
     u32 *ot;
@@ -2683,7 +2683,7 @@ void Fmv_DrawGlowSparkles(u8 *arg0, s16 *arg1) {
     u32 ra, rb;
     u32 lm;
 
-    func_80139668(&m, arg1, 1);
+    Fmv_KeyToMatrix(&m, arg1, 1);
     CompMatrix(&D_800E78C0_8013B390, &m, &m);
     SetRotMatrix(&m);
     SetTransMatrix(&m);
@@ -2766,7 +2766,7 @@ void Fmv_DrawGlowSparkles(u8 *arg0, s16 *arg1) {
 }
 __asm__(".section .text\n\t.balign 16");
 
-s32 func_8013B8D0(void *arg0, s32 arg1, void *arg2) {
+s32 Fmv_SetPrimFlags(void *arg0, s32 arg1, void *arg2) {
     s32 var_t0;
     void *var_a3;
 
@@ -2801,7 +2801,7 @@ typedef struct { u16 *f_0; s32 *f_4; u8 *f_8; } Mdl_8013B9B0;
 typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } Scr_8013B9B0;
 extern struct { u8 pad0[0x24]; u16 f_24; u8 pad26[2]; u16 f_28; } D_800EBFA0_8013B9B0 asm("D_800EBFA0");
 
-M2C_UNK func_8013B9B0(void *arg0, M2C_UNK *arg1, s32 arg2, M2C_UNK *arg3) {
+M2C_UNK Fmv_DrawModel(void *arg0, M2C_UNK *arg1, s32 arg2, M2C_UNK *arg3) {
     Mdl_8013B9B0 *m = (Mdl_8013B9B0 *)arg2;
     u16 *q = (u16 *)arg3;
     s32 i;
@@ -2830,7 +2830,7 @@ extern Rect_8013BA80 D_8013C7B0_8013BA80[] asm("D_8013C7B0");
 extern s32 D_8013C7E0;
 s32 StoreImage(void *rect, u32 *p);
 
-void func_8013BA80(s32 load) {
+void Fmv_SaveRestoreVram(s32 load) {
     u32 *buf;
     s32 i;
 
@@ -2853,11 +2853,11 @@ void func_8013BA80(s32 load) {
     }
 }
 
-s32 func_8013BB8C(void) {
+s32 Fmv_GetVramRectCount(void) {
     return 6;
 }
 
-void *func_8013BB94(s32 arg0) {
+void *Fmv_GetVramRect(s32 arg0) {
     return (void *)((u8 *)&D_8013C7B0 + (arg0 * 8));
 }
 
@@ -2866,7 +2866,7 @@ extern Rect_8013BBA8 D_8013C7B0_8013BBA8[] asm("D_8013C7B0");
 extern Rect_8013BBA8 D_8013C7A0;
 extern GameDraw g_Game_8013BBA8 asm("g_Game");
 
-void func_8013BBA8(void) {
+void Fmv_DrawVramRects(void) {
     u8 *p;
     s32 i;
     Rect_8013BBA8 r;
@@ -2893,7 +2893,7 @@ typedef struct { u8 tag[3]; u8 len; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; 
 typedef struct { u8 tag[3]; u8 len; u32 code; } Tp_8013BD1C;
 typedef struct { u8 tag[3]; u8 len; u8 r0, g0, b0, code; s16 x0, y0; s16 w, h; } Tile_8013BD1C;
 
-void func_8013BD1C(u32 *ot, u8 level) {
+void Fmv_DrawFadedVram(u32 *ot, u8 level) {
     Sprt_8013BD1C *p;
     Tp_8013BD1C *tp;
     Tile_8013BD1C *t;

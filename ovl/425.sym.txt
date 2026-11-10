@@ -1,8 +1,8 @@
-func_8013D000 = 0x8013D000; // type:func
-func_8013D010 = 0x8013D010; // type:func
-func_8013D290 = 0x8013D290; // type:func
-func_8013D424 = 0x8013D424; // type:func
-func_8013D5C4 = 0x8013D5C4; // type:func
-func_8013D770 = 0x8013D770; // type:func
-func_8013DAA0 = 0x8013DAA0; // type:func
-func_8013DAEC = 0x8013DAEC; // type:func
+LevelObj_ResetState = 0x8013D000; // type:func
+RaceGoal_Update = 0x8013D010; // type:func
+RaceGoal_AddMonkeyShapes = 0x8013D290; // type:func
+Race_DrawMinimap = 0x8013D424; // type:func
+CamScript_ChaseBehind = 0x8013D5C4; // type:func
+Swinger_Update = 0x8013D770; // type:func
+Obj_PlaySoundIfSpikeNear = 0x8013DAA0; // type:func
+Lobber_Update = 0x8013DAEC; // type:func

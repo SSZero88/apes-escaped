@@ -1,7 +1,7 @@
-func_80136000 = 0x80136000; // type:func
-func_801362B8 = 0x801362B8; // type:func
-func_8013668C = 0x8013668C; // type:func
-func_8013690C = 0x8013690C; // type:func
-func_80136A24 = 0x80136A24; // type:func
-func_80136AFC = 0x80136AFC; // type:func
+StillScreen_EndLoop = 0x80136000; // type:func
+StillScreen_DrawEnd = 0x801362B8; // type:func
+StillScreen_ToTitle = 0x8013668C; // type:func
+StillScreen_DrawToTitle = 0x8013690C; // type:func
+StillScreen_UpdateFade = 0x80136A24; // type:func
+StillScreen_DrawFade = 0x80136AFC; // type:func
 func_80136BF4 = 0x80136BF4; // type:func

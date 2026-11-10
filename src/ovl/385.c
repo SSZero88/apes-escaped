@@ -15,18 +15,18 @@ s32 ResetGraph(s32 mode);
 s32 SetGraphDebug(s32 level);
 s32 ClearImage2(void *rect, u8 r, u8 g, u8 b);
 void DrawSync(s32);
-s32 func_80136424(void);
+s32 Boot_InitHiResDisplay(void);
 s32 Sound_ResumeStreams(void);
-s32 func_801362A4(void);
-s32 func_80136528(void);
-s32 func_801366EC(void);
+s32 Boot_ShowLogo1(void);
+s32 Boot_ShowLogo2(void);
+s32 Boot_ShowControllerNotice(void);
 s32 Sound_UnloadBanks(s32);
 s32 Gfx_InitDisplay(void);
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 s32 Cd_StartFileLoad(s32, s32);
 
-s32 func_80136000(void) {
+s32 Boot_Main(void) {
     Rect_80136000 r = {0, 0, 640, 512};
     s32 t;
 
@@ -61,16 +61,16 @@ s32 func_80136000(void) {
     r.y = 0;
     r.w = 0x280;
     r.h = 0x200;
-    func_80136424();
+    Boot_InitHiResDisplay();
     Sound_ResumeStreams();
-    if (func_801362A4() < 0) {
+    if (Boot_ShowLogo1() < 0) {
         return 0;
     }
-    if (func_80136528() < 0) {
+    if (Boot_ShowLogo2() < 0) {
         return 0;
     }
     if (D_800E52D0[0][0] != 0 || (D_800E52D0[0][1] >> 4) != 7) {
-        if (func_801366EC() < 0) {
+        if (Boot_ShowControllerNotice() < 0) {
             return 0;
         }
     }
@@ -105,7 +105,7 @@ void Gfx_BeginFrame(void);
 s32 Cd_PollLoadList(void);
 void Cd_Update(void);
 
-s32 func_801362A4(void) {
+s32 Boot_ShowLogo1(void) {
     Rect_801362A4 r;
     s32 loading;
     s32 t;
@@ -157,7 +157,7 @@ void *SetDefDrawEnv(void *env, s32 x, s32 y, s32 w, s32 h);
 void *SetDefDispEnv(void *env, s32 x, s32 y, s32 w, s32 h);
 void SetDispMask(s32 mask);
 
-s32 func_80136424(void) {
+s32 Boot_InitHiResDisplay(void) {
     u8 *s2;
     u8 *v0;
     u8 *nv;
@@ -189,10 +189,10 @@ s32 func_80136424(void) {
     return 0;
 }
 
-/* uses Rect_801362A4, g_Game_801362A4, g_Cd and the decls above func_801362A4 in src/ovl/385.c */
+/* uses Rect_801362A4, g_Game_801362A4, g_Cd and the decls above Boot_ShowLogo1 in src/ovl/385.c */
 void DrawOTag(u32 *p);
 
-s32 func_80136528(void) {
+s32 Boot_ShowLogo2(void) {
     Rect_801362A4 r;
     s32 loading;
     s32 t;
@@ -237,12 +237,12 @@ s32 func_80136528(void) {
     }
 }
 
-/* uses Rect_801362A4, g_Game_801362A4 and the decls above func_801362A4 in src/ovl/385.c */
+/* uses Rect_801362A4, g_Game_801362A4 and the decls above Boot_ShowLogo1 in src/ovl/385.c */
 s32 Cd_ReadFile(s32, s32);
 void Cd_WaitIdle(s32);
 void Tex_LoadPack(s32);
 
-s32 func_801366EC(void) {
+s32 Boot_ShowControllerNotice(void) {
     Rect_801362A4 r;
     s32 t;
 
@@ -289,7 +289,7 @@ void ClearImage(Rect_385 *, s32, s32, s32);
 void DrawSync(s32);
 s32 Minigame_Run(s32);
 
-s32 func_80136894(void)
+s32 MinigameMode_Main(void)
 {
   Rect_385 r = {0, 0, 384, 512};
   ClearImage(&r, 0, 0, 0);

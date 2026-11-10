@@ -20,13 +20,13 @@ void Sound_UnloadBanks(s32);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
 void DebugFont_Init(void);
-void func_80136590(void);
-void func_80136E58(void);
+void Credits_Init(void);
+void Credits_ClearParticles(void);
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
 
-s32 func_80136000(void) {
+s32 Credits_Main(void) {
     Rect_80136000 r;
 
     r = D_80137830;
@@ -50,10 +50,10 @@ s32 func_80136000(void) {
     { u8 *e = g_Game_80136000.db[1].env; e[0x19] = 0; e[0x1A] = 0; e[0x1B] = 0; }
     g_Game_80136000.cur = 0;
     g_Game_80136000.f_82BA |= 2;
-    func_80136590();
-    func_80136E58();
-    func_80137374();
-    while (func_8001325C(0), Gfx_BeginFrame(), DebugFont_Init(), func_80136730() == 0) {
+    Credits_Init();
+    Credits_ClearParticles();
+    Tunnel_InitPoints();
+    while (func_8001325C(0), Gfx_BeginFrame(), DebugFont_Init(), Credits_Update() == 0) {
         DrawSync(0);
         VSync(2);
         g_Game_80136000.frame++;
@@ -151,7 +151,7 @@ u8 *func_8013626C(u8 *s, s32 x, s16 y, s32 flags) {
 typedef struct { s16 x, y, w, h; } RECT_80136494;
 void LoadImage(RECT_80136494 *, u32 *);
 
-void func_80136494(s32 n, s32 row) {
+void Credits_LoadTextRow(s32 n, s32 row) {
     u32 *p = (u32 *)0x80155000;
     RECT_80136494 r;
 
@@ -178,7 +178,7 @@ extern struct { u8 f_0; u8 pad1; s16 f_2; s32 f_4, f_8, f_C, f_10, f_14, f_18, f
 void ClearImage(Rect_430 *, s32, s32, s32);
 void DrawSync(s32);
 
-void func_80136590(void) {
+void Credits_Init(void) {
     Rect_430 r;
 
     D_80138310.f_0 = 2;
@@ -200,7 +200,7 @@ extern GameDraw g_Game;
 typedef struct { u32 addr : 24; u32 len : 8; } Tag_80136624;
 typedef struct { u32 tag; u32 tpage; u32 code; u32 xy; u32 uvclut; u32 wh; } Sprt_80136624;
 
-void func_80136624(s32 y) {
+void Credits_DrawTextRow(s32 y) {
     Sprt_80136624 *p = (Sprt_80136624 *)G_DRAW.prim;
     u32 *ot = &G_DRAW.db[G_DRAW.cur].ot[2];
 
@@ -230,10 +230,10 @@ typedef struct { u32 tag; u32 tpage; u32 code; u32 xy; u32 uvclut; u32 wh; } Spr
 extern GameDraw g_Game_80136730 asm("g_Game");
 extern struct { u8 f_0; u8 pad1; s16 f_2; s32 f_4, f_8, f_C, f_10, f_14, f_18, f_1C, f_20; } D_80138310_80136730 asm("D_80138310");
 u8 *func_8013626C(u8 *s, s32 x, s16 y, s32 flags);
-void func_80136494(s32 n, s32 row);
-void func_80136624(s32 y);
+void Credits_LoadTextRow(s32 n, s32 row);
+void Credits_DrawTextRow(s32 y);
 void func_80136E7C(void);
-void func_801376EC(void);
+void Tunnel_Draw(void);
 s32 Music_FadeOut(void);
 typedef struct { u32 tag; u32 code; u32 xy; u32 wh; } Tile_80136730;
 typedef struct { u32 tag; u32 code; } Mode_80136730;
@@ -242,7 +242,7 @@ extern u16 D_8013798C[];
 extern u8 D_80137990[];
 extern u16 g_RandSeed;
 
-s32 func_80136730(void) {
+s32 Credits_Update(void) {
     u8 *s;
     u8 *start;
     s16 y;
@@ -256,7 +256,7 @@ s32 func_80136730(void) {
     s32 f10;
 
     func_80136E7C();
-    func_801376EC();
+    Tunnel_Draw();
     s = D_80137990;
     y = 0xF0 - D_80138310_80136730.f_2;
     for (;;) {
@@ -286,7 +286,7 @@ s32 func_80136730(void) {
             c = *s;
         }
         if (c == 3) {
-            func_80136624(y);
+            Credits_DrawTextRow(y);
             s++;
             continue;
         }
@@ -315,7 +315,7 @@ s32 func_80136730(void) {
             D_80138310_80136730.f_8 = 0x249F00;
             D_80138310_80136730.f_14 = 7;
         } else if (D_80138310_80136730.f_14 < 6) {
-            func_80136494(D_80138310_80136730.f_14, D_80138310_80136730.f_18 ^= 1);
+            Credits_LoadTextRow(D_80138310_80136730.f_14, D_80138310_80136730.f_18 ^= 1);
             D_80138310_80136730.f_10 = 0x10;
             D_80138310_80136730.f_14++;
         }
@@ -435,7 +435,7 @@ s32 func_80136730(void) {
     return 0;
 }
 
-void func_80136E58(void) {
+void Credits_ClearParticles(void) {
     M2C_UNK *var_v0;
     s32 var_v1;
 
@@ -549,7 +549,7 @@ s32 rcos(s32);
 s32 rsin(s32);
 extern Pt_391 *D_80139E28_80138B0C asm("D_801387B8");
 
-void func_80137374(void)
+void Tunnel_InitPoints(void)
 {
   Pt_391 *p;
   s32 r;
@@ -578,7 +578,7 @@ typedef struct { s16 x, y; union { u8 c[4]; s32 col; } u; } Pt_8013748C;
 extern Pt_8013748C *D_801387B8_8013748C asm("D_801387B8");
 extern struct { s32 frame; u8 pad4[0x811C]; u16 f_8120; } g_Game_8013748C asm("g_Game");
 
-void func_8013748C(void) {
+void Tunnel_UpdateColors(void) {
     s32 a;
     s32 b;
     s32 c;
@@ -638,14 +638,14 @@ extern struct { u32 frame; PolyG4_801376EC *prim; u32 *ot; } g_Game_801376EC asm
 extern PolyG4_801376EC *D_800EC354_801376EC asm("g_GamePrim");
 extern Vtx_801376EC *D_801387B8_801376EC asm("D_801387B8");
 
-void func_801376EC(void) {
+void Tunnel_Draw(void) {
     PolyG4_801376EC *p = g_Game_801376EC.prim;
     Vtx_801376EC *v = D_801387B8_801376EC;
     Tag_801376EC *ot = (Tag_801376EC *)(g_Game_801376EC.ot + 0xFFF);
     Vtx_801376EC *n;
     s32 i, j;
 
-    func_8013748C();
+    Tunnel_UpdateColors();
     for (j = 0; j < 11; j++) {
         for (i = 0; i < 16; i++) {
             n = v + 1;

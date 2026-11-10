@@ -15,7 +15,7 @@ s32 rsin(s16, s32);
 
 void Dust_SpawnStill(void *);
 
-void func_8013D000(void *arg0) {
+void Turret_UpdateShot(void *arg0) {
     SVECTOR v;
 
     if (M2C_FIELD(arg0, u8 *, 0x8F) != 0) {
@@ -34,7 +34,7 @@ void func_8013D000(void *arg0) {
     }
 }
 
-void func_8013D0D0(void *arg0) {
+void Turret_FireShot(void *arg0) {
     u8 st;
 
     if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1)) {
@@ -55,12 +55,12 @@ void func_8013D0D0(void *arg0) {
 
 s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s16);
 
-s32 func_8013D1CC(void *arg0) {
+s32 Turret_SpikeInRange(void *arg0) {
     return Object_SpikeOutOfRange(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s16 *, 0x9E), (s32) M2C_FIELD(arg0, s16 *, 0xA4)) == 0;
 }
 
-void func_8013D200(void *arg0) {
-    if (func_8013D1CC(arg0) != 0) {
+void Turret_CheckSpike(void *arg0) {
+    if (Turret_SpikeInRange(arg0) != 0) {
         M2C_FIELD(arg0, s8 *, 0x80) = 2;
         M2C_FIELD(arg0, s8 *, 0x7F) = 1;
         M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 4);
@@ -69,7 +69,7 @@ void func_8013D200(void *arg0) {
     }
 }
 
-void func_8013D254(void *arg0) {
+void Turret_FaceSpike(void *arg0) {
     void *temp_a0;
 
     M2C_FIELD(arg0, s16 *, 0x60) = (s16) (g_Spike.f_24 - M2C_FIELD(arg0, u16 *, 0x24));
@@ -82,12 +82,12 @@ void func_8013D254(void *arg0) {
 typedef struct { u32 b0 : 3; u32 init : 1; u32 b4 : 18; u32 mode : 2; u32 b24 : 8; } Flags_8013D630;
 void Object_DebugStub();
 void ObjKind4D_IdleSounds(void *);
-void func_8013D000(void *arg0);
-void func_8013D0D0(void *arg0);
-void func_8013D200(void *arg0);
-void func_8013D254(void *arg0);
+void Turret_UpdateShot(void *arg0);
+void Turret_FireShot(void *arg0);
+void Turret_CheckSpike(void *arg0);
+void Turret_FaceSpike(void *arg0);
 
-void func_8013D2BC(u8 *e) {
+void Turret_Update(u8 *e) {
     u8 state;
 
     if (!M2C_FIELD(e, Flags_8013D630 *, 0xE0).init) {
@@ -108,11 +108,11 @@ void func_8013D2BC(u8 *e) {
         M2C_FIELD(e, Flags_8013D630 *, 0xE0).init = 1;
     }
     Object_DebugStub(e, M2C_FIELD(e, s16 *, 0x44));
-    func_8013D254(e);
+    Turret_FaceSpike(e);
     switch (e[0x80]) {
     case 1:
         if (e[0xC9] == 0) {
-            func_8013D200(e);
+            Turret_CheckSpike(e);
         }
         if (M2C_FIELD(e, u16 *, 0x5C) >= M2C_FIELD(e, u16 **, 0x88)[e[0x7F] * 2 + 1]) {
             if (e[0xC9] != 0) {
@@ -121,7 +121,7 @@ void func_8013D2BC(u8 *e) {
         }
         break;
     case 2:
-        func_8013D0D0(e);
+        Turret_FireShot(e);
         if (M2C_FIELD(e, u16 *, 0x5C) >= M2C_FIELD(e, u16 **, 0x88)[e[0x7F] * 2 + 1]) {
             if (e[0x7F] == 2) {
                 e[0x80] = 1;
@@ -135,7 +135,7 @@ void func_8013D2BC(u8 *e) {
         }
         break;
     }
-    func_8013D000(e);
+    Turret_UpdateShot(e);
     ObjKind4D_IdleSounds(e);
 }
 
@@ -144,14 +144,14 @@ s32 Spike_WithinRadiusXZ(s32, s32, s32);
 extern s32 D_800EC208;
 s32 Spike_WithinRadiusXZ(s32, s32, s32);
 
-s32 func_8013D49C(void *arg0)
+s32 Burrower_SpikeAbove(void *arg0)
 {
   s16 new_var;
   new_var = Object_FloorAt(arg0, 0, 0, 0);
   return ((D_800EC208 <= new_var) && ((*((s32 *) (((s8 *) arg0) + 0x28))) < D_800EC208)) && Spike_WithinRadiusXZ(*((s16 *) (((s8 *) arg0) + 0x9A)), *((s16 *) (((s8 *) arg0) + 0x9E)), 0x600);
 }
 
-void func_8013D514(void *arg0) {
+void Burrower_Circle(void *arg0) {
     s16 temp_a0;
     s16 temp_v0;
     s32 temp_a1;
@@ -178,7 +178,7 @@ void func_8013D514(void *arg0) {
 
 s32 Spike_WithinRadiusXZ(s32, s32, s32);
 
-void func_8013D5F0(void *arg0) {
+void Burrower_CheckSpikeGone(void *arg0) {
     if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), 0xA00) == 0 && ((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1)) {
         M2C_FIELD(arg0, s8 *, 0x80) = 1;
         M2C_FIELD(arg0, s8 *, 0x7F) = 0;
@@ -192,7 +192,7 @@ void func_8013D5F0(void *arg0) {
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 u32 Object_DetachLink(void *, s32);
 
-void func_8013D670(void *arg0) {
+void Burrower_Attack(void *arg0) {
     if (Object_DetachLink(arg0, 0) == 6) {
         M2C_FIELD(arg0, s8 *, 0x80) = 4;
         M2C_FIELD(arg0, s8 *, 0x7F) = 3;
@@ -206,11 +206,11 @@ void func_8013D670(void *arg0) {
 void Object_PlaySound_8013D714(void *, s32) asm("Object_PlaySound");
 s32 Object_FlyAboveFloor(void *, s32);
 void func_80058134_8013D714(void *, s32) asm("Object_DebugStub");
-void func_8013D514(void *arg0);
-void func_8013D5F0(void *arg0);
-void func_8013D670(void *arg0);
+void Burrower_Circle(void *arg0);
+void Burrower_CheckSpikeGone(void *arg0);
+void Burrower_Attack(void *arg0);
 
-void func_8013D714(void *arg0) {
+void Burrower_Update(void *arg0) {
     if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 3) & 1)) {
         M2C_FIELD(arg0, s16 *, 0xA0) = 0x32;
         M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
@@ -229,7 +229,7 @@ void func_8013D714(void *arg0) {
     func_80058134_8013D714(arg0, M2C_FIELD(arg0, s16 *, 0x44));
     switch (M2C_FIELD(arg0, u8 *, 0x80)) {
     case 1:
-        if (func_8013D49C(arg0) != 0) {
+        if (Burrower_SpikeAbove(arg0) != 0) {
             M2C_FIELD(arg0, u8 *, 0x80) = 2;
             M2C_FIELD(arg0, u8 *, 0x7F) = 1;
             M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(arg0, u16 **, 0x88)[2];
@@ -251,9 +251,9 @@ void func_8013D714(void *arg0) {
         }
         break;
     case 3:
-        func_8013D670(arg0);
-        func_8013D514(arg0);
-        func_8013D5F0(arg0);
+        Burrower_Attack(arg0);
+        Burrower_Circle(arg0);
+        Burrower_CheckSpikeGone(arg0);
         break;
     case 4:
         if (M2C_FIELD(arg0, u16 *, 0x5C) >= M2C_FIELD(arg0, u16 **, 0x88)[M2C_FIELD(arg0, u8 *, 0x7F) * 2 + 1]) {
@@ -265,7 +265,7 @@ void func_8013D714(void *arg0) {
     }
 }
 
-s32 func_8013D950(s16 *p) {
+s32 CrypticRelics_InitFlybyTrigger(s16 *p) {
     u8 *e;
 
     p[3] = 0;
@@ -281,7 +281,7 @@ s32 func_8013D950(s16 *p) {
 extern struct { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x11C]; u8 *f_8220; } g_Game_8013D9A4 asm("g_Game");
 void CamFlyby_StartSegment(s32);
 
-s32 func_8013D9A4(s16 *p) {
+s32 CrypticRelics_UpdateFlybyTrigger(s16 *p) {
     u8 *e;
     s32 v;
 
@@ -301,7 +301,7 @@ s32 func_8013D9A4(s16 *p) {
     return 0;
 }
 
-s32 func_8013DA34(void *arg0) {
+s32 CrypticRelics_InitTriggeredAnim(void *arg0) {
     s16 temp_a0;
     s16 temp_a0_2;
     void *temp_a1;
@@ -329,9 +329,9 @@ s32 func_8013DA34(void *arg0) {
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013DAFC asm("g_Game");
 extern u8 *D_800B4D64_8013DAFC asm("g_StageMeshes");
 s32 Sound_PlayAt_8013DAFC(s32, void *) asm("Sound_PlayAt");
-s32 func_8013DC70(s32 arg0, s16 arg1);
+s32 CrypticRelics_StartLinkedAnim(s32 arg0, s16 arg1);
 
-s32 func_8013DAFC(s16 *p) {
+s32 CrypticRelics_UpdateTriggeredAnim(s16 *p) {
     u8 *e = g_Game_8013DAFC.f_820C + p[2] * 0x38;
     s32 m;
 
@@ -350,7 +350,7 @@ s32 func_8013DAFC(s16 *p) {
         next:
             p[1] = 2;
             if (p[7] >= 0) {
-                func_8013DC70(p[7], 1);
+                CrypticRelics_StartLinkedAnim(p[7], 1);
             }
         }
         break;
@@ -367,7 +367,7 @@ s32 func_8013DAFC(s16 *p) {
     return 0;
 }
 
-s32 func_8013DC70(s32 arg0, s16 arg1) {
+s32 CrypticRelics_StartLinkedAnim(s32 arg0, s16 arg1) {
     s16 temp_a0;
     void *temp_a2;
     void *temp_v1;
@@ -387,7 +387,7 @@ s32 func_8013DC70(s32 arg0, s16 arg1) {
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013DD08 asm("g_Game");
 
-s32 func_8013DD08(s16 *p) {
+s32 CrypticRelics_InitMotionModel(s16 *p) {
     u8 *e = g_Game_8013DD08.f_820C + p[2] * 0x38;
 
     M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
@@ -412,7 +412,7 @@ s32 func_8013DD08(s16 *p) {
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013DDD8 asm("g_Game");
 
-s32 func_8013DDD8(s16 *p) {
+s32 CrypticRelics_UpdateMotionModel(s16 *p) {
     u8 *e = g_Game_8013DDD8.f_820C + p[2] * 0x38;
 
     switch (p[1]) {
@@ -440,7 +440,7 @@ extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013DE90 asm("g_Game");
 extern u8 *D_800B4D64_8013DE90 asm("g_StageMeshes");
 s32 Link_Activate(s16, void *);
 
-s32 func_8013DE90(s16 *p) {
+s32 CrypticRelics_InitLoweringModel(s16 *p) {
     u8 *e = g_Game_8013DE90.f_820C + p[2] * 0x38;
 
     M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
@@ -469,7 +469,7 @@ extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013DFAC asm("g_Game");
 extern u8 *D_800B4D64_8013DFAC asm("g_StageMeshes");
 extern struct { u8 pad0[0x24]; s32 x, y, z; } g_Spike_8013DFAC asm("g_Spike");
 
-s32 func_8013DFAC(s16 *p) {
+s32 CrypticRelics_UpdateLoweringModel(s16 *p) {
     u8 *e = g_Game_8013DFAC.f_820C + p[2] * 0x38;
     s32 m;
 
@@ -506,7 +506,7 @@ s32 func_8013DFAC(s16 *p) {
     return 0;
 }
 
-s32 func_8013E170(void *arg0) {
+s32 CrypticRelics_InitBreakable(void *arg0) {
     s16 temp_a1;
     void *temp_a0;
 
@@ -529,7 +529,7 @@ s32 func_8013E170(void *arg0) {
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013E208 asm("g_Game");
 extern u8 *D_800B4D64_8013E208 asm("g_StageMeshes");
-extern u8 D_8013E980[];
+extern u8 CrypticRelics_BreakDebrisFx[];
 typedef struct { s16 f0[4]; s16 v[8]; } Ctl_8013E208;
 void Camera_StartShake_8013E208(s32, s32) asm("Camera_StartShake");
 void Fx_DebrisExplosion(s16, s16, s16);
@@ -540,7 +540,7 @@ void Effect_SpawnAheadOfSpike(void);
 void Rock_SpawnBurst(void *, void *);
 s32 Link_FallToFloor(void *, void *);
 
-s32 func_8013E208(s16 *p) {
+s32 CrypticRelics_UpdateBreakable(s16 *p) {
     u8 *e = g_Game_8013E208.f_820C + p[2] * 0x38;
     s32 i;
     s32 v;
@@ -560,7 +560,7 @@ s32 func_8013E208(s16 *p) {
                 if ((m = M2C_FIELD(e, s16 *, 0xE)) >= 0) {
                     M2C_FIELD(D_800B4D64_8013E208 + m * 32, s16 *, 0x16) = 0;
                     Camera_StartShake_8013E208(2, m);
-                    Rock_SpawnBurst(e, D_8013E980);
+                    Rock_SpawnBurst(e, CrypticRelics_BreakDebrisFx);
                     Fx_DebrisExplosion(M2C_FIELD(e, s16 *, 0), M2C_FIELD(e, s16 *, 2), M2C_FIELD(e, s16 *, 4));
                     Sound_PlayAt_8013E208(0x6C, e);
                     Pad_Vibrate(1, 0xA0, 7);
@@ -585,7 +585,7 @@ s32 func_8013E208(s16 *p) {
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013E3A4 asm("g_Game");
 extern u8 *D_800B4D64_8013E3A4 asm("g_StageMeshes");
 
-s32 func_8013E3A4(s16 *p) {
+s32 CrypticRelics_InitPathModel(s16 *p) {
     u8 *e = g_Game_8013E3A4.f_820C + p[2] * 0x38;
 
     M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 1;
@@ -602,13 +602,13 @@ s32 func_8013E3A4(s16 *p) {
         }
         p[1] = 2;
         while (M2C_FIELD(e, s16 *, 0x32) < p[6] * 2 + 1) {
-            func_8013E54C(e);
+            CrypticRelics_StepPathModel(e);
         }
     }
     return 0;
 }
 
-s32 func_8013E4A8(void *arg0) {
+s32 CrypticRelics_UpdatePathModel(void *arg0) {
     void *temp_a0;
 
     temp_a0 = g_Game.f_820C + (M2C_FIELD(arg0, s16 *, 4) * 0x38);
@@ -629,7 +629,7 @@ extern struct { u8 pad_0[0x8214]; Node_8013E54C *f_8214; } g_Game_8013E54C asm("
 extern u8 *D_800B4D64_8013E54C asm("g_StageMeshes");
 s16 Box_QuadrantMask(s16 *);
 
-s32 func_8013E54C(s16 *e) {
+s32 CrypticRelics_StepPathModel(s16 *e) {
     Node_8013E54C *n;
     s32 x, y, z;
 

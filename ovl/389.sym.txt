@@ -1,5 +1,11 @@
-func_80146000 = 0x80146000; // type:func
-func_8014607C = 0x8014607C; // type:func
-func_80146230 = 0x80146230; // type:func
-func_80146500 = 0x80146500; // type:func
-func_8014666C = 0x8014666C; // type:func
+CutsceneTest_Main = 0x80146000; // type:func
+CutsceneTest_RunMenu = 0x8014607C; // type:func
+CutsceneTest_UpdateMenu = 0x80146230; // type:func
+CutsceneTest_PlayEntry = 0x80146500; // type:func
+CutsceneTest_DrawText = 0x8014666C; // type:func
+CutsceneTest_State = 0x80146770; // type:data
+CutsceneTest_Cursor = 0x80146774; // type:data
+CutsceneTest_Entries = 0x80146878; // type:data
+CutsceneTest_TitleText = 0x80146908; // type:data
+CutsceneTest_RowText = 0x80146910; // type:data
+CutsceneTest_GlyphWidths = 0x801469D0; // type:data

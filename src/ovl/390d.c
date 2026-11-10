@@ -5,28 +5,28 @@
 typedef struct { s16 x, y; u8 body[0x20]; } Item_8013FB30;
 extern u8 D_8014147C[];
 extern u8 D_801414E8[];
-void func_80136000(u8 *, s32, s32, s32);
+void SaveMenu_DrawText(u8 *, s32, s32, s32);
 
 s32 func_8013FB30(s32 n) {
-    func_80136000(D_8014147C + n * 0x24, ((Item_8013FB30 *)(D_8014147C - 4))[n].x, ((Item_8013FB30 *)(D_8014147C - 4))[n].y, 1);
+    SaveMenu_DrawText(D_8014147C + n * 0x24, ((Item_8013FB30 *)(D_8014147C - 4))[n].x, ((Item_8013FB30 *)(D_8014147C - 4))[n].y, 1);
     switch (n) {
     case 0: {
         u8 *b = D_801414E8;
         Item_8013FB30 *p = (Item_8013FB30 *)(b - 4);
-        func_80136000(b, p[0].x, p[0].y, 0);
-        func_80136000(b + 0x24, p[1].x, p[1].y, 0);
+        SaveMenu_DrawText(b, p[0].x, p[0].y, 0);
+        SaveMenu_DrawText(b + 0x24, p[1].x, p[1].y, 0);
         break;
     }
     case 1: {
         u8 *b = D_801414E8 + 0x48;
         Item_8013FB30 *p = (Item_8013FB30 *)(b - 0x4C);
-        func_80136000(b, p[2].x, p[2].y, 0);
+        SaveMenu_DrawText(b, p[2].x, p[2].y, 0);
         break;
     }
     case 2: {
         u8 *b = D_801414E8 + 0x6C;
         Item_8013FB30 *p = (Item_8013FB30 *)(b - 0x70);
-        func_80136000(b, p[3].x, p[3].y, 0);
+        SaveMenu_DrawText(b, p[3].x, p[3].y, 0);
         break;
     }
     }
@@ -42,7 +42,7 @@ u8 *func_8013FC20(void) {
 typedef struct { s16 x, y; u8 body[0x20]; } Item_8013FC2C;
 extern u8 D_80141578[];
 #define D_80141574 ((Item_8013FC2C *)(D_80141578 - 4))
-void func_80136000(u8 *, s32, s32, s32);
+void SaveMenu_DrawText(u8 *, s32, s32, s32);
 
 s32 func_8013FC2C(s32 sel, s16 *flags) {
     s32 i;
@@ -50,9 +50,9 @@ s32 func_8013FC2C(s32 sel, s16 *flags) {
     for (i = 0; i < 5; i++) {
         if (flags[i] == 1) {
             if (i == sel) {
-                func_80136000(D_80141574[sel].body, D_80141574[sel].x, D_80141574[sel].y, 1);
+                SaveMenu_DrawText(D_80141574[sel].body, D_80141574[sel].x, D_80141574[sel].y, 1);
             } else {
-                func_80136000(D_80141574[i].body, D_80141574[i].x, D_80141574[i].y, 0);
+                SaveMenu_DrawText(D_80141574[i].body, D_80141574[i].x, D_80141574[i].y, 0);
             }
         }
     }
@@ -75,7 +75,7 @@ s32 func_8013FD50(s16 *flags) {
 
     for (i = 0; i < 7; i++) {
         if (flags[i] == 1) {
-            func_80136000(D_80141700[i].body, D_80141700[i].x, D_80141700[i].y, 0);
+            SaveMenu_DrawText(D_80141700[i].body, D_80141700[i].x, D_80141700[i].y, 0);
         }
     }
     return 0;
@@ -91,9 +91,9 @@ s32 func_8013FDE4(s32 sel, s16 *flags) {
     for (i = 0; i < 7; i++) {
         if (flags[i] == 1) {
             if (sel == i) {
-                func_80136000(D_80141820[i].body, D_80141820[i].x, D_80141820[i].y, 1);
+                SaveMenu_DrawText(D_80141820[i].body, D_80141820[i].x, D_80141820[i].y, 1);
             } else {
-                func_80136000(D_80141820[i].body, D_80141820[i].x, D_80141820[i].y, 0);
+                SaveMenu_DrawText(D_80141820[i].body, D_80141820[i].x, D_80141820[i].y, 0);
             }
         }
     }
@@ -106,8 +106,8 @@ extern u8 D_801418FC[];
 s32 func_8013FEA0(void) {
     u8 *b = D_801418FC;
     Item_8013FEA0 *p = (Item_8013FEA0 *)(b - 4);
-    func_80136000(b, p[0].x, p[0].y, 0);
-    func_80136000(b + 0x24, p[1].x, p[1].y, 0);
+    SaveMenu_DrawText(b, p[0].x, p[0].y, 0);
+    SaveMenu_DrawText(b + 0x24, p[1].x, p[1].y, 0);
     return 0;
 }
 
@@ -125,7 +125,7 @@ s32 func_8013FEFC(s32 n) {
     }
     for (i = 0; i < 3; i++) {
         if (D_80140470[base + i].x != -2 || g_Game_8013FEFC.frame % 20 < 11) {
-            func_80136000(D_80140470[base + i].body, D_80140470[base + i].x, D_80140470[base + i].y, 0);
+            SaveMenu_DrawText(D_80140470[base + i].body, D_80140470[base + i].x, D_80140470[base + i].y, 0);
         }
     }
     return 0;
@@ -138,8 +138,8 @@ void Menu_DrawCaps(s32, s32, s32);
 s32 func_8013FFEC(s32 sel) {
     u8 *b = D_80141434;
     Item_8013FFEC *p = (Item_8013FFEC *)(b - 4);
-    func_80136000(b, p[0].x, p[0].y, sel == 0);
-    func_80136000(b + 0x24, p[1].x, p[1].y, sel);
+    SaveMenu_DrawText(b, p[0].x, p[0].y, sel == 0);
+    SaveMenu_DrawText(b + 0x24, p[1].x, p[1].y, sel);
     Menu_DrawCaps(0xC0, p[0].y + sel * 20, 0x4C);
     return 0;
 }
@@ -150,26 +150,26 @@ extern u8 D_80141650[];
 s32 func_80140074(s32 n) {
     u8 *b = D_80141650;
     Item_80140074 *p = (Item_80140074 *)(b - 4);
-    func_80136000(b, p[0].x, p[0].y, 0);
+    SaveMenu_DrawText(b, p[0].x, p[0].y, 0);
     if (n == 1) {
-        func_80136000(b + 0x48, p[2].x, p[2].y, 0);
+        SaveMenu_DrawText(b + 0x48, p[2].x, p[2].y, 0);
     } else {
-        func_80136000(b + 0x24, p[1].x, p[1].y, 0);
+        SaveMenu_DrawText(b + 0x24, p[1].x, p[1].y, 0);
     }
     return 0;
 }
 
 typedef struct { s16 x, y; u8 text[0x20]; } Line_390b;
 extern Line_390b D_801416B8[2];
-void func_80136000(u8 *, s32, s32, s32);
+void SaveMenu_DrawText(u8 *, s32, s32, s32);
 
 s32 func_801400F4(s32 n) {
     s32 off;
 
     D_801416B8[0].text[4] = n + 0x6B;
     off = n * 48;
-    func_80136000(D_801416B8[0].text, D_801416B8[0].x, D_801416B8[0].y + off, 1);
-    func_80136000(D_801416B8[1].text, D_801416B8[1].x, D_801416B8[1].y + off, 0);
+    SaveMenu_DrawText(D_801416B8[0].text, D_801416B8[0].x, D_801416B8[0].y + off, 1);
+    SaveMenu_DrawText(D_801416B8[1].text, D_801416B8[1].x, D_801416B8[1].y + off, 0);
     return 0;
 }
 
@@ -177,11 +177,11 @@ typedef struct { s16 x, y; u8 body[0x20]; } Item_8014016C;
 typedef struct { s16 start, count; } Range_8014016C;
 extern Item_8014016C D_80140470_8014016C[] asm("D_80140470");
 extern Range_8014016C D_80141940[];
-extern s16 D_8013AF56;
+extern s16 SaveMenu_Screen;
 extern struct { u8 pad_0[6]; s16 f_6; } D_800E3880_8014016C asm("g_MemCard");
 extern u8 D_800E1A18[];
 extern struct { u32 frame; } g_Game_8014016C asm("g_Game");
-s32 func_80136120(u8 *);
+s32 SaveMenu_GetTextWidth(u8 *);
 
 s32 func_8014016C(void) {
     s32 start;
@@ -190,7 +190,7 @@ s32 func_8014016C(void) {
     s32 w;
     s32 x;
 
-    switch (D_8013AF56) {
+    switch (SaveMenu_Screen) {
     case 2:
     case 4:
     case 5:
@@ -231,19 +231,19 @@ s32 func_8014016C(void) {
     case 47:
     case 48:
     case 49:
-        start = D_80141940[D_8013AF56].start;
-        for (i = 0; i < D_80141940[D_8013AF56].count; i++) {
+        start = D_80141940[SaveMenu_Screen].start;
+        for (i = 0; i < D_80141940[SaveMenu_Screen].count; i++) {
             k = start + i;
             if (D_80140470_8014016C[k].x == -2 && g_Game_8014016C.frame % 20 >= 11) {
                 continue;
             }
             if (D_80140470_8014016C[k].x == -3) {
-                w = (func_80136120(D_800E1A18 + D_800E3880_8014016C.f_6 * 0x7A0) + func_80136120(D_80140470_8014016C[k].body)) / 2;
+                w = (SaveMenu_GetTextWidth(D_800E1A18 + D_800E3880_8014016C.f_6 * 0x7A0) + SaveMenu_GetTextWidth(D_80140470_8014016C[k].body)) / 2;
                 x = 0xC0 - w;
-                func_80136000(D_800E1A18 + D_800E3880_8014016C.f_6 * 0x7A0, x, D_80140470_8014016C[k].y, 0);
-                func_80136000(D_80140470_8014016C[k].body, x + func_80136120(D_800E1A18 + D_800E3880_8014016C.f_6 * 0x7A0), D_80140470_8014016C[k].y, 0);
+                SaveMenu_DrawText(D_800E1A18 + D_800E3880_8014016C.f_6 * 0x7A0, x, D_80140470_8014016C[k].y, 0);
+                SaveMenu_DrawText(D_80140470_8014016C[k].body, x + SaveMenu_GetTextWidth(D_800E1A18 + D_800E3880_8014016C.f_6 * 0x7A0), D_80140470_8014016C[k].y, 0);
             } else {
-                func_80136000(D_80140470_8014016C[k].body, D_80140470_8014016C[k].x, D_80140470_8014016C[k].y, 0);
+                SaveMenu_DrawText(D_80140470_8014016C[k].body, D_80140470_8014016C[k].x, D_80140470_8014016C[k].y, 0);
             }
         }
         break;

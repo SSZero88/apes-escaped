@@ -72,7 +72,7 @@ void Shockwave_Spawn(SVECTOR *, void *, s32, s32, s32);
 void Effect_SpawnAt(s32, SVECTOR *);
 #define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
 
-void func_8013D180(void *arg0, s32 dx, s32 dy, s32 dz) {
+void Brute_SpawnHitBurst(void *arg0, s32 dx, s32 dy, s32 dz) {
     SVECTOR v;
     SVECTOR r;
     s32 i;
@@ -92,7 +92,7 @@ void func_8013D180(void *arg0, s32 dx, s32 dy, s32 dz) {
 s32 SaveByte_Get(s32);
 s32 Link_GetState(s32);
 
-s32 func_8013D280(void) {
+s32 MM_ProgressReached4(void) {
     s32 r;
 
     r = 0;
@@ -105,7 +105,7 @@ s32 func_8013D280(void) {
 void *memset(void *, s32, s32);
 void Pickup_Drop(s32, SVECTOR *, s32, s32);
 
-void func_8013D2D0(s32 *p) {
+void Obj_DropCookieAndChip(s32 *p) {
     SVECTOR w;
     SVECTOR v;
 
@@ -118,13 +118,13 @@ void func_8013D2D0(s32 *p) {
     Pickup_Drop(3, &w, 3, 0);
 }
 
-void func_8013D374(void *arg0) {
+void HomingBomb_StartLoop(void *arg0) {
     if (M2C_FIELD(arg0, s8 *, 0x7C) == -1) {
         M2C_FIELD(arg0, s8 *, 0x7C) = Sound_ReserveSlot(0x70AF, 0x1000, arg0 + 0x24);
     }
 }
 
-void func_8013D3B4(void *arg0) {
+void HomingBomb_StopLoop(void *arg0) {
     s8 temp_a0;
 
     temp_a0 = M2C_FIELD(arg0, s8 *, 0x7C);
@@ -136,18 +136,18 @@ void func_8013D3B4(void *arg0) {
 M2C_UNK Object_PlaySound(s32, M2C_UNK);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 
-void func_8013D3E4(s32 arg0) {
-    func_8013D180(arg0, 0, 0, 0);
+void HomingBomb_Defeat(s32 arg0) {
+    Brute_SpawnHitBurst(arg0, 0, 0, 0);
     Object_PlaySound(arg0, 0x5F);
     Sound_PlayFixed(0x15);
     Object_Despawn(arg0, 1);
-    func_8013D3B4(arg0);
+    HomingBomb_StopLoop(arg0);
 }
 
 s32 Object_AddAttackSphere(void *, s32, s16, s16, s32, s32, s32);
 void Object_Despawn(void *, s32);
 
-void func_8013D43C(void *arg0) {
+void HomingBomb_Explode(void *arg0) {
     SVECTOR v;
 
     v.vx = M2C_FIELD(arg0, u16 *, 0x24);
@@ -158,21 +158,21 @@ void func_8013D43C(void *arg0) {
     Object_AddAttackSphere(arg0, 0x12C, M2C_FIELD(arg0, s16 *, 0x1C), M2C_FIELD(arg0, u16 *, 0x1E) - 0x64,
                            M2C_FIELD(arg0, s16 *, 0x20), 0x201, 0x201);
     Object_Despawn(arg0, 1);
-    func_8013D3B4(arg0);
+    HomingBomb_StopLoop(arg0);
 }
 
-void func_8013D2D0(s32 *p);
-void func_8013D3E4(s32 arg0);
-void func_8013D43C(void *arg0);
+void Obj_DropCookieAndChip(s32 *p);
+void HomingBomb_Defeat(s32 arg0);
+void HomingBomb_Explode(void *arg0);
 
-void func_8013D4D8(void *arg0) {
+void HomingBomb_CheckHit(void *arg0) {
     u32 t = M2C_FIELD(arg0, u32 *, 0x50) >> 28;
 
     if (t == 11) {
-        func_8013D2D0((s32 *)((u8 *)arg0 + 0x24));
-        func_8013D3E4((s32)arg0);
+        Obj_DropCookieAndChip((s32 *)((u8 *)arg0 + 0x24));
+        HomingBomb_Defeat((s32)arg0);
     } else if (t == 1) {
-        func_8013D43C(arg0);
+        HomingBomb_Explode(arg0);
     }
 }
 
@@ -180,7 +180,7 @@ extern s32 D_800EC208;
 extern struct { u8 pad0[0x24]; s16 x; u8 pad26[6]; s16 z; } g_Spike_8013D538 asm("g_Spike");
 void Object_TurnToward(void *, s16, s16, s16, s16);
 
-void func_8013D538(u8 *arg0) {
+void HomingBomb_Home(u8 *arg0) {
     s32 d = D_800EC208 - M2C_FIELD(arg0, s32 *, 0x28) - 0x32;
 
     if (ABS(d) >= 13) {
@@ -195,7 +195,7 @@ void func_8013D538(u8 *arg0) {
     M2C_FIELD(arg0, s32 *, 0x2C) += (M2C_FIELD(arg0, s16 *, 0x64) * 35) >> 12;
 }
 
-void func_8013D62C(void *arg0) {
+void HomingBomb_SpawnTrail(void *arg0) {
     s32 temp_s1;
 
     temp_s1 = M2C_FIELD(arg0, s32 *, 0x74);
@@ -206,7 +206,7 @@ void func_8013D62C(void *arg0) {
 void *Object_AddAttachPoint(void *, s16, s16);
 void Object_InitOrbit(void *, s32);
 
-void func_8013D684(u8 *arg0) {
+void HomingBomb_Init(u8 *arg0) {
     M2C_FIELD(arg0, s16 *, 0xA0) = 0x32;
     M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
     M2C_FIELD(arg0, u8 *, 0xC8) = 5;
@@ -231,7 +231,7 @@ s32 Spike_WithinRadiusXZ_8013D738(s32, s32, s32) asm("Spike_WithinRadiusXZ");
 M2C_UNK Object_Timer(void *, M2C_UNK);
 M2C_UNK Object_DebugStub(void *, s16);
 
-void func_8013D738(void *arg0)
+void HomingBomb_Update(void *arg0)
 {
   s32 temp_v0;
   s32 new_var;
@@ -240,7 +240,7 @@ void func_8013D738(void *arg0)
   u8 temp_v1;
   if (!((((u32) (*((u32 *) (((s8 *) arg0) + 0xE0)))) >> 3) & 1))
   {
-    func_8013D684(arg0);
+    HomingBomb_Init(arg0);
     *((u32 *) (((s8 *) arg0) + 0xE0)) = (u32) ((*((u32 *) (((s8 *) arg0) + 0xE0))) | 8);
   }
   Object_DebugStub(arg0, *((s16 *) (((s8 *) arg0) + 0x44)));
@@ -256,7 +256,7 @@ void func_8013D738(void *arg0)
   switch (temp_v1)
   {
     case 1:
-      func_8013D4D8(arg0);
+      HomingBomb_CheckHit(arg0);
       Object_OrbitAround(arg0, *((s16 *) (((s8 *) arg0) + 0x9A)), *((s16 *) (((s8 *) arg0) + 0x9E)), *((s16 *) (((s8 *) arg0) + 0xA6)), 6);
       if (Object_SpikeOutOfRange(arg0, *((s32 *) (((s8 *) arg0) + 0x24)), *((s32 *) (((s8 *) arg0) + 0x28)), *((s32 *) (((s8 *) arg0) + 0x2C)), 0x400) == 0)
     {
@@ -279,7 +279,7 @@ void func_8013D738(void *arg0)
         *((u8 *) (((s8 *) arg0) + 0x7F)) = 1U;
         *((u16 *) (((s8 *) arg0) + 0x5C)) = (u16) (*((u16 *) (((s8 *) (*((void **) (((s8 *) arg0) + 0x88)))) + 4)));
         Object_Timer(arg0, 0x46);
-        func_8013D374(arg0);
+        HomingBomb_StartLoop(arg0);
         *((u32 *) (((s8 *) arg0) + 0xE0)) = (u32) ((*((u32 *) (((s8 *) arg0) + 0xE0))) | 0x2000);
         return;
       }
@@ -299,11 +299,11 @@ void func_8013D738(void *arg0)
     }
     else
     {
-      func_8013D43C(arg0);
+      HomingBomb_Explode(arg0);
     }
-      func_8013D538(arg0);
-      func_8013D62C(arg0);
-      func_8013D4D8(arg0);
+      HomingBomb_Home(arg0);
+      HomingBomb_SpawnTrail(arg0);
+      HomingBomb_CheckHit(arg0);
       break;
 
   }
@@ -632,7 +632,7 @@ void func_8013E44C(void *arg0) {
         Sound_PlayFixed(0x15);
         func_8013E27C(arg0);
         func_8013E310(M2C_FIELD(arg0, u8 *, 0x70));
-        func_8013D2D0((u8 *)arg0 + 0x24);
+        Obj_DropCookieAndChip((u8 *)arg0 + 0x24);
         func_8013DA84(arg0);
     } else if (s == 1) {
         func_8013E3B8(arg0);
@@ -883,7 +883,7 @@ void func_8013EC24(void *arg0) {
     D_80140D38_8013EC24.z = D_80140D00_8013EC24.z;
 }
 
-s32 func_8013D280(void);
+s32 MM_ProgressReached4(void);
 void func_8013E864(void);
 void Object_StepOrbitAngle(void *, s16);
 s32 Object_WouldLeaveHome(void *, s16);
@@ -891,7 +891,7 @@ s32 Object_WouldLeaveHome(void *, s16);
 s32 func_8013EC70(u8 *arg0) {
     s32 d;
 
-    if (func_8013D280()) {
+    if (MM_ProgressReached4()) {
         func_8013E88C(arg0);
         return 1;
     }
@@ -967,7 +967,7 @@ void func_8013E650(s32 arg0, s32 arg1);
 void func_8013E7F0(void *arg0);
 #define ANIM_8013EE4C(o, i) ((u16 *)(M2C_FIELD(o, u8 **, 0x88) + (i) * 4))
 
-void func_8013EE4C(u8 *e) {
+void Clown_Update(u8 *e) {
     s32 d;
 
     if (!((M2C_FIELD(e, u32 *, 0xE0) >> 3) & 1)) {
@@ -1126,7 +1126,7 @@ void func_8013F450(void *arg0) {
     Effect_SpawnAt(5, &v);
 }
 
-void func_8013F490(void *arg0) {
+void Obj_StopLoopSound(void *arg0) {
     s8 temp_a0;
 
     temp_a0 = M2C_FIELD(arg0, s8 *, 0x7C);
@@ -1138,7 +1138,7 @@ void func_8013F490(void *arg0) {
 
 void func_8013F4D4(void *arg0, s32 arg1) {
     if (M2C_FIELD(arg0, s8 *, 0x7C) != -1) {
-        func_8013F490(arg0);
+        Obj_StopLoopSound(arg0);
     }
     M2C_FIELD(arg0, s8 *, 0x7C) = Sound_ReserveSlot(arg1 | 0x7000, 0x1000, arg0 + 0x24);
 }
@@ -1181,7 +1181,7 @@ void func_8013F5F8(void *arg0)
   D_80140D40 = 0;
   *((u16 *) (((s8 *) arg0) + 0x5C)) = new_var;
   Object_SetModel(arg0, 0x56);
-  func_8013F490(arg0);
+  Obj_StopLoopSound(arg0);
 }
 
 void func_8013F64C(void *arg0) {
@@ -1192,7 +1192,7 @@ void func_8013F64C(void *arg0) {
         M2C_FIELD(arg0, s16 *, 0xAE) = 0;
         M2C_FIELD(arg0, s8 *, 0x84) = 0x14;
         Object_HitFeedback(arg0);
-        func_8013D180(arg0, 0, 0, 0);
+        Brute_SpawnHitBurst(arg0, 0, 0, 0);
     }
 }
 
@@ -1221,7 +1221,7 @@ void Object_CameraShake(void *, s32);
 void func_8013E7A0(void);
 void func_8013F37C(u8 *e);
 void func_8013F450(void *arg0);
-void func_8013F490(void *arg0);
+void Obj_StopLoopSound(void *arg0);
 void func_8013F64C(void *arg0);
 void func_8013F6FC(u8 *a);
 #define ANIM_8013F7A8(o, i) ((u16 *)(M2C_FIELD(o, u8 **, 0x88) + (i) * 4))
@@ -1287,7 +1287,7 @@ void func_8013F7A8(u8 *e) {
             Object_CameraShake(e, 1);
             Object_SetModel(e, 0x39);
             Object_PlaySound((s32)e, 0xB2);
-            func_8013F490(e);
+            Obj_StopLoopSound(e);
             D_80140D50 = 1;
             Sound_PlayFixed(0x79);
             for (i = 0; i < 32; i++) {
@@ -1445,7 +1445,7 @@ M2C_UNK Object_StepOnGroundFixed(void *);
 void func_8013FEB0(void *arg0);
 void func_8013FF58(void *arg0);
 
-void func_80140070(O_80140070 *o) {
+void Waiter_Update(O_80140070 *o) {
     s32 d;
     s32 s;
 
@@ -1471,7 +1471,7 @@ void func_80140070(O_80140070 *o) {
     } else {
         o->fC8 = 0;
     }
-    if (func_8013D280()) {
+    if (MM_ProgressReached4()) {
         Object_Despawn(o, 0);
         return;
     }
@@ -1506,7 +1506,7 @@ void func_80140070(O_80140070 *o) {
     }
 }
 
-s32 func_80140264(void *arg0) {
+s32 LevelObj_RestartTimer(void *arg0) {
     M2C_FIELD(arg0, s16 *, 6) = 0;
     M2C_FIELD(arg0, u16 *, 2) = (u16) M2C_FIELD(arg0, u16 *, 8);
     return 0;
@@ -1570,15 +1570,15 @@ s32 func_80140278(s16 *p) {
     return 0;
 }
 
-s32 func_801403BC(void) {
+s32 LevelObj_Nop(void) {
     return 0;
 }
 
-s32 func_801403C4(void) {
+s32 LevelObj_Nop2(void) {
     return 0;
 }
 
-s32 func_801403CC(void *arg0) {
+s32 LevelObj_ResetState(void *arg0) {
     M2C_FIELD(arg0, s16 *, 2) = 0;
     M2C_FIELD(arg0, s16 *, 6) = 0;
     return 0;
@@ -1593,7 +1593,7 @@ void Pad_Vibrate(s32, s32, s32);
 void Fx_Explosion(s16 *, s32, s32);
 s32 Vec_Length(s32, s32, s32);
 
-s32 func_801403DC(s16 *p) {
+s32 Bomb_Update(s16 *p) {
     u8 *e;
     SVECTOR unused;
 
@@ -1630,7 +1630,7 @@ s32 func_801403DC(s16 *p) {
     return 0;
 }
 
-s32 func_80140564(void *arg0) {
+s32 LevelObj_ResetState2(void *arg0) {
     M2C_FIELD(arg0, s16 *, 2) = 0;
     M2C_FIELD(arg0, s16 *, 6) = 0;
     return 0;

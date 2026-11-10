@@ -19,13 +19,13 @@ void DrawSync(s32);
 s32 VSync(s32 mode);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-s32 func_80136A24(void);
+s32 StillScreen_UpdateFade(void);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
 
-s32 func_80136000(void) {
+s32 StillScreen_EndLoop(void) {
     Rect_80136000 r;
 
     r = D_80136CE0_80136000;
@@ -50,7 +50,7 @@ s32 func_80136000(void) {
     for (;;) {
         func_8001325C(2);
         Gfx_BeginFrame();
-        if (func_80136A24() < 0) {
+        if (StillScreen_UpdateFade() < 0) {
             if (D_80136CF0 == 1) {
                 break;
             }
@@ -63,7 +63,7 @@ s32 func_80136000(void) {
             D_80136CF2 = 2;
             D_80136CF4 = 0;
         }
-        func_801362B8();
+        StillScreen_DrawEnd();
         DrawSync(0);
         VSync(2);
         g_Game_80136000.frame++;
@@ -84,7 +84,7 @@ s32 Text_GetWidth2(u8 *);
 void Msg_SetPos(s16, s16);
 void Msg_DrawString(u8 *);
 
-s32 func_801362B8(void) {
+s32 StillScreen_DrawEnd(void) {
     u8 *p = g_Game_801362B8.prim;
     s32 w;
     s32 x;
@@ -212,13 +212,13 @@ void DrawSync(s32);
 s32 VSync(s32 mode);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-s32 func_80136A24(void);
+s32 StillScreen_UpdateFade(void);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
 
-s32 func_8013668C(void) {
+s32 StillScreen_ToTitle(void) {
     Rect_8013668C r;
 
     r = D_80136CE0;
@@ -240,13 +240,13 @@ s32 func_8013668C(void) {
     D_80136CF2 = 0;
     g_Game_8013668C.f_82BA |= 2;
     D_80136CF4 = 0x1E;
-    while (func_8001325C(0), Gfx_BeginFrame(), func_80136A24() >= 0) {
+    while (func_8001325C(0), Gfx_BeginFrame(), StillScreen_UpdateFade() >= 0) {
         if (D_80136CF2 == 1 && (g_Pad_8013668C.f_160 & g_Pad_8013668C.f_158 & 0x860)) {
             Sound_PlayFixed(2);
             D_80136CF2 = 2;
             D_80136CF4 = 0;
         }
-        func_8013690C();
+        StillScreen_DrawToTitle();
         DrawSync(0);
         VSync(2);
         g_Game_8013668C.frame++;
@@ -262,7 +262,7 @@ s32 func_8013668C(void) {
 
 extern GameDraw g_Game_8013690C asm("g_Game");
 
-s32 func_8013690C(void) {
+s32 StillScreen_DrawToTitle(void) {
     u8 *p = g_Game_8013690C.prim;
 
     M2C_FIELD(p, u32 *, 4) = 0x808080;
@@ -304,19 +304,19 @@ s32 func_8013690C(void) {
 extern s16 D_80136CF2;
 extern s16 D_80136CF4;
 
-s32 func_80136A24(void) {
+s32 StillScreen_UpdateFade(void) {
     switch (D_80136CF2) {
     case 1:
         return 0;
     case 0:
-        func_80136AFC();
+        StillScreen_DrawFade();
         if (--D_80136CF4 < 0) {
             D_80136CF2 = 1;
             D_80136CF4 = 0;
         }
         return 0;
     case 2:
-        func_80136AFC();
+        StillScreen_DrawFade();
         if (++D_80136CF4 >= 0x1F) {
             D_80136CF2 = 1;
             D_80136CF4 = 0;
@@ -329,7 +329,7 @@ s32 func_80136A24(void) {
 
 extern GameDraw g_Game;
 
-s32 func_80136AFC(void) {
+s32 StillScreen_DrawFade(void) {
     u8 *p = G_DRAW.prim;
     s32 v = D_80136CF4 * 255 / 30;
 

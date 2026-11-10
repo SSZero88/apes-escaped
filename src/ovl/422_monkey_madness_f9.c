@@ -28,7 +28,7 @@ extern u8 *D_80144410[];
 extern u8 *D_80144438[];
 void Model_BindBonedAuto(void *, void *);
 
-void func_8013D000(s32 i, void *obj, void *out) {
+void Boss_BindPartModel(s32 i, void *obj, void *out) {
     u8 *bank = g_Game_8013D000.f_8244;
     AnimEnt_8013D000 *ent;
     u8 *s;
@@ -49,7 +49,7 @@ typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 p
 extern struct { u8 pad0[0x24]; u16 f_24; u8 pad26[2]; u16 f_28; } D_800EBFA0;
 void Model_DrawPrims(s32, u8 *, s32);
 
-void func_8013D0A0(s32 ot, s32 arg1, Mdl_422 *m, s32 add) {
+void Boss_DrawLitPrims(s32 ot, s32 arg1, Mdl_422 *m, s32 add) {
     s32 i;
     u8 *c;
     s32 *src;
@@ -93,7 +93,7 @@ void Matrix_FromDirection(void *, void *);
 void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 
-s32 func_8013D1FC(u8 *a, void *scale, s32 c) {
+s32 Boss_ProjectSprite(u8 *a, void *scale, s32 c) {
     SVECTOR v;
     s32 sxy;
     s16 x;
@@ -116,7 +116,7 @@ s32 func_8013D1FC(u8 *a, void *scale, s32 c) {
     ScaleMatrix(M2C_FIELD(a, void **, 0x14), scale);
     Model_CalcKeyedJointMatrices(a, 3);
     Model_ProjectBonedVerts(a);
-    func_8013D0A0(g_Game_8013D63C.f_80 + g_Game_8013D63C.f_C * 0x4078, g_ProjVerts, a, c);
+    Boss_DrawLitPrims(g_Game_8013D63C.f_80 + g_Game_8013D63C.f_C * 0x4078, g_ProjVerts, a, c);
     return 0;
 }
 
@@ -126,7 +126,7 @@ extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013D3EC asm("g_S
 Shape_8013D3EC *CollShape_Alloc(void);
 s32 Collision_Set(s32, void *, void *);
 
-void func_8013D33C(Coll_8013D3EC *c, void *owner, s32 a2, s16 a3, s16 a4) {
+void Boss_AddCollision(Coll_8013D3EC *c, void *owner, s32 a2, s16 a3, s16 a4) {
     s32 dx = g_Spike_8013D3EC.x - c->x;
     s32 dz = g_Spike_8013D3EC.z - c->z;
 
@@ -147,11 +147,11 @@ void func_8013D33C(Coll_8013D3EC *c, void *owner, s32 a2, s16 a3, s16 a4) {
 }
 
 
-void func_8013D450(void *arg0, s32 arg1, s32 arg2, s16 arg3) {
-    func_8013D33C(arg0, arg1, arg2, 0, arg3);
+void Boss_AddCollisionSimple(void *arg0, s32 arg1, s32 arg2, s16 arg3) {
+    Boss_AddCollision(arg0, arg1, arg2, 0, arg3);
 }
 
-void func_8013D47C(void) {
+void Boss_ClearParticles(void) {
     s32 i;
 
     for (i = 79; i >= 0; i--) {
@@ -162,7 +162,7 @@ void func_8013D47C(void) {
 extern struct { s16 x, y, z, vy; s8 vx, vz, life; u8 pad; } D_80143F08_8013D554[] asm("D_80144C18");
 #define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
 
-void func_8013D4A4(SVECTOR *arg0) {
+void Boss_BurstParticles(SVECTOR *arg0) {
     s32 i;
     s16 x = arg0->vx;
     s16 y = arg0->vy;
@@ -286,19 +286,19 @@ void func_8013D60C(void) {
     g_Game_8013D6BC.prim = (u8 *)p;
 }
 
-void func_8013D9DC(void) {
+void Boss_VibrateHeavy(void) {
     Pad_Vibrate(1, 0xC8, 0xA);
 }
 
-void func_8013DA04(void) {
+void Boss_VibrateLight(void) {
     Pad_Vibrate(1, 0x3C, 2);
 }
 
-void func_8013DA2C(void) {
+void Boss_VibrateMedium(void) {
     Pad_Vibrate(1, 0x78, 2);
 }
 
-void func_8013DA54(s32 arg0) {
+void Boss_DropPickup(s32 arg0) {
     M2C_UNK var_a2;
     u16 temp_v0;
 
@@ -327,15 +327,15 @@ extern struct { u8 pad0[8]; s32 f_8; u8 f_C; u8 f_D; u8 f_E; u8 f_F; s16 f_10; u
 extern s16 D_800E69BE;
 extern u8 D_800AF840;
 s32 SaveByte_Get(s32);
-void func_801406F8(s32 anim);
+void Boss_SetAnim(s32 anim);
 void func_8013F86C(void);
-void func_8013E4A8(void);
-void func_8013D47C(void);
-void func_8013E070(void);
-void func_8013E7F8(void);
-void func_8013F080(void);
+void Boss_ClearPoolB(void);
+void Boss_ClearParticles(void);
+void Boss_ClearPoolA(void);
+void Boss_ClearPoolC(void);
+void Boss_ClearPoolD(void);
 
-void func_8013DAE8(void) {
+void Boss_Init(void) {
     u8 *h;
     Spawn_8013DAE8 *sp;
     Ent_8013DAE8 *e;
@@ -351,7 +351,7 @@ void func_8013DAE8(void) {
     }
     sp = (Spawn_8013DAE8 *)(g_Game_8013DAE8.f_8244 + M2C_FIELD(h, s32 *, 8));
     for (i = 0, e = D_80144460_8013DAE8; i < 7; sp++, i++, e++) {
-        func_8013D000(i, e, e->f_84);
+        Boss_BindPartModel(i, e, e->f_84);
         e->f_8C = 1;
         e->f_8F = 6;
         e->f_8E = 6;
@@ -384,7 +384,7 @@ void func_8013DAE8(void) {
         e->f_8E = 2;
     }
     { s32 t = D_801444E4; D_80144BE8_8013DAE8.f_8 = t; }
-    func_801406F8(0);
+    Boss_SetAnim(0);
     D_80144BE8_8013DAE8.f_10 = 0x5A;
     D_80144BE8_8013DAE8.f_1E = 3;
     D_80144BE8_8013DAE8.f_14 = 0;
@@ -396,11 +396,11 @@ void func_8013DAE8(void) {
     D_80144BE8_8013DAE8.f_1F = 0;
     D_80144BE8_8013DAE8.f_24 = 0;
     func_8013F86C();
-    func_8013E4A8();
-    func_8013D47C();
-    func_8013E070();
-    func_8013E7F8();
-    func_8013F080();
+    Boss_ClearPoolB();
+    Boss_ClearParticles();
+    Boss_ClearPoolA();
+    Boss_ClearPoolC();
+    Boss_ClearPoolD();
 }
 
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_8013DD44;
@@ -409,7 +409,7 @@ extern struct { u8 pad0[0x12]; u16 f_12; s8 f_14; u8 f_15; u8 f_16; u8 pad17[5];
 extern Part_8013DD44 D_801444F8_8013DD44[] asm("D_801444F8");
 extern Mat_8013DD44 D_800F4750_8013DD44[] asm("D_800F4750");
 extern u8 D_80143D00_8013DD44[] asm("D_80143D00");
-s32 func_8013D1FC(u8 *a, void *scale, s32 c);
+s32 Boss_ProjectSprite(u8 *a, void *scale, s32 c);
 
 void func_8013DD44(Part_8013DD44 *e) {
     s32 a;
@@ -456,7 +456,7 @@ void func_8013DD44(Part_8013DD44 *e) {
         }
         c = 0x10000 | (a * 32);
     }
-    if (func_8013D1FC((u8 *)e, D_80143D00_8013DD44, c) != 0) {
+    if (Boss_ProjectSprite((u8 *)e, D_80143D00_8013DD44, c) != 0) {
         return;
     }
     if (e == &D_801444F8_8013DD44[0] || e == &D_801444F8_8013DD44[1] || e == &D_801444F8_8013DD44[4] || e == &D_801444F8_8013DD44[5]) {
@@ -480,7 +480,7 @@ void func_8013DD44(Part_8013DD44 *e) {
     }
 }
 
-void func_8013E070(void) {
+void Boss_ClearPoolA(void) {
     s32 i;
 
     for (i = 31; i >= 0; i--) {
@@ -583,7 +583,7 @@ void func_8013E22C(void) {
     g_Game_8013E22C.f_4 = l;
 }
 
-void func_8013E4A8(void) {
+void Boss_ClearPoolB(void) {
     M2C_UNK *var_v0;
     s32 var_v1;
 
@@ -652,7 +652,7 @@ void func_8013E564(void) {
     }
 }
 
-void func_8013E7F8(void) {
+void Boss_ClearPoolC(void) {
     M2C_UNK *var_v0;
     s32 var_v1;
 
@@ -709,8 +709,8 @@ void func_80070284_8013E8D4(void *, void *, s32, s32, void *) asm("Shockwave_Spa
 s32 Camera_StartShake_8013E8D4(s32) asm("Camera_StartShake");
 s32 Sound_PlayFixed_8013E8D4(s32) asm("Sound_PlayFixed");
 void func_8006F3D0_8013E8D4(SVECTOR *, s32, void *, s32) asm("Fx_DrawRibbon");
-void func_8013D450(void *arg0, s32 arg1, s32 arg2, s16 arg3);
-void func_8013DA54(s32 arg0);
+void Boss_AddCollisionSimple(void *arg0, s32 arg1, s32 arg2, s16 arg3);
+void Boss_DropPickup(s32 arg0);
 void func_80142528(s16 *arg0);
 #define RAND_8013E8D4() (g_RandSeed = g_RandSeed * 5 + 1)
 
@@ -795,18 +795,18 @@ void func_8013E8D4(void) {
                 if (e->kind == 1) {
                     if (((RAND_8013E8D4() >> 8) & 3) < 3) {
                         D_80144BE8_8013E8D4.f_1F = 1;
-                        func_8013DA54((s32)&e->head);
+                        Boss_DropPickup((s32)&e->head);
                     }
                     if ((RAND_8013E8D4() >> 8) & 1) {
                         D_80144BE8_8013E8D4.f_1F = 1;
-                        func_8013DA54((s32)&e->head);
+                        Boss_DropPickup((s32)&e->head);
                     }
                 }
                 if (D_80144BE8_8013E8D4.f_F == 1 && e->kind == 0) {
                     func_80142528(&e->head.vx);
                 }
             } else {
-                func_8013D450(e, (s32)D_80144460_8013E8D4, 0x50, 0x200);
+                Boss_AddCollisionSimple(e, (s32)D_80144460_8013E8D4, 0x50, 0x200);
             }
             break;
         case 3:
@@ -838,7 +838,7 @@ void func_8013E8D4(void) {
     }
 }
 
-void func_8013F080(void) {
+void Boss_ClearPoolD(void) {
     M2C_UNK *var_v0;
     s32 var_v1;
 
@@ -944,7 +944,7 @@ void func_8013F198(void) {
                 Camera_StartShake_8013F198(0);
                 Sound_PlayFixed_8013F198(0x4D);
             }
-            func_8013D450(e, (s32)D_80144460_8013F198, 0x80, 0x200);
+            Boss_AddCollisionSimple(e, (s32)D_80144460_8013F198, 0x80, 0x200);
             break;
         case 3:
             if (--e->timer == 0) {
@@ -952,13 +952,13 @@ void func_8013F198(void) {
                 if ((RAND_8013F198() >> 8) & 1) {
                     if (D_80144BE8_8013F198.f_1F == 0) {
                         D_80144BE8_8013F198.f_1F = 1;
-                        func_8013DA54((s32)&e->x);
+                        Boss_DropPickup((s32)&e->x);
                     }
                 }
             }
             Effect_Spawn_8013F198(0xCB, &e->x, D_80143F00_8013F198, 0);
             Effect_Spawn_8013F198(0xCC, &e->x, D_80143F00_8013F198, 0);
-            func_8013D450(e, (s32)D_80144460_8013F198, 0x80, 0x200);
+            Boss_AddCollisionSimple(e, (s32)D_80144460_8013F198, 0x80, 0x200);
             break;
         }
         if (e->state != 3) {
@@ -1032,7 +1032,7 @@ void func_8013F598(u8 *obj) {
     }
 }
 
-void func_8013F75C(void *arg0, s32 anim) {
+void Boss_SetPartAnim(void *arg0, s32 anim) {
     if (M2C_FIELD(arg0, u16 *, 0x90) != anim) {
         M2C_FIELD(arg0, u16 *, 0x90) = anim;
         M2C_FIELD(arg0, u16 *, 0x5C) = *(u16 *)(anim * 4 + M2C_FIELD(arg0, u8 **, 0x8C));
@@ -1070,8 +1070,8 @@ void func_8013F86C(void) {
     s16 x;
 
     for (i = 0, e = D_80144AA8_8013F86C; i < 2; i++, e++) {
-        func_8013D000(8, e, e->f_8C);
-        func_8013F75C(e, 0);
+        Boss_BindPartModel(8, e, e->f_8C);
+        Boss_SetPartAnim(e, 0);
         x = i * 0x41C - 0x20E;
         e->f_9A = x;
         e->f_92 = 0;
@@ -1160,7 +1160,7 @@ void Shadow_Draw_8013FAA4(void *, s32, s32, s32) asm("Shadow_Draw");
 void func_80070284_8013FAA4(void *, void *, s32, s32, void *) asm("Shockwave_Spawn");
 void func_8013E4D0(SVECTOR *pos, s32 b);
 void func_8013E81C(u8 *a0, s32 a1);
-void func_8013F75C(void *arg0, s32 anim);
+void Boss_SetPartAnim(void *arg0, s32 anim);
 #define RAND_8013FAA4() (g_RandSeed = g_RandSeed * 5 + 1)
 #define RAND2_8013FAA4() (g_RandSeed2 = g_RandSeed2 * 5 + 1)
 
@@ -1244,7 +1244,7 @@ void func_8013FAA4(void) {
         case 4:
             if (p->f_93 == 0) {
                 p->state = 5;
-                func_8013F75C(p, 1);
+                Boss_SetPartAnim(p, 1);
                 p->f_9C = 0;
             }
             break;
@@ -1267,7 +1267,7 @@ void func_8013FAA4(void) {
         case 6:
             if (p->f_9C >= 0x3C) {
                 p->state = 3;
-                func_8013F75C(p, 0);
+                Boss_SetPartAnim(p, 0);
             }
             break;
         }
@@ -1308,7 +1308,7 @@ void func_8013FAA4(void) {
         case 1:
             break;
         default:
-            p->f_93 = func_8013D1FC((u8 *)p, D_80144384_8013FAA4, 0);
+            p->f_93 = Boss_ProjectSprite((u8 *)p, D_80144384_8013FAA4, 0);
             Shadow_Draw_8013FAA4(&p->x, -0x3010, 0x80, 0);
             break;
         case 2:
@@ -1320,7 +1320,7 @@ void func_8013FAA4(void) {
                 sc.vy = ((8 - p->f_9C) << 12) + 0x1000;
                 sc.vz = 0x1000;
             }
-            func_8013D1FC((u8 *)p, &sc, ((u8)~c2 << 16) | (u8)c2);
+            Boss_ProjectSprite((u8 *)p, &sc, ((u8)~c2 << 16) | (u8)c2);
             }
             break;
         }
@@ -1365,7 +1365,7 @@ void func_80140564(s32 row)
  do { p = (*((GameDraw *) (&g_Game))).prim; r.x = 0x200; r.y = row + 0xC2; r.w = 0x10; r.h = 1; ot = &(*((GameDraw *) (&g_Game))).db[(*((GameDraw *) (&g_Game))).cur].ot[0xFFF]; SetDrawMove(p, &r, 0x200, 0xC1); ((Tag_80140564 *) p)->addr = ((Tag_80140564 *) ot)->addr; ((Tag_80140564 *) ot)->addr = (u32) p; p += 0x18; (*((GameDraw *) (&g_Game))).prim = p; } while (0);
 }
 
-void func_80140630(s16 arg0) {
+void Boss_SetTimer(s16 arg0) {
     D_80144C0C = arg0;
 }
 
@@ -1389,7 +1389,7 @@ void func_8014063C(void) {
 
 extern struct { u16 cur; u8 pad2[2]; u16 f_4; u8 f_6; u8 f_7; u8 *tbl; } D_80144BE8_801406F8 asm("D_80144BE8");
 
-void func_801406F8(s32 anim) {
+void Boss_SetAnim(s32 anim) {
     if (D_80144BE8_801406F8.cur != anim) {
         D_80144BE8_801406F8.cur = anim;
         D_80144BE8_801406F8.f_4 = *(u16 *)(anim * 4 + D_80144BE8_801406F8.tbl);
@@ -1453,7 +1453,7 @@ void func_801408AC(s32 arg0, s32 arg1) {
     u16 temp_v1;
 
     D_80144BE8.f_C = 0;
-    func_801406F8(0);
+    Boss_SetAnim(0);
     temp_v1 = (g_RandSeed * 5) + 1;
     D_80144BE8.f_10 = (s16) (arg0 + ((s32) (((u32) (temp_v1 & 0xFFFF) >> 8) * arg1) >> 8));
     g_RandSeed = temp_v1;
@@ -1467,7 +1467,7 @@ void func_8014092C(void) {
     u8 *m = D_80144460;
 
     D_80144BF4 = 2;
-    func_801406F8(1);
+    Boss_SetAnim(1);
     func_8014081C();
     v.vy = -0x3300;
     v.vx = 0;
@@ -1482,7 +1482,7 @@ extern struct { u8 pad_0[0xC]; s8 f_C; u8 pad_D[3]; s16 f_10; u8 pad_12[5]; u8 f
 void func_801409AC(void) {
     D_80144BE8_801409AC.f_C = 0xA;
     D_80144BE8_801409AC.f_10 = 0x5A;
-    func_801406F8(D_80144BE8_801409AC.f_17 + 9);
+    Boss_SetAnim(D_80144BE8_801409AC.f_17 + 9);
     Shockwave_Spawn((s16 *)(D_80144BE8_801409AC.f_18 + 0x7C), (M2C_UNK *)D_80143F18, 1, 0, D_80144BE8_801409AC.f_18 + 0x60);
     Sound_PlayFixed(0x27);
     Sound_PlayFixed(0x28);
@@ -1495,7 +1495,7 @@ void func_80140A20(void) {
     D_80144BE8_80140A20.f_C = 1;
     D_80144BE8_80140A20.f_10 = 0;
     D_80144BE8_80140A20.f_E = 0;
-    func_80140630(0x32);
+    Boss_SetTimer(0x32);
 }
 
 typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_80140A60;
@@ -1532,11 +1532,11 @@ void RotMatrix_80140A60(void *, void *) asm("RotMatrix");
 void *ApplyMatrixSV_80140A60(void *, void *, void *) asm("ApplyMatrixSV");
 s32 VectorNormalSS_80140A60(void *, void *) asm("VectorNormalSS");
 void *memset_80140A60(void *, s32, s32) asm("memset");
-void func_8013D000(s32 i, void *obj, void *out);
-void func_8013D4A4(SVECTOR *arg0);
+void Boss_BindPartModel(s32 i, void *obj, void *out);
+void Boss_BurstParticles(SVECTOR *arg0);
 void func_8013D60C_80140A60(void) asm("func_8013D60C");
-void func_8013D9DC(void);
-void func_8013DA04(void);
+void Boss_VibrateHeavy(void);
+void Boss_VibrateLight(void);
 void func_8013DD44_80140A60(void *) asm("func_8013DD44");
 void func_8013E22C_80140A60(void) asm("func_8013E22C");
 void func_8013E4D0_80140A60(void *, void *) asm("func_8013E4D0");
@@ -1549,7 +1549,7 @@ void func_8013F78C(u8 *e, s16 a1, s16 a2, s16 a3);
 void func_8013F930(void);
 void func_8013F964(void);
 void func_8013FAA4_80140A60(void) asm("func_8013FAA4");
-void func_80140630(s16 arg0);
+void Boss_SetTimer(s16 arg0);
 void func_8014063C(void);
 void func_80140738(void);
 void func_801407B4(s32 n);
@@ -1597,7 +1597,7 @@ void Boss_Update(void) {
         }
         break;
     case 0:
-        func_801406F8(0);
+        Boss_SetAnim(0);
         if (ST_80140A60.f_E == 0 && --ST_80140A60.f_10 == 0) {
             s32 n = 0x40;
             u8 r;
@@ -1611,16 +1611,16 @@ void Boss_Update(void) {
             }
             ST_80140A60.f_1E = r;
             ST_80140A60.f_1F = 0;
-            func_80140630(0x1E);
+            Boss_SetTimer(0x1E);
             switch (r) {
             case 0:
-                func_801406F8(ST_80140A60.f_17 + 3);
+                Boss_SetAnim(ST_80140A60.f_17 + 3);
                 ST_80140A60.f_C = 4;
                 Sound_PlayFixed_80140A60(0x74);
                 Sound_PlayFixed_80140A60(0x8E);
                 break;
             case 1:
-                func_801406F8(ST_80140A60.f_17 + 5);
+                Boss_SetAnim(ST_80140A60.f_17 + 5);
                 ST_80140A60.f_7 = 1;
                 ST_80140A60.f_C = 6;
                 ST_80140A60.f_10 = 0;
@@ -1628,7 +1628,7 @@ void Boss_Update(void) {
                 Sound_PlayFixed_80140A60(0x8E);
                 break;
             case 2:
-                func_801406F8(2);
+                Boss_SetAnim(2);
                 ST_80140A60.f_C = 3;
                 Sound_PlayFixed_80140A60(0x82);
                 break;
@@ -1683,15 +1683,15 @@ void Boss_Update(void) {
             sc->vy = -0x3000;
             sc->vx = 0;
             sc->vz = 0xADC;
-            func_8013D4A4(sc);
+            Boss_BurstParticles(sc);
             Camera_StartShake_80140A60(2);
             Sound_PlayFixed_80140A60(0x80);
             Sound_PlayFixed_80140A60(0x79);
             Sound_PlayFixed_80140A60(0x60);
-            func_8013D9DC();
+            Boss_VibrateHeavy();
         }
         if (ST_80140A60.f_10 >= 0x35) {
-            func_8013DA04();
+            Boss_VibrateLight();
         }
         if (ST_80140A60.f_6 == 0) {
             func_801408AC(0x28, 0x14);
@@ -1749,7 +1749,7 @@ void Boss_Update(void) {
         }
         if (ST_80140A60.f_10 == 0) {
             ST_80140A60.f_C = 8;
-            func_801406F8(ST_80140A60.f_17 + 7);
+            Boss_SetAnim(ST_80140A60.f_17 + 7);
             ST_80140A60.f_7 = 1;
         }
         break;
@@ -1767,7 +1767,7 @@ void Boss_Update(void) {
             func_8014081C();
         }
         if (ST_80140A60.f_10 == 0) {
-            func_801406F8(ST_80140A60.f_17 + 0xD);
+            Boss_SetAnim(ST_80140A60.f_17 + 0xD);
             ST_80140A60.f_C = 0xB;
             func_80140498(1);
         }
@@ -1789,7 +1789,7 @@ void Boss_Update(void) {
             v18.vz = 0xEB8;
             Effect_SpawnAt(0x105, &v18);
             Fx_SpawnFadeRing_80140A60(&v18, 0, 0x3E8, 0);
-            func_8013D4A4(&v18);
+            Boss_BurstParticles(&v18);
             Camera_StartShake_80140A60(1);
             memset_80140A60(&v28, 0, 8);
             v28.vx = g_Spike_80140A60.x - v18.vx;
@@ -1806,11 +1806,11 @@ void Boss_Update(void) {
             Sound_PlayFixed_80140A60(0x79);
             ST_80140A60.f_10 = 0x3C;
             ST_80140A60.f_C = 0xE;
-            func_8013D000(7, &PT_80140A60[0], &PT_80140A60[0].f_84);
+            Boss_BindPartModel(7, &PT_80140A60[0], &PT_80140A60[0].f_84);
             ST_80140A60.f_8 = PT_80140A60[0].f_84;
             ST_80140A60.f_4 = *ST_80140A60.f_8;
             ST_80140A60.f_7 = 0;
-            func_8013D9DC();
+            Boss_VibrateHeavy();
         }
         break;
     case 14:
@@ -1820,10 +1820,10 @@ void Boss_Update(void) {
             v28.vz = 0xEB8;
             Effect_SpawnAt(0x105, &v28);
             Fx_SpawnFadeRing_80140A60(&v28, 0, 0x640, 0);
-            func_8013D4A4(&v28);
+            Boss_BurstParticles(&v28);
             Effect_SpawnAt(0x109, &v28);
             Camera_StartShake_80140A60(2);
-            func_8013D9DC();
+            Boss_VibrateHeavy();
             memset_80140A60(&v38, 0, 8);
             v38.vx = g_Spike_80140A60.x - v28.vx;
             v38.vy = g_Spike_80140A60.y - v28.vy;
@@ -1874,7 +1874,7 @@ void Boss_Update(void) {
                         }
                         Pickup_Drop_80140A60(5, sc, 3, 0);
                     }
-                    func_8013D4A4(sc);
+                    Boss_BurstParticles(sc);
                     sc->vy -= ((u16)RAND_80140A60() >> 9) + 0x60;
                     func_80070284_80140A60(sc, D_801440BC_80140A60, 1, (RAND_80140A60() >> 8) & 7, NULL);
                     sc->vy -= 0x60;
@@ -1886,7 +1886,7 @@ void Boss_Update(void) {
                     }
                     Camera_StartShake_80140A60(2);
                     Sound_PlayFixed_80140A60(0xBA);
-                    func_8013D9DC();
+                    Boss_VibrateHeavy();
                     if ((u32)(ST_80140A60.f_C - 0xD) >= 2 && PT_80140A60[3].f_8C == 0 && PT_80140A60[4].f_8C == 0) {
                         ST_80140A60.f_C = 0xD;
                         ST_80140A60.f_10 = 0x1E;
@@ -1945,19 +1945,19 @@ void Boss_Update(void) {
                         Effect_SpawnAt(0x109, &p->f_7C);
                         Camera_StartShake_80140A60(0);
                         Sound_PlayFixed_80140A60(0x60);
-                        func_8013D9DC();
+                        Boss_VibrateHeavy();
                     } else {
                         memset_80140A60(&v28, 0, 8);
                         v28.vx = p->f_7C.vx;
                         v28.vy = p->f_7C.vy;
                         v28.vz = p->f_7C.vz;
                         v20 = v28;
-                        func_801406F8(i + 0xB);
+                        Boss_SetAnim(i + 0xB);
                         ST_80140A60.f_D = 0x1E;
                         ST_80140A60.f_C = 0xC;
                         Effect_SpawnAt(0x105, &v20);
                         Fx_SpawnFadeRing_80140A60(&v20, 0, 0x300, 0);
-                        func_8013D4A4(&v20);
+                        Boss_BurstParticles(&v20);
                         Camera_StartShake_80140A60(1);
                         memset_80140A60(&v30, 0, 8);
                         v30.vx = g_Spike_80140A60.x - v20.vx;
@@ -1967,8 +1967,8 @@ void Boss_Update(void) {
                         func_80070284_80140A60(&v20, D_80144014_80140A60, 1, 0, &v28);
                         Sound_PlayFixed_80140A60(0x4D);
                         Sound_PlayFixed_80140A60(0x82);
-                        func_80140630(0x32);
-                        func_8013D9DC();
+                        Boss_SetTimer(0x32);
+                        Boss_VibrateHeavy();
                         if (--p->f_8E == 0) {
                             Collision_Remove_80140A60(&c->x);
                             func_8013F78C((u8 *)p, i * -0x28 + 0x14, -0x50, -8);
@@ -2020,7 +2020,7 @@ void func_80141F70(void) {
     M2C_FIELD(a, s16 *, 0x46) = 0x100;
     M2C_FIELD(a, s16 *, 0x48) = 0;
     a = D_80144978;
-    func_8013D000(7, a, a + 0x84);
+    Boss_BindPartModel(7, a, a + 0x84);
     M2C_FIELD(a, u8 *, 0x8F) = 3;
     M2C_FIELD(a, u8 *, 0x8E) = 3;
     M2C_FIELD(a, u8 *, 0x8C) = 1;
@@ -2043,7 +2043,7 @@ void func_80141F70(void) {
     M2C_FIELD(c, u8 *, 0xF) = 1;
     M2C_FIELD(c, s32 *, 0x8) = M2C_FIELD(a, s32 *, 0x84);
     M2C_FIELD(c, u8 *, 0xC) = 0;
-    func_801406F8(0);
+    Boss_SetAnim(0);
     M2C_FIELD(c, u8 *, 0x14) = 0;
     M2C_FIELD(c, u8 *, 0xD) = 0;
     M2C_FIELD(c, s16 *, 0x10) = 0x5A;
@@ -2059,7 +2059,7 @@ typedef struct { u8 pad0[0x10]; u8 *f_10; u8 pad14[0x14]; s32 y; s32 z; u8 pad30
 extern struct { u8 pad0[0x12]; u16 f_12; s8 f_14; u8 f_15; u8 f_16; u8 pad17[5]; u8 f_1C; u8 f_1D; u8 pad1E[2]; u8 f_20; } D_80144BE8_801420BC asm("D_80144BE8");
 extern struct { s16 m[3][3]; s16 pad; s32 t[3]; } D_800F47F0;
 extern u8 D_80144394[];
-s32 func_8013D1FC(u8 *a, void *scale, s32 c);
+s32 Boss_ProjectSprite(u8 *a, void *scale, s32 c);
 void *ApplyMatrixSV(void *, void *, void *);
 
 void func_801420BC(Boss_801420BC *m) {
@@ -2109,7 +2109,7 @@ void func_801420BC(Boss_801420BC *m) {
         }
         flags = (t << 5) | 0x10000;
     }
-    if (func_8013D1FC((u8 *)m, D_80144394, flags) == 0) {
+    if (Boss_ProjectSprite((u8 *)m, D_80144394, flags) == 0) {
         ApplyMatrixSV(&D_800F47F0, m->f_10 + 0x800, &m->f_74);
         m->f_74.vx += D_800F47F0.t[0];
         m->f_74.vy += D_800F47F0.t[1];
@@ -2207,7 +2207,7 @@ void func_80142528(s16 *arg0) {
     func_80142508(var_s0, 2);
     D_80145430[var_s0].f_9 = 0x32;
     Shockwave_Spawn(arg0, &D_801441B8, 1, 0, 0);
-    func_8013D4A4(arg0);
+    Boss_BurstParticles(arg0);
     Camera_StartShake(2);
     Sound_PlayFixed(0x80);
     Sound_PlayFixed(0x6C);
@@ -2322,7 +2322,7 @@ typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_80142A48;
 typedef struct { void *model; s16 x, y, z; u8 active; u8 padB; s16 vx, vy, vz; u8 pad12[2]; SVECTOR rot; s16 rvx, rvy, rvz; u8 pad22[0xA]; } Rock_80142A48;
 extern Rock_80142A48 D_80145458_80142A48[] asm("D_80145458");
 extern void *g_GameOt;
-void func_8013D9DC(void);
+void Boss_VibrateHeavy(void);
 void Matrix_SetIdentity(void *);
 void *RotMatrixZYX(void *r, void *m);
 void *CompMatrix(void *m0, void *m1, void *m2);
@@ -2351,7 +2351,7 @@ void func_80142A48(void) {
             }
             Shockwave_Spawn(&e->x, (M2C_UNK *)D_80144068, 1, 0, 0);
             Sound_PlayFixed(0xBA);
-            func_8013D9DC();
+            Boss_VibrateHeavy();
             e->active = 0;
             continue;
         }
@@ -2396,16 +2396,16 @@ void func_8006D548_80142C40(void *) asm("Dust_SpawnDrift");
 u8 *Collision_GetShape_80142C40(s32) asm("Collision_GetShape");
 void Spike_SetPlayMode_80142C40(s32) asm("Spike_SetPlayMode");
 void *memset_80142C40(void *, s32, s32) asm("memset");
-void func_80140630_80142C40(s32) asm("func_80140630");
+void func_80140630_80142C40(s32) asm("Boss_SetTimer");
 void func_8014081C(void);
 void func_8013E098(SVECTOR *src);
 s32 func_801424A0_80142C40(s32, s32) asm("func_801424A0");
 void func_8013F964(void);
 void func_8013F9FC(void);
 void func_80142310_80142C40(s32) asm("func_80142310");
-void func_8013D4A4(SVECTOR *arg0);
-void func_8013DA2C(void);
-void func_8013DA04(void);
+void Boss_BurstParticles(SVECTOR *arg0);
+void Boss_VibrateMedium(void);
+void Boss_VibrateLight(void);
 void func_801420BC_80142C40(void *) asm("func_801420BC");
 void func_80140738(void);
 void func_8013FAA4_80142C40(void) asm("func_8013FAA4");
@@ -2433,10 +2433,10 @@ void func_80142C40(void) {
     }
     switch (D_80144BE8_80142C40.f_C) {
     case 0:
-        func_801406F8(0);
+        Boss_SetAnim(0);
         if (D_80144BE8_80142C40.f_10 == 0 || --D_80144BE8_80142C40.f_10 == 0) {
             D_80144BE8_80142C40.f_C = 1;
-            func_801406F8(1);
+            Boss_SetAnim(1);
             D_80144BE8_80142C40.f_10 = 0x40;
             D_80144BE8_80142C40.f_21 = bs->f_8E < 2 ? 2 : 1;
             func_80140630_80142C40(0x32);
@@ -2461,7 +2461,7 @@ void func_80142C40(void) {
                 s32 an;
                 if (r != 1) {
                     if (r != 2) {
-                        func_801406F8(2);
+                        Boss_SetAnim(2);
                         p->f_10 = 10;
                         goto set;
                     }
@@ -2470,7 +2470,7 @@ void func_80142C40(void) {
                 }
                 an = 4;
             call:
-                func_801406F8(an);
+                Boss_SetAnim(an);
                 p->f_10 = 0x10;
             set:
                 D_80144BF4_80142C40 = 2;
@@ -2490,20 +2490,20 @@ void func_80142C40(void) {
         if (D_80144BE8_80142C40.f_6 == 0) {
             if (--D_80144BE8_80142C40.f_21 != 0) {
                 D_80144BE8_80142C40.f_C = 1;
-                func_801406F8(1);
+                Boss_SetAnim(1);
                 D_80144BE8_80142C40.f_10 = 0x40;
                 func_8014081C();
             } else {
                 D_80144BE8_80142C40.f_10 = 0x1E;
                 D_80144BE8_80142C40.f_C = 3;
-                func_801406F8(0);
+                Boss_SetAnim(0);
             }
         }
         break;
     case 3:
         if (--D_80144BE8_80142C40.f_10 == 0) {
             D_80144BE8_80142C40.f_C = 4;
-            func_801406F8(7);
+            Boss_SetAnim(7);
         }
         break;
     case 4:
@@ -2513,7 +2513,7 @@ void func_80142C40(void) {
             v.vx = 0;
             func_80070284_80142C40(&v, D_80143F18_80142C40, 1, 0, &bs->f_60);
             D_80144BE8_80142C40.f_C = 5;
-            func_801406F8(5);
+            Boss_SetAnim(5);
             func_8014081C();
             D_80144BE8_80142C40.f_10 = 0;
         }
@@ -2521,7 +2521,7 @@ void func_80142C40(void) {
     case 5:
         if (++D_80144BE8_80142C40.f_10 == 0x96) {
             D_80144BE8_80142C40.f_C = 6;
-            func_801406F8(6);
+            Boss_SetAnim(6);
         }
         if (D_80144BE8_80142C40.f_10 > 0x3C && !((RAND_80142C40() >> 8) & 3)) {
             func_8013F964();
@@ -2530,14 +2530,14 @@ void func_80142C40(void) {
     case 6:
         if (D_80144BE8_80142C40.f_6 == 0) {
             D_80144BE8_80142C40.f_C = 0;
-            func_801406F8(0);
+            Boss_SetAnim(0);
             D_80144BE8_80142C40.f_10 = 0x78;
         }
         break;
     case 7:
         if (D_80144BE8_80142C40.f_6 == 0) {
             D_80144BE8_80142C40.f_C = 6;
-            func_801406F8(6);
+            Boss_SetAnim(6);
         }
         break;
     case 8:
@@ -2601,7 +2601,7 @@ void func_80142C40(void) {
             for (i = 0; i < 0x1E; i++) {
                 Effect_Spawn_80142C40(0xCD, &b, D_80143F00_80142C40, 0);
             }
-            func_8013D4A4(&b);
+            Boss_BurstParticles(&b);
             Fx_SpawnFadeRing_80142C40(&b, 0, 0x800, 5);
             Fx_SpawnFadeRing_80142C40(&b, 0, 0x400, 0xC);
             func_80070284_80142C40(&b, D_80144308_80142C40, 3, 0, 0);
@@ -2625,10 +2625,10 @@ void func_80142C40(void) {
         }
         if (D_80144BE8_80142C40.f_10 > 0x1E) {
             Camera_StartShake_80142C40(2);
-            func_8013DA2C();
+            Boss_VibrateMedium();
         } else {
             Camera_StartShake_80142C40(0);
-            func_8013DA04();
+            Boss_VibrateLight();
         }
         }
         break;
@@ -2657,14 +2657,14 @@ void func_80142C40(void) {
                 Effect_SpawnAt_80142C40(0x109, &p);
                 Camera_StartShake_80142C40(0);
                 Sound_PlayFixed_80142C40(0x60);
-                func_8013D9DC();
+                Boss_VibrateHeavy();
             } else {
                 D_80144BE8_80142C40.f_D = 0x3C;
                 D_80144BE8_80142C40.f_C = 7;
-                func_801406F8(8);
+                Boss_SetAnim(8);
                 Effect_SpawnAt_80142C40(0x105, &p);
                 Fx_SpawnFadeRing_80142C40(&p, 0, 0x300, 0);
-                func_8013D4A4(&p);
+                Boss_BurstParticles(&p);
                 Camera_StartShake_80142C40(1);
                 {
                     SVECTOR q = { g_Spike_80142C40.x - p.vx, g_Spike_80142C40.y - p.vy, g_Spike_80142C40.z - p.vz };
@@ -2673,7 +2673,7 @@ void func_80142C40(void) {
                 Sound_PlayFixed_80142C40(0x6C);
                 Sound_PlayFixed_80142C40(0x82);
                 func_80140630_80142C40(0x32);
-                func_8013D9DC();
+                Boss_VibrateHeavy();
                 if (--bs->f_8E == 0) {
                     func_801423E8();
                     D_80144BE8_80142C40.f_C = 8;
@@ -2711,7 +2711,7 @@ void Camera_DrawAimReticle(void *);
 void Camera_EaseEye(void *, s32, s32, s32);
 void Camera_EaseLookAt(void *, s32, s32, s32);
 
-s32 func_80143854(Cam_80143854 *cam) {
+s32 Boss_UpdateCamera(Cam_80143854 *cam) {
     Scr_80143854 *sc = (Scr_80143854 *)0x1F800000;
     u8 *m = (u8 *)&D_80144460_80143854;
     SVECTOR v;

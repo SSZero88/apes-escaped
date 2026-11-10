@@ -4,7 +4,7 @@
 extern u8 g_Game[];
 extern u8 D_80139230[];
 
-void func_80136000(u8 *s, s32 x, s32 y, s32 c) {
+void Menu_DrawText(u8 *s, s32 x, s32 y, s32 c) {
     SprtTp *p;
     u32 *ot;
     u32 ch;
@@ -12,7 +12,7 @@ void func_80136000(u8 *s, s32 x, s32 y, s32 c) {
     p = (SprtTp *)G_DRAW.prim;
     ot = G_DRAW.ot;
     if (x < 0) {
-        x = 0xC0 - func_80136120(s) / 2;
+        x = 0xC0 - Menu_TextWidth(s) / 2;
     }
     while ((ch = *s) != 0) {
         ((u8 *)p)[3] = 5;
@@ -33,7 +33,7 @@ void func_80136000(u8 *s, s32 x, s32 y, s32 c) {
     G_DRAW.prim = (u8 *)p;
 }
 
-s32 func_80136120(u8 *s) {
+s32 Menu_TextWidth(u8 *s) {
     s32 w;
 
     w = 0;
@@ -47,7 +47,7 @@ typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; 
 extern struct { u32 frame; PolyGT4_80136160 *prim; u32 *ot; } g_Game_80136160 asm("g_Game");
 extern PolyGT4_80136160 *D_800EC354_80136160 asm("g_GamePrim");
 
-s32 func_80136160(s32 x, s32 y, s32 w, s32 h) {
+s32 Menu_DrawGradientWindow(s32 x, s32 y, s32 w, s32 h) {
     PolyGT4_80136160 *p;
     u32 *ot;
     s32 i;
@@ -212,7 +212,7 @@ typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; 
 extern struct { u32 frame; PolyFT4_80136554 *prim; u32 *ot; } g_Game_80136554 asm("g_Game");
 extern PolyFT4_80136554 *D_800EC354_80136554 asm("g_GamePrim");
 
-s32 func_80136554(s32 x, s32 y, s32 w, s32 h) {
+s32 Menu_DrawWindowFrame(s32 x, s32 y, s32 w, s32 h) {
     PolyFT4_80136554 *p = g_Game_80136554.prim;
     u32 *ot = g_Game_80136554.ot;
     s32 i;
@@ -298,7 +298,7 @@ void VectorNormal(void *, void *);
 s32 SquareRoot0(s32);
 void ApplyMatrixLV(void *, void *, void *);
 
-void func_801368E8(SVECTOR *eye, SVECTOR *at) {
+void Menu_SetCamera(SVECTOR *eye, SVECTOR *at) {
     VEC_391 d;
     VEC_391 n;
     s32 nx;
@@ -335,7 +335,7 @@ void func_801368E8(SVECTOR *eye, SVECTOR *at) {
     CompMatrix(&D_800AF0A0, &g_ViewMatrix, &g_ViewMatrix);
 }
 
-u8 *func_80136A88(u8 *arg0, s32 arg1)
+u8 *Str_SkipStrings(u8 *arg0, s32 arg1)
 {
   s32 var_v0;
   s32 new_var;
@@ -381,7 +381,7 @@ void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
 
-s32 func_80136AB8(void) {
+s32 LevelSelect_Main(void) {
     Rect_80136AB8 r = { 0, 0, 0x180, 0x200 };
 
     Cd_StartLoadList(D_801391C8);
@@ -397,9 +397,9 @@ s32 func_80136AB8(void) {
     { u8 *e = g_Game_80136AB8.db[0].env; e[0x19] = 0; e[0x1A] = 0; e[0x1B] = 0; }
     { u8 *e = g_Game_80136AB8.db[1].env; e[0x19] = 0; e[0x1A] = 0; e[0x1B] = 0; }
     g_Game_80136AB8.cur = 0;
-    func_80136CC4();
-    while (func_8001325C(2), Gfx_BeginFrame(), func_80138AEC() >= 0) {
-        if (func_80137470() < 0) {
+    LevelSelect_Init();
+    while (func_8001325C(2), Gfx_BeginFrame(), LevelSelect_UpdateFade() >= 0) {
+        if (LevelSelect_Update() < 0) {
             D_801391B6 = 2;
         }
         DrawSync(0);
@@ -438,7 +438,7 @@ extern s32 D_80139478;
 extern void *D_8013947C;
 extern u8 D_800E78C0_80136CC4[] asm("g_ViewMatrix");
 s32 World_GetProgress(s32);
-s32 func_80138ABC(void);
+s32 LevelSelect_SumField1(void);
 s32 Save_SumStageMonkeys(u8 *);
 void Mem_Init(void);
 u8 *Mem_AllocPages(s32);
@@ -448,7 +448,7 @@ void Light_SetColorMode(s32, s32, s32, s32);
 void Stage_ApplyFog(void);
 void Matrix_SetIdentity(void *);
 
-s32 func_80136CC4(void) {
+s32 LevelSelect_Init(void) {
     s32 i;
     u8 n;
     u8 *p;
@@ -458,11 +458,11 @@ s32 func_80136CC4(void) {
     if (World_GetProgress(0x18) > 0) {
         D_801391AA = 1;
     }
-    D_801391AC = func_80138ABC();
+    D_801391AC = LevelSelect_SumField1();
     D_801391AE = Save_SumStageMonkeys(0);
-    func_8013734C(D_801391AE, D_80139468);
+    Num_ToThreeChars(D_801391AE, D_80139468);
     if (D_801391AA != 0) {
-        func_8013734C(D_801391AC, D_80139470);
+        Num_ToThreeChars(D_801391AC, D_80139470);
     } else {
         D_80139470[0] = 0x7F;
         D_80139470[1] = 0x7F;
@@ -606,7 +606,7 @@ M2C_UNK Cd_ReadFilePart(M2C_UNK, s32, M2C_UNK, s32);
 extern s16 D_801391B6;
 extern s32 D_80139478;
 
-s32 func_80137308(void *obj) {
+s32 LevelSelect_LoadStageInfo(void *obj) {
     D_801391B6 = 4;
     Cd_ReadFilePart(0x54, func_801371C0(obj) * 7, 7, D_80139478);
     return 0;
@@ -614,7 +614,7 @@ s32 func_80137308(void *obj) {
 
 extern u8 D_801391E0[];
 
-s32 func_8013734C(s32 n, u8 *out) {
+s32 Num_ToThreeChars(s32 n, u8 *out) {
     s32 k;
     s32 m;
     s32 h;
@@ -640,7 +640,7 @@ extern s16 D_801391A8;
 s32 func_801374DC(void);
 s32 func_801378C4(void);
 
-s32 func_80137470(void) {
+s32 LevelSelect_Update(void) {
     switch (D_801391A8) {
     case 0:
         break;
@@ -668,13 +668,13 @@ extern u8 D_80139100[];
 extern u8 D_80138FC8[];
 extern u8 D_80138F84[];
 extern Rec_801374DC D_80139368[];
-void func_80136000(u8 *s, s32 x, s32 y, s32 c);
-s32 func_80136120(u8 *s);
+void Menu_DrawText(u8 *s, s32 x, s32 y, s32 c);
+s32 Menu_TextWidth(u8 *s);
 s32 func_80137C04(void);
 s32 func_80137D40(void);
 s32 func_80137EF8(void);
 s32 func_80138978(void);
-s32 func_80137308(void *obj);
+s32 LevelSelect_LoadStageInfo(void *obj);
 s32 Sound_PlayFixed(s32);
 
 s32 func_801374DC(void) {
@@ -684,18 +684,18 @@ s32 func_801374DC(void) {
     s32 pad;
     u8 *q;
 
-    a = func_80136A88(D_80139100, D_801391EC[D_801391BA]);
-    b = func_80136A88(D_80138FC8, D_80139180[D_80139200[D_801391BA]]);
-    func_80136000(a, 0xC0 - func_80136120(a) / 2, 0x18, 1);
-    func_80136000(b, 0xC0 - func_80136120(b) / 2, 0x2A, 0);
+    a = Str_SkipStrings(D_80139100, D_801391EC[D_801391BA]);
+    b = Str_SkipStrings(D_80138FC8, D_80139180[D_80139200[D_801391BA]]);
+    Menu_DrawText(a, 0xC0 - Menu_TextWidth(a) / 2, 0x18, 1);
+    Menu_DrawText(b, 0xC0 - Menu_TextWidth(b) / 2, 0x2A, 0);
     func_80137C04();
     q = D_80138F84;
     t = (Label_801374DC *)(q - 4);
-    func_80136000(t->s, t->x, t->y, 0);
-    func_80136000(t[1].s, t[1].x, t[1].y, 0);
+    Menu_DrawText(t->s, t->x, t->y, 0);
+    Menu_DrawText(t[1].s, t[1].x, t[1].y, 0);
     func_80137D40();
     func_80137EF8();
-    func_80136160(0xC, 0x40, 0x160, 0x90);
+    Menu_DrawGradientWindow(0xC, 0x40, 0x160, 0x90);
     func_80138978();
     if (D_801391B6 != 1) {
         return 0;
@@ -720,7 +720,7 @@ s32 func_801374DC(void) {
     if (pad & PAD_CIRCLE) {
         if (D_80139368[D_801391B0].f_0 == 1) {
             Sound_PlayFixed(3);
-            func_80137308((void *)D_801391B0);
+            LevelSelect_LoadStageInfo((void *)D_801391B0);
             return 0;
         }
         Sound_PlayFixed(0x30);
@@ -780,14 +780,14 @@ s32 func_801378C4(void) {
     s32 i;
     u32 pad;
 
-    a = func_80136A88(D_80139100, D_801391EC[D_801391BA]);
-    b = func_80136A88(D_80138FC8, D_80139180[D_80139200[D_801391BA]]);
-    func_80136000(a, 0xC0 - func_80136120(a) / 2, 0x18, 1);
-    func_80136000(b, 0xC0 - func_80136120(b) / 2, 0x2A, 0);
+    a = Str_SkipStrings(D_80139100, D_801391EC[D_801391BA]);
+    b = Str_SkipStrings(D_80138FC8, D_80139180[D_80139200[D_801391BA]]);
+    Menu_DrawText(a, 0xC0 - Menu_TextWidth(a) / 2, 0x18, 1);
+    Menu_DrawText(b, 0xC0 - Menu_TextWidth(b) / 2, 0x2A, 0);
     func_80137D40();
     MinigameMenu_DrawScoreBars();
     func_801388A4();
-    func_80136160(0xC, 0x40, 0x160, 0xA0);
+    Menu_DrawGradientWindow(0xC, 0x40, 0x160, 0xA0);
     func_80138978();
     if (D_801391B6 != 1) {
         return 0;
@@ -814,7 +814,7 @@ s32 func_801378C4(void) {
             D_801391A8 = 1;
         } else {
             Sound_PlayFixed(0);
-            func_80137308((void *)(s32)D_801391B2);
+            LevelSelect_LoadStageInfo((void *)(s32)D_801391B2);
         }
     } else if (pad & 0x8000) {
         D_801391B2 = -1;
@@ -837,7 +837,7 @@ s32 func_801378C4(void) {
             D_801391A8 = 1;
         } else {
             Sound_PlayFixed(0);
-            func_80137308((void *)(s32)D_801391B2);
+            LevelSelect_LoadStageInfo((void *)(s32)D_801391B2);
         }
         return 0;
     } else if (pad & 0xFFFF) {
@@ -1077,17 +1077,17 @@ s32 MinigameMenu_DrawScoreBars(void) {
     m = D_80139368_80138428[D_801391B0].f_4;
     v = (s16)m->f_1C;
     k = v / 1000;
-    func_80136000(m->s5E, 0x10B - func_80136120(m->s5E) / 2, 0x50, 0);
-    func_80136000(m->s6A, 0xC6 - func_80136120(m->s6A) / 2, 0xC9, 0);
+    Menu_DrawText(m->s5E, 0x10B - Menu_TextWidth(m->s5E) / 2, 0x50, 0);
+    Menu_DrawText(m->s6A, 0xC6 - Menu_TextWidth(m->s6A) / 2, 0xC9, 0);
     q = D_80138EF4;
     t = (Label_80138428 *)(q - 4);
-    func_80136000(t[0].s, t[0].x, t[0].y, 0);
-    func_80136000(t[1].s, t[1].x, t[1].y, 0);
-    func_80136000(t[2].s, t[2].x, t[2].y, 0);
-    func_80136000(t[3].s, t[3].x, t[3].y, 0);
+    Menu_DrawText(t[0].s, t[0].x, t[0].y, 0);
+    Menu_DrawText(t[1].s, t[1].x, t[1].y, 0);
+    Menu_DrawText(t[2].s, t[2].x, t[2].y, 0);
+    Menu_DrawText(t[3].s, t[3].x, t[3].y, 0);
     buf[0] = D_801391E0[k];
     buf[1] = 0;
-    func_80136000(buf, 0x140, 0x74, 0);
+    Menu_DrawText(buf, 0x140, 0x74, 0);
     p = g_GamePrim;
     if (D_80139334 == 1) {
         if ((D_80139330 += 4) > 0xD0) {
@@ -1202,7 +1202,7 @@ extern s32 D_801391C0;
 extern s32 D_801391C4;
 extern void *D_8013947C;
 extern u8 g_ProjVerts[];
-void func_801368E8(SVECTOR *eye, SVECTOR *at);
+void Menu_SetCamera(SVECTOR *eye, SVECTOR *at);
 void func_8002FAF0(s32);
 
 s32 func_80138978(void) {
@@ -1216,7 +1216,7 @@ s32 func_80138978(void) {
     eye.vy = 0;
     eye.vz = 0;
     eye.vx = 0;
-    func_801368E8(&eye, &at);
+    Menu_SetCamera(&eye, &at);
     func_8002FAF0(0xA4);
     Matrix_SetIdentity(&m);
     RotMatrixZ(D_801391C0 / 8, &m);
@@ -1231,7 +1231,7 @@ s32 func_80138978(void) {
 
 typedef struct { u8 f_0; u8 f_1; u8 pad2[14]; } Ent_390;
 
-s32 func_80138ABC(void) {
+s32 LevelSelect_SumField1(void) {
     s32 i;
     s32 s;
 
@@ -1245,15 +1245,15 @@ extern s16 D_801391B8;
 extern s16 D_801391A8;
 extern s16 D_801391B0;
 extern s16 D_801391B2;
-s32 func_80138C44(void);
+s32 LevelSelect_DrawFade(void);
 s32 func_80138D7C(void);
 void Cd_WaitIdle_80138AEC(s32) asm("Cd_WaitIdle");
 
-s32 func_80138AEC(void) {
+s32 LevelSelect_UpdateFade(void) {
     switch (D_801391B6) {
     case 0:
     case 3:
-        func_80138C44();
+        LevelSelect_DrawFade();
         if (--D_801391B8 < 0) {
             D_801391B6 = 1;
             D_801391B8 = 0;
@@ -1262,7 +1262,7 @@ s32 func_80138AEC(void) {
     case 1:
         break;
     case 2:
-        func_80138C44();
+        LevelSelect_DrawFade();
         if (++D_801391B8 >= 0x1F) {
             D_801391B6 = 1;
             D_801391B8 = 0;
@@ -1271,7 +1271,7 @@ s32 func_80138AEC(void) {
         break;
     case 4:
         Cd_Update();
-        func_80138C44();
+        LevelSelect_DrawFade();
         if (++D_801391B8 >= 0x10) {
             if (D_801391A8 == 2) {
                 D_801391B0 = D_801391B2;
@@ -1288,7 +1288,7 @@ s32 func_80138AEC(void) {
     return 0;
 }
 
-s32 func_80138C44(void) {
+s32 LevelSelect_DrawFade(void) {
     u8 *p = G_DRAW.prim;
     u8 c;
     s32 tpage = 0x40;

@@ -22,7 +22,7 @@ extern M2C_UNK D_801421C0;
 extern M2C_UNK D_80142260;
 extern M2C_UNK D_801418A0;
 
-s32 func_8013D000(void *arg0) {
+s32 LevelObj_HidePlatform(void *arg0) {
     s16 temp_a0;
     void *temp_v1;
 
@@ -45,9 +45,9 @@ s32 Overlay_GetState_8013D06C(void) asm("Overlay_GetState");
 void Overlay_Request(s8);
 s32 Sound_UnloadBanks(s32);
 s32 Music_SetVolume(s32, s32);
-void func_8013EEB8(void);
+void Boss_Start(void);
 
-s32 func_8013D06C(s16 *p) {
+s32 Boss_StartSequence(s16 *p) {
     u8 *e;
 
     switch (p[1]) {
@@ -68,7 +68,7 @@ s32 func_8013D06C(s16 *p) {
         if (Overlay_GetState_8013D06C() == 0) {
             Music_SetVolume(0, 0);
             p[1] = 3;
-            func_8013EEB8();
+            Boss_Start();
         }
         break;
     case 2:
@@ -79,7 +79,7 @@ s32 func_8013D06C(s16 *p) {
             if (p[6] >= 0) {
                 M2C_FIELD(D_800B4D64_8013D06C + p[6] * 32, u16 *, 0x16) = 0xFFFF;
             }
-            func_8013EEB8();
+            Boss_Start();
         }
         break;
     case 3:
@@ -110,7 +110,7 @@ extern struct { u8 pad_0[0x24]; s32 x; s32 y; s32 z; } g_Spike_8013D2A0 asm("g_S
 extern u8 *D_800B4D64_8013D2A0 asm("g_StageMeshes");
 void Model_BindStageMesh(void *, s32);
 
-s32 func_8013D2A0(s16 *p) {
+s32 MeshSwap_Update(s16 *p) {
     switch (p[1]) {
     case 0:
         if (abs(g_Spike_8013D2A0.x - 0x620) < 0x3A0 && abs(g_Spike_8013D2A0.y + 0xA00) < 0x100 && abs(g_Spike_8013D2A0.z + 0xDC0) < 0x1C0) {
@@ -134,7 +134,7 @@ __asm__(".section .text\n.balign 16");
 s32 Link_InitNone();
 __asm__(".section .rodata\n\t.balign 16\n\t.section .text");
 void *D_8013D410[9] = {
-    func_8013D000, func_8013D06C, 0,
-    Link_InitNone, func_8013D2A0, 0,
+    LevelObj_HidePlatform, Boss_StartSequence, 0,
+    Link_InitNone, MeshSwap_Update, 0,
     0, 0, 0,
 };

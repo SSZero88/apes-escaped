@@ -8,7 +8,7 @@ extern u16 g_RandSeed;
 typedef struct { s16 x, y, z, floor; s8 vx, vy, vz; u8 life; } Rock_80140D60;
 extern Rock_80140D60 D_80141880_80140D60[] asm("D_80141880");
 
-s32 func_80140D60(void) {
+s32 LevelObj_ClearDebris(void) {
     s32 i;
 
     for (i = 15; i >= 0; i--) {
@@ -22,7 +22,7 @@ extern struct { s16 x, y, z, floor; s8 vx, vy, vz; u8 life; } D_80144590_8013D02
 #define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
 #define RAND() (g_RandSeed = g_RandSeed * 5 + 1)
 
-void func_80140D88(SVECTOR *arg0, s32 arg1) {
+void BreakShard_Spawn(SVECTOR *arg0, s32 arg1) {
     s32 i;
     u16 x = arg0->vx;
     u16 y = arg0->vy;
@@ -172,14 +172,14 @@ void Fx_SpawnFadeRing(SVECTOR *, s32, s32, s32);
 void Effect_SpawnAt(s32, SVECTOR *);
 void *memset(void *, s32, s32);
 
-void func_80141418(s16 x, s16 y, s16 z) {
+void BreakBurst_Spawn(s16 x, s16 y, s16 z) {
     SVECTOR v;
 
     memset(&v, 0, 8);
     v.vx = x;
     v.vy = y - 0x60;
     v.vz = z;
-    func_80140D88(&v, 0x10);
+    BreakShard_Spawn(&v, 0x10);
     Effect_SpawnAt(0x112, &v);
     Fx_SpawnFadeRing(&v, 5, 0x80, 0);
 }
@@ -211,7 +211,7 @@ void func_8013FC74(void);
 void Spike_SetPlayMode(s32);
 void Game_SetMode(s32, s32, s32);
 
-s32 func_801414F8(s16 *p) {
+s32 Boss_StartSequence(s16 *p) {
     s32 i;
     Obj_801414F8 *o;
 

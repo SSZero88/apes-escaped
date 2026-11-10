@@ -7,9 +7,9 @@ void ResetGraph(s32);
 void ClearImage(Rect_393 *, s32, s32, s32);
 void DrawSync(s32);
 typedef struct { u8 pad0[0x12C]; s16 world[24]; } StageSet_393;
-extern StageSet_393 D_80138A20[];
+extern StageSet_393 StageSelect_Eras[];
 
-s32 func_80136000(void) {
+s32 StageSelect_ClearScreen(void) {
     Rect_393 r = { 0, 0, 0x180, 0x200 };
 
     Gfx_InitDisplay();
@@ -118,7 +118,7 @@ void Model_ProjectVerts(void *, Mat_8013786C *, void *);
 void Model_CalcEnvMapUVs64(void *);
 void Model_DrawEnvMapped(void *, void *, void *);
 
-void func_8013786C(s16 *pos, void *rot, void *mdl) {
+void StageSelect_DrawModel(s16 *pos, void *rot, void *mdl) {
     Mat_8013786C m;
     u8 *sc = (u8 *)0x1F800000;
 
@@ -140,18 +140,18 @@ typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, p1; s1
 extern struct { s32 frame; PolyG4_80137950 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x26]; u16 f_8126; u8 pad8128[0x1A4]; u8 f_82CC; u8 f_82CD; } g_Game_80137950 asm("g_Game");
 extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; u8 pad164[4]; s32 f_168; } g_Pad_80137950 asm("g_Pad");
 typedef struct { s16 x, y; u16 clut; u16 tpage; u32 *ot; } Pen_80137950;
-extern Pen_80137950 D_80139CF0_80137950 asm("D_80139CF0");
+extern Pen_80137950 D_80139CF0_80137950 asm("StageSelect_TextCursor");
 typedef struct { char name[0x12C]; s16 world[24]; } StageSet_80137950;
-extern StageSet_80137950 D_80138A20_80137950[] asm("D_80138A20");
-extern s32 D_80139BDC;
-extern s32 D_80139BC4;
+extern StageSet_80137950 D_80138A20_80137950[] asm("StageSelect_Eras");
+extern s32 StageSelect_State;
+extern s32 StageSelect_EraCursor;
 extern s32 D_80139BC8;
 extern s32 D_80139BCC;
 extern s32 D_80139BD4;
 extern s32 D_80139BD8;
 extern s32 D_80139BE0;
 extern u8 D_80139BE4;
-extern s32 D_80139BE8;
+extern s32 StageSelect_StageCursor;
 extern u32 D_800E5488;
 extern s8 D_80139978[][4];
 extern u8 D_80139914[];
@@ -166,7 +166,7 @@ s32 Cd_PollLoadList(void);
 s32 func_800976B8(s32, s32);
 #define PAD_80137950 (g_Pad_80137950.f_160 & g_Pad_80137950.f_158)
 
-s32 func_80137950(void) {
+s32 StageSelect_Update(void) {
     s32 i;
     s32 d;
     s32 stg;
@@ -174,7 +174,7 @@ s32 func_80137950(void) {
     u8 *s;
     u32 *ot;
 
-    switch (D_80139BDC) {
+    switch (StageSelect_State) {
     case 0:
         if ((PAD_80137950 & 3) == 3) {
             Sound_UnloadBanks(0);
@@ -182,54 +182,54 @@ s32 func_80137950(void) {
         }
         if (PAD_80137950 & 0x800) {
             Sound_PlayFixed(2);
-            if (D_80139BC4 < 11) {
-                D_80139BDC = 3;
+            if (StageSelect_EraCursor < 11) {
+                StageSelect_State = 3;
                 D_80139BC8 = 0;
-                D_80139BE8 = 0;
+                StageSelect_StageCursor = 0;
                 while (1) {
-                    if (D_80138A20_80137950[D_80139BC4].world[D_80139BE8] == -2) {
-                        D_80139BE8--;
+                    if (D_80138A20_80137950[StageSelect_EraCursor].world[StageSelect_StageCursor] == -2) {
+                        StageSelect_StageCursor--;
                         break;
                     }
-                    D_80139BE8++;
+                    StageSelect_StageCursor++;
                 }
             }
         } else if (PAD_80137950 & 0x4000) {
             Sound_PlayFixed(0);
             D_80139BE4 = 8;
-            D_80139BC4 += 3;
-            if (D_80139BC4 >= 11) {
-                D_80139BC4 %= 3;
+            StageSelect_EraCursor += 3;
+            if (StageSelect_EraCursor >= 11) {
+                StageSelect_EraCursor %= 3;
             }
         } else if (PAD_80137950 & 0x1000) {
             Sound_PlayFixed(0);
             D_80139BE4 = 8;
-            D_80139BC4 -= 3;
-            if (D_80139BC4 < 0) {
-                D_80139BC4 = (D_80139BC4 + 3) % 3 + 9;
-                if (D_80139BC4 >= 11) {
-                    D_80139BC4 -= 3;
+            StageSelect_EraCursor -= 3;
+            if (StageSelect_EraCursor < 0) {
+                StageSelect_EraCursor = (StageSelect_EraCursor + 3) % 3 + 9;
+                if (StageSelect_EraCursor >= 11) {
+                    StageSelect_EraCursor -= 3;
                 }
             }
         } else if (PAD_80137950 & 0x8004) {
             Sound_PlayFixed(0);
             D_80139BE4 = 8;
-            D_80139BC4 = D_80139BC4 / 3 * 3 + (D_80139BC4 + 2) % 3;
-            if (D_80139BC4 >= 11) {
-                D_80139BC4 = 10;
+            StageSelect_EraCursor = StageSelect_EraCursor / 3 * 3 + (StageSelect_EraCursor + 2) % 3;
+            if (StageSelect_EraCursor >= 11) {
+                StageSelect_EraCursor = 10;
             }
         } else if (PAD_80137950 & 0x2008) {
             Sound_PlayFixed(0);
             D_80139BE4 = 8;
-            D_80139BC4 = D_80139BC4 / 3 * 3 + (D_80139BC4 + 4) % 3;
-            if (D_80139BC4 >= 11) {
-                D_80139BC4 = 10;
+            StageSelect_EraCursor = StageSelect_EraCursor / 3 * 3 + (StageSelect_EraCursor + 4) % 3;
+            if (StageSelect_EraCursor >= 11) {
+                StageSelect_EraCursor = 10;
             }
         }
         DebugFont_SetPos(0x82, 10);
         DebugFont_Printf(D_80138A08);
         for (i = 0; i < 11; i++) {
-            if (i == D_80139BC4) {
+            if (i == StageSelect_EraCursor) {
                 d = 5 - D_80139BE4;
             } else {
                 d = 0;
@@ -242,14 +242,14 @@ s32 func_80137950(void) {
         ((u8 *)gd->prim)[3] = 8;
         gd->prim->code = 0x38;
         gd->prim->code |= 2;
-        gd->prim->x0 = (D_80139BC4 % 3) * 80 + 0x7C;
-        gd->prim->y0 = (D_80139BC4 / 3) * 15 + 0x1E;
-        gd->prim->x1 = (D_80139BC4 % 3) * 80 + 0xBA;
-        gd->prim->y1 = (D_80139BC4 / 3) * 15 + 0x1E;
-        gd->prim->x2 = (D_80139BC4 % 3) * 80 + 0x7C;
-        gd->prim->y2 = (D_80139BC4 / 3) * 15 + 0x25;
-        gd->prim->x3 = (D_80139BC4 % 3) * 80 + 0xBA;
-        gd->prim->y3 = (D_80139BC4 / 3) * 15 + 0x25;
+        gd->prim->x0 = (StageSelect_EraCursor % 3) * 80 + 0x7C;
+        gd->prim->y0 = (StageSelect_EraCursor / 3) * 15 + 0x1E;
+        gd->prim->x1 = (StageSelect_EraCursor % 3) * 80 + 0xBA;
+        gd->prim->y1 = (StageSelect_EraCursor / 3) * 15 + 0x1E;
+        gd->prim->x2 = (StageSelect_EraCursor % 3) * 80 + 0x7C;
+        gd->prim->y2 = (StageSelect_EraCursor / 3) * 15 + 0x25;
+        gd->prim->x3 = (StageSelect_EraCursor % 3) * 80 + 0xBA;
+        gd->prim->y3 = (StageSelect_EraCursor / 3) * 15 + 0x25;
         gd->prim->r0 = 0xF5;
         gd->prim->g0 = 0xDC;
         gd->prim->b0 = 0xC8;
@@ -274,13 +274,13 @@ s32 func_80137950(void) {
         }
         break;
     case 3:
-        if (D_80139BC4 < 10) {
-            s = func_801387FC(D_80139B20, D_80139BC4);
-            D_80139CF0_80137950.x = 0xC0 - func_8013882C(s) / 2;
+        if (StageSelect_EraCursor < 10) {
+            s = func_801387FC(D_80139B20, StageSelect_EraCursor);
+            D_80139CF0_80137950.x = 0xC0 - StageSelect_GetTextWidth(s) / 2;
             D_80139CF0_80137950.y = 0x2B;
             D_80139CF0_80137950.clut = 0x3FA3;
             D_80139CF0_80137950.ot = g_Game_80137950.db[g_Game_80137950.cur].ot;
-            func_80138700(s);
+            StageSelect_DrawShakyText(s);
         }
         if (D_80139BD8 != 0) {
             break;
@@ -294,19 +294,19 @@ s32 func_80137950(void) {
         case 0x20:
         case 0x40:
         case 0x800:
-            if (D_80139978[D_80139BC4][D_80139BCC] == -1) {
+            if (D_80139978[StageSelect_EraCursor][D_80139BCC] == -1) {
                 break;
             }
-            stg = D_80139914[D_80139BCC * 2 + D_80139BC4 * 9 + 1];
+            stg = D_80139914[D_80139BCC * 2 + StageSelect_EraCursor * 9 + 1];
             D_80139BC8 = stg;
-            g_Game_80137950.f_8126 = D_80138A20_80137950[D_80139BC4].world[stg];
-            r = func_800976B8(D_80138A20_80137950[D_80139BC4].world[stg], g_Pad_80137950.f_168);
+            g_Game_80137950.f_8126 = D_80138A20_80137950[StageSelect_EraCursor].world[stg];
+            r = func_800976B8(D_80138A20_80137950[StageSelect_EraCursor].world[stg], g_Pad_80137950.f_168);
             if (g_Pad_80137950.f_168 == 0x800 && (r != 3 || g_Game_80137950.f_8126 == 0x57)) {
                 break;
             }
             Sound_UnloadBanks(1);
             Sound_PlayFixed(3);
-            g_Game_80137950.f_82CC = D_80139BC4;
+            g_Game_80137950.f_82CC = StageSelect_EraCursor;
             g_Game_80137950.f_82CD = D_80139BCC;
             if (r == 0) {
                 return -3;
@@ -323,16 +323,16 @@ s32 func_80137950(void) {
         case 0x4000:
             break;
         case 0x2000:
-            if (D_80139914[D_80139BC4 * 9] > D_80139BCC + 1) {
-                if (func_801382D8(D_80139BC4, D_80139BCC + 1)) {
+            if (D_80139914[StageSelect_EraCursor * 9] > D_80139BCC + 1) {
+                if (StageSelect_IsStageOpen(StageSelect_EraCursor, D_80139BCC + 1)) {
                     D_80139BE0 = 0;
                     D_80139BCC++;
                     Sound_PlayFixed(0);
                     break;
                 }
             }
-            if (D_80139BC4 < 9) {
-                if (func_801382D8(D_80139BC4 + 1, 0)) {
+            if (StageSelect_EraCursor < 9) {
+                if (StageSelect_IsStageOpen(StageSelect_EraCursor + 1, 0)) {
                     D_80139BD8 = -1;
                     D_80139BD4 = 0;
                     D_80139BE0 = 0;
@@ -347,7 +347,7 @@ s32 func_80137950(void) {
                 Sound_PlayFixed(0);
                 break;
             }
-            if (D_80139BC4 != 0) {
+            if (StageSelect_EraCursor != 0) {
                 D_80139BD4 = 0;
                 D_80139BD8 = 1;
                 D_80139BE0 = 0;
@@ -355,7 +355,7 @@ s32 func_80137950(void) {
             }
             break;
         case 4:
-            if (D_80139BC4 != 0) {
+            if (StageSelect_EraCursor != 0) {
                 D_80139BD4 = 0;
                 D_80139BD8 = 1;
                 D_80139BE0 = 0;
@@ -363,8 +363,8 @@ s32 func_80137950(void) {
             }
             break;
         case 8:
-            if (D_80139BC4 < 9) {
-                if (func_801382D8(D_80139BC4 + 1, 0)) {
+            if (StageSelect_EraCursor < 9) {
+                if (StageSelect_IsStageOpen(StageSelect_EraCursor + 1, 0)) {
                     D_80139BD8 = -1;
                     D_80139BD4 = 0;
                     D_80139BE0 = 0;
@@ -386,11 +386,11 @@ s32 func_80096580_801382D8(s32) asm("World_GetProgress");
 extern s8 D_801399A8[][4];
 extern s8 D_801399D4[];
 
-s32 func_801382D8(s32 world, s32 stage) {
+s32 StageSelect_IsStageOpen(s32 world, s32 stage) {
     s32 i;
     s32 r;
 
-    if (Stage_GetWorld(D_80138A20[world].world[D_80139914[stage * 2 + world * 9 + 1]]) == 1) {
+    if (Stage_GetWorld(StageSelect_Eras[world].world[D_80139914[stage * 2 + world * 9 + 1]]) == 1) {
         return 1;
     }
     if (world < 9) {
@@ -410,16 +410,16 @@ extern u8 D_80139914[];
 s32 Stage_GetWorld(s32);
 void World_GetProgress(s32);
 
-void func_801383EC(s32 world, s32 stage) {
-    World_GetProgress(Stage_GetWorld(D_80138A20[world].world[D_80139914[stage * 2 + world * 9 + 1]]));
+void StageSelect_GetStageState(s32 world, s32 stage) {
+    World_GetProgress(Stage_GetWorld(StageSelect_Eras[world].world[D_80139914[stage * 2 + world * 9 + 1]]));
 }
 
 typedef struct { u8 pad0[0xE]; u16 f_E; } Info_80138468;
 
-s32 func_80138468(s32 world, s32 stage) {
+s32 StageSelect_IsStageComplete(s32 world, s32 stage) {
     s32 w;
 
-    w = Stage_GetWorld(D_80138A20[world].world[D_80139914[stage * 2 + world * 9 + 1]]);
+    w = Stage_GetWorld(StageSelect_Eras[world].world[D_80139914[stage * 2 + world * 9 + 1]]);
     Stage_GetInfo(w, (void *)0x1F800000);
     switch (w) {
     case 14:
@@ -480,11 +480,11 @@ void StageSelect_SetCamera(SVECTOR *eye, SVECTOR *at) {
 
 extern u16 g_RandSeed2;
 extern u8 *g_GamePrim;
-extern u8 D_80139BF0[];
+extern u8 StageSelect_GlyphWidths[];
 typedef struct { s16 x, y; u16 clut; u16 tpage; u32 *ot; } Pen_80138700;
-extern Pen_80138700 D_80139CF0;
+extern Pen_80138700 StageSelect_TextCursor;
 
-void func_80138700(u8 *s) {
+void StageSelect_DrawShakyText(u8 *s) {
     SprtTp *p;
     u32 c;
     u32 r;
@@ -492,19 +492,19 @@ void func_80138700(u8 *s) {
     p = (SprtTp *)g_GamePrim;
     while ((c = *s) != 0) {
         ((u8 *)p)[3] = 5;
-        p->tpage = (D_80139CF0.tpage & 0x9FF) | 0xE1000200;
+        p->tpage = (StageSelect_TextCursor.tpage & 0x9FF) | 0xE1000200;
         p->code = 0x67;
         r = ((g_RandSeed2 = g_RandSeed2 * 5 + 1) >> 8) & 1;
-        p->x0 = D_80139CF0.x;
-        p->y0 = D_80139CF0.y - r;
+        p->x0 = StageSelect_TextCursor.x;
+        p->y0 = StageSelect_TextCursor.y - r;
         p->u0 = (c & 0xF) << 4;
         p->v0 = c & 0xF0;
-        p->clut = D_80139CF0.clut;
+        p->clut = StageSelect_TextCursor.clut;
         p->w = 0x10;
         p->h = 0x10;
-        { register u32 *ot asm("$3") = D_80139CF0.ot; ADD_PRIM_R(ot, p, "$4", "$2"); }
+        { register u32 *ot asm("$3") = StageSelect_TextCursor.ot; ADD_PRIM_R(ot, p, "$4", "$2"); }
         p++;
-        D_80139CF0.x += D_80139BF0[c];
+        StageSelect_TextCursor.x += StageSelect_GlyphWidths[c];
         s++;
     }
     g_GamePrim = (u8 *)p;
@@ -534,21 +534,21 @@ u8 *func_801387FC(u8 *arg0, s32 arg1)
   return var_a0;
 }
 
-extern u8 D_80139BF0[];
+extern u8 StageSelect_GlyphWidths[];
 
-s32 func_8013882C(u8 *s) {
+s32 StageSelect_GetTextWidth(u8 *s) {
     s32 w;
 
     w = 0;
     for (; *s != 0; s++) {
-        w += D_80139BF0[*s];
+        w += StageSelect_GlyphWidths[*s];
     }
     return w;
 }
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; } Tile1_8013886C;
 
-void func_8013886C(void) {
+void StageSelect_DrawStars(void) {
     s32 seed = 0;
     s32 i;
     s32 x;
@@ -576,7 +576,7 @@ s32 VectorNormalSS(SVECTOR *, SVECTOR *);
 s32 rsin(s32);
 s32 rcos(s32);
 
-s32 func_8013893C(s32 x, s32 y) {
+s32 StageSelect_SwirlPoint(s32 x, s32 y) {
     SVECTOR d;
     Pt_8013893C p;
     s32 r;

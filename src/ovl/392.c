@@ -16,7 +16,7 @@ void CompMatrix(void *, void *, void *);
 void Matrix_SetIdentity(void *);
 void ScaleMatrixL(void *, void *);
 
-void func_80136000(SVECTOR *eye, SVECTOR *at) {
+void StageIntro_SetCamera(SVECTOR *eye, SVECTOR *at) {
     VEC_391 d;
     VEC_391 n;
     MAT_391 m;
@@ -61,7 +61,7 @@ void func_80136000(SVECTOR *eye, SVECTOR *at) {
     CompMatrix(&m, &g_ViewMatrix, &g_ViewMatrix);
 }
 
-u8 *func_801361D8(u8 *arg0, s32 arg1)
+u8 *StageIntro_GetString(u8 *arg0, s32 arg1)
 {
   s32 var_v0;
   s32 var_v1;
@@ -91,7 +91,7 @@ u8 *func_801361D8(u8 *arg0, s32 arg1)
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 w, h; } Sprt_80136208;
 extern GameDraw g_Game_80136208 asm("g_Game");
 
-s32 func_80136208(void) {
+s32 StageIntro_DrawBackdrop(void) {
     register u8 *p asm("$14");
     u8 *base;
     u32 *ot;
@@ -143,7 +143,7 @@ extern struct { u32 frame; } g_Game_80136394 asm("g_Game");
 #define GD_80136394 (*(GameDraw *)&g_Game_80136394)
 extern u8 *g_GamePrim;
 
-s32 func_80136394(s32 x, s32 y, s16 n, s16 lit) {
+s32 StageIntro_DrawMonkeyIcons(s32 x, s32 y, s16 n, s16 lit) {
     Ft4_80136394 *p;
     u32 *ot;
     s32 i;
@@ -203,7 +203,7 @@ extern s16 D_8013AECC;
 #define ADDPRIM_80136588(ot, p) __asm__ volatile("lwl $4, 2(%0)\n\tsll $3, %2, 8\n\tswl $3, 2(%0)\n\tswl $4, %1" : : "r"(ot), "m"(*((u8 *)(p) + 2)), "r"(p) : "$4", "$3", "memory")
 extern struct { s32 frame; Tile_80136588 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_80136588 asm("g_Game");
 
-s32 func_80136588(s16 dir) {
+s32 StageIntro_DrawBlinds(s16 dir) {
     Tile_80136588 *p;
     u32 *ot;
     s32 ofs;
@@ -282,13 +282,13 @@ s32 func_80136588(s16 dir) {
 
 typedef struct { s16 x, y, w, h; } Rect_8013683C;
 extern Rect_8013683C D_8013ADB0;
-extern s32 D_8013AE60;
+extern s32 StageIntro_State;
 extern s32 D_8013B9E0;
 extern s8 D_8013B450[];
 extern u8 D_8013AED0[];
 extern u8 D_800F4458[];
 extern struct { u8 pad0[0x8120]; u16 mode; u8 pad8122[4]; u16 stage; u8 pad8128[0x1C]; u32 best; u8 pad8148[0x12]; u16 f_815A; } g_Game_8013683C asm("g_Game");
-s32 func_80136A1C(void);
+s32 EraIntro_Run(void);
 s32 SaveByte_Get(s32);
 s32 Stage_GetWorld(s32);
 s32 Stage_GetInfo(u32, void *);
@@ -296,7 +296,7 @@ s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
 void DrawSync(s32);
 s32 VSync(s32 mode);
 
-s32 func_8013683C(void) {
+s32 StageIntro_Main(void) {
     Rect_8013683C r;
     s32 w;
     s32 c;
@@ -304,11 +304,11 @@ s32 func_8013683C(void) {
     u8 *d;
 
     r = D_8013ADB0;
-    D_8013AE60 = 0;
+    StageIntro_State = 0;
     if (g_Game_8013683C.mode == 8) {
-        func_80136A1C();
+        EraIntro_Run();
         g_Game_8013683C.mode = 10;
-        D_8013AE60 = 0;
+        StageIntro_State = 0;
         D_8013B9E0 = 0;
     }
     if (g_Game_8013683C.stage == 6 && SaveByte_Get(0xB) != 5) {
@@ -318,7 +318,7 @@ s32 func_8013683C(void) {
         g_Game_8013683C.f_815A = 7;
         return 0;
     }
-    func_801375B4();
+    StageIntro_Run();
     if (g_Game_8013683C.mode == 0x12) {
         g_Game_8013683C.mode = 0x13;
     } else if (g_Game_8013683C.mode == 0x17) {
@@ -329,7 +329,7 @@ s32 func_8013683C(void) {
     w = Stage_GetWorld(g_Game_8013683C.stage);
     c = D_8013B450[w];
     if (c != -1) {
-        s = func_801361D8(D_8013AED0, c);
+        s = StageIntro_GetString(D_8013AED0, c);
         d = D_800F4458;
         while (*s) {
             *d++ = *s++;
@@ -367,15 +367,15 @@ void Cd_StartLoadList(void *);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
 void DebugFont_Init(void);
-s32 func_80137198(void);
-void func_80139710(void);
+s32 EraIntro_Update(void);
+void StageIntro_SetMaskBit(void);
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
 void Cd_Update(void);
 void func_800964DC(s32);
 
-s32 func_80136A1C(void) {
+s32 EraIntro_Run(void) {
     Rect_8013683C r;
     u16 add;
     s32 s;
@@ -435,14 +435,14 @@ s32 func_80136A1C(void) {
     g_Game_80136A1C.db[0].env[0x1A] = 0;
     g_Game_80136A1C.db[1].env[0x1B] = 8;
     g_Game_80136A1C.db[0].env[0x1B] = 8;
-    while (func_8001325C(0), Gfx_BeginFrame(), DebugFont_Init(), func_80137198() >= 0) {
+    while (func_8001325C(0), Gfx_BeginFrame(), DebugFont_Init(), EraIntro_Update() >= 0) {
         DrawSync(0);
         VSync(2);
         g_Game_80136A1C.frame++;
-        if (D_8013AE60 == 1 || D_8013AE60 == 3) {
+        if (StageIntro_State == 1 || StageIntro_State == 3) {
             s = D_8013B998_6A1C.sub;
             if (s == 0) {
-                func_80139710();
+                StageIntro_SetMaskBit();
                 PutDispEnv(&g_Game_80136A1C.db[g_Game_80136A1C.cur].env[0x5C]);
                 PutDrawEnv(g_Game_80136A1C.db[g_Game_80136A1C.cur].env);
                 D_8013B998_6A1C.sub = 1;
@@ -457,7 +457,7 @@ s32 func_80136A1C(void) {
                 PutDrawEnv(g_Game_80136A1C.db[(s16)(D_8013B998_6A1C.buf ^ 1)].env);
                 g_Game_80136A1C.db[1].env[0x18] = 1;
                 g_Game_80136A1C.db[0].env[0x18] = 1;
-                D_8013AE60 = s;
+                StageIntro_State = s;
             }
         } else {
             PutDispEnv(&g_Game_80136A1C.db[g_Game_80136A1C.cur].env[0x5C]);
@@ -575,20 +575,20 @@ extern u8 D_8013B6F0[];
 s32 Cd_PollLoadList(void);
 void Sound_ResumeStreams(void);
 s32 Stage_GetEra(s32);
-void func_801380DC(void);
-void func_80138118(void);
-void func_80136000(SVECTOR *eye, SVECTOR *at);
+void StageIntro_BindPlacedModel(void);
+void StageIntro_SetFlag(void);
+void StageIntro_SetCamera(SVECTOR *eye, SVECTOR *at);
 void Stage_DrawPlacedModels(void);
 s32 Sound_PlayFixed(s32);
 void Sound_UnloadBanks(s32);
 void func_80136EAC(void);
-void func_8013A3C4(void);
+void StageIntro_DrawScanlines(void);
 
-s32 func_80137198(void) {
+s32 EraIntro_Update(void) {
     s32 a, b;
     u8 *p;
 
-    switch (D_8013AE60) {
+    switch (StageIntro_State) {
     case 0:
         if (D_8013B478 != 0 && Cd_PollLoadList() < 0) {
             Sound_ResumeStreams();
@@ -602,16 +602,16 @@ s32 func_80137198(void) {
             return 0;
         }
         D_8013B47A = 0;
-        func_80138138(Stage_GetEra(g_Game_80137198.stage) == 10 ? 2 : 1);
+        StageIntro_LoadModels(Stage_GetEra(g_Game_80137198.stage) == 10 ? 2 : 1);
         if (D_8013B998_80137198.f_48 != 0) {
-            func_801380DC();
+            StageIntro_BindPlacedModel();
         }
-        func_80138118();
-        func_801385B0();
-        func_80136000(&D_8013B998_80137198.eye, &D_8013B998_80137198.at);
+        StageIntro_SetFlag();
+        StageIntro_RunScript();
+        StageIntro_SetCamera(&D_8013B998_80137198.eye, &D_8013B998_80137198.at);
         Stage_DrawPlacedModels();
-        func_801399A4(D_8013B6F0);
-        D_8013AE60 = 1;
+        StageIntro_DrawModels(D_8013B6F0);
+        StageIntro_State = 1;
         D_8013B998_80137198.sub = 0;
         D_8013B998_80137198.timer = 0;
         Sound_PlayFixed(0xAC);
@@ -641,7 +641,7 @@ s32 func_80137198(void) {
         if ((g_Pad_80137198.held & g_Pad_80137198.mask & 0x860) || *D_8013B9B8 == 0x3FC0) {
             Sound_PlayFixed(0xAD);
             D_8013B478 = 1;
-            D_8013AE60 = 3;
+            StageIntro_State = 3;
             D_8013B998_80137198.sub = 0;
             D_8013B998_80137198.timer = 10;
         }
@@ -670,10 +670,10 @@ s32 func_80137198(void) {
         }
         return 0;
     }
-    func_801385B0();
-    func_80136000(&D_8013B998_80137198.eye, &D_8013B998_80137198.at);
+    StageIntro_RunScript();
+    StageIntro_SetCamera(&D_8013B998_80137198.eye, &D_8013B998_80137198.at);
     Stage_DrawPlacedModels();
-    func_801399A4(D_8013B6F0);
+    StageIntro_DrawModels(D_8013B6F0);
     if (Stage_GetEra(g_Game_80137198.stage) == 10) {
         func_80136EAC();
     }
@@ -685,7 +685,7 @@ s32 func_80137198(void) {
     *(u32 *)(p + 0xC) = 0xF00180;
     ADD_PRIM_R(&g_Game_80137198.db[g_Game_80137198.cur].ot[0xFFF], p, "$5", "$3");
     g_Game_80137198.prim = p + 0x10;
-    func_8013A3C4();
+    StageIntro_DrawScanlines();
     return 0;
 }
 
@@ -703,7 +703,7 @@ s32 Stage_GetTargetTimes(u32);
 void Spike_SetBlinkFrame(s32);
 s32 func_80137C88(void);
 
-s32 func_801375B4(void) {
+s32 StageIntro_Run(void) {
     Rect_8013683C r;
     s16 *t;
     s32 w;
@@ -721,7 +721,7 @@ s32 func_801375B4(void) {
     D_800EBFA0_801375B4.f2C = 0x1000;
     DrawSync(0);
     Mem_Init();
-    func_8013A7A8();
+    StageIntro_InitWavyGrid();
     switch (g_Game_801375B4.stage) {
     case 0x13:
     case 0x24:
@@ -792,11 +792,11 @@ s32 func_801375B4(void) {
         }
         DrawSync(0);
         VSync(2);
-        switch (D_8013AE60) {
+        switch (StageIntro_State) {
         case 1:
             s = D_8013B998_801375B4.sub;
             if (s == 0) {
-                func_80139710();
+                StageIntro_SetMaskBit();
                 PutDispEnv(&g_Game_801375B4.db[g_Game_801375B4.cur].env[0x5C]);
                 PutDrawEnv(g_Game_801375B4.db[g_Game_801375B4.cur].env);
                 D_8013B998_801375B4.sub = 1;
@@ -811,7 +811,7 @@ s32 func_801375B4(void) {
                 PutDrawEnv(g_Game_801375B4.db[(s16)(D_8013B998_801375B4.buf ^ 1)].env);
                 g_Game_801375B4.db[1].env[0x18] = 1;
                 g_Game_801375B4.db[0].env[0x18] = 1;
-                D_8013AE60 = s;
+                StageIntro_State = s;
             }
             break;
         case 3:
@@ -850,13 +850,13 @@ extern s16 D_8013B482;
 extern s16 D_8013AEA8;
 extern s16 D_8013AEA4[];
 s32 Cd_StartFileLoad(s32, s32);
-void func_8013AABC(void);
+void StageIntro_DrawWavyGrid(void);
 
 s32 func_80137C88(void) {
     s32 a, b;
     s32 pad[2];
 
-    switch (D_8013AE60) {
+    switch (StageIntro_State) {
     case 0:
         if (D_8013B480 != 0 && Cd_PollLoadList() < 0) {
             Sound_ResumeStreams();
@@ -870,7 +870,7 @@ s32 func_80137C88(void) {
             return 0;
         }
         D_8013B482 = 0;
-        func_80138138(2);
+        StageIntro_LoadModels(2);
         switch (g_Game_80137C88.f_8120) {
         case 0x12:
             D_8013AEA8 = 3;
@@ -894,10 +894,10 @@ s32 func_80137C88(void) {
             }
             break;
         }
-        func_801385B0();
-        func_80136000(&D_8013B998_80137198.eye, &D_8013B998_80137198.at);
-        func_801399A4(D_8013B6F0);
-        D_8013AE60 = 1;
+        StageIntro_RunScript();
+        StageIntro_SetCamera(&D_8013B998_80137198.eye, &D_8013B998_80137198.at);
+        StageIntro_DrawModels(D_8013B6F0);
+        StageIntro_State = 1;
         D_8013B998_80137198.sub = 0;
         D_8013B998_80137198.timer = 0;
         Sound_PlayFixed(0xAC);
@@ -927,7 +927,7 @@ s32 func_80137C88(void) {
         if ((g_Pad_80137198.held & g_Pad_80137198.mask & 0x860) || *D_8013B9B8 == 0x3FC0) {
             Sound_PlayFixed(0xAD);
             D_8013B480 = 2;
-            D_8013AE60 = 3;
+            StageIntro_State = 3;
             D_8013B998_80137198.sub = 0;
             D_8013B998_80137198.timer = 10;
         }
@@ -967,17 +967,17 @@ s32 func_80137C88(void) {
         }
         return 0;
     }
-    func_801385B0();
-    func_80136000(&D_8013B998_80137198.eye, &D_8013B998_80137198.at);
-    func_801399A4(D_8013B6F0);
-    func_8013AABC();
+    StageIntro_RunScript();
+    StageIntro_SetCamera(&D_8013B998_80137198.eye, &D_8013B998_80137198.at);
+    StageIntro_DrawModels(D_8013B6F0);
+    StageIntro_DrawWavyGrid();
     return 0;
 }
 
 extern u8 *g_StageMeshes;
 void Model_BindMesh(void *, void *);
 
-void func_801380DC(void) {
+void StageIntro_BindPlacedModel(void) {
     u32 *b = (u32 *)0x80154000;
 
     Model_BindMesh(g_StageMeshes + 0x80, b + M2C_FIELD(b, u16 *, 0x38));
@@ -985,7 +985,7 @@ void func_801380DC(void) {
 
 extern u32 *D_8013B9C8;
 
-void func_80138118(void) {
+void StageIntro_SetFlag(void) {
     u32 *b = (u32 *)0x80154000;
 
     D_8013B9C8 = b + M2C_FIELD(b, u16 *, 0x34);
@@ -1000,7 +1000,7 @@ void Zone_SetTable(s32 *);
 void *Mem_AllocPages(s32);
 void Model_BindBoned(void *, u8 *);
 
-s32 func_80138138(s32 n) {
+s32 StageIntro_LoadModels(s32 n) {
     u8 *b;
     s32 i;
     Obj_80138138 *o;
@@ -1098,10 +1098,10 @@ extern Mdl_801385B0 D_8013B6F0_801385B0[] asm("D_8013B6F0");
 extern Txt_801385B0 D_8013AEA4_801385B0[] asm("D_8013AEA4");
 extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x26]; u16 stage; } g_Game_801385B0 asm("g_Game");
 void Cd_PlayXaTrack();
-void func_80139248(void);
+void StageIntro_DrawStageInfo(void);
 void func_801394D0(void);
 
-void func_801385B0(void) {
+void StageIntro_RunScript(void) {
     s16 *p;
     s32 f;
     s32 t;
@@ -1345,7 +1345,7 @@ done2:
         D_8013B998_801385B0.y = e->y;
         switch (e->type) {
         case 0:
-            func_80139248();
+            StageIntro_DrawStageInfo();
             break;
         case 1:
             break;
@@ -1367,7 +1367,7 @@ extern TextPos_80138E04 D_8013B998_8E04 asm("D_8013B998");
 extern struct { u8 pad0[4]; u8 *prim; u8 pad8[0x811E]; u16 stage; } g_Game_80138E04 asm("g_Game");
 s32 SpecterCoin_CountInWorld(s32);
 
-void func_80138E04(void) {
+void StageIntro_DrawStageName(void) {
     Scr_80138E04 *sc = (Scr_80138E04 *)0x1F800000;
     u8 *s = sc->str;
     SprtTp *p;
@@ -1444,19 +1444,19 @@ void func_80138E04(void) {
     g_Game_80138E04.prim = (u8 *)p;
 }
 
-void func_8013912C(void *arg0, s32 arg1) {
+void StageIntro_DrawString(void *arg0, s32 arg1) {
     if ((arg1 > 0) && (M2C_FIELD(arg0, s16 *, 0) >= 0)) {
         M2C_FIELD(&D_8013B998, u16 *, 0) = (u16) M2C_FIELD(arg0, u16 *, 2);
         M2C_FIELD(&D_8013B998, u16 *, 2) = (u16) M2C_FIELD(arg0, u16 *, 4);
-        func_80139628(func_801361D8(&D_8013B490, M2C_FIELD(arg0, s16 *, 0)));
+        func_80139628(StageIntro_GetString(&D_8013B490, M2C_FIELD(arg0, s16 *, 0)));
         if ((arg1 >= 2) && (M2C_FIELD(arg0, s16 *, 6) >= 0)) {
             M2C_FIELD(&D_8013B998, u16 *, 0) = (u16) M2C_FIELD(arg0, u16 *, 8);
             M2C_FIELD(&D_8013B998, u16 *, 2) = (u16) M2C_FIELD(arg0, u16 *, 0xA);
-            func_80139628(func_801361D8(&D_8013B490, M2C_FIELD(arg0, s16 *, 6)));
+            func_80139628(StageIntro_GetString(&D_8013B490, M2C_FIELD(arg0, s16 *, 6)));
             if ((arg1 >= 3) && (M2C_FIELD(arg0, s16 *, 0xC) >= 0)) {
                 M2C_FIELD(&D_8013B998, u16 *, 0) = (u16) M2C_FIELD(arg0, u16 *, 0xE);
                 M2C_FIELD(&D_8013B998, u16 *, 2) = (u16) M2C_FIELD(arg0, u16 *, 0x10);
-                func_80139628(func_801361D8(&D_8013B490, M2C_FIELD(arg0, s16 *, 0xC)));
+                func_80139628(StageIntro_GetString(&D_8013B490, M2C_FIELD(arg0, s16 *, 0xC)));
             }
         }
     }
@@ -1474,11 +1474,11 @@ extern s16 D_8013B7EA;
 s32 Stage_GetTargetTimes(u32);
 void Hud_DrawTime(s32, s32, u32);
 void Hud_DrawTimeMedal(s32, s32, u32, s16 *);
-void func_8013912C(void *arg0, s32 arg1);
+void StageIntro_DrawString(void *arg0, s32 arg1);
 void func_801397F4(s32 x, s32 y, s32 val);
-void func_80138E04(void);
+void StageIntro_DrawStageName(void);
 
-void func_80139248(void) {
+void StageIntro_DrawStageInfo(void) {
     s32 w;
     s32 n;
     s32 times;
@@ -1488,7 +1488,7 @@ void func_80139248(void) {
 
     s = g_Game_80139248.f_8126;
     if (s == 0x13 || s == 0x24) {
-        func_8013912C(D_8013B5CC, 3);
+        StageIntro_DrawString(D_8013B5CC, 3);
     } else {
         info = (u16 *)0x1F800000;
         w = Stage_GetWorld(s);
@@ -1498,14 +1498,14 @@ void func_80139248(void) {
             switch ((s16)info[8]) {
             case 0:
                 if (w == 0x11 || (u32)(w - 0x16) < 9) {
-                    func_8013912C(D_8013B596, 2);
+                    StageIntro_DrawString(D_8013B596, 2);
                 } else if ((s16)info[2] > 0) {
                     n = (s16)info[3] - (s16)info[2];
-                    func_8013912C(D_8013B54E, 3);
+                    StageIntro_DrawString(D_8013B54E, 3);
                     func_801397F4(0x30, 0x58, n);
                 } else {
                     n = (s16)info[3];
-                    func_8013912C(D_8013B53C, 3);
+                    StageIntro_DrawString(D_8013B53C, 3);
                     func_801397F4(0x80, 0x58, n);
                 }
                 break;
@@ -1513,30 +1513,30 @@ void func_80139248(void) {
                 Stage_GetInfo(0x18, info + 0xA);
                 if ((s16)info[0x12] > 0) {
                     n = (s16)info[4] - (s16)info[2];
-                    func_8013912C(D_8013B572, 3);
+                    StageIntro_DrawString(D_8013B572, 3);
                     func_801397F4(0x90, 0x58, n);
                 } else {
-                    func_8013912C(D_8013B560, 2);
+                    StageIntro_DrawString(D_8013B560, 2);
                     D_8013B7EA = 0;
                 }
                 break;
             case 2:
-                func_8013912C(D_8013B584, 2);
+                StageIntro_DrawString(D_8013B584, 2);
                 D_8013B7EA = 0;
                 break;
             }
-            func_80138E04();
+            StageIntro_DrawStageName();
             break;
         case 0x12:
             n = (s16)info[5];
-            func_8013912C(D_8013B53C, 3);
+            StageIntro_DrawString(D_8013B53C, 3);
             func_801397F4(0x80, 0x58, n);
             times = Stage_GetTargetTimes(w);
             t = g_Game_80139248.f_8148;
             if (t != -1) {
                 Hud_DrawTime(0x104, 0xC0, t);
                 Hud_DrawTimeMedal(0xEC, 0xB8, t, (s16 *)times);
-                func_8013912C((u8 *)D_8013B53C + 0x7E, 1);
+                StageIntro_DrawString((u8 *)D_8013B53C + 0x7E, 1);
             }
             break;
         case 0x13:
@@ -1637,7 +1637,7 @@ extern struct S_g_Game g_Game;
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0, w, h; } Tile_80139710;
 void SetDrawStp(void *, s32);
 
-void func_80139710(void) {
+void StageIntro_SetMaskBit(void) {
     u8 *p;
     u8 *base;
     u32 *ot;
@@ -1725,7 +1725,7 @@ void Model_DrawWireframe(void *, void *, void *);
 void Model_ProjectVertsAlt(void *, void *, void *);
 void Model_DrawColorAnim(void *, void *, void *, s32);
 
-void func_801399A4(Ent_801399A4 *arr) {
+void StageIntro_DrawModels(Ent_801399A4 *arr) {
     Ent_801399A4 *e;
     SVECTOR v;
     s32 i;
@@ -2083,7 +2083,7 @@ extern u32 D_800EC35C;
 int abs(int);
 #define ADD_PRIM_RR_8013A3C4(ot, p) { unsigned int _t1, _t2; __asm__ volatile("lwl %0, 2(%2)\n\tsll %1, %3, 8\n\tswl %1, 2(%2)\n\tswl %0, 2(%3)" : "=&r"(_t1), "=&r"(_t2) : "r"(ot), "r"(p) : "memory"); }
 
-void func_8013A3C4(void) {
+void StageIntro_DrawScanlines(void) {
     Rect_8013A3C4 r;
     u8 *p;
     u32 *ot;
@@ -2187,7 +2187,7 @@ s32 rcos(s32);
 s32 rsin(s32);
 extern Pt_391 *D_80139E28_80138B0C asm("D_8013B9F8");
 
-void func_8013A7A8(void)
+void StageIntro_InitWavyGrid(void)
 {
   Pt_391 *p;
   s32 r;
@@ -2216,7 +2216,7 @@ typedef struct { u32 xy; u32 c; } Cell_8013A8C0;
 extern Cell_8013A8C0 *D_8013B9F8_8013A8C0 asm("D_8013B9F8");
 extern s32 g_Game_8013A8C0 asm("g_Game");
 
-void func_8013A8C0(void) {
+void StageIntro_UpdateWavyGrid(void) {
     Cell_8013A8C0 *p;
     Cell_8013A8C0 *r;
     Cell_8013A8C0 *l;
@@ -2264,9 +2264,9 @@ typedef struct { u32 xy; u32 c; } GridPt_391;
 typedef struct { u32 tag; u32 c0; u32 xy0; u32 c1; u32 xy1; u32 c2; u32 xy2; u32 c3; u32 xy3; } PolyG4_391;
 extern struct S_g_Game { u8 pad_0[0x8126]; u16 f_8126; } g_Game;
 extern GridPt_391 *D_8013B9F8;
-void func_8013A8C0(void);
+void StageIntro_UpdateWavyGrid(void);
 
-void func_8013AABC(void) {
+void StageIntro_DrawWavyGrid(void) {
     PolyG4_391 *p;
     u32 *ot;
     GridPt_391 *g;
@@ -2277,7 +2277,7 @@ void func_8013AABC(void) {
     p = (PolyG4_391 *)G_DRAW.prim;
     ot = G_DRAW.ot + 0xFFF;
     g = D_8013B9F8;
-    func_8013A8C0();
+    StageIntro_UpdateWavyGrid();
     for (i = 0; i < 11; i++) {
         for (j = 0; j < 16; j++) {
             if (j == 15) {

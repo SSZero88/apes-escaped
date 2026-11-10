@@ -13,7 +13,7 @@ extern struct S_D_8013DCE0 { u8 pad_0[0x24]; s32 f_24; s32 f_28; s32 f_2C; s32 f
 s32 SpecterCoin_Count();
 s32 func_800964B0(M2C_UNK);
 
-s32 func_8013DD50(s16 *p) {
+s32 LevelObj_RestartTimer2(s16 *p) {
     p[3] = 0;
     p[1] = p[4];
     return 0;

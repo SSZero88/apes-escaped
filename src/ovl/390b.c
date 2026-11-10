@@ -3,19 +3,19 @@
 
 extern s16 g_MemCard;
 extern s16 D_8013C5B4;
-void func_8013784C(s32, s32);
+void SaveMenu_SetScreen(s32, s32);
 
 s32 func_8013B400(void) {
     switch (g_MemCard) {
     case 0:
-        func_8013784C(1, D_8013C5B4);
+        SaveMenu_SetScreen(1, D_8013C5B4);
         break;
     case -7:
-        func_8013784C(2, 0);
+        SaveMenu_SetScreen(2, 0);
         break;
     case -2:
     case -1:
-        func_8013784C(0x2C, 0);
+        SaveMenu_SetScreen(0x2C, 0);
         break;
     case -8:
         break;
@@ -29,9 +29,9 @@ extern struct { u8 pad_0[6]; s16 f_6; } D_800E3880_8013B47C asm("g_MemCard");
 extern u8 g_MemCardImage[];
 extern u8 D_8013C5C0[];
 void func_8014016C(void);
-s32 func_80139F08(void);
-void func_80139A3C(s32);
-void func_80139A68(void);
+s32 SaveMenu_UpdateYesNo(void);
+void SaveMenu_DrawMainFrame(s32);
+void SaveMenu_DrawModel(void);
 void MemCard_Request(s32, s32);
 
 s32 func_8013B47C(void) {
@@ -39,19 +39,19 @@ s32 func_8013B47C(void) {
     s32 i;
 
     func_8014016C();
-    r = func_80139F08();
-    func_80139A3C(4);
-    func_80139A68();
+    r = SaveMenu_UpdateYesNo();
+    SaveMenu_DrawMainFrame(4);
+    SaveMenu_DrawModel();
     if (r != 0) {
         if (r == 1) {
             for (i = 0; i < 16; i++) {
                 g_MemCardImage[i + D_800E3880_8013B47C.f_6 * 0x7A0 + 0x198] = D_8013C5C0[i];
             }
             MemCard_Request(2, 0);
-            func_8013784C(0x11, 0);
+            SaveMenu_SetScreen(0x11, 0);
             return 0;
         }
-        func_8013784C(1, D_8013C5B4);
+        SaveMenu_SetScreen(1, D_8013C5B4);
     }
     return 0;
 }
@@ -261,8 +261,8 @@ extern u8 g_Game[];
 extern u8 D_8013C550[];
 void Menu_DrawCaps(s32, s32, s32);
 void func_8013FD50(void *);
-void func_80136000(u8 *s, s32 x, s32 y, s32 c);
-s32 func_8013946C(s32 i, s32 x, s32 y);
+void SaveMenu_DrawText(u8 *s, s32 x, s32 y, s32 c);
+s32 SaveMenu_DrawIcon(s32 i, s32 x, s32 y);
 #define G4_8013BC64 ((PolyG4_8013BC64 *)G_DRAW.prim)
 #define G3_8013BC64 ((PolyG3_8013BC64 *)G_DRAW.prim)
 #define ADDPRIM_8013BC64(OT) __asm__ volatile("lwl $4, 2(%0)\n\tlw $2, %1\n\tsll $2, $2, 8\n\tswl $2, 2(%0)\n\tlw $2, %1\n\tswl $4, 2($2)" : : "r"(OT), "m"(G_DRAW.prim) : "$2", "$4", "memory")
@@ -290,7 +290,7 @@ s32 func_8013BC64(void) {
     for (i = 0; i < 5; i++) {
         buf[0] = D_8013C5C0[i];
         buf[1] = 0;
-        func_80136000(buf, i * 16 + 0xAE, 0x20, 1);
+        SaveMenu_DrawText(buf, i * 16 + 0xAE, 0x20, 1);
     }
     for (i = 0; i < D_8013C5B0; i++) {
         if (D_8013C5AC < 2) {
@@ -303,9 +303,9 @@ s32 func_8013BC64(void) {
         buf[0] = D_8013C550[i + D_8013C5AE];
         buf[1] = 0;
         if (i == D_8013C5A8) {
-            func_80136000(buf, x, y - 2, 0);
+            SaveMenu_DrawText(buf, x, y - 2, 0);
         } else {
-            func_80136000(buf, x, y, 1);
+            SaveMenu_DrawText(buf, x, y, 1);
         }
     }
     for (i = 0; i < 5; i++) {
@@ -387,18 +387,18 @@ s32 func_8013BC64(void) {
     G3_8013BC64->b2 = 0xC4;
     ADDPRIM2_8013BC64(&G_DRAW.db[G_DRAW.cur].ot[0]);
     G_DRAW.prim += 0x1C;
-    func_8013946C(0, 0x10C, D_8013C5D0[0] + 0x20);
-    func_8013946C(1, 0x120, D_8013C5D0[1] + 0x20);
-    func_8013946C(3, 0xC2, D_8013C5D0[4] + 0xC0);
-    func_8013946C(4, 0x22, D_8013C5D0[2] + 0xC0);
-    func_8013946C(5, 0x9C, D_8013C5D0[3] + 0xC0);
-    func_8013946C(6, 0x10F, 0xC0);
+    SaveMenu_DrawIcon(0, 0x10C, D_8013C5D0[0] + 0x20);
+    SaveMenu_DrawIcon(1, 0x120, D_8013C5D0[1] + 0x20);
+    SaveMenu_DrawIcon(3, 0xC2, D_8013C5D0[4] + 0xC0);
+    SaveMenu_DrawIcon(4, 0x22, D_8013C5D0[2] + 0xC0);
+    SaveMenu_DrawIcon(5, 0x9C, D_8013C5D0[3] + 0xC0);
+    SaveMenu_DrawIcon(6, 0x10F, 0xC0);
     G_DRAW.prim[3] = 1;
     *(u32 *)(G_DRAW.prim + 4) = 0xE1000217;
     ADDPRIM2_8013BC64(&G_DRAW.db[G_DRAW.cur].ot[0]);
     G_DRAW.prim += 8;
-    func_80139A3C(3);
-    func_80139A68();
+    SaveMenu_DrawMainFrame(3);
+    SaveMenu_DrawModel();
     return 0;
 }
 

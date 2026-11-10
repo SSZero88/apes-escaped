@@ -3,7 +3,7 @@
 
 extern struct { u8 pad_0[0x8120]; u16 f_8120; u8 pad_8122[0xEA]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013D000 asm("g_Game");
 
-s32 func_8013D000(s16 *p) {
+s32 MMGate_Init(s16 *p) {
     u8 *e;
     p[1] = p[4];
     p[3] = 0;
@@ -32,7 +32,7 @@ void Overlay_Request(s8);
 s32 Music_SetVolume(s32, s32);
 s32 Link_Activate(s16, void *);
 
-s32 func_8013D0FC(s16 *p) {
+s32 MMGate_Update(s16 *p) {
     s32 x;
     s32 t;
     u8 *e;
@@ -89,7 +89,7 @@ s32 func_8013D0FC(s16 *p) {
 extern struct S_g_Game { u8 pad_0[0x8120]; u16 f_8120; u8 pad_8122[0x116]; u8 *f_8238; } g_Game;
 s32 SaveByte_Get(s32);
 
-s32 func_8013D2A0(void) {
+s32 MMEntrance_InitProgress(void) {
     if (g_Game.f_8120 == 0x13) {
         return 0;
     }
@@ -99,14 +99,14 @@ s32 func_8013D2A0(void) {
     return 0;
 }
 
-s32 func_8013D300(void) {
+s32 LevelObj_Nop(void) {
     return 0;
 }
 
 extern struct S_g_Game_8013D308 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013D308 asm("g_Game");
 s16 Sound_Play(s32, s32);
 
-s32 func_8013D308(s16 *p) {
+s32 ElectricFence_Init(s16 *p) {
     u8 *e = g_Game_8013D308.f_8220 + p[4] * 0x18;
 
     p[3] = 0;
@@ -131,7 +131,7 @@ void Sound_Stop(s32, s32);
 s32 Sound_UpdateVoice3D_8013D388(s32, s32, s32, void *) asm("Sound_UpdateVoice3D");
 void Fx_DrawLightning(void *, void *, u16);
 
-s32 func_8013D388(s16 *p) {
+s32 ElectricFence_Update(s16 *p) {
     SVECTOR a;
     SVECTOR b;
     SVECTOR c;
@@ -212,7 +212,7 @@ s32 func_8013D388(s16 *p) {
 s32 SaveByte_Get(s32);
 void Stage_SelectAltLoadList(s32);
 
-s32 func_8013D66C(void) {
+s32 MMEntrance_PickLoadList(void) {
     if (SaveByte_Get(8) == 5) {
         Stage_SelectAltLoadList(1);
     } else {

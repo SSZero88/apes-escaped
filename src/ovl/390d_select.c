@@ -3,24 +3,24 @@
 
 typedef struct { s16 x, y, w, h; } Rect_8013F630;
 typedef struct { u8 pad0[0x19]; u8 r0, g0, b0; } DrawEnv_8013F630;
-extern s16 D_8013AF66;
-extern s16 D_8013AF68;
-s32 D_8013FB20 = 2;
+extern s16 SaveMenu_FadeState;
+extern s16 SaveMenu_FadeTimer;
+s32 PocketMenu_Cursor = 2;
 s16 D_8013FB24[6] = {1, 1, 1, 1, 1, 1};
-extern s32 D_8013F280;
+extern s32 PocketMenu_State;
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_8013F630 asm("g_Game");
 s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
 void DrawSync(s32);
 s32 VSync(s32 mode);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-s32 func_8013A634(void);
-s32 func_8013F808(void);
+s32 SaveMenu_UpdateFade(void);
+s32 PocketMenu_UpdateSelect(void);
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
 
-s32 func_8013F630(void) {
+s32 PocketMenu_RunSelect(void) {
     Rect_8013F630 r = {0, 0, 384, 512};
     s32 res;
     s32 v;
@@ -33,15 +33,15 @@ s32 func_8013F630(void) {
     ((DrawEnv_8013F630 *)&g_Game_8013F630.db[1])->r0 = 0;
     ((DrawEnv_8013F630 *)&g_Game_8013F630.db[1])->g0 = 0;
     ((DrawEnv_8013F630 *)&g_Game_8013F630.db[1])->b0 = 0;
-    D_8013AF68 = 0x1E;
+    SaveMenu_FadeTimer = 0x1E;
     g_Game_8013F630.cur = 0;
-    D_8013AF66 = 0;
-    D_8013FB20 = 2;
-    while (func_8001325C(2), Gfx_BeginFrame(), func_8013A634() >= 0) {
-        v = func_8013F808();
+    SaveMenu_FadeState = 0;
+    PocketMenu_Cursor = 2;
+    while (func_8001325C(2), Gfx_BeginFrame(), SaveMenu_UpdateFade() >= 0) {
+        v = PocketMenu_UpdateSelect();
         if (v != 0) {
             res = v;
-            D_8013AF66 = 2;
+            SaveMenu_FadeState = 2;
         }
         DrawSync(0);
         VSync(0);
@@ -55,51 +55,51 @@ s32 func_8013F630(void) {
     if (res < 0) {
         return -1;
     }
-    D_8013F280 = res;
+    PocketMenu_State = res;
     return 0;
 }
 
 extern s32 D_800E5488;
 extern GameDraw g_Game_8013F808 asm("g_Game");
 s32 func_8013FDE4(s32 sel, s16 *flags);
-s32 func_8013946C(s32 i, s32 x, s32 y);
+s32 SaveMenu_DrawIcon(s32 i, s32 x, s32 y);
 s32 func_8013F9F8(s32 n);
-void func_80139A3C(s32);
-void func_80139A68(void);
-s32 func_8013A400(void);
+void SaveMenu_DrawMainFrame(s32);
+void SaveMenu_DrawModel(void);
+s32 SaveMenu_ConfirmPressed(void);
 s32 Sound_PlayFixed(s32);
 
-s32 func_8013F808(void) {
+s32 PocketMenu_UpdateSelect(void) {
     u32 *ot;
 
-    func_8013FDE4(D_8013FB20, D_8013FB24);
-    func_8013946C(0, 0xFE, 0xC8);
-    func_8013946C(1, 0x112, 0xC8);
+    func_8013FDE4(PocketMenu_Cursor, D_8013FB24);
+    SaveMenu_DrawIcon(0, 0xFE, 0xC8);
+    SaveMenu_DrawIcon(1, 0x112, 0xC8);
     g_Game_8013F808.prim[3] = 1;
     ((u32 *)g_Game_8013F808.prim)[1] = 0xE1000217;
     ot = &g_Game_8013F808.db[g_Game_8013F808.cur].ot[0];
     __asm__ volatile("lwl $4, 2(%0)\n\tlw $2, %1\n\tsll $2, $2, 8\n\tswl $2, 2(%0)\n\tlw $2, %1\n\tswl $4, 2($2)" : : "r"(ot), "m"(g_Game_8013F808.prim) : "$2", "$4", "memory");
     g_Game_8013F808.prim += 8;
-    func_8013F9F8(D_8013FB20 - 2);
-    func_80139A3C(4);
-    func_80139A68();
-    if (D_8013AF66 != 1) {
+    func_8013F9F8(PocketMenu_Cursor - 2);
+    SaveMenu_DrawMainFrame(4);
+    SaveMenu_DrawModel();
+    if (SaveMenu_FadeState != 1) {
         return 0;
     }
     if (D_800E5488 == 0x1000) {
         Sound_PlayFixed(0);
-        if (--D_8013FB20 < 2) {
-            D_8013FB20 = 4;
+        if (--PocketMenu_Cursor < 2) {
+            PocketMenu_Cursor = 4;
         }
     }
     if (D_800E5488 == 0x4000) {
         Sound_PlayFixed(0);
-        if (++D_8013FB20 >= 5) {
-            D_8013FB20 = 2;
+        if (++PocketMenu_Cursor >= 5) {
+            PocketMenu_Cursor = 2;
         }
     }
-    if (func_8013A400()) {
-        switch (D_8013FB20) {
+    if (SaveMenu_ConfirmPressed()) {
+        switch (PocketMenu_Cursor) {
         case 2:
             Sound_PlayFixed(3);
             return -1;

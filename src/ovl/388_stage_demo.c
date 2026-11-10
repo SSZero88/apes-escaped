@@ -3,8 +3,8 @@
 
 extern struct S_g_Game { u8 pad_0[0x8120]; s16 f_8120; } g_Game;
 
-s32 func_80136000(void) {
-    func_801361D0(0);
+s32 StageDemo_Main(void) {
+    StageDemo_Run(0);
     g_Game.f_8120 = 9;
     return 0;
 }
@@ -27,7 +27,7 @@ void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
 
-s32 func_80136038(void) {
+s32 StageDemo_LoadStage0(void) {
     Rect_80136038 r;
 
     r = D_801363E0_80136038;
@@ -67,7 +67,7 @@ void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
 
-M2C_UNK func_801361D0(M2C_UNK arg0) {
+M2C_UNK StageDemo_Run(M2C_UNK arg0) {
     Rect_801361D0 r;
 
     r = D_801363E0;
@@ -82,7 +82,7 @@ M2C_UNK func_801361D0(M2C_UNK arg0) {
         func_8001325C(0);
         Gfx_BeginFrame();
         DebugFont_Init();
-        if (func_80136350(arg0) < 0) {
+        if (StageDemo_Update(arg0) < 0) {
             return 0;
         }
         DrawSync(0);
@@ -101,7 +101,7 @@ void DebugFont_SetPos(s32, s32);
 void DebugFont_Printf(u8 *, ...);
 void Sound_PlayFixed(s32);
 
-s32 func_80136350(s32 n) {
+s32 StageDemo_Update(s32 n) {
     DebugFont_SetPos(0x82, 0x46);
     DebugFont_Printf(D_801363E8, n);
     DebugFont_SetPos(0x82, 0xD2);

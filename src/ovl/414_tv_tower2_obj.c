@@ -9,9 +9,9 @@ extern s16 g_SpikeHealth;
 
 extern struct S_D_80143F08 { u8 pad_0[0xA]; s8 f_A; u8 pad_B[0x1]; } D_80143F08[];
 M2C_UNK Pad_Vibrate(M2C_UNK, M2C_UNK, M2C_UNK);
-extern s32 D_801442C8;
+extern s32 Boss_LoopVoiceA;
 s32 Sound_Play(M2C_UNK, s32);
-extern s32 D_801442CC;
+extern s32 Boss_LoopVoiceB;
 M2C_UNK Effect_Spawn(M2C_UNK, s32, M2C_UNK *, M2C_UNK);
 extern M2C_UNK D_80143718;
 extern M2C_UNK D_80144570;
@@ -21,7 +21,7 @@ M2C_UNK Camera_StartShake(M2C_UNK);
 extern M2C_UNK D_80143D70;
 extern s8 D_80143F04;
 
-s32 func_8013D000(void *arg0) {
+s32 LevelObj_RestartTimer(void *arg0) {
     M2C_FIELD(arg0, s16 *, 6) = 0;
     M2C_FIELD(arg0, u16 *, 2) = (u16) M2C_FIELD(arg0, u16 *, 8);
     return 0;
@@ -32,12 +32,12 @@ extern s32 D_800EC20C;
 extern u16 D_800E69BE_8013D014 asm("D_800E69BE");
 void Overlay_Request(s32);
 s32 Overlay_GetState(void);
-void func_80140760(void);
+void Boss_Start(void);
 void Music_Play(void);
 void Sound_UnloadBanks(s32);
 void Game_SetMode(s32, s32, s32);
 
-s32 func_8013D014(s16 *p) {
+s32 Boss_StartSequence(s16 *p) {
     if (g_Game_8013D014.f_8120 == 0x13) {
         return 0;
     }
@@ -55,7 +55,7 @@ s32 func_8013D014(s16 *p) {
             return 0;
         }
         p[1] = 3;
-        func_80140760();
+        Boss_Start();
         Music_Play();
         return 0;
     case 2:
@@ -63,7 +63,7 @@ s32 func_8013D014(s16 *p) {
             return 0;
         }
         p[1] = 3;
-        func_80140760();
+        Boss_Start();
         return 0;
     case 3:
         if (D_800E69BE_8013D014 == 1) {
@@ -86,7 +86,7 @@ s32 func_8013D014(s16 *p) {
     return 0;
 }
 
-s32 func_8013D174(void) {
+s32 Boss_LinkReached4(void) {
     return M2C_FIELD(g_Game.f_8220, s16 *, 0x1A) >= 4;
 }
 
@@ -98,7 +98,7 @@ s32 SlideDoor_Update();
 __asm__(".section .rodata\n\t.balign 16\n\t.section .text");
 void *D_8013D1C0[12] = {
     Switch_Init, ToggleSwitch_Update, 0,
-    func_8013D000, func_8013D014, 0,
+    LevelObj_RestartTimer, Boss_StartSequence, 0,
     SlideDoor_Init, SlideDoor_Update, 0,
     0, 0, 0,
 };

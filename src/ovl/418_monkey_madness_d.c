@@ -29,7 +29,7 @@ extern s32 g_StageMeshes;
 typedef struct { u8 pad[0x40]; s32 f_40; } Ob_8013D000;
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_8013D000;
 typedef struct { s16 x0, y0, z0, w0, x1, y1, z1; } Scr_8013D000;
-s32 func_8013FA8C(s32 *arg0, void **arg1);
+s32 Coaster_GetSpikeCar(s32 *arg0, void **arg1);
 s32 VectorNormalSS_8013D000(void *, void *) asm("VectorNormalSS");
 s32 Math_Atan2_8013D000(s32, s32) asm("Math_Atan2");
 void RotMatrixZYX_8013D000(SVECTOR *, Mat_8013D000 *) asm("RotMatrixZYX");
@@ -50,7 +50,7 @@ void func_8013D000(u8 *o) {
     s32 c;
     s32 z;
 
-    func_8013FA8C((s32 *)&a, (void **)&b);
+    Coaster_GetSpikeCar((s32 *)&a, (void **)&b);
     n.vx = a[3];
     n.vy = a[4];
     n.vz = a[5];
@@ -83,7 +83,7 @@ void func_8013D000(u8 *o) {
 
 void Dust_SpawnStill(void *);
 
-void func_8013D374(void *arg0) {
+void Gunner_UpdateShot(void *arg0) {
     SVECTOR v;
 
     if (M2C_FIELD(arg0, u8 *, 0x8F) != 0) {
@@ -102,7 +102,7 @@ void func_8013D374(void *arg0) {
     }
 }
 
-void func_8013D444(void *arg0) {
+void Gunner_Fire(void *arg0) {
     u8 st;
 
     if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1)) {
@@ -123,12 +123,12 @@ void func_8013D444(void *arg0) {
 
 s32 Object_SpikeOutOfRange(void *, s32, s32, s32, s16);
 
-s32 func_8013D540(void *arg0) {
+s32 Gunner_SpikeInRange(void *arg0) {
     return Object_SpikeOutOfRange(arg0, M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s32 *, 0x28), M2C_FIELD(arg0, s16 *, 0x9E), (s32) M2C_FIELD(arg0, s16 *, 0xA4)) == 0;
 }
 
-void func_8013D574(void *arg0) {
-    if (func_8013D540(arg0) != 0) {
+void Gunner_TryAlert(void *arg0) {
+    if (Gunner_SpikeInRange(arg0) != 0) {
         M2C_FIELD(arg0, s8 *, 0x80) = 2;
         M2C_FIELD(arg0, s8 *, 0x7F) = 1;
         M2C_FIELD(arg0, u16 *, 0x5C) = (u16) M2C_FIELD(M2C_FIELD(arg0, void **, 0x88), u16 *, 4);
@@ -137,7 +137,7 @@ void func_8013D574(void *arg0) {
     }
 }
 
-void func_8013D5C8(void *arg0) {
+void Gunner_AimAtSpike(void *arg0) {
     void *temp_a0;
 
     M2C_FIELD(arg0, s16 *, 0x60) = (s16) (g_Spike.f_24 - M2C_FIELD(arg0, u16 *, 0x24));
@@ -149,13 +149,13 @@ void func_8013D5C8(void *arg0) {
 
 void Object_DebugStub();
 void ObjKind4D_IdleSounds(void *);
-void func_8013D374(void *arg0);
-void func_8013D444(void *arg0);
-void func_8013D574(void *arg0);
-void func_8013D5C8(void *arg0);
+void Gunner_UpdateShot(void *arg0);
+void Gunner_Fire(void *arg0);
+void Gunner_TryAlert(void *arg0);
+void Gunner_AimAtSpike(void *arg0);
 typedef struct { u32 b0 : 3; u32 init : 1; u32 b4 : 18; u32 mode : 2; u32 b24 : 8; } Flags_8013D630;
 
-void func_8013D630(u8 *e) {
+void Gunner_Update(u8 *e) {
     u8 state;
 
     if (!M2C_FIELD(e, Flags_8013D630 *, 0xE0).init) {
@@ -176,11 +176,11 @@ void func_8013D630(u8 *e) {
         M2C_FIELD(e, Flags_8013D630 *, 0xE0).init = 1;
     }
     Object_DebugStub(e, M2C_FIELD(e, s16 *, 0x44));
-    func_8013D5C8(e);
+    Gunner_AimAtSpike(e);
     switch (e[0x80]) {
     case 1:
         if (e[0xC9] == 0) {
-            func_8013D574(e);
+            Gunner_TryAlert(e);
         }
         if (M2C_FIELD(e, u16 *, 0x5C) >= M2C_FIELD(e, u16 **, 0x88)[e[0x7F] * 2 + 1]) {
             if (e[0xC9] != 0) {
@@ -189,7 +189,7 @@ void func_8013D630(u8 *e) {
         }
         break;
     case 2:
-        func_8013D444(e);
+        Gunner_Fire(e);
         if (M2C_FIELD(e, u16 *, 0x5C) >= M2C_FIELD(e, u16 **, 0x88)[e[0x7F] * 2 + 1]) {
             if (e[0x7F] == 2) {
                 e[0x80] = 1;
@@ -203,7 +203,7 @@ void func_8013D630(u8 *e) {
         }
         break;
     }
-    func_8013D374(e);
+    Gunner_UpdateShot(e);
     ObjKind4D_IdleSounds(e);
 }
 
@@ -307,7 +307,7 @@ s32 Link_GetState(s32);
 void Object_Despawn(void *, s32);
 void Object_TurnTowardSpike(void *);
 
-void func_8013DC1C(u8 *arg0) {
+void ProgressBlocker_Update(u8 *arg0) {
     if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 3) & 1)) {
         M2C_FIELD(arg0, s16 *, 0xA0) = 100;
         M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
@@ -622,14 +622,14 @@ void func_8013E7A4(void) {
 s16 Object_FloorAt(void *, s32, s32, s32);
 extern s32 D_800EC208;
 
-s32 func_8013E7F4(void *arg0)
+s32 Burrower_SpikeAbove(void *arg0)
 {
   s16 new_var;
   new_var = Object_FloorAt(arg0, 0, 0, 0);
   return ((D_800EC208 <= new_var) && ((*((s32 *) (((s8 *) arg0) + 0x28))) < D_800EC208)) && Spike_WithinRadiusXZ(*((s16 *) (((s8 *) arg0) + 0x9A)), *((s16 *) (((s8 *) arg0) + 0x9E)), 0x600);
 }
 
-void func_8013E86C(void *arg0) {
+void Burrower_Circle(void *arg0) {
     s16 temp_a0;
     s16 temp_v0;
     s32 temp_a1;
@@ -654,7 +654,7 @@ void func_8013E86C(void *arg0) {
     Object_StepOnGround(arg0, 0x40);
 }
 
-void func_8013E948(void *arg0) {
+void Burrower_CheckReturn(void *arg0) {
     if (Spike_WithinRadiusXZ(M2C_FIELD(arg0, s16 *, 0x9A), M2C_FIELD(arg0, s16 *, 0x9E), 0xA00) == 0 && ((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1)) {
         M2C_FIELD(arg0, s8 *, 0x80) = 1;
         M2C_FIELD(arg0, s8 *, 0x7F) = 0;
@@ -668,7 +668,7 @@ void func_8013E948(void *arg0) {
 s32 Object_AddAttackSphereNear(void *, M2C_UNK, s16, s16, s32, s32, s32);
 u32 Object_DetachLink(void *, s32);
 
-void func_8013E9C8(void *arg0) {
+void Burrower_Attack(void *arg0) {
     if (Object_DetachLink(arg0, 0) == 6) {
         M2C_FIELD(arg0, s8 *, 0x80) = 4;
         M2C_FIELD(arg0, s8 *, 0x7F) = 3;
@@ -682,11 +682,11 @@ void func_8013E9C8(void *arg0) {
 void Object_PlaySound_8013D714(void *, s32) asm("Object_PlaySound");
 s32 Object_FlyAboveFloor(void *, s32);
 void func_80058134_8013D714(void *, s32) asm("Object_DebugStub");
-void func_8013E86C(void *arg0);
-void func_8013E948(void *arg0);
-void func_8013E9C8(void *arg0);
+void Burrower_Circle(void *arg0);
+void Burrower_CheckReturn(void *arg0);
+void Burrower_Attack(void *arg0);
 
-void func_8013EA6C(void *arg0) {
+void Burrower_Update(void *arg0) {
     if (!((M2C_FIELD(arg0, u32 *, 0xE0) >> 3) & 1)) {
         M2C_FIELD(arg0, s16 *, 0xA0) = 0x32;
         M2C_FIELD(arg0, s16 *, 0xB0) = 0x5B;
@@ -705,7 +705,7 @@ void func_8013EA6C(void *arg0) {
     func_80058134_8013D714(arg0, M2C_FIELD(arg0, s16 *, 0x44));
     switch (M2C_FIELD(arg0, u8 *, 0x80)) {
     case 1:
-        if (func_8013E7F4(arg0) != 0) {
+        if (Burrower_SpikeAbove(arg0) != 0) {
             M2C_FIELD(arg0, u8 *, 0x80) = 2;
             M2C_FIELD(arg0, u8 *, 0x7F) = 1;
             M2C_FIELD(arg0, u16 *, 0x5C) = M2C_FIELD(arg0, u16 **, 0x88)[2];
@@ -727,9 +727,9 @@ void func_8013EA6C(void *arg0) {
         }
         break;
     case 3:
-        func_8013E9C8(arg0);
-        func_8013E86C(arg0);
-        func_8013E948(arg0);
+        Burrower_Attack(arg0);
+        Burrower_Circle(arg0);
+        Burrower_CheckReturn(arg0);
         break;
     case 4:
         if (M2C_FIELD(arg0, u16 *, 0x5C) >= M2C_FIELD(arg0, u16 **, 0x88)[M2C_FIELD(arg0, u8 *, 0x7F) * 2 + 1]) {
@@ -1092,7 +1092,7 @@ void func_8013F894(u8 *e) {
     func_8013F818(e);
 }
 
-s32 func_8013FA8C(s32 *arg0, void **arg1) {
+s32 Coaster_GetSpikeCar(s32 *arg0, void **arg1) {
     s16 temp_a0;
     void *temp_a1;
 
@@ -1116,7 +1116,7 @@ extern Snd_8013FB20 D_801434C4_8013FB20 asm("D_801434C4");
 extern Snd_8013FB20 D_801434C8_8013FB20 asm("D_801434C8");
 s32 Sound_SetVoiceVolumeRatio(s32, s16, s16, s16);
 
-s32 func_8013FB20(s32 arg0) {
+s32 Coaster_PauseSounds(s32 arg0) {
     if (arg0 == 0) {
         if (D_801434C0_8013FB20.id >= 0) {
             Sound_SetVoiceVolumeRatio(0xAD, D_801434C0_8013FB20.id, 0, 0x3C);
@@ -1155,9 +1155,9 @@ extern struct { s32 f_0; s32 f_4; s32 f_8; s32 f_C; s32 f_10; s32 f_14; s32 f_18
 extern struct { u8 pad_0[0x8126]; u16 f_8126; u8 pad_8128[2]; u16 f_812A; u8 f_812C; u8 pad_812D[0x23]; s16 f_8150; u8 pad_8152[0xBA]; u8 *f_820C; } g_Game_8013FC00 asm("g_Game");
 s32 Sound_PlayTracked(s32, s32);
 s32 Sound_FindVoice(s16);
-s32 func_801409E8(u8 *arg0, s32 *out);
+s32 Coaster_ReadTrackParams(u8 *arg0, s32 *out);
 
-s32 func_8013FC00(s32 idx) {
+s32 Coaster_InitCar(s32 idx) {
     u16 st;
 
     if (g_Game_8013FC00.f_812C == 1) {
@@ -1214,7 +1214,7 @@ s32 func_8013FC00(s32 idx) {
     D_800E7880_8013FC00.f_2C = 0;
     D_800E7880_8013FC00.f_30 = 0xFFFF;
     D_800E7880_8013FC00.f_1C = -1;
-    func_801409E8(g_Game_8013FC00.f_820C + idx * 0x38, D_800E7880_8013FC00.f_20);
+    Coaster_ReadTrackParams(g_Game_8013FC00.f_820C + idx * 0x38, D_800E7880_8013FC00.f_20);
     return 0;
 }
 
@@ -1230,10 +1230,10 @@ void MulMatrix2_8013FE4C(Mat_8013FE4C *, Mat_8013FE4C *) asm("MulMatrix2");
 void MulMatrix_8013FE4C(Mat_8013FE4C *, Mat_8013FE4C *) asm("MulMatrix");
 void func_80066DAC(void *, s32, s32, s32);
 s16 Box_QuadrantMask(void *);
-s32 func_80140430(u8 *e);
-s32 func_801408CC(u8 *e);
+s32 Coaster_UpdateRide(u8 *e);
+s32 Coaster_FallOff(u8 *e);
 
-s32 func_8013FE4C(u8 *e) {
+s32 Coaster_UpdateCar(u8 *e) {
     SVECTOR r;
     Mat_8013FE4C m2;
     Mat_8013FE4C m3;
@@ -1309,26 +1309,26 @@ s32 func_8013FE4C(u8 *e) {
     switch (M2C_FIELD(e, s16 *, 0x36)) {
     case 0:
     case 4:
-        func_80140430(e);
+        Coaster_UpdateRide(e);
         return 0;
     case 1:
-        func_801408CC(e);
+        Coaster_FallOff(e);
         return 0;
     case 2:
-        func_80140988(e);
+        Coaster_StepFall(e);
     case 3:
         break;
     }
     return 0;
 }
 
-s32 func_801402D8(void *arg0) {
+s32 Coaster_CarSetState3(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0x36) = 3;
     M2C_FIELD(arg0, u16 *, 0x18) = (u16) ((M2C_FIELD(arg0, u16 *, 0x18) & 0xFFF0) | 1);
     return 0;
 }
 
-s32 func_801402F8(void) {
+s32 Coaster_StopRide(void) {
     Sound_StopAndForget(0x50AD, M2C_FIELD(&D_801434C0, s16 *, 0));
     M2C_FIELD(&D_801434C0, s16 *, 2) = 0;
     Sound_StopAndForget(0x50AE, M2C_FIELD(&D_801434C4, s16 *, 0));
@@ -1350,7 +1350,7 @@ extern struct { s16 a; s16 b; } D_800B4DB0_80140374 asm("D_800B4DB0");
 extern struct { s32 f_0; s32 f_4; s32 f_8; s32 f_C; s32 f_10; s32 f_14; s32 f_18; u8 pad_1C[0x18]; s32 f_34; } D_800E7880_80140374 asm("D_800E7880");
 s32 Sound_PlayTracked(s32, s32);
 
-s32 func_80140374(u8 *e) {
+s32 Coaster_StartRide(u8 *e) {
     M2C_FIELD(e, s16 *, 0x36) = 4;
     M2C_FIELD(e, u16 *, 0x18) = (M2C_FIELD(e, u16 *, 0x18) & 0xFFF0) | 2;
     D_801434C0_80140374.id = Sound_PlayTracked(0, 0x50AD);
@@ -1389,7 +1389,7 @@ void Camera_StartShake(s32);
 void Sound_PlayFixed_80140430(s32) asm("Sound_PlayFixed");
 void Pad_Vibrate(s32, s32, s32);
 
-s32 func_80140430(u8 *e) {
+s32 Coaster_UpdateRide(u8 *e) {
     Node_80140430 *cur;
     Node_80140430 *nxt;
     s16 idx;
@@ -1495,7 +1495,7 @@ extern struct { u8 pad_0[0x8126]; u16 f_8126; u8 pad_8128[2]; u16 f_812A; } g_Ga
 void Pad_Vibrate(s32, s32, s32);
 void Game_SetMode();
 
-s32 func_801408CC(u8 *e) {
+s32 Coaster_FallOff(u8 *e) {
     Pad_Vibrate(0, 1, 2);
     D_800E7880_801408CC.f_14 += 0x10;
     D_800E7880_801408CC.f_8 += D_800E7880_801408CC.f_14;
@@ -1508,7 +1508,7 @@ s32 func_801408CC(u8 *e) {
     return 0;
 }
 
-s32 func_80140988(void) {
+s32 Coaster_StepFall(void) {
     s32 temp_v1;
 
     temp_v1 = D_800E7880.f_14 + 0x10;
@@ -1522,7 +1522,7 @@ s32 func_80140988(void) {
 typedef struct { s16 type; s16 sub; s16 v[5]; s16 next; } Node_801409E8;
 extern struct { u8 pad_0[0x218]; Node_801409E8 *f_218; } D_800F4350_801409E8 asm("D_800F4350");
 
-s32 func_801409E8(u8 *arg0, s32 *out) {
+s32 Coaster_ReadTrackParams(u8 *arg0, s32 *out) {
     Node_801409E8 *n;
     s16 i;
 
@@ -1618,8 +1618,8 @@ extern s16 g_SpikeStandObj;
 s32 Sound_Play(s32, s32);
 void Sound_Stop(s32, s32);
 void Spike_SetPlayMode(s32);
-s32 func_801402D8(void *arg0);
-s32 func_801402F8(void);
+s32 Coaster_CarSetState3(void *arg0);
+s32 Coaster_StopRide(void);
 
 s32 func_80140D18(s16 *p) {
     s16 *e = (s16 *)(g_Game_80140D18.f_820C + p[2] * 0x38);
@@ -1655,8 +1655,8 @@ s32 func_80140D18(s16 *p) {
     case 2:
         if (e[0x11] == p[5] + p[6]) {
             p[1] = 3;
-            func_801402D8(e);
-            func_801402F8();
+            Coaster_CarSetState3(e);
+            Coaster_StopRide();
             Spike_SetPlayMode(0);
             g_Spike_80140D18.x = e[0];
             g_Spike_80140D18.y = e[1] - e[4];
@@ -1677,7 +1677,7 @@ s32 func_80140D18(s16 *p) {
 
 extern struct { u8 pad_0[0x812A]; u16 f_812A; u8 pad_812C[0xE0]; u8 *f_820C; } g_Game_80140F30 asm("g_Game");
 extern u8 *D_800B4D64_80140F30 asm("g_StageMeshes");
-s32 func_801402F8(void);
+s32 Coaster_StopRide(void);
 
 s32 func_80140F30(s16 *p) {
     u8 *e = g_Game_80140F30.f_820C + p[2] * 0x38;
@@ -1690,8 +1690,8 @@ s32 func_80140F30(s16 *p) {
         if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
             M2C_FIELD(D_800B4D64_80140F30 + M2C_FIELD(e, s16 *, 0xE) * 32, s16 *, 0x16) = 0;
         }
-        func_801402D8(e);
-        func_801402F8();
+        Coaster_CarSetState3(e);
+        Coaster_StopRide();
     }
     p[3] = 0;
     return 0;
@@ -1704,8 +1704,8 @@ typedef struct { s16 id; s16 on; } Snd_80140FE0;
 extern Snd_80140FE0 D_801434C0_80140FE0 asm("D_801434C0");
 extern Snd_80140FE0 D_801434C4_80140FE0 asm("D_801434C4");
 extern s16 g_SpikeStandObj;
-s32 func_801402D8(void *arg0);
-s32 func_80140374(u8 *e);
+s32 Coaster_CarSetState3(void *arg0);
+s32 Coaster_StartRide(u8 *e);
 void Spike_SetPlayMode(s32);
 s32 Sound_SetVoiceVolumeRatio(s32, s16, s16, s16);
 
@@ -1716,8 +1716,8 @@ s32 func_80140FE0(s16 *p) {
     case 0:
         if (p[4] == e[0x19]) {
             p[1] = 1;
-            func_801402D8(e);
-            func_801402F8();
+            Coaster_CarSetState3(e);
+            Coaster_StopRide();
             Spike_SetPlayMode(0);
             g_Spike_80140FE0.x = e[0];
             g_Spike_80140FE0.y = e[1] - e[4];
@@ -1731,7 +1731,7 @@ s32 func_80140FE0(s16 *p) {
         if (g_SpikeStandObj != p[2]) {
             p[1] = 3;
             p[3] = 0;
-            p[6] = func_80140374((u8 *)e);
+            p[6] = Coaster_StartRide((u8 *)e);
         }
         break;
     case 2:
@@ -1742,7 +1742,7 @@ s32 func_80140FE0(s16 *p) {
             if (e[7] >= 0) {
                 M2C_FIELD(D_800B4D64_80140FE0 + e[7] * 32, s16 *, 0x16) = 0;
             }
-            func_801402D8(e);
+            Coaster_CarSetState3(e);
             p[3] = 0x3C;
         }
         break;
@@ -1751,7 +1751,7 @@ s32 func_80140FE0(s16 *p) {
         Sound_SetVoiceVolumeRatio(0xAE, D_801434C4_80140FE0.id, p[3], 0x3C);
         if (--p[3] <= 0) {
             p[1] = 5;
-            func_801402F8();
+            Coaster_StopRide();
         }
         break;
     case 5:
@@ -2069,7 +2069,7 @@ s32 func_801419AC(s16 *p) {
     return 0;
 }
 
-s32 func_80141C68(void) {
+s32 LevelObj_Nop(void) {
     return 0;
 }
 
@@ -2377,7 +2377,7 @@ s32 func_8014277C(s16 *p) {
     return 0;
 }
 
-s32 func_80142800(void) {
+s32 LevelObj_Nop2(void) {
     return 0;
 }
 
@@ -2395,7 +2395,7 @@ void Matrix_RotateY(s32, void *);
 void Model_CalcJointMatrices(void *, s32);
 void func_80017CD4_80142808(void *, void *, void *) asm("Model_Draw");
 
-void func_80142808(void) {
+void Coaster_UpdateSpikeRiding(void) {
     SVECTOR v;
     Rng_80142808 *r;
 

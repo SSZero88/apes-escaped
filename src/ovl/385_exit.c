@@ -1,65 +1,65 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-extern u8 D_80137230[];
-extern u8 D_80137238;
-extern u8 D_80137230_b asm("D_80137230");
+extern u8 CdCheck_Params[];
+extern u8 CdCheck_Result;
+extern u8 D_80137230_b asm("CdCheck_Params");
 extern u8 D_80137239;
-s32 func_80136AEC(s32);
-void func_80136D18(void);
+s32 CdCheck_SendCommand(s32);
+void CdCheck_ShowExitScreen(void);
 s32 VSync(s32);
 
-s32 func_80136940(s32 a, s32 b, s32 c) {
+s32 CdCheck_Run(s32 a, s32 b, s32 c) {
     register s32 ret asm("s0") = 0;
     u8 *p;
     u8 *q;
     u8 pad[8];
 
     D_80137230_b = 0x20;
-    if (func_80136AEC(5) < 0) goto fail;
-    if (func_80136AEC(0) < 0) goto fail;
-    if (D_80137238 & 0xF0) goto fail;
-    if (!(D_80137238 & 2)) {
-        if (func_80136AEC(1) < 0) goto fail;
+    if (CdCheck_SendCommand(5) < 0) goto fail;
+    if (CdCheck_SendCommand(0) < 0) goto fail;
+    if (CdCheck_Result & 0xF0) goto fail;
+    if (!(CdCheck_Result & 2)) {
+        if (CdCheck_SendCommand(1) < 0) goto fail;
     }
-    __asm__("" : "=r"(p) : "0"(D_80137230));
+    __asm__("" : "=r"(p) : "0"(CdCheck_Params));
     p[0] = a;
     p[1] = b;
     p[2] = c;
-    if (func_80136AEC(2) < 0) goto fail;
+    if (CdCheck_SendCommand(2) < 0) goto fail;
     p[0] = 1;
-    if (func_80136AEC(4) < 0) goto fail;
+    if (CdCheck_SendCommand(4) < 0) goto fail;
     VSync(3);
-    if (func_80136AEC(3) < 0) goto fail;
-    if (func_80136AEC(6) < 0) goto fail;
-    if (func_80136AEC(7) < 0) goto fail;
+    if (CdCheck_SendCommand(3) < 0) goto fail;
+    if (CdCheck_SendCommand(6) < 0) goto fail;
+    if (CdCheck_SendCommand(7) < 0) goto fail;
     p[0] = 4;
-    if (func_80136AEC(8) < 0) goto fail;
+    if (CdCheck_SendCommand(8) < 0) goto fail;
     VSync(200);
     p[0] = 5;
-    if (func_80136AEC(8) < 0) goto fail;
+    if (CdCheck_SendCommand(8) < 0) goto fail;
     __asm__("" : "=r"(q) : "0"(&D_80137239));
     if (*q) {
-        if (func_80136AEC(0) < 0) goto fail;
+        if (CdCheck_SendCommand(0) < 0) goto fail;
         if (q[-1] & 0x10) {
 fail:
             ret = -1;
         } else {
-            func_80136D18();
+            CdCheck_ShowExitScreen();
         }
     }
 end:
-    if (func_80136AEC(9) < 0) ret = -1;
+    if (CdCheck_SendCommand(9) < 0) ret = -1;
     return ret;
 }
 
-extern u8 D_801371F8[][4];
+extern u8 CdCheck_Commands[][4];
 extern volatile u8 *D_80137220;
 extern volatile u8 *D_80137224;
 extern volatile u8 *D_80137228;
 extern volatile u8 *D_8013722C;
-extern u8 D_80137230[];
-extern u8 D_80137238_t[] asm("D_80137238");
+extern u8 CdCheck_Params[];
+extern u8 D_80137238_t[] asm("CdCheck_Result");
 
 static inline void Ack_80136AEC(void) {
     s32 i;
@@ -70,7 +70,7 @@ static inline void Ack_80136AEC(void) {
     for (i = 0, p = 0; i < 4; i++) *p = i;
 }
 
-s32 func_80136AEC(s32 n) {
+s32 CdCheck_SendCommand(s32 n) {
     s32 i;
     s32 total;
     u8 nw;
@@ -87,14 +87,14 @@ s32 func_80136AEC(s32 n) {
     {
         s32 n4 = n * 4;
         i = 0;
-        if (((u8 *)D_801371F8 + 1)[n4] != 0) do { *D_80137228 = D_80137230[i]; i++; } while (i < ((u8 *)D_801371F8 + 1)[n4]);
+        if (((u8 *)CdCheck_Commands + 1)[n4] != 0) do { *D_80137228 = CdCheck_Params[i]; i++; } while (i < ((u8 *)CdCheck_Commands + 1)[n4]);
     }
     *D_80137220 = 0;
-    *D_80137224 = D_801371F8[n][0];
+    *D_80137224 = CdCheck_Commands[n][0];
     __asm__("" : : "r"(n), "r"(n));
     st = 0;
     total = 0;
-    nw = D_801371F8[n][3];
+    nw = CdCheck_Commands[n][3];
     if (nw != 0) do {
         *D_80137220 = 1;
         q = D_8013722C;
@@ -113,7 +113,7 @@ s32 func_80136AEC(s32 n) {
         ret = -1;
     } else {
         i = 0;
-        if (D_801371F8[n][2] != 0) do { D_80137238_t[i] = *D_80137224; i++; } while (i < D_801371F8[n][2]);
+        if (CdCheck_Commands[n][2] != 0) do { D_80137238_t[i] = *D_80137224; i++; } while (i < CdCheck_Commands[n][2]);
         ret = 0;
     }
     *D_80137220 = 1;
@@ -134,12 +134,12 @@ void *PutDispEnv(void *env);
 void DrawPrim(void *p);
 void SetDispMask(s32 mask);
 void bios_exit(void);
-void func_80136E60();
-void func_80137014(void);
+void CdCheck_DrawKanjiText();
+void CdCheck_DrawIcon(void);
 extern s32 D_80137270_w asm("D_80137270");
-extern u8 D_801371A0[];
+extern u8 CdCheck_Message[];
 
-void func_80136D18(void) {
+void CdCheck_ShowExitScreen(void) {
     DRAWENV_80136D18 draw;
     DISPENV_80136D18 disp;
     u32 prim[4];
@@ -174,15 +174,15 @@ void func_80136D18(void) {
         r.h = 0xF;
         r.w = 0x10;
         r.y = i + 0x5C;
-        func_80136E60(D_801371A0, &r);
+        CdCheck_DrawKanjiText(CdCheck_Message, &r);
         D_80137270_w = 0x8000;
     }
-    func_80137014();
+    CdCheck_DrawIcon();
     SetDispMask(1);
     bios_exit();
 }
 
-void func_80136FA0(u16 *dst, u8 *src, u32 range, s32 n);
+void CdCheck_ExpandGlyph(u16 *dst, u8 *src, u32 range, s32 n);
 void DrawSync(s32);
 
 
@@ -193,7 +193,7 @@ s32 LoadImage(void *rect, u32 *p);
 s32 func_800A3710(u8 *);
 s32 func_8002F1E0(s32);
 
-void func_80136E60(u8 *s, Rect_80136E60 *r) {
+void CdCheck_DrawKanjiText(u8 *s, Rect_80136E60 *r) {
     u32 buf[0x80];
     s32 n;
     s32 x0;
@@ -221,7 +221,7 @@ void func_80136E60(u8 *s, Rect_80136E60 *r) {
         }
         __asm__ volatile("" :: "r"(z));
         DrawSync(0);
-        func_80136FA0(buf, glyph, a, b);
+        CdCheck_ExpandGlyph(buf, glyph, a, b);
         LoadImage(r, buf);
         r->x++;
         LoadImage(r, buf);
@@ -231,7 +231,7 @@ void func_80136E60(u8 *s, Rect_80136E60 *r) {
 
 extern u16 D_80137270;
 
-void func_80136FA0(u16 *dst, u8 *src, u32 range, s32 n) {
+void CdCheck_ExpandGlyph(u16 *dst, u8 *src, u32 range, s32 n) {
     s32 i;
     s32 b;
     s32 hi = range & 0xFFFF;
@@ -255,7 +255,7 @@ extern Sg_80137014 D_801371DC_t asm("D_801371DC");
 extern u8 D_80137240[][2];
 void DrawPrim(void *p);
 
-void func_80137014(void) {
+void CdCheck_DrawIcon(void) {
     u32 prim[6];
     Sg_80137014 sg;
     s32 i, j, k;

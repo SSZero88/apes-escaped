@@ -3,15 +3,15 @@
 
 M2C_UNK Pad_Vibrate(M2C_UNK, M2C_UNK, M2C_UNK);
 
-void func_8013D000(void) {
+void Boss_VibrateHeavy(void) {
     Pad_Vibrate(1, 0xC8, 0xA);
 }
 
-void func_8013D028(void) {
+void Boss_VibrateLight(void) {
     Pad_Vibrate(1, 0x3C, 2);
 }
 
-void func_8013D050(void) {
+void Boss_VibrateMedium(void) {
     Pad_Vibrate(1, 0x78, 2);
 }
 
@@ -21,7 +21,7 @@ extern u8 D_800F51C1;
 extern u16 g_RandSeed;
 extern s16 g_SpikeHealth;
 
-void func_8013D078(s32 arg0) {
+void Boss_DropPickup(s32 arg0) {
     M2C_UNK var_a2;
     u16 temp_v0;
 
@@ -45,7 +45,7 @@ extern u8 *D_80140870[];
 extern u8 *D_80140898[];
 void Model_BindBonedAuto(void *, void *);
 
-void func_8013D10C(s32 i, void *obj, void *out) {
+void Boss_BindPartModel(s32 i, void *obj, void *out) {
     u8 *bank = g_Game_8013D10C.f_8244;
     AnimEnt_8013D10C *ent;
     u8 *s;
@@ -70,7 +70,7 @@ void func_8013DE14(void);
 void func_8013E4D8(void);
 void func_8013D804(void);
 
-void func_8013D1AC(void) {
+void Boss_Init(void) {
     s32 i;
     u8 *e;
     u8 *m;
@@ -80,7 +80,7 @@ void func_8013D1AC(void) {
     D_800E69BE = 0;
     m = h + M2C_FIELD(h, s32 *, 8);
     for (i = 0, e = D_80140470; i < 8; i++, e += 0x80) {
-        func_8013D10C(i, e, e + 0x70);
+        Boss_BindPartModel(i, e, e + 0x70);
         M2C_FIELD(e, s32 *, 0x28) = -0x3600;
         M2C_FIELD(e, s32 *, 0x74) = 0;
         M2C_FIELD(e, s32 *, 0x24) = 0;
@@ -161,7 +161,7 @@ void Matrix_FromDirection(void *, void *);
 void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 
-s32 func_8013D43C(u8 *a, void *scale, s32 c) {
+s32 Boss_ProjectSprite(u8 *a, void *scale, s32 c) {
     SVECTOR v;
     s32 sxy;
     s16 x;
@@ -195,7 +195,7 @@ s32 SquareRoot0(s32);
 void Camera_EaseEye(void *, s32, s32, s32);
 void Camera_EaseLookAt(void *, s32, s32, s32);
 
-s32 func_8013D57C(u8 *cam) {
+s32 Boss_UpdateCamera(u8 *cam) {
     Scr_8013D57C *sc = (Scr_8013D57C *)0x1F800000;
     u8 *e = D_80140470;
     SVECTOR v;
@@ -233,7 +233,7 @@ extern struct { u8 pad_0[0x24]; s32 x; u8 pad_28[4]; s32 z; } g_Spike_8013D708 a
 typedef struct { s32 x, y, z; u8 padC[0x14]; s16 f_20; u8 pad22[2]; s16 f_24; s16 f_26; } Shape_8013D708;
 typedef struct { Shape_8013D708 *shape; s16 x, y, z; } Coll_8013D708;
 
-void func_8013D708(Coll_8013D708 *c, void *owner, s32 arg2) {
+void Boss_AddCollision(Coll_8013D708 *c, void *owner, s32 arg2) {
     s32 dx = g_Spike_8013D708.x - c->x;
     s32 dz = g_Spike_8013D708.z - c->z;
     Shape_8013D708 *s;
@@ -434,7 +434,7 @@ s32 Sound_PlayFixed_8013DEEC(s32) asm("Sound_PlayFixed");
 s32 VectorNormalSS_8013DEEC(void *, void *) asm("VectorNormalSS");
 void Shadow_Draw_8013DEEC(void *, s32, s32, s32) asm("Shadow_Draw");
 void func_8006F3D0_8013DEEC(void *, s32, void *, s32) asm("Fx_DrawRibbon");
-void func_8013D078(s32 arg0);
+void Boss_DropPickup(s32 arg0);
 #define RAND_8013DEEC() (g_RandSeed = g_RandSeed * 5 + 1)
 
 void func_8013DEEC(void) {
@@ -491,7 +491,7 @@ void func_8013DEEC(void) {
                 Effect_SpawnAt_8013DEEC(0x113, &p->v[0]);
                 func_80070284_8013DEEC(&p->v[0], D_801403A0, 1, 0, 0);
             } else {
-                func_8013D708(p, D_80140470, 0x80);
+                Boss_AddCollision(p, D_80140470, 0x80);
             }
             p->vel.vx = (p->vel.vx * 0x39D) >> 10;
             p->vel.vy = (p->vel.vy * 0x39D) >> 10;
@@ -518,7 +518,7 @@ void func_8013DEEC(void) {
             if (--p->timer == 0) {
                 p->state = 0;
                 if (((RAND_8013DEEC() >> 8) & 0xF) == 0) {
-                    func_8013D078((s32)&p->v[0]);
+                    Boss_DropPickup((s32)&p->v[0]);
                 }
             }
             break;
@@ -936,7 +936,7 @@ void VectorNormalSS(void *, void *);
 void Effect_SpawnAt(s32, SVECTOR *);
 void Shockwave_Spawn(void *, s32 *, s32, s32, s32);
 void Camera_StartShake(s32);
-void func_8013D000(void);
+void Boss_VibrateHeavy(void);
 
 void func_8013F694(u8 *obj, s32 div) {
     SVECTOR v;
@@ -967,7 +967,7 @@ void func_8013F694(u8 *obj, s32 div) {
     Camera_StartShake(0);
     Sound_PlayFixed(0x82);
     Sound_PlayFixed(0x4B);
-    func_8013D000();
+    Boss_VibrateHeavy();
 }
 
 typedef struct { u32 addr : 24; u32 len : 8; } Tag_8013F848;
@@ -1060,7 +1060,7 @@ void func_8013FC74(void) {
 typedef struct { u8 pad0[0x24]; u16 f_24; u8 pad26[6]; u16 f_2C; u8 pad2E[0x2E]; s16 f_5C; u8 pad5E[0x22]; } Obj_8013FC8C;
 extern Obj_8013FC8C D_801407F0[];
 extern u8 D_80140458[];
-s32 func_8013D43C(u8 *a, void *scale, s32 c);
+s32 Boss_ProjectSprite(u8 *a, void *scale, s32 c);
 void func_8013F520(void);
 void func_8013E650(void);
 
@@ -1073,7 +1073,7 @@ void func_8013FC8C(void) {
 
     for (i = 0; i < 1; i++) {
         D_801407F0[i].f_5C = 0;
-        func_8013D43C((u8 *)&D_801407F0[i], D_80140458, 0);
+        Boss_ProjectSprite((u8 *)&D_801407F0[i], D_80140458, 0);
     }
     o = D_801407F0;
     dx = g_Spike.f_24 - o->f_24;
@@ -1100,7 +1100,7 @@ s32 VectorNormalSS_8013FD74(void *, void *) asm("VectorNormalSS");
 Shape_8013FD74 *Collision_GetShape_8013FD74(s32) asm("Collision_GetShape");
 s32 Collision_GetId_8013FD74(s32) asm("Collision_GetId");
 
-void func_8013FD74(void) {
+void Boss_Update(void) {
     SVECTOR v;
     SVECTOR w;
     s32 i;
@@ -1146,7 +1146,7 @@ void func_8013FD74(void) {
             }
             Camera_StartShake(1);
             Sound_PlayFixed(0x79);
-            func_8013D000();
+            Boss_VibrateHeavy();
             if (--D_801408C0_8013FD74.f_3B == 0) {
                 D_800E69BE = 1;
                 D_801408C0_8013FD74.f_3A = 1;

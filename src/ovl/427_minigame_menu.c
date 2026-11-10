@@ -21,7 +21,7 @@ extern s16 D_8013FD40;
 extern M2C_UNK D_8013FD58;
 M2C_UNK Msg_PutChar(M2C_UNK, M2C_UNK, M2C_UNK);
 M2C_UNK Msg_SetPos(s16, s16);
-void func_80138350(s32 arg0);
+void Galaxy_SetTextColor(s32 arg0);
 extern M2C_UNK D_8013EF8C;
 extern M2C_UNK D_8013EB60;
 extern M2C_UNK D_8013EB6C;
@@ -32,7 +32,7 @@ typedef struct { s32 active; Obj_80136000 o; } Pop_80136000;
 extern Pop_80136000 D_8013F418_80136000[16] asm("D_8013F418");
 void Effect_SpawnAt(s32, void *);
 
-void func_80136000(void) {
+void Galaxy_SpawnPopupEffect(void) {
     SVECTOR v;
     s32 i;
     Pop_80136000 *e;
@@ -50,14 +50,14 @@ void func_80136000(void) {
     }
 }
 
-void func_8013609C(void) {
+void Galaxy_ResetHighScores(void) {
     D_8013F3E0.f_2C = 0xC350;
     D_8013F3E0.f_30 = 0x4E20;
     M2C_FIELD(D_8013FD60, s32 *, 4) = 0xC350;
     M2C_FIELD(D_8013FD60, s32 *, 8) = 0x4E20;
 }
 
-void func_801360C8(void) {
+void Galaxy_RestoreHighScores(void) {
     M2C_FIELD(D_8013FD60, s32 *, 4) = (s32) D_8013F3E0.f_2C;
     M2C_FIELD(D_8013FD60, s32 *, 8) = (s32) D_8013F3E0.f_30;
 }
@@ -68,7 +68,7 @@ extern u8 D_800E52D0[];
 extern u8 *D_8013FC08_801360F0 asm("D_8013FC08");
 void func_8013E8D0(void);
 
-void func_801360F0(void) {
+void Galaxy_UpdatePadInput(void) {
     s32 i;
     u8 *p;
     u8 *p2;
@@ -123,7 +123,7 @@ void func_801360F0(void) {
     func_8013E8D0();
 }
 
-/* NOTE returns s32: src prototype void func_8013626C(s32, s32, s32); (line after the INCLUDE_ASM) must become s32 */
+/* NOTE returns s32: src prototype void Galaxy_InitPad(s32, s32, s32); (line after the INCLUDE_ASM) must become s32 */
 typedef struct { u8 pad0[0x14]; u8 f_14[6]; u8 f_1A[2]; u8 f_1C; u8 pad1D[0x1B]; } Pad_8013626C;
 extern Pad_8013626C D_8013FBF8_8013626C[2] asm("D_8013FBF8");
 void PadSetAct(s32, u8 *, s32);
@@ -132,7 +132,7 @@ s32 PadSetMainMode(s32, s32, s32);
 s32 PadInfoAct(s32, s32, s32);
 s32 PadSetActAlign(s32, u8 *);
 
-s32 func_8013626C(s32 mode, s32 i, s32 port_) {
+s32 Galaxy_InitPad(s32 mode, s32 i, s32 port_) {
     register s32 port asm("$20") = port_;
     Pad_8013626C *p;
     Pad_8013626C *q;
@@ -201,29 +201,29 @@ typedef struct { u8 pad0[0x1C]; u8 f_1C; u8 pad1D[0x1B]; } Pad_801364CC;
 extern Pad_801364CC D_8013FBF8_801364CC[2] asm("D_8013FBF8");
 s32 PadGetState(s32);
 
-void func_801364CC(void) {
+void Galaxy_ReadPads(void) {
     s32 i;
 
     for (i = 0; i < 2; i++) {
         switch (PadGetState(i * 16)) {
         case 0:
-            func_8013626C(0, i, i * 16);
+            Galaxy_InitPad(0, i, i * 16);
             break;
         case 1:
             if (!(D_8013FBF8_801364CC[i].f_1C & 1)) {
-                func_8013626C(0, i, i * 16);
+                Galaxy_InitPad(0, i, i * 16);
             }
             break;
         case 6:
             if (D_8013FBF8_801364CC[i].f_1C != 3) {
-                func_8013626C(1, i, i * 16);
+                Galaxy_InitPad(1, i, i * 16);
             }
             break;
         }
     }
 }
 
-void func_801365A8(void) {
+void Galaxy_VSyncCallback(void) {
     Seq_Tick();
     Sound_ClearFrameQueue();
 }
@@ -236,22 +236,22 @@ extern u8 D_8013EAAC_801365D0[] asm("D_8013EAAC");
 extern u8 D_8013EAB0_801365D0[] asm("D_8013EAB0");
 extern u32 g_Game_801365D0 asm("g_Game");
 
-void func_801365D0(void) {
-    func_80138350(0);
-    func_80138368(0x60, 0x3C, (M2C_UNK *)D_8013EA90_801365D0, 0x808080);
+void Galaxy_DrawPressStart(void) {
+    Galaxy_SetTextColor(0);
+    Galaxy_DrawText(0x60, 0x3C, (M2C_UNK *)D_8013EA90_801365D0, 0x808080);
     if (D_8013FBF8_801365D0.f_1D == 0) {
-        func_80138368(0x50, 0x7E, (M2C_UNK *)"PRESS", 0x808080);
-        func_80138368(0x26, 0x8A, (M2C_UNK *)"START BUTTON", 0x808080);
+        Galaxy_DrawText(0x50, 0x7E, (M2C_UNK *)"PRESS", 0x808080);
+        Galaxy_DrawText(0x26, 0x8A, (M2C_UNK *)"START BUTTON", 0x808080);
     }
-    func_80138350(1);
-    func_80138368(0x108, 0x3C, (M2C_UNK *)D_8013EAAC_801365D0, 0x808080);
+    Galaxy_SetTextColor(1);
+    Galaxy_DrawText(0x108, 0x3C, (M2C_UNK *)D_8013EAAC_801365D0, 0x808080);
     if (D_8013FBF8_801365D0.f_55 == 0) {
-        func_80138368(0xFC, 0x7E, (M2C_UNK *)"PRESS", 0x808080);
-        func_80138368(0xD2, 0x8A, (M2C_UNK *)"START BUTTON", 0x808080);
+        Galaxy_DrawText(0xFC, 0x7E, (M2C_UNK *)"PRESS", 0x808080);
+        Galaxy_DrawText(0xD2, 0x8A, (M2C_UNK *)"START BUTTON", 0x808080);
     }
     if (g_Game_801365D0 & 0x20) {
-        func_80138350(2);
-        func_801384CC(0x78, 0xC8, (M2C_UNK *)D_8013EAB0_801365D0, 0x808080);
+        Galaxy_SetTextColor(2);
+        Galaxy_DrawSmallText(0x78, 0xC8, (M2C_UNK *)D_8013EAB0_801365D0, 0x808080);
     }
 }
 
@@ -265,10 +265,10 @@ extern s32 D_800E7D00_80136704 asm("g_ProjVerts");
 extern u8 D_800E78C0_80136704[] asm("g_ViewMatrix");
 extern u8 D_800AF0A0[];
 extern s32 D_8013EFE0;
-void func_801360F0(void);
-void func_801364CC(void);
-void func_801365D0(void);
-void func_80137934(void);
+void Galaxy_UpdatePadInput(void);
+void Galaxy_ReadPads(void);
+void Galaxy_DrawPressStart(void);
+void Galaxy_DrawStars(void);
 void Gfx_BeginFrame(void);
 void DebugFont_Init(void);
 void Matrix_SetIdentity(void *);
@@ -284,13 +284,13 @@ void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
 void Cd_Update(void);
 
-void func_80136704(void) {
+void Galaxy_TitleFrame(void) {
     Mdl_80136704 *m;
     s32 i;
 
     for (;;) {
-        func_801360F0();
-        func_801364CC();
+        Galaxy_UpdatePadInput();
+        Galaxy_ReadPads();
         g_Game_80136704.frame++;
         Gfx_BeginFrame();
         DebugFont_Init();
@@ -318,8 +318,8 @@ void func_80136704(void) {
             Model_Draw(g_Game_80136704.ot, (s32)&D_800E7D00_80136704, &D_8013FD70_80136704[i]);
         }
         D_8013EFE0 = 0;
-        func_80137934();
-        func_801365D0();
+        Galaxy_DrawStars();
+        Galaxy_DrawPressStart();
         DrawSync(0);
         VSync(0);
         PutDispEnv(&g_Game_80136704.db[g_Game_80136704.cur].env[0x5C]);
@@ -359,16 +359,16 @@ INCLUDE_RODATA("asm/ovl/427/nonmatchings/427_minigame_menu", D_8013EAB0);
 
 extern struct { s32 frame; SprtTp *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_801369F4 asm("g_Game");
 extern struct { u32 f_0; u32 f_4; u32 f_8; u32 f_C; u8 pad10[0x32]; s16 f_42; u8 pad44[0x36]; s16 f_7A; } D_8013FBF8_801369F4 asm("D_8013FBF8");
-/* these strings are shared with func_80136F30 */
+/* these strings are shared with Galaxy_TitleMenu */
 const char D_8013EAC4[] = "SCORE RESET";
 const char D_8013EAD0[] = "YES";
 const char D_8013EAD4[] = "NO";
 extern struct { u8 pad0[0x13A]; u16 f_13A; } D_800F4350_801369F4 asm("D_800F4350");
-void func_8013609C(void);
+void Galaxy_ResetHighScores(void);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 s32 Sound_SetStereo(s32);
 
-void func_801369F4(void) {
+void Galaxy_OptionsMenu(void) {
     s32 sel;
     u32 pad;
     s32 c;
@@ -379,8 +379,8 @@ void func_801369F4(void) {
     sel = 0;
     for (;;) {
         Gfx_BeginFrame();
-        func_801360F0();
-        func_801364CC();
+        Galaxy_UpdatePadInput();
+        Galaxy_ReadPads();
         pad = (D_8013FBF8_801369F4.f_0 & D_8013FBF8_801369F4.f_4) | (D_8013FBF8_801369F4.f_8 & D_8013FBF8_801369F4.f_C);
         DebugFont_Init();
         p = g_Game_801369F4.prim;
@@ -395,7 +395,7 @@ void func_801369F4(void) {
         p->clut = 0x3A37;
         { register u32 *ot asm("$4") = g_Game_801369F4.ot; ADD_PRIM_R(ot, p, "$5", "$2"); }
         g_Game_801369F4.prim = p + 1;
-        func_80137934();
+        Galaxy_DrawStars();
         if (pad & PAD_DOWN) {
             sel++;
             Sound_PlayFixed(0);
@@ -406,10 +406,10 @@ void func_801369F4(void) {
         }
         if (sel >= 6) {
             sel = sel % 2 | 0x10;
-            func_80138350(1);
-            func_80138368(0x7E, 0x9E, (M2C_UNK *)D_8013EAC4, 0x808080);
-            func_80138350(0);
-            func_80138368(0xAE, 0xAC, (M2C_UNK *)D_8013EAD0, sel == 0x10 ? 0x808080 : 0x202020);
+            Galaxy_SetTextColor(1);
+            Galaxy_DrawText(0x7E, 0x9E, (M2C_UNK *)D_8013EAC4, 0x808080);
+            Galaxy_SetTextColor(0);
+            Galaxy_DrawText(0xAE, 0xAC, (M2C_UNK *)D_8013EAD0, sel == 0x10 ? 0x808080 : 0x202020);
             k = 0x202020;
             if (sel == 0x11) {
                 k = 0x808080;
@@ -419,16 +419,16 @@ void func_801369F4(void) {
             y = 0xBA;
         } else {
             sel = (sel + 5) % 5;
-            func_80138350(0);
+            Galaxy_SetTextColor(0);
             c = sel == 0 ? 0x808080 : 0x202020;
-            func_80138368(0x66, 0x94, (M2C_UNK *)"1P VIBRATION", c);
-            func_80138368(0x10E, 0x94, (M2C_UNK *)(D_8013FBF8_801369F4.f_42 ? "ON" : "OFF"), c);
+            Galaxy_DrawText(0x66, 0x94, (M2C_UNK *)"1P VIBRATION", c);
+            Galaxy_DrawText(0x10E, 0x94, (M2C_UNK *)(D_8013FBF8_801369F4.f_42 ? "ON" : "OFF"), c);
             c = sel == 1 ? 0x808080 : 0x202020;
-            func_80138368(0x66, 0xA2, (M2C_UNK *)"2P VIBRATION", c);
-            func_80138368(0x10E, 0xA2, (M2C_UNK *)(D_8013FBF8_801369F4.f_7A ? "ON" : "OFF"), c);
+            Galaxy_DrawText(0x66, 0xA2, (M2C_UNK *)"2P VIBRATION", c);
+            Galaxy_DrawText(0x10E, 0xA2, (M2C_UNK *)(D_8013FBF8_801369F4.f_7A ? "ON" : "OFF"), c);
             c = sel == 2 ? 0x808080 : 0x202020;
-            func_80138368(0x9C, 0xB0, (M2C_UNK *)(D_800F4350_801369F4.f_13A ? "STEREO" : " MONO "), c);
-            func_80138368(0x7E, 0xBE, (M2C_UNK *)D_8013EAC4, sel == 3 ? 0x808080 : 0x202020);
+            Galaxy_DrawText(0x9C, 0xB0, (M2C_UNK *)(D_800F4350_801369F4.f_13A ? "STEREO" : " MONO "), c);
+            Galaxy_DrawText(0x7E, 0xBE, (M2C_UNK *)D_8013EAC4, sel == 3 ? 0x808080 : 0x202020);
             k = 0x202020;
             if (sel == 4) {
                 k = 0x808080;
@@ -437,7 +437,7 @@ void func_801369F4(void) {
             y = 0xCC;
             str = "RETURN";
         }
-        func_80138368(x, y, (M2C_UNK *)str, k);
+        Galaxy_DrawText(x, y, (M2C_UNK *)str, k);
         DrawSync(0);
         VSync(0);
         PutDispEnv(&g_Game_801369F4.db[g_Game_801369F4.cur].env[0x5C]);
@@ -491,7 +491,7 @@ void func_801369F4(void) {
         case 0x10:
             if (pad & 0x860) {
                 sel = 3;
-                func_8013609C();
+                Galaxy_ResetHighScores();
                 Sound_PlayFixed(0x6C);
             }
             break;
@@ -516,7 +516,7 @@ const char D_8013EB9C_80136F30[] asm("D_8013EB9C") = "EXIT?";
 typedef struct { u8 pad0[0x18]; s32 f_18; u8 pad1C[6]; s16 f_22; } Menu_80136F30;
 extern Menu_80136F30 D_8013F3E0_80136F30 asm("D_8013F3E0");
 
-s32 func_80136F30(void) {
+s32 Galaxy_TitleMenu(void) {
     s32 sel;
     s32 idle;
     u32 pad;
@@ -531,8 +531,8 @@ s32 func_80136F30(void) {
     func_8013AE1C(1);
     for (;;) {
         Gfx_BeginFrame();
-        func_801360F0();
-        func_801364CC();
+        Galaxy_UpdatePadInput();
+        Galaxy_ReadPads();
         pad = (D_8013FBF8_80136704.f_0 & D_8013FBF8_80136704.f_4) | (D_8013FBF8_80136704.f_8 & D_8013FBF8_80136704.f_C);
         if (pad) {
             idle = 0;
@@ -556,7 +556,7 @@ s32 func_80136F30(void) {
         { register u32 *ot asm("$4") = g_Game_801369F4.ot; ADD_PRIM_R(ot, p, "$5", "$2"); }
         g_Game_801369F4.prim = p + 1;
         D_8013EFE0 = 0;
-        func_80137934();
+        Galaxy_DrawStars();
         __asm__ volatile("");
         for (i = 0; i < 1; i++) {
             D_8013FD70_80136704[i].x = rsin(g_Game_801369F4.frame * 13) >> 3;
@@ -589,19 +589,19 @@ s32 func_80136F30(void) {
         }
         if (sel < 9) {
             sel = (sel + 5) % 5;
-            func_80138350(0);
-            func_80138368(0x84, 0x94, (M2C_UNK *)D_8013EB60_80136F30, sel == 0 ? 0x808080 : 0x202020);
-            func_80138368(0x4E, 0xA2, (M2C_UNK *)D_8013EB6C_80136F30, sel == 1 ? 0x808080 : 0x202020);
-            func_80138368(0xA2, 0xB0, (M2C_UNK *)D_8013EB84_80136F30, sel == 2 ? 0x808080 : 0x202020);
-            func_80138368(0xA2, 0xBE, (M2C_UNK *)D_8013EB8C_80136F30, sel == 3 ? 0x808080 : 0x202020);
-            func_80138368(0xAE, 0xCC, (M2C_UNK *)D_8013EB94_80136F30, sel == 4 ? 0x808080 : 0x202020);
+            Galaxy_SetTextColor(0);
+            Galaxy_DrawText(0x84, 0x94, (M2C_UNK *)D_8013EB60_80136F30, sel == 0 ? 0x808080 : 0x202020);
+            Galaxy_DrawText(0x4E, 0xA2, (M2C_UNK *)D_8013EB6C_80136F30, sel == 1 ? 0x808080 : 0x202020);
+            Galaxy_DrawText(0xA2, 0xB0, (M2C_UNK *)D_8013EB84_80136F30, sel == 2 ? 0x808080 : 0x202020);
+            Galaxy_DrawText(0xA2, 0xBE, (M2C_UNK *)D_8013EB8C_80136F30, sel == 3 ? 0x808080 : 0x202020);
+            Galaxy_DrawText(0xAE, 0xCC, (M2C_UNK *)D_8013EB94_80136F30, sel == 4 ? 0x808080 : 0x202020);
         } else {
             sel = sel % 2 + 10;
-            func_80138350(1);
-            func_80138368(0xA2, 0x9E, (M2C_UNK *)D_8013EB9C_80136F30, 0x808080);
-            func_80138350(0);
-            func_80138368(0xAE, 0xAC, (M2C_UNK *)D_8013EAD0, sel == 10 ? 0x808080 : 0x202020);
-            func_80138368(0xB4, 0xBA, (M2C_UNK *)D_8013EAD4, sel == 11 ? 0x808080 : 0x202020);
+            Galaxy_SetTextColor(1);
+            Galaxy_DrawText(0xA2, 0x9E, (M2C_UNK *)D_8013EB9C_80136F30, 0x808080);
+            Galaxy_SetTextColor(0);
+            Galaxy_DrawText(0xAE, 0xAC, (M2C_UNK *)D_8013EAD0, sel == 10 ? 0x808080 : 0x202020);
+            Galaxy_DrawText(0xB4, 0xBA, (M2C_UNK *)D_8013EAD4, sel == 11 ? 0x808080 : 0x202020);
         }
         DrawSync(0);
         VSync(0);
@@ -647,7 +647,7 @@ s32 func_80136F30(void) {
         case 3:
             if (pad & 0x860) {
                 Sound_PlayFixed(0xA5);
-                func_801369F4();
+                Galaxy_OptionsMenu();
             }
             break;
         case 4:
@@ -665,7 +665,7 @@ s32 func_80136F30(void) {
         case 10:
             if (pad & 0x860) {
                 Sound_PlayFixed(0xA5);
-                func_801360C8();
+                Galaxy_RestoreHighScores();
                 return -1;
             }
             break;
@@ -691,15 +691,15 @@ extern struct { u8 pad0[0x24]; s32 f_24; s32 f_28; } D_800EBFA0_80137654 asm("D_
 extern struct { s32 frame; u8 pad4[0x811C]; s16 f_8120; } g_Game_80137654 asm("g_Game");
 extern u8 D_8013EFE4[];
 void VSyncCallback(void *);
-void func_801365A8(void);
+void Galaxy_VSyncCallback(void);
 void Game_VSyncCallback();
 s32 Gfx_InitDisplay(void);
 void Mem_Init(void);
-void func_80137874(void);
-void func_80139444(void);
-void func_80139480(void);
-void func_801394A4(void);
-void func_8013A29C(void);
+void Galaxy_InitStars(void);
+void Galaxy_AllocPools(void);
+void Galaxy_ClearPoolA(void);
+void Galaxy_ClearPoolB(void);
+void Galaxy_ClearPopups(void);
 void Effect_ClearAll(void);
 void Fx_ClearAll(void);
 s32 VSync(s32 mode);
@@ -707,33 +707,33 @@ void Cd_StartLoadList(void *);
 s32 Cd_PollLoadList();
 void Cd_Update(void);
 void func_8002FAF0(s32);
-void func_801385F4(void);
+void Galaxy_InitData(void);
 void Sound_ResumeStreams(void);
-s32 func_80136F30(void);
-void func_8013DB7C(void);
-void func_80136704(void);
-void func_80138C30(void);
+s32 Galaxy_TitleMenu(void);
+void Galaxy_HowToLoop(void);
+void Galaxy_TitleFrame(void);
+void Galaxy_PlayLoop(void);
 void DrawSync(s32);
 s32 ClearImage(void *rect, u8 r, u8 g, u8 b);
 void Sound_UnloadBanks(s32);
 void func_80012CA0(s32);
 void Boot_LoadingScreen(void);
 
-void func_80137654(void) {
+void Galaxy_Main(void) {
     s32 v;
 
-    VSyncCallback(func_801365A8);
+    VSyncCallback(Galaxy_VSyncCallback);
     Gfx_InitDisplay();
     Mem_Init();
-    func_80137874();
-    func_80139444();
-    func_80139480();
-    func_801394A4();
-    func_8013A29C();
+    Galaxy_InitStars();
+    Galaxy_AllocPools();
+    Galaxy_ClearPoolA();
+    Galaxy_ClearPoolB();
+    Galaxy_ClearPopups();
     Effect_ClearAll();
     Fx_ClearAll();
-    func_8013626C(0, 0, 0);
-    func_8013626C(0, 1, 0x10);
+    Galaxy_InitPad(0, 0, 0);
+    Galaxy_InitPad(0, 1, 0x10);
     D_800EBFA0_80137654.f_24 = 0;
     D_800EBFA0_80137654.f_28 = 0x1000;
     VSync(0);
@@ -743,16 +743,16 @@ void func_80137654(void) {
         VSync(2);
     }
     func_8002FAF0(0x148);
-    func_801385F4();
+    Galaxy_InitData();
     g_Game_80137654.frame = 0;
     Sound_ResumeStreams();
-    while ((v = func_80136F30()) >= 0) {
+    while ((v = Galaxy_TitleMenu()) >= 0) {
         if (v == 1) {
-            func_8013DB7C();
+            Galaxy_HowToLoop();
             continue;
         }
-        func_80136704();
-        func_80138C30();
+        Galaxy_TitleFrame();
+        Galaxy_PlayLoop();
         switch (D_8013F3E0_80137654.f_22) {
         case 2:
             D_8013F3E0_80137654.f_2C = D_8013F3E0_80137654.f_28;
@@ -782,7 +782,7 @@ extern Star_80137874 *D_8013FC78_80137874 asm("D_8013FC78");
 extern u16 D_800AE8F2_80137874 asm("g_RandSeed2");
 extern u16 g_RandSeed_80137874 asm("g_RandSeed");
 
-void func_80137874(void) {
+void Galaxy_InitStars(void) {
     s32 i;
     Star_80137874 *s;
 
@@ -816,7 +816,7 @@ s32 Math_StepToward(s32, s32, s32);
     p += 0x18;
 #define ADD_PRIM_R2_80137934(ot, p, A, B) __asm__ volatile("lwl " A ", 2(%0)\n\tsll " B ", %2, 8\n\tswl " B ", 2(%3)\n\tswl " A ", %1" : : "r"(ot), "m"(*((u8 *)(p) + 2)), "r"(p), "r"(ot) : A, B)
 
-void func_80137934(void) {
+void Galaxy_DrawStars(void) {
     u8 *p;
     Star_80137934 *st;
     s32 s;
@@ -953,7 +953,7 @@ void func_80137F50(s32 x, s32 y, u8 *s, s32 pal) {
     D_800EC354_80137F50 = p;
 }
 
-void func_801380B4(void) {
+void Galaxy_ClearBanner(void) {
     s32 var_v1;
     void *var_v0;
 
@@ -967,7 +967,7 @@ void func_801380B4(void) {
     } while (var_v1 >= 0);
 }
 
-void func_801380E0(s16 arg0, s16 arg1, s32 arg2, s16 arg3) {
+void Galaxy_ShowBanner(s16 arg0, s16 arg1, s32 arg2, s16 arg3) {
     D_8013FC80.f_C = arg0;
     D_8013FC80.f_E = arg1;
     D_8013FC80.f_8 = arg2;
@@ -979,7 +979,7 @@ void func_801380E0(s16 arg0, s16 arg1, s32 arg2, s16 arg3) {
 
 extern u32 g_Game_80138110 asm("g_Game");
 
-void func_80138110(void) {
+void Galaxy_UpdateBanner(void) {
     s32 more;
     u8 *dst = (u8 *)0x1F800000;
     u8 *src;
@@ -1012,7 +1012,7 @@ void func_80138110(void) {
     if (more) {
         Sound_PlayFixed(0xA4);
     }
-    func_80138368(D_8013FC80.f_C, D_8013FC80.f_E, (M2C_UNK *)0x1F800000, 0x808080);
+    Galaxy_DrawText(D_8013FC80.f_C, D_8013FC80.f_E, (M2C_UNK *)0x1F800000, 0x808080);
     if (D_8013FC80.f_14 > 0) {
         if (D_8013FC80.f_10 < ++D_8013FC80.f_12) {
             D_8013FC80.f_14 = -1;
@@ -1055,12 +1055,12 @@ void func_801382C0(void) {
         if (e->f_8 != 0) {
             e->f_8--;
             D_8013FC80_801382C0.f_0 = e->f_A;
-            func_801384CC(e->f_4, e->f_6, (M2C_UNK *)e->f_0, 0x808080);
+            Galaxy_DrawSmallText(e->f_4, e->f_6, (M2C_UNK *)e->f_0, 0x808080);
         }
     }
 }
 
-void func_80138350(s32 arg0) {
+void Galaxy_SetTextColor(s32 arg0) {
     D_8013FC80.f_0 = ((arg0 + 0xF0) << 6) | 0x37;
 }
 
@@ -1069,7 +1069,7 @@ typedef struct { u32 tag; u32 tpage; u32 col; s16 x, y; u8 u, v; u16 clut; s16 w
 extern Sprt_80138368 *D_800EC354_80138368 asm("g_GamePrim");
 extern struct { u16 f_0; } D_8013FC80_80138368 asm("D_8013FC80");
 
-M2C_UNK func_80138368(M2C_UNK x, M2C_UNK y, M2C_UNK *str, M2C_UNK color) {
+M2C_UNK Galaxy_DrawText(M2C_UNK x, M2C_UNK y, M2C_UNK *str, M2C_UNK color) {
     Sprt_80138368 *p = (Sprt_80138368 *)g_Game_80138368.prim;
     u32 *ot = g_Game_80138368.ot;
     u32 c;
@@ -1122,7 +1122,7 @@ M2C_UNK func_80138368(M2C_UNK x, M2C_UNK y, M2C_UNK *str, M2C_UNK color) {
 extern u8 *D_800EC354_801384CC asm("g_GamePrim");
 extern u16 D_8013FC80_801384CC asm("D_8013FC80");
 
-void func_801384CC(s32 x, s32 y, u8 *str, u32 color) {
+void Galaxy_DrawSmallText(s32 x, s32 y, u8 *str, u32 color) {
     u8 *p = G_DRAW.prim;
     u32 *ot = G_DRAW.ot;
     register u32 c asm("$8");
@@ -1165,7 +1165,7 @@ void func_801384CC(s32 x, s32 y, u8 *str, u32 color) {
 
 typedef struct { u8 *a; u8 *b; u8 *c; u8 *d; } O_801385B8;
 
-void func_801385B8(O_801385B8 *out, u8 *b) {
+void Galaxy_ParseModelFile(O_801385B8 *out, u8 *b) {
     out->a = b;
     out->b = b + 0x18;
     out->d = out->a + M2C_FIELD(out->a, u16 *, 0x10) * 4;
@@ -1185,12 +1185,12 @@ extern struct { u8 pad0[0x2C]; s32 f_2C; s32 f_30; } D_8013F3E0_801385F4 asm("D_
 extern struct { u8 pad0[0x8138]; u8 f_8138; } g_Game_801385F4 asm("g_Game");
 extern struct { u8 pad0[0x42]; s16 f_42; u8 pad44[0x36]; s16 f_7A; } D_8013FBF8_801385F4 asm("D_8013FBF8");
 void Model_BindBoned(void *, void *);
-void func_801385B8();
+void Galaxy_ParseModelFile();
 void Model_BindMesh(void *, void *);
 Save_801385F4 *Minigame_GetSaveData(s32);
 void bios_printf(u8 *, ...);
 
-void func_801385F4(void) {
+void Galaxy_InitData(void) {
     Ofs_801385F4 *f = (Ofs_801385F4 *)0x80154000;
     s32 i;
     s32 *b;
@@ -1212,7 +1212,7 @@ void func_801385F4(void) {
         D_8013FE60_801385F4[i].f_50 = 0;
     }
     for (; i < 5; i++) {
-        func_801385B8(&D_8013FE60_801385F4[i], (u32 *)f + f[6 + i].off);
+        Galaxy_ParseModelFile(&D_8013FE60_801385F4[i], (u32 *)f + f[6 + i].off);
         D_8013FE60_801385F4[i].f_48 = D_8013F148[i].a;
         D_8013FE60_801385F4[i].f_44 = D_8013F148[i].b;
         D_8013FE60_801385F4[i].f_50 = 1;
@@ -1224,7 +1224,7 @@ void func_801385F4(void) {
     if (D_8013FD60_801385F4->f_0 == 0) {
         bios_printf("Garaxy Data Init.\n");
         D_8013FD60_801385F4->f_0 = 1;
-        func_8013609C();
+        Galaxy_ResetHighScores();
     }
     if (g_Game_801385F4.f_8138) {
         D_8013FBF8_801385F4.f_42 = 1;
@@ -1251,9 +1251,9 @@ void func_80138860(void) {
             D_8013FBD8_80138860.p[i] = q;
         }
     }
-    func_8013A29C();
-    func_80139480();
-    func_801394A4();
+    Galaxy_ClearPopups();
+    Galaxy_ClearPoolA();
+    Galaxy_ClearPoolB();
     Effect_ClearAll();
     Fx_ClearAll();
     func_8013C7F0();
@@ -1375,18 +1375,18 @@ void Camera_LookAt(void *, void *, void *, void *, s32);
 void Fx_UpdateAll(void);
 void Particle_UpdateAll(void);
 M2C_UNK Sound_PlayFixed(M2C_UNK);
-void func_801380B4(void);
-void func_80138110(void);
+void Galaxy_ClearBanner(void);
+void Galaxy_UpdateBanner(void);
 void func_801389E4(void);
-void func_8013B4B4(void);
+void Galaxy_StartLevel(void);
 void func_8013B890(void);
 void func_80138934(void);
-void func_801380E0(s16 arg0, s16 arg1, s32 arg2, s16 arg3);
+void Galaxy_ShowBanner(s16 arg0, s16 arg1, s32 arg2, s16 arg3);
 
-void func_80138C30(void) {
+void Galaxy_PlayLoop(void) {
     func_80138860();
     func_8013B890();
-    func_801380B4();
+    Galaxy_ClearBanner();
     g_Game_80138C30.f_8258.vx = 0;
     g_Game_80138C30.f_8258.vy = 0;
     g_Game_80138C30.f_8258.vz = 0;
@@ -1394,10 +1394,10 @@ void func_80138C30(void) {
     g_Game_80138C30.f_8260.vy = 0;
     g_Game_80138C30.f_8260.vz = 0x1000;
     Camera_LookAt(g_CameraTarget, D_800F45B0, g_ViewMatrix, D_800EC330, 0);
-    func_8013B4B4();
+    Galaxy_StartLevel();
     for (;;) {
-        func_801360F0();
-        func_801364CC();
+        Galaxy_UpdatePadInput();
+        Galaxy_ReadPads();
         func_801389E4();
         func_80138934();
         func_8013A6CC();
@@ -1416,21 +1416,21 @@ void func_80138C30(void) {
             D_8013F3E0_80138C30.f_20 = 1;
         }
         func_8013B530();
-        func_80137934();
-        func_8013B14C();
+        Galaxy_DrawStars();
+        Galaxy_DrawScores();
         func_8013C810();
-        func_80138350(2);
+        Galaxy_SetTextColor(2);
         if (D_8013F3E0_80138C30.f_1C == 0xF0) {
-            func_801380E0(0x9C, 0x70, (s32)"READY", 0x64);
+            Galaxy_ShowBanner(0x9C, 0x70, (s32)"READY", 0x64);
         }
         if (D_8013F3E0_80138C30.f_1C == 0x78) {
-            func_801380E0(0xA8, 0x70, (s32)"GO!", 0x64);
+            Galaxy_ShowBanner(0xA8, 0x70, (s32)"GO!", 0x64);
         }
-        func_80138110();
+        Galaxy_UpdateBanner();
         func_801382C0();
         func_8013CBF0();
         if (D_8013FBF8_80138C30.f_1D + D_8013FBF8_80138C30.f_55 == 0) {
-            if (func_8013E71C() != 0) {
+            if (Galaxy_GameOver() != 0) {
                 break;
             }
         } else {
@@ -1438,7 +1438,7 @@ void func_80138C30(void) {
         }
         if (D_8013F3E0_80138C30.f_20 != 0) {
             Sound_PlayFixed(3);
-            if (func_80139098() != 0) {
+            if (Galaxy_PauseMenu() != 0) {
                 break;
             }
         }
@@ -1502,7 +1502,7 @@ extern char D_8013EB94[];
 typedef struct { s16 x, y, w, h; } Rect_80139098;
 void SetDrawMove(void *p, void *rect, s32 x, s32 y);
 
-s32 func_80139098(void) {
+s32 Galaxy_PauseMenu(void) {
     Rect_80139098 r;
     u8 *p;
     s32 cur;
@@ -1541,8 +1541,8 @@ s32 func_80139098(void) {
     DrawOTag(&g_Game_80139098.db[g_Game_80139098.cur].ot[0xFFF]);
     Cd_Update();
     for (;;) {
-        func_801360F0();
-        func_801364CC();
+        Galaxy_UpdatePadInput();
+        Galaxy_ReadPads();
         Gfx_BeginFrame();
         pad = (D_8013FBF8_80139098.f_0 & D_8013FBF8_80139098.f_4) | (D_8013FBF8_80139098.f_8 & D_8013FBF8_80139098.f_C);
         if (pad & 0x860) {
@@ -1553,11 +1553,11 @@ s32 func_80139098(void) {
             Sound_PlayFixed(0);
             sel ^= 1;
         }
-        func_80138350(3);
-        func_80138368(0xA2, 0x64, (M2C_UNK *)"PAUSE", 0x808080);
-        func_80138350(2);
-        func_80138368(0x90, 0x74, (M2C_UNK *)"CONTINUE", sel == 0 ? 0x808080 : 0x202020);
-        func_80138368(0xA8, 0x84, (M2C_UNK *)D_8013EB94, sel == 1 ? 0x808080 : 0x202020);
+        Galaxy_SetTextColor(3);
+        Galaxy_DrawText(0xA2, 0x64, (M2C_UNK *)"PAUSE", 0x808080);
+        Galaxy_SetTextColor(2);
+        Galaxy_DrawText(0x90, 0x74, (M2C_UNK *)"CONTINUE", sel == 0 ? 0x808080 : 0x202020);
+        Galaxy_DrawText(0xA8, 0x84, (M2C_UNK *)D_8013EB94, sel == 1 ? 0x808080 : 0x202020);
         func_80138FD4(0x82, 0x5A, 0x7C, 0x3C);
         DrawSync(0);
         VSync(0);
@@ -1574,12 +1574,12 @@ s32 func_80139098(void) {
 }
 __asm__(".section .rodata\n\t.align 2\n\t.asciz \"100\"\n\t.align 2\n\t.asciz \"5024\"\n\t.align 2\n\t.asciz \"800\"\n\t.align 2\n\t.asciz \"400\"\n\t.align 2\n\t.asciz \"200\"\n\t.section .text");
 
-void func_80139444(void) {
+void Galaxy_AllocPools(void) {
     M2C_FIELD(&D_8013FCE0, s32 *, 0) = Mem_AllocPages(0x120);
     M2C_FIELD(&D_8013FCE0, s32 *, 4) = Mem_AllocPages(0x180);
 }
 
-void func_80139480(void) {
+void Galaxy_ClearPoolA(void) {
     s32 var_v0;
     void *var_v1;
 
@@ -1592,7 +1592,7 @@ void func_80139480(void) {
     } while (var_v0 >= 0);
 }
 
-void func_801394A4(void) {
+void Galaxy_ClearPoolB(void) {
     s32 var_v0;
     void *var_v1;
 
@@ -2120,7 +2120,7 @@ scan:
     }
 }
 
-void func_8013A29C(void) {
+void Galaxy_ClearPopups(void) {
     s32 i;
 
     for (i = 15; i >= 0; i--) {
@@ -2577,7 +2577,7 @@ extern struct { u8 pad0[0x1D]; u8 f_1D; u8 pad1E[0x1A]; u32 f_38; u8 pad3C[4]; s
 extern struct { u8 pad0[0x28]; s32 f_28; } D_8013F3E0_8013B14C asm("D_8013F3E0");
 void func_8013B444_8013B14C() asm("func_8013B444");
 
-void func_8013B14C(void) {
+void Galaxy_DrawScores(void) {
     u8 *buf = (u8 *)0x1F800000;
     u32 q;
     s32 sq;
@@ -2591,7 +2591,7 @@ void func_8013B14C(void) {
     if (D_8013FBF8_8013B14C.f_70 > 99999999) {
         D_8013FBF8_8013B14C.f_70 = 99999999;
     }
-    func_80138350(0);
+    Galaxy_SetTextColor(0);
     v = D_8013FBF8_8013B14C.f_38;
     buf[8] = 0;
     if (D_8013F3E0_8013B14C.f_28 < v) {
@@ -2602,10 +2602,10 @@ void func_8013B14C(void) {
         buf[i] = q + '0';
         v /= 10;
     }
-    func_80138368(0x10, 0x1A, (M2C_UNK *)buf, 0x808080);
-    func_80138350(1);
-    func_801384CC(0x22, 0x12, (M2C_UNK *)"PLAYER 1", 0x808080);
-    func_80138350(1);
+    Galaxy_DrawText(0x10, 0x1A, (M2C_UNK *)buf, 0x808080);
+    Galaxy_SetTextColor(1);
+    Galaxy_DrawSmallText(0x22, 0x12, (M2C_UNK *)"PLAYER 1", 0x808080);
+    Galaxy_SetTextColor(1);
     v = D_8013FBF8_8013B14C.f_70;
     buf[8] = 0;
     if (D_8013F3E0_8013B14C.f_28 < v) {
@@ -2616,18 +2616,18 @@ void func_8013B14C(void) {
         buf[i] = q + '0';
         v /= 10;
     }
-    func_80138368(0x106, 0x1A, (M2C_UNK *)buf, 0x808080);
-    func_80138350(0);
-    func_801384CC(0x118, 0x12, (M2C_UNK *)"PLAYER 2", 0x808080);
-    func_80138350(2);
+    Galaxy_DrawText(0x106, 0x1A, (M2C_UNK *)buf, 0x808080);
+    Galaxy_SetTextColor(0);
+    Galaxy_DrawSmallText(0x118, 0x12, (M2C_UNK *)"PLAYER 2", 0x808080);
+    Galaxy_SetTextColor(2);
     hi = D_8013F3E0_8013B14C.f_28;
     for (i = 7; i >= 0; i--) {
         sq = hi % 10;
         buf[i] = sq + '0';
         hi /= 10;
     }
-    func_80138368(0x90, 0x1A, (M2C_UNK *)buf, 0x808080);
-    func_801384CC(0x98, 0x12, (M2C_UNK *)"HIGH SCORE", 0x808080);
+    Galaxy_DrawText(0x90, 0x1A, (M2C_UNK *)buf, 0x808080);
+    Galaxy_DrawSmallText(0x98, 0x12, (M2C_UNK *)"HIGH SCORE", 0x808080);
     if (D_8013FBF8_8013B14C.f_1D != 0) {
         for (i = 0; i < D_8013FBF8_8013B14C.f_40; i++) {
             func_8013B444_8013B14C(0x10 + i * 0x18, 0x24);
@@ -2662,7 +2662,7 @@ void func_8013B444(s16 x, s16 y) {
 
 extern u8 D_8013F184[];
 
-void func_8013B4B4(void) {
+void Galaxy_StartLevel(void) {
     D_8013F3E0.f_0 = D_8013F184;
     D_8013F3E0.f_6 = 0x1000;
     D_8013F3E0.f_14 = "LEVEL 000";
@@ -2759,7 +2759,7 @@ void func_8013B530(void) {
         break;
     case 7:
         if (D_8013F3E0.f_10 != 101) {
-            func_80138350(2);
+            Galaxy_SetTextColor(2);
             buf = D_8013F3E0.f_14;
             if (D_8013F3E0.f_10 >= 100) {
                 buf[6] = 'M';
@@ -2770,7 +2770,7 @@ void func_8013B530(void) {
                 buf[7] = D_8013F3E0.f_10 / 10 % 10 + '0';
                 buf[8] = D_8013F3E0.f_10 % 10 + '0';
             }
-            func_801380E0(0x88, 0x70, (s32)buf, 0x8C);
+            Galaxy_ShowBanner(0x88, 0x70, (s32)buf, 0x8C);
         }
         break;
     }
@@ -3504,7 +3504,7 @@ extern struct { s16 x, y; s32 state; s16 x2, y2; } D_8013FD30_8013D1F0 asm("D_80
 extern struct { u8 pad_0[0x6]; s16 f_6; u8 pad_8[0x4]; } D_8013FCF0_8013D1F0[] asm("D_8013FCF0");
 s32 rsin(s32 a);
 
-void func_8013D1F0(void) {
+void Galaxy_DrawHowToControls(void) {
     u8 *p = g_Game_8013D1F0.prim;
     s32 i;
     s32 j;
@@ -3592,13 +3592,13 @@ void func_8013D1F0(void) {
     }
     p += 8;
     g_Game_8013D1F0.prim = p;
-    func_80138350(2);
-    func_80138368(0x40, 0x94, (M2C_UNK *)"MOVE", 0x808080);
-    func_80138368(0x1C, 0x88, (M2C_UNK *)"LEFT STICK", 0x808080);
-    func_80138368(0x10E, 0x94, (M2C_UNK *)"SHOOT", 0x808080);
-    func_80138368(0xEA, 0x88, (M2C_UNK *)"RIGHT STICK", 0x808080);
+    Galaxy_SetTextColor(2);
+    Galaxy_DrawText(0x40, 0x94, (M2C_UNK *)"MOVE", 0x808080);
+    Galaxy_DrawText(0x1C, 0x88, (M2C_UNK *)"LEFT STICK", 0x808080);
+    Galaxy_DrawText(0x10E, 0x94, (M2C_UNK *)"SHOOT", 0x808080);
+    Galaxy_DrawText(0xEA, 0x88, (M2C_UNK *)"RIGHT STICK", 0x808080);
     if (D_8013FD30_8013D1F0.state == 3 && D_8013FCF0_8013D1F0[0].f_6 != 0) {
-        func_80138368(x - 0x40, y - 0x2C, (M2C_UNK *)"POWER UP", 0x808080);
+        Galaxy_DrawText(x - 0x40, y - 0x2C, (M2C_UNK *)"POWER UP", 0x808080);
     }
 }
 
@@ -3743,7 +3743,7 @@ void func_8013C368();
 void func_8013C5F0();
 void Model_DrawColorAnim(s32, s32, void *, s32);
 
-void func_8013D910(void) {
+void Galaxy_DrawHowToPoints(void) {
     s32 i;
     Mdl_8013D910 *m;
     s32 v;
@@ -3761,28 +3761,28 @@ void func_8013D910(void) {
         switch (i) {
         case 0:
             func_8013BC28((u8 *)m);
-            func_80138350(0);
-            func_80138368((m->f_24 >> 3) + 0xF0, 0x34, (M2C_UNK *)"... 200 POINTS", 0x808080);
+            Galaxy_SetTextColor(0);
+            Galaxy_DrawText((m->f_24 >> 3) + 0xF0, 0x34, (M2C_UNK *)"... 200 POINTS", 0x808080);
             break;
         case 1:
             func_8013BE5C((u8 *)m);
-            func_80138350(1);
-            func_80138368((m->f_24 >> 3) + 0xF0, 0x56, (M2C_UNK *)"... 400 POINTS", 0x808080);
+            Galaxy_SetTextColor(1);
+            Galaxy_DrawText((m->f_24 >> 3) + 0xF0, 0x56, (M2C_UNK *)"... 400 POINTS", 0x808080);
             break;
         case 2:
             func_8013C0E4((u8 *)m);
-            func_80138350(0);
-            func_80138368((m->f_24 >> 3) + 0xF0, 0x78, (M2C_UNK *)"... 800 POINTS", 0x808080);
+            Galaxy_SetTextColor(0);
+            Galaxy_DrawText((m->f_24 >> 3) + 0xF0, 0x78, (M2C_UNK *)"... 800 POINTS", 0x808080);
             break;
         case 3:
             func_8013C368((u8 *)m);
-            func_80138350(1);
-            func_80138368((m->f_24 >> 3) + 0xF0, 0x9A, (M2C_UNK *)"... ??? POINTS", 0x808080);
+            Galaxy_SetTextColor(1);
+            Galaxy_DrawText((m->f_24 >> 3) + 0xF0, 0x9A, (M2C_UNK *)"... ??? POINTS", 0x808080);
             break;
         case 4:
             func_8013C5F0((u8 *)m);
-            func_80138350(0);
-            func_80138368((m->f_24 >> 3) + 0xF0, 0xBC, (M2C_UNK *)"... 100 POINTS", 0x808080);
+            Galaxy_SetTextColor(0);
+            Galaxy_DrawText((m->f_24 >> 3) + 0xF0, 0xBC, (M2C_UNK *)"... 100 POINTS", 0x808080);
             break;
         }
         switch (m->f_50) {
@@ -3797,8 +3797,8 @@ void func_8013D910(void) {
 }
 
 void func_8013DAF0(s32 arg0, s32 arg1) {
-    func_80138350(2);
-    func_801384CC(arg0 - 8, arg1, &D_8013EF8C, 0x808080);
+    Galaxy_SetTextColor(2);
+    Galaxy_DrawSmallText(arg0 - 8, arg1, &D_8013EF8C, 0x808080);
     Msg_SetPos((s16) (arg0 + 0x28), (s16) (arg1 - 4));
     Msg_PutChar(0x101, 0x1F0, 0);
     Msg_PutChar(0x104, 0x1F0, 0);
@@ -3808,11 +3808,11 @@ extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100
 extern struct { u32 f_0; u32 f_4; u32 f_8; u32 f_C; } D_8013FBF8_8013DB7C asm("D_8013FBF8");
 extern struct { u8 pad0[0x28]; s32 y; } D_8013FD70_8013DB7C asm("D_8013FD70");
 void func_8013D8B8(void);
-void func_8013D910(void);
+void Galaxy_DrawHowToPoints(void);
 void func_8013DAF0(s32 arg0, s32 arg1);
 void func_8013E9E0(void);
 
-void func_8013DB7C(void) {
+void Galaxy_HowToLoop(void) {
     u32 pad;
 
     func_80138860();
@@ -3820,7 +3820,7 @@ void func_8013DB7C(void) {
     func_8013D528();
     func_8013D044(0);
     func_8013D8B8();
-    func_801380B4();
+    Galaxy_ClearBanner();
     g_Game_8013DB7C.f_8258.vx = 0;
     g_Game_8013DB7C.f_8258.vy = 0;
     g_Game_8013DB7C.f_8258.vz = 0;
@@ -3828,11 +3828,11 @@ void func_8013DB7C(void) {
     g_Game_8013DB7C.f_8260.vy = 0;
     g_Game_8013DB7C.f_8260.vz = 0x1000;
     Camera_LookAt(g_CameraTarget, D_800F45B0, g_ViewMatrix, D_800EC330, 0);
-    func_8013B4B4();
+    Galaxy_StartLevel();
     g_Game_8013DB7C.frame = 0;
     for (;;) {
-        func_801360F0();
-        func_801364CC();
+        Galaxy_UpdatePadInput();
+        Galaxy_ReadPads();
         func_801389E4();
         func_8013D578();
         g_Game_8013DB7C.frame++;
@@ -3847,13 +3847,13 @@ void func_8013DB7C(void) {
             }
             func_80139BF8();
         } else if (g_Game_8013DB7C.frame < 0xA40) {
-            func_8013D910();
+            Galaxy_DrawHowToPoints();
         } else {
             func_8013E9E0();
         }
         func_80139888();
         func_8013CDB0();
-        func_8013D1F0();
+        Galaxy_DrawHowToControls();
         func_8013B92C();
         if (g_Game_8013DB7C.frame & 0x20) {
             func_8013DAF0(0xC8, 0x1A);
@@ -3873,8 +3873,8 @@ void func_8013DB7C(void) {
             Sound_PlayFixed(0);
             break;
         }
-        func_80137934();
-        func_80138110();
+        Galaxy_DrawStars();
+        Galaxy_UpdateBanner();
         func_801382C0();
         DrawSync(0);
         VSync(0);
@@ -3928,7 +3928,7 @@ M2C_UNK func_8013E940(s32 x, s32 y, s32 n);
 #define P_8013DF88 D_8013FBF8_8013DF88
 #define T_8013DF88 D_8013FD40_8013DF88
 
-s32 func_8013DF88(void) {
+s32 Galaxy_EnterHighScore(void) {
     u32 pad;
     s32 snd;
     s32 done;
@@ -3950,8 +3950,8 @@ s32 func_8013DF88(void) {
         func_8013DAF0(0xC8, 0xCA);
     }
     if (T_8013DF88.f_0 < 0x7BC) {
-        func_80138350(2);
-        func_80138368(0xA2, 0x34, (M2C_UNK *)D_8013EFA0, 0x808080);
+        Galaxy_SetTextColor(2);
+        Galaxy_DrawText(0xA2, 0x34, (M2C_UNK *)D_8013EFA0, 0x808080);
         n = P_8013DF88.f_3C;
         if (n < 10) {
             buf[0] = n + '0';
@@ -3982,16 +3982,16 @@ s32 func_8013DF88(void) {
         func_8013DEFC(T_8013DF88.f_10, (s8 *)(buf + 0x3C));
         snd = 0;
         if (D_8013F404 & 1) {
-            func_80138350(0);
-            func_80138368(0xB4, 0x4A, (M2C_UNK *)D_8013EA90_8013DF88, 0x808080);
-            func_80138350(2);
+            Galaxy_SetTextColor(0);
+            Galaxy_DrawText(0xB4, 0x4A, (M2C_UNK *)D_8013EA90_8013DF88, 0x808080);
+            Galaxy_SetTextColor(2);
             func_8013B444(0x50, 0x54);
-            func_801384CC(0x70, 0x64, (M2C_UNK *)D_8013EFA8, 0x808080);
-            func_80138368(0x50, 0x76, (M2C_UNK *)D_8013EFAC, 0x808080);
-            func_80138368(0x80, 0x60, (M2C_UNK *)(buf + 0xA), 0x808080);
-            func_80138368(0x98, 0x76, (M2C_UNK *)buf, 0x808080);
-            func_80138368(0xDC, 0x60, (M2C_UNK *)q1, 0x808080);
-            func_80138368(0xDC, 0x76, (M2C_UNK *)q2, 0x808080);
+            Galaxy_DrawSmallText(0x70, 0x64, (M2C_UNK *)D_8013EFA8, 0x808080);
+            Galaxy_DrawText(0x50, 0x76, (M2C_UNK *)D_8013EFAC, 0x808080);
+            Galaxy_DrawText(0x80, 0x60, (M2C_UNK *)(buf + 0xA), 0x808080);
+            Galaxy_DrawText(0x98, 0x76, (M2C_UNK *)buf, 0x808080);
+            Galaxy_DrawText(0xDC, 0x60, (M2C_UNK *)q1, 0x808080);
+            Galaxy_DrawText(0xDC, 0x76, (M2C_UNK *)q2, 0x808080);
             if (T_8013DF88.f_0 > 0xB4) {
                 if (pad & 0x860) {
                     P_8013DF88.f_38 += T_8013DF88.f_4 + T_8013DF88.f_8;
@@ -4015,16 +4015,16 @@ s32 func_8013DF88(void) {
             }
         }
         if (D_8013F404 & 2) {
-            func_80138350(1);
-            func_80138368(0xB4, 0x8C, (M2C_UNK *)D_8013EAAC_8013DF88, 0x808080);
-            func_80138350(2);
+            Galaxy_SetTextColor(1);
+            Galaxy_DrawText(0xB4, 0x8C, (M2C_UNK *)D_8013EAAC_8013DF88, 0x808080);
+            Galaxy_SetTextColor(2);
             func_8013B444(0x50, 0x96);
-            func_801384CC(0x70, 0xA6, (M2C_UNK *)D_8013EFA8, 0x808080);
-            func_80138368(0x50, 0xB8, (M2C_UNK *)D_8013EFAC, 0x808080);
-            func_80138368(0x80, 0xA2, (M2C_UNK *)(buf + 0x14), 0x808080);
-            func_80138368(0x98, 0xB8, (M2C_UNK *)(buf + 5), 0x808080);
-            func_80138368(0xDC, 0xA2, (M2C_UNK *)(buf + 0x28), 0x808080);
-            func_80138368(0xDC, 0xB8, (M2C_UNK *)(buf + 0x3C), 0x808080);
+            Galaxy_DrawSmallText(0x70, 0xA6, (M2C_UNK *)D_8013EFA8, 0x808080);
+            Galaxy_DrawText(0x50, 0xB8, (M2C_UNK *)D_8013EFAC, 0x808080);
+            Galaxy_DrawText(0x80, 0xA2, (M2C_UNK *)(buf + 0x14), 0x808080);
+            Galaxy_DrawText(0x98, 0xB8, (M2C_UNK *)(buf + 5), 0x808080);
+            Galaxy_DrawText(0xDC, 0xA2, (M2C_UNK *)(buf + 0x28), 0x808080);
+            Galaxy_DrawText(0xDC, 0xB8, (M2C_UNK *)(buf + 0x3C), 0x808080);
             if (T_8013DF88.f_0 > 0xB4) {
                 if (pad & 0x60) {
                     P_8013DF88.f_70 += T_8013DF88.f_C + T_8013DF88.f_10;
@@ -4069,16 +4069,16 @@ s32 func_8013DF88(void) {
             }
         }
     } else {
-        func_80138350(2);
-        func_80138368(0xA2, 0x34, (M2C_UNK *)D_8013EFB4, 0x808080);
+        Galaxy_SetTextColor(2);
+        Galaxy_DrawText(0xA2, 0x34, (M2C_UNK *)D_8013EFB4, 0x808080);
         if (D_8013F3E0_8013DF88.f_24 & 1) {
-            func_80138350(0);
-            func_80138368(0xB4, 0x4A, (M2C_UNK *)D_8013EA90_8013DF88, 0x808080);
+            Galaxy_SetTextColor(0);
+            Galaxy_DrawText(0xB4, 0x4A, (M2C_UNK *)D_8013EA90_8013DF88, 0x808080);
             func_8013E940(0x66, 0x62, P_8013DF88.f_38);
         }
         if (D_8013F3E0_8013DF88.f_24 & 2) {
-            func_80138350(1);
-            func_80138368(0xB4, 0x8C, (M2C_UNK *)D_8013EAAC_8013DF88, 0x808080);
+            Galaxy_SetTextColor(1);
+            Galaxy_DrawText(0xB4, 0x8C, (M2C_UNK *)D_8013EAAC_8013DF88, 0x808080);
             func_8013E940(0x66, 0xA4, P_8013DF88.f_70);
         }
         if (pad & 0x60) {
@@ -4100,11 +4100,11 @@ extern struct { s32 f_0; s32 f_4; } D_8013FBF8_8013E71C asm("D_8013FBF8");
 extern s16 D_8013F402;
 extern u8 D_8013EFBC[];
 s32 Sound_Play_8013E71C(s32, s32) asm("Sound_Play");
-void func_80136000(void);
+void Galaxy_SpawnPopupEffect(void);
 void func_8013DF7C(void);
-s32 func_8013DF88(void);
+s32 Galaxy_EnterHighScore(void);
 
-s32 func_8013E71C(void) {
+s32 Galaxy_GameOver(void) {
     s32 t = D_8013FD58_8013E71C.f_0;
     s32 x;
 
@@ -4113,16 +4113,16 @@ s32 func_8013E71C(void) {
     }
     if (t == 0) {
         D_8013FD58_8013E71C.f_4 = Sound_Play_8013E71C(0, 0x50);
-        func_80136000();
+        Galaxy_SpawnPopupEffect();
     }
     t++;
     if (t < 0x1A4) {
-        func_80138350(3);
+        Galaxy_SetTextColor(3);
         x = t - 6;
         if (x > 0x72) {
             x = 0x72;
         }
-        func_80138368(0x8A, x, (M2C_UNK *)D_8013EFBC, 0x808080);
+        Galaxy_DrawText(0x8A, x, (M2C_UNK *)D_8013EFBC, 0x808080);
         if (t == 0x77) {
             if (D_8013FD58_8013E71C.f_4 != -1) {
                 Sound_Stop(0x50, D_8013FD58_8013E71C.f_4);
@@ -4134,7 +4134,7 @@ s32 func_8013E71C(void) {
         if (t < 0x1E0) {
             func_8013DF7C();
         } else {
-            if (func_8013DF88() != 0) {
+            if (Galaxy_EnterHighScore() != 0) {
                 return 1;
             }
             t--;
@@ -4211,12 +4211,12 @@ M2C_UNK func_8013E940(s32 x, s32 y, s32 n) {
 }
 
 void func_8013E9E0(void) {
-    func_80138350(2);
-    func_80138368(0x7E, 0x34, &D_8013EFC8, 0x808080);
-    func_80138350(0);
-    func_80138368(0x7E, 0x4A, &D_8013EB60, 0x808080);
+    Galaxy_SetTextColor(2);
+    Galaxy_DrawText(0x7E, 0x34, &D_8013EFC8, 0x808080);
+    Galaxy_SetTextColor(0);
+    Galaxy_DrawText(0x7E, 0x4A, &D_8013EB60, 0x808080);
     func_8013E940(0x66, 0x62, D_8013F3E0.f_2C);
-    func_80138350(0);
-    func_80138368(0x48, 0x8C, &D_8013EB6C, 0x808080);
+    Galaxy_SetTextColor(0);
+    Galaxy_DrawText(0x48, 0x8C, &D_8013EB6C, 0x808080);
     func_8013E940(0x66, 0xA4, D_8013F3E0.f_30);
 }

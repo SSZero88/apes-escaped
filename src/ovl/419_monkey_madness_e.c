@@ -1,7 +1,7 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-s32 func_8013D000(void *arg0) {
+s32 SlamDoors_Init(void *arg0) {
     M2C_FIELD(arg0, s16 *, 2) = 4;
     M2C_FIELD(arg0, s16 *, 0x10) = 0x4E3;
     M2C_FIELD(arg0, s16 *, 6) = 0;
@@ -11,9 +11,9 @@ s32 func_8013D000(void *arg0) {
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013D020 asm("g_Game");
 s32 Sound_PlayAt(s32, s32);
-s32 func_8013D1C4(s16 *p);
+s32 SlamDoors_Apply(s16 *p);
 
-s32 func_8013D020(s16 *p) {
+s32 SlamDoors_Update(s16 *p) {
     u8 *e = g_Game_8013D020.f_820C + p[2] * 0x38;
     s16 t;
 
@@ -32,7 +32,7 @@ s32 func_8013D020(s16 *p) {
                 p[1] = 6;
             }
         }
-        func_8013D1C4(p);
+        SlamDoors_Apply(p);
         break;
     case 2:
         p[3] -= p[7];
@@ -47,13 +47,13 @@ s32 func_8013D020(s16 *p) {
                 p[8] = t / 3;
             }
         }
-        func_8013D1C4(p);
+        SlamDoors_Apply(p);
         break;
     case 6:
         if (p[9] < ++p[10]) {
             p[1] = 2;
         }
-        func_8013D1C4(p);
+        SlamDoors_Apply(p);
         break;
     case 1:
     case 3:
@@ -70,7 +70,7 @@ void RotMatrixZYX(SVECTOR *, void *);
 void *CollShape_Alloc(void);
 s32 Collision_Set(s32, void *, void *);
 
-s32 func_8013D1C4(s16 *p) {
+s32 SlamDoors_Apply(s16 *p) {
     SVECTOR v;
     s32 t;
     Shape_8013D1C4 *c;
