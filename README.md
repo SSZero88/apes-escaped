@@ -202,7 +202,7 @@ Patterns found while matching by hand (GCC 2.8.1 specifics):
 - **Table lookups**: `D_X[i].f` where `D_X` is a pointer to records (`lw` the pointer,
   then `i * size`). Write the record type; GCC's multiply-by-shifts must line up.
 - **Pass-through arguments** again: a function that calls `f(a0, a1)` without touching
-  `$a0`/`$a1` takes and forwards both (func_8008CC60).
+  `$a0`/`$a1` takes and forwards both (DebugFont_Locate).
 - **`lhu` then `sll 16`/`sra 16`** on a value that's then used signed: it was read into a `u16`
   local (or a `u16` field) and cast, `(s16)v`. A plain `s16` gives `lh`.
 - **Narrow loads**: an `s32` field stored into an `s16` compiles to `lhu` of its low half, so
@@ -249,9 +249,9 @@ More patterns (session 3, with `-mhard-float`):
 - Range checks written as one `||` expression get folded into one unsigned compare; separate
   `if`s (or nested ones) keep two compares.
 - A function that "returns" whatever its last call left in `v0`: declare it `s32` with no
-  `return` (`func_8003B534`). A tell-tale sign: branches to the epilogue keep a `nop` in their
+  `return` (`Monkey_TargetDotNodes`). A tell-tale sign: branches to the epilogue keep a `nop` in their
   delay slot where ours have the next `li v0,...`, because `v0` is live at the exit
-  (`func_8003F530`, `func_8003F86C`: `void` -> `s32` with bare `return;`).
+  (`Monkey_UpdateNodeJump`, `Monkey_UpdateLeap`: `void` -> `s32` with bare `return;`).
   `wip/_try/selfret.py FUNC FILE` tries that.
 - `tbl[i].fn(...)` in a nested loop: indexing (not a pointer) gives the extra invariant copy
   of `&tbl[i]` seen in the inner loop (`Link_InitArea`).
@@ -284,7 +284,7 @@ Pitfalls seen while integrating:
 - The order of an array address `addu` (index + base or base + index, and which register gets
   the result) can be steered: a local pointer `T *w = base + i;` puts the result in the base's
   register (`PlateGate_Update`), and integer arithmetic `(T *)(i * 4 + (s32)base)` keeps
-  index-first order (`func_80056010`).
+  index-first order (`Object_AnimWave`).
 - Our maspsx used to put a load-delay `nop` after an expanded `div`/`rem` whose result is used
   next; the original never does (checked across the binary), so the vendored copy no longer
   does (`tools/maspsx/PATCHED.md`).
@@ -345,28 +345,28 @@ Pitfalls seen while integrating:
   global pointer, where `p[i].f` gives `addu index, index, base`, comes from byte arithmetic:
   `*(u16 *)((u8 *)p + (i << 4) + 0xC)` (the sequencer's `D_800E1874` voice registers).
 - A loop that strength-reduces to a pointer at a field (`addiu v1, v0, 2` before the loop, then
-  `lhu 0(v1)`) walks the array with `p++` and `p->field`, not `p[i].field` (`func_8004BD0C`).
+  `lhu 0(v1)`) walks the array with `p++` and `p->field`, not `p[i].field` (`Camera_DisableAllZoneBoxes`).
 - A branch to the epilogue whose delay slot stays `nop` although the fall-through instruction
   only writes `v0` means `v0` is live at the return: the function is declared to return a value
   (`s32`) even if it has no `return` statement (`func_8003FB44`).
 - GCC 2.8's alias check treats a store into a struct field (`p->f`) and a load of a plain global
   scalar as independent, so the scheduler may sink the store below the load. When the original
   keeps such a store first (or reloads struct fields after stores to globals), the access was not
-  a struct member: write it as `*(s16 *)((u8 *)p + 2)` (`func_80094AE0`). Conversely, a global
-  stored through a struct (`D_800F75C0.f_8` instead of a separate `D_800F75C8`) keeps a later
+  a struct member: write it as `*(s16 *)((u8 *)p + 2)` (`Link_ResetStandFlags`). Conversely, a global
+  stored through a struct (`g_SeqDriver.f_8` instead of a separate `D_800F75C8`) keeps a later
   struct-field load behind it.
 - The two `ABS` spellings compile differently: `x >= 0 ? x : -x` (common.h) copies `x` and
   negates the copy (`move v0, a3; bgez; negu v0, v0`), `x < 0 ? -x : x` (redefined in
   80032E30_monkey.c) negates the original. Spell the ternary out when a file redefines `ABS`
-  (`func_80040BDC`).
+  (`Path_HeightAt`).
 - A store common to both arms of an `if`, which ours sinks into a later call's delay slot while
   the original keeps it before the argument setup, was written in both arms (cross-jumping
-  merged it at the join) (`func_8003CC3C`). Likewise a call with a different constant argument
-  in each arm, where ours has one call with a ternary argument, is two calls (`func_80054220`,
-  `func_80053CE8`).
+  merged it at the join) (`Monkey_TurnTowardTarget`). Likewise a call with a different constant argument
+  in each arm, where ours has one call with a ternary argument, is two calls (`ObjKind4D_IdleSounds`,
+  `ObjKind05_TryAttack`).
 - A global struct whose address is rebuilt (`lui; addiu`) at the start of each `if` block was
   reached through a local pointer re-assigned before each block (`p = &D; if (...) p->a = ..`);
-  `D.f` directly gives `lui` + `%lo(D+off)` instead (`func_80095244`).
+  `D.f` directly gives `lui` + `%lo(D+off)` instead (`Hud_ShowMonkeyHeads`).
 - `o = &arr[i];` at the top of a counted loop gives the original's pointer induction register;
   `for (i = 0, o = arr; ...; i++, o++)` can make GCC pick a field address as the induction
   variable instead (`Object_DrawAll`).
@@ -417,13 +417,13 @@ Pitfalls seen while integrating:
   against the original.
 - An epilogue with `sra v0` before `lw ra` and a `nop` before `jr ra` means the return value came
   from separate `return f(...)` statements that GCC cross-jumped into one call, not a single call
-  with variable arguments (`func_80058400`).
+  with variable arguments (`Object_StepToPathPoint`).
 - A `%lo(D_X + 1)` byte used as a scalar counter, while other code uses `D_X` as an array, wants
   its own extern plus a linker alias (`D_800B1B40_1 = 0x800B1B41;` in `undefined_syms_auto.txt`);
   indexing the array makes GCC build a base address. Writing `p->f` straight through a global
-  instead of a `T *t = &global` local can also move a shift into place (`func_80065ED4`).
+  instead of a `T *t = &global` local can also move a shift into place (`SkyFlyer_UpdateLift`).
 - A value that sits in `a0` just before a `jal` is not always an argument: if the draft loads a
-  field twice, check whether the callee takes any parameters at all (`func_80035A7C` calls
+  field twice, check whether the callee takes any parameters at all (`Monkey_JumpToNode` calls
   `Monkey_RestartAnim()`; the `a0` only feeds a store in the delay slot).
 - A word in the overlay area read as `lui v1,0x8015; lw v1,0x44CC(v1)` (one register) was a raw
   address, `*(s32 *)0x801544CC`, not the extern splat named `D_801544CC` (that one loads through a
@@ -436,7 +436,7 @@ Pitfalls seen while integrating:
 - Stores into one global through a base of `symbol+0xC` with a negative offset for an earlier
   field (`sb v0,-4(v1)`) come from a local pointer to an inner struct (`p = &G.pos; p->vx = ...;
   G.f_8 = ...`). For short store sequences, trying every statement order is quick
-  (`func_8006C6A4`).
+  (`Fx_StartBlastSequence`).
 - A run of range checks where every failing branch jumps to one shared `jr ra; nop` with `v0 = 0`
   in its delay slot (and no `jr ra` in the middle) is a single positive `&&` condition:
   `if (a >= x && x >= b && ...) return 1; return 0;`. Separate `if (...) return 0;` statements and
@@ -446,8 +446,8 @@ Pitfalls seen while integrating:
   (`Model_SetTurnAngle`, found by the permuter).
 - If `hand_apply.py` reports "N prototypes rewritten" and the build then fails or shrinks, restore
   the file from the snapshot and insert the function by hand. Where the file declares a helper
-  with a narrower return type than the match needs (`s16 func_8005278C`), call it through a cast,
-  `((s32 (*)(void *))func_8005278C)(o)`, which still compiles to a direct `jal`
+  with a narrower return type than the match needs (`s16 Object_MoveAndGetFloor`), call it through a cast,
+  `((s32 (*)(void *))Object_MoveAndGetFloor)(o)`, which still compiles to a direct `jal`
   (`Object_UpdateAction`).
 - A struct copy into a global field whose destination is a separate register (`addiu t3,v0,%lo(G+0x94)`)
   and the base later rebuilt as `addiu v0,v0,%lo(G+0x94); addiu v0,v0,-0x94` was written through a
@@ -463,7 +463,7 @@ Pitfalls seen while integrating:
 - `li a0,C; slt v0,a0,x; bnez` (constant in a register, compared on the left) comes from a bound
   computed from a variable that GCC only later finds constant (`ox + 0x40 < p[0]` with `ox = -0x100`);
   writing the constant directly gives `slti v0,x,C+1; beqz`. Range pairs on one value must be separate
-  `if`s with `goto`s, or GCC folds them into one unsigned compare (`func_8004E63C`).
+  `if`s with `goto`s, or GCC folds them into one unsigned compare (`Surface_SlopeEdgeHeight`).
 - Give library calls their real return types even when the result is ignored: declaring
   `CdIntToPos` as `void` instead of returning `CdlLOC *` changed how the caller kept its own return
   value (`Cd_GetFileEntry`). A cast in a struct-pointer table (`(T *)&g_X; c += i;`) can match where
@@ -495,7 +495,7 @@ Pitfalls seen while integrating:
   error, which `sd.py` reports as an empty diff (looks like a match); always confirm with check_c.
 - A `move v0,a1` copy of a pointer just stored into a struct is a read-back of that field
   (`o->unk4 = (s32 *)(o->unk0 + 1);` right after `o->unk0 = h;`), and the order of the following
-  assignments decides where it lands (`func_80015D10`). Two pointer variables holding the same
+  assignments decides where it lands (`Model_BindRigid`). Two pointer variables holding the same
   constant (the scratchpad base) keep separate registers where one variable would be CSE'd
   (`Menu_DrawStatusScreen`).
 - A state handler written `switch (s->state) { case 0: ...; break; } return 0;` compiles differently
@@ -516,9 +516,9 @@ Pitfalls seen while integrating:
   (Monkey_Update's hit-type switch, `Monkey_Update`).
 - Shared `return 0` paths that all jump to one block right before the epilogue came from
   `break`s out of a switch to a trailing `return 0;`; direct `return 0` statements instead branch
-  to the epilogue with `move v0,zero` in the delay slot (`func_80074BBC`).
+  to the epilogue with `move v0,zero` in the delay slot (`Coll_PushObjectShape`).
 - A clamp whose middle branch keeps the raw (unextended) value, `x < lo ? lo : (x > hi ? hi : x)`
-  with the compares on `(s16)x`, is a ternary on an `s32` (`func_80059304`); an `if/else if` chain
+  with the compares on `(s16)x`, is a ternary on an `s32` (`EnemyShot_Spawn`); an `if/else if` chain
   or an `s16` variable does not give the same register flow.
 - **More on `do { ... } while (0)`** (see the `FallBlock_Update` note above): the loop notes end
   GCC's CSE path (later code reloads globals and fields it already had in registers) and loop.c
@@ -534,35 +534,35 @@ Pitfalls seen while integrating:
   (`extern T *D_800AF868_li[] asm("D_800AF868");`), not a cast: `((T **)D_800AF868)[i]` moved the
   `%lo` load to another register in `Link_InitArea`.
 - m2c adds arguments a call doesn't have when the argument registers still hold something:
-  `func_800856FC` called `Floor_GetHeight(x, y, z, 2)` because `a3` held the switch constant 2.
+  `BossShot_UpdateAll` called `Floor_GetHeight(x, y, z, 2)` because `a3` held the switch constant 2.
   Passing the extra argument forces a `li a3` and moves that constant out of `a3`; check the
   callee's real parameter count.
 - Inserting a function with a `switch` by hand (named functions skip `hand_apply`): delete the
   `INCLUDE_RODATA(..., jtbl_X)` lines for its jump tables, since the compiled switch emits its own;
   otherwise the image grows and every later address shifts.
 - **A callee's return type matters even when the result is unused**: declaring an int-returning
-  function `void` changed register allocation around its call (`func_80095960`: `move v0,zero`
-  moved and the stores used another register; `func_8005BEF0`: the struct-copy temporaries shifted
+  function `void` changed register allocation around its call (`Save_ResetNewGame`: `move v0,zero`
+  moved and the stores used another register; `Gfx_ResetDisplay`: the struct-copy temporaries shifted
   by one). The original probably called them without a prototype (implicit int). In a file that
   already declares the callee `void`, use an alias: `s32 f_x(void) asm("f");`.
   `wip/_try/retflip.py FUNC FILE` flips each callee prototype between void and s32.
   PsyQ library functions have real return types that drafts often drop: `VectorNormal*`,
   `SquareRoot0`, `rsin`/`rcos` return `long`; `RotMatrix*`, `MulMatrix*`, `CompMatrix`,
   `ApplyMatrix*`, `ScaleMatrix*` return `MATRIX *`/`VECTOR *`; `ClearImage`, `LoadImage`, `DrawSync`
-  return `int`; the BIOS memset stub `memset` returns a pointer. `func_8003C568` matched
+  return `int`; the BIOS memset stub `memset` returns a pointer. `Monkey_StepTurn` matched
   only after `VectorNormalSS` was declared returning `long`. `wip/_try/psyqret.py FUNC FILE`
   rewrites a draft's library prototypes with these types.
 - **hand_apply can break other functions**: the prototypes it adds to the file (here a new return
   type for `Collision_GetShape`) can change how other functions in the file compile; the build then
   fails with a shorter binary. Restore the file from a snapshot, `touch` it (tar keeps the old
   mtime, so make would not rebuild it) and insert the function by hand with `asm("name")` alias
-  prototypes (`func_80068634`).
+  prototypes (`Spike_UpdateOnShape`).
 - **check_c's MATCH is not the last word**: it masks relocations, so a switch whose jump table
   sends one case to a different (identical-looking) block still "matches" (a permuter result for
-  `func_8008FC30` had emptied `case 7:`, which the original cross-jumps into the tail of
+  `Link_Activate` had emptied `case 7:`, which the original cross-jumps into the tail of
   `case 0x1B`). The full build's checksum is the real test; when it fails after an apply, diff
   `build/SCUS_944.23` against the original to find the address. The file context can matter too:
-  `func_8005BEF0` matched alone but not in its file, where one prototype order changed its
+  `Gfx_ResetDisplay` matched alone but not in its file, where one prototype order changed its
   registers (removing any one of four prototypes fixed it).
 - **One variable or several**: GCC 2.8 allocates one register per variable, so reusing a local
   across unrelated statements (or splitting one) moves registers around far away. Reusing `d`
@@ -574,25 +574,25 @@ Pitfalls seen while integrating:
   repeats both and keeps the best. A lower diff count is only a hint: read what changed.
 - **Clamp into a new variable**: `c = n <= 0 ? 1 : n >= 11 ? 10 : n;` (a CLAMP macro, probably)
   keeps `n` and the result in two registers (`j ...; move v1,a0`); clamping `n` in place with
-  `if`/`else if` does not (`func_80083790`).
+  `if`/`else if` does not (`Pickup_RollKind2Drop`).
 - **Two compares of the same value**: when the output tests a value and a register copy of it
   separately (`move v0,v1; slti v0,v0,8 ... slti v1,v1,8`), the source had two variables set in
   every branch before a join (`vl = x; vr = vl;` in each arm), so CSE cannot tell they are equal
-  after the join (`func_80087EE0`, left/right sound volume).
+  after the join (`Sound_CalcVolumePlanar`, left/right sound volume).
 - **Scalar global vs struct global**: GCC 2.8 assumes a store through a struct pointer
   (`c->f_6C = 0`) cannot alias a plain scalar global (`extern u32 D_800E5478`), so it may move the
   store past the load (into a delay slot). If the original keeps the store before the load, the
   global is really a struct member or array element: `extern struct { u32 v; } X_s asm("X")`
   (`Camera_HandleManualInput`; it also needed `lim = x; lim -= 0x404;` in two steps).
 - **Switch decision trees depend on every listed case**: GCC splits the sorted case list at its
-  middle, so cases that only fall into `default` still move the root. `func_800356C0` (one result
+  middle, so cases that only fall into `default` still move the root. `Monkey_GetVoiceSound` (one result
   per monkey type) only matched with all seven type ids listed (`case MONKEY_YELLOW: ...
   default:`) and with the default group placed between the two other groups (block order).
 - **addPrim comes in two forms.** Most draw code links a primitive with the C bitfield form
   (`lw/and/or` with 0xFFFFFF / 0xFF000000 masks; `P_TAG { u32 addr : 24; u32 len : 8; }`).
   About 52 functions instead use a fixed 4-instruction sequence that no C form or compiler in the
   image produces: `lwl t1,2(ot); sll t2,p,8; swl t2,2(ot); swl t1,2(p)`. It is an inline-asm macro
-  in the original; this reproduces it with compiler-chosen registers and offsets (`func_80099D70`,
+  in the original; this reproduces it with compiler-chosen registers and offsets (`Radar_Update`,
   the Monkey Radar, matches in size with it):
   `__asm__ volatile("lwl %0, %2\n\tsll %1, %4, 8\n\tswl %1, %2\n\tswl %0, %3" : "=&r"(t1), "=&r"(t2)
   : "m"(*((u8 *)ot + 2)), "m"(*((u8 *)p + 2)), "r"(p));`
