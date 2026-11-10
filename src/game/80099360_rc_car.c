@@ -16,13 +16,13 @@ void RcCar_Remove(void);
 void Collision_Set(s32, s32 *, struct S_D_800F5A20 *);
 struct S_D_800F5A20_80099360 { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; s32 f_30; s32 f_34; s32 f_38; u8 pad3C[8]; s16 f_44; s16 f_46; u8 pad48[8]; s32 f_50; u8 pad54[0xC]; SVEC_80099360_80099360 f_60; SVEC_80099360_80099360 f_68; s32 f_70; u8 pad74[4]; s16 f_78; };
 extern Game_99C44_80099C44 g_Game;
-extern struct S_D_800EC060 { Hdr_99C44_80099C44 *hdr; u8 pad4[0xC]; } D_800EC060[];
-extern Mat_99C44_80099C44 D_800E9C60[];
-extern Mat_99C44_80099C44 D_800F4730[];
-extern u8 D_800E7D00[];
+extern struct S_D_800EC060 { Hdr_99C44_80099C44 *hdr; u8 pad4[0xC]; } g_GadgetModels[];
+extern Mat_99C44_80099C44 g_ModelMatrices[];
+extern Mat_99C44_80099C44 g_JointWorldMatrices[];
+extern u8 g_ProjVerts[];
 void Model_ProjectVerts(struct S_D_800EC060 *, Mat_99C44_80099C44 *, u8 *);
 void func_8006CFBC(Mat_99C44_80099C44 *);
-void func_80017CD4(Db_99C44_80099C44 *, u8 *, struct S_D_800EC060 *);
+void Model_Draw(Db_99C44_80099C44 *, u8 *, struct S_D_800EC060 *);
 
 void RcCar_Place(s32 x, s32 y, s32 z) {
     struct S_D_800F5A20_80099360 *s;
@@ -81,7 +81,7 @@ s32 Collision_Set_9A8(s32, void *, void *) asm("Collision_Set");
 u16 Water_Query_9A8(s32, s32, s32) asm("Water_Query");
 void Puff_Spawn_9A8(void *, s32, s32, s32) asm("Puff_Spawn");
 s32 Projectile_Spawn_9A8(void *, void *, s32) asm("Projectile_Spawn");
-s32 func_800463A4_9A8(s32, s32, s32) asm("func_800463A4");
+s32 func_800463A4_9A8(s32, s32, s32) asm("Math_StepToward");
 void memset_9A8(void *, s32, s32) asm("memset");
 
 void RcCar_Update(void) {
@@ -244,7 +244,7 @@ void RcCar_Update(void) {
 
 typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_80099AE0;
 extern struct S_D_800F5A20_80099360 g_RcCar_80099AE0 asm("g_RcCar");
-extern MAT_80099AE0 D_800E78C0;
+extern MAT_80099AE0 g_ViewMatrix;
 extern struct S_D_800EC060 D_800EC110;
 extern s8 g_CurrentGadget;
 void Matrix_LookAt(SVEC_80099360_80099360 *, SVEC_80099360_80099360 *, MAT_80099AE0 *, s32);
@@ -265,9 +265,9 @@ void func_80099AE0(void) {
     m.t[0] = o->f_24;
     m.t[1] = o->f_28;
     m.t[2] = o->f_2C;
-    CompMatrix(&D_800E78C0, &m, &m);
+    CompMatrix(&g_ViewMatrix, &m, &m);
     obj = &D_800EC110;
-    buf = D_800E7D00;
+    buf = g_ProjVerts;
     Model_ProjectVerts(obj, (Mat_99C44_80099C44 *)&m, buf);
     __asm__("" :: "r"(buf), "r"(buf), "r"(buf), "r"(o), "r"(o), "r"(o));
     if (o->f_78 > 0) {
@@ -275,7 +275,7 @@ void func_80099AE0(void) {
         Model_CycleVertexColors(buf, ((u16 *)obj->hdr)[3]);
         Model_DrawCycledColors(&g_Game.db[g_Game.cur], buf, obj);
     } else {
-        func_80017CD4(&g_Game.db[g_Game.cur], buf, obj);
+        Model_Draw(&g_Game.db[g_Game.cur], buf, obj);
     }
     if (g_CurrentGadget != 7) {
         g_RcCar_80099AE0.f_30 = 0;
@@ -286,7 +286,7 @@ void func_80099AE0(void) {
 }
 
 void func_80099C44(void) {
-    Model_ProjectVerts(&D_800EC060[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2], &D_800E9C60[D_800EC060[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2].hdr->f_4], D_800E7D00);
-    func_8006CFBC(&D_800F4730[D_800EC060[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2].hdr->f_4]);
-    func_80017CD4(&g_Game.db[g_Game.cur], D_800E7D00, &D_800EC060[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2]);
+    Model_ProjectVerts(&g_GadgetModels[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2], &g_ModelMatrices[g_GadgetModels[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2].hdr->f_4], g_ProjVerts);
+    func_8006CFBC(&g_JointWorldMatrices[g_GadgetModels[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2].hdr->f_4]);
+    Model_Draw(&g_Game.db[g_Game.cur], g_ProjVerts, &g_GadgetModels[(*(Sp_99C44_80099C44 *)&g_Spike).f_F2]);
 }

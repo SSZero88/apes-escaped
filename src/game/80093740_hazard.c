@@ -39,7 +39,7 @@ void VectorNormalSS(void *, void *);
 void Sound_PlayFixed(s32);
 void Pad_Vibrate(s32, s32, s32);
 void func_80066F34(void);
-void func_800147D0(void *, void *);
+void Matrix_SetScale(void *, void *);
 s32 rsin(s32);
 
 s32 func_80093740(void *arg0) {
@@ -115,7 +115,7 @@ s32 func_8009391C(S_9391C_8009391C *a) {
  * (func_80066F34). Running into its side (within radius +6 plus his own, inside its height)
  * knocks him back along the average of his heading and the push-out direction and makes it
  * wobble sideways (state 2; sound 0xBB in stage 0x19). The wobble (amplitude +8, phase +0xA)
- * halves every cycle and scales the model through func_800147D0. Returns 0. */
+ * halves every cycle and scales the model through Matrix_SetScale. Returns 0. */
 s32 Bouncy_Update(T_8009398C_8009398C *t) {
     E_8009398C_8009398C *e = &GG->f_820C[t->ent];
     SV_8009398C_8009398C s;
@@ -217,7 +217,7 @@ s32 Bouncy_Update(T_8009398C_8009398C *t) {
         }
     apply:
         if ((*MDL(e->f_E)->f_0 & 0xF) == 3) {
-            func_800147D0(&s, MDL(e->f_E)->f_1C);
+            Matrix_SetScale(&s, MDL(e->f_E)->f_1C);
         }
         break;
     case 3:

@@ -8,7 +8,7 @@ extern u8 D_800F5AA0;
 extern s32 D_800F5AAC;
 extern s32 D_800F5AB0;
 extern s32 D_800F4DD0;
-extern struct S_D_800E3890 { s32 f_0; u8 pad4[0x40]; u8 f_44[0x2C]; u8 f_70[4]; } D_800E3890;
+extern struct S_D_800E3890 { s32 f_0; u8 pad4[0x40]; u8 f_44[0x2C]; u8 f_70[4]; } g_Cd;
 void Spike_SetPlayMode(s32);
 void Cd_GetFileEntry(File_9B7FC_8009B7FC *, s32);
 s32 Cd_QueueCommand(s32, void *, void *, void *);
@@ -52,16 +52,16 @@ void Overlay_Update(void) {
         D_800F4DD0 = 0;
         if (s->loaded == 0) {
             Spike_SetPlayMode(0xB);
-            if (D_800E3890.f_0 != 0) {
+            if (g_Cd.f_0 != 0) {
                 break;
             }
             Cd_GetFileEntry(&f, 0x180);
             req.loc = f.pos;
             req.buf = (u8 *)0x80136000;
             req.n = f.size >> 11;
-            Cd_QueueCommand(0xE, D_800E3890.f_70, D_800E3890.f_44, 0);
-            Cd_QueueCommand(2, &req, D_800E3890.f_44, 0);
-            Cd_QueueCommand(0x20, &req, D_800E3890.f_44, &s->ready);
+            Cd_QueueCommand(0xE, g_Cd.f_70, g_Cd.f_44, 0);
+            Cd_QueueCommand(2, &req, g_Cd.f_44, 0);
+            Cd_QueueCommand(0x20, &req, g_Cd.f_44, &s->ready);
             s->loaded = st;
             s->fade = 0;
             break;

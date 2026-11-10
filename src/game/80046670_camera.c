@@ -56,7 +56,7 @@ extern s8 D_800E6908;
 extern S_B4D40_80047290 *D_800B4D40;
 struct S_D_800E68D0_80047290 { u8 pad0[2]; u16 f_2; u16 f_4; u8 pad6[6]; u8 f_C; u8 f_D; u8 f_E; u8 padF[0xC]; u8 f_1B; u8 pad1C[0x25]; u8 f_41; u8 pad42[0xA]; S_30_80047290 *f_4C; };
 struct S_D_800EC350_80046990 { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf_80046990 db[2]; };
-void func_800154DC(void *, SVECTOR *);
+void Model_GetRootJointPos(void *, SVECTOR *);
 struct S_D_800EC1E0_80047DA4 { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; s32 f_30; s32 f_34; s32 f_38; u8 pad3C[0x24]; SVECTOR f_60; u8 pad68[0xC4]; s32 f_12C; };
 struct S_D_800E68D0_80047DA4 { u8 pad0[0x6C]; SVECTOR f_6C; SVECTOR f_74; };
 struct S_D_800E68D0_80047EE0 { u8 pad0[0x48]; u8 f_48; u8 pad49[0x23]; SVEC_80047EE0_80047EE0 f_6C; SVEC_80047EE0_80047EE0 f_74; };
@@ -573,7 +573,7 @@ extern Cam_47754 D_800E68D0_47754 asm("D_800E68D0");
 extern Hdr_47754 D_800AF120;
 extern char D_800A4CC0[];
 extern u8 g_CameraTarget[];
-extern MAT_80046670_80046670 D_800E78C0_47754 asm("D_800E78C0");
+extern MAT_80046670_80046670 D_800E78C0_47754 asm("g_ViewMatrix");
 extern MAT_80046670_80046670 D_800EC330_47754 asm("D_800EC330");
 void *Mem_Alloc(s32);
 void bios_printf(const char *, ...);
@@ -699,7 +699,7 @@ INCLUDE_RODATA("asm/nonmatchings/game/80046670_camera", D_800A4CC0);
 
 typedef struct { s16 x, y, z, pad; s16 x2, y2, z2; } Tgt_80047BD0;
 extern Tgt_80047BD0 g_CameraTarget_47BD0 asm("g_CameraTarget");
-extern MAT_80046670_80046670 D_800E78C0_47BD0 asm("D_800E78C0");
+extern MAT_80046670_80046670 D_800E78C0_47BD0 asm("g_ViewMatrix");
 extern MAT_80046670_80046670 D_800EC330_47BD0 asm("D_800EC330");
 void func_80047DA4(void);
 void Camera_UpdateZoneBox(void);
@@ -788,7 +788,7 @@ INCLUDE_RODATA("asm/nonmatchings/game/80046670_camera", jtbl_800A4CD8_pad);
 void func_80047DA4(void)
 {
   u8 *sc = (u8 *) 0x1F800000;
-  func_800154DC(((struct S_D_800EC1E0_80047DA4 *)&g_Spike), (SVECTOR *) 0x1F800010);
+  Model_GetRootJointPos(((struct S_D_800EC1E0_80047DA4 *)&g_Spike), (SVECTOR *) 0x1F800010);
   *((SVECTOR *) 0x1F800040) = ((struct S_D_800EC1E0_80047DA4 *)&g_Spike)->f_60;
   *((s16 *) (sc + 0x18)) = ((struct S_D_800EC1E0_80047DA4 *)&g_Spike)->f_24;
   *((s16 *) (sc + 0x1A)) = ((struct S_D_800EC1E0_80047DA4 *)&g_Spike)->f_28;

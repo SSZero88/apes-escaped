@@ -2542,7 +2542,7 @@ extern char D_800A52F8_58954[] asm("D_800A52F8");
 extern char D_800A5300_58954[] asm("D_800A5300");
 extern char D_800A5304_58954[] asm("D_800A5304");
 extern char D_800A5308_58954[] asm("D_800A5308");
-extern u8 D_800E78C0_58954[] asm("D_800E78C0");
+extern u8 D_800E78C0_58954[] asm("g_ViewMatrix");
 void func_8008C3C0_58954(s32, s32) asm("func_8008C3C0");
 void func_8008CBFC_58954() asm("func_8008CBFC");
 void SetRotMatrix_58954(void *) asm("SetRotMatrix");
@@ -2710,7 +2710,7 @@ typedef struct { s32 vx, vy, vz; } VEC_592C;
 typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_592C;
 #define ADDPRIM_BF(ot, p) (((PTag_592C *)(p))->addr = ((PTag_592C *)(ot))->addr, ((PTag_592C *)(ot))->addr = (u32)(p))
 extern MAT_592C D_800EC330;
-extern MAT_592C D_800E78C0;
+extern MAT_592C g_ViewMatrix;
 void CompMatrix(MAT_592C *, MAT_592C *, MAT_592C *);
 void SetRotMatrix(MAT_592C *);
 void SetTransMatrix(MAT_592C *);
@@ -2748,7 +2748,7 @@ void Debug_DrawWorldQuad(VEC_592C *pos, s32 w, s32 h) {
     m.t[0] = pos->vx;
     m.t[1] = pos->vy;
     m.t[2] = pos->vz;
-    CompMatrix(&D_800E78C0, &m, &m);
+    CompMatrix(&g_ViewMatrix, &m, &m);
     SetRotMatrix(&m);
     SetTransMatrix(&m);
     gte_ldv3c_(v);

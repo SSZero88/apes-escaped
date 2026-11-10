@@ -4,10 +4,10 @@
 extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; s32 f_820C; } g_Game;
 M2C_UNK Matrix_FromDirection(void *, s32);
 M2C_UNK Model_ProjectBonedVerts(void *);
-M2C_UNK func_80015780(void *, M2C_UNK);
-M2C_UNK func_80016EBC(void *, M2C_UNK *, void *);
+M2C_UNK Model_CalcKeyedJointMatrices(void *, M2C_UNK);
+M2C_UNK Model_DrawAuto(void *, M2C_UNK *, void *);
 s32 func_80051410(void *, M2C_UNK, M2C_UNK);
-extern M2C_UNK D_800E7D00;
+extern M2C_UNK g_ProjVerts;
 extern M2C_UNK D_80144690;
 
 M2C_UNK func_80052038(void *, M2C_UNK);
@@ -798,7 +798,7 @@ s32 func_8013E774(s16 *p) {
 }
 
 extern struct S_g_Game_8013EA44 { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; u8 *f_820C; u8 pad_8210[0x10]; u8 *f_8220; } g_Game_8013EA44 asm("g_Game");
-void func_800147D0(SVECTOR *, void *);
+void Matrix_SetScale(SVECTOR *, void *);
 
 s32 func_8013EA44(s16 *p) {
     SVECTOR v;
@@ -824,7 +824,7 @@ s32 func_8013EA44(s16 *p) {
             v.vx = 0x1000;
             v.vy = 0x1000;
             v.vz = 0x1000;
-            func_800147D0(&v, M2C_FIELD(D_800B4D64 + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
+            Matrix_SetScale(&v, M2C_FIELD(D_800B4D64 + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
         }
         return 0;
     }
@@ -1107,9 +1107,9 @@ void func_8013F550(s32 arg0) {
     temp_s0 = (void *)((u8 *)&D_80144690 + (arg0 * 0x70));
     if (func_80051410(temp_s0 + 0x24, 0, 0) == 0) {
         Matrix_FromDirection(temp_s0 + 0x60, M2C_FIELD(temp_s0, s32 *, 0x14));
-        func_80015780(temp_s0, 3);
+        Model_CalcKeyedJointMatrices(temp_s0, 3);
         Model_ProjectBonedVerts(temp_s0);
-        func_80016EBC((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0);
+        Model_DrawAuto((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, temp_s0);
     }
 }
 
@@ -2287,7 +2287,7 @@ typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_80142200;
 #define gte_stsxy3c_80142200(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
 #define gte_stszotz_80142200(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 extern Part_80142200 D_80144858_80142200[] asm("D_80144858");
-extern Mat_80142200 D_800E78C0_80142200 asm("D_800E78C0");
+extern Mat_80142200 D_800E78C0_80142200 asm("g_ViewMatrix");
 extern u16 g_RandSeed_80142200 asm("g_RandSeed");
 extern GameDraw g_Game_80142200 asm("g_Game");
 void SetRotMatrix_80142200(Mat_80142200 *) asm("SetRotMatrix");
@@ -2448,27 +2448,27 @@ extern struct { u8 pad_0[0x8]; u8 *f_8; u8 pad_C[0x8146]; u16 f_8152; u8 pad_815
 extern struct { u8 pad_0[0xA1]; s8 f_A1; u8 pad_A2; s8 f_A3; u8 pad_A4[0xB4]; u32 f_158; u8 pad_15C[4]; u32 f_160; } g_Pad_801428E4 asm("g_Pad");
 extern struct { u8 pad_0[0x46]; u8 f_46; } D_800E68D0_801428E4 asm("D_800E68D0");
 extern u8 D_800E6916_801428E4 asm("D_800E6916");
-extern SVECTOR D_800F4B30_801428E4[2] asm("D_800F4B30");
+extern SVECTOR D_800F4B30_801428E4[2] asm("g_JointAngles");
 extern u32 D_800E5478_801428E4 asm("D_800E5478");
-extern u8 D_800F4730_801428E4[] asm("D_800F4730");
+extern u8 D_800F4730_801428E4[] asm("g_JointWorldMatrices");
 extern u8 D_80144610_801428E4[] asm("D_80144610");
 extern u8 D_80144618_801428E4[] asm("D_80144618");
 extern u8 D_80144620_801428E4[] asm("D_80144620");
-extern u8 D_800E9C60_801428E4[] asm("D_800E9C60");
-extern u8 D_800E7D00_801428E4[] asm("D_800E7D00");
-s16 func_800433B0_801428E4(s32, s32, s32, s16 *) asm("func_800433B0");
+extern u8 D_800E9C60_801428E4[] asm("g_ModelMatrices");
+extern u8 D_800E7D00_801428E4[] asm("g_ProjVerts");
+s16 func_800433B0_801428E4(s32, s32, s32, s16 *) asm("Floor_GetHeightAndSlope");
 s16 Water_Query_801428E4(s32, s32, s32) asm("Water_Query");
 s32 rsin_801428E4(s32) asm("rsin");
 s32 rcos_801428E4(s32) asm("rcos");
 void *ApplyMatrixSV_801428E4(void *, void *, void *) asm("ApplyMatrixSV");
-void func_80014804_801428E4(void *, void *) asm("func_80014804");
+void func_80014804_801428E4(void *, void *) asm("Matrix_FromFacingXZ");
 s32 VectorNormalSS_801428E4(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
-s32 func_800463A4_801428E4(s32, s32, s32) asm("func_800463A4");
+s32 func_800463A4_801428E4(s32, s32, s32) asm("Math_StepToward");
 void Matrix_LookAt_801428E4(void *, void *, void *, s32) asm("Matrix_LookAt");
 void Model_CalcJointMatrices_801428E4(void *, s32) asm("Model_CalcJointMatrices");
 void Model_ProjectBonedVerts_801428E4(void *) asm("Model_ProjectBonedVerts");
-void func_80017CD4_801428E4(void *, void *, void *) asm("func_80017CD4");
-void func_8004637C_801428E4(void *) asm("func_8004637C");
+void func_80017CD4_801428E4(void *, void *, void *) asm("Model_Draw");
+void func_8004637C_801428E4(void *) asm("Matrix_SetIdentity");
 void *CompMatrix_801428E4(void *, void *, void *) asm("CompMatrix");
 void Model_ProjectVerts_801428E4(void *, void *, void *) asm("Model_ProjectVerts");
 void Effect_SpawnAt_801428E4(s32, void *) asm("Effect_SpawnAt");
@@ -2668,12 +2668,12 @@ void func_801428E4(void) {
 }
 
 extern struct { u8 pad_0[0x8290]; u16 f_8290; } g_Game_801431B0 asm("g_Game");
-extern SVECTOR D_800F4B30_801431B0[3] asm("D_800F4B30");
+extern SVECTOR D_800F4B30_801431B0[3] asm("g_JointAngles");
 extern s32 D_800EC358;
 s16 Floor_GetHeight_801431B0(s32, s32, s32) asm("Floor_GetHeight");
 void Matrix_LookAt(void *, void *, void *, s32);
 void Model_CalcJointMatrices(void *, s32);
-void func_80017CD4_801431B0(s32, void *, void *) asm("func_80017CD4");
+void func_80017CD4_801431B0(s32, void *, void *) asm("Model_Draw");
 void Fx_DebrisExplosion_801431B0(s32, s32, s32) asm("Fx_DebrisExplosion");
 void func_8006D548_801431B0(void *) asm("func_8006D548");
 void func_8014283C(void);
@@ -2719,7 +2719,7 @@ void func_801431B0(s32 arg0) {
     D_800F4B30_801431B0[0].vz = 0;
     Model_CalcJointMatrices(o, 1);
     Model_ProjectBonedVerts(o);
-    func_80017CD4_801431B0(D_800EC358, &D_800E7D00, o);
+    func_80017CD4_801431B0(D_800EC358, &g_ProjVerts, o);
     if (M2C_FIELD(o, s8 *, 0x8E) <= 0) {
         Sound_PlayFixed(0x79);
         Fx_DebrisExplosion_801431B0(M2C_FIELD(o, s16 *, 0x1C), M2C_FIELD(o, s16 *, 0x1E), M2C_FIELD(o, s16 *, 0x20));
@@ -2750,21 +2750,21 @@ extern u8 D_800E6902_801433F0 asm("D_800E6902");
 extern s32 D_800EC014_801433F0 asm("D_800EC014");
 extern s32 D_800E54C4_801433F0 asm("D_800E54C4");
 extern s32 D_800E54C8_801433F0 asm("D_800E54C8");
-extern s16 D_800F4B30_801433F0[] asm("D_800F4B30");
-extern u8 D_800E7D00_801433F0[] asm("D_800E7D00");
-s16 func_800433B0_801433F0(s32, s32, s32, s16 *) asm("func_800433B0");
+extern s16 D_800F4B30_801433F0[] asm("g_JointAngles");
+extern u8 D_800E7D00_801433F0[] asm("g_ProjVerts");
+s16 func_800433B0_801433F0(s32, s32, s32, s16 *) asm("Floor_GetHeightAndSlope");
 u16 Water_Query_801433F0(s32, s32, s32) asm("Water_Query");
 s32 rsin_801433F0(s32) asm("rsin");
 s32 rcos_801433F0(s32) asm("rcos");
 s32 Sound_PlayFixed_801433F0(s32) asm("Sound_PlayFixed");
-void func_8004637C_801433F0(void *) asm("func_8004637C");
+void func_8004637C_801433F0(void *) asm("Matrix_SetIdentity");
 void *RotMatrixY_801433F0(s32, void *) asm("RotMatrixY");
 void *ApplyMatrixSV_801433F0(void *, void *, void *) asm("ApplyMatrixSV");
 void func_8006699C_801433F0(s32) asm("func_8006699C");
-void func_80014804_801433F0(void *, void *) asm("func_80014804");
+void func_80014804_801433F0(void *, void *) asm("Matrix_FromFacingXZ");
 void Model_CalcJointMatrices_801433F0(void *, s32) asm("Model_CalcJointMatrices");
 void Model_ProjectBonedVerts_801433F0(void *) asm("Model_ProjectBonedVerts");
-void func_80017CD4_801433F0(void *, void *, void *) asm("func_80017CD4");
+void func_80017CD4_801433F0(void *, void *, void *) asm("Model_Draw");
 void Anim_SetFrame_801433F0(void *) asm("Anim_SetFrame");
 void Spike_SetPlayMode_801433F0(s32) asm("Spike_SetPlayMode");
 void func_8004B83C_801433F0(void) asm("func_8004B83C");
@@ -3002,14 +3002,14 @@ void func_801433F0(void) {
 }
 
 typedef struct { u8 pad0[0xA]; s16 fA; u8 padC[4]; s16 f10; } Scr_80143F38;
-extern SVECTOR D_800F4B30[3];
+extern SVECTOR g_JointAngles[3];
 extern struct { s32 f0; u8 pad4[4]; s32 f8; } g_Game_80143F38 asm("g_Game");
 s16 Floor_GetHeight_80143F38(s32, s32, s32) asm("Floor_GetHeight");
 s32 Water_Query(s32, s32, s32);
 s32 rsin_80143F38(s32) asm("rsin");
-void func_80014804(s16 *, s16 *);
+void Matrix_FromFacingXZ(s16 *, s16 *);
 void Model_CalcJointMatrices(void *, s32);
-void func_80017CD4_80143F38(s32, void *, void *) asm("func_80017CD4");
+void func_80017CD4_80143F38(s32, void *, void *) asm("Model_Draw");
 
 void func_80143F38(void) {
     u8 *o;
@@ -3034,21 +3034,21 @@ void func_80143F38(void) {
         M2C_FIELD(o, s32 *, 0x28) = M2C_FIELD(o, s16 *, 0x7A);
         M2C_FIELD(o, s32 *, 0x2C) = M2C_FIELD(o, s16 *, 0x7C);
     }
-    func_80014804((s16 *)(o + 0x60), M2C_FIELD(o, s16 **, 0x14));
+    Matrix_FromFacingXZ((s16 *)(o + 0x60), M2C_FIELD(o, s16 **, 0x14));
     y = M2C_FIELD(o, s32 *, 0x28);
     M2C_FIELD(o, s32 *, 0x28) += rsin_80143F38(g_Game_80143F38.f0 << 6) >> 9;
-    D_800F4B30[0].vx = 0;
-    D_800F4B30[0].vy = 0x800;
-    D_800F4B30[0].vz = 0;
-    D_800F4B30[1].vx = 0x400;
-    D_800F4B30[1].vy = 0;
-    D_800F4B30[1].vz = -0x480;
-    D_800F4B30[2].vx = 0x400;
-    D_800F4B30[2].vy = 0;
-    D_800F4B30[2].vz = -0x380;
+    g_JointAngles[0].vx = 0;
+    g_JointAngles[0].vy = 0x800;
+    g_JointAngles[0].vz = 0;
+    g_JointAngles[1].vx = 0x400;
+    g_JointAngles[1].vy = 0;
+    g_JointAngles[1].vz = -0x480;
+    g_JointAngles[2].vx = 0x400;
+    g_JointAngles[2].vy = 0;
+    g_JointAngles[2].vz = -0x380;
     Model_CalcJointMatrices(o, 1);
     Model_ProjectBonedVerts(o);
-    func_80017CD4_80143F38(g_Game_80143F38.f8, (u8 *)&D_800E7D00, o);
+    func_80017CD4_80143F38(g_Game_80143F38.f8, (u8 *)&g_ProjVerts, o);
     M2C_FIELD(o, s32 *, 0x28) = y;
 }
 

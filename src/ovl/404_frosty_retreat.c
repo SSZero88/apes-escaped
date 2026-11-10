@@ -306,13 +306,13 @@ typedef struct { s16 x, y, z; } Rot_404;
 typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 wx, wy, wz; Rot_404 r; u8 pad82; u8 life; s16 scale; s16 floor; } Debris_404;
 extern Debris_404 D_80141950[16];
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game;
-extern u8 D_800E7D00_8013DB40[] asm("D_800E7D00");
+extern u8 D_800E7D00_8013DB40[] asm("g_ProjVerts");
 s32 func_80051410(void *, s32, s32);
 void RotMatrixYXZ(void *, void *);
 void ScaleMatrix_8013DB40(void *, void *) asm("ScaleMatrix");
-void func_80015780(void *, s32);
+void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
-void func_80016EBC(void *, void *, void *);
+void Model_DrawAuto(void *, void *, void *);
 
 void func_8013DB40(void) {
     s32 i;
@@ -342,9 +342,9 @@ void func_8013DB40(void) {
                 RotMatrixYXZ(&d->r, d->mat);
                 s[0] = s[1] = s[2] = d->scale;
                 ScaleMatrix_8013DB40(d->mat, s);
-                func_80015780(d, 3);
+                Model_CalcKeyedJointMatrices(d, 3);
                 Model_ProjectBonedVerts(d);
-                func_80016EBC(g_Game.f_80 + g_Game.f_C * 0x4078, D_800E7D00_8013DB40, d);
+                Model_DrawAuto(g_Game.f_80 + g_Game.f_C * 0x4078, D_800E7D00_8013DB40, d);
             }
         }
     }
@@ -429,10 +429,10 @@ void func_8013DF78(void *arg0, void *arg1, M2C_UNK arg2) {
 void Matrix_FromDirection(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void ScaleMatrix(s32, void *);
-void func_80015780(void *, s32);
-void func_80016EBC(void *, void *, void *);
+void Model_CalcKeyedJointMatrices(void *, s32);
+void Model_DrawAuto(void *, void *, void *);
 s32 func_80051410(void *, s32, s32);
-extern M2C_UNK D_800E7D00;
+extern M2C_UNK g_ProjVerts;
 extern u8 D_80142270[];
 
 void func_8013E018(s32 arg0, s32 arg1) {
@@ -444,9 +444,9 @@ void func_8013E018(s32 arg0, s32 arg1) {
         v[0] = v[1] = v[2] = arg1 << 8;
         Matrix_FromDirection(m + 0x60, M2C_FIELD(m, s32 *, 0x14));
         ScaleMatrix(M2C_FIELD(m, s32 *, 0x14), v);
-        func_80015780(m, 3);
+        Model_CalcKeyedJointMatrices(m, 3);
         Model_ProjectBonedVerts(m);
-        func_80016EBC(g_Game.f_80 + g_Game.f_C * 0x4078, &D_800E7D00, m);
+        Model_DrawAuto(g_Game.f_80 + g_Game.f_C * 0x4078, &g_ProjVerts, m);
     }
 }
 
@@ -1350,7 +1350,7 @@ typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_80140124;
 extern u8 D_801426E8_80140124 asm("D_801426E8");
 extern Drip_80140124 D_801422E8_80140124[] asm("D_801422E8");
 void Sound_PlayAt_80140124(s32, void *) asm("Sound_PlayAt");
-extern Mat_80140124 D_800E78C0_80140124 asm("D_800E78C0");
+extern Mat_80140124 D_800E78C0_80140124 asm("g_ViewMatrix");
 extern GameDraw g_Game_80140124 asm("g_Game");
 void SetRotMatrix_80140124(Mat_80140124 *) asm("SetRotMatrix");
 void SetTransMatrix_80140124(Mat_80140124 *) asm("SetTransMatrix");
@@ -1626,20 +1626,20 @@ extern s32 D_800E54C4;
 extern s32 D_800E54C8;
 extern s32 D_800EC014;
 extern u8 D_800E6902;
-extern SVECTOR D_800F4B30[3];
-extern u8 D_800E7D00_80140AFC[] asm("D_800E7D00");
-s32 func_800433B0(s32, s32, s32, void *);
+extern SVECTOR g_JointAngles[3];
+extern u8 D_800E7D00_80140AFC[] asm("g_ProjVerts");
+s32 Floor_GetHeightAndSlope(s32, s32, s32, void *);
 s32 Water_Query(s32, s32, s32);
 void Sound_PlayFixed(s32);
 s32 rsin_80140AFC(s32) asm("rsin");
 s32 rcos_80140AFC(s32) asm("rcos");
-void func_8004637C_80140AFC(Mtx_80140AFC *) asm("func_8004637C");
+void func_8004637C_80140AFC(Mtx_80140AFC *) asm("Matrix_SetIdentity");
 void RotMatrixY_80140AFC(s32, void *) asm("RotMatrixY");
 void ApplyMatrixSV_80140AFC(Mtx_80140AFC *, SVECTOR *, SVECTOR *) asm("ApplyMatrixSV");
 void func_8006699C(s32);
-void func_80014804(s16 *, s16 *);
+void Matrix_FromFacingXZ(s16 *, s16 *);
 void Model_CalcJointMatrices(void *, s32);
-void func_80017CD4_80140AFC(void *, void *, void *) asm("func_80017CD4");
+void func_80017CD4_80140AFC(void *, void *, void *) asm("Model_Draw");
 void Anim_SetFrame(void *);
 void Spike_SetPlayMode(s32);
 void func_8004B83C(void);
@@ -1657,7 +1657,7 @@ void func_80140AFC(void) {
     Stk_80140AFC *st;
 
     o = D_800B4DC4_80140AFC;
-    g_Spike_80140AFC.f_12C = func_800433B0(g_Spike_80140AFC.x, g_Spike_80140AFC.y, g_Spike_80140AFC.z, g_Spike_80140AFC.f_104);
+    g_Spike_80140AFC.f_12C = Floor_GetHeightAndSlope(g_Spike_80140AFC.x, g_Spike_80140AFC.y, g_Spike_80140AFC.z, g_Spike_80140AFC.f_104);
     st = &D_800E53C0;
     o->st = *st;
     g_Spike_80140AFC.f_13A = g_Spike_80140AFC.f_138;
@@ -1826,37 +1826,37 @@ void func_80140AFC(void) {
     g_Spike_80140AFC.f_114 = g_Spike_80140AFC.f_30;
     g_Spike_80140AFC.f_11C = g_Spike_80140AFC.f_38;
     g_Spike_80140AFC.f_118 = g_Spike_80140AFC.f_34;
-    func_80014804((s16 *)&g_Spike_80140AFC.f_60, o->f_14);
+    Matrix_FromFacingXZ((s16 *)&g_Spike_80140AFC.f_60, o->f_14);
     o->x = g_Spike_80140AFC.x;
     o->y = g_Spike_80140AFC.y + (rsin_80140AFC(g_Game_80140AFC.f_0 << 6) >> 9);
     o->z = g_Spike_80140AFC.z;
-    D_800F4B30[0].vx = 0;
-    D_800F4B30[0].vy = 0x800;
-    D_800F4B30[0].vz = 0;
-    D_800F4B30[1].vx = 0x400 - (o->st.b[3] << 24 >> 22);
-    D_800F4B30[1].vy = 0;
-    D_800F4B30[1].vz = (o->st.b[2] << 24 >> 22) - 0x480;
-    D_800F4B30[2].vx = (o->st.b[1] << 24 >> 22) + 0x400;
-    D_800F4B30[2].vy = 0;
-    D_800F4B30[2].vz = (o->st.b[0] << 24 >> 22) - 0x380;
+    g_JointAngles[0].vx = 0;
+    g_JointAngles[0].vy = 0x800;
+    g_JointAngles[0].vz = 0;
+    g_JointAngles[1].vx = 0x400 - (o->st.b[3] << 24 >> 22);
+    g_JointAngles[1].vy = 0;
+    g_JointAngles[1].vz = (o->st.b[2] << 24 >> 22) - 0x480;
+    g_JointAngles[2].vx = (o->st.b[1] << 24 >> 22) + 0x400;
+    g_JointAngles[2].vy = 0;
+    g_JointAngles[2].vz = (o->st.b[0] << 24 >> 22) - 0x380;
     Model_CalcJointMatrices(o, 3);
     Model_ProjectBonedVerts(o);
     func_80017CD4_80140AFC(g_Game_80140AFC.f_80 + g_Game_80140AFC.f_C * 0x4078, D_800E7D00_80140AFC, o);
     if (++g_Spike_80140AFC.f_5C >= 30) {
         g_Spike_80140AFC.f_5C = 0;
     }
-    func_80014804((s16 *)&g_Spike_80140AFC.f_60, g_Spike_80140AFC.f_14);
+    Matrix_FromFacingXZ((s16 *)&g_Spike_80140AFC.f_60, g_Spike_80140AFC.f_14);
     RotMatrixY_80140AFC(0x800, g_Spike_80140AFC.f_14);
     save = g_Spike_80140AFC.f_18;
     g_Spike_80140AFC.f_18 = o->f_18;
     Anim_SetFrame(&g_Spike_80140AFC);
     g_Spike_80140AFC.f_18 = save;
-    D_800F4B30[4].vz -= (o->st.b[2] << 24 >> 22);
-    D_800F4B30[5].vz += (o->st.b[0] << 24 >> 22);
-    D_800F4B30[8].vz -= (o->st.b[2] << 24 >> 23);
-    D_800F4B30[9].vz += (o->st.b[0] << 24 >> 23);
-    D_800F4B30[8].vy += (o->st.b[3] << 24 >> 22);
-    D_800F4B30[9].vy -= (o->st.b[1] << 24 >> 22);
+    g_JointAngles[4].vz -= (o->st.b[2] << 24 >> 22);
+    g_JointAngles[5].vz += (o->st.b[0] << 24 >> 22);
+    g_JointAngles[8].vz -= (o->st.b[2] << 24 >> 23);
+    g_JointAngles[9].vz += (o->st.b[0] << 24 >> 23);
+    g_JointAngles[8].vy += (o->st.b[3] << 24 >> 22);
+    g_JointAngles[9].vy -= (o->st.b[1] << 24 >> 22);
     Model_CalcJointMatrices(&g_Spike_80140AFC, 1);
     Model_ProjectBonedVerts(&g_Spike_80140AFC);
     func_80017CD4_80140AFC(g_Game_80140AFC.f_80 + g_Game_80140AFC.f_C * 0x4078, D_800E7D00_80140AFC, &g_Spike_80140AFC);
@@ -1869,15 +1869,15 @@ void func_80140AFC(void) {
 
 typedef struct { u8 pad0[0xA]; s16 fA; u8 padC[4]; s16 f10; } Scr_8014163C;
 extern u8 *D_800B4DC4;
-extern SVECTOR D_800F4B30[3];
+extern SVECTOR g_JointAngles[3];
 extern struct { s32 f0; u8 pad4[4]; s32 f8; } g_Game_8014163C asm("g_Game");
-extern u8 D_800E7D00_8014163C[] asm("D_800E7D00");
+extern u8 D_800E7D00_8014163C[] asm("g_ProjVerts");
 s32 Floor_GetHeight_8014163C(s32, s32, s32) asm("Floor_GetHeight");
 s32 Water_Query(s32, s32, s32);
 s32 rsin_8014163C(s32) asm("rsin");
-void func_80014804(s16 *, s16 *);
+void Matrix_FromFacingXZ(s16 *, s16 *);
 void Model_CalcJointMatrices(void *, s32);
-void func_80017CD4_8014163C(s32, void *, void *) asm("func_80017CD4");
+void func_80017CD4_8014163C(s32, void *, void *) asm("Model_Draw");
 
 void func_8014163C(void) {
     u8 *o;
@@ -1902,18 +1902,18 @@ void func_8014163C(void) {
         M2C_FIELD(o, s32 *, 0x28) = M2C_FIELD(o, s16 *, 0x7A);
         M2C_FIELD(o, s32 *, 0x2C) = M2C_FIELD(o, s16 *, 0x7C);
     }
-    func_80014804((s16 *)(o + 0x60), M2C_FIELD(o, s16 **, 0x14));
+    Matrix_FromFacingXZ((s16 *)(o + 0x60), M2C_FIELD(o, s16 **, 0x14));
     y = M2C_FIELD(o, s32 *, 0x28);
     M2C_FIELD(o, s32 *, 0x28) += rsin_8014163C(g_Game_8014163C.f0 << 6) >> 9;
-    D_800F4B30[0].vx = 0;
-    D_800F4B30[0].vy = 0x800;
-    D_800F4B30[0].vz = 0;
-    D_800F4B30[1].vx = 0x400;
-    D_800F4B30[1].vy = 0;
-    D_800F4B30[1].vz = -0x480;
-    D_800F4B30[2].vx = 0x400;
-    D_800F4B30[2].vy = 0;
-    D_800F4B30[2].vz = -0x380;
+    g_JointAngles[0].vx = 0;
+    g_JointAngles[0].vy = 0x800;
+    g_JointAngles[0].vz = 0;
+    g_JointAngles[1].vx = 0x400;
+    g_JointAngles[1].vy = 0;
+    g_JointAngles[1].vz = -0x480;
+    g_JointAngles[2].vx = 0x400;
+    g_JointAngles[2].vy = 0;
+    g_JointAngles[2].vz = -0x380;
     Model_CalcJointMatrices(o, 1);
     Model_ProjectBonedVerts(o);
     func_80017CD4_8014163C(g_Game_8014163C.f8, D_800E7D00_8014163C, o);

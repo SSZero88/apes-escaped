@@ -66,7 +66,7 @@ typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_6D5A8;
 extern Dust_6D5A8 D_800BADA0_6D5A8[] asm("D_800BADA0");
 extern u8 *D_800EC354_6D5A8 asm("D_800EC354");
 extern u16 g_RandSeed_6D5A8 asm("g_RandSeed");
-extern u8 D_800E78C0_6D5A8[] asm("D_800E78C0");
+extern u8 D_800E78C0_6D5A8[] asm("g_ViewMatrix");
 void SetRotMatrix_6D5A8(void *) asm("SetRotMatrix");
 void SetTransMatrix_6D5A8(void *) asm("SetTransMatrix");
 #define gte_ldv0_6D5A8(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
@@ -171,7 +171,7 @@ extern struct { u8 pad0[4]; s16 f_4; u8 pad6[2]; s32 f_8; } g_GadgetState_6DAF8 
 typedef struct { s32 rand; s32 otz; u32 sxy; u32 padC; s32 dx, dy, dz; SVECTOR base; s32 noSpawn; s32 radius; } Scratch_6DAF8;
 void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
-extern u8 D_800E78C0[];
+extern u8 g_ViewMatrix[];
 s32 func_8005DC78(void);
 s32 rcos(s32);
 s32 rsin(s32);
@@ -201,8 +201,8 @@ void SuperHoop_DrawSparkles(void) {
     sc->dy = g_Spike_6DAF8.vy;
     *(SVECTOR *)0x1F80001C = g_Spike_6DAF8.rot;
     sc->radius = g_GadgetState_6DAF8.f_8 / 6 + 0x5A;
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     e = D_800F4ED0_6DAF8;
     ot = G_DRAW.db[G_DRAW.cur].ot;
     p = (PolyFT4_6DAF8 *)G_DRAW.prim;
@@ -353,8 +353,8 @@ void func_8006E1C0(void) {
         vel = t;
         Flare_Spawn((s16 *)&pos, (s16 *)&vel, 0);
     }
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     ot = G_DRAW.db[G_DRAW.cur].ot;
     p = (u32 *)G_DRAW.prim;
     for (i = 7; i >= 0; i--) {
@@ -441,7 +441,7 @@ void Fx_DrawFadeRing(void *arg0, s32 r, s32 flags, s32 color) {
     scr->m.t[0] = pos->vx;
     scr->m.t[1] = pos->vy;
     scr->m.t[2] = pos->vz;
-    CompMatrix(D_800E78C0, &scr->m, &scr->m);
+    CompMatrix(g_ViewMatrix, &scr->m, &scr->m);
     SetRotMatrix(&scr->m);
     SetTransMatrix(&scr->m);
     for (i = 0; i < 12; i++) {
@@ -653,8 +653,8 @@ void Ripple_DrawAll(void) {
     s32 i, s, x, y;
     register s32 t asm("$3");
 
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     ot = G_DRAW.db[G_DRAW.cur].ot;
     p = (FT4_6EFAC *)G_DRAW.prim;
     for (i = 7; i >= 0; i--) {
@@ -753,8 +753,8 @@ void func_8006F3D0(SVEC_8006F274_8006F274 *pts, s32 n, void *vtex, s32 width) {
     if (n > 16) {
         n = 16;
     }
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     width *= 0xA4;
     {
         s32 *qz = sc->otz;

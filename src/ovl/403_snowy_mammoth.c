@@ -30,7 +30,7 @@ void func_80047464(void *, s32, s32, s32);
 void func_80047558(void *, s32, s32, s32);
 void func_8004B8F4(void *, s32, void *);
 void VectorNormalSS(void *, void *);
-void func_8004637C(void *);
+void Matrix_SetIdentity(void *);
 void *RotMatrixY(s32 r, void *m);
 void *ApplyMatrixSV(void *m, void *v0, void *v1);
 
@@ -51,7 +51,7 @@ void func_8013D000(void *arg0) {
     d.vy = 0;
     d.vz = v.vz - ((Scr_8013D000 *)0x1F800000)->spike.vz;
     VectorNormalSS(&d, &d);
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     RotMatrixY(0x111, &m);
     ApplyMatrixSV(&m, &d, &d);
     ((Scr_8013D000 *)0x1F800000)->at.vx = v.vx - ((d.vx * 925) >> 11);
@@ -106,10 +106,10 @@ typedef struct { u8 pad0[0x14]; s32 mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x
 typedef struct { u8 pad0[0x28]; s32 y; u8 pad2C[0x70]; s16 floor; u8 pad9E[0x46]; } Obj_8013D488;
 void Model_ProjectBonedVerts(void *);
 void RotMatrixYXZ_8013D488(void *, void *) asm("RotMatrixYXZ");
-void func_80015780(void *, s32);
-void func_80016EBC(void *, void *, void *);
+void Model_CalcKeyedJointMatrices(void *, s32);
+void Model_DrawAuto(void *, void *, void *);
 s32 func_80051410(void *, s32, s32);
-extern M2C_UNK D_800E7D00;
+extern M2C_UNK g_ProjVerts;
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013D488 asm("g_Game");
 extern Deb_8013D488 D_80140BC8_8013D488[] asm("D_80140BC8");
 extern Obj_8013D488 g_Objects_8013D488[] asm("g_Objects");
@@ -140,9 +140,9 @@ void func_8013D488(void) {
             m->rz = (m->rz + m->rvz) % 4096;
             if (func_80051410(&m->x, 0, 0) == 0) {
                 RotMatrixYXZ_8013D488(&m->rx, (void *)m->mat);
-                func_80015780(m, 3);
+                Model_CalcKeyedJointMatrices(m, 3);
                 Model_ProjectBonedVerts(m);
-                func_80016EBC(g_Game_8013D488.f_80 + g_Game_8013D488.f_C * 0x4078, &D_800E7D00, m);
+                Model_DrawAuto(g_Game_8013D488.f_80 + g_Game_8013D488.f_C * 0x4078, &g_ProjVerts, m);
             }
         }
     }
@@ -1022,7 +1022,7 @@ typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013F678;
 #define gte_stszotz_8013F678(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 extern Wind_8013F678 D_80141B38_8013F678 asm("D_80141B38");
 extern Flake_8013F678 D_80141408_8013F678[] asm("D_80141408");
-extern Mat_8013F678 D_800E78C0_8013F678 asm("D_800E78C0");
+extern Mat_8013F678 D_800E78C0_8013F678 asm("g_ViewMatrix");
 extern GameDraw g_Game_8013F678 asm("g_Game");
 extern struct { u8 pad0[0x8258]; SVECTOR camA; SVECTOR camB; } g_GameCam_8013F678 asm("g_Game");
 void SetRotMatrix_8013F678(Mat_8013F678 *) asm("SetRotMatrix");

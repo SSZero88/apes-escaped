@@ -312,15 +312,15 @@ s32 func_8013CD1C(s32 msg, s32 arg) {
 }
 
 extern s16 D_8013AF56;
-extern struct { s16 f_0; u8 pad2[6]; s16 f_8; u8 padA[2]; void *f_C; } D_800E3880;
+extern struct { s16 f_0; u8 pad2[6]; s16 f_8; u8 padA[2]; void *f_C; } g_MemCard;
 void MemCard_Request(s32, s32);
 
 s32 func_8013D19C(void) {
     D_8013AF56 = 0x13;
     MemCard_Request(8, 0);
-    D_800E3880.f_C = (void *)0x80158000;
-    D_800E3880.f_0 = 1;
-    D_800E3880.f_8 = 0;
+    g_MemCard.f_C = (void *)0x80158000;
+    g_MemCard.f_0 = 1;
+    g_MemCard.f_8 = 0;
     MemCard_Request(10, 0);
     return 0;
 }
@@ -335,7 +335,7 @@ s32 func_8013D218(void) {
     return func_8013D238() != 0;
 }
 
-extern struct { s16 f_0; s16 f_2; s16 f_4; } D_800E3880_8013D238 asm("D_800E3880");
+extern struct { s16 f_0; s16 f_2; s16 f_4; } D_800E3880_8013D238 asm("g_MemCard");
 s32 func_8013CD1C(s32 msg, s32 arg);
 void func_80139A3C(s32);
 void func_80139A68(void);
@@ -579,7 +579,7 @@ void MemCard_LoadThread_8013D764(void) {
     }
 }
 
-extern s16 D_800E3880_8013D834 asm("D_800E3880");
+extern s16 D_800E3880_8013D834 asm("g_MemCard");
 extern s16 D_800E3884;
 
 s32 func_8013D834(void) {
@@ -613,7 +613,7 @@ s32 func_8013D834(void) {
     return 0;
 }
 
-extern s16 D_800E3880_8013D92C asm("D_800E3880");
+extern s16 D_800E3880_8013D92C asm("g_MemCard");
 extern s16 D_800E3884;
 extern s16 D_8013F284;
 
@@ -645,7 +645,7 @@ s32 func_8013D92C(void) {
     return 0;
 }
 
-extern s16 D_800E3880_8013DA00 asm("D_800E3880");
+extern s16 D_800E3880_8013DA00 asm("g_MemCard");
 
 s32 func_8013DA00(void) {
     switch (D_800E3880_8013DA00) {
@@ -666,7 +666,7 @@ s32 func_8013DA00(void) {
     return 0;
 }
 
-extern s16 D_800E3880_8013DA7C asm("D_800E3880");
+extern s16 D_800E3880_8013DA7C asm("g_MemCard");
 
 s32 func_8013DA7C(void) {
     switch (D_800E3880_8013DA7C) {
@@ -692,7 +692,7 @@ s32 func_8013DA7C(void) {
     return 0;
 }
 
-extern s16 D_800E3880_8013DB48 asm("D_800E3880");
+extern s16 D_800E3880_8013DB48 asm("g_MemCard");
 extern s16 D_8013F284;
 
 s32 func_8013DB48(void) {
@@ -716,7 +716,7 @@ s32 func_8013DB48(void) {
     return 0;
 }
 
-extern s16 D_800E3880_8013DBF0 asm("D_800E3880");
+extern s16 D_800E3880_8013DBF0 asm("g_MemCard");
 
 s32 func_8013DBF0(void) {
     switch (D_800E3880_8013DBF0) {
@@ -743,7 +743,7 @@ s32 func_8013DBF0(void) {
     return 0;
 }
 
-extern s16 D_800E3880_8013DC78 asm("D_800E3880");
+extern s16 D_800E3880_8013DC78 asm("g_MemCard");
 extern s32 D_8013F290;
 s32 func_8013E098(void);
 s32 func_8013E114(void);
@@ -807,7 +807,7 @@ s32 func_8013DC78(void) {
     return 0;
 }
 
-extern s16 D_800E3880_8013DDF0 asm("D_800E3880");
+extern s16 D_800E3880_8013DDF0 asm("g_MemCard");
 extern s32 D_8013F288;
 s32 func_8013E114(void);
 
@@ -845,7 +845,7 @@ s32 func_8013DDF0(void) {
     return 0;
 }
 
-extern s16 D_800E3880_8013DEB4 asm("D_800E3880");
+extern s16 D_800E3880_8013DEB4 asm("g_MemCard");
 extern s32 D_8013F288;
 
 s32 func_8013DEB4(void) {
@@ -871,7 +871,7 @@ s32 func_8013DEB4(void) {
     return 0;
 }
 
-extern s16 D_800E3880_8013DF40 asm("D_800E3880");
+extern s16 D_800E3880_8013DF40 asm("g_MemCard");
 extern s16 D_8013F28C;
 void func_8013784C(s32, s32);
 

@@ -55,7 +55,7 @@ typedef struct { SVECTOR v[3]; u8 pad[8]; } Tri_80140F78;
 typedef struct { Mtx_80140F78 m; Mtx_80140F78 cam; SVECTOR rot; Tri_80140F78 tri[4]; s32 sxy[3]; s32 otz; } Scr_80140F78;
 typedef struct { s16 x, y, z, floor; s8 vx, vy, vz; u8 life; } Rock_80140F78;
 extern Rock_80140F78 D_80141880_80140F78[] asm("D_80141880");
-extern Mtx_80140F78 D_800E78C0_80140F78 asm("D_800E78C0");
+extern Mtx_80140F78 D_800E78C0_80140F78 asm("g_ViewMatrix");
 typedef struct { u32 addr : 24; u32 len : 8; } Tag_80140F78;
 typedef struct { u32 tag; u32 rgb0; s32 xy0; u32 rgb1; s32 xy1; u32 rgb2; s32 xy2; } PolyG3_80140F78;
 extern struct { u8 pad_0[0x4]; u32 *f_4; u8 pad_8[4]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_80140F78 asm("g_Game");

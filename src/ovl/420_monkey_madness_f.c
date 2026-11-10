@@ -86,7 +86,7 @@ typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013D218;
 #define gte_stsxy3c_8013D218(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
 #define gte_stszotz_8013D218(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 extern Part_8013D218 D_80144590_8013D218[] asm("D_80144590");
-extern Mat_8013D218 D_800E78C0_8013D218 asm("D_800E78C0");
+extern Mat_8013D218 D_800E78C0_8013D218 asm("g_ViewMatrix");
 extern u16 g_RandSeed_8013D218 asm("g_RandSeed");
 void Effect_SpawnAt_8013D218(s32, void *) asm("Effect_SpawnAt");
 void Sound_PlayFixed_8013D218(s32) asm("Sound_PlayFixed");
@@ -725,12 +725,12 @@ typedef struct { s16 x, y, z; } Rot_8013ECCC;
 typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 wx, wy, wz; Rot_8013ECCC r; s16 life; } Debris_8013ECCC;
 extern Debris_8013ECCC D_80144688[7];
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013ECCC asm("g_Game");
-extern u8 D_800E7D00[];
+extern u8 g_ProjVerts[];
 s32 func_80051410(void *, s32, s32);
 void RotMatrixYXZ(void *, void *);
-void func_80015780(void *, s32);
+void Model_CalcKeyedJointMatrices(void *, s32);
 M2C_UNK Model_ProjectBonedVerts(void *);
-void func_80016EBC(void *, void *, void *);
+void Model_DrawAuto(void *, void *, void *);
 
 void func_8013ECCC(u8 *arg0) {
     s32 i;
@@ -759,9 +759,9 @@ void func_8013ECCC(u8 *arg0) {
             d->r.z = (d->r.z + d->wz) % 4096;
             if (func_80051410(&d->x, 0, 0) == 0) {
                 RotMatrixYXZ(&d->r, d->mat);
-                func_80015780(d, 3);
+                Model_CalcKeyedJointMatrices(d, 3);
                 Model_ProjectBonedVerts(d);
-                func_80016EBC(g_Game_8013ECCC.f_80 + g_Game_8013ECCC.f_C * 0x4078, D_800E7D00, d);
+                Model_DrawAuto(g_Game_8013ECCC.f_80 + g_Game_8013ECCC.f_C * 0x4078, g_ProjVerts, d);
                 Effect_SpawnAt(7, &v);
                 func_8006D548(&v);
             }
@@ -1822,7 +1822,7 @@ s32 func_80140F24(s16 *p) {
 
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; u8 pad_8210[0x10]; struct S18_8014143C { s16 f[12]; } *f_8220; } g_Game_8014143C asm("g_Game");
 extern u8 *D_800B4D64_8014143C asm("D_800B4D64");
-void func_800147D0(s16 *, void *);
+void Matrix_SetScale(s16 *, void *);
 
 s32 func_8014143C(s16 *p) {
     u8 *e = g_Game_8014143C.f_820C + p[2] * 0x38;
@@ -1842,7 +1842,7 @@ s32 func_8014143C(s16 *p) {
         v[1] = 0x1000;
         v[0] = 0x1000;
         v[2] = p[9];
-        func_800147D0(v, M2C_FIELD(D_800B4D64_8014143C + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
+        Matrix_SetScale(v, M2C_FIELD(D_800B4D64_8014143C + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
         M2C_FIELD(e, s16 *, 0xA) = (p[10] * p[9]) / 4096;
     }
     return 0;
@@ -1912,7 +1912,7 @@ s32 func_8014153C(s16 *p) {
         v[1] = 0x1000;
         v[0] = 0x1000;
         v[2] = p[9];
-        func_800147D0(v, M2C_FIELD(D_800B4D64_8014153C + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
+        Matrix_SetScale(v, M2C_FIELD(D_800B4D64_8014153C + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
         M2C_FIELD(e, s16 *, 0xA) = (p[10] * p[9]) / 4096;
     }
     return 0;
@@ -2129,7 +2129,7 @@ s32 func_80141CB4(s16 *p) {
     v[0] = 0x1000;
     v[1] = (p[9] << 12) / p[4];
     if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
-        func_800147D0(v, M2C_FIELD(D_800B4D64_80141CB4 + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
+        Matrix_SetScale(v, M2C_FIELD(D_800B4D64_80141CB4 + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
     }
     return 0;
 }
@@ -2240,7 +2240,7 @@ s32 func_801421E4(s16 *p) {
             sv.vy = ((p[6] - p[3]) << 12) / p[6];
             M2C_FIELD(e, s16 *, 8) = (M2C_FIELD(e, s16 *, 0x34) * (p[6] - p[3])) / p[6];
             if (M2C_FIELD(e, s16 *, 0xE) >= 0) {
-                func_800147D0(&sv.vx, M2C_FIELD(D_800B4D64_801421E4 + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
+                Matrix_SetScale(&sv.vx, M2C_FIELD(D_800B4D64_801421E4 + M2C_FIELD(e, s16 *, 0xE) * 32, void **, 0x1C));
             }
         }
         break;

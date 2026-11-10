@@ -3,7 +3,7 @@
 
 s32 Floor_GetHeight(s32, s32, s32);
 
-extern struct S_D_800B4D30 { s32 f_0; void * f_4; } D_800B4D30;
+extern struct S_D_800B4D30 { s32 f_0; void * f_4; } g_ZoneTable;
 extern struct S_D_800EBFA0 { u16 w; u16 h; u8 pad4[4]; u32 *cells; } D_800EBFA0;
 void *Mem_Alloc(s32 size);
 
@@ -14,16 +14,16 @@ void Zone_SetTable(s32 *arg0)
   new_var = (void *) 0;
   if (arg0 == new_var)
   {
-    D_800B4D30.f_0 = 0;
+    g_ZoneTable.f_0 = 0;
     return;
   }
   new_var = arg0;
   new_var2 = (s32) (*arg0);
-  D_800B4D30.f_4 = (void *) (new_var + 4);
-  D_800B4D30.f_0 = new_var2;
+  g_ZoneTable.f_4 = (void *) (new_var + 4);
+  g_ZoneTable.f_0 = new_var2;
 }
 
-s16 func_800433B0(s32 a0, s32 a1, s32 a2, s16 *out)
+s16 Floor_GetHeightAndSlope(s32 a0, s32 a1, s32 a2, s16 *out)
 {
   u8 *scratch = (u8 *) 0x1F8003F0;
   s32 r = Floor_GetHeight(a0, a1, a2);
@@ -173,13 +173,13 @@ typedef struct { u32 color[0x80]; V_80043A8C v[4]; V_80043A8C g[13]; s32 rx, ry,
 typedef struct { u32 w0; u32 w1; } Idx_80043A8C;
 extern struct { u16 w; u16 h; u32 count; u32 *cells; u32 *colors; Idx_80043A8C *idx; u16 *heights; u8 *map; u8 pad1C[8]; u16 f_24; u8 pad26[2]; u16 f_28; } D_800EBFA0_80043A8C asm("D_800EBFA0");
 extern struct { u8 pad0[0x8194]; struct { u32 flags; u8 pad4[0x12]; u16 far; } *f_8194; } g_Game_80043A8C asm("g_Game");
-extern u8 D_800E78C0[];
+extern u8 g_ViewMatrix[];
 extern GameDraw g_GameDraw_80043A8C asm("g_Game");
 extern u32 D_800AEFE0[];
 extern u32 D_800AF020[];
 extern u32 D_800AF060[];
 void Floor_DrawQuad(s32);
-void func_80045BE4(void);
+void Floor_AddQuadPrim(void);
 #define gte_ldIR_A8C(r1, r2, r3) __asm__ volatile ("mtc2 %0, $9; nop; mtc2 %1, $10; nop; mtc2 %2, $11" : : "r"(r1), "r"(r2), "r"(r3))
 #define gte_ldRGB_A8C(p) __asm__ volatile ("lwc2 $6, 0(%0)" : : "r"(p))
 #define gte_cc_A8C() __asm__ volatile ("nop; nop; cc")
@@ -206,7 +206,7 @@ void func_80045BE4(void);
    of floor cells (half-resolution map D_800EBFA0.map, 0xFF = empty) is culled by its centre point;
    near blocks (z < 0xC01) are transformed as a 3x3 corner grid plus 4 centre points and drawn as
    eight quads split through the centres, far blocks as four plain quads (with an optional diagonal
-   flip); textured cells (flag bit 1) go to Floor_DrawQuad, flat ones to func_80045BE4. */
+   flip); textured cells (flag bit 1) go to Floor_DrawQuad, flat ones to Floor_AddQuadPrim. */
 #define UV_A8C ((u16 *)&S->uv0)
 
 void Floor_DrawGrid(void) {
@@ -221,8 +221,8 @@ void Floor_DrawGrid(void) {
     if (g_Game_80043A8C.f_8194->flags & 1) {
         return;
     }
-    SetRotMatrix(&D_800E78C0);
-    SetTransMatrix(&D_800E78C0);
+    SetRotMatrix(&g_ViewMatrix);
+    SetTransMatrix(&g_ViewMatrix);
     { s32 z = 0; gte_SetFarColor0_A8C(z);
     for (j = z; (u32)j < D_800EBFA0_80043A8C.count; j++) {
         gte_ldIR_A8C(0x1000, 0, 0);
@@ -359,7 +359,7 @@ __asm__("" :: "r"(s3 * 3), "r"(j * 2 + s3), "r"(k * 2));
                                         S->uv1 += m;
                                         Floor_DrawQuad(3);
                                     } else {
-                                        func_80045BE4();
+                                        Floor_AddQuadPrim();
                                     }
                                 }
                             }
@@ -400,7 +400,7 @@ __asm__("" :: "r"(s3 * 3), "r"(j * 2 + s3), "r"(k * 2));
                                         S->uv1 += m;
                                         Floor_DrawQuad(3);
                                     } else {
-                                        func_80045BE4();
+                                        Floor_AddQuadPrim();
                                     }
                                 }
                             }
@@ -507,7 +507,7 @@ __asm__("" :: "r"(s3 * 3), "r"(j * 2 + s3), "r"(k * 2));
                                     if ((S->flags >> 1) & 1) {
                                         Floor_DrawQuad(0);
                                     } else {
-                                        func_80045BE4();
+                                        Floor_AddQuadPrim();
                                     }
                                 }
                             }
@@ -933,7 +933,7 @@ extern Fog_80045BE4 D_800EBFA0_80045BE4 asm("D_800EBFA0");
 #define S_5BE4 S
 #define MAX_5BE4(a, b) ((a) > (b) ? (a) : (b))
 
-void func_80045BE4(void) {
+void Floor_AddQuadPrim(void) {
     s32 t;
     Scr_80045BE4 *S = (Scr_80045BE4 *)0x1F800000;
     __asm__ volatile("mtc2 %0, $12; nop; mtc2 %2, $14; nop; mtc2 %1, $13" : : "r"(S_5BE4->v[0].sxy), "r"(S_5BE4->v[1].sxy), "r"(S_5BE4->v[2].sxy));
@@ -1012,8 +1012,8 @@ typedef struct { s16 x, y, z, hx, hy, hz; u16 flags; s16 pad; } Zone;
 s32 Zone_FindAt(s32 x, s32 y, s32 z, s32 def) {
     s32 i;
     s32 r = 0;
-    s32 n = D_800B4D30.f_0;
-    Zone *p = D_800B4D30.f_4;
+    s32 n = g_ZoneTable.f_0;
+    Zone *p = g_ZoneTable.f_4;
     for (i = 0; i < n; p++, i++) {
         s32 dx = p->x - x;
         s32 dy = p->y - y;

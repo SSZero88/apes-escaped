@@ -6,7 +6,7 @@ extern struct S_D_800EC350 { u8 pad_0[0x8132]; s16 f_8132; } g_Game;
 void Gfx_BeginFrame(void);
 s32 ScreenWipe_DrawSpiral(void);
 struct S_D_800A5ED0 { s16 x, y, w, h; };
-extern struct S_D_800E3890 { s32 f_0; } D_800E3890;
+extern struct S_D_800E3890 { s32 f_0; } g_Cd;
 struct Game_80079B10 { s32 frame; u8 pad4[0x8120]; u16 f_8124; u16 f_8126; u8 pad8128[2]; u16 f_812A; u8 f_812C; u8 pad812D[3]; u16 f_8130; s16 f_8132; };
 void func_80079E78(void);
 s32 Game_IsTimed(void);
@@ -20,7 +20,7 @@ void Sound_UnloadBanks(s32);
 void Cd_Update(void);
 void VSync(s32);
 void Cd_ReadCurrentFile(void);
-s32 func_800116C0(void);
+s32 Cd_PollLoadList(void);
 
 /* Screen transition, state g_Game+0x8130 with timer +0x8132. 1: fade (func_80079E78) for the
  * timer, then per stage state +0x812C: 1 -> stage state 0x18 (0x19 in races / stage 0x21),
@@ -91,13 +91,13 @@ s32 ScreenWipe_Update(void) {
         Sound_UnloadBanks(2);
         ClearImage(&r, 0, 0, 0);
         DrawSync(0);
-        while (D_800E3890.f_0 != 0) {
+        while (g_Cd.f_0 != 0) {
             (*(struct Game_80079B10 *)&g_Game).frame++;
             Cd_Update();
             VSync(2);
         }
         Cd_ReadCurrentFile();
-        while (func_800116C0() >= 0) {
+        while (Cd_PollLoadList() >= 0) {
             Cd_Update();
             VSync(2);
         }

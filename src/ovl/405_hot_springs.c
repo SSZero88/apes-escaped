@@ -940,10 +940,10 @@ void func_8013F2EC(void *arg0, void *arg1, M2C_UNK arg2) {
 void Matrix_FromDirection(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void ScaleMatrix(s32, void *);
-void func_80015780(void *, s32);
-void func_80016EBC(void *, void *, void *);
+void Model_CalcKeyedJointMatrices(void *, s32);
+void Model_DrawAuto(void *, void *, void *);
 s32 func_80051410(void *, s32, s32);
-extern M2C_UNK D_800E7D00;
+extern M2C_UNK g_ProjVerts;
 extern u8 D_80141380[];
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013F38C asm("g_Game");
 
@@ -956,9 +956,9 @@ void func_8013F38C(s32 arg0, s32 arg1) {
         v[0] = v[1] = v[2] = arg1 << 8;
         Matrix_FromDirection(m + 0x60, M2C_FIELD(m, s32 *, 0x14));
         ScaleMatrix(M2C_FIELD(m, s32 *, 0x14), v);
-        func_80015780(m, 3);
+        Model_CalcKeyedJointMatrices(m, 3);
         Model_ProjectBonedVerts(m);
-        func_80016EBC(g_Game_8013F38C.f_80 + g_Game_8013F38C.f_C * 0x4078, &D_800E7D00, m);
+        Model_DrawAuto(g_Game_8013F38C.f_80 + g_Game_8013F38C.f_C * 0x4078, &g_ProjVerts, m);
     }
 }
 

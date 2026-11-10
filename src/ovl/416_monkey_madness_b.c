@@ -26,7 +26,7 @@ extern struct { u8 pad_0[0x8244]; u8 *f_8244; } g_Game_8013D440 asm("g_Game");
 typedef struct { u8 pad0[0x18]; s32 f18, f1C; } AnimEnt_8013D440;
 extern u8 *D_80142240[];
 extern u8 *D_80142250[];
-void func_80015BA0(void *, void *);
+void Model_BindBonedAuto(void *, void *);
 
 M2C_UNK func_8013D440(M2C_UNK i, M2C_UNK *obj, void *out) {
     u8 *bank = g_Game_8013D440.f_8244;
@@ -39,7 +39,7 @@ M2C_UNK func_8013D440(M2C_UNK i, M2C_UNK *obj, void *out) {
     q = (u32 *)s + 1;
     *(u32 **)out = q;
     M2C_FIELD(obj, u32 **, 0x18) = q + *(u16 *)s;
-    func_80015BA0(obj, D_80142240[i]);
+    Model_BindBonedAuto(obj, D_80142240[i]);
 }
 
 #include "gte.h"
@@ -83,14 +83,14 @@ void func_8013D4E0(s32 ot, s32 arg1, Mdl_422 *m, s32 add) {
 }
 
 extern struct { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013D63C asm("g_Game");
-extern u8 D_800E78C0[];
-extern u8 D_800E7D00[];
+extern u8 g_ViewMatrix[];
+extern u8 g_ProjVerts[];
 void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
 s32 RotTransPers(void *v0, s32 *sxy, s32 *p, s32 *flag);
 void *ScaleMatrix(void *m, void *v);
 void Matrix_FromDirection(void *, void *);
-void func_80015780(void *, s32);
+void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 
 s32 func_8013D63C(u8 *a, void *scale, s32 c) {
@@ -101,8 +101,8 @@ s32 func_8013D63C(u8 *a, void *scale, s32 c) {
     s32 p;
     s32 z;
 
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     v.vx = M2C_FIELD(a, s32 *, 0x24);
     v.vy = M2C_FIELD(a, s32 *, 0x28);
     v.vz = M2C_FIELD(a, s32 *, 0x2C);
@@ -114,9 +114,9 @@ s32 func_8013D63C(u8 *a, void *scale, s32 c) {
     }
     Matrix_FromDirection(a + 0x60, M2C_FIELD(a, void **, 0x14));
     ScaleMatrix(M2C_FIELD(a, void **, 0x14), scale);
-    func_80015780(a, 3);
+    Model_CalcKeyedJointMatrices(a, 3);
     Model_ProjectBonedVerts(a);
-    func_8013D4E0(g_Game_8013D63C.f_80 + g_Game_8013D63C.f_C * 0x4078, D_800E7D00, a, c);
+    func_8013D4E0(g_Game_8013D63C.f_80 + g_Game_8013D63C.f_C * 0x4078, g_ProjVerts, a, c);
     return 0;
 }
 
@@ -189,7 +189,7 @@ typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013DA4C;
 #define gte_stsxy3c_8013DA4C(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
 #define gte_stszotz_8013DA4C(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 extern Part_8013DA4C D_80142368_8013DA4C[] asm("D_80142368");
-extern Mat_8013DA4C D_800E78C0_8013DA4C asm("D_800E78C0");
+extern Mat_8013DA4C D_800E78C0_8013DA4C asm("g_ViewMatrix");
 extern GameDraw g_Game_8013DA4C asm("g_Game");
 void SetRotMatrix_8013DA4C(Mat_8013DA4C *) asm("SetRotMatrix");
 void SetTransMatrix_8013DA4C(Mat_8013DA4C *) asm("SetTransMatrix");
@@ -1072,7 +1072,7 @@ s32 Collision_GetId_8013FA2C(s32) asm("Collision_GetId");
 void Collision_Remove_8013FA2C(void *) asm("Collision_Remove");
 void Spike_SetPlayMode_8013FA2C(s32) asm("Spike_SetPlayMode");
 void func_8006D548_8013FA2C(void *) asm("func_8006D548");
-void func_8004637C_8013FA2C(void *) asm("func_8004637C");
+void func_8004637C_8013FA2C(void *) asm("Matrix_SetIdentity");
 void *RotMatrixY_8013FA2C(s32, void *) asm("RotMatrixY");
 void *ApplyMatrixSV_8013FA2C(void *, void *, void *) asm("ApplyMatrixSV");
 void func_8013DF60_8013FA2C(s32) asm("func_8013DF60");

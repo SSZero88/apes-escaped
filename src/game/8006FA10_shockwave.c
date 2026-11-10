@@ -38,13 +38,13 @@ void func_8006F3D0(SV_70D94_80070D94 *, s32, u8 *, s32);
 struct S_D_800BB840_80070D94 { PuffGfx_80070D94 *f_0; void *f_4; s16 f_8; s16 f_A; s16 f_C; u8 padE[2]; s16 f_10; s16 f_12; s16 f_14; u8 pad16[2]; s8 f_18; u8 f_19; u16 f_1A; };
 extern Game_71370_80071370 g_Game;
 extern Mdl_71370_80071370 *D_800B4D64;
-extern MAT_71370_80071370 D_800E78C0;
-extern u8 D_800E7D00[];
+extern MAT_71370_80071370 g_ViewMatrix;
+extern u8 g_ProjVerts[];
 void RotMatrixZYX(SV3_71370_80071370 *, MAT_71370_80071370 *);
 void MulMatrix0(MAT_71370_80071370 *, MAT_71370_80071370 *, MAT_71370_80071370 *);
 void CompMatrix(MAT_71370_80071370 *, MAT_71370_80071370 *, MAT_71370_80071370 *);
 void Model_ProjectVertsAlt(Mdl_71370_80071370 *, MAT_71370_80071370 *, u8 *);
-void func_80017E5C(u32 *, u8 *, Mdl_71370_80071370 *);
+void Model_DrawSubdiv(u32 *, u8 *, Mdl_71370_80071370 *);
 void Effect_SpawnAt(s32, void *);
 struct S_D_800BB920_80071370 { MAT_71370_80071370 base; SV3_71370_80071370 rot; u8 pad26[2]; SV3_71370_80071370 rv; u8 pad2E[2]; s16 x, y, z; s16 vx; s16 vy; s16 vz; s8 bounces; u8 timer; s16 floor; s16 model; u8 pad42[2]; };
 
@@ -57,7 +57,7 @@ typedef struct { s32 z[33]; s32 sxy[33][2]; MAT_71370_80071370 m; SVECTOR a; SVE
 #define SCR_A_6FA10 (&scr->a)
 #define SCR_B_6FA10 (&scr->b)
 extern u8 *D_800EC354;
-void func_8004637C(MAT_71370_80071370 *);
+void Matrix_SetIdentity(MAT_71370_80071370 *);
 void RotMatrixZ(s32, MAT_71370_80071370 *);
 void SetRotMatrix(MAT_71370_80071370 *);
 void SetTransMatrix(MAT_71370_80071370 *);
@@ -89,7 +89,7 @@ void Shockwave_Draw(struct S_D_800BAF00 *ep) {
     u32 code, v, cl, vh;
     s32 r0, r1;
 
-    func_8004637C(SCR_M_6FA10);
+    Matrix_SetIdentity(SCR_M_6FA10);
     RotMatrixZ(e->rotZ, SCR_M_6FA10);
     sp = scr->sxy[0];
     CompMatrix(&e->m, SCR_M_6FA10, SCR_M_6FA10);
@@ -98,7 +98,7 @@ void Shockwave_Draw(struct S_D_800BAF00 *ep) {
     SCR_M_6FA10->t[0] = e->x;
     SCR_M_6FA10->t[1] = e->y;
     SCR_M_6FA10->t[2] = e->z;
-    CompMatrix(&D_800E78C0, SCR_M_6FA10, SCR_M_6FA10);
+    CompMatrix(&g_ViewMatrix, SCR_M_6FA10, SCR_M_6FA10);
     SetRotMatrix(SCR_M_6FA10);
     SetTransMatrix(SCR_M_6FA10);
     cx = e->cx;
@@ -323,7 +323,7 @@ extern Rock_70560 D_800BB440_70560[32] asm("D_800BB440");
 extern SV_70560 D_800B1FC4_70560[8] asm("D_800B1FC4");
 extern u32 D_800B2004_70560[8] asm("D_800B2004");
 extern u8 D_800B2024_70560[12][4] asm("D_800B2024");
-extern MAT_70560 D_800E78C0_70560 asm("D_800E78C0");
+extern MAT_70560 D_800E78C0_70560 asm("g_ViewMatrix");
 extern u32 D_800EC3D0_70560[] asm("D_800EC3D0");
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; u8 pad10[0x8116]; u16 f_8126; } g_Game_70560 asm("g_Game");
 void RotMatrix_70560(SV_70560 *, MAT_70560 *) asm("RotMatrix");
@@ -550,7 +550,7 @@ extern Piece_71120 D_800BB920_71120[] asm("D_800BB920");
 extern Off_71120 D_800B2060[];
 extern u8 D_800B205D;
 extern u16 D_800AE8F2;
-void func_800147D0_71120(SV_71120 *, void *) asm("func_800147D0");
+void func_800147D0_71120(SV_71120 *, void *) asm("Matrix_SetScale");
 #define RAND_71120() (g_RandSeed = g_RandSeed * 5 + 1)
 #define RAND2_71120() (D_800AE8F2 = D_800AE8F2 * 5 + 1)
 
@@ -611,9 +611,9 @@ void Debris_UpdateAll(void) {
         m.t[1] = d->y;
         m.t[2] = d->z;
         MulMatrix0(&m, &d->base, &m);
-        CompMatrix(&D_800E78C0, &m, &m);
-        Model_ProjectVertsAlt(&D_800B4D64[d->model], &m, D_800E7D00);
-        func_80017E5C(g_Game.db[g_Game.cur].ot, D_800E7D00, &D_800B4D64[d->model]);
+        CompMatrix(&g_ViewMatrix, &m, &m);
+        Model_ProjectVertsAlt(&D_800B4D64[d->model], &m, g_ProjVerts);
+        Model_DrawSubdiv(g_Game.db[g_Game.cur].ot, g_ProjVerts, &D_800B4D64[d->model]);
         d->rot.vx += d->rv.vx;
         d->rot.vy += d->rv.vy;
         d->rot.vz += d->rv.vz;

@@ -111,23 +111,23 @@ void Cd_ReadFile(s32, void *);
 void Cd_WaitIdle(s32);
 void Sound_LoadBanks(s32);
 void Cd_StartFileLoad(s32, s32);
-s32 func_800116C0(void);
+s32 Cd_PollLoadList(void);
 void Cd_Update(void);
 
 typedef struct { s16 x, y, w, h; } R_8005BEF0;
 extern R_8005BEF0 D_800A5740;
 extern s32 D_800EBFC4;
 extern s32 D_800EC35C;
-extern u8 D_800E78C0[];
+extern u8 g_ViewMatrix[];
 /* func_8005BEF0: (re)initialise the display: Gfx_InitDisplay, clear VRAM rect D_800A5740 to black,
- * reset the GTE matrix D_800E78C0 and clear D_800EBFC4 / D_800EC35C. Matches only with the callees
+ * reset the GTE matrix g_ViewMatrix and clear D_800EBFC4 / D_800EC35C. Matches only with the callees
  * left undeclared here (with prototypes the registers of the struct copy shift by one). */
 s32 func_8005BEF0(void) {
     R_8005BEF0 r = D_800A5740;
     Gfx_InitDisplay();
     ClearImage(&r, 0, 0, 0);
     DrawSync(0);
-    func_8004637C(D_800E78C0);
+    Matrix_SetIdentity(g_ViewMatrix);
     D_800EBFC4 = 0;
     D_800EC35C = 0;
     return 0;
@@ -379,7 +379,7 @@ s32 Game_MainLoop(void) {
             Sound_LoadBanks(2);
         }
         Cd_StartFileLoad(1, GM_5BF70->f_8126);
-        while (!func_800116C0()) {
+        while (!Cd_PollLoadList()) {
             Cd_Update();
             VSync(2);
         }

@@ -1,15 +1,15 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-M2C_UNK func_80015AC0(M2C_UNK *, s32);
+M2C_UNK Model_BindBoned(M2C_UNK *, s32);
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_98FEC;
 typedef struct { u8 pad0[0x20]; Mat_98FEC base; Mat_98FEC handle; Mat_98FEC net; } NetObj_98FEC;
 extern struct { u8 pad0[0x14]; NetObj_98FEC *obj; } g_TimeNetModel;
-extern Mat_98FEC D_800E9C60[];
+extern Mat_98FEC g_ModelMatrices[];
 
 void TimeNet_Init(s32 arg0) {
-    func_80015AC0(&g_TimeNetModel, arg0);
-    g_TimeNetModel.obj = (NetObj_98FEC *)D_800E9C60;
+    Model_BindBoned(&g_TimeNetModel, arg0);
+    g_TimeNetModel.obj = (NetObj_98FEC *)g_ModelMatrices;
 }
 
 extern struct { u8 pad0[0x60]; s16 x; s16 y; s16 z; u8 pad66[2]; s16 swingX; s16 swingY; s16 swingZ; } g_GadgetState_98FEC asm("g_GadgetState");
@@ -17,8 +17,8 @@ extern s16 D_800F5180;
 extern SVECTOR D_800A6830;
 extern SVECTOR D_800A6838;
 extern Mat_98FEC D_800F4910;
-extern Mat_98FEC D_800E78C0_98FEC asm("D_800E78C0");
-extern u8 D_800E7D00[];
+extern Mat_98FEC D_800E78C0_98FEC asm("g_ViewMatrix");
+extern u8 g_ProjVerts[];
 extern u32 *D_800EC358;
 void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
@@ -26,9 +26,9 @@ void RotTransSV(SVECTOR *a, SVECTOR *b, s32 *flag);
 void RotMatrixZYX(SVECTOR *r, Mat_98FEC *m);
 void CompMatrix(Mat_98FEC *a, Mat_98FEC *b, Mat_98FEC *c);
 void MatrixNormal(Mat_98FEC *a, Mat_98FEC *b);
-void func_8004637C(Mat_98FEC *m);
+void Matrix_SetIdentity(Mat_98FEC *m);
 void Model_ProjectBonedVerts(void *m);
-void func_80017CD4(u32 *ot, void *buf, void *m);
+void Model_Draw(u32 *ot, void *buf, void *m);
 
 /* Time Net (gadget 1): projects the net's grip point D_800A6830 through the hand matrix
    D_800F4910 and turns how far it moved since last frame (x64, clamped to +-0x1000) into a swing,
@@ -69,7 +69,7 @@ void TimeNet_Update(void) {
     g_GadgetState_98FEC.x = v.vx;
     g_GadgetState_98FEC.y = v.vy;
     g_GadgetState_98FEC.z = v.vz;
-    g_TimeNetModel.obj->base = D_800E9C60[15];
+    g_TimeNetModel.obj->base = g_ModelMatrices[15];
     r = D_800A6838;
     RotMatrixZYX(&r, &g_TimeNetModel.obj->handle);
     g_TimeNetModel.obj->handle.t[0] = 0x18;
@@ -80,7 +80,7 @@ void TimeNet_Update(void) {
     g_TimeNetModel.obj->handle.m[1][0] += g_GadgetState_98FEC.swingY;
     g_TimeNetModel.obj->handle.m[2][0] += g_GadgetState_98FEC.swingZ;
     MatrixNormal(&g_TimeNetModel.obj->handle, &g_TimeNetModel.obj->handle);
-    func_8004637C(&g_TimeNetModel.obj->net);
+    Matrix_SetIdentity(&g_TimeNetModel.obj->net);
     g_TimeNetModel.obj->net.t[0] = 0x60;
     g_TimeNetModel.obj->net.t[1] = 0;
     g_TimeNetModel.obj->net.t[2] = 0;
@@ -92,7 +92,7 @@ void TimeNet_Update(void) {
     CompMatrix(&D_800E78C0_98FEC, &g_TimeNetModel.obj->handle, &g_TimeNetModel.obj->handle);
     CompMatrix(&D_800E78C0_98FEC, &g_TimeNetModel.obj->net, &g_TimeNetModel.obj->net);
     Model_ProjectBonedVerts(&g_TimeNetModel);
-    func_80017CD4(D_800EC358, D_800E7D00, &g_TimeNetModel);
+    Model_Draw(D_800EC358, g_ProjVerts, &g_TimeNetModel);
 }
 
 INCLUDE_RODATA("asm/nonmatchings/game/80098FB0_time_net", D_800A6830);

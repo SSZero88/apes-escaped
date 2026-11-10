@@ -90,7 +90,7 @@ typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013D15C;
 #define gte_stszotz_8013D15C(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 extern u8 D_801418F0_8013D15C asm("D_801418F0");
 extern Drip_8013D15C D_801414F0_8013D15C[] asm("D_801414F0");
-extern Mat_8013D15C D_800E78C0_8013D15C asm("D_800E78C0");
+extern Mat_8013D15C D_800E78C0_8013D15C asm("g_ViewMatrix");
 extern GameDraw g_Game_8013D15C asm("g_Game");
 void SetRotMatrix_8013D15C(Mat_8013D15C *) asm("SetRotMatrix");
 void SetTransMatrix_8013D15C(Mat_8013D15C *) asm("SetTransMatrix");
@@ -419,12 +419,12 @@ typedef struct { s16 x, y, z; } Rot_8013E010;
 typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 wx, wy, wz; Rot_8013E010 r; s16 life; } Debris_8013E010;
 extern Debris_8013E010 D_80141908[7];
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013E010 asm("g_Game");
-extern u8 D_800E7D00[];
+extern u8 g_ProjVerts[];
 s32 func_80051410(void *, s32, s32);
 void RotMatrixYXZ(void *, void *);
-void func_80015780(void *, s32);
+void Model_CalcKeyedJointMatrices(void *, s32);
 M2C_UNK Model_ProjectBonedVerts(void *);
-void func_80016EBC(void *, void *, void *);
+void Model_DrawAuto(void *, void *, void *);
 void Effect_SpawnAt(s32, SVECTOR *);
 void func_8006D548(SVECTOR *);
 
@@ -455,9 +455,9 @@ void func_8013E010(u8 *arg0) {
             d->r.z = (d->r.z + d->wz) % 4096;
             if (func_80051410(&d->x, 0, 0) == 0) {
                 RotMatrixYXZ(&d->r, d->mat);
-                func_80015780(d, 3);
+                Model_CalcKeyedJointMatrices(d, 3);
                 Model_ProjectBonedVerts(d);
-                func_80016EBC(g_Game_8013E010.f_80 + g_Game_8013E010.f_C * 0x4078, D_800E7D00, d);
+                Model_DrawAuto(g_Game_8013E010.f_80 + g_Game_8013E010.f_C * 0x4078, g_ProjVerts, d);
                 Effect_SpawnAt(7, &v);
                 func_8006D548(&v);
             }

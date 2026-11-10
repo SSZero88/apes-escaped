@@ -46,7 +46,7 @@ typedef struct { SV_59304 v; u8 f_8; u8 f_9; u8 padA[2]; } Aim_59304;
 typedef struct { void *col; s32 f_4; Proj_59304 *obj; u8 state; u8 f_D; u8 delay; u8 f_F; u8 f_10; u8 f_11; u8 f_12; u8 hidden; u8 f_14; u8 f_15; u8 f_16; u8 f_17; u16 f_18; u16 f_1A; SV_59304 pos; s16 vx; s16 vy; s16 vz; s16 ground; u8 pad2C[2]; u16 timer; } Shot_59304;
 extern Shot_59304 D_800B8D30_59304[] asm("D_800B8D30");
 extern Aim_59304 D_800AF800[];
-void func_80014804(void *, void *);
+void Matrix_FromFacingXZ(void *, void *);
 void ApplyMatrixSV(void *, void *, void *);
 Proj_59304 *Projectile_Alloc(void);
 void func_80084BB8(Proj_59304 *, s32);
@@ -112,7 +112,7 @@ s32 func_80059304(P3_59304 *p, s32 owner, s32 type, s32 arg) {
             v6.vz = g_Spike.z - p->z;
             t = &D_800AF800[(u8)k];
             VectorNormalSS(&v6, &v6);
-            func_80014804(&v6, mat);
+            Matrix_FromFacingXZ(&v6, mat);
             ApplyMatrixSV(mat, t, &v6);
             s->vx = v6.vx;
             s->vy = v6.vy;
@@ -278,8 +278,8 @@ typedef struct { u32 tag; u32 code; u32 xy0; u32 uvc0; u32 xy1; u32 uvt1; u32 xy
 typedef struct { unsigned addr : 24; unsigned len : 8; } PTAG_59B90;
 extern Shot_59B90 D_800B8D30_59B90[16] asm("D_800B8D30");
 extern u8 D_800F4C30[];
-extern u8 D_800E7D00[];
-extern MAT_59B90 D_800E78C0;
+extern u8 g_ProjVerts[];
+extern MAT_59B90 g_ViewMatrix;
 extern GameDraw g_Game_59B90 asm("g_Game");
 void Shadow_Draw(void *, s32, s32, s32);
 void Matrix_FromDirection(void *, void *);
@@ -288,7 +288,7 @@ void SetRotMatrix(void *);
 void SetTransMatrix(void *);
 s32 RotTransPers(void *, s32 *, s32 *, s32 *);
 void Model_ProjectVerts(void *, void *, void *);
-void func_80017CD4(void *, void *, void *);
+void Model_Draw(void *, void *, void *);
 
 /* Draws the 16 enemy projectiles: kinds 6 and up as a shaded model with a ground shadow, kind 5 as a
    camera-facing textured quad scaled by depth */
@@ -317,16 +317,16 @@ void EnemyShot_DrawAll(void) {
             m.t[0] = p->pos.vx;
             m.t[1] = p->pos.vy;
             m.t[2] = p->pos.vz;
-            CompMatrix(&D_800E78C0, &m, &m);
-            Model_ProjectVerts(D_800F4C30 + p->model * 16, &m, D_800E7D00);
-            func_80017CD4(g_Game_59B90.db[g_Game_59B90.cur].ot, D_800E7D00, D_800F4C30 + p->model * 16);
+            CompMatrix(&g_ViewMatrix, &m, &m);
+            Model_ProjectVerts(D_800F4C30 + p->model * 16, &m, g_ProjVerts);
+            Model_Draw(g_Game_59B90.db[g_Game_59B90.cur].ot, g_ProjVerts, D_800F4C30 + p->model * 16);
         } else {
             FT4_59B90 *q;
             s16 sx, sy, w, h, x0;
             u32 *ot;
             s32 cur;
-            SetRotMatrix(&D_800E78C0);
-            SetTransMatrix(&D_800E78C0);
+            SetRotMatrix(&g_ViewMatrix);
+            SetTransMatrix(&g_ViewMatrix);
             ((SVECTOR *)&v)->vx = p->pos.vx;
             ((SVECTOR *)&v)->vy = p->pos.vy;
             ((SVECTOR *)&v)->vz = p->pos.vz;

@@ -78,7 +78,7 @@ struct Game_88670 { u8 pad0[0x820C]; Zone_88670 *f_820C; u8 pad8210[0x74]; s16 f
 extern struct Game_88670 g_Game_88670 asm("g_Game");
 extern Mdl_88670 *D_800B4D64_88670 asm("D_800B4D64");
 s16 func_800889EC_88670(Zone_88670 *) asm("func_800889EC");
-void func_800147D0_88670(SV_88670 *, void *) asm("func_800147D0");
+void func_800147D0_88670(SV_88670 *, void *) asm("Matrix_SetScale");
 void func_8013FC00(s32);
 #define Z_88670 (*(Zone_88670 *)(i * 0x38 + (s32)g_Game_88670.f_820C))
 
@@ -625,7 +625,7 @@ s16 func_800889EC_89D6C(Plat_89D6C *) asm("func_800889EC");
 void func_80066E8C_89D6C(Plat_89D6C *, s16 *) asm("func_80066E8C");
 void func_80066E28_89D6C(s32, s32, s32, s32, s32, s32) asm("func_80066E28");
 void RotMatrixZYX_89D6C(SV_89D6C *, void *) asm("RotMatrixZYX");
-void func_800147D0_89D6C(SV_89D6C *, void *) asm("func_800147D0");
+void func_800147D0_89D6C(SV_89D6C *, void *) asm("Matrix_SetScale");
 s32 rcos_89D6C(s32) asm("rcos");
 s32 rsin_89D6C(s32) asm("rsin");
 

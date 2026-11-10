@@ -9,11 +9,11 @@ extern u16 D_800EC23E;
 extern u8 D_800EC0C0;
 extern u8 D_800EC180;
 extern u8 D_800E9E40;
-extern u8 D_800E7D00[];
+extern u8 g_ProjVerts[];
 s16 Sound_Play(s32, s32);
 void Sound_Stop(s32, s16);
 void Model_ProjectVerts(void *, void *, void *);
-void func_80017CD4(u32 *, void *, void *);
+void Model_Draw(u32 *, void *, void *);
 void func_8006CEF0(void);
 
 typedef struct { u8 pad0[4]; SVECTOR a; SVECTOR b; SVECTOR pouch; u8 pad1C[8]; s16 drawn; u8 pad26[0x7A]; u8 f_A0; u8 padA1; u8 f_A2; } GS_9AD60;
@@ -27,7 +27,7 @@ extern struct { u8 pad0[0x158]; u32 held; u8 pad15C[4]; u32 pressed; } g_Pad_9AD
 extern struct { u8 pad0[0x8152]; u16 f_8152; } g_Game_9AD60 asm("g_Game");
 extern u8 D_800E6916;
 extern s16 D_800F5144;
-extern u8 D_800E78C0[];
+extern u8 g_ViewMatrix[];
 extern u8 D_800F4910[][0x20];
 void Gadget_Select(s32, s32);
 void GuidedAmmo_UpdateLockOn(GS_9AD60 *);
@@ -72,8 +72,8 @@ void Slingback_Update(void) {
     if (D_800E6916 == 1) {
         return;
     }
-    Model_ProjectVerts(&D_800EC090, &D_800E9E40, D_800E7D00);
-    func_80017CD4(G_DRAW.db[G_DRAW.cur].ot, D_800E7D00, &D_800EC090);
+    Model_ProjectVerts(&D_800EC090, &D_800E9E40, g_ProjVerts);
+    Model_Draw(G_DRAW.db[G_DRAW.cur].ot, g_ProjVerts, &D_800EC090);
     SetRotMatrix(D_800F4910[0]);
     SetTransMatrix(D_800F4910[0]);
     v = D_800EC090.verts;
@@ -126,8 +126,8 @@ void Slingback_Update(void) {
         }
         D_800F5144 = 1;
     }
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     p = (LineG3_9AD60 *)G_DRAW.prim;
     gte_ldv3_(&GS.b, &GS.pouch, &GS.a);
     gte_rtpt_n();
@@ -206,8 +206,8 @@ void SkyFlyer_Update(void) {
     } else {
         m = &D_800EC0C0;
     }
-    Model_ProjectVerts(m, &D_800E9E40, D_800E7D00);
-    func_80017CD4(((struct GameDb_8009B1C0 *)&g_Game)->db[((struct GameDb_8009B1C0 *)&g_Game)->cur].ot, D_800E7D00, m);
+    Model_ProjectVerts(m, &D_800E9E40, g_ProjVerts);
+    Model_Draw(((struct GameDb_8009B1C0 *)&g_Game)->db[((struct GameDb_8009B1C0 *)&g_Game)->cur].ot, g_ProjVerts, m);
     if (D_800EC23E >= 0x83 && D_800EC23E <= 0x84) {
         func_8006CEF0();
     }

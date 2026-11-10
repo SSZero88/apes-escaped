@@ -90,8 +90,8 @@ extern u16 D_80136FB4;
 void func_8008CC60(s32, s32);
 void func_8008CBFC(u8 *, ...);
 s32 Sound_PlayFixed(s32);
-void func_80011194(void *);
-s32 func_800116C0(void);
+void Cd_StartLoadList(void *);
+s32 Cd_PollLoadList(void);
 void Cd_Update(void);
 
 s32 func_80136244(void) {
@@ -149,8 +149,8 @@ s32 func_80136244(void) {
             D_80136B44 = 0xAC;
             D_80136B48 = 0;
             D_80136FB4 = D_80136B54[D_80136B40].f18;
-            func_80011194(&D_80136FB4);
-            while (func_800116C0() >= 0) {
+            Cd_StartLoadList(&D_80136FB4);
+            while (Cd_PollLoadList() >= 0) {
                 Cd_Update();
             }
             return 0;

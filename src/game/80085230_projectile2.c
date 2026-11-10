@@ -14,7 +14,7 @@ typedef struct { u8 pad0[0x24]; s16 x; u8 pad26[6]; s16 z; } Spike_856FC_800856F
 extern struct S_D_800F5090 { s32 f_0; s32 f_4; } g_GuidedLocks[];
 extern s32 D_800B2960[3];
 s32 func_80085254(void *, SVECTOR *, s32, s32);
-void func_8004637C(MAT_80085630 *);
+void Matrix_SetIdentity(MAT_80085630 *);
 void RotMatrixY(s32, MAT_80085630 *);
 void ApplyMatrixSV(MAT_80085630 *, SVECTOR *, SVECTOR *);
 
@@ -23,8 +23,8 @@ extern Game_856FC_800856FC g_Game;
 extern Spike_856FC_800856FC g_Spike;
 extern u8 D_800B296C[];
 extern struct S_D_800F4C30 { void *f_0; u8 pad4[0xC]; } D_800F4C30[];
-extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } D_800E78C0;
-extern u8 D_800E7D00[];
+extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } g_ViewMatrix;
+extern u8 g_ProjVerts[];
 extern u16 g_RandSeed;
 void RotMatrixZ(s32, struct S_D_800E78C0 *);
 void Effect_SpawnAt(s32, P3_856FC_800856FC *);
@@ -38,7 +38,7 @@ void Collision_Set(s32, void *, void *);
 void Matrix_FromDirection(s16 *, struct S_D_800E78C0 *);
 void CompMatrix(struct S_D_800E78C0 *, struct S_D_800E78C0 *, struct S_D_800E78C0 *);
 void Model_ProjectVerts(struct S_D_800F4C30 *, struct S_D_800E78C0 *, u8 *);
-void func_80017CD4(u32 *, u8 *, struct S_D_800F4C30 *);
+void Model_Draw(u32 *, u8 *, struct S_D_800F4C30 *);
 struct S_D_800BF300_800856FC { Coll_856FC_800856FC *f_0; Proj_856FC_800856FC *f_4; P3_856FC_800856FC *f_8; P3_856FC_800856FC pos; u8 f_12; u8 f_13; P3_856FC_800856FC vel; u8 pad1A[2]; };
 
 void func_80085230(void) {
@@ -212,7 +212,7 @@ s32 Projectile_Spawn(void *a, SVECTOR *v, s32 mode) {
         return func_80085254(a, v, mode, 0);
     }
     for (i = 0; i < 3; i++) {
-        func_8004637C(&m);
+        Matrix_SetIdentity(&m);
         RotMatrixY(D_800B2960[i], &m);
         ApplyMatrixSV(&m, v, &out);
         func_80085254(a, &out, 3, g_GuidedLocks[i].f_0);
@@ -232,7 +232,7 @@ void func_800856FC(void) {
     struct S_D_800BF300_800856FC *s;
     s32 i;
     s16 h;
-    func_8004637C(&rot);
+    Matrix_SetIdentity(&rot);
     RotMatrixZ((g_Game.frame & 0xF) << 8, &rot);
     s = ((struct S_D_800BF300_800856FC *)&D_800BF300);
     for (i = 3; i >= 0; i--, s++) {
@@ -344,9 +344,9 @@ void func_800856FC(void) {
             m.t[1] = s->pos.y;
             m.t[2] = s->pos.z;
             CompMatrix(&m, &rot, &m);
-            CompMatrix(&D_800E78C0, &m, &m);
-            Model_ProjectVerts(&D_800F4C30[D_800B296C[s->f_12]], &m, D_800E7D00);
-            func_80017CD4(g_Game.db[g_Game.cur].ot, D_800E7D00, &D_800F4C30[D_800B296C[s->f_12]]);
+            CompMatrix(&g_ViewMatrix, &m, &m);
+            Model_ProjectVerts(&D_800F4C30[D_800B296C[s->f_12]], &m, g_ProjVerts);
+            Model_Draw(g_Game.db[g_Game.cur].ot, g_ProjVerts, &D_800F4C30[D_800B296C[s->f_12]]);
         }
     }
 }

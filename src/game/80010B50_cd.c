@@ -1,8 +1,8 @@
 #include "common.h"
 #include "m2c_macros.h"
-#define V_11F6C ((struct S_D_800E3890_80011F6C *)&D_800E3890)
+#define V_11F6C ((struct S_D_800E3890_80011F6C *)&g_Cd)
 #define G (*(G_80011754_80011754 *)&g_Game)
-#define CD ((Cd_800125B8_800125B8 *)&D_800E3890)
+#define CD ((Cd_800125B8_800125B8 *)&g_Cd)
 typedef struct { s32 w[9]; } S32x9;
 typedef struct { u8 b[4]; } LOC_80011208;
 typedef struct { LOC_80011208 loc; u32 sector; u8 pad8[0x10]; } S_Pos_80011208;
@@ -41,14 +41,14 @@ extern s32 D_800A7BF8;
 extern s32 D_800A7C20;
 extern s32 *D_800A83E0;
 
-extern struct S_D_800A81B0 { u16 *f_0; s16 f_4; s16 f_6; } D_800A81B0[];
+extern struct S_D_800A81B0 { u16 *f_0; s16 f_4; s16 f_6; } g_AreaTable[];
 
 M2C_UNK VSync(M2C_UNK);
 void Cd_Update(void);
 
 s32 Cd_ReadFile(s32 file, s32 dest);
 void Cd_WaitQueue(s32 a);
-extern struct S_D_800E3890 { s32 f_0; u8 pad4[0x70]; s16 f_74; s16 f_76; } D_800E3890;
+extern struct S_D_800E3890 { s32 f_0; u8 pad4[0x70]; s16 f_74; s16 f_76; } g_Cd;
 s32 Cd_ProcessLoaded(s32 a, s32 b);
 extern struct S_D_800EC350 { u8 pad0[0x8126]; s16 f_8126; u8 pad8128[0x10C]; S32x9 *unk8234; } g_Game;
 s32 Stage_PairInSharedSet(s16 a, s16 b);
@@ -56,7 +56,7 @@ CdFileInfo *Cd_GetFileEntry();
 s32 CdPosToInt(u8 *);
 s32 Cd_QueueCommand(s32, void *, void *, s32);
 struct S_D_800E3890_80011208 { u8 pad0[0x1C]; S_File_80011208 *f_1C; s32 f_20; u8 pad24[0x20]; u8 f_44[0x2C]; u8 f_70[4]; };
-s32 func_8001231C(void);
+s32 Cd_StopMusic(void);
 struct S_D_800E3890_800112E4 { s32 f_0; u8 pad4[0x40]; u8 f_44[0x2C]; u8 f_70[4]; };
 extern char D_800A41D0[];
 void CdGetSector(void *, s32);
@@ -71,11 +71,11 @@ struct S_D_800E3890_800113CC { s32 f_0; u8 pad4[0x40]; u8 f_44[0x2C]; u8 f_70[4]
 struct S_D_800E3890_800114D8 { s32 f_0; u8 pad4[0x14]; s32 f_18; S_File_800114D8_800114D8 *f_1C; s32 f_20; s32 f_24; u8 pad28[0x1C]; u8 f_44[0x2C]; u8 f_70[4]; };
 struct S_D_800EC350_800114D8 { u8 pad_0[0x8126]; s16 f_8126; };
 struct S_D_800A81B0_800114D8 { S_File_800114D8_800114D8 *f_0; s32 f_4; };
-extern struct S_D_800A8530 { s32 f_0; s32 f_4; u8 f_8; u8 f_9; u8 f_A; u8 f_B; } D_800A8530[];
+extern struct S_D_800A8530 { s32 f_0; s32 f_4; u8 f_8; u8 f_9; u8 f_A; u8 f_B; } g_XaTracks[];
 struct S_D_800E3890_80011F6C { u8 pad0[0x30]; s32 f_30; u8 pad34[0xC]; s16 f_40; u8 pad42[2]; u8 f_44[0x2C]; };
 void func_80086248(s32);
 u8 *func_8009628C(void);
-extern void *D_800A8A50;
+extern void *g_StageWork;
 extern u8 g_Objects[][0xE4];
 extern M2C_UNK D_800E68D0;
 extern M2C_UNK D_800E68C0;
@@ -86,7 +86,7 @@ void *func_8008C000(s32);
 void Mem_ZeroWords(void *, s32);
 struct S_D_800A81B0_80010B50 { StageInfo_80010B50_80010B50 *f_0; s32 f_4; };
 
-/* Stage load: allocates the 0x7800-byte stage work buffer (kept in D_800A8A50 and the stage's
+/* Stage load: allocates the 0x7800-byte stage work buffer (kept in g_StageWork and the stage's
  * info record), then zeroes the 8 monkeys, Spike, the 16 g_Objects, the camera (D_800E68D0),
  * D_800E68C0 and g_GadgetState. */
 extern s32 D_800E38C4;
@@ -100,8 +100,8 @@ extern char D_800A4124[];
 s32 CdSync(s32 mode, u8 *result);
 s32 Cd_PlayXaTrack(s32 n);
 struct S_D_800E3890_80012110_80012110 { s32 f_0; u8 pad4[0x28]; s32 f_2C; s32 f_30; s32 f_34; u8 pad38[8]; u16 f_40; };
-extern s16 D_800A8528[];
-extern char D_800A850C[];
+extern s16 Boot_LoadFiles[];
+extern char Boot_NowLoadingText[];
 s32 ClearImage(void* rect, u8 r, u8 g, u8 b);
 s32 ResetGraph(s32 mode);
 void DrawOTag(u32* p);
@@ -109,13 +109,13 @@ void* PutDrawEnv(void* env);
 void* PutDispEnv(void* env);
 void Gfx_InitDisplay(void);
 s32 Cd_StartFileLoad(s32, s32);
-s32 func_800116C0(void);
+s32 Cd_PollLoadList(void);
 void Gfx_BeginFrame(void);
 void func_8008DDB0(s32, s32);
 void func_8008DDC8(char *);
 struct S_D_800EC350_80011754 { u8 pad0[0x8126]; s16 f_8126; };
 extern CdEnt_80011CF8_80011CF8 g_CdFileTable[];
-extern char D_800A40D0[];
+extern char Cd_ArchiveName[];
 void *CdSearchFile(void *fp, char *name);
 s32 CdRead(s32 sectors, u32 *buf, s32 mode);
 s32 CdReadSync(s32 mode, u8 *result);
@@ -128,7 +128,7 @@ s32 Cd_PollStatus(void);
 s32 CdLastCom(void);
 s32 Cd_IssueRequest(CdReq_80012A0C_80012A0C *r);
 struct Game_11A2C { u8 pad0[0x8120]; u16 f_8120; u8 pad8122[0x16]; u8 f_8138; u8 pad8139; u16 f_813A; };
-extern s8 D_800A8508[];
+extern s8 g_MinigameExeFiles[];
 u8 *Minigame_GetSaveData(s32 n);
 s32 Exe_Load();
 void func_800864DC(void);
@@ -141,13 +141,13 @@ void System_Init(void);
 s32 Boot_LoadingScreen(void);
 struct g_Game_800115F4 { u8 pad0[0x812C]; u8 f_812C; };
 #define G_GAME_800115F4 ((struct g_Game_800115F4 *)&g_Game)
-extern u8 D_800A851C[];
+extern u8 g_SharedAreaSet[];
 
 s32 Stage_ResetActors(s32 stage) {
     void *p = func_8008C000(0x7800);
     s32 i;
-    D_800A8A50 = p;
-    ((struct S_D_800A81B0_80010B50 *)&D_800A81B0)[stage].f_0->f_1C = p;
+    g_StageWork = p;
+    ((struct S_D_800A81B0_80010B50 *)&g_AreaTable)[stage].f_0->f_1C = p;
     for (i = 0; i < 8; i++) {
         Mem_ZeroWords(g_Monkeys[i], 0x94);
     }
@@ -161,20 +161,20 @@ s32 Stage_ResetActors(s32 stage) {
     return 0;
 }
 
-s32 func_80010C3C(s32 a0, s32 i, S32x9 *out) {
+s32 Stage_GetSpawnPoint(s32 a0, s32 i, S32x9 *out) {
     *out = g_Game.unk8234[i];
     return 0;
 }
 
-s16 func_80010CA4(s32 arg0) {
-    return D_800A81B0[arg0].f_6;
+s16 Stage_GetEra(s32 arg0) {
+    return g_AreaTable[arg0].f_6;
 }
 
 s16 Stage_GetWorld(s32 arg0) {
-    return D_800A81B0[arg0].f_4;
+    return g_AreaTable[arg0].f_4;
 }
 
-s32 func_80010CDC(s32 arg0) {
+s32 Stage_SelectAltLoadList(s32 arg0) {
     if (arg0 == 0) {
         D_800A83E0 = &D_800A7BF8;
     } else {
@@ -184,7 +184,7 @@ s32 func_80010CDC(s32 arg0) {
 }
 
 s32 Cd_GetAreaFileSector(s32 i) {
-    u16 *p = D_800A81B0[i].f_0;
+    u16 *p = g_AreaTable[i].f_0;
     u8 loc[0x18];
     s32 sec;
     if (Stage_PairInSharedSet(g_Game.f_8126, i) != 0) {
@@ -260,46 +260,46 @@ s32 Zone_CheckSpike(s32 mode) {
     return -1;
 }
 
-s32 func_800110B0(void) {
-    M2C_FIELD(&D_800E3890, s32 *, 0) = 0x50000;
-    M2C_FIELD(&D_800E3890, s32 *, 4) = -1;
-    M2C_FIELD(&D_800E3890, s32 *, 0x10) = -1;
-    M2C_FIELD(&D_800E3890, s32 *, 0x14) = -1;
-    M2C_FIELD(&D_800E3890, s32 *, 0x24) = -1;
-    M2C_FIELD(&D_800E3890, s32 *, 8) = 0;
-    M2C_FIELD(&D_800E3890, s32 *, 0xC) = 0;
-    M2C_FIELD(&D_800E3890, s32 *, 0x1C) = 0;
-    M2C_FIELD(&D_800E3890, s32 *, 0x20) = 0;
-    M2C_FIELD(&D_800E3890, s16 *, 0x74) = 0;
-    M2C_FIELD(&D_800E3890, s16 *, 0x76) = 0;
-    M2C_FIELD(&D_800E3890, s32 *, 0x2C) = 0;
-    M2C_FIELD(&D_800E3890, s32 *, 0x34) = 0;
-    M2C_FIELD(&D_800E3890, u8 *, 0x70) = 0x80;
+s32 Cd_Init(void) {
+    M2C_FIELD(&g_Cd, s32 *, 0) = 0x50000;
+    M2C_FIELD(&g_Cd, s32 *, 4) = -1;
+    M2C_FIELD(&g_Cd, s32 *, 0x10) = -1;
+    M2C_FIELD(&g_Cd, s32 *, 0x14) = -1;
+    M2C_FIELD(&g_Cd, s32 *, 0x24) = -1;
+    M2C_FIELD(&g_Cd, s32 *, 8) = 0;
+    M2C_FIELD(&g_Cd, s32 *, 0xC) = 0;
+    M2C_FIELD(&g_Cd, s32 *, 0x1C) = 0;
+    M2C_FIELD(&g_Cd, s32 *, 0x20) = 0;
+    M2C_FIELD(&g_Cd, s16 *, 0x74) = 0;
+    M2C_FIELD(&g_Cd, s16 *, 0x76) = 0;
+    M2C_FIELD(&g_Cd, s32 *, 0x2C) = 0;
+    M2C_FIELD(&g_Cd, s32 *, 0x34) = 0;
+    M2C_FIELD(&g_Cd, u8 *, 0x70) = 0x80;
     return 0;
 }
 
 typedef struct { u16 file; u8 pad2[2]; s32 dest; } LoadRec_80011104;
 typedef struct { u8 pad_0[0x1C]; LoadRec_80011104 *table; s32 index; s32 stage; } CdLoadState_80011104;
-extern LoadRec_80011104 D_800A7120[]; /* general file loads: (disc file, destination) */
+extern LoadRec_80011104 g_BootLoadTable[]; /* general file loads: (disc file, destination) */
 extern s32 D_800E38B8;
-#define CDLOAD (*(CdLoadState_80011104 *)&D_800E3890)
+#define CDLOAD (*(CdLoadState_80011104 *)&g_Cd)
 
-/* Start an asynchronous file load. kind 0: entry n of the general load table D_800A7120;
-   otherwise the load list of stage n (D_800A81B0[n].f_0). Remembers which list and entry
-   are in progress in D_800E3890. */
+/* Start an asynchronous file load. kind 0: entry n of the general load table g_BootLoadTable;
+   otherwise the load list of stage n (g_AreaTable[n].f_0). Remembers which list and entry
+   are in progress in g_Cd. */
 s32 Cd_StartFileLoad(s32 kind, s32 n) {
     u16 file;
     LoadRec_80011104 *r;
     s32 dest;
     if (kind == 0) {
-        r = D_800A7120;
-        file = D_800A7120[n].file;
-        dest = D_800A7120[n].dest;
+        r = g_BootLoadTable;
+        file = g_BootLoadTable[n].file;
+        dest = g_BootLoadTable[n].dest;
         CDLOAD.table = r;
         CDLOAD.index = n;
         CDLOAD.stage = -1;
     } else {
-        r = (LoadRec_80011104 *)D_800A81B0[n].f_0;
+        r = (LoadRec_80011104 *)g_AreaTable[n].f_0;
         file = r->file;
         dest = r->dest;
         CDLOAD.table = r;
@@ -311,14 +311,14 @@ s32 Cd_StartFileLoad(s32 kind, s32 n) {
     return 0;
 }
 
-s32 func_80011194(void *arg0) {
-    if (M2C_FIELD(&D_800E3890, s32 *, 0) & 0x10000) {
-        M2C_FIELD(&D_800E3890, s32 *, 0) = 0x50000;
+s32 Cd_StartLoadList(void *arg0) {
+    if (M2C_FIELD(&g_Cd, s32 *, 0) & 0x10000) {
+        M2C_FIELD(&g_Cd, s32 *, 0) = 0x50000;
         Cd_WaitQueue(0);
     }
-    M2C_FIELD(&D_800E3890, void **, 0x1C) = arg0;
-    M2C_FIELD(&D_800E3890, s32 *, 0x20) = 0;
-    M2C_FIELD(&D_800E3890, s32 *, 0x24) = -1;
+    M2C_FIELD(&g_Cd, void **, 0x1C) = arg0;
+    M2C_FIELD(&g_Cd, s32 *, 0x20) = 0;
+    M2C_FIELD(&g_Cd, s32 *, 0x24) = -1;
     Cd_ReadFile(M2C_FIELD(arg0, u16 *, 0), M2C_FIELD(arg0, s32 *, 4));
     return 0;
 }
@@ -326,40 +326,40 @@ s32 func_80011194(void *arg0) {
 s32 Cd_ReadCurrentFile(void) {
     S_Pos_80011208 pos;
     S_Args_80011208 args;
-    Cd_GetFileEntry(&pos, ((struct S_D_800E3890_80011208 *)&D_800E3890)->f_1C[((struct S_D_800E3890_80011208 *)&D_800E3890)->f_20].f_0);
+    Cd_GetFileEntry(&pos, ((struct S_D_800E3890_80011208 *)&g_Cd)->f_1C[((struct S_D_800E3890_80011208 *)&g_Cd)->f_20].f_0);
     args.loc = pos.loc;
-    args.f_4 = ((struct S_D_800E3890_80011208 *)&D_800E3890)->f_1C[((struct S_D_800E3890_80011208 *)&D_800E3890)->f_20].f_4;
+    args.f_4 = ((struct S_D_800E3890_80011208 *)&g_Cd)->f_1C[((struct S_D_800E3890_80011208 *)&g_Cd)->f_20].f_4;
     args.f_8 = pos.sector >> 11;
-    Cd_QueueCommand(0xE, ((struct S_D_800E3890_80011208 *)&D_800E3890)->f_70, ((struct S_D_800E3890_80011208 *)&D_800E3890)->f_44, 0);
-    Cd_QueueCommand(2, &args, ((struct S_D_800E3890_80011208 *)&D_800E3890)->f_44, 0);
-    Cd_QueueCommand(1, 0, ((struct S_D_800E3890_80011208 *)&D_800E3890)->f_44, 0);
-    Cd_QueueCommand(0x20, &args, ((struct S_D_800E3890_80011208 *)&D_800E3890)->f_44, 0);
+    Cd_QueueCommand(0xE, ((struct S_D_800E3890_80011208 *)&g_Cd)->f_70, ((struct S_D_800E3890_80011208 *)&g_Cd)->f_44, 0);
+    Cd_QueueCommand(2, &args, ((struct S_D_800E3890_80011208 *)&g_Cd)->f_44, 0);
+    Cd_QueueCommand(1, 0, ((struct S_D_800E3890_80011208 *)&g_Cd)->f_44, 0);
+    Cd_QueueCommand(0x20, &args, ((struct S_D_800E3890_80011208 *)&g_Cd)->f_44, 0);
     return 0;
 }
 
 s32 Cd_ReadFile(s32 file, s32 dest) {
     S_Pos_800112E4 pos;
     S_Args_800112E4 args;
-    if (((struct S_D_800E3890_800112E4 *)&D_800E3890)->f_0 & 0x10000) {
-        func_8001231C();
+    if (((struct S_D_800E3890_800112E4 *)&g_Cd)->f_0 & 0x10000) {
+        Cd_StopMusic();
         Cd_WaitQueue(0);
     }
     Cd_GetFileEntry(&pos, file);
     args.loc = pos.loc;
     args.f_4 = dest;
     args.f_8 = pos.sector >> 11;
-    Cd_QueueCommand(0xE, ((struct S_D_800E3890_800112E4 *)&D_800E3890)->f_70, ((struct S_D_800E3890_800112E4 *)&D_800E3890)->f_44, 0);
-    Cd_QueueCommand(2, &args, ((struct S_D_800E3890_800112E4 *)&D_800E3890)->f_44, 0);
-    Cd_QueueCommand(1, 0, ((struct S_D_800E3890_800112E4 *)&D_800E3890)->f_44, 0);
-    Cd_QueueCommand(0x20, &args, ((struct S_D_800E3890_800112E4 *)&D_800E3890)->f_44, 0);
+    Cd_QueueCommand(0xE, ((struct S_D_800E3890_800112E4 *)&g_Cd)->f_70, ((struct S_D_800E3890_800112E4 *)&g_Cd)->f_44, 0);
+    Cd_QueueCommand(2, &args, ((struct S_D_800E3890_800112E4 *)&g_Cd)->f_44, 0);
+    Cd_QueueCommand(1, 0, ((struct S_D_800E3890_800112E4 *)&g_Cd)->f_44, 0);
+    Cd_QueueCommand(0x20, &args, ((struct S_D_800E3890_800112E4 *)&g_Cd)->f_44, 0);
     return 0;
 }
 
 s32 Cd_ReadFilePart(s32 file, s32 off, u32 size, s32 dest) {
     S_Pos_800113CC pos;
     S_Args_800113CC args;
-    if (((struct S_D_800E3890_800113CC *)&D_800E3890)->f_0 & 0x10000) {
-        func_8001231C();
+    if (((struct S_D_800E3890_800113CC *)&g_Cd)->f_0 & 0x10000) {
+        Cd_StopMusic();
         Cd_WaitQueue(0);
     }
     Cd_GetFileEntry(&pos, file);
@@ -367,18 +367,18 @@ s32 Cd_ReadFilePart(s32 file, s32 off, u32 size, s32 dest) {
     args.loc = pos.loc;
     args.f_4 = dest;
     args.f_8 = size;
-    Cd_QueueCommand(0xE, ((struct S_D_800E3890_800113CC *)&D_800E3890)->f_70, ((struct S_D_800E3890_800113CC *)&D_800E3890)->f_44, 0);
-    Cd_QueueCommand(2, &args, ((struct S_D_800E3890_800113CC *)&D_800E3890)->f_44, 0);
-    Cd_QueueCommand(1, 0, ((struct S_D_800E3890_800113CC *)&D_800E3890)->f_44, 0);
-    Cd_QueueCommand(0x20, &args, ((struct S_D_800E3890_800113CC *)&D_800E3890)->f_44, 0);
+    Cd_QueueCommand(0xE, ((struct S_D_800E3890_800113CC *)&g_Cd)->f_70, ((struct S_D_800E3890_800113CC *)&g_Cd)->f_44, 0);
+    Cd_QueueCommand(2, &args, ((struct S_D_800E3890_800113CC *)&g_Cd)->f_44, 0);
+    Cd_QueueCommand(1, 0, ((struct S_D_800E3890_800113CC *)&g_Cd)->f_44, 0);
+    Cd_QueueCommand(0x20, &args, ((struct S_D_800E3890_800113CC *)&g_Cd)->f_44, 0);
     return 0;
 }
 
 s32 Cd_SeekAreaFile(s32 file) {
-    struct S_D_800E3890_800114D8 *d = ((struct S_D_800E3890_800114D8 *)&D_800E3890);
+    struct S_D_800E3890_800114D8 *d = ((struct S_D_800E3890_800114D8 *)&g_Cd);
     S_Pos_800114D8 pos;
     u8 mode[8];
-    S_File_800114D8_800114D8 *f = ((struct S_D_800A81B0_800114D8 *)&D_800A81B0)[file].f_0;
+    S_File_800114D8_800114D8 *f = ((struct S_D_800A81B0_800114D8 *)&g_AreaTable)[file].f_0;
     s32 sec;
 
     d->f_24 = file;
@@ -392,12 +392,12 @@ s32 Cd_SeekAreaFile(s32 file) {
     }
     Cd_GetFileEntry(&pos, sec);
     mode[0] = 0x80;
-    ((struct S_D_800E3890_800114D8 *)&D_800E3890)->f_18 = CdPosToInt(&pos.loc);
-    Cd_QueueCommand(0xE, mode, ((struct S_D_800E3890_800114D8 *)&D_800E3890)->f_44, 0);
-    Cd_QueueCommand(2, &pos, ((struct S_D_800E3890_800114D8 *)&D_800E3890)->f_44, 0);
-    Cd_QueueCommand(1, 0, ((struct S_D_800E3890_800114D8 *)&D_800E3890)->f_44, 0);
-    Cd_QueueCommand(0x15, 0, ((struct S_D_800E3890_800114D8 *)&D_800E3890)->f_44, 0);
-    Cd_QueueCommand(1, 0, ((struct S_D_800E3890_800114D8 *)&D_800E3890)->f_44, 0);
+    ((struct S_D_800E3890_800114D8 *)&g_Cd)->f_18 = CdPosToInt(&pos.loc);
+    Cd_QueueCommand(0xE, mode, ((struct S_D_800E3890_800114D8 *)&g_Cd)->f_44, 0);
+    Cd_QueueCommand(2, &pos, ((struct S_D_800E3890_800114D8 *)&g_Cd)->f_44, 0);
+    Cd_QueueCommand(1, 0, ((struct S_D_800E3890_800114D8 *)&g_Cd)->f_44, 0);
+    Cd_QueueCommand(0x15, 0, ((struct S_D_800E3890_800114D8 *)&g_Cd)->f_44, 0);
+    Cd_QueueCommand(1, 0, ((struct S_D_800E3890_800114D8 *)&g_Cd)->f_44, 0);
     return 0;
 }
 
@@ -408,8 +408,8 @@ s32 Stage_PairInSharedSet(s16 a, s16 b) {
         return 0;
     }
     found = 0;
-    for (i = 0; D_800A851C[i] != 0xFF; i++) {
-        if (D_800A851C[i] == a) {
+    for (i = 0; g_SharedAreaSet[i] != 0xFF; i++) {
+        if (g_SharedAreaSet[i] == a) {
             found++;
             break;
         }
@@ -417,27 +417,27 @@ s32 Stage_PairInSharedSet(s16 a, s16 b) {
     if (found == 0) {
         return 0;
     }
-    for (i = 0; D_800A851C[i] != 0xFF; i++) {
-        if (D_800A851C[i] == b) {
+    for (i = 0; g_SharedAreaSet[i] != 0xFF; i++) {
+        if (g_SharedAreaSet[i] == b) {
             return 1;
         }
     }
     return 0;
 }
 
-s32 func_800116C0(void) {
+s32 Cd_PollLoadList(void) {
     s32 temp_v0_2;
     void *temp_v0;
     void *temp_v1;
 
-    if (M2C_FIELD(&D_800E3890, s32 *, 0) == 0) {
-        temp_v0 = (M2C_FIELD(&D_800E3890, s32 *, 0x20) * 8) + M2C_FIELD(&D_800E3890, s32 *, 0x1C);
+    if (M2C_FIELD(&g_Cd, s32 *, 0) == 0) {
+        temp_v0 = (M2C_FIELD(&g_Cd, s32 *, 0x20) * 8) + M2C_FIELD(&g_Cd, s32 *, 0x1C);
         Cd_ProcessLoaded(M2C_FIELD(temp_v0, s16 *, 2), M2C_FIELD(temp_v0, s32 *, 4));
-        temp_v0_2 = M2C_FIELD(&D_800E3890, s32 *, 0x20) + 1;
-        M2C_FIELD(&D_800E3890, s32 *, 0x20) = temp_v0_2;
-        temp_v1 = (temp_v0_2 * 8) + M2C_FIELD(&D_800E3890, s32 *, 0x1C);
+        temp_v0_2 = M2C_FIELD(&g_Cd, s32 *, 0x20) + 1;
+        M2C_FIELD(&g_Cd, s32 *, 0x20) = temp_v0_2;
+        temp_v1 = (temp_v0_2 * 8) + M2C_FIELD(&g_Cd, s32 *, 0x1C);
         if (M2C_FIELD(temp_v1, s16 *, 2) < 0) {
-            M2C_FIELD(&D_800E3890, s32 *, 0x54) = (s32) M2C_FIELD(&D_800E3890, s32 *, 0x4C);
+            M2C_FIELD(&g_Cd, s32 *, 0x54) = (s32) M2C_FIELD(&g_Cd, s32 *, 0x4C);
             return -1;
         }
         Cd_ReadFile(M2C_FIELD(temp_v1, u16 *, 0), M2C_FIELD(temp_v1, s32 *, 4));
@@ -448,8 +448,8 @@ block_4:
 }
 
 /* Startup loading screen: clears both display buffers, loads file 6 to 0x80154000 and hands it
- * to func_80068D10 (font/graphics), then streams the files listed in D_800A8528 ({1, 7, 12}, -1
- * terminated) one by one while "Now Loading..." (D_800A850C in the game's font codes) blinks at
+ * to func_80068D10 (font/graphics), then streams the files listed in Boot_LoadFiles ({1, 7, 12}, -1
+ * terminated) one by one while "Now Loading..." (Boot_NowLoadingText in the game's font codes) blinks at
  * 110,180 (shown when frame % 40 >= 21). Returns 0 when the list is done. */
 s32 Boot_LoadingScreen(void) {
     RECT_80011754_80011754 r;
@@ -476,19 +476,19 @@ s32 Boot_LoadingScreen(void) {
     G.db[0].draw.isbg = 1;
     G.cur = 0;
     i = 0;
-    Cd_StartFileLoad(0, D_800A8528[i]);
+    Cd_StartFileLoad(0, Boot_LoadFiles[i]);
     while (1) {
         Gfx_BeginFrame();
-        if (func_800116C0() < 0) {
+        if (Cd_PollLoadList() < 0) {
             i++;
-            if (D_800A8528[i] < 0) {
+            if (Boot_LoadFiles[i] < 0) {
                 return 0;
             }
-            Cd_StartFileLoad(0, D_800A8528[i]);
+            Cd_StartFileLoad(0, Boot_LoadFiles[i]);
         }
         if (G.frame % 40 >= 21) {
             func_8008DDB0(0x6E, 0xB4);
-            func_8008DDC8(D_800A850C);
+            func_8008DDC8(Boot_NowLoadingText);
         }
         Cd_Update();
         DrawSync(0);
@@ -541,7 +541,7 @@ s32 Minigame_Run(s32 n) {
         sc[i + 1] = p[i];
     }
     func_800864DC();
-    Exe_Load(D_800A8508[n], &exe);
+    Exe_Load(g_MinigameExeFiles[n], &exe);
     System_Shutdown();
     exe.w[8] = 0x801EFFF0;
     exe.w[9] = 0;
@@ -582,9 +582,9 @@ S32x15_80011C1C *out;
   return 0;
 }
 
-/* CD setup at boot: locates the data archive (D_800A40D0, "\KKIIDDZZ.HED;1"), reads its first sector - a table of
+/* CD setup at boot: locates the data archive (Cd_ArchiveName, "\KKIIDDZZ.HED;1"), reads its first sector - a table of
  * 0x1C0 entries {sector:20, size:12} relative to the archive - into g_CdFileTable and makes the
- * sectors absolute. The XA music tracks (D_800A8530 entries 4..0x39) get their start sectors from
+ * sectors absolute. The XA music tracks (g_XaTracks entries 4..0x39) get their start sectors from
  * the XA files 0x1C5, 0x1C4, 0x1C1, 0x1C0, 0x1C2, 0x1C3. Then sets mode 0xC8 and demutes. */
 s32 Cd_InitFileTable(void) {
     CdlFILE_80011CF8_80011CF8 fp;
@@ -593,7 +593,7 @@ s32 Cd_InitFileTable(void) {
     s32 base;
     s32 i;
 
-    while (CdSearchFile(&fp, D_800A40D0) == 0) {
+    while (CdSearchFile(&fp, Cd_ArchiveName) == 0) {
     }
     base = CdPosToInt(&fp);
     while (CdControl(2, (u8 *)&fp, 0) == 0) {
@@ -607,32 +607,32 @@ s32 Cd_InitFileTable(void) {
     Cd_GetFileEntry((u8 *)&fp, 0x1C5);
     base = CdPosToInt(&fp);
     for (i = 4; i < 0x10; i++) {
-        D_800A8530[i].f_0 = base;
+        g_XaTracks[i].f_0 = base;
     }
     Cd_GetFileEntry((u8 *)&fp, 0x1C4);
     base = CdPosToInt(&fp);
     for (i = 0x10; i < 0x18; i++) {
-        D_800A8530[i].f_0 = base;
+        g_XaTracks[i].f_0 = base;
     }
     Cd_GetFileEntry((u8 *)&fp, 0x1C1);
     base = CdPosToInt(&fp);
     for (i = 0x18; i < 0x1F; i++) {
-        D_800A8530[i].f_0 = base;
+        g_XaTracks[i].f_0 = base;
     }
     Cd_GetFileEntry((u8 *)&fp, 0x1C0);
     base = CdPosToInt(&fp);
     for (i = 0x1F; i < 0x2B; i++) {
-        D_800A8530[i].f_0 = base;
+        g_XaTracks[i].f_0 = base;
     }
     Cd_GetFileEntry((u8 *)&fp, 0x1C2);
     base = CdPosToInt(&fp);
     for (i = 0x2B; i < 0x33; i++) {
-        D_800A8530[i].f_0 = base;
+        g_XaTracks[i].f_0 = base;
     }
     Cd_GetFileEntry((u8 *)&fp, 0x1C3);
     base = CdPosToInt(&fp);
     for (i = 0x33; i < 0x3A; i++) {
-        D_800A8530[i].f_0 = base;
+        g_XaTracks[i].f_0 = base;
     }
     mode[0] = 0xC8;
     while (CdControlB(0xE, mode, 0) == 0) {
@@ -642,7 +642,7 @@ s32 Cd_InitFileTable(void) {
     return 0;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/game/80010B50_cd", D_800A40D0);
+INCLUDE_RODATA("asm/nonmatchings/game/80010B50_cd", Cd_ArchiveName);
 
 
 /* Starts XA (streamed) music track `n`: sets the volume mode, the XA file/channel
@@ -653,7 +653,7 @@ s32 Cd_PlayXaTrack(s32 n) {
     u8 pos[4];
     u8 mode[1];
     s32 v;
-    switch (D_800A8530[n].f_A & 0xC) {
+    switch (g_XaTracks[n].f_A & 0xC) {
     case 4:
         v = 0;
         break;
@@ -666,28 +666,28 @@ s32 Cd_PlayXaTrack(s32 n) {
     }
     func_80086248(v);
     Cd_QueueCommand(0xB, 0, V_11F6C->f_44, 0);
-    filt[0] = D_800A8530[n].f_8;
-    filt[1] = D_800A8530[n].f_9;
+    filt[0] = g_XaTracks[n].f_8;
+    filt[1] = g_XaTracks[n].f_9;
     Cd_QueueCommand(0xD, filt, V_11F6C->f_44, 0);
     mode[0] = 0x48;
-    if (D_800A8530[n].f_A & 1) {
+    if (g_XaTracks[n].f_A & 1) {
         mode[0] = 0xC8;
     }
     Cd_QueueCommand(0xE, mode, V_11F6C->f_44, 0);
-    CdIntToPos(D_800A8530[n].f_0, pos);
+    CdIntToPos(g_XaTracks[n].f_0, pos);
     Cd_QueueCommand(0xC, 0, V_11F6C->f_44, 0);
     Cd_QueueCommand(1, 0, V_11F6C->f_44, 0);
     Cd_QueueCommand(0x1B, pos, V_11F6C->f_44, 0);
     Cd_QueueCommand(0xB, 0, V_11F6C->f_44, 0);
     Cd_QueueCommand(9, 0, V_11F6C->f_44, 0);
     V_11F6C->f_40 = n;
-    V_11F6C->f_30 = D_800A8530[n].f_0;
+    V_11F6C->f_30 = g_XaTracks[n].f_0;
     return 0;
 }
 
 /* Polled once per frame (Cd_Update). After a completed command, unless a delay (f_34) is
  * counting down, it either checks the drive status (every 10th tick of f_2C) or reads the play
- * position (CdlGetlocP) into f_30; once the current XA track D_800A8530[f_40] has played past its
+ * position (CdlGetlocP) into f_30; once the current XA track g_XaTracks[f_40] has played past its
  * length it is restarted if it loops (flag 2) and the state becomes 0x50000. On a disk error the
  * looping track is restarted too (state 0xF0000). Returns 0. */
 s32 Cd_PollStatus(void) {
@@ -698,17 +698,17 @@ s32 Cd_PollStatus(void) {
 
     switch (st = CdSync(1, 0)) {
     case 2:
-        d = ((struct S_D_800E3890_80012110_80012110 *)&D_800E3890);
+        d = ((struct S_D_800E3890_80012110_80012110 *)&g_Cd);
         if (d->f_34 == 0) {
         if (d->f_2C % 10 != 0) {
             if (CdControl(0x11, 0, res) != 0) {
                 pos = CdPosToInt(&res[5]);
                 d->f_30 = pos;
-                if (D_800A8530[d->f_40].f_4 < pos - D_800A8530[d->f_40].f_0) {
-                    if (D_800A8530[d->f_40].f_A & 2) {
+                if (g_XaTracks[d->f_40].f_4 < pos - g_XaTracks[d->f_40].f_0) {
+                    if (g_XaTracks[d->f_40].f_A & 2) {
                         Cd_PlayXaTrack(d->f_40);
                     }
-                    ((struct S_D_800E3890_80012110_80012110 *)&D_800E3890)->f_0 = 0x50000;
+                    ((struct S_D_800E3890_80012110_80012110 *)&g_Cd)->f_0 = 0x50000;
                 }
             } else {
                 bios_printf(D_800A40E0);
@@ -729,10 +729,10 @@ s32 Cd_PollStatus(void) {
     case 5:
         CdControl(1, 0, res);
         bios_printf(D_800A4124, res[0]);
-        if (((struct S_D_800E3890_80012110_80012110 *)&D_800E3890)->f_0 & 0x10000) {
-            ((struct S_D_800E3890_80012110_80012110 *)&D_800E3890)->f_0 = 0xF0000;
-            if (D_800A8530[((struct S_D_800E3890_80012110_80012110 *)&D_800E3890)->f_40].f_A & 2) {
-                Cd_PlayXaTrack(((struct S_D_800E3890_80012110_80012110 *)&D_800E3890)->f_40);
+        if (((struct S_D_800E3890_80012110_80012110 *)&g_Cd)->f_0 & 0x10000) {
+            ((struct S_D_800E3890_80012110_80012110 *)&g_Cd)->f_0 = 0xF0000;
+            if (g_XaTracks[((struct S_D_800E3890_80012110_80012110 *)&g_Cd)->f_40].f_A & 2) {
+                Cd_PlayXaTrack(((struct S_D_800E3890_80012110_80012110 *)&g_Cd)->f_40);
             }
         }
         break;
@@ -746,24 +746,24 @@ INCLUDE_RODATA("asm/nonmatchings/game/80010B50_cd", D_800A4110);
 INCLUDE_RODATA("asm/nonmatchings/game/80010B50_cd", D_800A4124);
 
 
-s32 func_8001231C(void) {
-    if (D_800E3890.f_0 & 0x10000) {
-        D_800E3890.f_0 = 0x50000;
+s32 Cd_StopMusic(void) {
+    if (g_Cd.f_0 & 0x10000) {
+        g_Cd.f_0 = 0x50000;
         Cd_WaitQueue(0);
     }
     return 0;
 }
 
-s32 func_80012358(void) {
+s32 Cd_Nop(void) {
     return 0;
 }
 
 typedef struct { u8 cmd; u8 pad1[3]; u32 param[3]; s32 f_10; u8 *result; u32 *pparam; } CdCmd;
 typedef struct { s32 f_0; u8 pad4[0x70]; s16 tail; s16 head; CdCmd q[16]; } CdState;
-#define CQ ((CdState *)&D_800E3890)
+#define CQ ((CdState *)&g_Cd)
 s32 Cd_QueueCommand_(u8 cmd, u32 *params, s32 buf, u8 *result) asm("Cd_QueueCommand");
 extern char D_800A4140[];
-/* Cd_QueueCommand: append a CD command to the 16-entry ring at D_800E3890+0x78: cmd, its params
+/* Cd_QueueCommand: append a CD command to the 16-entry ring at g_Cd+0x78: cmd, its params
  * (3 words for cmd 0x20, else 1; none if params is 0), a response buffer and a done-flag pointer.
  * When the ring is full it prints a warning and issues the oldest request until that succeeds.
  * Clears *result and arms the CD timer (f_0 = 0x50000) if it is idle. */
@@ -803,15 +803,15 @@ INCLUDE_RODATA("asm/nonmatchings/game/80010B50_cd", D_800A4140);
 
 void Cd_WaitIdle()
 {
-    if (D_800E3890.f_0 != 0) {
+    if (g_Cd.f_0 != 0) {
         do {
             Cd_Update();
             VSync(2);
-        } while (D_800E3890.f_0 != 0);
+        } while (g_Cd.f_0 != 0);
     }
 }
 
-/* Per-frame CD driver, a state machine in D_800E3890.f_0: 0x10000 = XA music playing (poll the
+/* Per-frame CD driver, a state machine in g_Cd.f_0: 0x10000 = XA music playing (poll the
  * position every 5th frame), 0x40000 = data read in progress (restart it after 600 frames without
  * an answer), 0xE0000 = restart the current read, 0xF0000 = recover from an error (status, standby,
  * mode), anything else = wait for the last command and then issue the next queued request
@@ -902,19 +902,19 @@ void Cd_ReadReady(u8 status)
   int new_var;
   if (status == 1)
   {
-    CdGetSector(((struct S_D_800E3890_800128C8 *)&D_800E3890)->f_4C, 0x200);
-    ((struct S_D_800E3890_800128C8 *)&D_800E3890)->f_4C += 0x800;
-    ((struct S_D_800E3890_800128C8 *)&D_800E3890)->f_60--;
-    if (((struct S_D_800E3890_800128C8 *)&D_800E3890)->f_60 <= 0)
+    CdGetSector(((struct S_D_800E3890_800128C8 *)&g_Cd)->f_4C, 0x200);
+    ((struct S_D_800E3890_800128C8 *)&g_Cd)->f_4C += 0x800;
+    ((struct S_D_800E3890_800128C8 *)&g_Cd)->f_60--;
+    if (((struct S_D_800E3890_800128C8 *)&g_Cd)->f_60 <= 0)
     {
       CdReadyCallback(0);
-      new_var = ((struct S_D_800E3890_800128C8 *)&D_800E3890)->f_58 != 0;
+      new_var = ((struct S_D_800E3890_800128C8 *)&g_Cd)->f_58 != 0;
       if (new_var)
       {
         new_var = status;
-        *((struct S_D_800E3890_800128C8 *)&D_800E3890)->f_58 = new_var;
+        *((struct S_D_800E3890_800128C8 *)&g_Cd)->f_58 = new_var;
       }
-      ((struct S_D_800E3890_800128C8 *)&D_800E3890)->f_0 = 0x50000;
+      ((struct S_D_800E3890_800128C8 *)&g_Cd)->f_0 = 0x50000;
     }
   }
   else
@@ -927,40 +927,40 @@ INCLUDE_RODATA("asm/nonmatchings/game/80010B50_cd", D_800A41D0);
 
 
 void Cd_WaitQueue(s32 a) {
-    if (D_800E3890.f_74 == D_800E3890.f_76) {
+    if (g_Cd.f_74 == g_Cd.f_76) {
         return;
     }
     if (a == -1) {
-        D_800E3890.f_74 = D_800E3890.f_76;
+        g_Cd.f_74 = g_Cd.f_76;
         return;
     }
-    if (D_800E3890.f_0 == 0) {
+    if (g_Cd.f_0 == 0) {
         return;
     }
     do {
         Cd_Update();
-        if (D_800E3890.f_0 & 0x10000) {
-            D_800E3890.f_0 = 0x50000;
+        if (g_Cd.f_0 & 0x10000) {
+            g_Cd.f_0 = 0x50000;
         }
         VSync(2);
-    } while (D_800E3890.f_0 != 0);
+    } while (g_Cd.f_0 != 0);
 }
 
 /* Issue one queued CD request. Command 0x20 is the game's data read: it records the buffer and
- * length in the CD state block (D_800E3890), starts CdlReadN with Cd_ReadReady as the ready
+ * length in the CD state block (g_Cd), starts CdlReadN with Cd_ReadReady as the ready
  * callback and turns the request into CdlPause (9). Other commands go straight to CdControl and set
  * the expected state (seek, read, pause, ...). Marks *done, advances the ring index f_74 (mod 16),
  * stamps the VSync count. Returns 1 if CdControl accepted the command, else 0. */
 s32 Cd_IssueRequest(CdReq_80012A0C_80012A0C *r) {
     struct S_D_800E3890_80012A0C_80012A0C *d;
     if (r->com == 0x20) {
-        d = ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890);
+        d = ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd);
         d->f_50 = d->f_4C = r->f_8;
         d->f_5C = d->f_60 = r->f_C;
         d->f_58 = r->done;
         if (CdControl(6, r->param, r->result) == 1) {
             CdReadyCallback(Cd_ReadReady);
-            ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890)->f_0 = 0x40000;
+            ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd)->f_0 = 0x40000;
             r->com = 9;
             d->f_3C = VSync(-1);
             return 1;
@@ -970,31 +970,31 @@ s32 Cd_IssueRequest(CdReq_80012A0C_80012A0C *r) {
         if (CdControl(r->com, r->param, r->result) == 1) {
             switch (r->com) {
             case 2:
-                ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890)->f_68 = -1;
-                ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890)->f_6C = CdPosToInt(r->param);
+                ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd)->f_68 = -1;
+                ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd)->f_6C = CdPosToInt(r->param);
                 break;
             case 6:
-                ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890)->f_0 = 0x40000;
-                ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890)->f_34 = 2;
+                ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd)->f_0 = 0x40000;
+                ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd)->f_34 = 2;
                 break;
             case 27:
-                ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890)->f_0 = 0x10000;
-                ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890)->f_34 = 0x14;
-                ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890)->f_2C = 0;
+                ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd)->f_0 = 0x10000;
+                ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd)->f_34 = 0x14;
+                ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd)->f_2C = 0;
                 break;
             case 9:
-                ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890)->f_0 = 0x50000;
+                ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd)->f_0 = 0x50000;
                 break;
             case 21:
             case 22:
-                ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890)->f_0 = 0x20000;
-                ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890)->f_34 = 2;
+                ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd)->f_0 = 0x20000;
+                ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd)->f_34 = 2;
                 break;
             case 14:
-                ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890)->f_38 = ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890)->f_74;
+                ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd)->f_38 = ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd)->f_74;
                 break;
             }
-            d = ((struct S_D_800E3890_80012A0C_80012A0C *)&D_800E3890);
+            d = ((struct S_D_800E3890_80012A0C_80012A0C *)&g_Cd);
             d->f_64 = r->com;
             if (r->done != 0) {
                 *r->done = 1;

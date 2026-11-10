@@ -17,7 +17,7 @@ s32 Math_Atan2(s32 x, s32 y) {
     return ratan2(y, x);
 }
 
-void func_8004637C(void *arg0) {
+void Matrix_SetIdentity(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0x14) = 0;
     M2C_FIELD(arg0, s32 *, 0x18) = 0;
     M2C_FIELD(arg0, s32 *, 0x1C) = 0;
@@ -28,7 +28,7 @@ void func_8004637C(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0x10) = 0x1000;
 }
 
-s32 func_800463A4(s32 arg0, s32 arg1, s32 arg2) {
+s32 Math_StepToward(s32 arg0, s32 arg1, s32 arg2) {
     s32 temp_v1;
 
     temp_v1 = arg0 - arg1;
@@ -44,7 +44,7 @@ s32 func_800463A4(s32 arg0, s32 arg1, s32 arg2) {
     return arg1;
 }
 
-void func_800463E4(void *arg0, void *arg1, s32 arg2) {
+void SVec_MoveToward(void *arg0, void *arg1, s32 arg2) {
     s32 temp_s2;
     s32 temp_s4;
     s32 temp_s5;

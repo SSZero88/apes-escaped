@@ -155,11 +155,11 @@ extern Entry_80146500 D_80146878[];
 extern s32 D_80146774;
 extern s32 D_80146770;
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; } g_Game_80146500 asm("g_Game");
-s32 func_80011194(void *);
-s32 func_800116C0(void);
+s32 Cd_StartLoadList(void *);
+s32 Cd_PollLoadList(void);
 void Cd_Update(void);
 s32 func_8005BEF0(void);
-void func_80031B60(s32, s32);
+void Stage_Load(s32, s32);
 void Overlay_Request(s32);
 void Overlay_Update(void);
 void Gfx_BeginFrame(void);
@@ -169,12 +169,12 @@ void func_8005DEE0(s32, s32, s32, s32);
 void func_8001325C(s32);
 
 s32 func_80146500(void) {
-    func_80011194(D_80146878[D_80146774].c);
-    while (func_800116C0() >= 0) {
+    Cd_StartLoadList(D_80146878[D_80146774].c);
+    while (Cd_PollLoadList() >= 0) {
         Cd_Update();
     }
     func_8005BEF0();
-    func_80031B60(D_80146878[D_80146774].a, 0);
+    Stage_Load(D_80146878[D_80146774].a, 0);
     Overlay_Request(D_80146878[D_80146774].b);
     while (1) {
         func_8001325C(1);

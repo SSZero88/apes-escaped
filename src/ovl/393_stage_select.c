@@ -33,9 +33,9 @@ typedef struct { s16 m[3][3]; s32 t[3]; } MAT_801375C0;
 typedef struct { u8 pad0[0xE]; u16 n; } Hdr_801375C0;
 typedef struct { Hdr_801375C0 *f_0; s32 *f_4; u8 *f_8; } Mdl_801375C0;
 typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } Scr_801375C0;
-extern u8 D_800E7D00_801375C0[] asm("D_800E7D00");
+extern u8 D_800E7D00_801375C0[] asm("g_ProjVerts");
 extern struct { u8 pad0[0xC]; s32 cur; } g_Game_801375C0 asm("g_Game");
-extern MAT_801375C0 D_800E78C0_801375C0 asm("D_800E78C0");
+extern MAT_801375C0 D_800E78C0_801375C0 asm("g_ViewMatrix");
 
 void func_801375C0(pos, rot, m, light)
     SVECTOR *pos; SVECTOR *rot; Mdl_801375C0 *m; s32 light;
@@ -50,7 +50,7 @@ void func_801375C0(pos, rot, m, light)
     sc->f_3F4 = 0;
     sc->f_3C6 = 0;
     sc->f_3C4 = 0;
-    func_8004637C(&mat);
+    Matrix_SetIdentity(&mat);
     mat.t[2] = pos->vz;
     mat.t[0] = pos->vx;
     mat.t[1] = pos->vy;
@@ -72,9 +72,9 @@ typedef struct { s16 m[3][3]; s32 t[3]; } MAT_80137714;
 typedef struct { u8 pad0[0xE]; u16 n; } Hdr_80137714;
 typedef struct { Hdr_80137714 *f_0; s32 *f_4; u8 *f_8; } Mdl_80137714;
 typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } Scr_80137714;
-extern u8 D_800E7D00_80137714[] asm("D_800E7D00");
+extern u8 D_800E7D00_80137714[] asm("g_ProjVerts");
 extern struct { u8 pad0[0xC]; s32 cur; } g_Game_80137714 asm("g_Game");
-extern MAT_80137714 D_800E78C0_80137714 asm("D_800E78C0");
+extern MAT_80137714 D_800E78C0_80137714 asm("g_ViewMatrix");
 
 void func_80137714(pos, rot, m, light)
     SVECTOR *pos; SVECTOR *rot; Mdl_80137714 *m; s32 light;
@@ -89,7 +89,7 @@ void func_80137714(pos, rot, m, light)
     sc->f_3F4 = 1;
     sc->f_3C6 = 0;
     sc->f_3C4 = 0;
-    func_8004637C(&mat);
+    Matrix_SetIdentity(&mat);
     mat.t[2] = pos->vz;
     mat.t[0] = pos->vx;
     mat.t[1] = pos->vy;
@@ -109,14 +109,14 @@ void func_80137714(pos, rot, m, light)
 
 extern u8 g_Game[];
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_8013786C;
-extern Mat_8013786C D_800E78C0_8013786C asm("D_800E78C0");
-extern u8 D_800E7D00_8013786C[] asm("D_800E7D00");
-void func_8004637C(Mat_8013786C *);
+extern Mat_8013786C D_800E78C0_8013786C asm("g_ViewMatrix");
+extern u8 D_800E7D00_8013786C[] asm("g_ProjVerts");
+void Matrix_SetIdentity(Mat_8013786C *);
 void RotMatrix(void *, Mat_8013786C *);
 void CompMatrix(Mat_8013786C *, Mat_8013786C *, Mat_8013786C *);
 void Model_ProjectVerts(void *, Mat_8013786C *, void *);
 void Model_CalcEnvMapUVs64(void *);
-void func_8001CE54(void *, void *, void *);
+void Model_DrawEnvMapped(void *, void *, void *);
 
 void func_8013786C(s16 *pos, void *rot, void *mdl) {
     Mat_8013786C m;
@@ -125,7 +125,7 @@ void func_8013786C(s16 *pos, void *rot, void *mdl) {
     sc[0x3F4] = 1;
     *(s16 *)(sc + 0x3C6) = 0;
     *(s16 *)(sc + 0x3C4) = 0;
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     m.t[2] = pos[2];
     m.t[0] = pos[0];
     m.t[1] = pos[1];
@@ -133,7 +133,7 @@ void func_8013786C(s16 *pos, void *rot, void *mdl) {
     CompMatrix(&D_800E78C0_8013786C, &m, &m);
     Model_ProjectVerts(mdl, &m, D_800E7D00_8013786C);
     Model_CalcEnvMapUVs64(mdl);
-    func_8001CE54(g_Game + 0x80 + G_DRAW.cur * 0x4078, D_800E7D00_8013786C, mdl);
+    Model_DrawEnvMapped(g_Game + 0x80 + G_DRAW.cur * 0x4078, D_800E7D00_8013786C, mdl);
 }
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, p1; s16 x1, y1; u8 r2, g2, b2, p2; s16 x2, y2; u8 r3, g3, b3, p3; s16 x3, y3; } PolyG4_80137950;
@@ -162,7 +162,7 @@ s32 Sound_UnloadBanks(s32);
 s32 Sound_PlayFixed(s32);
 void func_8008C3C0(s32, s32);
 void DebugFont_Printf(char *, ...);
-s32 func_800116C0(void);
+s32 Cd_PollLoadList(void);
 s32 func_800976B8(s32, s32);
 #define PAD_80137950 (g_Pad_80137950.f_160 & g_Pad_80137950.f_158)
 
@@ -269,7 +269,7 @@ s32 func_80137950(void) {
         D_80139BE4 >>= 1;
         break;
     case 1:
-        if (func_800116C0() < 0) {
+        if (Cd_PollLoadList() < 0) {
             return -2;
         }
         break;
@@ -435,7 +435,7 @@ s32 func_80138468(s32 world, s32 stage) {
 
 typedef struct { s32 vx, vy, vz, pad; } VEC_391;
 typedef struct { s16 m[3][3]; s32 t[3]; } MAT_391;
-extern MAT_391 D_800E78C0;
+extern MAT_391 g_ViewMatrix;
 extern MAT_391 D_800AF0A0;
 void VectorNormal(void *, void *);
 s32 SquareRoot0(s32);
@@ -449,9 +449,9 @@ void StageSelect_SetCamera(SVECTOR *eye, SVECTOR *at) {
     s32 ny;
     s32 h;
 
-    D_800E78C0.t[0] = -eye->vx;
-    D_800E78C0.t[1] = -eye->vy;
-    D_800E78C0.t[2] = -eye->vz;
+    g_ViewMatrix.t[0] = -eye->vx;
+    g_ViewMatrix.t[1] = -eye->vy;
+    g_ViewMatrix.t[2] = -eye->vz;
     d.vx = at->vx - eye->vx;
     d.vy = 0;
     d.vz = at->vz - eye->vz;
@@ -465,17 +465,17 @@ void StageSelect_SetCamera(SVECTOR *eye, SVECTOR *at) {
     VectorNormal(&d, &n);
     ny = n.vy;
     h = SquareRoot0(n.vz * n.vz + n.vx * n.vx);
-    D_800E78C0.m[0][0] = nz;
-    D_800E78C0.m[0][1] = 0;
-    D_800E78C0.m[0][2] = nx;
-    D_800E78C0.m[1][0] = (nx * ny) >> 12;
-    D_800E78C0.m[1][1] = h;
-    D_800E78C0.m[1][2] = -(ny * nz) >> 12;
-    D_800E78C0.m[2][0] = -(h * nx) >> 12;
-    D_800E78C0.m[2][1] = ny;
-    D_800E78C0.m[2][2] = (h * nz) >> 12;
-    ApplyMatrixLV(&D_800E78C0, D_800E78C0.t, D_800E78C0.t);
-    CompMatrix(&D_800AF0A0, &D_800E78C0, &D_800E78C0);
+    g_ViewMatrix.m[0][0] = nz;
+    g_ViewMatrix.m[0][1] = 0;
+    g_ViewMatrix.m[0][2] = nx;
+    g_ViewMatrix.m[1][0] = (nx * ny) >> 12;
+    g_ViewMatrix.m[1][1] = h;
+    g_ViewMatrix.m[1][2] = -(ny * nz) >> 12;
+    g_ViewMatrix.m[2][0] = -(h * nx) >> 12;
+    g_ViewMatrix.m[2][1] = ny;
+    g_ViewMatrix.m[2][2] = (h * nz) >> 12;
+    ApplyMatrixLV(&g_ViewMatrix, g_ViewMatrix.t, g_ViewMatrix.t);
+    CompMatrix(&D_800AF0A0, &g_ViewMatrix, &g_ViewMatrix);
 }
 
 extern u16 D_800AE8F2;

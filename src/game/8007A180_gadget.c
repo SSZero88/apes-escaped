@@ -40,7 +40,7 @@ typedef struct { u8 pad0[0xC]; u16 f_C; u16 f_E; u16 f_10; } Gad_7CAE0_8007CAE0;
 extern struct S_D_800EC350 { u8 pad_0[0x8124]; u16 f_8124; u8 pad_8126[0x2C]; s16 f_8152; u8 pad_8154[0x50]; void *f_81A4; } g_Game;
 extern struct S_D_800F50B0 { u8 pad0[0x18]; u8 *f_18; } D_800F50B0;
 extern u8 *D_800B4DA0;
-void func_80015AC0(void *, void *);
+void Model_BindBoned(void *, void *);
 
 extern struct S_D_800F5120 { s32 f_0; u8 pad_4[0x20]; s32 f_24; s16 f_28; s16 f_2A; s16 f_2C; u8 pad_2E[0x1A]; s16 f_48; s16 f_4A; s32 f_4C; s32 f_50; u8 pad_54[0x34]; u8 f_88; u8 f_89; u8 f_8A; u8 f_8B; u8 f_8C; u8 f_8D; u8 f_8E; u8 f_8F; s32 f_90; u8 pad_94[0xF]; u8 f_A3; s32 f_A4; } g_GadgetState;
 void func_8006CDE0(void);
@@ -49,7 +49,7 @@ extern struct S_D_800F5090 { s32 f_0; s16 f_4; s16 pad6; } g_GuidedLocks[];
 M2C_UNK Pad_Vibrate(); /* one caller passes a 4th argument */
 M2C_UNK Sound_PlayFixed(M2C_UNK);
 extern struct S_D_800EC1E0 { u8 pad_0[0x80]; SVECTOR f_80; u8 pad_88[0x60]; s16 f_E8; } g_Spike;
-extern struct S_D_800F4730 { u8 pad_0[0x1F4]; s32 f_1F4; s32 f_1F8; s32 f_1FC; u8 pad_200[0x14]; s32 f_214; s32 f_218; s32 f_21C; } D_800F4730;
+extern struct S_D_800F4730 { u8 pad_0[0x1F4]; s32 f_1F4; s32 f_1F8; s32 f_1FC; u8 pad_200[0x14]; s32 f_214; s32 f_218; s32 f_21C; } g_JointWorldMatrices;
 extern struct S_D_800F51D0 { s16 f_0; s16 f_2; s16 f_4; s16 f_6; SVECTOR f_8; s32 f_10; } D_800F51D0;
 
 extern s8 g_CurrentGadget;
@@ -57,7 +57,7 @@ struct S_D_800EC1E0_8007CA48 { u8 pad0[0x5E]; u16 f_5E; u8 pad60[0x88]; s16 f_E8
 struct S_D_800EC350_8007CA48 { u8 pad0[0x8150]; u16 f_8150; u16 f_8152; };
 extern M2C_UNK D_800EC204;
 extern u8 D_800E6916;
-extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } D_800E78C0;
+extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } g_ViewMatrix;
 void func_8004B54C(SVEC_8007A32C_8007A32C *);
 s32 VectorNormalSS(void *, void *);
 void *GuidedAmmo_FindTarget(void *, SVEC_8007A32C_8007A32C *, s32);
@@ -81,13 +81,13 @@ struct GameDb_8007C2A0 { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf_8007C2A0
 struct Game_8007C2A0 { u8 pad0[0x8100]; s32 f_8100; };
 struct Spike_8007C2A0 { u8 pad0[0x14]; MAT_8007C2A0_8007C2A0 *f_14; u8 pad18[0x48]; SVECTOR f_60; SVECTOR f_68; };
 struct GS_8007C2A0 { u8 pad0[0x54]; s16 f_54; };
-extern u8 D_800E7D00[];
+extern u8 g_ProjVerts[];
 extern M2C_UNK D_800F50D4;
 void Matrix_LookAt(SVECTOR *, SVECTOR *, MAT_8007C2A0_8007C2A0 *, s32);
 void Anim_SetFrame(void *);
 void Model_CalcJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
-void func_80017CD4(u32 *, void *, void *);
+void Model_Draw(u32 *, void *, void *);
 void func_8007BD38(void);
 void func_8006896C(s32);
 void func_8004BC9C(void);
@@ -116,7 +116,7 @@ extern s32 D_800F51E0;
 extern u8 D_800EC130[];
 extern void *D_800EC358;
 struct Game_8007C6CC { u8 pad0[0x8152]; u16 f_8152; };
-void func_8004637C(void *);
+void Matrix_SetIdentity(void *);
 void RotMatrixX(s32, void *);
 void Matrix_FromDirection(void *, void *);
 void ScaleMatrix(void *, void *);
@@ -132,7 +132,7 @@ extern u8 D_800E6902;
 extern s32 D_800F5128;
 void Gadget_StopSounds(s32);
 void func_8007AA64(void);
-void func_8001F884(void);
+void GadgetTrail_Clear(void);
 void GuidedAmmo_ClearLocks(void);
 void Camera_EnterAim(void);
 void Camera_ExitAim(void);
@@ -255,8 +255,8 @@ void GuidedAmmo_UpdateLockOn(void) {
     if (t != 0) {
         func_8007A48C(t);
     }
-    SetRotMatrix(&D_800E78C0);
-    SetTransMatrix(&D_800E78C0);
+    SetRotMatrix(&g_ViewMatrix);
+    SetTransMatrix(&g_ViewMatrix);
     for (i = 0; i < 3; i++) {
         e = &((struct S_D_800F5090_8007A32C *)&g_GuidedLocks)[i];
         if (e->f_0 != 0) {
@@ -416,7 +416,7 @@ void Club_SwingUpdate(void) {
     default:
         func_8007CD0C(1);
         if ((SP_7A514M->f_70 & 0xF0) == 0x80) {
-            func_8004637C(&sc->m);
+            Matrix_SetIdentity(&sc->m);
             sc->m.t[2] = -0x30;
             sc->m.t[1] = 0x20;
             CompMatrix(&D_800F4750, &sc->m, &sc->m);
@@ -562,7 +562,7 @@ s32 Gadget_Select(s32 g, s32 prev) {
     case 0:
         if (prev != 0) {
             func_8007AA64();
-            func_8001F884();
+            GadgetTrail_Clear();
         }
         break;
     case 6:
@@ -1032,7 +1032,7 @@ void func_8007BC9C(void) {
 void func_8007BCB4(void) {
     u8 *base = (u8 *)0x80103000;
     if (g_Game.f_8124 != 0x20) {
-        func_80015AC0(&D_800F50B0, g_Game.f_81A4);
+        Model_BindBoned(&D_800F50B0, g_Game.f_81A4);
         D_800F50B0.f_18 = base + *(u16 *)(base + 0xB8) * 4;
         D_800B4DA0 = base + *(u16 *)(base + 0xB4) * 4;
     }
@@ -1048,11 +1048,11 @@ typedef struct { u8 pad0[0x6C]; SVECTOR *verts; } MdlB_7BD38;
 extern MdlB_7BD38 D_800EC0E0_7BD38 asm("D_800EC0E0");
 extern Mdl_7BD38 D_800EC070_7BD38 asm("D_800EC070");
 extern Mdl_7BD38 D_800EC140_7BD38 asm("D_800EC140");
-extern MAT_7BD38 D_800E9C60_7BD38[] asm("D_800E9C60");
+extern MAT_7BD38 D_800E9C60_7BD38[] asm("g_ModelMatrices");
 extern MAT_7BD38 D_800E9E40_7BD38 asm("D_800E9E40");
-extern MAT_7BD38 D_800E78C0_7BD38 asm("D_800E78C0");
+extern MAT_7BD38 D_800E78C0_7BD38 asm("g_ViewMatrix");
 extern MAT_7BD38 D_800F4910_7BD38 asm("D_800F4910");
-extern u8 D_800E7D00_7BD38[] asm("D_800E7D00");
+extern u8 D_800E7D00_7BD38[] asm("g_ProjVerts");
 extern u8 *D_800EC358_7BD38 asm("D_800EC358");
 extern SVECTOR D_800F51D0_7BD38[2] asm("D_800F51D0");
 extern struct { Obj_7BD38 o; SVECTOR dirB; SVECTOR dirA; } D_800F50B0_7BD38 asm("D_800F50B0");
@@ -1060,15 +1060,15 @@ extern struct { Obj_7BD38 o; SVECTOR dirB; SVECTOR dirA; } D_800F50B0_7BD38 asm(
 extern s16 D_800F5174_7BD38 asm("D_800F5174");
 extern Anim_7BD38 *D_800B4DA0_7BD38 asm("D_800B4DA0");
 extern u8 D_800AEBF8_7BD38[] asm("D_800AEBF8");
-extern Mdl_7BD38 D_800F4630_7BD38[] asm("D_800F4630");
+extern Mdl_7BD38 D_800F4630_7BD38[] asm("g_MonkeyPropModels");
 extern Tip_7BD38 D_800B2140_7BD38[] asm("D_800B2140");
 extern Tip_7BD38 D_800B2188_7BD38[] asm("D_800B2188");
 extern struct S_G_7BD38 { u8 pad_0[0x8124]; u16 f_8124; u8 pad_8126[0x2C]; s16 f_8152; u8 pad_8154[0x50]; void *f_81A4; } g_Game_7BD38 asm("g_Game");
 s32 Spike_IsUnderwater_7BD38(void) asm("Spike_IsUnderwater");
 void Model_ProjectVerts_7BD38(void *, void *, void *) asm("Model_ProjectVerts");
 void Model_ProjectBonedVerts_7BD38(void *) asm("Model_ProjectBonedVerts");
-void func_80017CD4_7BD38(void *, void *, void *) asm("func_80017CD4");
-void func_80017D94_7BD38(void *, void *, void *, s32) asm("func_80017D94");
+void func_80017CD4_7BD38(void *, void *, void *) asm("Model_Draw");
+void func_80017D94_7BD38(void *, void *, void *, s32) asm("Model_DrawNoFog");
 void Matrix_FromDirection_7BD38(SVECTOR *, MAT_7BD38 *) asm("Matrix_FromDirection");
 void Matrix_LookAt_7BD38(SVECTOR *, SVECTOR *, MAT_7BD38 *, s32) asm("Matrix_LookAt");
 void SetRotMatrix_7BD38(void *) asm("SetRotMatrix");
@@ -1079,16 +1079,16 @@ s32 RotTransPers_7BD38(SVECTOR *, void *, s32 *, s32 *) asm("RotTransPers");
 void VectorNormalSS_7BD38(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
 void ScaleMatrixL_7BD38(MAT_7BD38 *, VEC_7BD38 *) asm("ScaleMatrixL");
 void RotMatrixY_7BD38(s32, MAT_7BD38 *) asm("RotMatrixY");
-void func_80014EF0_7BD38(void *, void *) asm("func_80014EF0");
+void func_80014EF0_7BD38(void *, void *) asm("Anim_BlendEntry");
 void Model_CalcJointMatrices_7BD38(void *, s32) asm("Model_CalcJointMatrices");
-s32 func_80032E58_7BD38(void) asm("func_80032E58");
+s32 func_80032E58_7BD38(void) asm("Monkey_GetCaughtType");
 
 /* Draws Spike's hands with the current gadget model held between them. Normal: hand model D_800EC070
    on bone matrix 15, hand vertices 0 / 0x51 / 8; underwater: the swimming body D_800EC0E0 and hand
    model D_800EC140 placed at D_800F51D0 facing D_800F51D8, vertices 2 / 0xC / 0xB. Unless in area
    0x20, the gadget (D_800F50B0, a boned model) is centred between hand vertices a and c and aimed
    along (mid - b) / (a - mid), grows in over its first 8 frames (D_800F5174, scaled and spun), and
-   is drawn with the attachment D_800F4630[D_800AEBF8[func_80032E58() >> 6]]. Once fully grown, six
+   is drawn with the attachment g_MonkeyPropModels[D_800AEBF8[Monkey_GetCaughtType() >> 6]]. Once fully grown, six
    points of the hand model (D_800B2140 / D_800B2188) are projected through their bones. */
 void func_8007BD38(void) {
     register u8 *vb asm("$16");
@@ -1218,7 +1218,7 @@ void Spike_UpdateMode8Scene(void) {
     Anim_SetFrame(SPK_7C2A0);
     Model_CalcJointMatrices(SPK_7C2A0, 3);
     Model_ProjectBonedVerts(SPK_7C2A0);
-    func_80017CD4(((struct GameDb_8007C2A0 *)&g_Game)->db[((struct GameDb_8007C2A0 *)&g_Game)->cur].ot, D_800E7D00, SPK_7C2A0);
+    Model_Draw(((struct GameDb_8007C2A0 *)&g_Game)->db[((struct GameDb_8007C2A0 *)&g_Game)->cur].ot, g_ProjVerts, SPK_7C2A0);
     func_8007BD38();
     t = GS_7C2A0->f_54;
     if (t >= 13) {
@@ -1284,9 +1284,9 @@ void WaterNet_Shoot(void) {
     D_800F51D0.f_8 = g_Spike.f_80;
     D_800F51D0.f_10 = 1;
     D_800F51D0.f_6 = 0x200;
-    D_800F51D0.f_0 = (s16) ((s32) (D_800F4730.f_1F4 + D_800F4730.f_214) >> 1);
-    D_800F51D0.f_2 = (s16) ((s32) (D_800F4730.f_1F8 + D_800F4730.f_218) >> 1);
-    D_800F51D0.f_4 = (s16) ((s32) (D_800F4730.f_1FC + D_800F4730.f_21C) >> 1);
+    D_800F51D0.f_0 = (s16) ((s32) (g_JointWorldMatrices.f_1F4 + g_JointWorldMatrices.f_214) >> 1);
+    D_800F51D0.f_2 = (s16) ((s32) (g_JointWorldMatrices.f_1F8 + g_JointWorldMatrices.f_218) >> 1);
+    D_800F51D0.f_4 = (s16) ((s32) (g_JointWorldMatrices.f_1FC + g_JointWorldMatrices.f_21C) >> 1);
     Pad_Vibrate(1, 0xFF, 6, &D_800F51D0);
     Sound_PlayFixed(0x28);
 }
@@ -1309,7 +1309,7 @@ void WaterNet_UpdateShot(void) {
     s32 z;
     Col_8007C6CC_8007C6CC *c;
     r = ((struct S_D_800F51D0_8007C6CC *)&D_800F51D0)->rot + 0x400; sc.vx = r; sc.vy = r; sc.vz = r; ((struct S_D_800F51D0_8007C6CC *)&D_800F51D0)->rot = r;
-    func_8004637C(&rx);
+    Matrix_SetIdentity(&rx);
     RotMatrixX(0x400, &rx);
     Matrix_FromDirection(&((struct S_D_800F51D0_8007C6CC *)&D_800F51D0)->vel, &m);
     ScaleMatrix(&m, &sc);
@@ -1317,8 +1317,8 @@ void WaterNet_UpdateShot(void) {
     m.t[0] = ((struct S_D_800F51D0_8007C6CC *)&D_800F51D0)->x;
     m.t[1] = ((struct S_D_800F51D0_8007C6CC *)&D_800F51D0)->y;
     m.t[2] = ((struct S_D_800F51D0_8007C6CC *)&D_800F51D0)->z;
-    CompMatrix(((u8 *)&D_800E78C0), &m, &m);
-    Model_ProjectVerts(D_800EC130, &m, D_800E7D00);
+    CompMatrix(((u8 *)&g_ViewMatrix), &m, &m);
+    Model_ProjectVerts(D_800EC130, &m, g_ProjVerts);
     a = 0xFF;
     if (t - 10 > 0) {
         a = 0xFF - (t - 10) * 51;
@@ -1329,7 +1329,7 @@ void WaterNet_UpdateShot(void) {
     a <<= 4;
     Light_SetColorMode(2, a, a, a);
     if (t < 0x10 || (t & 1)) {
-        func_80017CD4(D_800EC358, D_800E7D00, D_800EC130);
+        Model_Draw(D_800EC358, g_ProjVerts, D_800EC130);
     }
     Light_SetColorMode(3, 0, 0, 0);
     if (t < 0x10) {
@@ -1431,7 +1431,7 @@ void Club_Draw(struct S_D_800E78C0 *parent, s32 len, s32 save) {
     s32 k;
     s32 s;
 
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     m.t[1] = -0x10;
     m.t[2] = -0x40;
     CompMatrix(parent, &m, &m);
@@ -1455,18 +1455,18 @@ void Club_Draw(struct S_D_800E78C0 *parent, s32 len, s32 save) {
         g_Gad7CAE0.f_E = m2.t[1];
         g_Gad7CAE0.f_10 = m2.t[2];
     }
-    CompMatrix(&D_800E78C0, &m, &m);
-    Model_ProjectVerts(&D_800EC0B0, &m, D_800E7D00);
-    func_80017CD4((*(u32 * *)&D_800EC358), D_800E7D00, &D_800EC0B0);
+    CompMatrix(&g_ViewMatrix, &m, &m);
+    Model_ProjectVerts(&D_800EC0B0, &m, g_ProjVerts);
+    Model_Draw((*(u32 * *)&D_800EC358), g_ProjVerts, &D_800EC0B0);
     s = len * 3;
     s = s < 0x1000 ? 0x1000 : (s > 0x2000 ? 0x2000 : s);
     sc.vx = s;
     sc.vy = s;
     sc.vz = s;
-    CompMatrix(&D_800E78C0, &m2, &m2);
+    CompMatrix(&g_ViewMatrix, &m2, &m2);
     ScaleMatrix(&m2, &sc);
-    Model_ProjectVerts(&D_800EC100, &m2, D_800E7D00);
-    func_80017CD4((*(u32 * *)&D_800EC358), D_800E7D00, &D_800EC100);
+    Model_ProjectVerts(&D_800EC100, &m2, g_ProjVerts);
+    Model_Draw((*(u32 * *)&D_800EC358), g_ProjVerts, &D_800EC100);
 }
 
 void func_8007CD0C(s32 a) {

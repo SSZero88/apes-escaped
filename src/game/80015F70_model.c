@@ -18,8 +18,8 @@ typedef struct { S_Hdr_17E5C *f_0; s32 *f_4; u8 *f_8; } S_Model_17E5C;
 typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } S_Scr_17E5C;
 extern struct { u8 pad0[0x1C]; u8 f_1C; u8 f_1D; u8 f_1E; u8 pad1F[5]; u16 f_24; u8 pad26[2]; u16 f_28; } D_800EBFA0;
 
-void func_80017CD4(s32, s32, S_Model_17E5C *);
-void func_8001CE54();
+void Model_Draw(s32, s32, S_Model_17E5C *);
+void Model_DrawEnvMapped();
 void Model_DrawPrims(s32, u8 *, s32);
 u8 *Model_AddF3(s32, u8 *, s32);
 u8 *Model_AddFT3(s32, u8 *, s32);
@@ -158,7 +158,7 @@ typedef struct { s16 x, y; } __attribute__((aligned(4))) XY_16294;
 #define gte_rtpt_16294() __asm__ volatile ("nop; nop; rtpt")
 #define gte_stsxyz3_16294(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 8(%0); swc2 $14, 16(%0); swc2 $17, 4(%0); swc2 $18, 12(%0); swc2 $19, 20(%0)" : : "r"(p) : "memory")
 
-void func_80016294(Mdl_16294 *m, Proj_16294 *out) {
+void Model_ProjectVertsQuarterTurn(Mdl_16294 *m, Proj_16294 *out) {
     Scr_16294 *sc;
     SV_16294 *p;
     register SV_16294 *q asm("$4");
@@ -405,9 +405,9 @@ typedef struct { u16 count; u16 start; u8 pad4[8]; } Bone_16A6C;
 typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_16A6C;
 typedef struct { MdlHdr_16A6C *hdr; u8 pad4[8]; Bone_16A6C *bones; SVECTOR *verts; MAT_16A6C *mats; } Mdl_16A6C;
 typedef struct { u32 sxy; s32 sz; } Proj_16A6C;
-extern Proj_16A6C D_800E7D00_16A6C[] asm("D_800E7D00");
+extern Proj_16A6C D_800E7D00_16A6C[] asm("g_ProjVerts");
 
-/* Projects a boned model's vertices into D_800E7D00: each bone's run of vertices (count, start)
+/* Projects a boned model's vertices into g_ProjVerts: each bone's run of vertices (count, start)
    goes through that bone's matrix (mats[bone + 1]), three at a time as in Model_ProjectVerts. */
 void Model_ProjectBonedVerts(Mdl_16A6C *mdl) {
     Proj_16A6C *proj;
@@ -570,13 +570,13 @@ void Anim_StepFrame(S_16E68_80016E68 *s) {
     }
 }
 
-void func_80016EBC(s32 arg0, M2C_UNK arg1, void **arg2) {
+void Model_DrawAuto(s32 arg0, M2C_UNK arg1, void **arg2) {
     if (M2C_FIELD(*arg2, u16 *, 0xA) != 0) {
         Model_CalcEnvMapUVs(arg2);
-        func_8001CE54(arg0, arg1, arg2);
+        Model_DrawEnvMapped(arg0, arg1, arg2);
         return;
     }
-    func_80017CD4(arg0, arg1, arg2);
+    Model_Draw(arg0, arg1, arg2);
 }
 
 typedef struct { s16 m[3][3]; s32 t[3]; } MATRIX_16F34;
@@ -590,23 +590,23 @@ typedef struct { u8 pad0[0x24]; s32 x, y, z; } Spk_16F34;
 extern struct { u8 pad0[0x24]; u16 f_24; u8 pad26[2]; u16 f_28; u8 pad2A[2]; s32 f_2C; } D_800EBFA0_16F34 asm("D_800EBFA0");
 extern Obj_16F34 *D_800B4D64;
 extern Spk_16F34 g_Spike_16F34 asm("g_Spike");
-extern MATRIX_16F34 D_800E78C0;
+extern MATRIX_16F34 g_ViewMatrix;
 extern MATRIX_16F34 D_800AE840;
 extern MATRIX_16F34 D_800AF0A0;
 extern MATRIX_16F34 D_800EBFD0;
 extern u16 D_800EBFC4;
-extern u8 D_800E7D00_16F34[] asm("D_800E7D00");
-extern u8 D_800E7D00_c0[] asm("D_800E7D00");extern u8 D_800E7D00_k1[] asm("D_800E7D00");extern u8 D_800E7D00_k2[] asm("D_800E7D00");extern u8 D_800E7D00_k3[] asm("D_800E7D00");extern u8 D_800E7D00_k4[] asm("D_800E7D00");extern u8 D_800E7D00_k5[] asm("D_800E7D00");
-extern MATRIX_16F34 D_800E78C0_c3 asm("D_800E78C0");
-extern MATRIX_16F34 D_800E78C0_sky asm("D_800E78C0");
-extern MATRIX_16F34 D_800E78C0_pr asm("D_800E78C0");
-extern u8 D_800E7D00_sky[] asm("D_800E7D00");
+extern u8 D_800E7D00_16F34[] asm("g_ProjVerts");
+extern u8 D_800E7D00_c0[] asm("g_ProjVerts");extern u8 D_800E7D00_k1[] asm("g_ProjVerts");extern u8 D_800E7D00_k2[] asm("g_ProjVerts");extern u8 D_800E7D00_k3[] asm("g_ProjVerts");extern u8 D_800E7D00_k4[] asm("g_ProjVerts");extern u8 D_800E7D00_k5[] asm("g_ProjVerts");
+extern MATRIX_16F34 D_800E78C0_c3 asm("g_ViewMatrix");
+extern MATRIX_16F34 D_800E78C0_sky asm("g_ViewMatrix");
+extern MATRIX_16F34 D_800E78C0_pr asm("g_ViewMatrix");
+extern u8 D_800E7D00_sky[] asm("g_ProjVerts");
 s32 Zone_FindAt_16F34(s32, s32, s32, s32) asm("Zone_FindAt");
-void func_80016294_16F34(Obj_16F34 *, void *) asm("func_80016294");
+void func_80016294_16F34(Obj_16F34 *, void *) asm("Model_ProjectVertsQuarterTurn");
 void Model_ProjectMorphFrame_16F34(Obj_16F34 *, void *) asm("Model_ProjectMorphFrame");
 void Model_ProjectVertsAlt_16F34(Obj_16F34 *, MATRIX_16F34 *, void *) asm("Model_ProjectVertsAlt");
 void Model_DrawLit_16F34(u32 *, void *, Obj_16F34 *) asm("Model_DrawLit");
-void func_80017EFC_16F34(u32 *, void *, Obj_16F34 *, s32) asm("func_80017EFC");
+void func_80017EFC_16F34(u32 *, void *, Obj_16F34 *, s32) asm("Model_DrawColorAnim");
 void Anim_StepFrame_16F34(Obj_16F34 *) asm("Anim_StepFrame");
 void func_8006D548_16F34(void *) asm("func_8006D548");
 void SetRotMatrix_16F34(MATRIX_16F34 *) asm("SetRotMatrix");
@@ -788,8 +788,8 @@ void Stage_DrawPlacedModels(void) {
                     }
                     func_80016294_16F34(&D_800B4D64[i], mat);
                     func_80017EFC_16F34(ot, mat, &D_800B4D64[i], flag4 | ((flags >> 24) & 0xF));
-                    gte_SetRotMatrix_(&D_800E78C0);
-                    gte_SetTransMatrix_(&D_800E78C0);
+                    gte_SetRotMatrix_(&g_ViewMatrix);
+                    gte_SetTransMatrix_(&g_ViewMatrix);
                 }
             } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 1);
             break;
@@ -822,8 +822,8 @@ void Stage_DrawPlacedModels(void) {
                     }
                     func_80016294_16F34(&D_800B4D64[i], mat);
                     func_80017EFC_16F34(ot, mat, &D_800B4D64[i], flag4 | ((flags >> 24) & 0xF));
-                    gte_SetRotMatrix_(&D_800E78C0);
-                    gte_SetTransMatrix_(&D_800E78C0);
+                    gte_SetRotMatrix_(&g_ViewMatrix);
+                    gte_SetTransMatrix_(&g_ViewMatrix);
                 }
             } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 8);
             break;
@@ -847,7 +847,7 @@ void Stage_DrawPlacedModels(void) {
                     S->m.t[0] = D_800B4D64[i].x;
                     S->m.t[1] = D_800B4D64[i].y;
                     S->m.t[2] = D_800B4D64[i].z;
-                    CompMatrix_16F34(&D_800E78C0, &S->m, &S->m);
+                    CompMatrix_16F34(&g_ViewMatrix, &S->m, &S->m);
                     if ((flags & 0x102000) == 0x100000) {
                         Anim_StepFrame_16F34(&D_800B4D64[i]);
                     }
@@ -859,8 +859,8 @@ void Stage_DrawPlacedModels(void) {
                     }
                     Model_ProjectVertsAlt_16F34(&D_800B4D64[i], &S->m, mat);
                     func_80017EFC_16F34((u32 *)((u8 *)ot + ((flags >> 12) & 0xF0)), mat, &D_800B4D64[i], flag4 | ((flags >> 24) & 0xF));
-                    SetRotMatrix_16F34(&D_800E78C0);
-                    SetTransMatrix_16F34(&D_800E78C0);
+                    SetRotMatrix_16F34(&g_ViewMatrix);
+                    SetTransMatrix_16F34(&g_ViewMatrix);
                 }
             } while (--i >= 0 && ((flags = D_800B4D64[i].mdl->flags) & 0xFF) == 3);
             break;
@@ -898,7 +898,7 @@ INCLUDE_RODATA("asm/nonmatchings/game/80015F70_model", jtbl_800A4550_pad);
 /* Lights the model's vertex colours (GTE cc) into the scratchpad, then sets the
  * scratch draw mode 2 with the D_800EBFA0 values and draws via Model_DrawPrims.
  */
-void func_80017CD4(s32 arg0, s32 arg1, S_Model_17E5C *arg2) {
+void Model_Draw(s32 arg0, s32 arg1, S_Model_17E5C *arg2) {
     s32 i;
     s32 n;
     s32 *src;
@@ -922,8 +922,8 @@ void func_80017CD4(s32 arg0, s32 arg1, S_Model_17E5C *arg2) {
     Model_DrawPrims(arg0, c, arg1);
 }
 
-/* Like func_80017CD4, with draw mode 6 and the extra value arg3 at scratch 0x3C4. */
-void func_80017D94(s32 arg0, s32 arg1, S_Model_17E5C *arg2, s32 arg3) {
+/* Like Model_Draw, with draw mode 6 and the extra value arg3 at scratch 0x3C4. */
+void Model_DrawNoFog(s32 arg0, s32 arg1, S_Model_17E5C *arg2, s32 arg3) {
     s32 i;
     s32 n;
     s32 *src;
@@ -949,7 +949,7 @@ void func_80017D94(s32 arg0, s32 arg1, S_Model_17E5C *arg2, s32 arg3) {
 /* Lights the model's n vertex colours with the GTE (cc: colour * light colour) into
  * the scratchpad, clears the scratch draw flags, then draws via Model_DrawPrims.
  */
-void func_80017E5C(s32 arg0, s32 arg1, S_Model_17E5C *arg2) {
+void Model_DrawSubdiv(s32 arg0, s32 arg1, S_Model_17E5C *arg2) {
     s32 i;
     s32 n;
     s32 *src;
@@ -980,7 +980,7 @@ extern struct { u8 pad0[0x1C]; u8 f_1C; u8 f_1D; u8 f_1E; u8 pad1F[5]; u16 f_24;
 #define gte_ldRGBw_17EFC(p) __asm__ volatile ("lw $15, 0(%0); nop; mtc2 $15, $6" : : "r"(p) : "$15")
 #define gte_dpcs_17EFC(t) __asm__ volatile ("nop; mtc2 %0, $8; nop; nop; dpcs" : : "r"(t))
 
-void func_80017EFC(s32 ot, s32 arg, CMdl_17EFC *m, s32 mode) {
+void Model_DrawColorAnim(s32 ot, s32 arg, CMdl_17EFC *m, s32 mode) {
     u8 *prims = m->prims;
     CHdr_17EFC *h = m->hdr;
     Scr_17EFC *sc = (Scr_17EFC *)0x1F800000;
@@ -3737,7 +3737,7 @@ extern u8 *D_800EC354_1CE54 asm("D_800EC354");
    Model_CycleVertexColors) as textured polys (0x25 / 0x2D, tpage 0x3D, clut 0x7037). Culling as in
    Model_DrawScreenMapped; a quad is only dropped when both of its halves face away. Scratch
    mode bit 0 puts everything in the first OT entry. */
-void func_8001CE54(u32 *ot, Vtx_1CE54 *v, Mdl_1CE54 *m) {
+void Model_DrawEnvMapped(u32 *ot, Vtx_1CE54 *v, Mdl_1CE54 *m) {
     Scr_1CE54 *sc = (Scr_1CE54 *)0x1F800000;
     u16 clut;
     u16 tpage;

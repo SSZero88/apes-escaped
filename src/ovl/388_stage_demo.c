@@ -22,7 +22,7 @@ void Gfx_BeginFrame(void);
 void func_8008C390(void);
 s32 Cd_StartFileLoad(s32, s32);
 void func_8008D064(s32, s32);
-s32 func_800116C0();
+s32 Cd_PollLoadList();
 void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void DrawOTag(u32 *p);
@@ -40,7 +40,7 @@ s32 func_80136038(void) {
     g_Game_80136038.cur = 0;
     Cd_StartFileLoad(1, 0);
     func_8008D064(0, -1);
-    while (func_8001325C(0), Gfx_BeginFrame(), func_8008C390(), func_800116C0(0) >= 0) {
+    while (func_8001325C(0), Gfx_BeginFrame(), func_8008C390(), Cd_PollLoadList(0) >= 0) {
         DrawSync(0);
         VSync(0);
         g_Game_80136038.frame++;

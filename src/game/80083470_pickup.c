@@ -27,18 +27,18 @@ extern char D_800A6160[];
 s32 World_FirstStage(s32);
 void bios_printf(const char *, ...);
 struct S_D_800EC350_800847EC { u8 pad0[0x8124]; u16 f_8124; u16 f_8126; };
-extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } D_800E78C0;
+extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } g_ViewMatrix;
 extern struct S_D_800F4C30 { S_Mdl_800845E0 *f_0; u8 pad4[0xC]; } D_800F4C30[];
-extern u8 D_800E7D00[];
-void func_8004637C(struct S_D_800E78C0 *);
+extern u8 g_ProjVerts[];
+void Matrix_SetIdentity(struct S_D_800E78C0 *);
 void Matrix_RotateY(s32, struct S_D_800E78C0 *);
 void CompMatrix(struct S_D_800E78C0 *, struct S_D_800E78C0 *, struct S_D_800E78C0 *);
 void Model_ProjectVerts(struct S_D_800F4C30 *, struct S_D_800E78C0 *, u8 *);
-void func_80017CD4(u32 *, u8 *, struct S_D_800F4C30 *);
+void Model_Draw(u32 *, u8 *, struct S_D_800F4C30 *);
 struct S_D_800EC350_800845E0 { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf_800845E0 db[2]; };
 extern u32 *D_800EC358;
 void Model_CalcEnvMapUVs64(struct S_D_800F4C30 *);
-void func_8001CE54(u32 *, u8 *, struct S_D_800F4C30 *);
+void Model_DrawEnvMapped(u32 *, u8 *, struct S_D_800F4C30 *);
 struct S_D_800F4C30_800846D8 { S_Mdl_800846D8 *f_0; u8 pad4[0xC]; };
 struct Game_83470 { u8 pad0[0x8124]; u16 f_8124; u16 f_8126; u8 pad8128[0x120]; Hdr_83470_80083470 *f_8248; };
 extern u8 D_800B2920[];
@@ -549,8 +549,8 @@ void Pickup_DrawAll(void) {
         if (p->blink - 1U < 45 && !(p->blink & 1)) {
             continue;
         }
-        SetRotMatrix(((u8 *)&D_800E78C0));
-        SetTransMatrix(((u8 *)&D_800E78C0));
+        SetRotMatrix(((u8 *)&g_ViewMatrix));
+        SetTransMatrix(((u8 *)&g_ViewMatrix));
         z = RotTransPers(&p->f_4, &sxy, &flag, &flag);
         if (z > maxz || z <= 0) {
             continue;
@@ -621,42 +621,42 @@ void func_800845E0(s32 i, S_846D8_800845E0 *o) {
     struct S_D_800E78C0 m;
     struct S_D_800F4C30 *s;
     u8 *buf;
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     m.t[0] = o->f_4;
     m.t[1] = o->f_6;
     m.t[2] = o->f_8;
     Matrix_RotateY(o->f_B << 6, &m);
-    CompMatrix(&D_800E78C0, &m, &m);
+    CompMatrix(&g_ViewMatrix, &m, &m);
     s = &D_800F4C30[i];
     if (s->f_0->f_A != 0) {
         buf = (u8 *)0x1F800080;
     } else {
-        buf = D_800E7D00;
+        buf = g_ProjVerts;
     }
     Model_ProjectVerts(s, &m, buf);
-    func_80017CD4(((struct S_D_800EC350_800845E0 *)&g_Game)->db[((struct S_D_800EC350_800845E0 *)&g_Game)->cur].ot, buf, s);
+    Model_Draw(((struct S_D_800EC350_800845E0 *)&g_Game)->db[((struct S_D_800EC350_800845E0 *)&g_Game)->cur].ot, buf, s);
 }
 
 void func_800846D8(s32 i, S_846D8_800846D8 *o) {
     struct S_D_800E78C0 m;
     struct S_D_800F4C30_800846D8 *s;
     u8 *buf;
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     m.t[0] = o->f_4;
     m.t[1] = o->f_6;
     m.t[2] = o->f_8;
     Matrix_RotateY(o->f_B << 6, &m);
-    CompMatrix(&D_800E78C0, &m, &m);
+    CompMatrix(&g_ViewMatrix, &m, &m);
     s = &((struct S_D_800F4C30_800846D8 *)&D_800F4C30)[i];
     if (s->f_0->f_A != 0) {
         buf = (u8 *)0x1F800080;
     } else {
-        buf = D_800E7D00;
+        buf = g_ProjVerts;
     }
     Model_ProjectVerts(s, &m, buf);
     Model_CalcEnvMapUVs64(s);
     *(u8 *)0x1F8003F4 = 2;
-    func_8001CE54(D_800EC358, buf, s);
+    Model_DrawEnvMapped(D_800EC358, buf, s);
 }
 
 void func_800847C4(void) {

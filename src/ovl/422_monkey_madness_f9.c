@@ -26,7 +26,7 @@ extern struct { u8 pad_0[0x8244]; u8 *f_8244; } g_Game_8013D000 asm("g_Game");
 typedef struct { u8 pad0[0x18]; s32 f18, f1C; } AnimEnt_8013D000;
 extern u8 *D_80144410[];
 extern u8 *D_80144438[];
-void func_80015BA0(void *, void *);
+void Model_BindBonedAuto(void *, void *);
 
 void func_8013D000(s32 i, void *obj, void *out) {
     u8 *bank = g_Game_8013D000.f_8244;
@@ -39,7 +39,7 @@ void func_8013D000(s32 i, void *obj, void *out) {
     q = (u32 *)s + 1;
     *(u32 **)out = q;
     M2C_FIELD(obj, u32 **, 0x18) = q + *(u16 *)s;
-    func_80015BA0(obj, D_80144410[i]);
+    Model_BindBonedAuto(obj, D_80144410[i]);
 }
 
 #include "gte.h"
@@ -83,14 +83,14 @@ void func_8013D0A0(s32 ot, s32 arg1, Mdl_422 *m, s32 add) {
 }
 
 extern struct { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013D63C asm("g_Game");
-extern u8 D_800E78C0[];
-extern u8 D_800E7D00[];
+extern u8 g_ViewMatrix[];
+extern u8 g_ProjVerts[];
 void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
 s32 RotTransPers(void *v0, s32 *sxy, s32 *p, s32 *flag);
 void *ScaleMatrix(void *m, void *v);
 void Matrix_FromDirection(void *, void *);
-void func_80015780(void *, s32);
+void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 
 s32 func_8013D1FC(u8 *a, void *scale, s32 c) {
@@ -101,8 +101,8 @@ s32 func_8013D1FC(u8 *a, void *scale, s32 c) {
     s32 p;
     s32 z;
 
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     v.vx = M2C_FIELD(a, s32 *, 0x24);
     v.vy = M2C_FIELD(a, s32 *, 0x28);
     v.vz = M2C_FIELD(a, s32 *, 0x2C);
@@ -114,9 +114,9 @@ s32 func_8013D1FC(u8 *a, void *scale, s32 c) {
     }
     Matrix_FromDirection(a + 0x60, M2C_FIELD(a, void **, 0x14));
     ScaleMatrix(M2C_FIELD(a, void **, 0x14), scale);
-    func_80015780(a, 3);
+    Model_CalcKeyedJointMatrices(a, 3);
     Model_ProjectBonedVerts(a);
-    func_8013D0A0(g_Game_8013D63C.f_80 + g_Game_8013D63C.f_C * 0x4078, D_800E7D00, a, c);
+    func_8013D0A0(g_Game_8013D63C.f_80 + g_Game_8013D63C.f_C * 0x4078, g_ProjVerts, a, c);
     return 0;
 }
 
@@ -184,7 +184,7 @@ typedef struct { Mat_8013D6BC m; Mat_8013D6BC w; SVECTOR rot; SVECTOR v[4][4]; s
 typedef struct { s16 x, y, z, vy; s8 vx, vz; u8 life; u8 pad; } Part_8013D6BC;
 typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013D6BC;
 extern Part_8013D6BC D_80143F08_8013D6BC[] asm("D_80144C18");
-extern Mat_8013D6BC D_800E78C0_8013D6BC asm("D_800E78C0");
+extern Mat_8013D6BC D_800E78C0_8013D6BC asm("g_ViewMatrix");
 extern GameDraw g_Game_8013D6BC asm("g_Game");
 void SetRotMatrix_8013D6BC(Mat_8013D6BC *) asm("SetRotMatrix");
 void SetTransMatrix_8013D6BC(Mat_8013D6BC *) asm("SetTransMatrix");
@@ -545,8 +545,8 @@ void func_8013E22C(void) {
             }
         }
     }
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     l = g_Game_8013E22C.f_4;
     ot = (u32 *)(g_Game_8013E22C.f_80 + g_Game_8013E22C.f_C * 0x4078);
     for (i = 31; i >= 0; i--) {
@@ -2323,11 +2323,11 @@ typedef struct { void *model; s16 x, y, z; u8 active; u8 padB; s16 vx, vy, vz; u
 extern Rock_80142A48 D_80145458_80142A48[] asm("D_80145458");
 extern void *D_800EC358;
 void func_8013D9DC(void);
-void func_8004637C(void *);
+void Matrix_SetIdentity(void *);
 void *RotMatrixZYX(void *r, void *m);
 void *CompMatrix(void *m0, void *m1, void *m2);
 void Model_ProjectVertsAlt(void *, void *, void *);
-void func_80017E5C(void *, void *, void *);
+void Model_DrawSubdiv(void *, void *, void *);
 
 void func_80142A48(void) {
     Mat_80142A48 m;
@@ -2358,14 +2358,14 @@ void func_80142A48(void) {
         e->rot.vx += e->rvx;
         e->rot.vy += e->rvy;
         e->rot.vz += e->rvz;
-        func_8004637C(&m);
+        Matrix_SetIdentity(&m);
         RotMatrixZYX(&e->rot, &m);
         m.t[0] = e->x;
         m.t[1] = e->y;
         m.t[2] = e->z;
-        CompMatrix(D_800E78C0, &m, &m);
-        Model_ProjectVertsAlt(e->model, &m, D_800E7D00);
-        func_80017E5C(D_800EC358, D_800E7D00, e->model);
+        CompMatrix(g_ViewMatrix, &m, &m);
+        Model_ProjectVertsAlt(e->model, &m, g_ProjVerts);
+        Model_DrawSubdiv(D_800EC358, g_ProjVerts, e->model);
     }
 }
 

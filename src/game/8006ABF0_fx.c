@@ -109,7 +109,7 @@ extern u8 D_800B1F1C[];
 typedef struct { s16 vx, vy, vz, pad; s32 cx, cz; s32 z; s32 sxy; } Scr_6ABF0;
 typedef struct { u8 pad0[0x825A]; s16 f_825A; } Game_6ABF0;
 typedef struct { u32 tag; u32 code; u32 xy0; u32 uv0; u32 xy1; u32 uv1; u32 xy2; u16 uv2; u16 pad1E; u32 xy3; u16 uv3; u16 pad26; } FT4_6ABF0;
-extern u8 D_800E78C0[];
+extern u8 g_ViewMatrix[];
 #define RAND_6ABF0() (g_RandSeed = g_RandSeed * 5 + 1)
 extern Game_6ABF0 g_Game_6ABF0 asm("g_Game");
 extern u16 D_800B1890_6ABF0[] asm("D_800B1890");
@@ -152,8 +152,8 @@ void Monkey_DrawHelmetLight(SVECTOR *pos, s32 kind, s32 near) {
     u32 *ot;
     u32 m24;
 
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     a = (*(s32 *)&g_Game_6ABF0 & 0xF) << 8;
     scr->cx = rcos(a) * 0x30 >> 12;
     scr->cz = rsin(a) * 0x30 >> 12;
@@ -877,7 +877,7 @@ extern struct { s32 frame; u8 pad4[0x814C]; u16 f_8150; } g_Game_6D044 asm("g_Ga
 extern u8 g_Game_6D044b asm("g_Game");
 extern s8 g_CurrentGadget;
 extern u8 D_800B1BA0[];
-extern u8 D_800E78C0[];
+extern u8 g_ViewMatrix[];
 s32 Spike_IsUnderwater(void);
 void func_8006F3D0(SV_6D044 *, s32, void *, s32);
 void SetRotMatrix(void *);
@@ -934,8 +934,8 @@ void func_8006D044(void)
   }
   if (!(frame & 1))
   {
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     asm volatile("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(s));
     asm volatile("nop; nop; rtps");
     asm volatile("swc2 $14, 0(%0)" : : "r"(&scr->sxy) : "memory");

@@ -9,7 +9,7 @@ void System_Init(void);
 void Cd_ReadFile(s32 id, s32 addr);
 void Cd_WaitIdle(s32);
 void Cd_StartFileLoad(s32, s32);
-s32 func_800116C0(void);
+s32 Cd_PollLoadList(void);
 void Cd_Update(void);
 
 int main(void) {
@@ -30,7 +30,7 @@ int main(void) {
                 g_Game.unk8126 = 0x58;
             }
             Cd_StartFileLoad(1, g_Game.unk8126);
-            while (func_800116C0() == 0) {
+            while (Cd_PollLoadList() == 0) {
                 Cd_Update();
                 VSync(2);
             }

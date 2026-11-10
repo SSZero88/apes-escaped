@@ -60,7 +60,7 @@ void func_80047464(Cam_8004B5FC_8004B5FC *, s32, s32, s32);
 extern struct S_D_800E5320 { u8 pad0[0xA2]; s8 sx; s8 sy; u8 padA4[0xB4]; u32 held; } g_Pad;
 struct Game_8004AC84 { u8 pad0[0x8150]; u16 f_8150; };
 void func_80048D10(void *arg0, void *arg1, s32 arg2);
-void func_8004637C(void *);
+void Matrix_SetIdentity(void *);
 void RotMatrixY(s32, void *);
 void ApplyMatrixSV(void *, void *, void *);
 void func_8004B590(s32 i, s32 arg);
@@ -73,7 +73,7 @@ struct g_Game_8004A978 { u8 pad0[0x8126]; u16 f_8126; u8 pad8128[0x28]; u16 f_81
 s32 Stage_GetSpecialKind(void);
 struct Spike_8004AA58 { u8 pad0[0x24]; s32 x, y, z; };
 extern Rc_8004AA58_8004AA58 g_RcCar;
-extern M2C_UNK D_800E78C0;
+extern M2C_UNK g_ViewMatrix;
 extern u16 D_800E54A2;
 extern u16 D_800E68D6;
 void SetRotMatrix(void *);
@@ -271,7 +271,7 @@ extern struct { u8 pad0[0x34]; s16 f_34; s16 f_36; u8 pad38[7]; u8 f_3F; u8 f_40
 extern struct { u8 pad0[0x8100]; s32 f_8100; u8 pad8104[0x22]; u16 f_8126; u8 pad8128[0x28]; u16 f_8150; } g_Game_495F4 asm("g_Game");
 extern struct { u8 pad0[0xA2]; s8 sx; } g_Pad_495F4 asm("g_Pad");
 extern struct { u8 pad0[0x5E]; u16 state; u8 pad60[0x10]; s32 animFlags; } g_Spike_495F4 asm("g_Spike");
-extern u8 D_800E78C0_495F4[] asm("D_800E78C0");
+extern u8 D_800E78C0_495F4[] asm("g_ViewMatrix");
 extern u16 D_800EC23E_495F4 asm("D_800EC23E");
 extern u8 D_800E6916_495F4 asm("D_800E6916");
 extern s8 g_CurrentGadget_495F4 asm("g_CurrentGadget");
@@ -703,8 +703,8 @@ void Camera_FollowRcCar(Cam_8004AA58_8004AA58 *cam) {
     v.vy = y;
     z = g_RcCar.z;
     v.vz = z + g_RcCar.vz * 4;
-    SetRotMatrix(&D_800E78C0);
-    SetTransMatrix(&D_800E78C0);
+    SetRotMatrix(&g_ViewMatrix);
+    SetTransMatrix(&g_ViewMatrix);
     t = RotTransPers(&v, &sxy, &p, &p);
     if (t <= 0) {
         t = 1;
@@ -788,7 +788,7 @@ void Camera_UpdateLook(Cam_8004AC84_8004AC84 *cam) {
     if (g_Pad.held & PAD_RIGHT) {
         rot += 0x18;
     }
-    func_8004637C(m);
+    Matrix_SetIdentity(m);
     RotMatrixY(rot, m);
     ApplyMatrixSV(m, &sp->dir, &sp->dir);
     VectorNormalSS(&sp->dir, &sp->dir);
@@ -899,8 +899,8 @@ void func_8004AF78(Cam_8004AC84_8004AC84 *cam) {
                     scr[1] -= c->step;
                 }
             }
-            SetRotMatrix(&D_800E78C0);
-            SetTransMatrix(&D_800E78C0);
+            SetRotMatrix(&g_ViewMatrix);
+            SetTransMatrix(&g_ViewMatrix);
             v.vy = g_Spike_4AF78.y - 0x80;
             v.vx = g_Spike_4AF78.x + g_Spike_4AF78.dirX / 3;
             v.vz = g_Spike_4AF78.z + g_Spike_4AF78.dirZ / 3;

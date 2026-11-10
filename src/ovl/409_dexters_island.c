@@ -380,12 +380,12 @@ typedef struct { s16 x, y, z; } Rot_8013DE2C;
 typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 wx, wy, wz; Rot_8013DE2C r; u8 pad82; u8 life; s16 floor; s16 scale; } Debris_8013DE2C;
 extern Debris_8013DE2C D_80142CE0_8013DE2C[] asm("D_80142CE0");
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013DE2C asm("g_Game");
-extern u8 D_800E7D00_8013DE2C[] asm("D_800E7D00");
+extern u8 D_800E7D00_8013DE2C[] asm("g_ProjVerts");
 s32 func_80051410(void *, s32, s32);
 void RotMatrixYXZ(void *, void *);
-void func_80015780(void *, s32);
+void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
-void func_80016EBC(void *, void *, void *);
+void Model_DrawAuto(void *, void *, void *);
 
 void func_8013DE2C(void) {
     s32 i;
@@ -415,9 +415,9 @@ void func_8013DE2C(void) {
                 RotMatrixYXZ(&d->r, d->mat);
                 s[0] = s[1] = s[2] = d->scale;
                 ScaleMatrix(d->mat, s);
-                func_80015780(d, 3);
+                Model_CalcKeyedJointMatrices(d, 3);
                 Model_ProjectBonedVerts(d);
-                func_80016EBC(g_Game_8013DE2C.f_80 + g_Game_8013DE2C.f_C * 0x4078, D_800E7D00_8013DE2C, d);
+                Model_DrawAuto(g_Game_8013DE2C.f_80 + g_Game_8013DE2C.f_C * 0x4078, D_800E7D00_8013DE2C, d);
             }
         }
     }
@@ -1072,10 +1072,10 @@ M2C_UNK func_8013F78C(o)
 typedef struct { u8 pad0[0x14]; s32 mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 rvx, rvy, rvz; s16 rx, ry, rz; u8 pad82; u8 timer; } Deb_8013FAB8;
 void Model_ProjectBonedVerts(void *);
 void RotMatrixYXZ(void *, void *);
-void func_80015780(void *, s32);
-void func_80016EBC(void *, void *, void *);
+void Model_CalcKeyedJointMatrices(void *, s32);
+void Model_DrawAuto(void *, void *, void *);
 s32 func_80051410(void *, s32, s32);
-extern M2C_UNK D_800E7D00;
+extern M2C_UNK g_ProjVerts;
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013FAB8 asm("g_Game");
 extern Deb_8013FAB8 D_801438B0_8013FAB8[] asm("D_801438B0");
 
@@ -1100,9 +1100,9 @@ void func_8013FAB8(void) {
             m->rz = (m->rz + m->rvz) % 4096;
             if (func_80051410(&m->x, 0, 0) == 0) {
                 RotMatrixYXZ(&m->rx, (void *)m->mat);
-                func_80015780(m, 3);
+                Model_CalcKeyedJointMatrices(m, 3);
                 Model_ProjectBonedVerts(m);
-                func_80016EBC(g_Game_8013FAB8.f_80 + g_Game_8013FAB8.f_C * 0x4078, &D_800E7D00, m);
+                Model_DrawAuto(g_Game_8013FAB8.f_80 + g_Game_8013FAB8.f_C * 0x4078, &g_ProjVerts, m);
             }
         }
     }
@@ -1511,10 +1511,10 @@ void func_80140898(void *arg0, void *arg1, M2C_UNK arg2) {
 void Matrix_FromDirection(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void ScaleMatrix(s32, void *);
-void func_80015780(void *, s32);
-void func_80016EBC(void *, void *, void *);
+void Model_CalcKeyedJointMatrices(void *, s32);
+void Model_DrawAuto(void *, void *, void *);
 s32 func_80051410(void *, s32, s32);
-extern M2C_UNK D_800E7D00;
+extern M2C_UNK g_ProjVerts;
 extern u8 D_80144190[];
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_80140938 asm("g_Game");
 
@@ -1527,9 +1527,9 @@ void func_80140938(s32 arg0, s32 arg1) {
         v[0] = v[1] = v[2] = arg1 << 8;
         Matrix_FromDirection(m + 0x60, M2C_FIELD(m, s32 *, 0x14));
         ScaleMatrix(M2C_FIELD(m, s32 *, 0x14), v);
-        func_80015780(m, 3);
+        Model_CalcKeyedJointMatrices(m, 3);
         Model_ProjectBonedVerts(m);
-        func_80016EBC(g_Game_80140938.f_80 + g_Game_80140938.f_C * 0x4078, &D_800E7D00, m);
+        Model_DrawAuto(g_Game_80140938.f_80 + g_Game_80140938.f_C * 0x4078, &g_ProjVerts, m);
     }
 }
 

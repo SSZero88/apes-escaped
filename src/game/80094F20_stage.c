@@ -57,7 +57,7 @@ extern M2C_UNK g_SaveBlock;
 extern M2C_UNK D_800E0030;
 extern u8 D_800DF820[][8];
 extern M2C_UNK D_800DFB70;
-s32 func_80010CA4();
+s32 Stage_GetEra();
 extern s32 D_800DFDF8;
 extern s32 D_800DFDFC;
 extern s32 D_800E0730;
@@ -130,7 +130,7 @@ extern u16 D_800B38AC[];
 extern s32 D_801544CC;
 extern u8 D_800DFF20[][24];
 extern u8 D_800DFCB0;
-void func_8003317C(void);
+void Monkey_ClearSlotStatus(void);
 void func_800847C4(void);
 void func_800509A4(void);
 void func_80086148(void);
@@ -622,8 +622,8 @@ typedef struct { u8 f_0[2]; s16 f_2; s32 f_4; s32 f_8; u32 f_C; u8 f_10; u8 f_11
 typedef struct { u8 hdr[0x180]; Save_95E80 slots[4]; } Card_95E80;
 struct Game_95E80 { u8 pad0[0x8138]; u8 f_8138; u8 pad8139; u16 f_813A; u16 f_813C; u8 pad813E[0x16]; u16 f_8154; u16 f_8156; u16 f_8158; u8 pad815A[0xE]; u16 f_8168; u16 f_816A; u8 pad816C[0x160]; u8 f_82CC; u8 f_82CD; };
 typedef struct { u8 pad0[0x88]; s32 f_88; u8 pad8C[0x15]; u8 f_A1; u8 f_A2; u8 padA3; s32 f_A4; } GS_95E80;
-extern Card_95E80 D_800E1880_95E80 asm("D_800E1880");
-extern s16 D_800E3886_95E80 asm("D_800E3886");
+extern Card_95E80 D_800E1880_95E80 asm("g_MemCardImage");
+extern s16 D_800E3886_95E80 asm("g_MemCardSlot");
 extern Save_95E80 g_SaveBlock_95E80 asm("g_SaveBlock");
 extern struct Game_95E80 g_Game_95E80 asm("g_Game");
 extern GS_95E80 g_GadgetState_95E80 asm("g_GadgetState");
@@ -644,7 +644,7 @@ typedef struct { s32 a; s32 b; } Vol_95E80;
 s32 Sound_SetVolumes_95E80() asm("Sound_SetVolumes");
 s32 SpecterCoin_Count(void);
 
-/* Load the save slot D_800E3886 from the memory-card image D_800E1880 into g_SaveBlock and spread
+/* Load the save slot g_MemCardSlot from the memory-card image g_MemCardImage into g_SaveBlock and spread
    it out: lives/+0x8168 bytes, gadget state, current gadget, flags, sound volumes (passed as a
    two-word struct: the stack copy at 0x10/0x14 is part of the original), per-stage tables, best
    times, Specter coin count (+5 for each of two bonus flags in D_800DFDD0). Inverse of func_80095D44. */
@@ -848,13 +848,13 @@ u32 func_800964B0(s32 arg0)
 }
 
 s32 func_800964DC(void) {
-    D_800DFDF8 |= 1 << func_80010CA4();
+    D_800DFDF8 |= 1 << Stage_GetEra();
     return 0;
 }
 
 s32 func_80096514()
 {
-    return ((u32) D_800DFDF8 >> func_80010CA4()) & 1;
+    return ((u32) D_800DFDF8 >> Stage_GetEra()) & 1;
 }
 
 s32 func_80096540(s32 arg0) {
@@ -920,7 +920,7 @@ s32 Stage_Begin(s32 lvl) {
     u8 *base;
     Stage_966B4_800966B4 *tbl;
 
-    (*(struct Game_966B4 *)&g_Game).f_8122 = func_80010CA4(lvl);
+    (*(struct Game_966B4 *)&g_Game).f_8122 = Stage_GetEra(lvl);
     (*(struct Game_966B4 *)&g_Game).f_8124 = Stage_GetWorld(lvl);
     if ((*(struct Game_966B4 *)&g_Game).f_812C == 1) {
         (*(struct Game_966B4 *)&g_Game).f_8166 = 0;
@@ -934,7 +934,7 @@ s32 Stage_Begin(s32 lvl) {
     }
     (*(struct Game_966B4 *)&g_Game).f_8160 = 0;
     (*(u16 *)&D_800B38B8) = 1;
-    func_8003317C();
+    Monkey_ClearSlotStatus();
     func_8005AD90();
     func_800847C4();
     func_800509A4();
@@ -1235,7 +1235,7 @@ s32 Game_IsTimed() {
 }
 
 s32 func_800976B8(s32 a, s32 b) {
-    if (func_800978E0(6) == 0 && func_80096580(0x18) > 0 && func_80010CA4(a) != 3) {
+    if (func_800978E0(6) == 0 && func_80096580(0x18) > 0 && Stage_GetEra(a) != 3) {
         ((struct S_D_800EC350_800976B8 *)&g_Game)->f_8126 = -1;
         D_800B38BA = b;
         D_800B38BC = a;
@@ -1247,7 +1247,7 @@ s32 func_800976B8(s32 a, s32 b) {
     if (func_800977BC(a) != 0) {
         return 2;
     }
-    if (D_800B37F0[func_80010CA4(a)] == Stage_GetWorld(a) && func_80096514(a) == 0) {
+    if (D_800B37F0[Stage_GetEra(a)] == Stage_GetWorld(a) && func_80096514(a) == 0) {
         return 0;
     }
     return 1;

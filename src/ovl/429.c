@@ -292,7 +292,7 @@ s32 func_80136554(s32 x, s32 y, s32 w, s32 h) {
 
 typedef struct { s32 vx, vy, vz, pad; } VEC_391;
 typedef struct { s16 m[3][3]; s32 t[3]; } MAT_391;
-extern MAT_391 D_800E78C0;
+extern MAT_391 g_ViewMatrix;
 extern MAT_391 D_800AF0A0;
 void VectorNormal(void *, void *);
 s32 SquareRoot0(s32);
@@ -306,9 +306,9 @@ void func_801368E8(SVECTOR *eye, SVECTOR *at) {
     s32 ny;
     s32 h;
 
-    D_800E78C0.t[0] = -eye->vx;
-    D_800E78C0.t[1] = -eye->vy;
-    D_800E78C0.t[2] = -eye->vz;
+    g_ViewMatrix.t[0] = -eye->vx;
+    g_ViewMatrix.t[1] = -eye->vy;
+    g_ViewMatrix.t[2] = -eye->vz;
     d.vx = at->vx - eye->vx;
     d.vy = 0;
     d.vz = at->vz - eye->vz;
@@ -322,17 +322,17 @@ void func_801368E8(SVECTOR *eye, SVECTOR *at) {
     VectorNormal(&d, &n);
     ny = n.vy;
     h = SquareRoot0(n.vz * n.vz + n.vx * n.vx);
-    D_800E78C0.m[0][0] = nz;
-    D_800E78C0.m[0][1] = 0;
-    D_800E78C0.m[0][2] = nx;
-    D_800E78C0.m[1][0] = (nx * ny) >> 12;
-    D_800E78C0.m[1][1] = h;
-    D_800E78C0.m[1][2] = -(ny * nz) >> 12;
-    D_800E78C0.m[2][0] = -(h * nx) >> 12;
-    D_800E78C0.m[2][1] = ny;
-    D_800E78C0.m[2][2] = (h * nz) >> 12;
-    ApplyMatrixLV(&D_800E78C0, D_800E78C0.t, D_800E78C0.t);
-    CompMatrix(&D_800AF0A0, &D_800E78C0, &D_800E78C0);
+    g_ViewMatrix.m[0][0] = nz;
+    g_ViewMatrix.m[0][1] = 0;
+    g_ViewMatrix.m[0][2] = nx;
+    g_ViewMatrix.m[1][0] = (nx * ny) >> 12;
+    g_ViewMatrix.m[1][1] = h;
+    g_ViewMatrix.m[1][2] = -(ny * nz) >> 12;
+    g_ViewMatrix.m[2][0] = -(h * nx) >> 12;
+    g_ViewMatrix.m[2][1] = ny;
+    g_ViewMatrix.m[2][2] = (h * nz) >> 12;
+    ApplyMatrixLV(&g_ViewMatrix, g_ViewMatrix.t, g_ViewMatrix.t);
+    CompMatrix(&D_800AF0A0, &g_ViewMatrix, &g_ViewMatrix);
 }
 
 u8 *func_80136A88(u8 *arg0, s32 arg1)
@@ -368,8 +368,8 @@ extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100
 extern u8 D_801391C8[];
 extern s16 D_801391B6;
 extern s16 D_801391BA;
-void func_80011194(void *);
-s32 func_800116C0();
+void Cd_StartLoadList(void *);
+s32 Cd_PollLoadList();
 void Cd_Update(void);
 s32 Gfx_InitDisplay(void);
 s32 ResetGraph(s32 mode);
@@ -384,8 +384,8 @@ void DrawOTag(u32 *p);
 s32 func_80136AB8(void) {
     Rect_80136AB8 r = { 0, 0, 0x180, 0x200 };
 
-    func_80011194(D_801391C8);
-    while (func_800116C0() >= 0) {
+    Cd_StartLoadList(D_801391C8);
+    while (Cd_PollLoadList() >= 0) {
         Cd_Update();
     }
     Gfx_InitDisplay();
@@ -436,7 +436,7 @@ extern u8 D_80139468[];
 extern u8 D_80139470[];
 extern s32 D_80139478;
 extern void *D_8013947C;
-extern u8 D_800E78C0_80136CC4[] asm("D_800E78C0");
+extern u8 D_800E78C0_80136CC4[] asm("g_ViewMatrix");
 s32 func_80096580(s32);
 s32 func_80138ABC(void);
 s32 Save_SumStageMonkeys(u8 *);
@@ -446,7 +446,7 @@ void Model_BindMesh(void *, u32 *);
 void func_8002FAF0(s32);
 void Light_SetColorMode(s32, s32, s32, s32);
 void Stage_ApplyFog(void);
-void func_8004637C(void *);
+void Matrix_SetIdentity(void *);
 
 s32 func_80136CC4(void) {
     s32 i;
@@ -509,7 +509,7 @@ s32 func_80136CC4(void) {
     D_800EBFA0_80136CC4.f_2C = 0x1000;
     D_800EBFA0_80136CC4.f_1C = 0;
     Stage_ApplyFog();
-    func_8004637C(D_800E78C0_80136CC4);
+    Matrix_SetIdentity(D_800E78C0_80136CC4);
     D_801391C0 = 0;
     D_801391C4 = 0x10;
     D_80139478 = (s32)func_8008C09C(0x4800);
@@ -1201,7 +1201,7 @@ typedef struct { s16 m[3][3]; s32 t[3]; } MATRIX_801368E8;
 extern s32 D_801391C0;
 extern s32 D_801391C4;
 extern void *D_8013947C;
-extern u8 D_800E7D00[];
+extern u8 g_ProjVerts[];
 void func_801368E8(SVECTOR *eye, SVECTOR *at);
 void func_8002FAF0(s32);
 
@@ -1218,13 +1218,13 @@ s32 func_80138978(void) {
     eye.vx = 0;
     func_801368E8(&eye, &at);
     func_8002FAF0(0xA4);
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     RotMatrixZ(D_801391C0 / 8, &m);
     RotMatrixY(D_801391C0 / 8, &m);
     RotMatrixX(D_801391C0 / 8, &m);
-    Model_ProjectVertsAlt(D_8013947C, &m, D_800E7D00);
-    Model_DrawLit((s32)&G_DRAW.db[G_DRAW.cur].ot[0xFFF], (s32)D_800E7D00, D_8013947C);
-    D_801391C4 = func_800463A4(D_801391C4, 0x10, 0x20);
+    Model_ProjectVertsAlt(D_8013947C, &m, g_ProjVerts);
+    Model_DrawLit((s32)&G_DRAW.db[G_DRAW.cur].ot[0xFFF], (s32)g_ProjVerts, D_8013947C);
+    D_801391C4 = Math_StepToward(D_801391C4, 0x10, 0x20);
     D_801391C0 += D_801391C4;
     return 0;
 }

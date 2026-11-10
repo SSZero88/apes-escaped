@@ -8,8 +8,8 @@ extern Rect_80136000 D_80137830;
 extern u8 D_80137840[];
 extern u8 D_80137860[];
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; u16 f_8120; u8 pad8122[0x38]; s16 f_815A; u8 pad815C[0x15E]; u16 f_82BA; } g_Game_80136000 asm("g_Game");
-void func_80011194(void *);
-s32 func_800116C0();
+void Cd_StartLoadList(void *);
+s32 Cd_PollLoadList();
 void Cd_Update(void);
 s32 Gfx_InitDisplay(void);
 s32 ResetGraph(s32 mode);
@@ -35,11 +35,11 @@ s32 func_80136000(void) {
     ClearImage(&r, 0, 0, 0);
     DrawSync(0);
     if (g_Game_80136000.f_8120 == 0x1D) {
-        func_80011194(D_80137840);
+        Cd_StartLoadList(D_80137840);
     } else {
-        func_80011194(D_80137860);
+        Cd_StartLoadList(D_80137860);
     }
-    while (func_800116C0() == 0) {
+    while (Cd_PollLoadList() == 0) {
         Cd_Update();
         VSync(2);
     }

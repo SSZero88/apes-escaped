@@ -3,10 +3,10 @@
 
 M2C_UNK Matrix_FromDirection(void *, s32);
 M2C_UNK Model_ProjectBonedVerts(void *);
-M2C_UNK func_80015780(void *, M2C_UNK);
-M2C_UNK func_80016EBC(void *, M2C_UNK *, void *);
+M2C_UNK Model_CalcKeyedJointMatrices(void *, M2C_UNK);
+M2C_UNK Model_DrawAuto(void *, M2C_UNK *, void *);
 s32 func_80051410(void *, M2C_UNK, M2C_UNK);
-extern M2C_UNK D_800E7D00;
+extern M2C_UNK g_ProjVerts;
 extern M2C_UNK D_80141788;
 extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; s32 f_820C; } g_Game;
 M2C_UNK Sound_PlayAt(M2C_UNK, void *);
@@ -141,9 +141,9 @@ void func_8013D41C(s32 arg0) {
     temp_s0 = (void *)((u8 *)&D_80141788 + (arg0 * 0x70));
     if (func_80051410(temp_s0 + 0x24, 0, 0) == 0) {
         Matrix_FromDirection(temp_s0 + 0x60, M2C_FIELD(temp_s0, s32 *, 0x14));
-        func_80015780(temp_s0, 3);
+        Model_CalcKeyedJointMatrices(temp_s0, 3);
         Model_ProjectBonedVerts(temp_s0);
-        func_80016EBC((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0);
+        Model_DrawAuto((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, temp_s0);
     }
 }
 
@@ -1242,7 +1242,7 @@ typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013FDF0;
 #define gte_stsxy3c_8013FDF0(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
 #define gte_stszotz_8013FDF0(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 extern Part_8013FDF0 D_80141948_8013FDF0[] asm("D_80141948");
-extern Mat_8013FDF0 D_800E78C0_8013FDF0 asm("D_800E78C0");
+extern Mat_8013FDF0 D_800E78C0_8013FDF0 asm("g_ViewMatrix");
 extern u16 g_RandSeed_8013FDF0 asm("g_RandSeed");
 extern GameDraw g_Game_8013FDF0 asm("g_Game");
 void SetRotMatrix_8013FDF0(Mat_8013FDF0 *) asm("SetRotMatrix");
@@ -1537,27 +1537,27 @@ extern struct { u8 pad_0[0x8]; u8 *f_8; u8 pad_C[0x8146]; u16 f_8152; u8 pad_815
 extern struct { u8 pad_0[0xA1]; s8 f_A1; u8 pad_A2; s8 f_A3; u8 pad_A4[0xB4]; u32 f_158; u8 pad_15C[4]; u32 f_160; } g_Pad_8014085C asm("g_Pad");
 extern struct { u8 pad_0[0x46]; u8 f_46; } D_800E68D0_8014085C asm("D_800E68D0");
 extern u8 D_800E6916_8014085C asm("D_800E6916");
-extern SVECTOR D_800F4B30_8014085C[2] asm("D_800F4B30");
+extern SVECTOR D_800F4B30_8014085C[2] asm("g_JointAngles");
 extern u32 D_800E5478_8014085C asm("D_800E5478");
-extern u8 D_800F4730_8014085C[] asm("D_800F4730");
+extern u8 D_800F4730_8014085C[] asm("g_JointWorldMatrices");
 extern u8 D_80141718_8014085C[] asm("D_80141718");
 extern u8 D_80141720_8014085C[] asm("D_80141720");
 extern u8 D_80141728_8014085C[] asm("D_80141728");
-extern u8 D_800E9C60_8014085C[] asm("D_800E9C60");
-extern u8 D_800E7D00_8014085C[] asm("D_800E7D00");
-s16 func_800433B0_8014085C(s32, s32, s32, s16 *) asm("func_800433B0");
+extern u8 D_800E9C60_8014085C[] asm("g_ModelMatrices");
+extern u8 D_800E7D00_8014085C[] asm("g_ProjVerts");
+s16 func_800433B0_8014085C(s32, s32, s32, s16 *) asm("Floor_GetHeightAndSlope");
 s16 Water_Query_8014085C(s32, s32, s32) asm("Water_Query");
 s32 rsin_8014085C(s32) asm("rsin");
 s32 rcos_8014085C(s32) asm("rcos");
 void *ApplyMatrixSV_8014085C(void *, void *, void *) asm("ApplyMatrixSV");
-void func_80014804_8014085C(void *, void *) asm("func_80014804");
+void func_80014804_8014085C(void *, void *) asm("Matrix_FromFacingXZ");
 s32 VectorNormalSS_8014085C(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
-s32 func_800463A4_8014085C(s32, s32, s32) asm("func_800463A4");
+s32 func_800463A4_8014085C(s32, s32, s32) asm("Math_StepToward");
 void Matrix_LookAt_8014085C(void *, void *, void *, s32) asm("Matrix_LookAt");
 void Model_CalcJointMatrices_8014085C(void *, s32) asm("Model_CalcJointMatrices");
 void Model_ProjectBonedVerts_8014085C(void *) asm("Model_ProjectBonedVerts");
-void func_80017CD4_8014085C(void *, void *, void *) asm("func_80017CD4");
-void func_8004637C_8014085C(void *) asm("func_8004637C");
+void func_80017CD4_8014085C(void *, void *, void *) asm("Model_Draw");
+void func_8004637C_8014085C(void *) asm("Matrix_SetIdentity");
 void *CompMatrix_8014085C(void *, void *, void *) asm("CompMatrix");
 void Model_ProjectVerts_8014085C(void *, void *, void *) asm("Model_ProjectVerts");
 void Effect_SpawnAt_8014085C(s32, void *) asm("Effect_SpawnAt");
@@ -1758,14 +1758,14 @@ void func_8014085C(void) {
 
 typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[4]; s16 px, py, pz; u8 pad22[2]; s32 x, y, z; u8 pad30[0x30]; SVECTOR rot; SVECTOR f68; u16 *f70; u16 f74; u8 pad76[0x18]; s8 hp; } Boss_80141128;
 extern struct { u8 pad_0[0x8290]; u16 f_8290; } g_Game_80141128 asm("g_Game");
-extern struct { s16 x, y, z; } D_800F4B30;
+extern struct { s16 x, y, z; } g_JointAngles;
 extern void *D_800EC358;
-extern u8 D_800E7D00_80141128[] asm("D_800E7D00");
+extern u8 D_800E7D00_80141128[] asm("g_ProjVerts");
 s16 Floor_GetHeight_80141128(s32, s32, s32) asm("Floor_GetHeight");
 void Matrix_LookAt(void *, void *, void *, s32);
 void Model_CalcJointMatrices(void *, s32);
 void Model_ProjectBonedVerts_80141128(void *) asm("Model_ProjectBonedVerts");
-void func_80017CD4(void *, void *, void *);
+void Model_Draw(void *, void *, void *);
 s32 Sound_PlayFixed_80141128(s32) asm("Sound_PlayFixed");
 void Fx_DebrisExplosion(s32, s32, s32);
 void func_801407B4(void);
@@ -1803,12 +1803,12 @@ void func_80141128(s32 arg0) {
     b->py = b->y - 0x80;
     b->pz = b->z;
     Matrix_LookAt(&b->rot, &b->f68, b->mat, 0);
-    D_800F4B30.x = 0;
-    D_800F4B30.y = 0;
-    D_800F4B30.z = 0;
+    g_JointAngles.x = 0;
+    g_JointAngles.y = 0;
+    g_JointAngles.z = 0;
     Model_CalcJointMatrices(b, 1);
     Model_ProjectBonedVerts_80141128(b);
-    func_80017CD4(D_800EC358, D_800E7D00_80141128, b);
+    Model_Draw(D_800EC358, D_800E7D00_80141128, b);
     if (b->hp <= 0) {
         Sound_PlayFixed_80141128(0x79);
         Fx_DebrisExplosion(b->px, b->py, b->pz);

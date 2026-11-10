@@ -297,14 +297,14 @@ s32 func_8013D8F8(s32 g, B8_8013D8F8 *a, B8_8013D8F8 *b) {
 typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x; s32 y; s32 z; u8 pad30[0x30]; s16 rx; s16 ry; s16 rz; } Mdl_8013D9C4;
 typedef struct { s16 x, y, z; } Pos_8013D9C4;
 extern Mdl_8013D9C4 D_8013F8B8;
-extern u8 D_800E7D00[];
+extern u8 g_ProjVerts[];
 s32 func_80051410(void *, s32, s32);
 s32 rcos_8013D9C4(s32) asm("rcos");
 s32 rsin_8013D9C4(s32) asm("rsin");
-void func_80014804_8013D9C4(void *, void *) asm("func_80014804");
-void func_80015780_8013D9C4(void *, s32) asm("func_80015780");
+void func_80014804_8013D9C4(void *, void *) asm("Matrix_FromFacingXZ");
+void func_80015780_8013D9C4(void *, s32) asm("Model_CalcKeyedJointMatrices");
 void Model_ProjectBonedVerts_8013D9C4(void *) asm("Model_ProjectBonedVerts");
-void func_80016EBC_8013D9C4(void *, void *, void *) asm("func_80016EBC");
+void func_80016EBC_8013D9C4(void *, void *, void *) asm("Model_DrawAuto");
 s32 Object_AddAttackSphereNear(void *, s16, s16, s16, s32, s32, s32);
 
 void func_8013D9C4(void *o, Pos_8013D9C4 *s, s16 f) {
@@ -321,7 +321,7 @@ void func_8013D9C4(void *o, Pos_8013D9C4 *s, s16 f) {
         func_80014804_8013D9C4(&m->rx, m->mat);
         func_80015780_8013D9C4(m, 3);
         Model_ProjectBonedVerts_8013D9C4(m);
-        func_80016EBC_8013D9C4(G_DRAW.db[G_DRAW.cur].ot, D_800E7D00, m);
+        func_80016EBC_8013D9C4(G_DRAW.db[G_DRAW.cur].ot, g_ProjVerts, m);
         Object_AddAttackSphereNear(o, 0x32, s->x, s->y, s->z, 1, 0x202);
     }
 }

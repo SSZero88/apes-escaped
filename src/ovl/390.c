@@ -13,7 +13,7 @@ extern s16 D_8013AF66;
 extern s16 D_8013AF6C;
 M2C_UNK MemCard_Request(M2C_UNK, M2C_UNK);
 extern s16 D_8013AF56;
-extern struct S_D_800E3880 { s16 f_0; u8 pad_2[0x4]; s16 f_6; s16 f_8; } D_800E3880;
+extern struct S_D_800E3880 { s16 f_0; u8 pad_2[0x4]; s16 f_6; s16 f_8; } g_MemCard;
 
 extern u8 g_Game[];
 extern u8 D_8013B024[];
@@ -306,7 +306,7 @@ s32 func_80136554(s32 x, s32 y, s32 w, s32 h) {
 
 typedef struct { s32 vx, vy, vz, pad; } VEC_391;
 typedef struct { s16 m[3][3]; s32 t[3]; } MAT_391;
-extern MAT_391 D_800E78C0;
+extern MAT_391 g_ViewMatrix;
 extern MAT_391 D_800AF0A0;
 void VectorNormal(void *, void *);
 s32 SquareRoot0(s32);
@@ -320,9 +320,9 @@ void func_801368E8(SVECTOR *eye, SVECTOR *at) {
     s32 ny;
     s32 h;
 
-    D_800E78C0.t[0] = -eye->vx;
-    D_800E78C0.t[1] = -eye->vy;
-    D_800E78C0.t[2] = -eye->vz;
+    g_ViewMatrix.t[0] = -eye->vx;
+    g_ViewMatrix.t[1] = -eye->vy;
+    g_ViewMatrix.t[2] = -eye->vz;
     d.vx = at->vx - eye->vx;
     d.vy = 0;
     d.vz = at->vz - eye->vz;
@@ -336,17 +336,17 @@ void func_801368E8(SVECTOR *eye, SVECTOR *at) {
     VectorNormal(&d, &n);
     ny = n.vy;
     h = SquareRoot0(n.vz * n.vz + n.vx * n.vx);
-    D_800E78C0.m[0][0] = nz;
-    D_800E78C0.m[0][1] = 0;
-    D_800E78C0.m[0][2] = nx;
-    D_800E78C0.m[1][0] = (nx * ny) >> 12;
-    D_800E78C0.m[1][1] = h;
-    D_800E78C0.m[1][2] = -(ny * nz) >> 12;
-    D_800E78C0.m[2][0] = -(h * nx) >> 12;
-    D_800E78C0.m[2][1] = ny;
-    D_800E78C0.m[2][2] = (h * nz) >> 12;
-    ApplyMatrixLV(&D_800E78C0, D_800E78C0.t, D_800E78C0.t);
-    CompMatrix(&D_800AF0A0, &D_800E78C0, &D_800E78C0);
+    g_ViewMatrix.m[0][0] = nz;
+    g_ViewMatrix.m[0][1] = 0;
+    g_ViewMatrix.m[0][2] = nx;
+    g_ViewMatrix.m[1][0] = (nx * ny) >> 12;
+    g_ViewMatrix.m[1][1] = h;
+    g_ViewMatrix.m[1][2] = -(ny * nz) >> 12;
+    g_ViewMatrix.m[2][0] = -(h * nx) >> 12;
+    g_ViewMatrix.m[2][1] = ny;
+    g_ViewMatrix.m[2][2] = (h * nz) >> 12;
+    ApplyMatrixLV(&g_ViewMatrix, g_ViewMatrix.t, g_ViewMatrix.t);
+    CompMatrix(&D_800AF0A0, &g_ViewMatrix, &g_ViewMatrix);
 }
 
 u8 *func_80136A88(u8 *arg0, s32 arg1)
@@ -397,8 +397,8 @@ void func_80141C00(void);
 void func_8002F1F0(s32);
 void func_80012CA0(s32);
 s32 func_80086408(void);
-s32 func_80011194(void *);
-s32 func_800116C0(void);
+s32 Cd_StartLoadList(void *);
+s32 Cd_PollLoadList(void);
 void Cd_Update(void);
 s32 VSync(s32 mode);
 void func_80141AF0(void);
@@ -426,11 +426,11 @@ s32 func_80136AB8(void) {
     func_80012CA0(0);
     D_800E54E0 = 0;
     if (func_80086408() < 0) {
-        func_80011194(D_8013AF7C);
+        Cd_StartLoadList(D_8013AF7C);
     } else {
-        func_80011194(D_8013AF84);
+        Cd_StartLoadList(D_8013AF84);
     }
-    while (func_800116C0() >= 0) {
+    while (Cd_PollLoadList() >= 0) {
         Cd_Update();
         VSync(2);
     }
@@ -497,7 +497,7 @@ void func_80136D58(void) {
     func_80141B34();
 }
 
-extern u8 D_800E78C0_80136D90[] asm("D_800E78C0");
+extern u8 D_800E78C0_80136D90[] asm("g_ViewMatrix");
 extern struct { u8 pad0[0x1C]; s32 f_1C; u8 pad20[4]; s32 f_24; s32 f_28; s32 f_2C; } D_800EBFA0_80136D90 asm("D_800EBFA0");
 extern s32 D_8013B214;
 extern s32 D_8013AF70;
@@ -510,7 +510,7 @@ void Model_BindMesh(void *, u32 *);
 s32 func_8002FAF0(s32);
 void Light_SetColorMode(s32, s32, s32, s32);
 void Stage_ApplyFog(void);
-void func_8004637C(void *);
+void Matrix_SetIdentity(void *);
 
 s32 func_80136D90(void) {
     u8 *h;
@@ -536,7 +536,7 @@ s32 func_80136D90(void) {
     D_800EBFA0_80136D90.f_2C = 0x1000;
     D_800EBFA0_80136D90.f_1C = 0;
     Stage_ApplyFog();
-    func_8004637C(D_800E78C0_80136D90);
+    Matrix_SetIdentity(D_800E78C0_80136D90);
     D_8013AF70 = 0;
     D_8013AF74 = 0x10;
     D_8013AF6A = -1;
@@ -870,7 +870,7 @@ s32 func_801377F8(u8 *p, s32 flags) {
 typedef struct { s16 total; s16 f2; s16 f4; s16 f6; s16 pct; s16 fA; s32 fC; u8 s10[0x10]; u8 s20[0x10]; u8 s30[0x10]; u8 s40[0x10]; u8 s50[8]; u8 s58[8]; u8 s60[8]; u8 s68[8]; u8 s70[8]; } Slot_8013784C;
 typedef struct { s16 f180; u16 f182; s32 f184; u8 pad188[0x38]; u8 f1C0; u8 pad1C1[7]; u8 f1C8[0x20]; u8 f1E8[0x600]; s32 f7E8; u8 pad7EC[0x7A0 - 0x66C]; } Save_8013784C;
 extern Slot_8013784C D_8013B218_784C[] asm("D_8013B218");
-extern struct { u8 pad0[0x180]; Save_8013784C r[4]; } D_800E1880_784C asm("D_800E1880");
+extern struct { u8 pad0[0x180]; Save_8013784C r[4]; } D_800E1880_784C asm("g_MemCardImage");
 extern s16 D_8013AFE8_784C[] asm("D_8013AFE8");
 extern s16 D_8013AF5A;
 extern s16 D_8013AF5C;
@@ -1025,9 +1025,9 @@ s32 func_80137DA8(s32 arg0) {
 
     MemCard_Request(8, 0);
     MemCard_Request(7, 0);
-    D_800E3880.f_6 = 0;
-    D_800E3880.f_8 = 0;
-    D_800E3880.f_0 = 1;
+    g_MemCard.f_6 = 0;
+    g_MemCard.f_8 = 0;
+    g_MemCard.f_0 = 1;
     if (arg0 == 0) {
         D_8013AF56 = 0;
         var_a0 = 0;
@@ -1049,18 +1049,18 @@ s32 func_80137E1C(void) {
     return 0;
 }
 
-extern struct { s16 f0; s16 pad2; s16 f4; s16 f6; } D_800E3880_7E4C asm("D_800E3880");
+extern struct { s16 f0; s16 pad2; s16 f4; s16 f6; } D_800E3880_7E4C asm("g_MemCard");
 typedef struct { u8 pad0[0x180]; s16 f180; u8 pad182[0x16]; u8 f198; u8 pad199[0x7A0 - 0x199]; } Save_80137E4C;
-extern Save_80137E4C D_800E1880_7E4C[] asm("D_800E1880");
+extern Save_80137E4C D_800E1880_7E4C[] asm("g_MemCardImage");
 extern u8 D_800E1A00[];
 extern s16 D_800E3884;
-extern s16 D_800E3886;
+extern s16 g_MemCardSlot;
 extern s16 D_8013AF58;
 void func_8013FEFC(s32);
 s32 func_80139FC8(void);
 s32 func_8013784C(s32, s32);
 void func_80095E80(void);
-void func_8001078C(void *);
+void Save_CopyToSlot(void *);
 void func_8013BC64(void);
 s32 func_8013B6C4(void);
 void func_8013B47C(void);
@@ -1218,7 +1218,7 @@ s32 func_80137E4C(void) {
             return 0;
         }
         func_8013784C(8, 0);
-        func_8001078C(&D_800E1A00[D_800E3886 * 0x7A0]);
+        Save_CopyToSlot(&D_800E1A00[g_MemCardSlot * 0x7A0]);
         MemCard_Request(2, 0);
         return 0;
     case 15:
@@ -1321,7 +1321,7 @@ void func_8013829C(void) {
     }
 }
 
-extern s16 D_800E3880_80138370 asm("D_800E3880");
+extern s16 D_800E3880_80138370 asm("g_MemCard");
 extern s16 D_8013AF6C;
 
 void func_80138370(void) {
@@ -1344,7 +1344,7 @@ void func_80138370(void) {
     }
 }
 
-extern s16 D_800E3880_801383E0 asm("D_800E3880");
+extern s16 D_800E3880_801383E0 asm("g_MemCard");
 extern s16 D_800E3884;
 extern s16 D_8013AF64;
 s32 func_8013784C(s32, s32);
@@ -1383,7 +1383,7 @@ s32 func_801383E0(void) {
     return 0;
 }
 
-extern s16 D_800E3880_801384BC asm("D_800E3880");
+extern s16 D_800E3880_801384BC asm("g_MemCard");
 s32 func_8013784C(s32, s32);
 
 s32 func_801384BC(void) {
@@ -1403,16 +1403,16 @@ s32 func_801384BC(void) {
     return 0;
 }
 
-extern s16 D_800E3880_80138524 asm("D_800E3880");
-extern s16 D_800E3886;
+extern s16 D_800E3880_80138524 asm("g_MemCard");
+extern s16 g_MemCardSlot;
 extern u8 D_800E1A00[];
-void func_8001078C(void *);
+void Save_CopyToSlot(void *);
 
 s32 func_80138524(void) {
     switch (D_800E3880_80138524) {
     case 0:
         func_8013784C(8, 0);
-        func_8001078C(D_800E1A00 + D_800E3886 * 0x7A0);
+        Save_CopyToSlot(D_800E1A00 + g_MemCardSlot * 0x7A0);
         MemCard_Request(2, 0);
         break;
     case -7:
@@ -1434,7 +1434,7 @@ s32 func_80138524(void) {
     return 0;
 }
 
-extern struct { s16 f_0; s16 pad_2; s16 f_4; s16 f_6; } D_800E3880_801385EC asm("D_800E3880");
+extern struct { s16 f_0; s16 pad_2; s16 f_4; s16 f_6; } D_800E3880_801385EC asm("g_MemCard");
 
 s32 func_801385EC(void) {
     switch (D_800E3880_801385EC.f_0) {
@@ -1443,7 +1443,7 @@ s32 func_801385EC(void) {
         break;
     case 0:
         if (D_800E3880_801385EC.f_4 == 5) {
-            func_8001078C(D_800E1A00 + D_800E3880_801385EC.f_6 * 0x7A0);
+            Save_CopyToSlot(D_800E1A00 + D_800E3880_801385EC.f_6 * 0x7A0);
             MemCard_Request(2, 0);
         } else {
             func_8013784C(0xB, 0);
@@ -1468,7 +1468,7 @@ s32 func_801385EC(void) {
     return 0;
 }
 
-extern s16 D_800E3880_801386CC asm("D_800E3880");
+extern s16 D_800E3880_801386CC asm("g_MemCard");
 
 s32 func_801386CC(void) {
     switch (D_800E3880_801386CC) {
@@ -1490,7 +1490,7 @@ s32 func_801386CC(void) {
     return 0;
 }
 
-extern s16 D_800E3880_80138744 asm("D_800E3880");
+extern s16 D_800E3880_80138744 asm("g_MemCard");
 
 s32 func_80138744(void) {
     switch (D_800E3880_80138744) {
@@ -1519,7 +1519,7 @@ s32 func_80138744(void) {
     return 0;
 }
 
-extern u16 D_800E3880_801387FC asm("D_800E3880");
+extern u16 D_800E3880_801387FC asm("g_MemCard");
 
 s32 func_801387FC(void) {
     s32 a;
@@ -1550,7 +1550,7 @@ typedef struct { s16 f180; u8 pad2[0x7A0 - 2]; } Save_8013888C;
 extern s16 D_8013AFE8_888C[] asm("D_8013AFE8");
 extern Tex_8013888C D_8013AFAC_888C[] asm("D_8013AFAC");
 extern Slot_8013888C D_8013B218_888C[] asm("D_8013B218");
-extern struct { u8 pad0[0x180]; Save_8013888C r[4]; } D_800E1880_888C asm("D_800E1880");
+extern struct { u8 pad0[0x180]; Save_8013888C r[4]; } D_800E1880_888C asm("g_MemCardImage");
 void func_8013FC2C(s32, s16 *);
 void func_801400F4(s32);
 s32 func_80138DC0(s32 mode, s32 slot);
@@ -1586,7 +1586,7 @@ s32 func_8013888C(void) {
     ADDPRIM_8013888C(&G_DRAW.db[G_DRAW.cur].ot[0]);
     G_DRAW.prim += 8;
     if (D_8013AF54 == 1) {
-        func_80139570(0x60, D_800E3886 * 0x30 + 0x18);
+        func_80139570(0x60, g_MemCardSlot * 0x30 + 0x18);
     }
     for (i = 0; i < 4; i++) {
         if (D_8013B218_888C[i].fA >= 0 && D_800E1880_888C.r[i].f180 >= 0) {
@@ -1724,7 +1724,7 @@ s32 func_80138DC0(s32 mode, s32 slot) {
     return 0;
 }
 
-/* uses the file's existing 'extern struct S_D_800E3880 {...} D_800E3880;' (checked with it prepended) */
+/* uses the file's existing 'extern struct S_D_800E3880 {...} g_MemCard;' (checked with it prepended) */
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 u0, v0; u16 clut; s16 x1, y1; u8 u1, v1; u16 tpage; s16 x2, y2; u8 u2, v2; u16 pad1; s16 x3, y3; u8 u3, v3; u16 pad2; } PolyFT4_801391B0;
 typedef struct { u16 clut; u8 u, v; } Tex_801391B0;
 extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_801391B0 asm("g_Pad");
@@ -1746,11 +1746,11 @@ s32 func_801391B0(void) {
             Sound_PlayFixed(4);
         }
     }
-    func_80138DC0(1, D_800E3880.f_6);
+    func_80138DC0(1, g_MemCard.f_6);
     func_80139570(0x38, 0x48);
     ((u8 *)P_801391B0)[3] = 9;
     P_801391B0->code = 0x2D;
-    P_801391B0->clut = D_8013AFAC[D_800E3880.f_6 + 11].clut;
+    P_801391B0->clut = D_8013AFAC[g_MemCard.f_6 + 11].clut;
     P_801391B0->tpage = 0x87;
     P_801391B0->x0 = 0xF8;
     P_801391B0->y0 = 0x50;
@@ -1760,14 +1760,14 @@ s32 func_801391B0(void) {
     P_801391B0->y2 = 0x70;
     P_801391B0->x3 = 0x138;
     P_801391B0->y3 = 0x70;
-    P_801391B0->u0 = D_8013AFAC[D_800E3880.f_6 + 11].u;
-    P_801391B0->v0 = D_8013AFAC[D_800E3880.f_6 + 11].v;
-    P_801391B0->u1 = D_8013AFAC[D_800E3880.f_6 + 11].u + 0x3F;
-    P_801391B0->v1 = D_8013AFAC[D_800E3880.f_6 + 11].v;
-    P_801391B0->u2 = D_8013AFAC[D_800E3880.f_6 + 11].u;
-    P_801391B0->v2 = D_8013AFAC[D_800E3880.f_6 + 11].v + 0x1F;
-    P_801391B0->u3 = D_8013AFAC[D_800E3880.f_6 + 11].u + 0x3F;
-    P_801391B0->v3 = D_8013AFAC[D_800E3880.f_6 + 11].v + 0x1F;
+    P_801391B0->u0 = D_8013AFAC[g_MemCard.f_6 + 11].u;
+    P_801391B0->v0 = D_8013AFAC[g_MemCard.f_6 + 11].v;
+    P_801391B0->u1 = D_8013AFAC[g_MemCard.f_6 + 11].u + 0x3F;
+    P_801391B0->v1 = D_8013AFAC[g_MemCard.f_6 + 11].v;
+    P_801391B0->u2 = D_8013AFAC[g_MemCard.f_6 + 11].u;
+    P_801391B0->v2 = D_8013AFAC[g_MemCard.f_6 + 11].v + 0x1F;
+    P_801391B0->u3 = D_8013AFAC[g_MemCard.f_6 + 11].u + 0x3F;
+    P_801391B0->v3 = D_8013AFAC[g_MemCard.f_6 + 11].v + 0x1F;
     ot = &G_DRAW.db[G_DRAW.cur].ot[0];
     __asm__ volatile("lwl $5, 2(%0)\n\tlw $2, %1\n\tsll $2, $2, 8\n\tswl $2, 2(%0)\n\tlw $2, %1\n\tswl $5, 2($2)" : : "r"(ot), "m"(G_DRAW.prim) : "$2", "$5", "memory");
     G_DRAW.prim += 0x28;
@@ -1874,7 +1874,7 @@ s32 func_80139570(s32 x, s32 y) {
     return 0;
 }
 
-extern u8 D_800E1880[];
+extern u8 g_MemCardImage[];
 
 s32 func_801399E4(s32 n) {
     s32 last;
@@ -1882,7 +1882,7 @@ s32 func_801399E4(s32 n) {
 
     last = 1;
     for (i = 0; i < 25; i++) {
-        if (D_800E1880[i + n * 0x7A0 + 0x1A8] != 0) {
+        if (g_MemCardImage[i + n * 0x7A0 + 0x1A8] != 0) {
             last = i;
         }
     }
@@ -1896,7 +1896,7 @@ s32 func_80139A3C(void) {
 
 typedef struct { s16 m[3][3]; s32 t[3]; } MAT_80139A68;
 extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad[0x8120 - 0x10 - 2 * sizeof(DrawBuf)]; u16 f_8120; } g_Game_80139A68 asm("g_Game");
-extern u8 D_800E7D00[];
+extern u8 g_ProjVerts[];
 void func_801368E8(SVECTOR *eye, SVECTOR *at);
 void *RotMatrixX(s32 r, void *m);
 void *RotMatrixY(s32 r, void *m);
@@ -1905,7 +1905,7 @@ void Model_ProjectVertsAlt(void *, void *, void *);
 void Model_DrawLit();
 s32 rsin(s32 a);
 s32 rcos(s32 a);
-s32 func_800463A4(s32, s32, s32);
+s32 Math_StepToward(s32, s32, s32);
 
 s32 func_80139A68(void) {
     MAT_80139A68 m;
@@ -1924,12 +1924,12 @@ s32 func_80139A68(void) {
     eye.vx = 0;
     func_801368E8(&eye, &at);
     func_8002FAF0(0xA4);
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     RotMatrixZ(D_8013AF70 / 8, &m);
     RotMatrixY(D_8013AF70 / 8, &m);
     RotMatrixX(D_8013AF70 / 8, &m);
-    Model_ProjectVertsAlt((void *)D_8013B214, &m, D_800E7D00);
-    Model_DrawLit(&g_Game_80139A68.db[g_Game_80139A68.cur].ot[0xFFF], D_800E7D00, D_8013B214);
+    Model_ProjectVertsAlt((void *)D_8013B214, &m, g_ProjVerts);
+    Model_DrawLit(&g_Game_80139A68.db[g_Game_80139A68.cur].ot[0xFFF], g_ProjVerts, D_8013B214);
     if (g_Game_80139A68.f_8120 == 0x15) {
         target = -D_8013AF52 << 9;
         if (D_8013AF78 < target - 0x80) {
@@ -1951,7 +1951,7 @@ s32 func_80139A68(void) {
             }
         }
     }
-    D_8013AF74 = func_800463A4(D_8013AF74, 0x10, 0x20);
+    D_8013AF74 = Math_StepToward(D_8013AF74, 0x10, 0x20);
     D_8013AF70 += D_8013AF74;
     return 0;
 }
@@ -2041,9 +2041,9 @@ s32 func_80139F08(void) {
 
 typedef struct { u8 pad0[0x180]; s16 f_180; u8 pad182[0x7A0 - 0x182]; } Slot_80139FC8;
 extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_80139FC8 asm("g_Pad");
-extern struct { s16 f_0; u8 pad_2[0x4]; s16 f_6; } D_800E3880_80139FC8 asm("D_800E3880");
+extern struct { s16 f_0; u8 pad_2[0x4]; s16 f_6; } D_800E3880_80139FC8 asm("g_MemCard");
 extern s16 D_8013AFE8[];
-extern Slot_80139FC8 D_800E1880_80139FC8[] asm("D_800E1880");
+extern Slot_80139FC8 D_800E1880_80139FC8[] asm("g_MemCardImage");
 s32 func_8013A400(void);
 s32 func_8013A43C(void);
 
@@ -2096,7 +2096,7 @@ s32 func_80139FC8(void) {
         }
         if (func_8013A400()) {
             D_8013AF54 = 1;
-            D_800E3886 = 0;
+            g_MemCardSlot = 0;
             Sound_PlayFixed(3);
         }
         return 0;
@@ -2109,7 +2109,7 @@ s32 func_80139FC8(void) {
     if (func_8013A400()) {
         if (D_8013AF52 == 1) {
             Sound_PlayFixed(3);
-            if (D_800E1880_80139FC8[D_800E3886].f_180 >= 0) {
+            if (D_800E1880_80139FC8[g_MemCardSlot].f_180 >= 0) {
                 a = 0xD;
             } else if (D_8013AF64 != 0) {
                 a = 4;
@@ -2118,19 +2118,19 @@ s32 func_80139FC8(void) {
                 a = 6;
             }
         } else if (D_8013AF52 == 2) {
-            if (D_800E1880_80139FC8[D_800E3886].f_180 < 0) {
+            if (D_800E1880_80139FC8[g_MemCardSlot].f_180 < 0) {
                 goto bad;
             }
             Sound_PlayFixed(3);
             a = 5;
         } else if (D_8013AF52 == 3) {
-            if (D_800E1880_80139FC8[D_800E3886].f_180 < 0) {
+            if (D_800E1880_80139FC8[g_MemCardSlot].f_180 < 0) {
                 goto bad;
             }
             Sound_PlayFixed(3);
             a = 0xF;
         } else if (D_8013AF52 == 4) {
-            if (D_800E1880_80139FC8[D_800E3886].f_180 < 0) {
+            if (D_800E1880_80139FC8[g_MemCardSlot].f_180 < 0) {
                 goto bad;
             }
             Sound_PlayFixed(3);
@@ -2275,7 +2275,7 @@ typedef struct { Hdr_8013A804 *f_0; s32 *f_4; u8 *f_8; } Mdl_8013A804;
 typedef struct { s32 rgb[0xF0]; s16 f_3C0; s16 f_3C2; s16 f_3C4; s16 f_3C6; u8 pad3C8[0x2C]; u8 f_3F4; } Scr_8013A804;
 extern VEC_8013A804 D_8013ADD8_8013A804 asm("D_8013ADD8");
 extern struct { u8 pad0[0xC]; s32 cur; } g_Game_8013A804 asm("g_Game");
-extern MAT_8013A804 D_800E78C0_8013A804 asm("D_800E78C0");
+extern MAT_8013A804 D_800E78C0_8013A804 asm("g_ViewMatrix");
 
 void func_8013A804(pos, rot, m, light)
     SVECTOR *pos; SVECTOR *rot; Mdl_8013A804 *m; s32 light;
@@ -2291,7 +2291,7 @@ void func_8013A804(pos, rot, m, light)
     sc->f_3F4 = 0;
     sc->f_3C6 = 0;
     sc->f_3C4 = 0;
-    func_8004637C(&mat);
+    Matrix_SetIdentity(&mat);
     RotMatrix(rot, &mat);
     scale = D_8013ADD8_8013A804;
     ScaleMatrix(&mat, &scale);
@@ -2299,7 +2299,7 @@ void func_8013A804(pos, rot, m, light)
     mat.t[0] = pos->vx;
     mat.t[1] = pos->vy;
     CompMatrix(&D_800E78C0_8013A804, &mat, &mat);
-    Model_ProjectVertsAlt(m, &mat, D_800E7D00);
+    Model_ProjectVertsAlt(m, &mat, g_ProjVerts);
     n = m->f_0->n;
     src = m->f_4;
     for (i = 0; i < n; i++) {
@@ -2308,6 +2308,6 @@ void func_8013A804(pos, rot, m, light)
         gte_cc();
         gte_stRGB2(&sc->rgb[i]);
     }
-    Model_DrawPrims((s32)(g_Game_8013A804.cur * 0x4078 + (u8 *)&g_Game_8013A804 + 0x80), c, (s32)D_800E7D00);
+    Model_DrawPrims((s32)(g_Game_8013A804.cur * 0x4078 + (u8 *)&g_Game_8013A804 + 0x80), c, (s32)g_ProjVerts);
 }
 __asm__(".section .text\n.balign 16");

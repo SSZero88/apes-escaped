@@ -137,7 +137,7 @@ typedef struct MonkeyKind {
     /* 0x0C */ u8 padC[0x7C];
 } MonkeyKind;
 
-/* 0x18-byte records at D_800B4D00 (count D_800B4D18); f_14 is indexed by Monkey.f_7B. */
+/* 0x18-byte records at g_PathNodes (count g_PathNodeCount); f_14 is indexed by Monkey.f_7B. */
 typedef struct Unk800B4D00 {
     /* 0x00 */ u32 f_0;
     /* 0x04 */ u8 pad4[0x6];
@@ -150,8 +150,8 @@ typedef struct Unk800B4D00 {
 } Unk800B4D00;
 
 extern MonkeyKind *g_MonkeyKinds;
-extern Unk800B4D00 *D_800B4D00;
-extern s16 D_800B4D18;
+extern Unk800B4D00 *g_PathNodes;
+extern s16 g_PathNodeCount;
 
 extern Monkey *g_CurMonkey; /* the monkey being updated */
 extern Monkey *g_MonkeyTarget; /* set to &g_Spike (Spike?) by Monkey_InitAll; only its position is used so far */

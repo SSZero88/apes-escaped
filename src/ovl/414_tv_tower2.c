@@ -25,7 +25,7 @@ extern struct { u8 pad_0[0x8244]; u8 *f_8244; } g_Game_8013D1F0 asm("g_Game");
 typedef struct { u8 pad0[0x18]; s32 f18, f1C; } AnimEnt_8013D1F0;
 extern u8 *D_80143D50[];
 extern u8 *D_80143D60[];
-void func_80015BA0(void *, void *);
+void Model_BindBonedAuto(void *, void *);
 
 M2C_UNK func_8013D1F0(M2C_UNK i, M2C_UNK *obj, void *out) {
     u8 *bank = g_Game_8013D1F0.f_8244;
@@ -38,7 +38,7 @@ M2C_UNK func_8013D1F0(M2C_UNK i, M2C_UNK *obj, void *out) {
     q = (u32 *)s + 1;
     *(u32 **)out = q;
     M2C_FIELD(obj, u32 **, 0x18) = q + *(u16 *)s;
-    func_80015BA0(obj, D_80143D50[i]);
+    Model_BindBonedAuto(obj, D_80143D50[i]);
 }
 
 #include "gte.h"
@@ -150,7 +150,7 @@ typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013D6BC;
 #define gte_stsxy3c_8013D6BC(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
 #define gte_stszotz_8013D6BC(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 extern Part_8013D6BC D_80143F08_8013D6BC[] asm("D_80143F08");
-extern Mat_8013D6BC D_800E78C0_8013D6BC asm("D_800E78C0");
+extern Mat_8013D6BC D_800E78C0_8013D6BC asm("g_ViewMatrix");
 extern GameDraw g_Game_8013D6BC asm("g_Game");
 void SetRotMatrix_8013D6BC(Mat_8013D6BC *) asm("SetRotMatrix");
 void SetTransMatrix_8013D6BC(Mat_8013D6BC *) asm("SetTransMatrix");
@@ -419,8 +419,8 @@ extern struct { u8 pad_0[0x24]; u16 x; u8 pad_26[2]; u16 y; u8 pad_2A[2]; u16 z;
 extern struct { u8 pad0[0xD]; u8 fD; } D_80143EF8_8013DF68 asm("D_80143EF8");
 extern struct { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013DF68 asm("g_Game");
 const Vec_8013DF68 D_80143250 = { 0x2800, 0x2800, 0x2800, 0 };
-extern u8 D_800E78C0[];
-extern u8 D_800E7D00[];
+extern u8 g_ViewMatrix[];
+extern u8 g_ProjVerts[];
 extern u8 D_800F4C40[];
 void func_8013D500(void *arg0, s32 arg1, s32 arg2, s16 arg3);
 void func_8013DB04(s32 arg0);
@@ -433,7 +433,7 @@ void Matrix_FromDirection_8013DF68(void *, void *) asm("Matrix_FromDirection");
 void *ScaleMatrix_8013DF68(void *m, void *v) asm("ScaleMatrix");
 void *CompMatrix_8013DF68(void *m0, void *m1, void *m2) asm("CompMatrix");
 void Model_ProjectVerts_8013DF68(void *, void *, void *) asm("Model_ProjectVerts");
-void func_80017CD4_8013DF68(void *, void *, void *) asm("func_80017CD4");
+void func_80017CD4_8013DF68(void *, void *, void *) asm("Model_Draw");
 
 void func_8013DF68(s32 arg0) {
     Mat_8013DF68 m;
@@ -524,9 +524,9 @@ void func_8013DF68(s32 arg0) {
             m.t[0] = p->x;
             m.t[1] = p->y;
             m.t[2] = p->z;
-            CompMatrix_8013DF68(D_800E78C0, &m, &m);
-            Model_ProjectVerts_8013DF68(D_800F4C40, &m, D_800E7D00);
-            func_80017CD4_8013DF68(g_Game_8013DF68.f_80 + g_Game_8013DF68.f_C * 0x4078, D_800E7D00, D_800F4C40);
+            CompMatrix_8013DF68(g_ViewMatrix, &m, &m);
+            Model_ProjectVerts_8013DF68(D_800F4C40, &m, g_ProjVerts);
+            func_80017CD4_8013DF68(g_Game_8013DF68.f_80 + g_Game_8013DF68.f_C * 0x4078, g_ProjVerts, D_800F4C40);
         }
     }
 }
@@ -592,7 +592,7 @@ extern Bit_8013E6E4 D_80144370_8013E6E4[32] asm("D_80144370");
 extern u32 D_80143A9C[];
 extern u8 D_80143718_8013E6E4[] asm("D_80143718");
 extern GameDraw g_Game_8013E6E4 asm("g_Game");
-extern u8 D_800E78C0_8013E6E4[] asm("D_800E78C0");
+extern u8 D_800E78C0_8013E6E4[] asm("g_ViewMatrix");
 void SetRotMatrix_8013E6E4(void *) asm("SetRotMatrix");
 void SetTransMatrix_8013E6E4(void *) asm("SetTransMatrix");
 void Effect_Spawn_8013E6E4(s32, void *, void *, s32) asm("Effect_Spawn");
@@ -661,8 +661,8 @@ void func_8013E6E4(void) {
 
 extern struct { s32 frame; u8 pad_4[0x8]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013E9C8 asm("g_Game");
 extern u8 D_80143D70_8013E9C8[] asm("D_80143D70");
-extern u8 D_800E78C0[];
-extern u8 D_800E7D00[];
+extern u8 g_ViewMatrix[];
+extern u8 g_ProjVerts[];
 extern u8 D_800E9EC0[];
 void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
@@ -672,8 +672,8 @@ void *RotMatrixZ(s32 r, void *m);
 void *CompMatrix(void *m0, void *m1, void *m2);
 void Matrix_FromDirection(void *, void *);
 void Matrix_RotateY(s32, void *);
-void func_8004637C(void *);
-void func_80015780(void *, s32);
+void Matrix_SetIdentity(void *);
+void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void func_8013D290_8013E9C8(s32, s32, void *, s32) asm("func_8013D290");
 
@@ -685,8 +685,8 @@ s32 func_8013E9C8(u8 *a, void *scale, s32 c, s32 spin) {
     s32 p;
     s32 z;
 
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     v.vx = M2C_FIELD(a, s32 *, 0x24);
     v.vy = M2C_FIELD(a, s32 *, 0x28);
     v.vz = M2C_FIELD(a, s32 *, 0x2C);
@@ -699,21 +699,21 @@ s32 func_8013E9C8(u8 *a, void *scale, s32 c, s32 spin) {
     if (spin == 0) {
         Matrix_FromDirection(a + 0x60, M2C_FIELD(a, void **, 0x14));
         ScaleMatrix(M2C_FIELD(a, void **, 0x14), scale);
-        func_80015780(a, 3);
+        Model_CalcKeyedJointMatrices(a, 3);
     } else {
         u8 *o = D_80143D70_8013E9C8;
 
-        func_8004637C((void *)0x1F800018);
+        Matrix_SetIdentity((void *)0x1F800018);
         RotMatrixZ(M2C_FIELD(o, s32 *, 0xA4), (void *)0x1F800018);
         Matrix_FromDirection(a + 0x60, M2C_FIELD(a, void **, 0x14));
         CompMatrix(M2C_FIELD(a, void **, 0x14), (void *)0x1F800018, M2C_FIELD(a, void **, 0x14));
         ScaleMatrix(M2C_FIELD(a, void **, 0x14), scale);
-        func_80015780(o, 3);
+        Model_CalcKeyedJointMatrices(o, 3);
         Matrix_RotateY(g_Game_8013E9C8.frame * 773, D_800E9EC0);
         Matrix_RotateY(g_Game_8013E9C8.frame * 773, D_800E9EC0 + 0x20);
     }
     Model_ProjectBonedVerts(a);
-    func_8013D290_8013E9C8((s32)(g_Game_8013E9C8.f_80 + g_Game_8013E9C8.f_C * 0x4078), (s32)D_800E7D00, a, c);
+    func_8013D290_8013E9C8((s32)(g_Game_8013E9C8.f_80 + g_Game_8013E9C8.f_C * 0x4078), (s32)g_ProjVerts, a, c);
     return 0;
 }
 
@@ -2259,7 +2259,7 @@ void func_80140D60(void) {
                 s32 cross = (o->dir.vz * v.vx - o->dir.vx * v.vz) >> 12;
                 s32 a = o->fA8;
 
-                func_8004637C((void *)(sp + 3));
+                Matrix_SetIdentity((void *)(sp + 3));
                 if (cross < 0) {
                     a = -a;
                 }

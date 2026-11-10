@@ -474,7 +474,7 @@ typedef struct { u8 pad0[6]; s16 f_6; s16 f_8; s16 f_A; u8 padC[2]; s16 f_E; u8 
 typedef struct { u8 pad0[6]; s16 f_6; s16 f_8; } B_80091AF0;
 typedef struct { u8 pad0[0x1C]; void *f_1C; } S_4D64_80091AF0;
 extern S_4D64_80091AF0 *D_800B4D64_91AF0 asm("D_800B4D64");
-void func_800147D0(SVEC_80091AF0 *, void *);
+void Matrix_SetScale(SVEC_80091AF0 *, void *);
 
 s32 func_80091AF0(A_80091AF0 *a, B_80091AF0 *b)
 {
@@ -506,7 +506,7 @@ s32 func_80091AF0(A_80091AF0 *a, B_80091AF0 *b)
   }
   if (a->f_E >= 0)
   {
-    func_800147D0(&sv, D_800B4D64_91AF0[a->f_E].f_1C);
+    Matrix_SetScale(&sv, D_800B4D64_91AF0[a->f_E].f_1C);
   }
   return 0;
 }

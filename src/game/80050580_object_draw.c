@@ -42,7 +42,7 @@ typedef struct { Hdr_51C00_80051C00 *hdr; u8 pad4[0x20]; u8 pos[0xC]; u8 pad30[0
 typedef struct { u8 draw[0x5C]; u8 disp[0x14]; u32 ot[0x1000]; u8 pad[8]; } Db_51C00_80051C00;
 typedef struct { u32 frame; u8 pad4[8]; s32 cur; Db_51C00_80051C00 db[2]; } Game_51C00_80051C00;
 
-void func_80014804(s32, MAT_800522A8 *);
+void Matrix_FromFacingXZ(s32, MAT_800522A8 *);
 M2C_UNK Object_TurnToward(void *, s16, s16, s16, s32);
 
 void memset(void *, s32, s32);
@@ -60,9 +60,9 @@ extern s8 D_800E77E8;
 extern u32 D_800B8D00[];
 
 M2C_UNK ApplyMatrixSV(void *, s32, void *);
-extern M2C_UNK D_800F4730;
+extern M2C_UNK g_JointWorldMatrices;
 
-M2C_UNK func_80015780(void *, M2C_UNK);
+M2C_UNK Model_CalcKeyedJointMatrices(void *, M2C_UNK);
 void func_80051740(S_O_80051740_80051740 *o);
 void func_800518AC(S_O_800518AC_800518AC *o);
 void func_8005240C(S_O_8005240C_8005240C *o, S_H_8005240C_8005240C *h);
@@ -76,7 +76,7 @@ M2C_UNK EnemyShot_Frame();
 M2C_UNK func_8005E000(M2C_UNK, s32);
 extern u8 D_800E77E4;
 extern struct S_D_800EC350 { u8 pad_0[0x8100]; s32 f_8100; u8 pad_8104[0x140]; s32 f_8244; u8 pad_8248[0x50]; s16 f_8298; } g_Game;
-M2C_UNK func_80015BA0(s32, s32);
+M2C_UNK Model_BindBonedAuto(s32, s32);
 s32 func_80051FE8(s32 a);
 extern s32 D_800E77D4;
 s16 Object_FloorAt(void *arg0, s16 arg1, s16 arg2, s16 arg3);
@@ -94,7 +94,7 @@ void Object_EnableCollision(void *arg0);
 void Object_Destroy(S_51F1C_80051F1C *s);
 void Object_DisableCollision(void *arg0);
 struct S_D_800EC350_80051E98 { u8 pad_0[0x8160]; u16 f_8160; };
-extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } D_800E78C0;
+extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } g_ViewMatrix;
 extern s16 D_800B4D50;
 extern s16 D_800B4D52;
 void SetTransMatrix(void *m);
@@ -155,7 +155,7 @@ struct S_D_800E77D0_80051534 { u8 pad0[0x10]; s16 f_10; };
 void Object_SetPath(S_508B8_800508B8 *, u16);
 void Object_Reset();
 void func_80057FD0(S_508B8_800508B8 *, u8, s8);
-extern u8 D_800E7D00[];
+extern u8 g_ProjVerts[];
 void VectorNormalSS(void *, void *);
 void Shadow_Draw(void *, s32, s32, s32);
 void func_800516D8(void *arg0);
@@ -575,8 +575,8 @@ s32 func_80051410(Vec4_80051410 *pos, s32 dy, s32 far) {
     s16 margin;
     s16 lim;
     s16 x, y;
-    SetRotMatrix(&D_800E78C0);
-    SetTransMatrix(&D_800E78C0);
+    SetRotMatrix(&g_ViewMatrix);
+    SetTransMatrix(&g_ViewMatrix);
     v.vx = pos->vx;
     v.vy = pos->vy - dy;
     v.vz = pos->vz;
@@ -619,7 +619,7 @@ void Object_DrawAll(void) {
 void func_80051620(void *arg0, s32 arg1, s32 arg2, void *arg3) {
     void *temp_s0;
 
-    temp_s0 = (void *)((u8 *)&D_800F4730 + (arg1 << 5));
+    temp_s0 = (void *)((u8 *)&g_JointWorldMatrices + (arg1 << 5));
     if (arg2 == -1) {
         M2C_FIELD(arg3, u16 *, 0) = (u16) M2C_FIELD(temp_s0, u16 *, 0x14);
         M2C_FIELD(arg3, u16 *, 2) = (u16) M2C_FIELD(temp_s0, u16 *, 0x18);
@@ -673,7 +673,7 @@ void func_800518AC(S_O_800518AC_800518AC *o) {
     u32 mode;
     mode = (o->f_E0 >> 22) & 3;
     if (mode == 0) {
-        func_80014804(&o->f_60, o->f_14);
+        Matrix_FromFacingXZ(&o->f_60, o->f_14);
     } else if (mode == 1) {
         r.vx = o->f_D4;
         r.vy = (0x1C00 - o->f_AC) % 4096;
@@ -706,7 +706,7 @@ void func_800518AC(S_O_800518AC_800518AC *o) {
 void func_80051A28(void *arg0) {
     if ((((u32) M2C_FIELD(arg0, u32 *, 0xE0) >> 0xD) & 1) && (M2C_FIELD(arg0, u8 *, 0xC8) != 0)) {
         func_800518AC(arg0);
-        func_80015780(arg0, 3);
+        Model_CalcKeyedJointMatrices(arg0, 3);
         func_800516D8(arg0);
     }
     if (M2C_FIELD(arg0, u16 *, 0x70) != 0xFFFF) {
@@ -759,7 +759,7 @@ void Object_Draw(Obj_51C00_80051C00 *o) {
         Shadow_Draw(o->pos, Object_FloorAt(o, 0, 0, 0), o->f_A0, o->f_D0);
     }
     func_800518AC(o);
-    func_80015780(o, 3);
+    Model_CalcKeyedJointMatrices(o, 3);
     if ((o->f_E0 >> 13) & 1) {
         func_800516D8(o);
     }
@@ -768,8 +768,8 @@ void Object_Draw(Obj_51C00_80051C00 *o) {
     }
     Model_ProjectBonedVerts(o);
     if ((o->f_E0 >> 26) & 1) {
-        Model_CycleVertexColors(D_800E7D00, o->hdr->f_6);
-        Model_DrawCycledColors((*(Game_51C00_80051C00 *)&g_Game).db[(*(Game_51C00_80051C00 *)&g_Game).cur].ot, D_800E7D00, o);
+        Model_CycleVertexColors(g_ProjVerts, o->hdr->f_6);
+        Model_DrawCycledColors((*(Game_51C00_80051C00 *)&g_Game).db[(*(Game_51C00_80051C00 *)&g_Game).cur].ot, g_ProjVerts, o);
         return;
     }
     if (o->f_84 != 0) {
@@ -782,7 +782,7 @@ void Object_Draw(Obj_51C00_80051C00 *o) {
     } else {
         c = 0;
     }
-    func_80051AA4((*(Game_51C00_80051C00 *)&g_Game).db[(*(Game_51C00_80051C00 *)&g_Game).cur].ot, D_800E7D00, (S_Model_51AA4 *)o, c);
+    func_80051AA4((*(Game_51C00_80051C00 *)&g_Game).db[(*(Game_51C00_80051C00 *)&g_Game).cur].ot, g_ProjVerts, (S_Model_51AA4 *)o, c);
 }
 
 void Object_EnableCollision(void *arg0) {
@@ -864,7 +864,7 @@ void func_80052038(s32 arg0, M2C_UNK arg1) {
     temp_s0 = D_800E77D4;
     temp_v0 = func_80051FE8(arg1);
     if (temp_v0 != -1) {
-        func_80015BA0(arg0, g_Game.f_8244 + M2C_FIELD(((temp_v0 << 5) + temp_s0), s32 *, 0x18));
+        Model_BindBonedAuto(arg0, g_Game.f_8244 + M2C_FIELD(((temp_v0 << 5) + temp_s0), s32 *, 0x18));
     }
 }
 
@@ -943,7 +943,7 @@ void func_800522A8(S_O_800522A8 *o, s32 rot, s32 spd, short ang)
 
   }
 
-  func_80014804(rot, &m);
+  Matrix_FromFacingXZ(rot, &m);
   ApplyMatrixSV(&m, &o->f_94, &o->f_94);
   Object_TurnToward(o, g_Spike.f_24 - o->f_24, g_Spike.f_2C - o->f_2C, 0, 0x1000);
   o->f_84 = 0x14;

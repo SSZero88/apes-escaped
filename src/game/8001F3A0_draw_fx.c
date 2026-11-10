@@ -9,7 +9,7 @@ s32 VectorNormalSS(void *v0, void *v1);
 
 extern struct S_D_800EBFA0 { u8 pad0[0x24]; s16 f_24; s16 pad26; s16 f_28; } D_800EBFA0;
 
-extern s32 D_800B8AB0;
+extern s32 g_GadgetTrail;
 extern s32 g_Game;
 
 /* Walks the 4096-entry ordering table from the back and, for each run of empty entries
@@ -49,7 +49,7 @@ void Mesh_WaveVertices(V_8001F434_8001F434 *p, s32 n, s32 lim) {
     }
 }
 
-void func_8001F4D4(SVECTOR *p, s32 n, s32 c, s32 r)
+void Mesh_ClampToCircle(SVECTOR *p, s32 n, s32 c, s32 r)
 {
   Scratch_8001F4D4 *sc = (Scratch_8001F4D4 *) 0x1F800000;
   s32 i;
@@ -75,7 +75,7 @@ void func_8001F4D4(SVECTOR *p, s32 n, s32 c, s32 r)
 
 }
 
-extern u8 D_800E78C0[];
+extern u8 g_ViewMatrix[];
 void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
 void *CompMatrix(void *m0, void *m1, void *m2);
@@ -120,7 +120,7 @@ void Shadow_Draw(Pos_1F604 *pos, s32 ground, s32 size, s32 ang) {
     s->m.t[0] = pos->x;
     s->m.t[1] = ground;
     s->m.t[2] = pos->z;
-    CompMatrix(D_800E78C0, &s->m, &s->m);
+    CompMatrix(g_ViewMatrix, &s->m, &s->m);
     SetRotMatrix(&s->m);
     SetTransMatrix(&s->m);
     s->c.vx = 0;
@@ -180,13 +180,13 @@ void Shadow_Draw(Pos_1F604 *pos, s32 ground, s32 size, s32 ang) {
     G_DRAW.prim = (u8 *)p;
 }
 
-void func_8001F884(void) {
+void GadgetTrail_Clear(void) {
     s32 *var_v0;
     s32 var_v1;
 
-    D_800B8AB0 = 0;
+    g_GadgetTrail = 0;
     var_v1 = 0xB;
-    var_v0 = (void *)((u8 *)&D_800B8AB0 + 0xDC);
+    var_v0 = (void *)((u8 *)&g_GadgetTrail + 0xDC);
     do {
         M2C_FIELD(var_v0, s32 *, 0x14) = 0;
         var_v1 -= 1;
@@ -198,7 +198,7 @@ typedef struct { SVECTOR a; SVECTOR b; s32 alpha; } TrailSeg_8001F8B0;
 typedef struct { s32 head; TrailSeg_8001F8B0 seg[12]; } Trail_8001F8B0;
 typedef struct { u8 pad0[0x34]; SVECTOR a; SVECTOR b; } GadgetLine_8001F8B0;
 extern GadgetLine_8001F8B0 g_GadgetState_8001F8B0 asm("g_GadgetState");
-#define TRAIL (*(Trail_8001F8B0 *)&D_800B8AB0)
+#define TRAIL (*(Trail_8001F8B0 *)&g_GadgetTrail)
 
 /* Push the gadget's current line (the two points at g_GadgetState+0x34/+0x3C) into the
    12-entry swing trail ring at full intensity. */
@@ -231,8 +231,8 @@ void Weapon_DrawSwingTrail(void) {
     if (e->alpha <= 0) {
         return;
     }
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     p = (PolyG4Tp_1F954 *)G_DRAW.prim;
     ot = G_DRAW.ot;
     while (e->alpha > 0) {
@@ -272,15 +272,15 @@ void Weapon_DrawSwingTrail(void) {
 extern struct { s32 frame; } g_Game_1FB98 asm("g_Game");
 typedef struct { u8 pad0[4]; u16 mat; } GadgetHdr_1FB98;
 typedef struct { GadgetHdr_1FB98 *hdr; u8 pad4[8]; SVECTOR *verts; } GadgetMdl_1FB98;
-extern GadgetMdl_1FB98 D_800EC060_1FB98[] asm("D_800EC060");
+extern GadgetMdl_1FB98 D_800EC060_1FB98[] asm("g_GadgetModels");
 extern struct { u8 pad0[0xF2]; s8 gadget; } g_Spike_1FB98 asm("g_Spike");
 typedef struct { u8 b[0x20]; } Mat_1FB98;
-extern Mat_1FB98 D_800F4730_1FB98[] asm("D_800F4730");
+extern Mat_1FB98 D_800F4730_1FB98[] asm("g_JointWorldMatrices");
 extern SVECTOR D_800B8C68[6];
 extern s16 D_800AE8E0[6];
 extern SVECTOR D_800B8BA8[2][12];
 extern s16 D_800AE8B0[12][2];
-extern struct { u32 sxy; s32 sz; } D_800E7D00_1FB98[] asm("D_800E7D00");
+extern struct { u32 sxy; s32 sz; } D_800E7D00_1FB98[] asm("g_ProjVerts");
 void RotTransSV(SVECTOR *a, SVECTOR *b, s32 *flag);
 #define gte_stsz(p) __asm__ volatile ("swc2 $19, 0(%0)" : : "r"(p) : "memory")
 
@@ -290,7 +290,7 @@ void RotTransSV(SVECTOR *a, SVECTOR *b, s32 *flag);
    bolts to the car), and this may compute those 6 lines. Soft strands of the gadget in hand: 6 anchor vertices of its model (D_800AE8E0) are transformed
    and averaged with last frame's (double-buffered D_800B8BA8 by frame parity), 6 tips follow them
    the same way and are pulled towards their mean, then all 12 are projected into the model's
-   screen vertex buffer (D_800E7D00 slots D_800AE8B0). */
+   screen vertex buffer (g_ProjVerts slots D_800AE8B0). */
 void Gadget_UpdateSoftStrands(void) {
     s32 i;
     s32 cur = g_Game_1FB98.frame & 1;
@@ -322,8 +322,8 @@ void Gadget_UpdateSoftStrands(void) {
         D_800B8BA8[cur][i].vy = (D_800B8BA8[cur][i].vy * 2 + avg.vy) / 3;
         D_800B8BA8[cur][i].vz = (D_800B8BA8[cur][i].vz * 2 + avg.vz) / 3;
     }
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     for (i = 0; i < 12; i++) {
         gte_ldv0(&D_800B8BA8[cur][i]);
         gte_rtps();
@@ -341,8 +341,8 @@ void Debug_DrawSpikeVectors(void) {
     LineF2_20010 *p = (LineF2_20010 *)G_DRAW.prim;
     SVECTOR v;
 
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     ((u8 *)p)[3] = 3;
     p->code = 0x40;
     p->r0 = 0xFF;
@@ -527,19 +527,19 @@ void Fx_DrawGlowBeam(ScrPt_2020C *a, ScrPt_2020C *b, s32 width, u32 color) {
 typedef struct { u8 pad0[8]; u16 nColors; u16 padA; u32 colors[1]; } MdlHdr_207A0;
 typedef struct { MdlHdr_207A0 *hdr; u8 pad4[4]; void *prims; } Mdl_207A0;
 typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } MAT_207A0;
-extern u8 D_800E7D00[];
-void func_8004637C(MAT_207A0 *);
+extern u8 g_ProjVerts[];
+void Matrix_SetIdentity(MAT_207A0 *);
 void RotMatrixZYX(SVECTOR *, MAT_207A0 *);
 void ScaleMatrix(MAT_207A0 *, void *);
 void MatrixNormal(MAT_207A0 *, MAT_207A0 *);
 void Model_ProjectVerts(void *, void *, void *);
 void Model_CalcEnvMapUVs64(Mdl_207A0 *);
-void func_8001CE54(u32 *, void *, Mdl_207A0 *);
+void Model_DrawEnvMapped(u32 *, void *, Mdl_207A0 *);
 void Model_DrawPrims(u32 *, void *, void *);
 
 /* Draws a model straight onto the screen (HUD monkey heads, menu items): pos is in screen units
    from the centre (0xC0, 0x78), turned by rot and scaled, projected at H = 0x148. Scratchpad +0x3C8
-   picks the colours: 0 the model's own, 1 a quarter of them, 2 environment-mapped (func_8001CE54).
+   picks the colours: 0 the model's own, 1 a quarter of them, 2 environment-mapped (Model_DrawEnvMapped).
    Goes to the HUD ordering table. */
 void Model_DrawOnScreen(Mdl_207A0 *mdl, SVECTOR *pos, SVECTOR *rot, void *scale) {
     u8 *scratch = (u8 *)0x1F800000;
@@ -548,7 +548,7 @@ void Model_DrawOnScreen(Mdl_207A0 *mdl, SVECTOR *pos, SVECTOR *rot, void *scale)
     s32 h, i;
     u32 *src, *dst;
 
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     m.t[0] = pos->vx - 0xC0;
     m.t[1] = pos->vy - 0x78;
     m.t[2] = pos->vz;
@@ -556,7 +556,7 @@ void Model_DrawOnScreen(Mdl_207A0 *mdl, SVECTOR *pos, SVECTOR *rot, void *scale)
     ScaleMatrix(&m, scale);
     __asm__ volatile("cfc2 %0, $26" : "=r"(h));
     __asm__ volatile("li $8, 0x148; ctc2 $8, $26" : : : "$8");
-    Model_ProjectVerts(mdl, &m, D_800E7D00);
+    Model_ProjectVerts(mdl, &m, g_ProjVerts);
     gte_SetGeomScreen(h);
     switch (*(s32 *)(scratch + 0x3C8)) {
     case 0:
@@ -576,7 +576,7 @@ void Model_DrawOnScreen(Mdl_207A0 *mdl, SVECTOR *pos, SVECTOR *rot, void *scale)
         SetRotMatrix(&m);
         Model_CalcEnvMapUVs64(mdl);
         *(u8 *)(scratch + 0x3F4) = 1;
-        func_8001CE54(G_HUD_OT, D_800E7D00, mdl);
+        Model_DrawEnvMapped(G_HUD_OT, g_ProjVerts, mdl);
         return;
     }
     *(s16 *)(scratch + 0x3C6) = 0;
@@ -584,10 +584,10 @@ void Model_DrawOnScreen(Mdl_207A0 *mdl, SVECTOR *pos, SVECTOR *rot, void *scale)
     *(u8 *)(scratch + 0x3F4) = 7;
     *(s16 *)(scratch + 0x3C0) = D_800EBFA0.f_24;
     *(s16 *)(scratch + 0x3C2) = D_800EBFA0.f_28;
-    Model_DrawPrims(G_HUD_OT, prims, D_800E7D00);
+    Model_DrawPrims(G_HUD_OT, prims, g_ProjVerts);
 }
 
-void func_80020A20(S_20A20_80020A20 **a, s16 b, s16 c, u8 d, s32 e) {
+void Model_SetFlatColor(S_20A20_80020A20 **a, s16 b, s16 c, u8 d, s32 e) {
     u8 *scratch = (u8 *)0x1F800000;
     s32 i;
     for (i = 0; i < (*a)->f_8; i++) {

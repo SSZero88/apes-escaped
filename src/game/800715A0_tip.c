@@ -1,7 +1,7 @@
 #include "common.h"
 #include "m2c_macros.h"
 #define TIP_717B4 ((struct Tip_800717B4 *)&g_TipState)
-#define CD_717B4 ((struct Cd_800717B4 *)&D_800E3890)
+#define CD_717B4 ((struct Cd_800717B4 *)&g_Cd)
 typedef struct { s16 f_0; s16 f_2; SVECTOR f_4; s16 f_C; s16 f_E; s16 f_10; s16 f_12; s16 f_14; s16 f_16; } S_BBD34_800716EC;
 typedef struct { u8 b[4]; } Loc_800717B4_800717B4;
 typedef struct { Loc_800717B4_800717B4 loc; u8 *buf; s32 n; } Req_800717B4_800717B4;
@@ -15,7 +15,7 @@ M2C_UNK func_8008C064(s32);
 extern struct S_D_800F4DB0 { u8 pad_0[0x20]; s32 f_20; } D_800F4DB0;
 
 extern struct S_D_800BBC50 { s32 f_0; u8 pad_4[0x140]; s32 f_144; u8 pad_148[0x1]; s8 f_149; } g_TipState;
-M2C_UNK func_80015AC0(M2C_UNK *, void *);
+M2C_UNK Model_BindBoned(M2C_UNK *, void *);
 extern M2C_UNK D_800BBC54;
 extern M2C_UNK D_800BBCC4;
 void bios_exit(s32) __attribute__((noreturn));
@@ -25,7 +25,7 @@ struct S_D_800BBC50_800716EC { s32 f_0; u8 pad4[0xE0]; S_BBD34_800716EC f_E4[4];
 struct Tip_800717B4 { u8 pad0[0xE4]; Box_800717B4_800717B4 box[4]; u8 *buf; u8 pad148; u8 f_149; u8 f_14A; };
 struct Cd_800717B4 { u8 pad0[8]; s32 f_8; u8 padC[4]; s32 f_10; u8 pad14[0x30]; u8 f_44[0x2C]; };
 struct D4DB0_800717B4 { u8 pad0[0x20]; s32 f_20; };
-extern M2C_UNK D_800E3890;
+extern M2C_UNK g_Cd;
 void func_8008DEEC(void);
 u8 *func_8008C09C(s32);
 void Cd_GetFileEntry(File_800717B4_800717B4 *, s32);
@@ -58,12 +58,12 @@ s32 func_800715FC(void) {
 }
 
 void func_8007163C(void *arg0) {
-    func_80015AC0(&D_800BBC54, arg0 + (M2C_FIELD(arg0, u16 *, 4) * 4));
+    Model_BindBoned(&D_800BBC54, arg0 + (M2C_FIELD(arg0, u16 *, 4) * 4));
     M2C_FIELD(&D_800BBC54, void **, 0x18) = (void *) (arg0 + (M2C_FIELD(arg0, u16 *, 8) * 4));
 }
 
 void func_80071694(void *arg0) {
-    func_80015AC0(&D_800BBCC4, arg0 + (M2C_FIELD(arg0, u16 *, 4) * 4));
+    Model_BindBoned(&D_800BBCC4, arg0 + (M2C_FIELD(arg0, u16 *, 4) * 4));
     M2C_FIELD(&D_800BBCC4, void **, 0x18) = (void *) (arg0 + (M2C_FIELD(arg0, u16 *, 8) * 4));
 }
 
@@ -158,16 +158,16 @@ typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[
 typedef struct { s32 n; TipMdl_71A28 mdlA; TipMdl_71A28 mdlB; u8 pad[0xE4 - 4 - 0xE0]; TipBox_71A28 box[4]; u8 *buf; u32 f_148; } TipState_71A28;
 extern TipState_71A28 g_TipState_71A28 asm("g_TipState");
 extern struct { u8 pad0[8]; void *ot; u8 padC[0x80F4]; s32 f_8100; } g_Game_71A28 asm("g_Game");
-extern u8 D_800E78C0[];
+extern u8 g_ViewMatrix[];
 extern TipMdl_71A28 D_800BBC54_71A28 asm("D_800BBC54");
 extern TipMdl_71A28 D_800BBCC4_71A28 asm("D_800BBCC4");
-extern u8 D_800E7D00[];
+extern u8 g_ProjVerts[];
 void SetRotMatrix(void *);
 void SetTransMatrix(void *);
-void func_80014804(SVECTOR *, void *);
-void func_80015780(void *, s32);
+void Matrix_FromFacingXZ(SVECTOR *, void *);
+void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
-void func_80017D94(void *, void *, void *, s32);
+void Model_DrawNoFog(void *, void *, void *, s32);
 void Shadow_Draw(void *, s32, s32, s32);
 s32 func_800715FC(void);
 void func_8007BC9C(void);
@@ -194,8 +194,8 @@ void Tip_DrawAll(void) {
     }
     for (i = 0; i < n; i++) {
         b = &g_TipState_71A28.box[i];
-        SetRotMatrix(D_800E78C0);
-        SetTransMatrix(D_800E78C0);
+        SetRotMatrix(g_ViewMatrix);
+        SetTransMatrix(g_ViewMatrix);
         __asm__ volatile("lwc2 $0, 4(%0); lwc2 $1, 8(%0)" : : "r"(b));
         __asm__ volatile("li $8, 0x40; ctc2 $8, $27; addu $8, $0, $0; ctc2 $8, $28; nop; nop; rtps" : : : "$8");
         f = b->frame + 1;
@@ -265,10 +265,10 @@ void Tip_DrawAll(void) {
         m->x = b->pos.vx;
         m->y = b->pos.vy;
         m->z = b->pos.vz;
-        func_80014804(&b->rot, m->mat);
-        func_80015780(m, 1);
+        Matrix_FromFacingXZ(&b->rot, m->mat);
+        Model_CalcKeyedJointMatrices(m, 1);
         Model_ProjectBonedVerts(m);
-        func_80017D94(g_Game_71A28.ot, D_800E7D00, m, shade);
+        Model_DrawNoFog(g_Game_71A28.ot, g_ProjVerts, m, shade);
         Shadow_Draw(&m->x, b->pos.vy, 0x40, 0);
     }
     if (D_800BBD99 == 2 && func_800715FC() == 1) {

@@ -210,13 +210,13 @@ s32 func_8013D388(s16 *p) {
 }
 
 s32 SaveByte_Get(s32);
-void func_80010CDC(s32);
+void Stage_SelectAltLoadList(s32);
 
 s32 func_8013D66C(void) {
     if (SaveByte_Get(8) == 5) {
-        func_80010CDC(1);
+        Stage_SelectAltLoadList(1);
     } else {
-        func_80010CDC(0);
+        Stage_SelectAltLoadList(0);
     }
     return 0;
 }

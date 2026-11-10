@@ -977,16 +977,16 @@ typedef struct { s16 x, y, z; } Rot_404;
 typedef struct { u8 pad0[0x14]; void *mat; u8 pad18[0xC]; s32 x, y, z; u8 pad30[0x40]; s16 vx, vy, vz; s16 wx, wy, wz; Rot_404 r; u8 pad82; u8 life; s16 scale; s16 floor; } Debris_404;
 extern Debris_404 D_80142C40[16];
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_8013F618 asm("g_Game");
-extern u8 D_800E7D00_8013DB40[] asm("D_800E7D00");
+extern u8 D_800E7D00_8013DB40[] asm("g_ProjVerts");
 s32 func_80051410(void *, s32, s32);
 void RotMatrixYXZ(void *, void *);
 void ScaleMatrix_8013DB40(void *, void *) asm("ScaleMatrix");
-void func_80015780(void *, s32);
+void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
-void func_80016EBC(void *, void *, void *);
+void Model_DrawAuto(void *, void *, void *);
 void Model_ProjectBonedVerts(void *);
-void func_80015780(void *, s32);
-void func_80016EBC(void *, void *, void *);
+void Model_CalcKeyedJointMatrices(void *, s32);
+void Model_DrawAuto(void *, void *, void *);
 s32 func_80051410(void *, s32, s32);
 
 void func_8013F618(void) {
@@ -1017,9 +1017,9 @@ void func_8013F618(void) {
                 RotMatrixYXZ(&d->r, d->mat);
                 s[0] = s[1] = s[2] = d->scale;
                 ScaleMatrix_8013DB40(d->mat, s);
-                func_80015780(d, 3);
+                Model_CalcKeyedJointMatrices(d, 3);
                 Model_ProjectBonedVerts(d);
-                func_80016EBC(g_Game_8013F618.f_80 + g_Game_8013F618.f_C * 0x4078, D_800E7D00_8013DB40, d);
+                Model_DrawAuto(g_Game_8013F618.f_80 + g_Game_8013F618.f_C * 0x4078, D_800E7D00_8013DB40, d);
             }
         }
     }
@@ -2388,12 +2388,12 @@ extern void *g_SpikeAnimSets[];
 extern struct { u8 pad0[0x158]; u32 f158; u8 pad15C[4]; u32 f160; } g_Pad_80142808 asm("g_Pad");
 extern s32 D_800EC214;
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game_80142808 asm("g_Game");
-extern u8 D_800E7D00_80142808[] asm("D_800E7D00");
+extern u8 D_800E7D00_80142808[] asm("g_ProjVerts");
 void Anim_SetFrame(void *);
 void *ApplyMatrix(void *, void *, void *);
 void Matrix_RotateY(s32, void *);
 void Model_CalcJointMatrices(void *, s32);
-void func_80017CD4_80142808(void *, void *, void *) asm("func_80017CD4");
+void func_80017CD4_80142808(void *, void *, void *) asm("Model_Draw");
 
 void func_80142808(void) {
     SVECTOR v;

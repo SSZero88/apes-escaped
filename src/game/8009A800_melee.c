@@ -5,11 +5,11 @@ typedef struct { u8 pad0[0x70]; u32 ot[0x1000]; u32 term; u8 *prims; } DrawBuf_8
 typedef struct { s16 m[3][3]; s32 t[3]; } MAT_8009AA28_8009AA28;
 typedef struct { s16 m[3][3]; s32 t[3]; } MAT_8009A800_8009A800;
 extern struct S_D_800EC350_8009ABF4 { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf_8009ABF4_8009ABF4 db[2]; } g_Game;
-extern u8 D_800EC060[];
-extern u8 D_800E7D00[];
+extern u8 g_GadgetModels[];
+extern u8 g_ProjVerts[];
 extern struct S_D_800F5124 { s16 m[3][3]; s16 pad; s32 t[3]; } D_800F5124;
 void Model_ProjectVerts(void *, struct S_D_800F5124 *, void *);
-void func_80017CD4(u32 *, void *, void *);
+void Model_Draw(u32 *, void *, void *);
 void CompMatrix(struct S_D_800F5124 *, struct S_D_800F5124 *, struct S_D_800F5124 *);
 void Fx_DrawGlowBeam(void *, void *, s32, s32);
 struct GS_8009AA28 { u8 pad0[4]; MAT_8009AA28_8009AA28 f_4; u8 pad24[4]; s16 f_28; s16 f_2A; s16 f_2C; u8 pad2E[6]; SVECTOR f_34; SVECTOR f_3C; s16 f_44; };
@@ -75,8 +75,8 @@ void StunClub_Update(void) {
     MagicPunch_Draw(&D_800E9E40, &D_800F4910, sc + 0x800);
     SetRotMatrix(&GS_9A800->f_4);
     SetTransMatrix(&GS_9A800->f_4);
-    RotTransSV((SVECTOR *)(((struct D_EC060_8009A800 *)&D_800EC060)->f_9C + 0x40), &GS_9A800->f_34, &flag);
-    RotTransSV((SVECTOR *)(((struct D_EC060_8009A800 *)&D_800EC060)->f_9C + 0x48), &GS_9A800->f_3C, &flag);
+    RotTransSV((SVECTOR *)(((struct D_EC060_8009A800 *)&g_GadgetModels)->f_9C + 0x40), &GS_9A800->f_34, &flag);
+    RotTransSV((SVECTOR *)(((struct D_EC060_8009A800 *)&g_GadgetModels)->f_9C + 0x48), &GS_9A800->f_3C, &flag);
     st = D_800EC23E;
     if (st < 0x8E) {
         if (st >= 0x8A) {
@@ -138,8 +138,8 @@ void MagicPunch_Update(void) {
     MagicPunch_Draw(&D_800E9E40, &D_800F4910, GS_9AA28->f_28 + 0x800);
     SetRotMatrix(&GS_9AA28->f_4);
     SetTransMatrix(&GS_9AA28->f_4);
-    RotTransSV((SVECTOR *)(((struct D_EC060_8009AA28 *)&D_800EC060)->f_9C + 0x40), &GS_9AA28->f_34, &flag);
-    RotTransSV((SVECTOR *)(((struct D_EC060_8009AA28 *)&D_800EC060)->f_9C + 0x48), &GS_9AA28->f_3C, &flag);
+    RotTransSV((SVECTOR *)(((struct D_EC060_8009AA28 *)&g_GadgetModels)->f_9C + 0x40), &GS_9AA28->f_34, &flag);
+    RotTransSV((SVECTOR *)(((struct D_EC060_8009AA28 *)&g_GadgetModels)->f_9C + 0x48), &GS_9AA28->f_3C, &flag);
     Weapon_DrawSwingTrail();
 }
 
@@ -149,8 +149,8 @@ void MagicPunch_Draw(m, m2, sc)
     s16 sc;
 {
     struct S_D_800F5124 t;
-    u8 *obj = D_800EC060;
-    u8 *buf = D_800E7D00;
+    u8 *obj = g_GadgetModels;
+    u8 *buf = g_ProjVerts;
     u32 *ot;
     u32 k;
     t.m[0][0] = 0x1000;
@@ -167,14 +167,14 @@ void MagicPunch_Draw(m, m2, sc)
     t.t[2] = -8;
     ot = g_Game.db[g_Game.cur].ot;
     Model_ProjectVerts(obj, m, buf);
-    func_80017CD4(ot, buf, obj);
+    Model_Draw(ot, buf, obj);
     if (m2 != 0) {
         CompMatrix(m2, &t, &D_800F5124);
     }
     CompMatrix(m, &t, &t);
     obj += 0x90;
     Model_ProjectVerts(obj, &t, buf);
-    func_80017CD4(ot, buf, obj);
+    Model_Draw(ot, buf, obj);
     k = g_Game.frame & 0x1F;
     if (k > 16) {
         k = 32 - k;

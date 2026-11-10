@@ -56,7 +56,7 @@ typedef struct { s16 m[3][3]; s32 t[3]; } Mat_8013D20C;
 void func_80047464(void *, s32, s32, s32);
 void func_80047558(void *, s32, s32, s32);
 void func_8004B8F4(void *, s32, void *);
-void func_8004637C(void *);
+void Matrix_SetIdentity(void *);
 void RotMatrixY(s32, void *);
 void ApplyMatrixSV(void *, void *, void *);
 void VectorNormalSS_8013D20C(void *, void *) asm("VectorNormalSS");
@@ -77,7 +77,7 @@ void func_8013D20C(void *arg0) {
     d.vx = ((Scr_8013D20C *)0x1F800000)->spike.vz - v.vz;
     d.vz = v.vx - ((Scr_8013D20C *)0x1F800000)->spike.vx;
     VectorNormalSS_8013D20C(&d, &d);
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     RotMatrixY(0x5B, &m);
     ApplyMatrixSV(&m, &d, &d);
     k = 0x514;
@@ -1121,7 +1121,7 @@ typedef struct { s16 f0, state, f4, timer; s16 len[5]; } Gate_8013F8FC;
 extern struct { u8 pad_0[0x820C]; u8 *f_820C; } g_Game_8013F8FC asm("g_Game");
 extern u8 *D_800B4D64_8013F8FC asm("D_800B4D64");
 s32 func_8013FC68(s16 a0, s16 *pos, s32 n, s32 len);
-void func_800147D0(void *, void *);
+void Matrix_SetScale(void *, void *);
 
 s32 func_8013F8FC(s16 *p) {
     s16 *e;
@@ -1208,9 +1208,9 @@ s32 func_8013F8FC(s16 *p) {
     v.vy = 0x1000;
     v.vx = 0x1000;
     v.vz = p[7];
-    func_800147D0(&v, M2C_FIELD(D_800B4D64_8013F8FC + p[5] * 32, void **, 0x1C));
+    Matrix_SetScale(&v, M2C_FIELD(D_800B4D64_8013F8FC + p[5] * 32, void **, 0x1C));
     v.vz = p[8];
-    func_800147D0(&v, M2C_FIELD(D_800B4D64_8013F8FC + p[6] * 32, void **, 0x1C));
+    Matrix_SetScale(&v, M2C_FIELD(D_800B4D64_8013F8FC + p[6] * 32, void **, 0x1C));
     return 0;
 }
 __asm__(".section .rodata\n\t.align 3\n\t.section .text");
@@ -1481,7 +1481,7 @@ s32 func_801402C0(s16 *p) {
 }
 
 extern u8 *D_800B4D64_801404B0 asm("D_800B4D64");
-void func_800147D0_801404B0(s16 *, void *) asm("func_800147D0");
+void func_800147D0_801404B0(s16 *, void *) asm("Matrix_SetScale");
 
 s32 func_801404B0(u8 *e, s16 *p) {
     s16 v[3];

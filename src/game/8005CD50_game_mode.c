@@ -20,7 +20,7 @@ void InitGeom(void);
 void Sound_Init(void);
 void Sound_InitState(void);
 s32 CdInit(void);
-s32 func_800110B0(void);
+s32 Cd_Init(void);
 void MemCard_Start(void);
 void PadInitDirect(u8* pad1, u8* pad2);
 void PadStartCom(void);
@@ -57,7 +57,7 @@ void DrawOTag(void *);
 void ClearOTagR(u32 *, s32);
 struct S_D_800EC350_8005DF48 { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf_8005DF48 db[2]; };
 extern s32 g_FrameHBlanks;
-extern struct S_D_800E3890 { s32 f_0; s32 f_4; s32 f_8; s32 f_C; s32 f_10; s32 f_14; s32 f_18; u8 pad1C[0x4C]; s32 f_68; } D_800E3890;
+extern struct S_D_800E3890 { s32 f_0; s32 f_4; s32 f_8; s32 f_C; s32 f_10; s32 f_14; s32 f_18; u8 pad1C[0x4C]; s32 f_68; } g_Cd;
 extern s32 D_800E3894;
 extern u16 D_800EC23E;
 struct Game_8005D890 { u8 pad0[0x8100]; s32 f_8100; u8 pad8104[0x22]; u16 stage; u8 pad8128[2]; u16 f_812A; u16 f_812C; u8 pad812E[4]; u16 f_8132; };
@@ -66,7 +66,7 @@ void Cd_Update(void);
 s32 Zone_CheckSpike(s32);
 s32 Cd_GetAreaFileSector(s32);
 void func_8007A14C(void);
-s32 func_800116C0(void);
+s32 Cd_PollLoadList(void);
 void func_80094F40(void);
 void TimeLimit_Update(void);
 void func_80095464(void);
@@ -79,7 +79,7 @@ void System_Init(void) {
     Sound_Init();
     Sound_InitState();
     CdInit();
-    func_800110B0();
+    Cd_Init();
     MemCard_Start();
     PadInitDirect(D_800E52D0[0], D_800E52D0[1]);
     PadStartCom();
@@ -222,7 +222,7 @@ struct Spk_5D100 { u8 pad0[0x30]; s32 f_30; s32 f_34; s32 f_38; u8 pad3C[0xB6]; 
 void func_8005DD28(void);
 void Stage_Begin(s32);
 void Spike_Init(void);
-void func_80031B60(s32, s32);
+void Stage_Load(s32, s32);
 void Spike_SetPlayMode(s32);
 void ClearImage(RECT_5D100 *, s32, s32, s32);
 void func_8005DD18(void);
@@ -261,9 +261,9 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
     G->f_12C = mode;
     switch ((u8)mode) {
     case 1:
-        D_800E3890.f_4 = -1;
-        D_800E3890.f_8 = 0;
-        D_800E3890.f_10 = -1;
+        g_Cd.f_4 = -1;
+        g_Cd.f_8 = 0;
+        g_Cd.f_10 = -1;
         func_8005DD28();
         g_ClockStopFrames = 0;
         G->f_140 = 0;
@@ -271,7 +271,7 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
             Stage_Begin(stage);
             Spike_Init();
         }
-        func_80031B60(stage, area);
+        Stage_Load(stage, area);
         G->f_130 = 1;
         G->f_132 = 0x30;
         if (G->f_122 == 3) {
@@ -302,7 +302,7 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
         if ((u32)(stage - 0x36) < 2 || stage == 0x19 || stage == 0x49) {
             func_8008745C();
         }
-        func_80031B60(stage, area);
+        Stage_Load(stage, area);
         G->f_130 = 4;
         G->f_132 = 0x18;
         Sound_PlayFixed(0x7B);
@@ -315,7 +315,7 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
             func_8008745C();
         }
         Spike_Init();
-        func_80031B60(stage, area);
+        Stage_Load(stage, area);
         GB->f_40A0 = 0;
         GB->f_28 = 0;
         G->f_130 = 1;
@@ -385,8 +385,8 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
         break;
     case 3:
     case 12:
-        D_800E3890.f_4 = -1;
-        D_800E3890.f_10 = -1;
+        g_Cd.f_4 = -1;
+        g_Cd.f_10 = -1;
         break;
     case 4:
         D_800E38A0 = -1;
@@ -435,9 +435,9 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
         break;
     case 11:
         func_8005DD28();
-        D_800E3890.f_4 = -1;
-        D_800E3890.f_8 = 0;
-        D_800E3890.f_10 = -1;
+        g_Cd.f_4 = -1;
+        g_Cd.f_8 = 0;
+        g_Cd.f_10 = -1;
         Area_SaveProgress(stage);
         func_8008760C();
         g_SpikeHealth = 0;
@@ -483,7 +483,7 @@ s32 Game_SetMode(s32 mode, s32 stage, s32 area) {
  * (Zone_CheckSpike(0) = (dest << 8) | sub) goes to 4, or 5 if that area is already loaded.
  * 4: waits in the zone (stops Spike on zone kind 1), then 5 or 4 again; leaving the zone goes
  * back to 3. 5: on reaching the inner zone (Zone_CheckSpike(1)) starts loading it (state 6).
- * 6: counts frames (+0x8132) and polls the load (D_800E3890+8), then enters the new area
+ * 6: counts frames (+0x8132) and polls the load (g_Cd+8), then enters the new area
  * (state 2). States 18, 19, 24, 25 run func_80095464, func_800954C4, func_80094F40 and
  * TimeLimit_Update; 20 sets Spike flag 0x20 and calls func_800955C8. Returns 0. */
 s32 Stage_UpdateAreaState(void) {
@@ -495,10 +495,10 @@ s32 Stage_UpdateAreaState(void) {
         }
     }
     Cd_Update();
-    if (((*(struct Game_8005D890 *)&g_Game).f_812C & 0xC000) && D_800E3890.f_0 == 0) {
-        D_800E3890.f_4 = -1;
-        D_800E3890.f_10 = -1;
-        D_800E3890.f_8 = 0;
+    if (((*(struct Game_8005D890 *)&g_Game).f_812C & 0xC000) && g_Cd.f_0 == 0) {
+        g_Cd.f_4 = -1;
+        g_Cd.f_10 = -1;
+        g_Cd.f_8 = 0;
         (*(struct Game_8005D890 *)&g_Game).f_812C &= 0x7FFF;
     }
     flags = (*(struct Game_8005D890 *)&g_Game).f_812C & 0x6000;
@@ -506,10 +506,10 @@ s32 Stage_UpdateAreaState(void) {
     case 3:
         z = Zone_CheckSpike(0);
         if (z >= 0) {
-            if (D_800E3890.f_4 < 0) {
-                D_800E3890.f_4 = 0;
-                D_800E3890.f_14 = z;
-                if (D_800E3890.f_10 == Cd_GetAreaFileSector(z >> 8)) {
+            if (g_Cd.f_4 < 0) {
+                g_Cd.f_4 = 0;
+                g_Cd.f_14 = z;
+                if (g_Cd.f_10 == Cd_GetAreaFileSector(z >> 8)) {
                     Game_SetMode(flags | 5, z >> 8, z & 0xFF);
                 } else {
                     Game_SetMode(flags | 4, z >> 8, z & 0xFF);
@@ -521,7 +521,7 @@ s32 Stage_UpdateAreaState(void) {
         break;
     case 4:
         z = Zone_CheckSpike(0);
-        if (z < 0 || D_800E3890.f_14 != z) {
+        if (z < 0 || g_Cd.f_14 != z) {
             D_800E3894 = -1;
             Game_SetMode(flags | 3, (*(struct Game_8005D890 *)&g_Game).stage, (*(struct Game_8005D890 *)&g_Game).f_812A);
             break;
@@ -532,21 +532,21 @@ s32 Stage_UpdateAreaState(void) {
             g_Spike.f_34 = 0;
             g_Spike.f_30 = 0;
         }
-        if (D_800E3890.f_0 != 0) {
+        if (g_Cd.f_0 != 0) {
             break;
         }
-        if (D_800E3890.f_68 == D_800E3890.f_18) {
-            D_800E3890.f_8 = 0;
-            D_800E3890.f_10 = Cd_GetAreaFileSector(z >> 8);
+        if (g_Cd.f_68 == g_Cd.f_18) {
+            g_Cd.f_8 = 0;
+            g_Cd.f_10 = Cd_GetAreaFileSector(z >> 8);
             Game_SetMode(flags | 5, z >> 8, z & 0xFF);
         } else {
-            D_800E3890.f_4 = 0;
+            g_Cd.f_4 = 0;
             Game_SetMode(flags | 4, z >> 8, z & 0xFF);
         }
         break;
     case 5:
         z = Zone_CheckSpike(0);
-        if (z < 0 || D_800E3890.f_14 != z) {
+        if (z < 0 || g_Cd.f_14 != z) {
             D_800E3894 = -1;
             Game_SetMode(flags | 3, (*(struct Game_8005D890 *)&g_Game).stage, (*(struct Game_8005D890 *)&g_Game).f_812A);
             break;
@@ -555,24 +555,24 @@ s32 Stage_UpdateAreaState(void) {
         if (z < 0) {
             break;
         }
-        D_800E3890.f_C = z;
+        g_Cd.f_C = z;
         Game_SetMode(6, z >> 8, z & 0xFF);
         break;
     case 6:
         (*(struct Game_8005D890 *)&g_Game).f_8132++;
         func_8007A14C();
-        switch (D_800E3890.f_8) {
+        switch (g_Cd.f_8) {
         case 0:
         case 1:
-            if (func_800116C0() < 0) {
-                D_800E3890.f_8 = 2;
+            if (Cd_PollLoadList() < 0) {
+                g_Cd.f_8 = 2;
             }
             break;
         case 2:
-            Game_SetMode(2, D_800E3890.f_C >> 8, D_800E3890.f_C & 0xFF);
-            D_800E3890.f_4 = -1;
-            D_800E3890.f_8 = 0;
-            D_800E3890.f_10 = -1;
+            Game_SetMode(2, g_Cd.f_C >> 8, g_Cd.f_C & 0xFF);
+            g_Cd.f_4 = -1;
+            g_Cd.f_8 = 0;
+            g_Cd.f_10 = -1;
             break;
         }
         break;
@@ -590,7 +590,7 @@ s32 Stage_UpdateAreaState(void) {
         break;
     case 20:
         g_Spike.f_E0 |= 0x20;
-        if (D_800E3890.f_0 == 0) {
+        if (g_Cd.f_0 == 0) {
             func_800955C8();
         }
         break;

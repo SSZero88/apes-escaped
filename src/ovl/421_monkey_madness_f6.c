@@ -43,7 +43,7 @@ extern struct { u8 pad_0[0x8244]; u8 *f_8244; } g_Game_8013D10C asm("g_Game");
 typedef struct { u8 pad0[0x18]; s32 f18, f1C; } AnimEnt_8013D10C;
 extern u8 *D_80140870[];
 extern u8 *D_80140898[];
-void func_80015BA0(void *, void *);
+void Model_BindBonedAuto(void *, void *);
 
 void func_8013D10C(s32 i, void *obj, void *out) {
     u8 *bank = g_Game_8013D10C.f_8244;
@@ -56,7 +56,7 @@ void func_8013D10C(s32 i, void *obj, void *out) {
     q = (u32 *)s + 1;
     *(u32 **)out = q;
     M2C_FIELD(obj, u32 **, 0x18) = q + *(u16 *)s;
-    func_80015BA0(obj, D_80140870[i]);
+    Model_BindBonedAuto(obj, D_80140870[i]);
 }
 
 extern struct { u8 pad_0[0x8244]; u8 *f_8244; } g_Game_8013D1AC asm("g_Game");
@@ -151,14 +151,14 @@ void func_8013D324(void *ot, void *arg1, void *mp, s32 add) {
 }
 
 extern struct { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013D43C asm("g_Game");
-extern u8 D_800E78C0[];
-extern u8 D_800E7D00[];
+extern u8 g_ViewMatrix[];
+extern u8 g_ProjVerts[];
 void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
 s32 RotTransPers(void *v0, s32 *sxy, s32 *p, s32 *flag);
 void *ScaleMatrix(void *m, void *v);
 void Matrix_FromDirection(void *, void *);
-void func_80015780(void *, s32);
+void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 
 s32 func_8013D43C(u8 *a, void *scale, s32 c) {
@@ -169,8 +169,8 @@ s32 func_8013D43C(u8 *a, void *scale, s32 c) {
     s32 p;
     s32 z;
 
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     v.vx = M2C_FIELD(a, s32 *, 0x24);
     v.vy = M2C_FIELD(a, s32 *, 0x28);
     v.vz = M2C_FIELD(a, s32 *, 0x2C);
@@ -182,9 +182,9 @@ s32 func_8013D43C(u8 *a, void *scale, s32 c) {
     }
     Matrix_FromDirection(a + 0x60, M2C_FIELD(a, void **, 0x14));
     ScaleMatrix(M2C_FIELD(a, void **, 0x14), scale);
-    func_80015780(a, 3);
+    Model_CalcKeyedJointMatrices(a, 3);
     Model_ProjectBonedVerts(a);
-    func_8013D324(g_Game_8013D43C.f_80 + g_Game_8013D43C.f_C * 0x4078, D_800E7D00, a, c);
+    func_8013D324(g_Game_8013D43C.f_80 + g_Game_8013D43C.f_C * 0x4078, g_ProjVerts, a, c);
     return 0;
 }
 
@@ -681,8 +681,8 @@ void BossBomb_DrawExplosionFlashes(void) {
     s16 x;
     s16 y;
 
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     p = g_Game_8013E97C.f_4;
     ot = (u32 *)(g_Game_8013E97C.f_80 + g_Game_8013E97C.f_C * 0x4078);
     for (i = 3, e = D_80140D00_8013E97C; i >= 0; i--, e++) {
@@ -776,8 +776,8 @@ void func_8013EE04(void) {
     s16 y;
     Icon_8013EE04 *e;
 
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     i = D_801408C0_8013EE04.f_0 % 3;
     p = g_Game_8013EE04.f_4;
     ot = (u32 *)(g_Game_8013EE04.f_80 + g_Game_8013EE04.f_C * 0x4078);
@@ -1121,8 +1121,8 @@ void func_8013FD74(void) {
         g_Spike_8013FD74.x = (v.vx * 15) >> 4;
         g_Spike_8013FD74.z = ((v.vz * 15) >> 4) + 0x1000;
     }
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     sc->v.vx = g_Spike_8013FD74.x;
     sc->v.vy = g_Spike_8013FD74.y - 0x80;
     sc->v.vz = g_Spike_8013FD74.z;

@@ -56,17 +56,17 @@ s32 Save_GetCurrentCompletion(void);
 void func_8008DDB0(s32, s32);
 void func_8008DDC8(u8 *);
 struct Game_828F8 { s32 frame; s32 f_4; u32 *ot; };
-extern u8 D_800E7D00[];
+extern u8 g_ProjVerts[];
 extern u8 D_800F4D00[];
 extern struct S_D_800AF0A0 { s16 m[3][3]; s16 pad; s32 t[3]; } D_800AF0A0;
-void func_8004637C(struct S_D_800AF0A0 *);
+void Matrix_SetIdentity(struct S_D_800AF0A0 *);
 s32 rsin(s32 a);
 s32 rcos(s32 a);
 void *RotMatrixZYX(void *r, void *m);
 void *CompMatrix(void *m0, void *m1, void *m2);
 void Model_ProjectVerts(void *, struct S_D_800AF0A0 *, u8 *);
 void Model_CalcEnvMapUVs64(void *);
-void func_8001CE54(u32 *, u8 *, void *);
+void Model_DrawEnvMapped(u32 *, u8 *, void *);
 struct Game_7F5E4 { s32 frame; s32 prim; };
 extern s16 D_800BEF76;
 extern struct S_D_800F4CA0 { u8 b[16]; } D_800F4CA0[];
@@ -263,7 +263,7 @@ void Sound_PlayFixed_d530(s32) asm("Sound_PlayFixed");
 void RotMatrixZYX_d530(SVec_d530 *, Mat_d530 *) asm("RotMatrixZYX");
 void ScaleMatrix_d530(Mat_d530 *, Vec_d530 *) asm("ScaleMatrix");
 void Model_ProjectVerts_d530(void *, Mat_d530 *, void *) asm("Model_ProjectVerts");
-void func_80017CD4_d530(u32 *, void *, void *) asm("func_80017CD4");
+void func_80017CD4_d530(u32 *, void *, void *) asm("Model_Draw");
 void Ot_SkipEmptyRuns(u32 *);
 s32 DrawSync(s32);
 s32 VSync(s32);
@@ -632,8 +632,8 @@ void func_8007D530(void) {
                         mat.t[2] = 0x180;
                         sc.vx = sc.vy = sc.vz = m->scale;
                         ScaleMatrix_d530(&mat, &sc);
-                        Model_ProjectVerts_d530(D_800F4C50, &mat, D_800E7D00);
-                        func_80017CD4_d530(G_d530.db[G_d530.cur].ot, D_800E7D00, D_800F4C50);
+                        Model_ProjectVerts_d530(D_800F4C50, &mat, g_ProjVerts);
+                        func_80017CD4_d530(G_d530.db[G_d530.cur].ot, g_ProjVerts, D_800F4C50);
                         ((u8 *)G_d530.prim)[3] = 8;
                         PG4_d530->code = 0x38;
                         PG4_d530->x0 = m->cx + 10;
@@ -954,8 +954,8 @@ extern Pause_pm D_800BEF74_pm asm("D_800BEF74");
 extern GState_pm g_GadgetState_pm asm("g_GadgetState");
 extern HudSt_pm D_800F4DB0;
 extern u8 *D_800B25A0[][5];
-extern Mdl_pm D_800EC060[];
-extern struct S_D_800AF0A0 D_800E78C0_pm asm("D_800E78C0");
+extern Mdl_pm g_GadgetModels[];
+extern struct S_D_800AF0A0 D_800E78C0_pm asm("g_ViewMatrix");
 extern u8 D_800B267C[];
 extern u8 D_800B2690[];
 extern u8 D_800B2694[];
@@ -991,7 +991,7 @@ s32 func_8008DE68_pm(u8 *, s32) asm("func_8008DE68");
 void MagicPunch_Draw(void *, s32, s32);
 void Radar_DrawModel(void *, void *, void *, s32);
 void Club_Draw(void *, s32, s32);
-void func_80017CD4_pm(u32 *, void *, void *) asm("func_80017CD4");
+void func_80017CD4_pm(u32 *, void *, void *) asm("Model_Draw");
 void Model_DrawWireframe(u32 *, void *, void *);
 s32 func_80066F50(void);
 s32 Gadget_Select(s32, s32);
@@ -1253,7 +1253,7 @@ s32 PauseMenu_Update(void) {
             for (i = 0; i < 8; i++) {
                 s32 row, col, c3, r3; s16 cx; s16 cy;
                 struct S_D_800AF0A0 *mp, *lm;
-                func_8004637C(&m);
+                Matrix_SetIdentity(&m);
                 row = i / 4;
                 col = i - row * 4;
                 c3 = col * 3; r3 = row * 3;
@@ -1330,16 +1330,16 @@ s32 PauseMenu_Update(void) {
                         Radar_DrawModel(&m, &m2, &sv, G_pm.frame << 7);
                         break;
                     case 7:
-                        mdl = &D_800EC060[7];
-                        Model_ProjectVerts(mdl, mp, D_800E7D00);
-                        func_80017CD4_pm(ot, D_800E7D00, mdl);
+                        mdl = &g_GadgetModels[7];
+                        Model_ProjectVerts(mdl, mp, g_ProjVerts);
+                        func_80017CD4_pm(ot, g_ProjVerts, mdl);
                         m.t[0] += 0x40;
                         RotMatrixX_pm(0x800, mp);
-                        Model_ProjectVerts(&D_800EC060[11], mp, D_800E7D00);
-                        func_80017CD4_pm(ot, D_800E7D00, &D_800EC060[11]);
+                        Model_ProjectVerts(&g_GadgetModels[11], mp, g_ProjVerts);
+                        func_80017CD4_pm(ot, g_ProjVerts, &g_GadgetModels[11]);
                         break;
                     case 5:
-                        func_8004637C(&m3);
+                        Matrix_SetIdentity(&m3);
                         m3.t[1] = -0xC8;
                         rot.vx = 0x400;
                         rot.vy = 0;
@@ -1349,14 +1349,14 @@ s32 PauseMenu_Update(void) {
                         Club_Draw(&m3, 0x555, 0);
                         break;
                     default:
-                        { Mdl_pm *md = &D_800EC060[i];
-                        Model_ProjectVerts(md, &m, D_800E7D00);
-                        func_80017CD4_pm(ot, D_800E7D00, md); }
+                        { Mdl_pm *md = &g_GadgetModels[i];
+                        Model_ProjectVerts(md, &m, g_ProjVerts);
+                        func_80017CD4_pm(ot, g_ProjVerts, md); }
                         break;
                     }
                 } else {
-                    Model_ProjectVerts(D_800EC060, mp, D_800E7D00);
-                    Model_DrawWireframe(ot, D_800E7D00, D_800EC060);
+                    Model_ProjectVerts(g_GadgetModels, mp, g_ProjVerts);
+                    Model_DrawWireframe(ot, g_ProjVerts, g_GadgetModels);
                 }
             }
             func_8008DDB0(0x114, 0x8A);
@@ -2253,15 +2253,15 @@ void PauseMenu_DrawStageInfo(void) {
  * 0x800 rotating with the frame counter, then restores the offset to the screen centre (0xC0, 0x78). */
 void Menu_DrawSpinningModel(s32 x, s32 y) {
     struct S_D_800AF0A0 m;
-    u8 *buf = D_800E7D00;
+    u8 *buf = g_ProjVerts;
     u8 *mdl = D_800F4D00;
 
     gte_SetGeomOffset(x, y);
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     m.t[0] = 0;
     m.t[1] = 0;
     m.t[2] = 0x800;
-    ((SV_828F8_800828F8 *)D_800E7D00)->vx = -rsin((*(struct Game_828F8 *)&g_Game).frame << 6) >> 4;
+    ((SV_828F8_800828F8 *)g_ProjVerts)->vx = -rsin((*(struct Game_828F8 *)&g_Game).frame << 6) >> 4;
     ((SV_828F8_800828F8 *)buf)->vy = -rcos((*(struct Game_828F8 *)&g_Game).frame << 6) >> 4;
     ((SV_828F8_800828F8 *)buf)->vz = 0;
     RotMatrixZYX(buf, &m);
@@ -2269,7 +2269,7 @@ void Menu_DrawSpinningModel(s32 x, s32 y) {
     Model_ProjectVerts(mdl, &m, buf);
     Model_CalcEnvMapUVs64(mdl);
     *(u8 *)0x1F8003F4 = 2;
-    func_8001CE54((*(struct Game_828F8 *)&g_Game).ot, buf, mdl);
+    Model_DrawEnvMapped((*(struct Game_828F8 *)&g_Game).ot, buf, mdl);
     gte_SetGeomOffset(0xC0, 0x78);
 }
 

@@ -1,7 +1,7 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-extern M2C_UNK D_800E7D00;
+extern M2C_UNK g_ProjVerts;
 extern struct S_D_8013C550 { u8 pad_0[0x4]; s32 f_4; } D_8013C550;
 extern struct S_D_8013C558 { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } D_8013C558;
 extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; } g_Game;
@@ -20,7 +20,7 @@ extern s32 D_8013C560;
 extern s32 D_8013C564;
 extern s32 D_8013C574;
 M2C_UNK Model_BindMesh();
-M2C_UNK func_80015AC0();
+M2C_UNK Model_BindBoned();
 extern s32 D_8013C760;
 M2C_UNK CdGetSector(s32, s32);
 M2C_UNK CdReadyCallback(s32);
@@ -989,7 +989,7 @@ INCLUDE_RODATA("asm/ovl/384/nonmatchings/384_fmv", D_8013C4B4);
 extern struct { u8 pad0[0x8120]; u16 f_8120; u8 pad8122[4]; u16 f_8126; u8 pad8128[0x32]; u16 f_815A; } g_Game_80137AC0 asm("g_Game");
 s32 func_80136074(s32);
 s32 Cd_StartFileLoad(s32, s32);
-s32 func_800116C0(void);
+s32 Cd_PollLoadList(void);
 void Cd_Update(void);
 s32 func_80096540(s32);
 s32 SaveByte_Set(s32, s32);
@@ -998,7 +998,7 @@ s32 func_80137AC0(void) {
     VSync(2);
     func_80136074(g_Game_80137AC0.f_815A);
     Cd_StartFileLoad(0, 0xC);
-    while (func_800116C0() == 0) {
+    while (Cd_PollLoadList() == 0) {
         Cd_Update();
         VSync(2);
     }
@@ -1018,7 +1018,7 @@ s32 func_80137AC0(void) {
         g_Game_80137AC0.f_8120 = 0xB;
         g_Game_80137AC0.f_8126 = 0x4E;
         Cd_StartFileLoad(1, 0x4E);
-        while (func_800116C0() == 0) {
+        while (Cd_PollLoadList() == 0) {
             Cd_Update();
             VSync(2);
         }
@@ -1043,7 +1043,7 @@ s32 func_80137AC0(void) {
         g_Game_80137AC0.f_8120 = 0xB;
         g_Game_80137AC0.f_8126 = 0x56;
         Cd_StartFileLoad(1, 0x56);
-        while (func_800116C0() == 0) {
+        while (Cd_PollLoadList() == 0) {
             Cd_Update();
             VSync(2);
         }
@@ -1074,10 +1074,10 @@ void func_80137DAC(void) {
 
 /* func_8013B9B0 prototype is the one at the top of src/ovl/384_fmv.c */
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_80137DB4;
-extern Mat_80137DB4 D_800E78C0_80137DB4 asm("D_800E78C0");
+extern Mat_80137DB4 D_800E78C0_80137DB4 asm("g_ViewMatrix");
 extern struct { void (*f_0)(u8 *, s16 *); s16 *f_4; } D_8013C550_80137DB4 asm("D_8013C550");
 extern struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } D_8013C558_80137DB4 asm("D_8013C558");
-extern s32 D_800E7D00_80137DB4 asm("D_800E7D00");
+extern s32 D_800E7D00_80137DB4 asm("g_ProjVerts");
 extern struct { u8 pad0[0x20]; u8 r, g, b; } D_800EBFA0_80137DB4 asm("D_800EBFA0");
 extern struct { u8 pad0[0xC]; s32 cur; } g_Game_80137DB4 asm("g_Game");
 s32 func_801398D0(s16 i);
@@ -1127,11 +1127,11 @@ void func_80137F64(void *arg0, s32 arg1) {
     D_8013C558.f_2 = 0;
     D_8013C558.f_4 = 2;
     D_8013C558.f_6 = 0;
-    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0, &D_8013C558);
+    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, temp_s0, &D_8013C558);
 }
 
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_384;
-extern Mat_384 D_800E78C0;
+extern Mat_384 g_ViewMatrix;
 extern Mat_384 D_800AF0A0;
 s32 func_8002FAF0(s32);
 void CompMatrix(void *, void *, void *);
@@ -1141,13 +1141,13 @@ void func_8013800C(void *arg0, CamKey_384 *k)
 {
   Mat_384 *new_var;
   func_8002FAF0(k->f_0);
-  D_800E78C0 = k->m;
+  g_ViewMatrix = k->m;
   new_var = &D_800AF0A0;
-  CompMatrix(new_var, &D_800E78C0, &D_800E78C0);
+  CompMatrix(new_var, &g_ViewMatrix, &g_ViewMatrix);
 }
 
 void ScaleMatrix(void *, void *);
-void func_8004637C(void *);
+void Matrix_SetIdentity(void *);
 typedef struct { s32 vx, vy, vz, pad; } Vec_80138094;
 
 void func_80138094(void *arg0, CamKey_384 *k) {
@@ -1160,11 +1160,11 @@ void func_80138094(void *arg0, CamKey_384 *k) {
     v.vx = s;
     v.vy = s;
     v.vz = s;
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     ScaleMatrix(&m, &v);
-    D_800E78C0 = k->m;
-    CompMatrix(&m, &D_800E78C0, &D_800E78C0);
-    CompMatrix(&D_800AF0A0, &D_800E78C0, &D_800E78C0);
+    g_ViewMatrix = k->m;
+    CompMatrix(&m, &g_ViewMatrix, &g_ViewMatrix);
+    CompMatrix(&D_800AF0A0, &g_ViewMatrix, &g_ViewMatrix);
 }
 
 typedef struct { s16 x, y; u16 w, h; } Rect_8013818C;
@@ -1202,7 +1202,7 @@ void func_80138254(void *arg0, s32 arg1) {
     D_8013C558.f_2 = 0;
     D_8013C558.f_4 = 2;
     D_8013C558.f_6 = 0;
-    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0, &D_8013C558);
+    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, temp_s0, &D_8013C558);
 }
 
 typedef struct { u8 r, g, b, pad; } Col_384;
@@ -1245,10 +1245,10 @@ void func_801383FC(void) {
 }
 
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_80138404;
-extern Mat_80138404 D_800E78C0_80138404 asm("D_800E78C0");
+extern Mat_80138404 D_800E78C0_80138404 asm("g_ViewMatrix");
 extern struct { void (*f_0)(u8 *, Mat_80138404 *); Mat_80138404 *f_4; } D_8013C550_80138404 asm("D_8013C550");
 extern struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } D_8013C558_80138404 asm("D_8013C558");
-extern s32 D_800E7D00_80138404 asm("D_800E7D00");
+extern s32 D_800E7D00_80138404 asm("g_ProjVerts");
 extern struct { u8 pad0[0x20]; u8 r, g, b; } D_800EBFA0_80138404 asm("D_800EBFA0");
 extern struct { u8 pad0[0xC]; s32 cur; } g_Game_80138404 asm("g_Game");
 
@@ -1290,7 +1290,7 @@ void func_801385CC(void *arg0, s32 arg1) {
     D_8013C558.f_2 = 0;
     D_8013C558.f_4 = 2;
     D_8013C558.f_6 = 0;
-    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0, &D_8013C558);
+    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, temp_s0, &D_8013C558);
 }
 
 typedef struct { u32 tag; u8 r0, g0, b0, code; s16 x0, y0; u8 r1, g1, b1, p1; s16 x1, y1; u8 r2, g2, b2, p2; s16 x2, y2; u8 r3, g3, b3, p3; s16 x3, y3; } PolyG4_80138670;
@@ -1542,7 +1542,7 @@ void func_80138D60(void *arg0, u16 *arg1) {
     D_8013C558.f_2 = *arg1 << 6;
     D_8013C558.f_4 = 2;
     D_8013C558.f_6 = 0;
-    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, model, &D_8013C558);
+    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, model, &D_8013C558);
 }
 
 void func_80138E1C(void *arg0, u16 *arg1) {
@@ -1558,7 +1558,7 @@ void func_80138E1C(void *arg0, u16 *arg1) {
     D_8013C558.f_2 = *arg1 << 6;
     D_8013C558.f_4 = 2;
     D_8013C558.f_6 = 0;
-    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, model, &D_8013C558);
+    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, model, &D_8013C558);
 }
 
 void func_80138ED8(void *arg0, u16 *arg1) {
@@ -1574,14 +1574,14 @@ void func_80138ED8(void *arg0, u16 *arg1) {
     D_8013C558.f_2 = *arg1 << 6;
     D_8013C558.f_4 = 2;
     D_8013C558.f_6 = 0;
-    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, model, &D_8013C558);
+    func_8013B9B0((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, model, &D_8013C558);
 }
 
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_80138F90;
-extern Mat_80138F90 D_800E78C0_80138F90 asm("D_800E78C0");
+extern Mat_80138F90 D_800E78C0_80138F90 asm("g_ViewMatrix");
 extern struct { void (*f_0)(u8 *, s16 *); s16 *f_4; } D_8013C550_80138F90 asm("D_8013C550");
 extern struct { s16 f_0; s16 f_2; s16 f_4; s16 f_6; } D_8013C558_80138F90 asm("D_8013C558");
-extern s32 D_800E7D00_80138F90 asm("D_800E7D00");
+extern s32 D_800E7D00_80138F90 asm("g_ProjVerts");
 extern struct { u8 pad0[0x20]; u8 r, g, b; } D_800EBFA0_80138F90 asm("D_800EBFA0");
 extern struct { u8 pad0[0xC]; s32 cur; } g_Game_80138F90 asm("g_Game");
 s32 func_801398D0(s16 i);
@@ -1799,7 +1799,7 @@ M2C_UNK func_8013973C(key, model, n) s16 *key; u8 **model; M2C_UNK n; {
 
     for (i = 0; i < *(u16 *)(*model + 4); i++, key += step) {
         func_80139668(&D_800E9C80_8013973C[i], key, n);
-        CompMatrix(&D_800E78C0, &D_800E9C80_8013973C[i], &D_800E9C80_8013973C[i]);
+        CompMatrix(&g_ViewMatrix, &D_800E9C80_8013973C[i], &D_800E9C80_8013973C[i]);
     }
     Model_ProjectBonedVerts(model);
 }
@@ -1811,7 +1811,7 @@ M2C_UNK func_8013980C(s32 arg0, s32 arg1) {
     u8 **model = (u8 **)arg1;
 
     for (i = 0; i < *(u16 *)(*model + 4); i++) {
-        CompMatrix(&D_800E78C0, &((Mat_384 *)arg0)[i], &D_800E9C80_8013980C[i]);
+        CompMatrix(&g_ViewMatrix, &((Mat_384 *)arg0)[i], &D_800E9C80_8013980C[i]);
     }
     Model_ProjectBonedVerts(model);
 }
@@ -2018,7 +2018,7 @@ void func_80139E44(void *arg0) {
 void func_80139E88(void *arg0, s32 arg1) {
     s32 temp_s0;
 
-    func_80015AC0();
+    Model_BindBoned();
     temp_s0 = arg1 + 0xC;
     M2C_FIELD(arg0, s32 *, 4) = temp_s0;
     M2C_FIELD(arg0, s32 *, 0x18) = temp_s0;
@@ -2653,7 +2653,7 @@ s32 rcos(s32);
 typedef struct { s16 m[3][3]; s32 t[3]; } MAT_8013B390;
 typedef struct { SVECTOR v; s32 c; s32 s; s32 otz; s32 sxy; } Scr_8013B390;
 typedef struct { u32 tag; u32 code; s32 xy0; u32 uv0; s32 xy1; u32 uv1; s32 xy2; u16 uv2; u16 pad2; s32 xy3; u16 uv3; u16 pad3; } Ft4_8013B390;
-extern MAT_8013B390 D_800E78C0_8013B390 asm("D_800E78C0");
+extern MAT_8013B390 D_800E78C0_8013B390 asm("g_ViewMatrix");
 extern u16 D_8013C790_8013B390[] asm("D_8013C790");
 extern u16 g_RandSeed_8013B390 asm("g_RandSeed");
 extern u16 D_800AE8F2_8013B390 asm("D_800AE8F2");

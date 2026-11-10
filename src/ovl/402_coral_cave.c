@@ -58,7 +58,7 @@ typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_8013D15C;
 #define gte_stszotz_8013D15C(p) __asm__ volatile ("mfc2 $12, $19; nop; sra $12, $12, 2; sw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 extern u8 D_80141750_8013D15C asm("D_80141750");
 extern Drip_8013D15C D_80141350_8013D15C[] asm("D_80141350");
-extern Mat_8013D15C D_800E78C0_8013D15C asm("D_800E78C0");
+extern Mat_8013D15C D_800E78C0_8013D15C asm("g_ViewMatrix");
 extern GameDraw g_Game_8013D15C asm("g_Game");
 void SetRotMatrix_8013D15C(Mat_8013D15C *) asm("SetRotMatrix");
 void SetTransMatrix_8013D15C(Mat_8013D15C *) asm("SetTransMatrix");
@@ -818,10 +818,10 @@ void func_8013EC38(void *arg0, void *arg1, M2C_UNK arg2) {
 void Matrix_FromDirection(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void ScaleMatrix(s32, void *);
-void func_80015780(void *, s32);
-void func_80016EBC(void *, void *, void *);
+void Model_CalcKeyedJointMatrices(void *, s32);
+void Model_DrawAuto(void *, void *, void *);
 s32 func_80051410(void *, s32, s32);
-extern M2C_UNK D_800E7D00;
+extern M2C_UNK g_ProjVerts;
 extern u8 D_801417F8[];
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game;
 
@@ -834,9 +834,9 @@ void func_8013ECD8(s32 arg0, s32 arg1) {
         v[0] = v[1] = v[2] = arg1 << 8;
         Matrix_FromDirection(m + 0x60, M2C_FIELD(m, s32 *, 0x14));
         ScaleMatrix(M2C_FIELD(m, s32 *, 0x14), v);
-        func_80015780(m, 3);
+        Model_CalcKeyedJointMatrices(m, 3);
         Model_ProjectBonedVerts(m);
-        func_80016EBC(g_Game.f_80 + g_Game.f_C * 0x4078, &D_800E7D00, m);
+        Model_DrawAuto(g_Game.f_80 + g_Game.f_C * 0x4078, &g_ProjVerts, m);
     }
 }
 

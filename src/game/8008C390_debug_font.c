@@ -451,7 +451,7 @@ void Cd_ReadFile(s32, s32);
 void Cd_WaitIdle(s32);
 void Cd_StartFileLoad(s32, s32);
 void Cd_Update(void);
-s32 func_800116C0(void);
+s32 Cd_PollLoadList(void);
 s32 Stage_ResetActors(s32);
 void func_80136074(s32);
 void func_80137654(void);
@@ -508,7 +508,7 @@ s32 MinigameMenu_Main(void) {
             G_8D1F0.f_815C = D_800B361C;
             Stage_ResetActors(G_8D1F0.stage);
             Cd_StartFileLoad(1, G_8D1F0.stage);
-            while (func_800116C0() == 0) {
+            while (Cd_PollLoadList() == 0) {
                 Cd_Update();
                 VSync(2);
             }

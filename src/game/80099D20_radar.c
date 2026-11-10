@@ -14,18 +14,18 @@ void Radar_DrawModel();
 extern u16 D_800EC23E;
 extern Game_9A574_8009A574 g_Game;
 extern struct S_D_800EC080 { u8 pad0[0xC]; u8 *f_C; } D_800EC080[];
-extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } D_800E78C0;
-extern u8 D_800E7D00[];
+extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } g_ViewMatrix;
+extern u8 g_ProjVerts[];
 void Model_ProjectVerts(struct S_D_800EC080 *, struct S_D_800E78C0 *, u8 *);
-void func_80017CD4(u32 *, u8 *, struct S_D_800EC080 *);
+void Model_Draw(u32 *, u8 *, struct S_D_800EC080 *);
 void SetRotMatrix(struct S_D_800E78C0 *);
 void SetTransMatrix(struct S_D_800E78C0 *);
 void RotTransSV(SV_9A574_8009A574 *, SV_9A574_8009A574 *, s32 *);
-void func_8004637C(struct S_D_800E78C0 *);
+void Matrix_SetIdentity(struct S_D_800E78C0 *);
 void RotMatrixX(s32, struct S_D_800E78C0 *);
 void RotMatrixY(s32, struct S_D_800E78C0 *);
 void CompMatrix(struct S_D_800E78C0 *, struct S_D_800E78C0 *, struct S_D_800E78C0 *);
-void func_80014804(SV_9A574_8009A574 *, struct S_D_800E78C0 *);
+void Matrix_FromFacingXZ(SV_9A574_8009A574 *, struct S_D_800E78C0 *);
 void memset(void *, s32, s32);
 void ScaleMatrix(struct S_D_800E78C0 *, VEC_9A574_8009A574 *);
 
@@ -56,7 +56,7 @@ s32 func_8007CA48(s32);
 void func_80066C90(SVECTOR *, SVECTOR *, s32);
 s32 Radar_GetSignal(void);
 void func_8009A4E8(s32, s32, s32, s32);
-void func_80020A20(Mdl_99D70 *, s32, s32, s32, s32);
+void Model_SetFlatColor(Mdl_99D70 *, s32, s32, s32, s32);
 void Model_DrawPrims(u32 *, void *, u8 *);
 void Sound_Stop(s32, s32);
 s16 Sound_Play(s32, s32);
@@ -88,8 +88,8 @@ void func_80099D70(void) {
                 c = 0xFF;
             }
             c |= (c >> 1) << 16 | (c >> 1) << 8;
-            func_80020A20(&D_800EC170, (g_Game_99D70.frame & 0x1F) << 8, 0, 6, c);
-            Model_DrawPrims(g_Game_99D70.db[g_Game_99D70.cur].ot, D_800EC170.f_8, (u8 *)(scr = (Scr_99D70 *)D_800E7D00));
+            Model_SetFlatColor(&D_800EC170, (g_Game_99D70.frame & 0x1F) << 8, 0, 6, c);
+            Model_DrawPrims(g_Game_99D70.db[g_Game_99D70.cur].ot, D_800EC170.f_8, (u8 *)(scr = (Scr_99D70 *)g_ProjVerts));
             __asm__("" : : "r"(scr));
             p = g_Game_99D70.prim;
             if (g_Game_99D70.frame % (40 - sig) < 10) {
@@ -123,8 +123,8 @@ void func_80099D70(void) {
                 Pad_Vibrate(1, sig * 4 + 0x28, 2);
             }
         } else {
-            func_80020A20(&D_800EC170, ((g_Game_99D70.frame & 0x1F) << 8) | 0x20, 0, 6, 0x202020);
-            Model_DrawPrims(g_Game_99D70.db[g_Game_99D70.cur].ot, D_800EC170.f_8, D_800E7D00);
+            Model_SetFlatColor(&D_800EC170, ((g_Game_99D70.frame & 0x1F) << 8) | 0x20, 0, 6, 0x202020);
+            Model_DrawPrims(g_Game_99D70.db[g_Game_99D70.cur].ot, D_800EC170.f_8, g_ProjVerts);
             if (g_GadgetState.f_16 != -1) {
                 Sound_Stop(0x26, g_GadgetState.f_16);
                 g_GadgetState.f_16 = -1;
@@ -282,33 +282,33 @@ void Radar_DrawModel(struct S_D_800E78C0 *base, struct S_D_800E78C0 *rt, SV_9A57
     s32 x, y, z;
 
     ot = g_Game.db[g_Game.cur].ot;
-    Model_ProjectVerts(&D_800EC080[0], base, D_800E7D00);
-    func_80017CD4(ot, D_800E7D00, &D_800EC080[0]);
+    Model_ProjectVerts(&D_800EC080[0], base, g_ProjVerts);
+    Model_Draw(ot, g_ProjVerts, &D_800EC080[0]);
     SetRotMatrix(rt);
     SetTransMatrix(rt);
     RotTransSV((SV_9A574_8009A574 *)(D_800EC080[0].f_C + 0x140), &sv, &flag);
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     m.t[0] = 4;
     m.t[1] = 0x80;
     m.t[2] = 4;
     RotMatrixX(angle, &m);
     RotMatrixY(0x400, &m);
     CompMatrix(base, &m, &m);
-    Model_ProjectVerts(&D_800EC080[14], &m, D_800E7D00);
-    func_80017CD4(ot, D_800E7D00, &D_800EC080[14]);
-    func_8004637C(&m);
+    Model_ProjectVerts(&D_800EC080[14], &m, g_ProjVerts);
+    Model_Draw(ot, g_ProjVerts, &D_800EC080[14]);
+    Matrix_SetIdentity(&m);
     m.t[0] = 4;
     m.t[1] = 0x80;
     m.t[2] = -0x40;
     RotMatrixX(angle, &m);
     RotMatrixY(-0x400, &m);
     CompMatrix(base, &m, &m);
-    Model_ProjectVerts(&D_800EC080[14], &m, D_800E7D00);
-    func_80017CD4(ot, D_800E7D00, &D_800EC080[14]);
+    Model_ProjectVerts(&D_800EC080[14], &m, g_ProjVerts);
+    Model_Draw(ot, g_ProjVerts, &D_800EC080[14]);
     x = sv.vx;
     y = sv.vy;
     z = sv.vz;
-    func_80014804(dir, &m);
+    Matrix_FromFacingXZ(dir, &m);
     if (dir->vy > 0) {
         memset(&tmp, 0, 16);
         tmp.vx = dir->vy;
@@ -320,8 +320,8 @@ void Radar_DrawModel(struct S_D_800E78C0 *base, struct S_D_800E78C0 *rt, SV_9A57
     m.t[0] = x;
     m.t[1] = y;
     m.t[2] = z;
-    CompMatrix(&D_800E78C0, &m, &m);
-    Model_ProjectVerts(&D_800EC080[13], &m, D_800E7D00);
-    func_80017CD4(ot, D_800E7D00, &D_800EC080[13]);
-    Model_ProjectVerts(&D_800EC080[15], &m, D_800E7D00);
+    CompMatrix(&g_ViewMatrix, &m, &m);
+    Model_ProjectVerts(&D_800EC080[13], &m, g_ProjVerts);
+    Model_Draw(ot, g_ProjVerts, &D_800EC080[13]);
+    Model_ProjectVerts(&D_800EC080[15], &m, g_ProjVerts);
 }

@@ -3,10 +3,10 @@
 
 M2C_UNK Matrix_FromDirection(void *, s32);
 M2C_UNK Model_ProjectBonedVerts(void *);
-M2C_UNK func_80015780(void *, M2C_UNK);
-M2C_UNK func_80016EBC(void *, M2C_UNK *, void *);
+M2C_UNK Model_CalcKeyedJointMatrices(void *, M2C_UNK);
+M2C_UNK Model_DrawAuto(void *, M2C_UNK *, void *);
 s32 func_80051410(void *, M2C_UNK, M2C_UNK);
-extern M2C_UNK D_800E7D00;
+extern M2C_UNK g_ProjVerts;
 extern M2C_UNK D_80141E40;
 extern struct S_g_Game { u8 pad_0[0xC]; s32 f_C; u8 pad_10[0x81FC]; s32 f_820C; u8 pad_8210[0x10]; s32 f_8220; } g_Game;
 M2C_UNK func_80141090(void *);
@@ -81,9 +81,9 @@ void func_8013D208(s32 arg0) {
     temp_s0 = (void *)((u8 *)&D_80141E40 + (arg0 * 0x70));
     if (func_80051410(temp_s0 + 0x24, 0, 0) == 0) {
         Matrix_FromDirection(temp_s0 + 0x60, M2C_FIELD(temp_s0, s32 *, 0x14));
-        func_80015780(temp_s0, 3);
+        Model_CalcKeyedJointMatrices(temp_s0, 3);
         Model_ProjectBonedVerts(temp_s0);
-        func_80016EBC((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &D_800E7D00, temp_s0);
+        Model_DrawAuto((g_Game.f_C * 0x4078) + ((void *)((u8 *)&g_Game + 0x80)), &g_ProjVerts, temp_s0);
     }
 }
 
@@ -597,9 +597,9 @@ void func_8013E674(u8 *arg0) {
             d->r.z = (d->r.z + d->wz) % 4096;
             if (func_80051410(&d->x, 0, 0) == 0) {
                 RotMatrixYXZ(&d->r, d->mat);
-                func_80015780(d, 3);
+                Model_CalcKeyedJointMatrices(d, 3);
                 Model_ProjectBonedVerts(d);
-                func_80016EBC(g_Game_8013E674.f_80 + g_Game_8013E674.f_C * 0x4078, &D_800E7D00, d);
+                Model_DrawAuto(g_Game_8013E674.f_80 + g_Game_8013E674.f_C * 0x4078, &g_ProjVerts, d);
                 Effect_SpawnAt(7, &v);
                 func_8006D548(&v);
             }

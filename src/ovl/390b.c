@@ -1,12 +1,12 @@
 #include "common.h"
 #include "m2c_macros.h"
 
-extern s16 D_800E3880;
+extern s16 g_MemCard;
 extern s16 D_8013C5B4;
 void func_8013784C(s32, s32);
 
 s32 func_8013B400(void) {
-    switch (D_800E3880) {
+    switch (g_MemCard) {
     case 0:
         func_8013784C(1, D_8013C5B4);
         break;
@@ -25,8 +25,8 @@ s32 func_8013B400(void) {
     return 0;
 }
 
-extern struct { u8 pad_0[6]; s16 f_6; } D_800E3880_8013B47C asm("D_800E3880");
-extern u8 D_800E1880[];
+extern struct { u8 pad_0[6]; s16 f_6; } D_800E3880_8013B47C asm("g_MemCard");
+extern u8 g_MemCardImage[];
 extern u8 D_8013C5C0[];
 void func_8014016C(void);
 s32 func_80139F08(void);
@@ -45,7 +45,7 @@ s32 func_8013B47C(void) {
     if (r != 0) {
         if (r == 1) {
             for (i = 0; i < 16; i++) {
-                D_800E1880[i + D_800E3880_8013B47C.f_6 * 0x7A0 + 0x198] = D_8013C5C0[i];
+                g_MemCardImage[i + D_800E3880_8013B47C.f_6 * 0x7A0 + 0x198] = D_8013C5C0[i];
             }
             MemCard_Request(2, 0);
             func_8013784C(0x11, 0);
@@ -56,7 +56,7 @@ s32 func_8013B47C(void) {
     return 0;
 }
 
-extern struct { u8 pad_0[6]; s16 f_6; } D_800E3880_8013B550 asm("D_800E3880");
+extern struct { u8 pad_0[6]; s16 f_6; } D_800E3880_8013B550 asm("g_MemCard");
 extern s16 D_8013C5A8;
 extern s16 D_8013C5AA;
 extern s16 D_8013C5AC;
@@ -82,7 +82,7 @@ s32 func_8013B550(void) {
     D_8013C540.f_6 = -1;
     D_8013C540.f_8 = -1;
     D_8013C5B4 = D_8013AF50;
-    if (D_800E1880[D_800E3880_8013B550.f_6 * 0x7A0 + 0x198] == 0) {
+    if (g_MemCardImage[D_800E3880_8013B550.f_6 * 0x7A0 + 0x198] == 0) {
         s = func_8013FD44();
         s[4] = i + 0x6B;
         for (i = 0; i < 16; i++) {
@@ -90,7 +90,7 @@ s32 func_8013B550(void) {
         }
     } else {
         for (i = 0; i < 16; i++) {
-            D_8013C5C0[i] = D_800E1880[i + D_800E3880_8013B550.f_6 * 0x7A0 + 0x198];
+            D_8013C5C0[i] = g_MemCardImage[i + D_800E3880_8013B550.f_6 * 0x7A0 + 0x198];
         }
     }
     for (i = 4; i >= 0; i--) {

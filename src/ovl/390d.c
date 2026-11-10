@@ -178,7 +178,7 @@ typedef struct { s16 start, count; } Range_8014016C;
 extern Item_8014016C D_80140470_8014016C[] asm("D_80140470");
 extern Range_8014016C D_80141940[];
 extern s16 D_8013AF56;
-extern struct { u8 pad_0[6]; s16 f_6; } D_800E3880_8014016C asm("D_800E3880");
+extern struct { u8 pad_0[6]; s16 f_6; } D_800E3880_8014016C asm("g_MemCard");
 extern u8 D_800E1A18[];
 extern struct { u32 frame; } g_Game_8014016C asm("g_Game");
 s32 func_80136120(u8 *);

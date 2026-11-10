@@ -41,7 +41,7 @@ Identifications so far, with the evidence. Confirmed ones get readable names via
   (gadgets, file 80083470).
 - `Spike_TakeDamage(dmg)`: Spike takes damage. Health is `g_Spike + 0xE8` (floored at 0); the
   HUD gets the amount at `D_800F4DB0 + 0x14` (shown for 12 frames); `+0xEA` = 60 is an
-  invulnerability timer (`D_800EC2CA`, which the monkey code also checks). Ignored in game
+  invulnerability timer (`g_SpikeInvulnTimer`, which the monkey code also checks). Ignored in game
   modes 0x1F/0x20 (`g_Game + 0x8124`).
 - `g_Game` layout: `+0` frame counter, `+4` primitive write pointer, `+8` ordering table,
   `+0xC` buffer index, `+0x10` two 0x4078-byte draw buffers (OT of 0x1000 entries at `+0x70`),
@@ -203,7 +203,7 @@ Identifications so far, with the evidence. Confirmed ones get readable names via
   Experiments are in `wip/exp/`.
 
 ## Oddities
-- `func_8003440C` and its twin `func_8003429C` write three different deltas to the same array element (`d[0]`), so only the
+- `Monkey_ThrowCoconut` and its twin `Monkey_DropWhileRunning` write three different deltas to the same array element (`d[0]`), so only the
   last (z) survives: a bug in the original code, reproduced as is.
 
 ## Monkey behaviour (from the user, to map onto the code)
@@ -212,7 +212,7 @@ monkeys, monkeys driving robots or other vehicles. They can jump between surface
 snuck up on. Stun club hits stun them; slingback shots stun them, and explosive ammo knocks them
 down. Expect: `MonkeyKind` (g_MonkeyKinds, per kind) = these types; `Monkey.f_78` = AI state
 (flee/attack/jump/stunned/knocked down); the state setters in file 80032E30 (e.g.
-`func_80035D18`, `func_80035DD8`, `func_8003612C` -> 0x3E, `func_80036174` -> 0x3F) are the
+`func_80035D18`, `Monkey_Land`, `func_8003612C` -> 0x3E, `func_80036174` -> 0x3F) are the
 reactions. Not yet confirmed which value is which.
 
 ## Monkey types by shorts colour (from the user, 2026-10-15)
@@ -227,7 +227,7 @@ reactions. Not yet confirmed which value is which.
   (user, correcting an earlier "black": light blue "can sometimes have laser") and UFO monkeys. The laser window (5) first appears on type id 2 in stage 9 (Thick Jungle), so light blue = id 2 (`MONKEY_LIGHT_BLUE`), which is also the only type in level 1. Id 3 (new in Thick Jungle) is then yellow.
 - Level 5, Dark Ruins: first green-shorts (homing missile) monkeys. A type id that first appears in
   Dark Ruins and fires `Monkey_FireShot` (state 0x37?) should be green. The Slingback is first
-  used in Cryptic Relics (user), and its tutorial (0x5D) leads to stage 15 = world 6, so `D_800A81B0.f_4`
+  used in Cryptic Relics (user), and its tutorial (0x5D) leads to stage 15 = world 6, so `g_AreaTable.f_4`
   ("world") is the level number.
 - Green shorts seem to have a larger field of vision (user, unsure). In the code the sight range is
   per kind: `Monkey_CanSeeTarget` compares the distance to Spike (`+0x20C`) with kind `+0xC`[d] (s16,
@@ -243,17 +243,17 @@ reactions. Not yet confirmed which value is which.
   Expect the highest speed values and the flee states. Level 6 is Cryptic Relics; the "Cryptic
   Ruins" label for stage 15 above is probably that.
 To map: the shorts colour is probably selected by the kind type id (kind `+0`, values seen 0, 0x40,
-0xC0, 0x140, all multiples of 0x40, so maybe a palette/CLUT row). `func_800356C0`/`func_80035750` group
+0xC0, 0x140, all multiples of 0x40, so maybe a palette/CLUT row). `Monkey_GetVoiceSound`/`Monkey_GetVoiceSound2` group
 0x40/0xC0 (sound 0x52 / 0x55), 0/0x140 (0x54 / 0x57), the rest (0x53 / 0x56). Expected attack states:
 melee and banana peel for yellow, bomb throw for white (0x1B/0x1C?), red = aggressive, sometimes with the gun states?, gun for black (0x21/0x38 use the
 enemy-shot spawner), homing missile for green (0x37 `Monkey_FireShot(3/4)`?), fleeing for dark blue.
 
 ## Monkey kind tables from the stage files (2026-10-15, wip/_try/monkeykinds.py)
 - `KKIIDDZZ.HED` holds 0x1C0 words: sector (low 20 bits) and size in sectors (high 12) of each file
-  in `KKIIDDZZ.DAT`. `D_800A81B0[stage]` = {file list, world}; each file entry is {u16 file, u16 type,
+  in `KKIIDDZZ.DAT`. `g_AreaTable[stage]` = {file list, world}; each file entry is {u16 file, u16 type,
   u32 load address}, list ended by type 0xFFFF. The type-0 file (loaded at 0x80154000) holds the
   area's monkey block: word 0x11, kind count at +0x28, 0x88-byte kinds at +0x2A.
-- `D_800A81B0[stage].f_4` is the level in play order (race/boss stages count): stage 1 -> 1, 2 -> 2,
+- `g_AreaTable[stage].f_4` is the level in play order (race/boss stages count): stage 1 -> 1, 2 -> 2,
   3-5 -> 3, 6-10 -> 4 (Thick Jungle), 11-14 -> 5 (Dark Ruins), 15-18 -> 6 (Cryptic Relics), 19 -> 7,
   20-21 -> 8, 22-23 -> 9 (Coral Cave), 24-27 -> 10 (Dexter's Island), 29 -> 11, 30-32 -> 12, 33-35 -> 13,
   36 -> 14, 37-39 -> 15, 40-44 -> 16, 45-51 -> 17, 53-55 -> 20 (City Park), ...
@@ -288,21 +288,21 @@ enemy-shot spawner), homing missile for green (0x37 `Monkey_FireShot(3/4)`?), fl
   difficulty ratings (alertness, hearing, aggression...?). Other fields: `+2` 80-145, `+4` 150-350
   (speed?), `+8` 30-100, `+0xA` 1/20/50, `+0xE..+0x1A` the sight distances.
 - Attack window fields: the first u16 is not an on flag but a shot multiplier: Monkey_TryReaction checks
-  it is non-zero and sets the burst count `+0x222 = D_800AEBB4[k].mult * value` (1-4 in the data); the
+  it is non-zero and sets the burst count `+0x222 = g_MonkeyAttackWindows[k].mult * value` (1-4 in the data); the
   second is the % chance, then min/max distance to Spike. So every light blue monkey in an area with
   window 5 can fire the laser, when Spike is 400-3500 away and the roll succeeds.
-- `D_800AEBB4` (wip/_try/reacttab.py), one 8-byte entry per attack window: {u8 mult, u8 state, s16 model,
+- `g_MonkeyAttackWindows` (wip/_try/reacttab.py), one 8-byte entry per attack window: {u8 mult, u8 state, s16 model,
   u16 flags}. mult/state: 0 {3, 0x21}, 1 {1, 0x22}, 2 {1, 0x23}, 3 {1, 0x1B}, 4 {1, 0x1C}, 5 {1, 0x38},
   6 {1, 0x39}, 7 {3, 0x37}. model: 0 -> 5, 1 -> 7, 5 -> 6, others -1. Monkey_Draw draws
-  `D_800F4630[model]` for every window whose chance (kind +0x20 + 8i) is non-zero, so a monkey visibly
+  `g_MonkeyPropModels[model]` for every window whose chance (kind +0x20 + 8i) is non-zero, so a monkey visibly
   holds the gun (model 5), missile launcher (7) or window-5 weapon (6) whenever its area's kind
-  record enables it. flags bit 0/1/2 select which windows func_8003738C / func_80037420 /
-  func_800374B8 may try (bit 2 = 0, 1, 5: the three guns).
+  record enables it. flags bit 0/1/2 select which windows Monkey_TryAttackGroup0 / Monkey_TryAttackGroup1 /
+  Monkey_TryAttackGroup2 may try (bit 2 = 0, 1, 5: the three guns).
 - `D_800AEBF8[type id]` = {1, 2, 0, 2, 3, 4, 0, 0}: one more model per type drawn by Monkey_Draw (ids 2
   and 6 share 0, ids 1 and 3 share 2). It groups like the per-type sounds, so it is not the shorts
   colour; maybe the helmet or a voice/face variant.
 - Window 5 (state 0x38) is a gun, not a bomb: Monkey_StateInPlace sends states 0x21 (window 0, Mgun) and
-  0x38 (window 5) to the same aim-and-fire routine `func_80033E4C(mode)`. Mode 0 fires enemy-shot type 1
+  0x38 (window 5) to the same aim-and-fire routine `Monkey_AimAndShoot(mode)`. Mode 0 fires enemy-shot type 1
   every 4 frames (bullet model 0x38, effect 0x10B, sound 100, aimed 0x7D above Spike's feet); mode 5 fires
   shot type 2 every 5 frames (no bullet model, effect 0x118, colour args 0x5A/0xFF, sound 0x4F, speed x1.8).
   So window 5 is probably the laser (wip/_try/win5.py lists every record): id 2 in most areas from stage 9,
@@ -311,7 +311,7 @@ enemy-shot spawner), homing missile for green (0x37 `Monkey_FireShot(3/4)`?), fl
 - Weapons are correlated with the shorts colour but not tied to it (user, 2026-10-15). The data agrees:
   the attack windows are per area (yellow id 2 also throws stones in some level 3/4 areas and has
   window 5 in stage 9), and the light blue laser is not in the kind record at all, so it is chosen per
-  monkey. The type id itself drives the per-type sounds (`func_800356C0`/`func_80035750`).
+  monkey. The type id itself drives the per-type sounds (`Monkey_GetVoiceSound`/`Monkey_GetVoiceSound2`).
 - Per-area tuning: the same id has different speed / sight / ranges in different areas (e.g. red's
   speed +4 is 210 in Coral Cave, 350 in stage 44).
 
@@ -324,14 +324,14 @@ enemy-shot spawner), homing missile for green (0x37 `Monkey_FireShot(3/4)`?), fl
 - Monkey types are per area, not global: `Monkey_InitAll` points `g_MonkeyKinds` at the area's
   monkey block (`g_Game+0x8240` + 0x2A) with up to 4 kind records of 0x88 bytes; `Monkey.f_7C` picks
   one. Kind `+0` is a 16-bit type id (seen values 0, 0x40, 0xC0, 0x140) that picks e.g. sound
-  0x52/0x53/0x54 (`func_800356C0`). The records are in the stage files (KKIIDDZZ.DAT, not unpacked
+  0x52/0x53/0x54 (`Monkey_GetVoiceSound`). The records are in the stage files (KKIIDDZZ.DAT, not unpacked
   yet), so questions about monkey behaviour need the per-area tables first (the user notes that
   behaviour varies a lot by monkey type).
 - Attacks: each kind has 8 attack windows at kind+0x1E (`{on, ?, min, max}` distance in `+0x20C`).
-  State 0x21 uses window 0 and calls `func_80033E4C(0)`, 0x38 window 5 with `func_80033E4C(5)` (both
-  aim at Spike and fire with `func_80059304`, the enemy-shot spawner), 0x22 window 1 calls `func_80033DF0`
-  every 5 frames, 0x1C window 4 calls `func_800343B0` 10 frames before the animation ends, 0x1B window 3
-  calls `func_8003440C` 25 before, and 0x37 window 7 fires `Monkey_FireShot(3)` with sound 0x48 on frames
+  State 0x21 uses window 0 and calls `Monkey_AimAndShoot(0)`, 0x38 window 5 with `Monkey_AimAndShoot(5)` (both
+  aim at Spike and fire with `func_80059304`, the enemy-shot spawner), 0x22 window 1 calls `Monkey_FireMissile`
+  every 5 frames, 0x1C window 4 calls `Monkey_ThrowStone` 10 frames before the animation ends, 0x1B window 3
+  calls `Monkey_ThrowCoconut` 25 before, and 0x37 window 7 fires `Monkey_FireShot(3)` with sound 0x48 on frames
   3 and 7 of every 10 (`Monkey_FireShot(4)` when its count `+0x222` runs out). Question for the user:
   which monkey attacks are these (gun, rocket launcher, thrown objects, UFO laser...)?
 - States 0x29-0x2B move a monkey between two linked nodes flagged 0x400 (0x2A drops in an arc onto
@@ -406,8 +406,8 @@ enemy-shot spawner), homing missile for green (0x37 `Monkey_FireShot(3/4)`?), fl
   and gadget-holding variants (0<->1, 3<->4, 5<->7, 0x13<->0x14) depending on the gadget.
 
 ## Save data / misc
-- `MemCard_BuildSaveHeader`: builds the memory-card save header at `D_800E1880` ("SC" magic, 0x11 = icon
-  with 1 frame, 3 blocks, title from `D_800A3910`, palette `D_800A6AB0`, icon `D_800A6AD0`).
+- `MemCard_BuildSaveHeader`: builds the memory-card save header at `g_MemCardImage` ("SC" magic, 0x11 = icon
+  with 1 frame, 3 blocks, title from `MemCard_PocketTitle`, palette `MemCard_IconClut`, icon `MemCard_IconImage`).
 - `Cd_ReadCurrentFile` / `Exe_Load`: CD reads (seek with a file's position, then read its sectors).
 - `Debug_DrawCpuMeter(v)`: draws a bar 4 px high at y=0xE6, `v` px wide, blue < 200, yellow < 400,
   red above: very likely a debug CPU-load meter.
@@ -458,17 +458,17 @@ i=38, n=3D, g=36, '.'=AC). Lowercase starts at 0x30 ('a'), uppercase 'A' is 0x10
 At boot, Boot_LoadingScreen loads file 6 and then files 1, 7, 12 while this text blinks.
 
 ## CD request queue
-Cd requests are queued in a 16-entry ring (D_800E3890+0x78, 0x1C bytes each, head f_74, tail
+Cd requests are queued in a 16-entry ring (g_Cd+0x78, 0x1C bytes each, head f_74, tail
 f_76) by Cd_QueueCommand and issued by Cd_IssueRequest; Cd_PollStatus restarts looping XA music
-(D_800A8530 flag 2) once the play position passes the track length.
+(g_XaTracks flag 2) once the play position passes the track length.
 
-## Monkey path nodes (D_800B4D00, 0x18 bytes)
+## Monkey path nodes (g_PathNodes, 0x18 bytes)
 - f_0 flags seen so far: 0x4 wait here (state 0x42, time f_10), 0x8 lookout (alert monkeys with a
   noticed target go to state 0x26/0x16; others wait while f_10 < their distance), 0x20 sets monkey
   flag 0x4000000, 0x400 special action (Node_GetJointRef, state 0x29), 0x800/0x20000/0x40000 send link
   events 0/1/2 to object f_10, 0x1000 jump (state 0x27), 0x4000 Object_SetFlagCF(f_10), 0x8000
   stop when closer than 1500, 0x10000 "end of route" (route look-ahead stops; object f_10/100
-  checked with func_80052C4C), 0x80000 calm monkeys do func_80035918 (Monkey_NodeEvents).
+  checked with func_80052C4C), 0x80000 calm monkeys do Monkey_StartNodeAnim (Monkey_NodeEvents).
 - f_B is the link count, Node_GetLink(n, i) the i-th neighbour; f_14[kind] is a per-monkey-type
   attraction value used by Monkey_PickGoalLink to pick where a monkey heads.
 - Monkey +0xF2..+0xFC is a 6-entry history of visited nodes (newest first), +0xEC the node it came
@@ -521,14 +521,14 @@ f_76) by Cd_QueueCommand and issued by Cd_IssueRequest; Cd_PollStatus restarts l
 Model draw functions in 80015F70 first light the model's vertex colours with the GTE and
 write them to 0x1F800000 (one word per colour), then call the primitive walker
 (Model_DrawPrims / Model_DrawLit) that reads them back:
-- func_80017CD4, func_80017D94, func_80017E5C, func_80051AA4: `cc` (colour * light colour)
+- Model_Draw, Model_DrawNoFog, Model_DrawSubdiv, func_80051AA4: `cc` (colour * light colour)
   per colour; func_80051AA4 can OR extra bits into each colour (used by Object_Draw).
-- func_80017EFC (vertex-colour animation, header flag 0x100000): blends frame k>>12 to the
+- Model_DrawColorAnim (vertex-colour animation, header flag 0x100000): blends frame k>>12 to the
   next frame with `dpcs`, factor k & 0xFFF, then restores the far colour from D_800EBFA0+0x1C.
 - Model_DrawLit switches on each primitive's code byte (& 0xFC, 0x20..0x3C = F3, FT3, F4,
   FT4, G3, GT3, G4, GT4), and each per-type function returns the next primitive.
 - Scratch 0x3F4 (u8) = draw mode (2, 6, 7, or a caller value); 0x3C0/0x3C2 = D_800EBFA0
-  +0x24/+0x28; 0x3C4 = an extra value (func_80017D94 arg 3), 0x3C6 = 0.
+  +0x24/+0x28; 0x3C4 = an extra value (Model_DrawNoFog arg 3), 0x3C6 = 0.
 - func_8007F8F4 is a 9-tap colour blur on a 382-pixel 15-bit image row (taps at D_800B2704,
   {offset, shift}, sum >> 4) via the GTE IRGB/ORGB registers, written two rows down.
 
@@ -673,7 +673,7 @@ write them to 0x1F800000 (one word per colour), then call the primitive walker
 - Foot smoke (user): dust puffs appear under Spike with every gadget except the Monkey Radar and the
   RC car (both take over control while Spike stands still), so `Spike_UpdateFootEffects` runs with his
   normal movement; not a Magic Punch bug.
-- Music map (start): XA streamed tracks 4..57 (D_800A8530, from archive files 0x1C0-0x1C5) are played
+- Music map (start): XA streamed tracks 4..57 (g_XaTracks, from archive files 0x1C0-0x1C5) are played
   only by Cd_PlayXaTrack: stage start plays one of tracks 4-8 at random (frame % 5 + 4; probably intro
   jingles or voice clips, not the stage music); Game_SetMode 19 (mode 0x13) plays track 0x39, the last
   one; a fall in game mode 0x20 plays 0xD or 0xF at random; the playing track loops if its flag bit 2

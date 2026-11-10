@@ -9,8 +9,8 @@ extern s16 D_80136CF2;
 extern s16 D_80136CF4;
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; s16 f_8120; u8 pad8122[0x198]; u16 f_82BA; } g_Game_80136000 asm("g_Game");
 extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_80136000 asm("g_Pad");
-void func_80011194(void *);
-s32 func_800116C0();
+void Cd_StartLoadList(void *);
+s32 Cd_PollLoadList();
 void Cd_Update(void);
 s32 Gfx_InitDisplay(void);
 s32 ResetGraph(s32 mode);
@@ -29,8 +29,8 @@ s32 func_80136000(void) {
     Rect_80136000 r;
 
     r = D_80136CE0_80136000;
-    func_80011194(D_80136CF8);
-    while (func_800116C0() >= 0) {
+    Cd_StartLoadList(D_80136CF8);
+    while (Cd_PollLoadList() >= 0) {
         Cd_Update();
         VSync(2);
     }
@@ -202,8 +202,8 @@ extern s16 D_80136CF2;
 extern s16 D_80136CF4;
 extern struct { s32 frame; u8 *prim; u32 *ot; s32 cur; DrawBuf db[2]; u8 pad8100[0x20]; s16 f_8120; u8 pad8122[0x198]; u16 f_82BA; } g_Game_8013668C asm("g_Game");
 extern struct { u8 pad0[0x158]; u32 f_158; u8 pad15C[4]; u32 f_160; } g_Pad_8013668C asm("g_Pad");
-void func_80011194(void *);
-s32 func_800116C0();
+void Cd_StartLoadList(void *);
+s32 Cd_PollLoadList();
 void Cd_Update(void);
 s32 Gfx_InitDisplay(void);
 s32 ResetGraph(s32 mode);
@@ -222,8 +222,8 @@ s32 func_8013668C(void) {
     Rect_8013668C r;
 
     r = D_80136CE0;
-    func_80011194(D_80136D08);
-    while (func_800116C0() >= 0) {
+    Cd_StartLoadList(D_80136D08);
+    while (Cd_PollLoadList() >= 0) {
         Cd_Update();
         VSync(2);
     }

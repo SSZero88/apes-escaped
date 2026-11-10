@@ -23,15 +23,15 @@ typedef struct { u32 f_0; u16 f_4; u16 pad6; u16 f_8; u16 padA; u16 f_C; } S_Fil
 typedef struct { u8 pad0[0x14]; void *f_14; void *f_18; u8 pad1C[0x44]; s16 f_60; s16 f_62; s16 f_64; u8 pad66[2]; s16 f_68; s16 f_6A; s16 f_6C; u8 pad6E[0x20]; u8 f_8E; u8 f_8F; u8 f_90[0x1C]; } S_O_8009B3CC;
 struct S_D_800EC350_8009B3CC { u8 pad_0[0x8124]; u16 f_8124; };
 extern S_O_8009B3CC *D_800B4DC4_3CC asm("D_800B4DC4");
-extern M2C_UNK D_800E9C60;
+extern M2C_UNK g_ModelMatrices;
 extern void *D_800B4DC0;
 extern void *D_800B4DC8;
 extern void *D_800B4DCC;
 extern void *D_800B4DD0;
 extern M2C_UNK D_80141128, D_8014085C, D_801431B0, D_801428E4, D_80143F38, D_801433F0, D_801423AC, D_8014186C, D_8014163C, D_80140AFC;
 void *Mem_Alloc(s32);
-void func_80015AC0(void *, void *);
-void func_80015D10(void *, void *);
+void Model_BindBoned(void *, void *);
+void Model_BindRigid(void *, void *);
 
 /* Spike's body object D_800B4DC4: allocates it, sets up the body model and identity rotation, and
  * per-area extra data for areas 4/33, 12, 21 and 22; flag 1 also sets up the second model at +0x90.
@@ -40,7 +40,7 @@ void Spike_CreateModel(S_File_8009B3CC *f, s32 flag) {
     S_File_8009B3CC *ff = f;
     S_O_8009B3CC *o = Mem_Alloc(0xAC);
     D_800B4DC4_3CC = o;
-    func_80015AC0(o, (u8 *)ff + ff->f_4 * 4);
+    Model_BindBoned(o, (u8 *)ff + ff->f_4 * 4);
     o->f_62 = 0;
     o->f_60 = 0;
     o->f_64 = 0x1000;
@@ -48,7 +48,7 @@ void Spike_CreateModel(S_File_8009B3CC *f, s32 flag) {
     o->f_68 = 0;
     o->f_6A = 0x1000;
     o->f_18 = (u8 *)ff + (ff->f_8 * 4 + 4);
-    o->f_14 = &D_800E9C60;
+    o->f_14 = &g_ModelMatrices;
     o->f_8F = 0;
     switch (((struct S_D_800EC350_8009B3CC *)&g_Game)->f_8124) {
     case 21:
@@ -72,7 +72,7 @@ void Spike_CreateModel(S_File_8009B3CC *f, s32 flag) {
         break;
     }
     if (flag == 1) {
-        func_80015D10(o->f_90, (u8 *)ff + ff->f_C * 4);
+        Model_BindRigid(o->f_90, (u8 *)ff + ff->f_C * 4);
         o->f_8E = 6;
     }
 }

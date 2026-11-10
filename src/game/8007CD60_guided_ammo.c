@@ -85,7 +85,7 @@ loop:
 }
 
 extern u8 g_Game[];
-extern u8 D_800E78C0[];
+extern u8 g_ViewMatrix[];
 void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
 s32 RotTransPers(void *v0, s32 *sxy, s32 *p, s32 *flag);
@@ -93,15 +93,15 @@ typedef struct { u32 addr : 24; u32 len : 8; } P_TAG_7CF7C;
 typedef struct { P_TAG_7CF7C tag; u8 r0, g0, b0, code; s16 x0, y0, x1, y1, x2, y2; } PolyF3_7CF7C;
 
 /* Marks each of the 32 guided-ammo candidates on screen with a small red triangle (POLY_F3,
-   projected with the camera matrix D_800E78C0), linked at OT entry 1 */
+   projected with the camera matrix g_ViewMatrix), linked at OT entry 1 */
 void GuidedAmmo_DrawCandidates(void) {
     PolyF3_7CF7C *p = (PolyF3_7CF7C *)G_DRAW.prim;
     s32 i;
     s32 buf[2];
     s32 x, y;
 
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     for (i = 0; i < 32; i++) {
         if (g_GuidedTargetsP[i] != NULL) {
             RotTransPers(g_GuidedTargetsP[i], &buf[0], &buf[1], &buf[1]);

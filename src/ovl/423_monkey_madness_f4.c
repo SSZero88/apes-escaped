@@ -64,7 +64,7 @@ typedef struct { SVECTOR v[3]; u8 pad[8]; } Tri_8013D218;
 typedef struct { Mtx_8013D218 m; Mtx_8013D218 cam; SVECTOR rot; Tri_8013D218 tri[4]; s32 sxy[3]; s32 otz; } Scr_8013D218;
 typedef struct { s16 x, y, z, floor; s8 vx, vy, vz; u8 life; } Rock_8013D218;
 extern Rock_8013D218 D_8013FAD0_8013D218[] asm("D_8013FAD0");
-extern Mtx_8013D218 D_800E78C0_8013D218 asm("D_800E78C0");
+extern Mtx_8013D218 D_800E78C0_8013D218 asm("g_ViewMatrix");
 typedef struct { u32 addr : 24; u32 len : 8; } Tag_8013D218;
 typedef struct { u32 tag; u32 rgb0; s32 xy0; u32 rgb1; s32 xy1; u32 rgb2; s32 xy2; } PolyG3_8013D218;
 extern struct { u8 pad_0[0x4]; u32 *f_4; u8 pad_8[4]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013D218 asm("g_Game");
@@ -419,8 +419,8 @@ void func_8013DCC8(void) {
 
 typedef struct { u8 pad0[8]; s16 f_8, f_A; } Pt_423;
 extern Pt_423 D_8013FC50[5];
-void func_80014804(void *, void *);
-void func_80015780(void *, s32);
+void Matrix_FromFacingXZ(void *, void *);
+void Model_CalcKeyedJointMatrices(void *, s32);
 void func_80051620(void *, s32, s32, Pt_423 *);
 
 void func_8013E134(void *arg0) {
@@ -430,8 +430,8 @@ void func_8013E134(void *arg0) {
     if ((M2C_FIELD(arg0, u32 *, 0xE0) >> 2) & 1) {
         return;
     }
-    func_80014804((u8 *)arg0 + 0x60, M2C_FIELD(arg0, void **, 0x14));
-    func_80015780(arg0, 3);
+    Matrix_FromFacingXZ((u8 *)arg0 + 0x60, M2C_FIELD(arg0, void **, 0x14));
+    Model_CalcKeyedJointMatrices(arg0, 3);
     for (i = 4; i >= 0; i--) {
         e = &D_8013FC50[i];
         func_80051620(arg0, e->f_8, e->f_A, e);

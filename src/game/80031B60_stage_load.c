@@ -15,8 +15,8 @@ extern struct S_D_800EBFA0 { u8 pad_0[0x1C]; u8 f_1C; u8 f_1D; u8 f_1E; u8 pad_1
 struct S_D_800EC350_80032BBC { u8 pad0[0x8126]; u16 f_8126; u8 pad8128[2]; u16 f_812A; u8 pad812C[0x74]; s32 f_81A0; u8 pad81A4[0xB4]; SVECTOR f_8258; SVECTOR f_8260; };
 extern M2C_UNK g_Game;
 extern M2C_UNK g_Spike;
-extern M2C_UNK D_800E9C60;
-void func_80010C3C(u16, u16, S32x9_80032BBC_80032BBC *);
+extern M2C_UNK g_ModelMatrices;
+void Stage_GetSpawnPoint(u16, u16, S32x9_80032BBC_80032BBC *);
 s16 Floor_GetHeight(s32, s32, s32);
 void VectorNormalSS(void *, void *);
 void Collision_Set(s32, void *, void *);
@@ -25,15 +25,15 @@ struct Spike_80032ADC { u8 pad0[0x148]; s16 f_148; u8 f_14A; u8 f_14B; };
 struct D4DE0_80032ADC { u8 pad0[0xA0]; u32 *f_A0; u32 *f_A4; u32 *f_A8; u32 *f_AC; };
 extern Obj_80032ADC_80032ADC *D_800B4D70;
 extern M2C_UNK g_SpikeAnimSets;
-void func_80015AC0(void *, u32 *);
+void Model_BindBoned(void *, u32 *);
 struct Game_8003272C { u8 pad0[0x819C]; u32 *f_819C; u32 *f_81A0; u8 pad81A4[0x58]; W_8003272C_8003272C *f_81FC; W_8003272C_8003272C *f_8200; W_8003272C_8003272C *f_8204; u8 pad8208[0x34]; u16 f_823C; u16 f_823E; };
 extern s32 D_800EC010[];
-extern u8 D_800EC060[];
+extern u8 g_GadgetModels[];
 extern u8 D_800F4C30[];
-extern u8 D_800F4630[];
+extern u8 g_MonkeyPropModels[];
 extern s16 D_800F4DC4;
-void func_80015B30(Sp_8003272C_8003272C *, u32 *);
-void func_80015D10(void *, u32 *);
+void Model_BindBoned16(Sp_8003272C_8003272C *, u32 *);
+void Model_BindRigid(void *, u32 *);
 void TimeNet_Init(u32 *);
 struct g_Spike_80032D38 { u8 pad0[0x1C]; s16 f_1C; s16 f_1E; s16 f_20; u8 pad22[2]; s32 f_24; s32 f_28; s32 f_2C; u8 pad30[0x30]; s16 f_60; s16 f_62; s16 f_64; u8 pad66[0xC6]; s32 f_12C; };
 #define G_SPIKE_80032D38 ((struct g_Spike_80032D38 *)&g_Spike)
@@ -51,17 +51,17 @@ extern u16 g_RandSeed;
 extern u16 D_800AE8F2;
 extern s32 D_800E38E4;
 extern struct { s32 v; } D_800F4DD0_s asm("D_800F4DD0");
-extern u8 D_800E9C60_31B60[][0x20] asm("D_800E9C60");
-extern u8 D_800F4730[][0x20];
-extern u8 D_800E78C0[];
+extern u8 D_800E9C60_31B60[][0x20] asm("g_ModelMatrices");
+extern u8 g_JointWorldMatrices[][0x20];
+extern u8 g_ViewMatrix[];
 extern u8 D_800EC330[];
 extern C4_31B60 D_800AE914[];
 extern struct { u32 f_0; } g_GadgetState;
 void func_8008C01C(void);
 void func_8008C058(s32);
-s16 func_80010CA4(s32);
+s16 Stage_GetEra(s32);
 s16 Stage_GetWorld(s32);
-void func_8004637C(void *);
+void Matrix_SetIdentity(void *);
 void func_8007AFB8(void);
 void func_800690E8(void *);
 void Zone_SetTable(void *);
@@ -78,7 +78,7 @@ void func_8008745C(void);
 void Stage_ApplyFog(void);
 void Light_SetColorMode(s32, s32, s32, s32);
 void func_80086540(void);
-s32 func_8003244C(void);
+s32 Stage_InitScenery(void);
 u8 *Grid_BuildHalfResMap(void);
 void func_8007D0F0(void);
 void func_8005CB1C(void);
@@ -102,7 +102,7 @@ void Gadget_SetupForMode(void);
 void Tex_MakeFogLevels_31B60(C8_31B60 *, s32, C4_31B60) asm("Tex_MakeFogLevels");
 void RcCar_Remove(void);
 
-s32 func_80031B60(s32 stage, s32 mode)
+s32 Stage_Load(s32 stage, s32 mode)
 {
   u16 prev;
   u32 *dir;
@@ -164,7 +164,7 @@ s32 func_80031B60(s32 stage, s32 mode)
   prev = g_Game_31B60.f_8126;
   g_Game_31B60.f_8194 = (u32 *) (dir[3] + 0x80154000);
   sd = (Sd_31B60 *) g_Game_31B60.f_8194;
-  g_Game_31B60.f_8122 = func_80010CA4(stage);
+  g_Game_31B60.f_8122 = Stage_GetEra(stage);
   g_Game_31B60.f_8124 = Stage_GetWorld(stage);
   g_Game_31B60.f_8126 = stage;
   g_Game_31B60.f_812A = mode;
@@ -176,12 +176,12 @@ s32 func_80031B60(s32 stage, s32 mode)
   D_800F4DD0_s.v = 50;
   for (; i < 32; i++)
   {
-    func_8004637C(D_800E9C60_31B60[i]);
-    func_8004637C(D_800F4730[i]);
+    Matrix_SetIdentity(D_800E9C60_31B60[i]);
+    Matrix_SetIdentity(g_JointWorldMatrices[i]);
   }
 
-  func_8004637C(D_800E78C0);
-  func_8004637C(D_800EC330);
+  Matrix_SetIdentity(g_ViewMatrix);
+  Matrix_SetIdentity(D_800EC330);
   func_8007AFB8();
   func_800690E8(0);
   Zone_SetTable(0);
@@ -323,7 +323,7 @@ s32 func_80031B60(s32 stage, s32 mode)
   Stage_ApplyFog();
   Light_SetColorMode(0, 0, 0, 0);
   func_80086540();
-  func_8003244C();
+  Stage_InitScenery();
   D_800EBFA0_31B60.f_18 = Grid_BuildHalfResMap();
   func_8007D0F0();
   func_8005CB1C();
@@ -371,16 +371,16 @@ struct Game_8003244C { u8 pad0[0x8194]; u32 *f_8194; u16 *f_8198; u8 pad819C[0x8
 extern struct Game_8003244C g_Game_3244C asm("g_Game");
 extern Grid_8003244C D_800EBFA0_3244C asm("D_800EBFA0");
 extern Mdl_8003244C *D_800B4D64;
-extern MAT_8003244C D_800E7900[];
+extern MAT_8003244C g_SceneryMatrices[];
 extern char D_800A48E0[];
 void *Mem_Alloc(s32);
 void Model_BindMesh_3244C(Mdl_8003244C *, u8 *) asm("Model_BindMesh");
 s16 Zone_FindAt(s32, s32, s32, s32);
-void func_8004637C(void *);
+void Matrix_SetIdentity(void *);
 void bios_printf(char *, ...);
 void bios_exit(s32);
 
-s32 func_8003244C(void) {
+s32 Stage_InitScenery(void) {
     u16 *h;
     s32 n;
     s32 i;
@@ -420,9 +420,9 @@ s32 func_8003244C(void) {
         if ((*D_800B4D64[i].f_0 & 0xF) != 3) {
             D_800B4D64[i].f_1C = g_Game_3244C.f_8228[i].rot;
         } else {
-            D_800B4D64[i].f_1C = (s32)&D_800E7900[n];
-            func_8004637C(&D_800E7900[n]);
-            RotMatrixY(g_Game_3244C.f_8228[i].rot, &D_800E7900[n]);
+            D_800B4D64[i].f_1C = (s32)&g_SceneryMatrices[n];
+            Matrix_SetIdentity(&g_SceneryMatrices[n]);
+            RotMatrixY(g_Game_3244C.f_8228[i].rot, &g_SceneryMatrices[n]);
             n++;
             if (n > 0x20) {
                 bios_printf(D_800A48E0);
@@ -447,8 +447,8 @@ void Mem_ZeroWords(s32* dst, s32 count) {
 
 /* Sets Spike up from his data block loaded at 0x80103000 (header of word offsets): model and
  * skeleton (g_Game+0x819C/+0x81A0), the 10 gadget animation sets g_SpikeAnimSets, and three
- * tables of effect models (g_Game+0x81FC -> D_800EC060, +0x8200 -> D_800F4C30,
- * +0x8204 -> D_800F4630). Resets his state: health (+0xE8) 5, velocities, timers, flags, and
+ * tables of effect models (g_Game+0x81FC -> g_GadgetModels, +0x8200 -> D_800F4C30,
+ * +0x8204 -> g_MonkeyPropModels). Resets his state: health (+0xE8) 5, velocities, timers, flags, and
  * the movement constants D_800EC010[0..17]. Returns 0. */
 s32 Spike_Init(void) {
     W_8003272C_8003272C *h = (W_8003272C_8003272C *)0x80103000;
@@ -470,7 +470,7 @@ s32 Spike_Init(void) {
     Spike_LoadModelData(0);
     (*(struct Game_8003272C *)&g_Game).f_823E = 6;
     (*(Sp_8003272C_8003272C *)&g_Spike).f_18 = (*(struct Game_8003272C *)&g_Game).f_81A0;
-    func_80015B30(&(*(Sp_8003272C_8003272C *)&g_Spike), (*(struct Game_8003272C *)&g_Game).f_819C);
+    Model_BindBoned16(&(*(Sp_8003272C_8003272C *)&g_Spike), (*(struct Game_8003272C *)&g_Game).f_819C);
     (*(Sp_8003272C_8003272C *)&g_Spike).f_66 = 1;
     (*(Sp_8003272C_8003272C *)&g_Spike).f_46 = 0x100;
     (*(Sp_8003272C_8003272C *)&g_Spike).f_E8 = 5;
@@ -515,16 +515,16 @@ s32 Spike_Init(void) {
     D_800EC010[17] = 0xA5A;
     (*(struct Game_8003272C *)&g_Game).f_823C = (*(struct Game_8003272C *)&g_Game).f_81FC[0].lo - 1;
     for (i = 0; i < (*(struct Game_8003272C *)&g_Game).f_823C; i++) {
-        func_80015D10(&D_800EC060[i * 0x10], (u32 *)(*(struct Game_8003272C *)&g_Game).f_81FC + (*(struct Game_8003272C *)&g_Game).f_81FC[i + 1].lo);
+        Model_BindRigid(&g_GadgetModels[i * 0x10], (u32 *)(*(struct Game_8003272C *)&g_Game).f_81FC + (*(struct Game_8003272C *)&g_Game).f_81FC[i + 1].lo);
     }
     TimeNet_Init((u32 *)(*(struct Game_8003272C *)&g_Game).f_81FC + (*(struct Game_8003272C *)&g_Game).f_81FC[i + 1].lo);
     n = *(s32 *)(*(struct Game_8003272C *)&g_Game).f_8200;
     for (i = 0; i < n; i++) {
-        func_80015D10(&D_800F4C30[i * 0x10], (u32 *)(*(struct Game_8003272C *)&g_Game).f_8200 + (*(struct Game_8003272C *)&g_Game).f_8200[i + 1].lo);
+        Model_BindRigid(&D_800F4C30[i * 0x10], (u32 *)(*(struct Game_8003272C *)&g_Game).f_8200 + (*(struct Game_8003272C *)&g_Game).f_8200[i + 1].lo);
     }
     n = *(s32 *)(*(struct Game_8003272C *)&g_Game).f_8204;
     for (i = 0; i < n; i++) {
-        func_80015D10(&D_800F4630[i * 0x10], (u32 *)(*(struct Game_8003272C *)&g_Game).f_8204 + (*(struct Game_8003272C *)&g_Game).f_8204[i + 1].lo);
+        Model_BindRigid(&g_MonkeyPropModels[i * 0x10], (u32 *)(*(struct Game_8003272C *)&g_Game).f_8204 + (*(struct Game_8003272C *)&g_Game).f_8204[i + 1].lo);
     }
     return 0;
 }
@@ -552,7 +552,7 @@ void Spike_LoadModelData(Hdr_80032ADC_80032ADC *h) {
     v = (u32 *)h + h->f_10;
     D_800B4D70->f_C = v;
     ((struct D4DE0_80032ADC *)&g_SpikeAnimSets)->f_AC = v;
-    func_80015AC0(D_800B4D70->f_10, (u32 *)h + h->f_14);
+    Model_BindBoned(D_800B4D70->f_10, (u32 *)h + h->f_14);
     D_800B4D70->f_28 = (u32 *)h + h->f_18;
 }
 
@@ -565,7 +565,7 @@ s32 Spike_SpawnAtStageStart(void) {
     S32x9_80032BBC_80032BBC b;
     SVECTOR v;
     s32 x, z;
-    func_80010C3C(d->f_8126, d->f_812A, &b);
+    Stage_GetSpawnPoint(d->f_8126, d->f_812A, &b);
     s = (S_Spike_80032BBC_80032BBC *)&g_Spike;
     d->f_8258.vx = b.v[3];
     d->f_8258.vy = b.v[4];
@@ -606,7 +606,7 @@ s32 Spike_SpawnAtStageStart(void) {
     s->f_6A = 0x1000;
     s->f_68 = 0;
     s->f_6C = 0;
-    s->f_14 = &D_800E9C60;
+    s->f_14 = &g_ModelMatrices;
     s->f_60.vx = v.vx;
     s->f_60.vy = v.vy;
     s->f_60.vz = v.vz;
@@ -615,7 +615,7 @@ s32 Spike_SpawnAtStageStart(void) {
     return 0;
 }
 
-/* Puts Spike on spawn point b of area id (func_80010C3C; area 0x3D always uses point 0): x/z from
+/* Puts Spike on spawn point b of area id (Stage_GetSpawnPoint; area 0x3D always uses point 0): x/z from
  * the point, y from the floor height there (Floor_GetHeight), facing the point's direction
  * scaled by a and normalised. */
 s32 Spike_PlaceAtSpawn(s32 a, s16 id, s32 b) {
@@ -628,7 +628,7 @@ s32 Spike_PlaceAtSpawn(s32 a, s16 id, s32 b) {
     if (id == 0x3D) {
         b = 0;
     }
-    ((s32 (*)(s32, s32, void *))func_80010C3C)(id, (s16)b, &rec);
+    ((s32 (*)(s32, s32, void *))Stage_GetSpawnPoint)(id, (s16)b, &rec);
     x = rec.w[0];
     z = rec.w[2];
     G_SPIKE_80032D38->f_24 = x;

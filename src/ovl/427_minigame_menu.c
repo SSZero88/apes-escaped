@@ -260,9 +260,9 @@ extern Mdl_80136704 D_8013FD70_80136704[] asm("D_8013FD70");
 extern struct { s32 frame; u8 *prim; s32 ot; s32 cur; DrawBuf db[2]; } g_Game_80136704 asm("g_Game");
 extern struct { u32 f_0; u32 f_4; u32 f_8; u32 f_C; u8 pad10[0xD]; u8 f_1D; u8 pad1E[0x37]; u8 f_55; } D_8013FBF8_80136704 asm("D_8013FBF8");
 extern struct { u8 pad0[0x22]; s16 f_22; s32 f_24; s32 f_28; s32 f_2C; s32 f_30; } D_8013F3E0_80136704 asm("D_8013F3E0");
-extern SVECTOR D_800F4B30_80136704[3] asm("D_800F4B30");
-extern s32 D_800E7D00_80136704 asm("D_800E7D00");
-extern u8 D_800E78C0_80136704[] asm("D_800E78C0");
+extern SVECTOR D_800F4B30_80136704[3] asm("g_JointAngles");
+extern s32 D_800E7D00_80136704 asm("g_ProjVerts");
+extern u8 D_800E78C0_80136704[] asm("g_ViewMatrix");
 extern u8 D_800AF0A0[];
 extern s32 D_8013EFE0;
 void func_801360F0(void);
@@ -271,12 +271,12 @@ void func_801365D0(void);
 void func_80137934(void);
 void Gfx_BeginFrame(void);
 void func_8008C390(void);
-void func_8004637C(void *);
+void Matrix_SetIdentity(void *);
 void *CompMatrix(void *m0, void *m1, void *m2);
-void func_80014804(s16 *, s16 *);
+void Matrix_FromFacingXZ(s16 *, s16 *);
 void Model_CalcJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
-void func_80017CD4(s32, s32, void *);
+void Model_Draw(s32, s32, void *);
 void DrawSync(s32);
 s32 VSync(s32 mode);
 void *PutDrawEnv(void *env);
@@ -294,7 +294,7 @@ void func_80136704(void) {
         g_Game_80136704.frame++;
         Gfx_BeginFrame();
         func_8008C390();
-        func_8004637C(D_800E78C0_80136704);
+        Matrix_SetIdentity(D_800E78C0_80136704);
         CompMatrix(D_800AF0A0, D_800E78C0_80136704, D_800E78C0_80136704);
         for (i = 0; i < 2; i++) {
             D_8013FD70_80136704[i].x = i * 0x1F4 - 0xFA;
@@ -303,7 +303,7 @@ void func_80136704(void) {
             D_8013FD70_80136704[i].rot[0] = 0;
             D_8013FD70_80136704[i].rot[1] = 0;
             D_8013FD70_80136704[i].rot[2] = -0x1000;
-            func_80014804(D_8013FD70_80136704[i].rot, D_8013FD70_80136704[i].mat);
+            Matrix_FromFacingXZ(D_8013FD70_80136704[i].rot, D_8013FD70_80136704[i].mat);
             D_800F4B30_80136704[0].vx = 0;
             D_800F4B30_80136704[0].vy = g_Game_80136704.frame * 8;
             D_800F4B30_80136704[0].vz = 0;
@@ -315,7 +315,7 @@ void func_80136704(void) {
             D_800F4B30_80136704[2].vz = 0;
             Model_CalcJointMatrices(&D_8013FD70_80136704[i], 1);
             Model_ProjectBonedVerts(&D_8013FD70_80136704[i]);
-            func_80017CD4(g_Game_80136704.ot, (s32)&D_800E7D00_80136704, &D_8013FD70_80136704[i]);
+            Model_Draw(g_Game_80136704.ot, (s32)&D_800E7D00_80136704, &D_8013FD70_80136704[i]);
         }
         D_8013EFE0 = 0;
         func_80137934();
@@ -541,7 +541,7 @@ s32 func_80136F30(void) {
         }
         g_Game_801369F4.frame++;
         func_8008C390();
-        func_8004637C(D_800E78C0_80136704);
+        Matrix_SetIdentity(D_800E78C0_80136704);
         CompMatrix(D_800AF0A0, D_800E78C0_80136704, D_800E78C0_80136704);
         p = g_Game_801369F4.prim;
         ((u8 *)p)[3] = 5;
@@ -565,7 +565,7 @@ s32 func_80136F30(void) {
             D_8013FD70_80136704[i].rot[0] = 0;
             D_8013FD70_80136704[i].rot[1] = 0;
             D_8013FD70_80136704[i].rot[2] = -0x1000;
-            func_80014804(D_8013FD70_80136704[i].rot, D_8013FD70_80136704[i].mat);
+            Matrix_FromFacingXZ(D_8013FD70_80136704[i].rot, D_8013FD70_80136704[i].mat);
             D_800F4B30_80136704[0].vx = 0;
             D_800F4B30_80136704[0].vz = 0;
             D_800F4B30_80136704[1].vx = 0;
@@ -577,7 +577,7 @@ s32 func_80136F30(void) {
             D_800F4B30_80136704[2].vy = -g_Game_801369F4.frame * 64;
             Model_CalcJointMatrices(&D_8013FD70_80136704[i], 1);
             Model_ProjectBonedVerts(&D_8013FD70_80136704[i]);
-            func_80017CD4((s32)g_Game_801369F4.ot, (s32)&D_800E7D00_80136704, &D_8013FD70_80136704[i]);
+            Model_Draw((s32)g_Game_801369F4.ot, (s32)&D_800E7D00_80136704, &D_8013FD70_80136704[i]);
         }
         if (pad & PAD_DOWN) {
             sel++;
@@ -703,8 +703,8 @@ void func_8013A29C(void);
 void func_80069500(void);
 void Fx_ClearAll(void);
 s32 VSync(s32 mode);
-void func_80011194(void *);
-s32 func_800116C0();
+void Cd_StartLoadList(void *);
+s32 Cd_PollLoadList();
 void Cd_Update(void);
 void func_8002FAF0(s32);
 void func_801385F4(void);
@@ -737,8 +737,8 @@ void func_80137654(void) {
     D_800EBFA0_80137654.f_24 = 0;
     D_800EBFA0_80137654.f_28 = 0x1000;
     VSync(0);
-    func_80011194(D_8013EFE4);
-    while (func_800116C0() >= 0) {
+    Cd_StartLoadList(D_8013EFE4);
+    while (Cd_PollLoadList() >= 0) {
         Cd_Update();
         VSync(2);
     }
@@ -802,7 +802,7 @@ extern u16 D_800AE8F2;
 extern u16 g_RandSeed;
 extern u8 *D_800EC354;
 extern struct { u8 pad0[0x1D]; u8 f_1D; u8 pad1E[0x37]; u8 f_55; } D_8013FBF8_80137934 asm("D_8013FBF8");
-s32 func_800463A4(s32, s32, s32);
+s32 Math_StepToward(s32, s32, s32);
 #define SPRT_80137934(tp, x, y, uv, clut, wh, A)                          \
     p[3] = 5;                                                          \
     M2C_FIELD(p, u32 *, 4) = tp;                                       \
@@ -903,7 +903,7 @@ void func_80137934(void) {
     if (D_8013FBF8_80137934.f_1D + D_8013FBF8_80137934.f_55 > 0) {
         s++;
     } else {
-        s = func_800463A4(s, 0, 8);
+        s = Math_StepToward(s, 0, 8);
     }
     if (s > 0x3840) {
         s = 0x3840;
@@ -1184,7 +1184,7 @@ extern Save_801385F4 *D_8013FD60_801385F4 asm("D_8013FD60");
 extern struct { u8 pad0[0x2C]; s32 f_2C; s32 f_30; } D_8013F3E0_801385F4 asm("D_8013F3E0");
 extern struct { u8 pad0[0x8138]; u8 f_8138; } g_Game_801385F4 asm("g_Game");
 extern struct { u8 pad0[0x42]; s16 f_42; u8 pad44[0x36]; s16 f_7A; } D_8013FBF8_801385F4 asm("D_8013FBF8");
-void func_80015AC0(void *, void *);
+void Model_BindBoned(void *, void *);
 void func_801385B8();
 void Model_BindMesh(void *, void *);
 Save_801385F4 *Minigame_GetSaveData(s32);
@@ -1196,12 +1196,12 @@ void func_801385F4(void) {
     s32 *b;
 
     for (i = 0; i < 2; i++) {
-        func_80015AC0(&D_8013FD70_801385F4[i], (u32 *)f + f[1 + i].off);
+        Model_BindBoned(&D_8013FD70_801385F4[i], (u32 *)f + f[1 + i].off);
         D_8013FD70_801385F4[i].f_5C = 0;
         D_8013FD70_801385F4[i].f_5E = 0;
     }
     for (i = 0; i < 3; i++) {
-        func_80015AC0(&D_8013FE60_801385F4[i], (u32 *)f + f[3 + i * 2].off);
+        Model_BindBoned(&D_8013FE60_801385F4[i], (u32 *)f + f[3 + i * 2].off);
         b = (s32 *)((u32)(f[4 + i * 2].off * 4) + (u32)f);
         D_8013FE60_801385F4[i].f_18 = b + *b + 1;
         D_8013FE60_801385F4[i].f_70 = (s32 *)f + f[4 + i * 2].off + 1;
@@ -1369,7 +1369,7 @@ extern struct { u32 f_0; u32 f_4; u32 f_8; u32 f_C; u8 pad10[0xD]; u8 f_1D; u8 p
 extern struct { u8 pad0[0x1C]; s32 f_1C; s16 f_20; } D_8013F3E0_80138C30 asm("D_8013F3E0");
 extern u8 g_CameraTarget[];
 extern u8 D_800F45B0[];
-extern u8 D_800E78C0[];
+extern u8 g_ViewMatrix[];
 extern u8 D_800EC330[];
 void Camera_LookAt(void *, void *, void *, void *, s32);
 void Fx_UpdateAll(void);
@@ -1393,7 +1393,7 @@ void func_80138C30(void) {
     g_Game_80138C30.f_8260.vx = 0;
     g_Game_80138C30.f_8260.vy = 0;
     g_Game_80138C30.f_8260.vz = 0x1000;
-    Camera_LookAt(g_CameraTarget, D_800F45B0, D_800E78C0, D_800EC330, 0);
+    Camera_LookAt(g_CameraTarget, D_800F45B0, g_ViewMatrix, D_800EC330, 0);
     func_8013B4B4();
     for (;;) {
         func_801360F0();
@@ -1769,8 +1769,8 @@ void func_80139888(void) {
 
     p = g_Game_80139888.prim;
     ot = g_Game_80139888.ot;
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     e = D_8013FCE0_80139888;
     for (i = 0; i < 24; i++, e++) {
         if (e->f_7 != 0) {
@@ -1842,8 +1842,8 @@ void func_80139A74(void) {
     frame = g_Game_80139A74.frame >> 2;
     p = g_Game_80139A74.prim;
     ot = g_Game_80139A74.ot;
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     e = D_8013FCE4_80139A74;
     for (i = 0; i < 32; i++, e++) {
         if (e->f_7 != 0) {
@@ -1931,8 +1931,8 @@ void func_80139BF8(void) {
         }
         a->x = x;
         a->y = y;
-        a->f_68 = func_800463A4(a->f_68, -sx << 7, 0x80);
-        a->f_6A = func_800463A4(a->f_6A, -sy << 7, 0x80);
+        a->f_68 = Math_StepToward(a->f_68, -sx << 7, 0x80);
+        a->f_6A = Math_StepToward(a->f_6A, -sy << 7, 0x80);
         if (a->stun == 0 || (a->stun & 1)) {
             func_8013AF14((u8 *)a);
         }
@@ -2213,8 +2213,8 @@ void func_8013A2C8(pop)
 typedef struct { s32 f_0; u8 m[0x74]; } Pop_8013A548;
 extern Pop_8013A548 D_8013F418_8013A548[] asm("D_8013F418");
 extern struct { s32 f_0; s32 f_4; s32 f_8; } g_Game_8013A548 asm("g_Game");
-extern s32 D_800E7D00;
-void func_80017EFC(s32, s32, void *, s32);
+extern s32 g_ProjVerts;
+void Model_DrawColorAnim(s32, s32, void *, s32);
 
 void func_8013A548(void) {
     s32 i;
@@ -2247,15 +2247,15 @@ void func_8013A548(void) {
         if (m[0x4A] != 0 && m[0x4B] == 0) {
             m[0x4A] = 0;
             m[0x4B] = 1;
-            func_8013A8C0(g_Game_8013A548.f_8, (s32)&D_800E7D00, m);
+            func_8013A8C0(g_Game_8013A548.f_8, (s32)&g_ProjVerts, m);
         } else {
             m[0x4B] = 0;
             switch (M2C_FIELD(m, s32 *, 0x50)) {
             case 0:
-                func_80017CD4(g_Game_8013A548.f_8, (s32)&D_800E7D00, m);
+                Model_Draw(g_Game_8013A548.f_8, (s32)&g_ProjVerts, m);
                 break;
             case 1:
-                func_80017EFC(g_Game_8013A548.f_8, (s32)&D_800E7D00, m, 6);
+                Model_DrawColorAnim(g_Game_8013A548.f_8, (s32)&g_ProjVerts, m, 6);
                 break;
             }
         }
@@ -2507,34 +2507,34 @@ void func_8013AE64(s32 arg0) {
 }
 
 extern struct { s32 f_0; s32 f_4; s32 f_8; } g_Game_8013AF14 asm("g_Game");
-extern SVECTOR D_800F4B30[3];
-extern s32 D_800E7D00;
+extern SVECTOR g_JointAngles[3];
+extern s32 g_ProjVerts;
 void Matrix_LookAt(void *, void *, void *, s32);
 void Model_CalcJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
-void func_80017CD4(s32, s32, void *);
+void Model_Draw(s32, s32, void *);
 
 void func_8013AF14(u8 *m) {
     Matrix_LookAt(m + 0x60, m + 0x68, M2C_FIELD(m, void **, 0x14), 0);
-    D_800F4B30[0].vx = 0;
-    D_800F4B30[0].vy = g_Game_8013AF14.f_0 * 8;
-    D_800F4B30[0].vz = 0;
-    D_800F4B30[1].vx = 0;
-    D_800F4B30[1].vy = g_Game_8013AF14.f_0 * 32;
-    D_800F4B30[1].vz = 0;
-    D_800F4B30[2].vx = 0;
-    D_800F4B30[2].vy = -g_Game_8013AF14.f_0 * 64;
-    D_800F4B30[2].vz = 0;
+    g_JointAngles[0].vx = 0;
+    g_JointAngles[0].vy = g_Game_8013AF14.f_0 * 8;
+    g_JointAngles[0].vz = 0;
+    g_JointAngles[1].vx = 0;
+    g_JointAngles[1].vy = g_Game_8013AF14.f_0 * 32;
+    g_JointAngles[1].vz = 0;
+    g_JointAngles[2].vx = 0;
+    g_JointAngles[2].vy = -g_Game_8013AF14.f_0 * 64;
+    g_JointAngles[2].vz = 0;
     Model_CalcJointMatrices(m, 1);
     Model_ProjectBonedVerts(m);
-    func_80017CD4(g_Game_8013AF14.f_8, (s32)&D_800E7D00, m);
+    Model_Draw(g_Game_8013AF14.f_8, (s32)&g_ProjVerts, m);
 }
 
 typedef struct { u8 pad0[0xD]; u8 f_D; u8 f_E; u8 padF[0x29]; } Slot_8013AFC0;
 typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; u8 pad30[0x1C]; s16 f_4C; u8 pad4E[0x12]; s16 r[3]; s16 pad66; s16 t[3]; u8 pad6E[6]; } Mdl_8013AFC0;
 extern Slot_8013AFC0 D_8013FC08_8013AFC0[] asm("D_8013FC08");
 extern Mdl_8013AFC0 D_8013FD70_8013AFC0[] asm("D_8013FD70");
-s32 func_800463A4(s32, s32, s32);
+s32 Math_StepToward(s32, s32, s32);
 void func_8013AF14(u8 *m);
 
 void func_8013AFC0(s32 i) {
@@ -2546,22 +2546,22 @@ void func_8013AFC0(s32 i) {
     switch (s->f_E) {
     case 0:
         old = m->x;
-        v = func_800463A4(old, 0, 0x10);
+        v = Math_StepToward(old, 0, 0x10);
         if (old == v) {
             s->f_E = 1;
         }
         m->x = v;
         break;
     case 1:
-        m->x = func_800463A4(m->x, i == 0 ? -0x200 : 0x200, 0x10);
-        m->y = func_800463A4(m->y, 0x3D8, 0x10);
-        m->z = func_800463A4(m->z, 0xA40, 0x10);
-        m->r[0] = func_800463A4(m->r[0], 0, 0x3F);
-        m->r[1] = func_800463A4(m->r[1], -0x1000, 0x3F);
-        m->r[2] = func_800463A4(m->r[2], 0, 0x3F);
-        m->t[0] = func_800463A4(m->t[0], 0, 0x3F);
-        m->t[1] = func_800463A4(m->t[1], 0, 0x3F);
-        m->t[2] = func_800463A4(m->t[2], 0x1000, 0x3F);
+        m->x = Math_StepToward(m->x, i == 0 ? -0x200 : 0x200, 0x10);
+        m->y = Math_StepToward(m->y, 0x3D8, 0x10);
+        m->z = Math_StepToward(m->z, 0xA40, 0x10);
+        m->r[0] = Math_StepToward(m->r[0], 0, 0x3F);
+        m->r[1] = Math_StepToward(m->r[1], -0x1000, 0x3F);
+        m->r[2] = Math_StepToward(m->r[2], 0, 0x3F);
+        m->t[0] = Math_StepToward(m->t[0], 0, 0x3F);
+        m->t[1] = Math_StepToward(m->t[1], 0, 0x3F);
+        m->t[2] = Math_StepToward(m->t[2], 0x1000, 0x3F);
         if (m->z == 0xA40) {
             s->f_D = 3;
             m->f_4C = 0xB4;
@@ -2819,8 +2819,8 @@ void func_8013B92C(void) {
 
     p = g_Game_8013B92C.prim;
     ot = g_Game_8013B92C.ot;
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     for (i = 0; i < 5; i++) {
         if (D_8013FCF0_8013B8B8[i].kind != 0) {
             x = D_8013FCF0_8013B8B8[i].x + (D_8013FCF0_8013B8B8[i].dx >> 9);
@@ -2914,7 +2914,7 @@ extern s16 D_8013F402;
 extern s32 *D_8013FBD8_8013BC28[] asm("D_8013FBD8");
 s32 func_80138958(s32 x, s32 z);
 void *ScaleMatrixL(void *m, void *v);
-void func_80015780(void *, s32);
+void Model_CalcKeyedJointMatrices(void *, s32);
 
 void func_8013BC28(Mdl_8013BC28 *m) {
     s32 sc[3];
@@ -2962,7 +2962,7 @@ void func_8013BC28(Mdl_8013BC28 *m) {
     sc[2] = s;
     ScaleMatrixL(m->f_14, sc);
     m->f_44 = (s * 3) >> 7;
-    func_80015780(m, 1);
+    Model_CalcKeyedJointMatrices(m, 1);
     Model_ProjectBonedVerts(m);
 }
 
@@ -3026,7 +3026,7 @@ void func_8013BE5C(Mdl_8013BE5C *m) {
     sc[2] = s;
     ScaleMatrixL(m->f_14, sc);
     m->f_44 = (s * 3) >> 7;
-    func_80015780(m, 1);
+    Model_CalcKeyedJointMatrices(m, 1);
     Model_ProjectBonedVerts(m);
 }
 
@@ -3090,7 +3090,7 @@ void func_8013C0E4(Mdl_8013C0E4 *m) {
     sc[2] = s;
     ScaleMatrixL(m->f_14, sc);
     m->f_44 = (s * 3) >> 7;
-    func_80015780(m, 1);
+    Model_CalcKeyedJointMatrices(m, 1);
     Model_ProjectBonedVerts(m);
 }
 
@@ -3098,9 +3098,9 @@ typedef struct { u8 pad0[0x24]; s32 x; s32 y; s32 z; u8 pad30[0x30]; s16 f_60; s
 typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_8013C368;
 typedef struct { Mat_8013C368 rot; SVECTOR dir; SVECTOR up; u8 pad30[0x10]; s32 scale[3]; } Scr_8013C368;
 extern s32 g_Game_8013C368 asm("g_Game");
-extern Mat_8013C368 D_800E9C60_8013C368 asm("D_800E9C60");
-extern u8 D_800E78C0[];
-void func_8004637C(void *);
+extern Mat_8013C368 D_800E9C60_8013C368 asm("g_ModelMatrices");
+extern u8 g_ViewMatrix[];
+void Matrix_SetIdentity(void *);
 void *RotMatrixX(s32 r, void *m);
 void *MulMatrix(void *m0, void *m1);
 void *CompMatrix(void *m0, void *m1, void *m2);
@@ -3127,7 +3127,7 @@ void func_8013C368(Mdl_8013C368 *m) {
     s->up.vy = 0;
     s->up.vz = 0x1000;
     Matrix_LookAt(&s->dir, &s->up, mat, 0);
-    func_8004637C(s);
+    Matrix_SetIdentity(s);
     RotMatrixX(g_Game_8013C368 * 32, s);
     MulMatrix(mat, s);
     mat->t[0] = m->x;
@@ -3139,12 +3139,12 @@ void func_8013C368(Mdl_8013C368 *m) {
         s->scale[2] = 0x800;
         ScaleMatrixL(mat, s->scale);
     }
-    CompMatrix(D_800E78C0, mat, mat);
-    Model_ProjectVertsAlt(m, mat, &D_800E7D00);
+    CompMatrix(g_ViewMatrix, mat, mat);
+    Model_ProjectVertsAlt(m, mat, &g_ProjVerts);
 }
 
 s32 rcos(s32);
-void func_8004637C(void *);
+void Matrix_SetIdentity(void *);
 void RotMatrixZ(s32, void *);
 void ApplyMatrixSV(void *, SVECTOR *, SVECTOR *);
 M2C_UNK VectorNormalSS(void *, void *);
@@ -3153,7 +3153,7 @@ void func_8013C4D4(SVECTOR *a, SVECTOR *b, s32 ang) {
     s32 c;
 
     if ((a->vx * b->vx + a->vy * b->vy) >> 12 < rcos(ang)) {
-        func_8004637C((void *)0x1F800000);
+        Matrix_SetIdentity((void *)0x1F800000);
         c = (a->vx * b->vy - a->vy * b->vx) / 4096;
         if (c > 0) {
             RotMatrixZ(-ang, (void *)0x1F800000);
@@ -3172,7 +3172,7 @@ typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mat_8013C5F0;
 typedef struct { Mat_8013C5F0 rot; SVECTOR dir; SVECTOR up; SVECTOR tgt; } Scr_8013C5F0;
 extern u16 g_RandSeed_8013C5F0 asm("g_RandSeed");
 extern s16 *D_8013FBD8[];
-extern Mat_8013C5F0 D_800E9C60_8013C5F0 asm("D_800E9C60");
+extern Mat_8013C5F0 D_800E9C60_8013C5F0 asm("g_ModelMatrices");
 void func_8013C4D4(SVECTOR *a, SVECTOR *b, s32 ang);
 
 void func_8013C5F0(Mdl_8013C5F0 *m) {
@@ -3214,8 +3214,8 @@ void func_8013C5F0(Mdl_8013C5F0 *m) {
     mat->t[0] = m->x;
     mat->t[1] = m->y;
     mat->t[2] = 0xA40;
-    CompMatrix(D_800E78C0, mat, mat);
-    Model_ProjectVertsAlt(m, mat, &D_800E7D00);
+    CompMatrix(g_ViewMatrix, mat, mat);
+    Model_ProjectVertsAlt(m, mat, &g_ProjVerts);
 }
 
 void func_8013C7F0(void) {
@@ -3381,7 +3381,7 @@ extern struct { u32 frame; s32 prim; s32 ot; } g_Game_8013CDB0 asm("g_Game");
 extern u8 D_80140220_8013CDB0[] asm("D_80140220");
 void *ScaleMatrix(void *m, void *v);
 void *RotMatrixZYX(void *r, void *m);
-void func_80017EFC(s32, s32, void *, s32);
+void Model_DrawColorAnim(s32, s32, void *, s32);
 
 void func_8013CDB0(void) {
     Mat_8013CDB0 m;
@@ -3392,7 +3392,7 @@ void func_8013CDB0(void) {
     if (g_Game_8013CDB0.frame > 0x780) {
         return;
     }
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     m.t[0] = -0x30;
     if (g_Game_8013CDB0.frame < 0x680) {
         m.t[1] = 0x50;
@@ -3404,20 +3404,20 @@ void func_8013CDB0(void) {
     sc.vy = 0x400;
     sc.vz = 0x400;
     ScaleMatrix(&m, &sc);
-    CompMatrix(&m, D_800E78C0, &m);
-    Model_ProjectVertsAlt(D_80140220_8013CDB0, &m, &D_800E7D00);
-    func_80017EFC(g_Game_8013CDB0.ot + 0x100, (s32)&D_800E7D00, D_80140220_8013CDB0, 0);
-    func_8004637C(&r);
+    CompMatrix(&m, g_ViewMatrix, &m);
+    Model_ProjectVertsAlt(D_80140220_8013CDB0, &m, &g_ProjVerts);
+    Model_DrawColorAnim(g_Game_8013CDB0.ot + 0x100, (s32)&g_ProjVerts, D_80140220_8013CDB0, 0);
+    Matrix_SetIdentity(&r);
     rot.vz = 0;
     rot.vx = (s8)D_8013FBF8_8013CBF0[0x23] * 4;
     rot.vy = -((s8)D_8013FBF8_8013CBF0[0x22] * 4);
     m.t[2] -= 0x10;
     RotMatrixZYX(&rot, &r);
     CompMatrix(&m, &r, &r);
-    Model_ProjectVertsAlt(D_80140220_8013CDB0 - 0x20, &r, &D_800E7D00);
-    func_80017EFC(g_Game_8013CDB0.ot, (s32)&D_800E7D00, D_80140220_8013CDB0 - 0x20, 0);
+    Model_ProjectVertsAlt(D_80140220_8013CDB0 - 0x20, &r, &g_ProjVerts);
+    Model_DrawColorAnim(g_Game_8013CDB0.ot, (s32)&g_ProjVerts, D_80140220_8013CDB0 - 0x20, 0);
 
-    func_8004637C(&m);
+    Matrix_SetIdentity(&m);
     m.t[0] = 0x30;
     if (g_Game_8013CDB0.frame < 0x680) {
         m.t[1] = 0x50;
@@ -3429,18 +3429,18 @@ void func_8013CDB0(void) {
     sc.vy = 0x400;
     sc.vz = 0x400;
     ScaleMatrix(&m, &sc);
-    CompMatrix(&m, D_800E78C0, &m);
-    Model_ProjectVertsAlt(D_80140220_8013CDB0, &m, &D_800E7D00);
-    func_80017EFC(g_Game_8013CDB0.ot + 0x100, (s32)&D_800E7D00, D_80140220_8013CDB0, 0);
-    func_8004637C(&r);
+    CompMatrix(&m, g_ViewMatrix, &m);
+    Model_ProjectVertsAlt(D_80140220_8013CDB0, &m, &g_ProjVerts);
+    Model_DrawColorAnim(g_Game_8013CDB0.ot + 0x100, (s32)&g_ProjVerts, D_80140220_8013CDB0, 0);
+    Matrix_SetIdentity(&r);
     rot.vz = 0;
     rot.vx = (s8)D_8013FBF8_8013CBF0[0x21] * 4;
     rot.vy = -((s8)D_8013FBF8_8013CBF0[0x20] * 4);
     m.t[2] -= 0x10;
     RotMatrixZYX(&rot, &r);
     CompMatrix(&m, &r, &r);
-    Model_ProjectVertsAlt(D_80140220_8013CDB0 - 0x20, &r, &D_800E7D00);
-    func_80017EFC(g_Game_8013CDB0.ot, (s32)&D_800E7D00, D_80140220_8013CDB0 - 0x20, 0);
+    Model_ProjectVertsAlt(D_80140220_8013CDB0 - 0x20, &r, &g_ProjVerts);
+    Model_DrawColorAnim(g_Game_8013CDB0.ot, (s32)&g_ProjVerts, D_80140220_8013CDB0 - 0x20, 0);
 }
 
 #define gte_rtps_n() __asm__ volatile ("nop; nop; rtps")
@@ -3462,13 +3462,13 @@ void func_8013D044(s32 n) {
         D_8013FD30_8013D044.state = 0;
         break;
     case 1:
-        D_8013FD30_8013D044.x = func_800463A4(D_8013FD30_8013D044.x, 0x94, 8);
-        D_8013FD30_8013D044.y = func_800463A4(D_8013FD30_8013D044.y, 0xBE, 8);
+        D_8013FD30_8013D044.x = Math_StepToward(D_8013FD30_8013D044.x, 0x94, 8);
+        D_8013FD30_8013D044.y = Math_StepToward(D_8013FD30_8013D044.y, 0xBE, 8);
         D_8013FD30_8013D044.state = n;
         break;
     case 2:
-        D_8013FD30_8013D044.x = func_800463A4(D_8013FD30_8013D044.x, 0xEC, 8);
-        D_8013FD30_8013D044.y = func_800463A4(D_8013FD30_8013D044.y, 0xBE, 8);
+        D_8013FD30_8013D044.x = Math_StepToward(D_8013FD30_8013D044.x, 0xEC, 8);
+        D_8013FD30_8013D044.y = Math_StepToward(D_8013FD30_8013D044.y, 0xBE, 8);
         D_8013FD30_8013D044.state = n;
         break;
     case 3:
@@ -3477,8 +3477,8 @@ void func_8013D044(s32 n) {
             D_8013FD30_8013D044.state = 0;
             return;
         }
-        SetRotMatrix(D_800E78C0);
-        SetTransMatrix(D_800E78C0);
+        SetRotMatrix(g_ViewMatrix);
+        SetTransMatrix(g_ViewMatrix);
         v = (SVECTOR *)0x1F800000;
         v[4].vz = 0xA40;
         v[4].vx = e->x;
@@ -3488,8 +3488,8 @@ void func_8013D044(s32 n) {
         gte_stsxy_m((s32 *)&v[4]);
         tx = v[4].vx;
         v[4].vy += 2;
-        D_8013FD30_8013D044.x = func_800463A4(D_8013FD30_8013D044.x, tx, 8);
-        D_8013FD30_8013D044.y = func_800463A4(D_8013FD30_8013D044.y, v[4].vy, 8);
+        D_8013FD30_8013D044.x = Math_StepToward(D_8013FD30_8013D044.x, tx, 8);
+        D_8013FD30_8013D044.y = Math_StepToward(D_8013FD30_8013D044.y, v[4].vy, 8);
         D_8013FD30_8013D044.state = n;
         D_8013FD30_8013D044.xy = *(s32 *)&v[4];
         break;
@@ -3692,8 +3692,8 @@ L1:
 REST:
     b = t;
     t2 = (a < -0x7F) ? -0x7F : (a >= 0x80) ? 0x7F : a;
-    D_8013F3D7 = D_8013FBF8_8013D578.f_22 = func_800463A4(D_8013F3D7, t2, 0x20);
-    D_8013F3D8 = D_8013FBF8_8013D578.f_23 = func_800463A4(D_8013F3D8, b, 0x20);
+    D_8013F3D7 = D_8013FBF8_8013D578.f_22 = Math_StepToward(D_8013F3D7, t2, 0x20);
+    D_8013F3D8 = D_8013FBF8_8013D578.f_23 = Math_StepToward(D_8013F3D8, b, 0x20);
     if (d < -0x7F) {
         t = -0x7F;
     } else if (d < 0x80) {
@@ -3703,8 +3703,8 @@ REST:
     }
     d = t;
     t2 = (c < -0x7F) ? -0x7F : (c >= 0x80) ? 0x7F : c;
-    D_8013F3D9 = D_8013FBF8_8013D578.f_20 = func_800463A4(D_8013F3D9, t2, 0x20);
-    D_8013F3DA = D_8013FBF8_8013D578.f_21 = func_800463A4(D_8013F3DA, d, 0x20);
+    D_8013F3D9 = D_8013FBF8_8013D578.f_20 = Math_StepToward(D_8013F3D9, t2, 0x20);
+    D_8013F3DA = D_8013FBF8_8013D578.f_21 = Math_StepToward(D_8013F3DA, d, 0x20);
     s->sv.vy = D_8013F3DA;
     s->sv.vz = 0;
     s->sv.vx = D_8013F3D9;
@@ -3741,7 +3741,7 @@ void func_8013BE5C();
 void func_8013C0E4();
 void func_8013C368();
 void func_8013C5F0();
-void func_80017EFC(s32, s32, void *, s32);
+void Model_DrawColorAnim(s32, s32, void *, s32);
 
 void func_8013D910(void) {
     s32 i;
@@ -3787,10 +3787,10 @@ void func_8013D910(void) {
         }
         switch (m->f_50) {
         case 0:
-            func_80017CD4(g_Game_8013D910.f_8, (s32)&D_800E7D00, m);
+            Model_Draw(g_Game_8013D910.f_8, (s32)&g_ProjVerts, m);
             break;
         case 1:
-            func_80017EFC(g_Game_8013D910.f_8, (s32)&D_800E7D00, m, 6);
+            Model_DrawColorAnim(g_Game_8013D910.f_8, (s32)&g_ProjVerts, m, 6);
             break;
         }
     }
@@ -3827,7 +3827,7 @@ void func_8013DB7C(void) {
     g_Game_8013DB7C.f_8260.vx = 0;
     g_Game_8013DB7C.f_8260.vy = 0;
     g_Game_8013DB7C.f_8260.vz = 0x1000;
-    Camera_LookAt(g_CameraTarget, D_800F45B0, D_800E78C0, D_800EC330, 0);
+    Camera_LookAt(g_CameraTarget, D_800F45B0, g_ViewMatrix, D_800EC330, 0);
     func_8013B4B4();
     g_Game_8013DB7C.frame = 0;
     for (;;) {

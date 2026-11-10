@@ -24,7 +24,7 @@ typedef struct { SVECTOR at; SVECTOR eye; SVECTOR tgt; } Scr_8013D000;
 typedef struct { u8 pad0[0x34]; s16 f34; s16 f36; u8 pad38[7]; u8 f3F; u8 f40; u8 pad41; u8 f42; } Cam_8013D000;
 extern Cam_8013D000 D_800E68D0;
 s32 VectorNormalSS_8013D000(SVECTOR *, SVECTOR *) asm("VectorNormalSS");
-void func_8004637C(void *);
+void Matrix_SetIdentity(void *);
 void func_80047464(void *, s32, s32, s32);
 void func_80047558(void *, s32, s32, s32);
 void func_8004B8F4(void *, s32, void *);
@@ -55,7 +55,7 @@ void func_8013D000(void *arg0) {
     SCR_8013D000->eye.vy = SCR_8013D000->tgt.vy + 0x1E;
     SCR_8013D000->eye.vz = SCR_8013D000->tgt.vz;
     func_80047558(arg0, 2, 0x14, 2);
-    func_8004637C(m);
+    Matrix_SetIdentity(m);
     RotMatrixY(0x2D, m);
     ApplyMatrixSV(m, &d, &d);
     k = 0x12E0;
@@ -373,14 +373,14 @@ void func_8013DA84(void *arg0) {
 
 typedef struct { s16 m[3][3]; s32 t[3]; } Mat_8013DAC8;
 extern struct { u32 frame; u8 pad_4[0x8]; s32 f_C; u8 pad_10[0x70]; u8 f_80[1]; } g_Game_8013DAC8 asm("g_Game");
-extern u8 D_800E7D00[];
+extern u8 g_ProjVerts[];
 s32 Floor_GetHeight_8013DAC8(s32, s32, s32) asm("Floor_GetHeight");
 void Shadow_Draw_8013DAC8(void *, s16, s32, s32) asm("Shadow_Draw");
-void func_80014804(s16 *, s16 *);
+void Matrix_FromFacingXZ(s16 *, s16 *);
 void *RotMatrixX(s32 r, void *m);
 void *CompMatrix(void *m0, void *m1, void *m2);
 void *ScaleMatrix(void *m, void *v);
-void func_80015780(void *, s32);
+void Model_CalcKeyedJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void func_80051AA4(u32 *, u8 *, void *, s32);
 
@@ -390,7 +390,7 @@ void func_8013DAC8(u8 *e, s32 size, s8 *spin) {
     s32 shade;
 
     Shadow_Draw_8013DAC8(e + 0x24, Floor_GetHeight_8013DAC8(M2C_FIELD(e, s32 *, 0x24), M2C_FIELD(e, s32 *, 0x28), M2C_FIELD(e, s32 *, 0x2C)), 100, *(s32 *)0x1F8003FC);
-    func_80014804((s16 *)(e + 0x60), M2C_FIELD(e, s16 **, 0x14));
+    Matrix_FromFacingXZ((s16 *)(e + 0x60), M2C_FIELD(e, s16 **, 0x14));
     if (*spin != 0) {
         Mat_8013DAC8 m = { { { 0x1000, 0, 0 }, { 0, 0x1000, 0 }, { 0, 0, 0x1000 } }, { 0, 0, 0 } };
         s32 r = g_Game_8013DAC8.frame % 5;
@@ -410,9 +410,9 @@ void func_8013DAC8(u8 *e, s32 size, s8 *spin) {
     v[1] = sc;
     v[0] = sc;
     ScaleMatrix(M2C_FIELD(e, void **, 0x14), v);
-    func_80015780(e, 3);
+    Model_CalcKeyedJointMatrices(e, 3);
     Model_ProjectBonedVerts(e);
-    func_80051AA4((u32 *)(g_Game_8013DAC8.f_80 + g_Game_8013DAC8.f_C * 0x4078), D_800E7D00, e, shade);
+    func_80051AA4((u32 *)(g_Game_8013DAC8.f_80 + g_Game_8013DAC8.f_C * 0x4078), g_ProjVerts, e, shade);
 }
 
 typedef struct { s16 m[3][3]; s16 pad; s32 t[3]; } Mtx_417;

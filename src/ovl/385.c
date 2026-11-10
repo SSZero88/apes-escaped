@@ -7,8 +7,8 @@ extern u8 D_800E52D0[2][0x22];
 extern struct { u8 pad0[0x10]; DrawBuf db[2]; u8 pad8100[0x20]; s16 mode; u8 pad8122[0x38]; s16 f_815A; s16 f_815C; u8 pad815E[6]; s16 f_8164; } g_Game_80136000 asm("g_Game");
 extern GameDraw g_Draw_80136000 asm("g_Game");
 s32 VSync(s32 mode);
-s32 func_80011194(void *);
-s32 func_800116C0(void);
+s32 Cd_StartLoadList(void *);
+s32 Cd_PollLoadList(void);
 void Cd_Update(void);
 void SetDispMask(s32 mask);
 s32 ResetGraph(s32 mode);
@@ -32,8 +32,8 @@ s32 func_80136000(void) {
 
     VSync(0);
     t = VSync(-1);
-    func_80011194(D_80136920);
-    while (func_800116C0() == 0) {
+    Cd_StartLoadList(D_80136920);
+    while (Cd_PollLoadList() == 0) {
         Cd_Update();
         VSync(2);
     }
@@ -81,7 +81,7 @@ s32 func_80136000(void) {
     PutDispEnv(&g_Draw_80136000.db[g_Draw_80136000.cur].env[0x5C]);
     PutDrawEnv(&g_Draw_80136000.db[g_Draw_80136000.cur]);
     Cd_StartFileLoad(0, 0xC);
-    while (func_800116C0() == 0) {
+    while (Cd_PollLoadList() == 0) {
         Cd_Update();
         VSync(2);
     }
@@ -92,7 +92,7 @@ s32 func_80136000(void) {
 }
 
 typedef struct { s16 x, y, w, h; } Rect_801362A4;
-extern struct { u8 pad0[0x20]; s32 f_20; } D_800E3890;
+extern struct { u8 pad0[0x20]; s32 f_20; } g_Cd;
 extern GameDraw g_Game_801362A4 asm("g_Game");
 s32 ClearImage2(void *rect, u8 r, u8 g, u8 b);
 void DrawSync(s32);
@@ -102,7 +102,7 @@ void *PutDrawEnv(void *env);
 void *PutDispEnv(void *env);
 void func_8001325C(s32);
 void Gfx_BeginFrame(void);
-s32 func_800116C0(void);
+s32 Cd_PollLoadList(void);
 void Cd_Update(void);
 
 s32 func_801362A4(void) {
@@ -133,10 +133,10 @@ s32 func_801362A4(void) {
     while (1) {
         func_8001325C(0);
         Gfx_BeginFrame();
-        if (loading && func_800116C0() < 0) {
+        if (loading && Cd_PollLoadList() < 0) {
             loading = 0;
         }
-        if (D_800E3890.f_20 != 0 && t < 0) {
+        if (g_Cd.f_20 != 0 && t < 0) {
             t = 0;
         }
         if (t >= 0) {
@@ -189,7 +189,7 @@ s32 func_80136424(void) {
     return 0;
 }
 
-/* uses Rect_801362A4, g_Game_801362A4, D_800E3890 and the decls above func_801362A4 in src/ovl/385.c */
+/* uses Rect_801362A4, g_Game_801362A4, g_Cd and the decls above func_801362A4 in src/ovl/385.c */
 void DrawOTag(u32 *p);
 
 s32 func_80136528(void) {
@@ -216,10 +216,10 @@ s32 func_80136528(void) {
     while (1) {
         func_8001325C(0);
         Gfx_BeginFrame();
-        if (loading && func_800116C0() < 0) {
+        if (loading && Cd_PollLoadList() < 0) {
             loading = 0;
         }
-        if (D_800E3890.f_20 != 6 && t < 0) {
+        if (g_Cd.f_20 != 6 && t < 0) {
             t = 0;
         }
         if (t >= 0) {

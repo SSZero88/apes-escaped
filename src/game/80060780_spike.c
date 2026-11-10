@@ -43,7 +43,7 @@ typedef struct { s16 vx, vy, vz, pad; } SVEC_800661D4_800661D4;
 typedef struct { u8 pad0[0x64]; u16 f_64; } SCR_800661D4_800661D4;
 
 s32 rcos(s32);
-void func_8004637C(MATRIX_80066C90 *);
+void Matrix_SetIdentity(MATRIX_80066C90 *);
 void RotMatrixY(s32, MATRIX_80066C90 *);
 
 extern struct S_D_800EC1E0 { u8 pad_0[0x24]; s32 f_24; s32 f_28; s32 f_2C; s32 f_30; s32 f_34; s32 f_38; u8 pad_3C[0x24]; s16 f_60; s16 f_62; s16 f_64; u8 pad_66[0xA]; s32 f_70; s16 f_74; s16 f_76; s16 f_78; u8 pad_7A[0x12]; s16 f_8C; u8 pad_8E[0x26]; s16 f_B4; s16 f_B6; s16 f_B8; s16 f_BA; s16 f_BC; s16 f_BE; s16 f_C0; s16 f_C2; s16 f_C4; s16 f_C6; s16 f_C8; s16 f_CA; u8 pad_CC[0x12]; u16 f_DE; s32 f_E0; u8 pad_E4[0x4]; s16 f_E8; u8 pad_EA[0x16]; s16 f_100; u8 pad_102[0x2]; s16 f_104; s16 f_106; s32 f_108; u8 pad_10C[0x4]; s32 f_110; s32 f_114; s32 f_118; s32 f_11C; s32 f_120; s32 f_124; s32 f_128; s32 f_12C; u8 pad_130[0x6]; s16 f_136; u16 f_138; u8 pad_13A[0x2]; s16 f_13C; } g_Spike;
@@ -118,7 +118,7 @@ extern S_4D70_80067AF0_80067AF0 *D_800B4D70;
 s32 Overlay_GetState(void);
 void Spike_SetBlinkFrame(s32);
 struct S_D_800EC350_80067AF0 { u32 f_0; u8 pad_4[0x814C]; u16 f_8150; };
-extern u8 D_800E7D00[];
+extern u8 g_ProjVerts[];
 extern u32 *D_800EC358;
 void Anim_SetFrame(void *);
 void Matrix_LookAt(SVECTOR *, SVECTOR *, MAT_800689F0 *, s32);
@@ -132,12 +132,12 @@ s32 Vec_Length(s32, s32, s32);
 struct Spike_80066ADC { u8 pad0[0x114]; s32 f_114; s32 f_118; s32 f_11C; s32 f_120; s32 f_124; s32 f_128; };
 struct Spike_80064208 { u8 pad0[0x18]; void *f_18; u8 pad1C[0x40]; u16 frame; u16 state; u8 pad60[0x10]; s32 f_70; u8 pad74[0x18]; s16 f_8C; s16 f_8E; s32 f_90; u8 pad94[0x5E]; s8 gadget; };
 extern struct S_D_800F4DE0 { void *f_0; Anim_80064208_80064208 *f_4; void *f_8; void *f_C; } g_SpikeAnimSets[];
-s32 func_80015240(void *, s32);
+s32 Anim_GetFrame(void *, s32);
 extern s16 D_800EC240;
 extern s16 D_800EC244;
 struct Game_80063EC4 { u8 pad0[0x8150]; u16 sub; u8 pad8152[0x144]; s16 f_8296; };
 void VectorNormalSS(void *, void *);
-s32 func_800433B0(s32, s32, s32, void *);
+s32 Floor_GetHeightAndSlope(s32, s32, s32, void *);
 s32 func_80078C9C(s32, void *, void *);
 extern s16 D_800AE7A0[];
 extern s16 D_800AE780[];
@@ -202,7 +202,7 @@ extern struct { s32 f_0; s16 f_4; s16 f_6; s32 f_8, f_C, f_10, f_14; } g_GadgetP
 extern struct { u8 pad0[0x2C]; s32 f_2C; } *D_800F516C_SU asm("D_800F516C");
 extern struct { u8 pad0[0x2C]; s32 f_2C; } *D_800F5170_SU asm("D_800F5170");
 extern struct { u8 pad0[0x14]; s16 f_14; } D_800F51D0_SU asm("D_800F51D0");
-extern struct { u8 pad0[8]; s32 f_8; u8 padC[4]; s32 f_10; u8 pad14[0x30]; u8 f_44[1]; } D_800E3890_SU asm("D_800E3890");
+extern struct { u8 pad0[8]; s32 f_8; u8 padC[4]; s32 f_10; u8 pad14[0x30]; u8 f_44[1]; } D_800E3890_SU asm("g_Cd");
 extern s16 D_800F5144_SU asm("D_800F5144");
 extern u8 D_800E38D4_SU[] asm("D_800E38D4");
 extern MATRIX_SU D_800AE740_SU asm("D_800AE740");
@@ -241,13 +241,13 @@ void func_80068B1C_SU(void) asm("func_80068B1C");
 void func_8006B70C_SU(void) asm("func_8006B70C");
 void func_8006BF10_SU(void) asm("func_8006BF10");
 void func_80142808_SU(void *) asm("func_80142808");
-void func_80014804_SU(SVECTOR *, MATRIX_SU *) asm("func_80014804");
+void func_80014804_SU(SVECTOR *, MATRIX_SU *) asm("Matrix_FromFacingXZ");
 s32 Water_Query_SU(s32, s32, s32) asm("Water_Query");
 #define SPK g_Spike_SU
 #define PAD g_Pad_SU
 #define GAME g_Game_SU
 #define SCR scr
-s16 Floor_GetHeightSlope_SU(s32, s32, s32, s16 *) asm("func_800433B0");
+s16 Floor_GetHeightSlope_SU(s32, s32, s32, s16 *) asm("Floor_GetHeightAndSlope");
 void func_80142808_v(void) asm("func_80142808");
 extern u16 D_800E54A0_SU asm("D_800E54A0");
 void ApplyMatrixSV_SU(void *, void *, void *) asm("ApplyMatrixSV");
@@ -1313,13 +1313,13 @@ extern struct { u8 pad0[0xC]; s32 cur; u8 pad10[0x70]; u8 ot[0x8150 - 0x80]; u16
 extern Pad_63628 g_Pad_63628 asm("g_Pad");
 extern Cam_63628 D_800E68D0_63628 asm("D_800E68D0");
 extern u8 D_800E6902_63628 asm("D_800E6902");
-extern u8 D_800E78C0_63628[] asm("D_800E78C0");
-extern u8 D_800E7D00_63628[] asm("D_800E7D00");
-extern u8 D_800E9C60_63628[] asm("D_800E9C60");
+extern u8 D_800E78C0_63628[] asm("g_ViewMatrix");
+extern u8 D_800E7D00_63628[] asm("g_ProjVerts");
+extern u8 D_800E9C60_63628[] asm("g_ModelMatrices");
 extern u8 D_800E9E40_63628[] asm("D_800E9E40");
-extern Gm_63628 D_800EC060_63628[] asm("D_800EC060");
+extern Gm_63628 D_800EC060_63628[] asm("g_GadgetModels");
 extern u8 D_800EC0E0_63628[] asm("D_800EC0E0");
-extern Dbg_63628 D_800F4B30_63628 asm("D_800F4B30");
+extern Dbg_63628 D_800F4B30_63628 asm("g_JointAngles");
 extern s16 D_800F4DCE_63628 asm("D_800F4DCE");
 extern Snd_63628 D_800F51D0_63628 asm("D_800F51D0");
 extern s32 D_800F51E0_63628 asm("D_800F51E0");
@@ -1329,7 +1329,7 @@ extern s16 g_SpikeHealth_63628 asm("g_SpikeHealth");
 void Anim_BlendFrameIndex_63628(void *, s32, s32, s32) asm("Anim_BlendFrameIndex");
 void Anim_BlendFrames_63628(void *, s32, s32, s32) asm("Anim_BlendFrames");
 void Anim_SetFrame_63628(void *) asm("Anim_SetFrame");
-s32 func_80015240_63628(void *, s32) asm("func_80015240");
+s32 func_80015240_63628(void *, s32) asm("Anim_GetFrame");
 void Matrix_Copy_63628(void *, void *) asm("Matrix_Copy");
 void Matrix_LookAt_63628(SV_63628 *, SV_63628 *, void *, s32) asm("Matrix_LookAt");
 void func_800A3740_63628(void *, s32, s32) asm("memset");
@@ -1341,11 +1341,11 @@ void SetRotMatrix_63628(void *) asm("SetRotMatrix");
 void SetTransMatrix_63628(void *) asm("SetTransMatrix");
 void Mesh_WaveVertices_63628(void *, s32, s32) asm("Mesh_WaveVertices");
 void Model_CalcEnvMapUVs_63628(void *) asm("Model_CalcEnvMapUVs");
-void func_8001CE54_63628(void *, void *, void *) asm("func_8001CE54");
+void func_8001CE54_63628(void *, void *, void *) asm("Model_DrawEnvMapped");
 void Fx_DrawFadeRing_63628(SV_63628 *, s32, s32, s32) asm("Fx_DrawFadeRing");
 void Light_SetColorMode_63628(s32, s32, s32, s32) asm("Light_SetColorMode");
-s32 func_800463A4_63628(s32, s32, s32) asm("func_800463A4");
-void func_80017CD4_63628(void *, void *, void *) asm("func_80017CD4");
+s32 func_800463A4_63628(s32, s32, s32) asm("Math_StepToward");
+void func_80017CD4_63628(void *, void *, void *) asm("Model_Draw");
 s32 Spike_IsUnderwater_63628(void) asm("Spike_IsUnderwater");
 void Model_ProjectVerts_63628(void *, void *, void *) asm("Model_ProjectVerts");
 void WaterNet_Shoot_63628(void) asm("WaterNet_Shoot");
@@ -1518,7 +1518,7 @@ void Spike_Draw(void) {
 
 /* Ledge grab: while Spike has health (+0xE8 > 0) and is falling (+0x34 > 0) above the floor,
  * checks one step ahead in his facing direction (snapped to 8 directions). If the floor there
- * (func_800433B0) is 0x81..0xFF above him, is not a blocked surface (scratchpad 0x1F8003F0
+ * (Floor_GetHeightAndSlope) is 0x81..0xFF above him, is not a blocked surface (scratchpad 0x1F8003F0
  * flags/kinds 0x24, 0x25, 0x53, 0x54, 10) and nothing is in the way (func_80078C9C), he is put
  * on it, stopped, and set to state 0xE (climbing up). Not in sub-modes 1, 3, 5, 6. */
 void Spike_TryGrabLedge(void) {
@@ -1567,7 +1567,7 @@ void Spike_TryGrabLedge(void) {
         return;
     }
     (*(struct Game_80063EC4 *)&g_Game).f_8296 = 1;
-    h = (s16)func_800433B0((*(Sp_80063EC4_80063EC4 *)&g_Spike).x + dir.vx / 32, (*(Sp_80063EC4_80063EC4 *)&g_Spike).y - 0x100, (*(Sp_80063EC4_80063EC4 *)&g_Spike).z + dir.vz / 32, &(*(Sp_80063EC4_80063EC4 *)&g_Spike).f_104);
+    h = (s16)Floor_GetHeightAndSlope((*(Sp_80063EC4_80063EC4 *)&g_Spike).x + dir.vx / 32, (*(Sp_80063EC4_80063EC4 *)&g_Spike).y - 0x100, (*(Sp_80063EC4_80063EC4 *)&g_Spike).z + dir.vz / 32, &(*(Sp_80063EC4_80063EC4 *)&g_Spike).f_104);
     p.x = (*(Sp_80063EC4_80063EC4 *)&g_Spike).x + dir.vx / 32;
     p.y = (*(Sp_80063EC4_80063EC4 *)&g_Spike).y - 0x100;
     p.z = (*(Sp_80063EC4_80063EC4 *)&g_Spike).z + dir.vz / 32;
@@ -1636,7 +1636,7 @@ check:
     if ((SP_64208->state == 0x46 && st == 0x47) || (SP_64208->state == 0x47 && st == 0x46)) {
     blend:
         SP_64208->f_8C = 5;
-        SP_64208->f_90 = func_80015240(&(*(M2C_UNK *)&g_Spike), SP_64208->frame);
+        SP_64208->f_90 = Anim_GetFrame(&(*(M2C_UNK *)&g_Spike), SP_64208->frame);
     } else if (st != 0x24 || SP_64208->state != st) {
         SP_64208->f_8C = 0;
     }
@@ -1664,7 +1664,7 @@ typedef struct { s8 dx, dy, dz, r; u8 yaw; u8 pitch; u8 pad6[2]; u16 f_8; u16 f_
 extern struct S_AE_64454 { u8 pad0[0x24]; s32 f_24; s32 f_28; s32 f_2C; } g_Spike_64454 asm("g_Spike");
 extern struct { u8 pad0[0x152]; u16 f_152; } D_800F4350_64454 asm("D_800F4350");
 extern u8 g_GadgetState_64454[] asm("g_GadgetState");
-extern u8 D_800F4730[];
+extern u8 g_JointWorldMatrices[];
 extern void (*D_800B027C[])(void);
 extern void (*D_800B03AC[])(void);
 void Sound_PlayFixed_AE(s32) asm("Sound_PlayFixed");
@@ -1730,7 +1730,7 @@ void Spike_AnimEvents(Anim_80064208_80064208 *tbl, u8 *script)
           v.vx = a->dx * 8;
           v.vy = a->dy * 8;
           v.vz = a->dz * 8;
-          ApplyMatrixSV_64454(D_800F4730, &v, &v);
+          ApplyMatrixSV_64454(g_JointWorldMatrices, &v, &v);
           c->x = sp->x + v.vx;
           c->y = sp->y + v.vy;
           c->z = sp->z + v.vz;
@@ -1740,7 +1740,7 @@ void Spike_AnimEvents(Anim_80064208_80064208 *tbl, u8 *script)
           v.vy = rsin(a->pitch << 4);
           s = rcos(a->yaw << 4);
           { s32 cp = rcos(a->pitch << 4); __asm__ volatile(""); s = -s; v.vz = (s * cp) / 4096; }
-          ApplyMatrixSV_64454(D_800F4730, &v, &c->dir);
+          ApplyMatrixSV_64454(g_JointWorldMatrices, &v, &c->dir);
           c->f_24 = a->f_8;
           c->f_26 = a->f_A;
           Collision_Set(6, c, sp);
@@ -1760,7 +1760,7 @@ void Spike_AnimEvents(Anim_80064208_80064208 *tbl, u8 *script)
             v.vx = a->dx * 8;
             v.vy = a->dy * 8;
             v.vz = a->dz * 8;
-            ApplyMatrixSV_64454(D_800F4730, &v, &v);
+            ApplyMatrixSV_64454(g_JointWorldMatrices, &v, &v);
             c->x = sp->x + v.vx;
             c->y = sp->y + v.vy;
             c->z = sp->z + v.vz;
@@ -2966,7 +2966,7 @@ void func_80066C90(SVEC_80066C90 *a, SVEC_80066C90 *b, s32 ang)
   s32 r;
   if ((((a->vx * b->vx) + (a->vz * b->vz)) >> 12) < rcos(ang))
   {
-    func_8004637C((MATRIX_80066C90 *) 0x1F800028);
+    Matrix_SetIdentity((MATRIX_80066C90 *) 0x1F800028);
     if ((((a->vx * b->vz) - (a->vz * b->vx)) / 4096) > 0)
     {
       r = ang;
@@ -3765,8 +3765,8 @@ struct Spike_800687D8 { u8 pad0[0x18]; s32 f_18; u8 pad1C[8]; s32 f_24; s32 f_28
 extern Obj_800687D8 *D_800B4D70_687 asm("D_800B4D70");
 void func_800649D8_687(void) asm("func_800649D8");
 void Matrix_LookAt_687(SVECTOR *, SVECTOR *, MAT_800687D8 *, s32) asm("Matrix_LookAt");
-void func_80015780(void *, s32);
-void func_80017CD4(u32 *, void *, void *);
+void Model_CalcKeyedJointMatrices(void *, s32);
+void Model_Draw(u32 *, void *, void *);
 void Fx_DrawGlowBeam(void *, void *, s32, s32);
 
 /* func_800687D8: update and draw Spike while he is riding/attached to the object at D_800B4D70:
@@ -3791,15 +3791,15 @@ void func_800687D8(void) {
     D_800B4D70_687->f_3C = ((struct Spike_800687D8 *) (&g_Spike))->f_2C;
     D_800B4D70_687->f_6C = ((struct Spike_800687D8 *) (&g_Spike))->f_5C;
     Matrix_LookAt_687(&((struct Spike_800687D8 *) (&g_Spike))->f_60, &((struct Spike_800687D8 *) (&g_Spike))->f_68, D_800B4D70_687->f_24, 1);
-    func_80015780(D_800B4D70_687->f_10, 1);
+    Model_CalcKeyedJointMatrices(D_800B4D70_687->f_10, 1);
     Model_ProjectBonedVerts(D_800B4D70_687->f_10);
-    func_80017CD4(((struct GameDb_800687D8 *) (&g_Game))->db[((struct GameDb_800687D8 *) (&g_Game))->cur].ot, D_800E7D00, D_800B4D70_687->f_10);
+    Model_Draw(((struct GameDb_800687D8 *) (&g_Game))->db[((struct GameDb_800687D8 *) (&g_Game))->cur].ot, g_ProjVerts, D_800B4D70_687->f_10);
     if (D_800B4D70_687->f_86 == 5) {
         a = ((struct GameDb_800687D8 *) (&g_Game))->frame & 0x1F;
         if (a > 0x10) {
             a = 0x20 - a;
         }
-        Fx_DrawGlowBeam(D_800E7D00 + 0x268, D_800E7D00 + 0x270, a + 0x18, 0xFF8080);
+        Fx_DrawGlowBeam(g_ProjVerts + 0x268, g_ProjVerts + 0x270, a + 0x18, 0xFF8080);
     }
     scratch->v.x = D_800B4D70_687->f_4.x;
     scratch->v.y = D_800B4D70_687->f_4.y;
@@ -3860,8 +3860,8 @@ void func_800689F0(void) {
     ((struct S_D_800EC1E0_800689F0 *)&g_Spike)->f_14->t[2] = 0;
     Model_CalcJointMatrices(((struct S_D_800EC1E0_800689F0 *)&g_Spike), 7);
     Model_ProjectBonedVerts(((struct S_D_800EC1E0_800689F0 *)&g_Spike));
-    Model_CycleVertexColors(D_800E7D00, ((struct S_D_800EC1E0_800689F0 *)&g_Spike)->f_0->f_6);
-    Model_DrawCycledColors(D_800EC358, D_800E7D00, ((struct S_D_800EC1E0_800689F0 *)&g_Spike));
+    Model_CycleVertexColors(g_ProjVerts, ((struct S_D_800EC1E0_800689F0 *)&g_Spike)->f_0->f_6);
+    Model_DrawCycledColors(D_800EC358, g_ProjVerts, ((struct S_D_800EC1E0_800689F0 *)&g_Spike));
 }
 
 void func_80068ADC(void) {

@@ -172,10 +172,10 @@ void func_8013D660(void *arg0, void *arg1, M2C_UNK arg2) {
 void Matrix_FromDirection(void *, s32);
 void Model_ProjectBonedVerts(void *);
 void ScaleMatrix(s32, void *);
-void func_80015780(void *, s32);
-void func_80016EBC(void *, void *, void *);
+void Model_CalcKeyedJointMatrices(void *, s32);
+void Model_DrawAuto(void *, void *, void *);
 s32 func_80051410(void *, s32, s32);
-extern M2C_UNK D_800E7D00;
+extern M2C_UNK g_ProjVerts;
 extern u8 D_8013F340[];
 extern struct { u8 pad0[0xC]; s32 f_C; u8 pad10[0x70]; u8 f_80[1]; } g_Game;
 
@@ -188,9 +188,9 @@ void func_8013D700(s32 arg0, s32 arg1) {
         v[0] = v[1] = v[2] = arg1 << 8;
         Matrix_FromDirection(m + 0x60, M2C_FIELD(m, s32 *, 0x14));
         ScaleMatrix(M2C_FIELD(m, s32 *, 0x14), v);
-        func_80015780(m, 3);
+        Model_CalcKeyedJointMatrices(m, 3);
         Model_ProjectBonedVerts(m);
-        func_80016EBC(g_Game.f_80 + g_Game.f_C * 0x4078, &D_800E7D00, m);
+        Model_DrawAuto(g_Game.f_80 + g_Game.f_C * 0x4078, &g_ProjVerts, m);
     }
 }
 
@@ -534,7 +534,7 @@ typedef struct { s32 otz; s32 sxy; } Scr_8013E33C;
 typedef struct { u32 tag; u32 code; s32 xy0; u32 uv0; s32 xy1; u32 uv1; s32 xy2; u16 uv2; u16 pad2; s32 xy3; u16 uv3; u16 pad3; } Ft4_8013E33C;
 extern u8 D_8013F7B0_8013E33C asm("D_8013F7B0");
 extern Drop_8013E33C D_8013F3B0_8013E33C[] asm("D_8013F3B0");
-extern u8 D_800E78C0_8013E33C[] asm("D_800E78C0");
+extern u8 D_800E78C0_8013E33C[] asm("g_ViewMatrix");
 extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; } g_Game_8013E33C asm("g_Game");
 
 s32 func_8013E33C(void) {
@@ -687,7 +687,7 @@ extern Drop_8013E950 D_8013F7B8_8013E950[] asm("D_8013F7B8");
 extern s16 D_8013FEE8_8013E950[2] asm("D_8013FEE8");
 extern u8 D_800E6908_8013E950 asm("D_800E6908");
 extern u32 D_800EC250_8013E950 asm("D_800EC250");
-extern u8 D_800E78C0_8013E950[] asm("D_800E78C0");
+extern u8 D_800E78C0_8013E950[] asm("g_ViewMatrix");
 extern u16 g_RandSeed_8013E950 asm("g_RandSeed");
 extern u16 D_800AE8F2_8013E950 asm("D_800AE8F2");
 extern struct { u32 frame; u8 *prim; u32 *ot; s32 cur; u8 pad10[0x8258 - 0x10]; SVECTOR cam; s16 x, y, z; } g_Game_8013E950 asm("g_Game");

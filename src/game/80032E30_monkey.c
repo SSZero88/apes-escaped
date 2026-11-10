@@ -29,7 +29,7 @@
 #include "game.h"
 #define G_GAME_80035918 ((struct g_Game_80035918 *)&g_Game)
 #define M_3B674 ((MT_8003B674_8003B674 *)g_CurMonkey)
-#define NODE_34EF8 (((S_Grp_80034EF8_80034EF8 *)D_800B4D00)[k])
+#define NODE_34EF8 (((S_Grp_80034EF8_80034EF8 *)g_PathNodes)[k])
 #include "game.h"
 #define MJ_3FD7C ((MJ_8003FD7C_8003FD7C *)g_CurMonkey)
 #include "game.h"
@@ -130,27 +130,27 @@ s32 Monkey_EnableCollision(void);
 void memset(void *, s32, s32);
 void Square0(VEC_8003473C *, VEC_8003473C *);
 s32 SquareRoot0(s32);
-extern s16 D_800EC2CA;
-extern struct S_D_800AEBB4 { s32 f_0; u32 f_4; } D_800AEBB4[];
+extern s16 g_SpikeInvulnTimer;
+extern struct S_D_800AEBB4 { s32 f_0; u32 f_4; } g_MonkeyAttackWindows[];
 /* Tries reaction `kind` for the current monkey: its kind's entry gives a chance and a distance
  * band; if the target is inside the band and a roll out of 100 succeeds, the monkey switches to
- * the reaction's state (D_800AEBB4[kind]). Reaction 1 then has a 90-frame cooldown (+0x174);
+ * the reaction's state (g_MonkeyAttackWindows[kind]). Reaction 1 then has a 90-frame cooldown (+0x174);
  * 0 and 5 adjust the animation start; 7 also calls Monkey_QueueSound. Returns 1 if it reacted. */
 s32 Monkey_TryReaction(s16 kind);
 
 M2C_UNK ApplyMatrixSV(void *, s32, void *);
-M2C_UNK func_80014804(void *, s32);
-M2C_UNK func_80015780(void *, M2C_UNK);
+M2C_UNK Matrix_FromFacingXZ(void *, s32);
+M2C_UNK Model_CalcKeyedJointMatrices(void *, M2C_UNK);
 extern M2C_UNK g_Objects;
 extern M2C_UNK D_800F4750;
 
-extern struct S_D_800E6780 { s32 f_0; s16 f_4; s16 pad6; s32 f_8; s32 f_C; s32 f_10; } D_800E6780[];
+extern struct S_D_800E6780 { s32 f_0; s16 f_4; s16 pad6; s32 f_8; s32 f_C; s32 f_10; } g_MonkeySoundQueue[];
 void VectorNormal(VEC_80034940 *, VEC_80034940 *);
 
 void VectorNormalSS(SVEC *, SVEC *);
-void func_80033E4C(s16);
+void Monkey_AimAndShoot(s16);
 
-extern s16 D_800AEB5A;
+extern s16 g_CaughtMonkeyKind;
 
 M2C_UNK Collision_Remove(void *);
 M2C_UNK func_8007CDC4(void *);
@@ -160,93 +160,93 @@ extern struct S_D_800EC350 { u8 pad_0[0x8122]; u16 f_8122; u8 pad_8124[0x2]; u16
 extern void *D_800B4D14;
 extern struct S_D_800E5500 { u8 pad_0[0x16C]; void * f_16C; } g_Monkeys;
 
-void func_80039248();
-/* For the current monkey: if its state (f_78) is flagged as animation-timed in D_800AE940,
+void Monkey_SplashIntoWater();
+/* For the current monkey: if its state (f_78) is flagged as animation-timed in g_MonkeyStateInfo,
  * returns 1 while the frame counter f_5C has not passed the animation entry's length;
  * otherwise returns 1 once the timer f_128 has reached f_96. */
 s32 Monkey_CheckStateTimer(void);
-void func_80036300(void);
+void Monkey_StartIdle(void);
 void Monkey_RestartAnim();
-void func_800355DC(void);
-void func_80036B24(void);
-s32 func_8003B880(s16 a, s16 b, s32 *out);
+void Monkey_UpdateGoal(void);
+void Monkey_StartIntangible(void);
+s32 Node_GetLinkInfo(s16 a, s16 b, s32 *out);
 
 s32 Monkey_DisableCollision(void);
-void func_8003929C(void);
+void Monkey_SpawnPuff(void);
 void func_80036174(void);
 
-s32 func_800356C0();
-void func_80038F00(void);
+s32 Monkey_GetVoiceSound();
+void Monkey_SpawnRunDust(void);
 
 extern s32 g_ActiveMonkeys[];
 
-extern u32 D_800B4D10;
+extern u32 g_MonkeyRandSeed;
 void Monkey_QueueSound(s32 a, s32 b);
 void Monkey_FireShot(s32 k);
-void func_80035370(void);
-void func_80035474(void);
+void Monkey_UpdateLinkSlope(void);
+void Monkey_UpdateGoalDist(void);
 void Monkey_SetState(int arg0);
-s32 func_800339EC(void);
+s32 Stage_IsRaceOrBoss(void);
 void Monkey_SetFacingDir(s16 dir);
-void func_80036B78(void);
+void Monkey_EndIntangible(void);
 M2C_UNK Fx_DebrisExplosion(s16, s16, s16);
 /* Picks the current monkey's next action (called from many state handlers). Skipped while flag
- * bit 20 of +0x248 is set. If func_800339EC (target noticed) and game +0x812C is not 3 it goes
+ * bit 20 of +0x248 is set. If Stage_IsRaceOrBoss (target noticed) and game +0x812C is not 3 it goes
  * to / stays in state 0xB. Otherwise it marks +0x79, may leave with Monkey_RestartAnim (state 0xB with
- * the target 300..1500 away, or states flagged 8 in D_800AE940 with +0x222 > 0), lets
+ * the target 300..1500 away, or states flagged 8 in g_MonkeyStateInfo with +0x222 > 0), lets
  * Monkey_TrySpecialAction take over, and else picks state 3, or 8 with 30% chance (never right after 8,
- * 0x23, 0x39 or while turning, +0x94). Walking monkeys (0xC, 0x24) then call func_80039248. */
+ * 0x23, 0x39 or while turning, +0x94). Walking monkeys (0xC, 0x24) then call Monkey_SplashIntoWater. */
 void Monkey_PickNextAction(void);
 /* Next action for a monkey that has not noticed its target (otherwise Monkey_PickNextAction).
- * Clears +0x79, then: states flagged 8 in D_800AE940 with +0x222 > 0 -> Monkey_RestartAnim; a special
+ * Clears +0x79, then: states flagged 8 in g_MonkeyStateInfo with +0x222 > 0 -> Monkey_RestartAnim; a special
  * trait action (Monkey_TrySpecialAction); kinds with no move speeds (g_MonkeyKinds +2/+4 == 0)
- * either func_80036300 (target within +0x12 or kind's +8 percent chance) or state 0; otherwise
- * state 2 while turning, 0x18 after 0x19, func_80036300 by chance, rarely 0x27/0x28 from state 2,
+ * either Monkey_StartIdle (target within +0x12 or kind's +8 percent chance) or state 0; otherwise
+ * state 2 while turning, 0x18 after 0x19, Monkey_StartIdle by chance, rarely 0x27/0x28 from state 2,
  * 0x18/0x19 by distance (+0xE) if it had just been alerted, 9% func_8003641C, else state 2.
- * Walking monkeys (0xC, 0x24) then call func_80039248. */
+ * Walking monkeys (0xC, 0x24) then call Monkey_SplashIntoWater. */
 void Monkey_PickIdleAction(void);
 void *Collision_GetShape(s32);
-extern struct S_D_800AE940 { s32 f_0; u32 f_4; } D_800AE940[];
+extern struct S_D_800AE940 { s32 f_0; u32 f_4; } g_MonkeyStateInfo[];
 s32 Monkey_CurAnimIndex(void);
 s32 Vec_AngleBetweenXZ(VEC_800344C8 *a, VEC_800344C8 *b);
 void Sound_PlayAt(s32, s16 *);
 void Effect_SpawnAt(s32, s16 *);
-s32 func_80033B10(void);
+s32 Monkey_IsIdleLooking(void);
 s32 Vec_Dist(VEC_80034684 *a, VEC_80034684 *b);
-s32 func_8003455C(void);
+s32 Monkey_AngleToTarget(void);
 void Node_GetPosition(u16 k, VEC_80040CFC_80034EF8 *out);
-s32 func_80040BDC(VEC_80040CFC_80040BDC *a, VEC_80040CFC_80040BDC *b);
+s32 Path_HeightAt(VEC_80040CFC_80040BDC *a, VEC_80040CFC_80040BDC *b);
 void Monkey_AimAtGoal(void);
-s32 func_80033C34(void);
-s32 func_80033BE0(void);
+s32 Monkey_IsJumping(void);
+s32 Monkey_IsNodeAnim(void);
 u32 Monkey_Rand(void);
 void func_80059304(s16 *, Monkey *, s32, s16 *);
-extern struct S_D_800F4730 { s16 m[3][3]; s16 pad; s32 t[3]; } D_800F4730[];
-extern u32 D_800AEB60;
-s32 func_80033C00(void);
+extern struct S_D_800F4730 { s16 m[3][3]; s16 pad; s32 t[3]; } g_JointWorldMatrices[];
+extern u32 g_MonkeyFrame;
+s32 Monkey_IsSwimming(void);
 s32 Monkey_AnimJustStarted(void);
 u8 Monkey_ChooseRoute(s16, s16);
 extern s32 g_CameraTarget;
 extern u8 D_800E6908;
 s32 Vec_DistXZ_SV(VEC_800345D4 *a, SVECTOR *b);
-void func_80015AC0(void *, void *);
+void Model_BindBoned(void *, void *);
 struct S_D_800EC350_8003A33C { u8 pad0[0x81A4]; void *f_81A4[4]; };
 struct S_D_800EC350_8003317C { u8 pad_0[0x816C]; s8 f_816C[8]; };
 struct S_D_800EC350_80033220 { u8 pad_0[0x81B4]; s32 f_81B4; s32 f_81B8; u8 pad_81BC[0x84]; s32 f_8240; };
 s32 Node_LinkFlag(s16 n, s16 v);
 void Monkey_SwapPathNodes(void);
-s32 func_8003B534(s16 *a, s16 *b);
+s32 Monkey_TargetDotNodes(s16 *a, s16 *b);
 s32 rcos(s32);
 extern u16 D_800AEB6C[];
 s16 SVec_DotXZ(SVEC *a, SVEC *b);
-extern S_Pair_8003B880_8003B880 *D_800B4D1C;
-extern s16 D_800B4D20;
+extern S_Pair_8003B880_8003B880 *g_PathLinkInfo;
+extern s16 g_PathLinkInfoCount;
 void Monkey_GoToNode(s16);
 s32 Node_GetLink(s16, s16);
 void Monkey_StartLink(s16, s16);
 s32 Monkey_NodeEvents(s16);
 s32 func_80052C4C(s16);
-extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } D_800E78C0;
+extern struct S_D_800E78C0 { s16 m[3][3]; s16 pad; s32 t[3]; } g_ViewMatrix;
 void SetRotMatrix(void *m);
 void SetTransMatrix(void *m);
 s32 RotTransPers(void *v0, s32 *sxy, s32 *p, s32 *flag);
@@ -254,26 +254,26 @@ void func_8006B3CC(SVEC_80035BD0 *);
 s32 Vec_DistXZ(VEC_8003473C *a, VEC_8003473C *b);
 /* Whether the current monkey sees its target: within the kind's sight distance for what the target
  * is doing (+0xC range[mode], or +0x1A), always in states 3 and 8 or when the target's mode is 7,
- * else inside the angle window for `dir` and with line of sight (func_800401F4). Writes the
+ * else inside the angle window for `dir` and with line of sight (Monkey_HasLineOfSight). Writes the
  * result into flag bits 28 and 29 of +0x248. */
 s32 Monkey_CanSeeTarget(u32 dir);
 s32 func_8003398C(void);
-void func_800357E0(void);
+void Monkey_NoticeTarget(void);
 struct S_D_800AE940_8003F18C { u32 f_0; u32 f_4; };
 /* Runs the current monkey's special behaviour, chosen by its trait flags (+0x228) in priority
- * order: 0x100 func_800359F0, 0x800 on a spot flagged 0x200 func_8003581C, 0x20 func_80035FBC,
- * 0x20000 func_80035F8C, 8 state 0xA, 4 func_8003601C, 0x10 func_80035F1C/F54, 1 func_80035A7C,
- * 0x10000 func_80036964, 0x800000 func_800360D8, 0x1000000 in state 0x3D func_8003612C; an idle
- * (state 3) monkey that has not noticed the target also gets func_80035A7C 10% of the time
+ * order: 0x100 func_800359F0, 0x800 on a spot flagged 0x200 Monkey_BoardVehicle, 0x20 func_80035FBC,
+ * 0x20000 func_80035F8C, 8 state 0xA, 4 Monkey_StartClimb, 0x10 func_80035F1C/F54, 1 Monkey_JumpToNode,
+ * 0x10000 Monkey_StartLeap, 0x800000 func_800360D8, 0x1000000 in state 0x3D func_8003612C; an idle
+ * (state 3) monkey that has not noticed the target also gets Monkey_JumpToNode 10% of the time
  * between unflagged spots when +0x218 is 300..800. Returns 1 if something ran (0 while flag
  * bit 22 of +0x248 is set). */
 s32 Monkey_TrySpecialAction(void);
 s32 Floor_GetHeight(s32, s32, s32);
-void func_80035DD8(void);
+void Monkey_Land(void);
 struct Game_800332F8 { u8 pad0[0x816C]; u8 f_816C[8]; };
 void Object_SetFlagCF(s16, s32);
 void func_80052D04(s16, s32 *);
-s32 func_800335D0(s32 idx);
+s32 Link_IsInDoneState(s32 idx);
 /* 1 if the current monkey's target is within its detection range. The range (+0x220) is doubled
  * in states 0xC and 0x24, x1.5 in state 9, and halved on stage 0x4D or 0x1A while the monkey's
  * spot (+0xF2) is one of a fixed list. Compares against distance +0x218 when flag 2 of +0x228
@@ -285,78 +285,78 @@ struct Game_800424D4 { u8 pad0[0x8184]; s16 f_8184; };
 struct Spike_800424D4 { u8 pad0[0xF2]; s8 f_F2; };
 extern M2C_UNK g_Spike;
 extern u8 g_MonkeyTargetIsRC;
-extern s16 D_800AEB66;
+extern s16 g_MaxActiveMonkeys;
 extern M2C_UNK g_RcCar;
-void func_8003AD9C(void);
-void func_8004086C(void);
-void func_80039B30(void);
+void Monkey_PickGoalNode(void);
+void Monkey_SpreadRouteMarks(void);
+void Monkey_UpdateTargetDist(void);
 void Monkey_Update(void);
 struct Game_8003516C { u8 pad0[0x8126]; u16 stage; };
 s32 Monkey_AttackChance(s16);
-s32 func_800339CC(void);
+s32 Monkey_IsInVehicle(void);
 struct S_D_800AEBB4_8003710C { u8 mult; u8 state; u8 pad2[6]; };
 struct Game_80042E18 { s32 frame; u8 pad4[0x80FC]; s32 f_8100; u8 pad8104[0x80]; s16 f_8184; };
 extern u32 D_800AEB5C;
 extern s16 D_800AEC10;
 extern s16 D_800AEC12;
-extern u8 D_800B4CF4;
-s32 func_80033C80(void);
+extern u8 g_AreaHasNoMonkeys;
+s32 Monkey_IsStunned(void);
 s32 Monkey_UpdateAll(void);
 void Monkey_UpdateActive(void);
 s32 func_8003A334(void);
 void Monkey_UpdateQueuedSounds(void);
 void Monkey_SelectActive(void);
 struct Tgt_800405C4 { u8 pad0[0x70]; s32 f_70; };
-s32 func_800401F4(s32);
-void func_8003C204(void);
-void func_8003C568(void);
+s32 Monkey_HasLineOfSight(s32);
+void Monkey_StartTurn(void);
+void Monkey_StepTurn(void);
 struct Game_80037550 { u8 pad0[0x812C]; u8 f_812C; };
-s32 func_8003738C(void);
+s32 Monkey_TryAttackGroup0(void);
 s32 func_800359F0(void);
-s32 func_8003581C(void);
+s32 Monkey_BoardVehicle(void);
 void func_80035FBC(void);
 void func_80035F8C(void);
-void func_8003601C(void);
+void Monkey_StartClimb(void);
 void func_80035F1C(void);
 void func_80035F54(void);
-s32 func_80035A7C(void);
-s32 func_80036964(void);
+s32 Monkey_JumpToNode(void);
+s32 Monkey_StartLeap(void);
 void func_800360D8(void);
 void func_8003612C(void);
-s32 func_80033B9C(void);
+s32 Monkey_IsIdleLookDone(void);
 void func_8003641C(void);
 s32 Monkey_AvoidConeAngleAlt(void);
-void func_80038054(s16 i);
+void Monkey_MarkBlockedLinks(s16 i);
 void Monkey_ScoreLinks(s16 k);
-void func_80038914(void);
-s32 func_80038A1C(s16 a, s16 b);
+void Monkey_MaybeTurnBack(void);
+s32 Monkey_SelectGoalNode(s16 a, s16 b);
 s32 Monkey_PickNextNode(s16 any, s16 force);
 s32 Monkey_IsPathLooping(void);
-void func_800363E4(void);
+void Monkey_StartLookout(void);
 void bios_printf(const char *, ...);
-extern char D_800A499C[];
+extern char Monkey_StrSelectNodeFailed[];
 s32 func_80033000(void);
-s32 func_80037420(void);
-void func_8003429C(s16 k);
+s32 Monkey_TryAttackGroup1(void);
+void Monkey_DropWhileRunning(s16 k);
 s32 func_80032F24(void);
 s32 Monkey_AvoidConeAngle(void);
-void func_800378C0(void);
-extern char D_800A4900[];
+void Monkey_PickAction(void);
+extern char Monkey_StrVoiceFull[];
 s32 Math_Atan2Pos(s32 arg0, s32 arg1);
 void RotMatrixYXZ(SVECTOR *, MAT_8003CC3C *);
 extern Monkey *g_CurMonkey;
 void Collision_Set(s32, void *, void *);
 void func_8007CD88(void *);
-u32 func_800392E4(void *arg0);
-extern struct S_D_800E9C60 { u8 pad[0x20]; } D_800E9C60[];
-extern u8 D_800E7D00[];
+u32 Collider_GetHitKind(void *arg0);
+extern struct S_D_800E9C60 { u8 pad[0x20]; } g_ModelMatrices[];
+extern u8 g_ProjVerts[];
 void Model_ProjectVerts(Model_39E50_80039E50 *, struct S_D_800E9C60 *, u8 *);
-void func_80017CD4(Db_39E50_80039E50 *, u8 *, Model_39E50_80039E50 *);
+void Model_Draw(Db_39E50_80039E50 *, u8 *, Model_39E50_80039E50 *);
 struct g_Game_80035918 { u8 pad0[0x81B8]; s32 f_81B8; u8 pad81BC[0x84]; u8 *f_8240; };
 struct D4D14_35918 { u8 pad0[0x1C]; s32 f_1C; };
-void func_80034C08(s16 i, s16 *a, s16 *b, s16 *c, s16 *d);
+void Node_GetAnimRef(s16 i, s16 *a, s16 *b, s16 *c, s16 *d);
 extern struct S_D_800F4350 { u8 pad[0x126]; u16 f_126; } D_800F4350;
-extern s16 D_800F4B30[];
+extern s16 g_JointAngles[];
 extern u8 D_800AEB58;
 extern u8 D_800A4BBC[];
 extern s32 D_1F8003FC;
@@ -371,9 +371,9 @@ void Monkey_Draw(void);
 void Monkey_StartNodeJump(void);
 struct S_D_800EC350_80034EF8 { u8 pad0[0x820C]; S_820C_80034EF8_80034EF8 *f_820C; };
 void Node_GetJointRef(s16 i, s16 *a, s16 *b, s16 *c);
-extern R_39ED4_80039ED4 D_800AEBB4_[] asm("D_800AEBB4");
+extern R_39ED4_80039ED4 D_800AEBB4_[] asm("g_MonkeyAttackWindows");
 extern u8 D_800AEBF8[];
-extern Model_39ED4_80039ED4 D_800F4630[];
+extern Model_39ED4_80039ED4 g_MonkeyPropModels[];
 extern Model_39ED4_80039ED4 D_800F46B0;
 extern Model_39ED4_80039ED4 D_800EC0C0;
 extern Model_39ED4_80039ED4 D_800EC180;
@@ -381,35 +381,35 @@ void Matrix_FromDirection(SVECTOR *, void *);
 void ScaleMatrix(void *, s32 *);
 void Model_CalcJointMatrices(void *, s32);
 void Model_ProjectBonedVerts(void *);
-void func_80017D94(void *, u8 *, void *, s32);
+void Model_DrawNoFog(void *, u8 *, void *, s32);
 void Monkey_UpdateHelmetLight(void);
-void func_80039E50(Model_39E50_80039E50 *m);
+void Monkey_DrawAttachment(Model_39E50_80039E50 *m);
 s32 func_800882C4(s32, s32, s32);
 s32 rsin(s32);
-extern u8 D_800AEBF4;
+extern u8 g_MissilePattern;
 s32 Monkey_GetAlertLevel(void);
 void Monkey_DrawHelmetLight(SVECTOR *, s32, s32);
 struct Game_3DC7C { u8 pad0[0x812C]; u8 f_812C; u8 pad812D[0xDF]; Pt_3DC7C_8003DC7C *f_820C; };
-s32 func_80035750();
-void func_80036460(void);
-void func_80033DF0(void);
-void func_800343B0(void);
-void func_8003440C(void);
-s32 func_800349F4(s16 arg0);
-void func_8003CC3C(s32 lim);
+s32 Monkey_GetVoiceSound2();
+void Monkey_StartDrop(void);
+void Monkey_FireMissile(void);
+void Monkey_ThrowStone(void);
+void Monkey_ThrowCoconut(void);
+s32 Node_IsStopPoint(s16 arg0);
+void Monkey_TurnTowardTarget(s32 lim);
 struct S_D_800AE940_8003DC7C { u32 f_0; u32 flags; };
 s32 func_8005B7BC(s32, s16 *);
 
 u32 Monkey_Rand(void) {
     u32 temp_v0;
 
-    temp_v0 = ((D_800B4D10 * 5) + 1) & 0xFFFF;
-    D_800B4D10 = temp_v0;
+    temp_v0 = ((g_MonkeyRandSeed * 5) + 1) & 0xFFFF;
+    g_MonkeyRandSeed = temp_v0;
     return temp_v0 >> 8;
 }
 
-u16 func_80032E58(void) {
-    return g_MonkeyKinds[D_800AEB5A].f_0;
+u16 Monkey_GetCaughtType(void) {
+    return g_MonkeyKinds[g_CaughtMonkeyKind].f_0;
 }
 
 s32 Monkey_CurAnimIndex(void) {
@@ -421,7 +421,7 @@ s32 Monkey_CurAnimIndex(void) {
     if (m->f_78 >= 0x32 && m->f_78 < 0x35) {
         return m->f_242;
     }
-    return D_800AE940[m->f_78].f_0;
+    return g_MonkeyStateInfo[m->f_78].f_0;
 }
 
 s32 func_80032F24(void) {
@@ -430,7 +430,7 @@ s32 func_80032F24(void) {
         g_CurMonkey->f_D4--;
     }
     m = g_CurMonkey;
-    if (D_800B4D00[m->f_F2].f_0 & 0x100000) {
+    if (g_PathNodes[m->f_F2].f_0 & 0x100000) {
         return 1;
     }
     if (m->f_D4 > 0) {
@@ -488,7 +488,7 @@ void Monkey_StepAnimFrame(void)
   g_CurMonkey->f_5C = (m->f_5C < (g_CurMonkey->f_16C[Monkey_CurAnimIndex()].f_2 + 1)) ? (g_CurMonkey->f_5C) : (g_CurMonkey->f_16C[Monkey_CurAnimIndex()].f_2 + 1);
 }
 
-int func_8003317C(void)
+int Monkey_ClearSlotStatus(void)
 {
   s32 i = 0;
   do
@@ -503,7 +503,7 @@ void Monkey_RestartAnim() {
     s32 i = Monkey_CurAnimIndex();
     Monkey *p = g_CurMonkey;
     p->f_5C = p->f_16C[i].f_0;
-    if (!((D_800AE940[p->f_78].f_4 >> 2) & 1)) {
+    if (!((g_MonkeyStateInfo[p->f_78].f_4 >> 2) & 1)) {
         p->f_96 = 0;
     }
 }
@@ -533,7 +533,7 @@ void Monkey_SetState(int arg0)
 }
 
 /* For each of the 8 monkeys: sets its state byte f_7A from the stage's saved list at
- * g_Game+0x816C (4 becomes 0). For monkey kinds flagged 0x400 in D_800B4D00, state 2 calls
+ * g_Game+0x816C (4 becomes 0). For monkey kinds flagged 0x400 in g_PathNodes, state 2 calls
  * Object_SetFlagCF(kind->f_10 / 100, 4); state 5 does the same, resets the state to 0, calls
  * func_80052D04 with the monkey's position, and Monkey_SetState(0x2B). */
 void Monkey_RestoreStates(void) {
@@ -547,13 +547,13 @@ void Monkey_RestoreStates(void) {
         } else {
             g_CurMonkey->f_7A = st;
         }
-        if (D_800B4D00[g_CurMonkey->f_F4].f_0 & 0x400) {
+        if (g_PathNodes[g_CurMonkey->f_F4].f_0 & 0x400) {
             if (g_CurMonkey->f_7A == 2) {
-                Object_SetFlagCF((s16)D_800B4D00[g_CurMonkey->f_F4].f_10 / 100, 4);
+                Object_SetFlagCF((s16)g_PathNodes[g_CurMonkey->f_F4].f_10 / 100, 4);
             } else if (g_CurMonkey->f_7A == 5) {
-                Object_SetFlagCF((s16)D_800B4D00[g_CurMonkey->f_F4].f_10 / 100, 4);
+                Object_SetFlagCF((s16)g_PathNodes[g_CurMonkey->f_F4].f_10 / 100, 4);
                 g_CurMonkey->f_7A = 0;
-                func_80052D04((s16)D_800B4D00[g_CurMonkey->f_F4].f_10 / 100, &g_CurMonkey->f_24);
+                func_80052D04((s16)g_PathNodes[g_CurMonkey->f_F4].f_10 / 100, &g_CurMonkey->f_24);
                 Monkey_SetState(0x2B);
             }
         }
@@ -565,7 +565,7 @@ extern Monkey MK_334C8[] asm("g_Monkeys");
 extern s16 g_MonkeyCount;
 
 /* Per-monkey status bytes g_Game+0x816C[8], one per active monkey slot (setting g_CurMonkey to each):
-   0 when g_MonkeyCount is 0 or D_800B4CF4 is set, 5 for a monkey in mode 4 at a node flagged 0x400 in
+   0 when g_MonkeyCount is 0 or g_AreaHasNoMonkeys is set, 5 for a monkey in mode 4 at a node flagged 0x400 in
    action 0x2B, 0 in mode 1, 2 in mode 3, else its mode (+0x7A). */
 void Monkey_UpdateSlotStatus(void) {
     s32 i;
@@ -573,9 +573,9 @@ void Monkey_UpdateSlotStatus(void) {
     for (i = 0; i < 8; i++) {
         m = &MK_334C8[i];
         g_CurMonkey = m;
-        if (g_MonkeyCount == 0 || D_800B4CF4 != 0) {
+        if (g_MonkeyCount == 0 || g_AreaHasNoMonkeys != 0) {
             G_334C8.f_816C[i] = 0;
-        } else if (MK_334C8[i].f_7A == 4 && (D_800B4D00[m->f_F4].f_0 & 0x400) && m->f_78 == 0x2B) {
+        } else if (MK_334C8[i].f_7A == 4 && (g_PathNodes[m->f_F4].f_0 & 0x400) && m->f_78 == 0x2B) {
             G_334C8.f_816C[i] = 5;
         } else if (g_CurMonkey->f_7A == 1) {
             G_334C8.f_816C[i] = 0;
@@ -587,10 +587,10 @@ void Monkey_UpdateSlotStatus(void) {
     }
 }
 
-/* func_800335D0: is link record idx in its "done" state? Reads its kind r[0] and state r[1]
+/* Link_IsInDoneState: is link record idx in its "done" state? Reads its kind r[0] and state r[1]
  * (func_8005B7BC): kind 1: state 0 or 5; 0x65: state < 2 or == 5; 6: 3; 9/0x11/0x18: > 0;
  * 0x31: 0; others: 2. Used by Monkey_CanDoAction for actions flagged 0x40/0x80. */
-s32 func_800335D0(s32 idx) {
+s32 Link_IsInDoneState(s32 idx) {
     s16 r[4];
     s32 st;
     u16 ok;
@@ -649,11 +649,11 @@ s32 func_800335D0(s32 idx) {
 void Monkey_ClearQueuedSounds(void) {
     s32 i;
     for (i = 0; i < 16; i++) {
-        D_800E6780[i].f_0 = -1;
-        D_800E6780[i].f_4 = -1;
-        D_800E6780[i].f_10 = 0;
-        D_800E6780[i].f_C = 0;
-        D_800E6780[i].f_8 = 0;
+        g_MonkeySoundQueue[i].f_0 = -1;
+        g_MonkeySoundQueue[i].f_4 = -1;
+        g_MonkeySoundQueue[i].f_10 = 0;
+        g_MonkeySoundQueue[i].f_C = 0;
+        g_MonkeySoundQueue[i].f_8 = 0;
     }
 }
 
@@ -661,19 +661,19 @@ void Monkey_QueueSound(s32 a, s32 b) {
     s32 i = 0;
     Monkey *m = g_CurMonkey;
     for (; i < 16; i++) {
-        if (D_800E6780[i].f_4 < 0) {
-            D_800E6780[i].f_0 = a;
-            D_800E6780[i].f_4 = b;
-            D_800E6780[i].f_8 = m->f_24;
-            D_800E6780[i].f_C = m->f_28;
-            D_800E6780[i].f_10 = m->f_2C;
+        if (g_MonkeySoundQueue[i].f_4 < 0) {
+            g_MonkeySoundQueue[i].f_0 = a;
+            g_MonkeySoundQueue[i].f_4 = b;
+            g_MonkeySoundQueue[i].f_8 = m->f_24;
+            g_MonkeySoundQueue[i].f_C = m->f_28;
+            g_MonkeySoundQueue[i].f_10 = m->f_2C;
             return;
         }
     }
-    bios_printf(D_800A4900);
+    bios_printf(Monkey_StrVoiceFull);
 }
 
-INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", D_800A4900);
+INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", Monkey_StrVoiceFull);
 
 
 /* Count down the 16 queued monkey sounds (Monkey_QueueSound) and play each one at its
@@ -682,14 +682,14 @@ void Monkey_UpdateQueuedSounds(void) {
     s16 v[3];
     s32 i;
     for (i = 0; i < 16; i++) {
-        if (D_800E6780[i].f_4 == 0 && D_800E6780[i].f_0 > 0) {
-            v[0] = D_800E6780[i].f_8;
-            v[1] = D_800E6780[i].f_C;
-            v[2] = D_800E6780[i].f_10;
-            Sound_PlayAt(D_800E6780[i].f_0, v);
+        if (g_MonkeySoundQueue[i].f_4 == 0 && g_MonkeySoundQueue[i].f_0 > 0) {
+            v[0] = g_MonkeySoundQueue[i].f_8;
+            v[1] = g_MonkeySoundQueue[i].f_C;
+            v[2] = g_MonkeySoundQueue[i].f_10;
+            Sound_PlayAt(g_MonkeySoundQueue[i].f_0, v);
         }
-        if (D_800E6780[i].f_4 >= 0) {
-            D_800E6780[i].f_4--;
+        if (g_MonkeySoundQueue[i].f_4 >= 0) {
+            g_MonkeySoundQueue[i].f_4--;
         }
     }
 }
@@ -704,8 +704,8 @@ fail:
         return -1;
     }
     c = -1;
-    for (j = 0; j < D_800B4D00[n].f_A; j++) {
-        if (D_800B4D00[n].f_C[j] & 0x4000) {
+    for (j = 0; j < g_PathNodes[n].f_A; j++) {
+        if (g_PathNodes[n].f_C[j] & 0x4000) {
             c++;
         }
         if (c == k) {
@@ -715,10 +715,10 @@ fail:
     if (c != k) {
         goto fail;
     }
-    return D_800B4D00[n].f_C[j] & 0x3FFF;
+    return g_PathNodes[n].f_C[j] & 0x3FFF;
 }
 
-s32 func_80033940(s16 arg0) {
+s32 Monkey_IsSlotFree(s16 arg0) {
     s32 temp_v0;
     s32 var_a1;
 
@@ -742,11 +742,11 @@ s32 func_8003398C(void) {
     return var_a0;
 }
 
-s32 func_800339CC(void) {
+s32 Monkey_IsInVehicle(void) {
     return (u32)(g_CurMonkey->f_78 - 30) < 3;
 }
 
-s32 func_800339EC(void) {
+s32 Stage_IsRaceOrBoss(void) {
     s32 var_a0;
 
     var_a0 = 0;
@@ -759,7 +759,7 @@ s32 func_800339EC(void) {
 s32 Monkey_CheckStateTimer(void) {
     Monkey *m = g_CurMonkey;
     s32 i;
-    if ((D_800AE940[m->f_78].f_4 >> 2) & 1) {
+    if ((g_MonkeyStateInfo[m->f_78].f_4 >> 2) & 1) {
         i = Monkey_CurAnimIndex();
         m = g_CurMonkey;
         return !(m->f_5C > m->f_16C[i].f_2);
@@ -772,7 +772,7 @@ s32 Monkey_AnimJustStarted(void) {
     return g_CurMonkey->f_5C == g_CurMonkey->f_16C[i].f_0 + 1;
 }
 
-s32 func_80033B10(void) {
+s32 Monkey_IsIdleLooking(void) {
     s32 var_a0;
     u8 temp_v1;
 
@@ -784,7 +784,7 @@ s32 func_80033B10(void) {
     return var_a0;
 }
 
-s32 func_80033B9C(void) {
+s32 Monkey_IsIdleLookDone(void) {
     s32 var_a0;
     u8 temp_v1;
 
@@ -796,11 +796,11 @@ s32 func_80033B9C(void) {
     return var_a0;
 }
 
-s32 func_80033BE0(void) {
+s32 Monkey_IsNodeAnim(void) {
     return (u32)(g_CurMonkey->f_78 - 50) < 3;
 }
 
-s32 func_80033C00(void) {
+s32 Monkey_IsSwimming(void) {
     s32 var_a0;
     u8 temp_v1;
 
@@ -812,7 +812,7 @@ s32 func_80033C00(void) {
     return var_a0;
 }
 
-s32 func_80033C34(void) {
+s32 Monkey_IsJumping(void) {
     s32 var_a0;
     u8 temp_v1;
 
@@ -824,7 +824,7 @@ s32 func_80033C34(void) {
     return var_a0;
 }
 
-s32 func_80033C80(void) {
+s32 Monkey_IsStunned(void) {
     s32 var_a0;
     u8 temp_v1;
 
@@ -838,7 +838,7 @@ s32 func_80033C80(void) {
 
 /* Fires an enemy shot of type k (func_80059304) from g_CurMonkey: from its position, raised by
  * 200 except for types 3 and 4, aimed at g_MonkeyTarget. Type 6 cycles through the five aim
- * patterns (D_800AEBF4 % 5) instead of passing the direction. */
+ * patterns (g_MissilePattern % 5) instead of passing the direction. */
 void Monkey_FireShot(s32 k) {
     s16 v[4];
     s16 d[4];
@@ -861,13 +861,13 @@ void Monkey_FireShot(s32 k) {
     d[1] = s->f_28 - g_CurMonkey->f_28;
     d[2] = s->f_2C - g_CurMonkey->f_2C;
     if (k == 6) {
-        func_80059304(v, g_CurMonkey, 6, (u8)(D_800AEBF4++ % 5));
+        func_80059304(v, g_CurMonkey, 6, (u8)(g_MissilePattern++ % 5));
     } else {
         func_80059304(v, g_CurMonkey, k, (s32)d);
     }
 }
 
-void func_80033DF0(void) {
+void Monkey_FireMissile(void) {
     M2C_FIELD(g_CurMonkey, u16 *, 0x96) = (u16) (M2C_FIELD(g_CurMonkey, u16 *, 0x96) + 1);
     Monkey_FireShot(6);
     Monkey_QueueSound(0x4B, 5);
@@ -886,7 +886,7 @@ void Monkey_QueueSound(s32, s32);
 void func_80059304_33E4C(SV_80033E4C *, M_80033E4C *, s32, SV_80033E4C *) asm("func_80059304");
 int abs(int);
 
-void func_80033E4C(mode)
+void Monkey_AimAndShoot(mode)
     s16 mode;
 {
     SV_80033E4C pos;
@@ -895,8 +895,8 @@ void func_80033E4C(mode)
     s32 n;
     s32 n2;
     M_80033E4C *m;
-    dir.vx = TG_33E4C->x + (s16)(rcos((D_800AEB60 << 12) / 100) * 400 / 4096) - MG_33E4C->x;
-    dir.vz = TG_33E4C->z + (s16)(rsin((D_800AEB60 << 12) / 100) * 400 / 4096) - MG_33E4C->z;
+    dir.vx = TG_33E4C->x + (s16)(rcos((g_MonkeyFrame << 12) / 100) * 400 / 4096) - MG_33E4C->x;
+    dir.vz = TG_33E4C->z + (s16)(rsin((g_MonkeyFrame << 12) / 100) * 400 / 4096) - MG_33E4C->z;
     if (mode == 0) {
         dir.vy = TG_33E4C->y + 0x7D - MG_33E4C->y;
     } else {
@@ -931,7 +931,7 @@ void func_80033E4C(mode)
         MG_33E4C->dir.vz = dir.vz;
         VectorNormalSS_33E4C(&MG_33E4C->dir, &MG_33E4C->dir);
     }
-    if ((mode == 0 && !(D_800AEB60 & 3)) || (mode == 5 && D_800AEB60 % 5 == 0)) {
+    if ((mode == 0 && !(g_MonkeyFrame & 3)) || (mode == 5 && g_MonkeyFrame % 5 == 0)) {
         MG_33E4C->f_96++;
         if (mode == 5) {
             dir.vx = dir.vx * 180 / 100;
@@ -953,7 +953,7 @@ void func_80033E4C(mode)
     }
 }
 
-void func_8003429C(s16 k) {
+void Monkey_DropWhileRunning(s16 k) {
     s16 v[4];
     s16 d[4];
 
@@ -975,14 +975,14 @@ void func_8003429C(s16 k) {
     g_CurMonkey->f_222--;
 }
 
-void func_800343B0(void) {
+void Monkey_ThrowStone(void) {
     M2C_FIELD(g_CurMonkey, u16 *, 0x96) = (u16) (M2C_FIELD(g_CurMonkey, u16 *, 0x96) + 1);
     Monkey_FireShot(7);
     Monkey_QueueSound(0x48, 2);
     M2C_FIELD(g_CurMonkey, u8 *, 0x222) = (u8) (M2C_FIELD(g_CurMonkey, u8 *, 0x222) - 1);
 }
 
-void func_8003440C(void) {
+void Monkey_ThrowCoconut(void) {
     Monkey *m = g_CurMonkey;
     s16 p[3];
     s16 d[3];
@@ -1009,7 +1009,7 @@ s32 Vec_AngleBetweenXZ(VEC_800344C8 *a, VEC_800344C8 *b)
   return ratan2(((na.vx * nb.vz) - (na.vz * nb.vx)) / 4096, new_var);
 }
 
-s32 func_8003455C(void) {
+s32 Monkey_AngleToTarget(void) {
     Monkey *m = g_CurMonkey;
     VEC3_8003455C a;
     VEC3_8003455C b;
@@ -1073,13 +1073,13 @@ void Monkey_AimAtGoal(void) {
 void Monkey_TurnToGoal(void) {
     Monkey *m;
     Monkey_AimAtGoal();
-    if (func_80033C34() != 0) {
+    if (Monkey_IsJumping() != 0) {
         return;
     }
     if (g_CurMonkey->f_78 == 9) {
         return;
     }
-    if (func_80033BE0() != 0) {
+    if (Monkey_IsNodeAnim() != 0) {
         return;
     }
     m = g_CurMonkey;
@@ -1135,24 +1135,24 @@ s32 Math_Atan2Pos(s32 arg0, s32 arg1)
   return var_v0;
 }
 
-s32 func_800349F4(s16 arg0) {
-    return (D_800B4D00[arg0].f_0 & 0x1800C) != 0;
+s32 Node_IsStopPoint(s16 arg0) {
+    return (g_PathNodes[arg0].f_0 & 0x1800C) != 0;
 }
 
-s32 func_80034A2C(s16 k) {
+s32 Monkey_ShouldStopAtNode(s16 k) {
     s32 r = 0;
-    u32 f = D_800B4D00[k].f_0;
+    u32 f = g_PathNodes[k].f_0;
     if ((f & 4) && ((S_M_80034A2C_80034A2C *)g_CurMonkey)->f_22C == 0) {
         goto yes;
     }
-    if ((f & 8) && func_800339EC() == 0 && ((S_M_80034A2C_80034A2C *)g_CurMonkey)->f_20C < (s16)D_800B4D00[k].f_10) {
+    if ((f & 8) && Stage_IsRaceOrBoss() == 0 && ((S_M_80034A2C_80034A2C *)g_CurMonkey)->f_20C < (s16)g_PathNodes[k].f_10) {
         goto yes;
     }
-    f = D_800B4D00[k].f_0;
+    f = g_PathNodes[k].f_0;
     if ((f & 0x8000) && ((S_M_80034A2C_80034A2C *)g_CurMonkey)->f_20C >= 0x5DD) {
         goto yes;
     }
-    if (!(f & 0x10000) || func_80052C4C(D_800B4D00[k].f_10) != 2) {
+    if (!(f & 0x10000) || func_80052C4C(g_PathNodes[k].f_10) != 2) {
         goto end;
     }
 yes:
@@ -1162,16 +1162,16 @@ end:
 }
 
 void Node_GetJointRef(s16 i, s16 *a, s16 *b, s16 *c) {
-    *a = (s16)D_800B4D00[i].f_10 / 100;
-    *b = D_800B4D00[i].f_10 - *a * 100;
-    *c = D_800B4D00[i].f_12;
+    *a = (s16)g_PathNodes[i].f_10 / 100;
+    *b = g_PathNodes[i].f_10 - *a * 100;
+    *c = g_PathNodes[i].f_12;
 }
 
-void func_80034C08(s16 i, s16 *a, s16 *b, s16 *c, s16 *d) {
-    *a = D_800AEB6C[(s16)((s16)D_800B4D00[i].f_10 / 100)];
-    *b = D_800B4D00[i].f_10 - (s16)((s16)D_800B4D00[i].f_10 / 100) * 100;
-    *c = (s16)D_800B4D00[i].f_12 / 100;
-    *d = D_800B4D00[i].f_12 - *c * 100;
+void Node_GetAnimRef(s16 i, s16 *a, s16 *b, s16 *c, s16 *d) {
+    *a = D_800AEB6C[(s16)((s16)g_PathNodes[i].f_10 / 100)];
+    *b = g_PathNodes[i].f_10 - (s16)((s16)g_PathNodes[i].f_10 / 100) * 100;
+    *c = (s16)g_PathNodes[i].f_12 / 100;
+    *d = g_PathNodes[i].f_12 - *c * 100;
 }
 
 s32 Object_GetJointPos(s16 arg0, s32 arg1, unsigned short arg2, void *arg3)
@@ -1184,8 +1184,8 @@ s32 Object_GetJointPos(s16 arg0, s32 arg1, unsigned short arg2, void *arg3)
   {
     return 0;
   }
-  func_80014804(temp_s0 + 0x60, *((s32 *) (((s8 *) temp_s0) + 0x14)));
-  func_80015780(temp_s0, 3);
+  Matrix_FromFacingXZ(temp_s0 + 0x60, *((s32 *) (((s8 *) temp_s0) + 0x14)));
+  Model_CalcKeyedJointMatrices(temp_s0, 3);
   ApplyMatrixSV(temp_s1, (*((s32 *) (((s8 *) temp_s0) + 0x10))) + ((arg2 & 0xFFFF) * 8), arg3);
   *((u16 *) (((s8 *) arg3) + 0)) = (u16) ((*((u16 *) (((s8 *) arg3) + 0))) + (*((u16 *) (((s8 *) temp_s1) + 0x14))));
   *((u16 *) (((s8 *) arg3) + 2)) = (u16) ((*((u16 *) (((s8 *) arg3) + 2))) + (*((u16 *) (((s8 *) temp_s1) + 0x18))));
@@ -1194,7 +1194,7 @@ s32 Object_GetJointPos(s16 arg0, s32 arg1, unsigned short arg2, void *arg3)
 }
 
 s32 Monkey_GetJointPos(u16 i, u16 j, SVECTOR *out) {
-    struct S_D_800F4730 *t = &D_800F4730[i];
+    struct S_D_800F4730 *t = &g_JointWorldMatrices[i];
     Monkey *m = g_CurMonkey;
     if (m == 0 || m->f_7A == 0) {
         return 0;
@@ -1235,8 +1235,8 @@ void Node_GetPosition(u16 k, VEC_80040CFC_80034EF8 *out) {
 typedef struct { u8 pad[0xF2]; u16 hist[6]; } MonkeyPath_80035080;
 
 /* Push `node` onto the monkey's six-entry path history (f_F2.., newest first). If the monkey
-   should turn back (func_80033C34 with f_228 bit 0, state 9/0x1A/0x35, f_228 bit 9, or
-   func_800339EC), its goal f_EC becomes the previous node. */
+   should turn back (Monkey_IsJumping with f_228 bit 0, state 9/0x1A/0x35, f_228 bit 9, or
+   Stage_IsRaceOrBoss), its goal f_EC becomes the previous node. */
 void Monkey_GoToNode(s16 node) {
     s32 i;
     Monkey *m = g_CurMonkey;
@@ -1246,10 +1246,10 @@ void Monkey_GoToNode(s16 node) {
         i--;
     }
     g_CurMonkey->f_F2 = node;
-    func_800355DC();
-    if ((func_80033C34() != 0 && (g_CurMonkey->f_228 & 1)) ||
+    Monkey_UpdateGoal();
+    if ((Monkey_IsJumping() != 0 && (g_CurMonkey->f_228 & 1)) ||
         g_CurMonkey->f_78 == 9 || g_CurMonkey->f_78 == 0x1A || g_CurMonkey->f_78 == 0x35 ||
-        (g_CurMonkey->f_228 & 0x200) || func_800339EC() != 0) {
+        (g_CurMonkey->f_228 & 0x200) || Stage_IsRaceOrBoss() != 0) {
         g_CurMonkey->f_EC = g_CurMonkey->f_F4;
     }
 }
@@ -1286,7 +1286,7 @@ s32 Monkey_IsTargetInRange(void) {
     return res;
 }
 
-void func_80035370(void) {
+void Monkey_UpdateLinkSlope(void) {
     VEC_80035370_80035370 a;
     VEC_80035370_80035370 b;
     s32 d;
@@ -1305,11 +1305,11 @@ void func_80035370(void) {
     }
 }
 
-void func_80035474(void) {
+void Monkey_UpdateGoalDist(void) {
     VEC_80040CFC_80035474 t;
     VEC_80034684_80035474 p;
     if (g_CurMonkey->f_78 != 0x1E || (M->f_24B & 1)) {
-        if (D_800B4D00[g_CurMonkey->f_F2].f_0 & 0x40) {
+        if (g_PathNodes[g_CurMonkey->f_F2].f_0 & 0x40) {
             M->f_BC.vx = g_MonkeyTarget->f_24;
             M->f_BC.vy = 0;
             M->f_BC.vz = g_MonkeyTarget->f_2C;
@@ -1328,9 +1328,9 @@ void func_80035474(void) {
     M->f_218 = Vec_Dist(&p, (VEC_80034684_80035474 *)&M->f_BC);
 }
 
-void func_800355DC(void) {
-    func_80035370();
-    func_80035474();
+void Monkey_UpdateGoal(void) {
+    Monkey_UpdateLinkSlope();
+    Monkey_UpdateGoalDist();
 }
 
 s32 Monkey_IsPathLooping(void) {
@@ -1352,10 +1352,10 @@ s32 Monkey_IsPathLooping(void) {
     return 0;
 }
 
-/* func_800356C0: per-type sound id of the current monkey: 0x52 for yellow / dark blue, 0x54 for type 5 /
+/* Monkey_GetVoiceSound: per-type sound id of the current monkey: 0x52 for yellow / dark blue, 0x54 for type 5 /
  * red, 0x53 for the others. All seven types are listed (with the default in the middle) for the
  * compiler to build the original decision tree. */
-s32 func_800356C0(void) {
+s32 Monkey_GetVoiceSound(void) {
     switch (g_MonkeyKinds[g_CurMonkey->f_7C].f_0) {
     case MONKEY_YELLOW:
     case MONKEY_DARK_BLUE:
@@ -1371,10 +1371,10 @@ s32 func_800356C0(void) {
     }
 }
 
-/* func_80035750: per-type sound id of the current monkey: 0x55 for yellow / dark blue, 0x57 for type 5 /
+/* Monkey_GetVoiceSound2: per-type sound id of the current monkey: 0x55 for yellow / dark blue, 0x57 for type 5 /
  * red, 0x56 for the others. All seven types are listed (with the default in the middle) for the
  * compiler to build the original decision tree. */
-s32 func_80035750(void) {
+s32 Monkey_GetVoiceSound2(void) {
     switch (g_MonkeyKinds[g_CurMonkey->f_7C].f_0) {
     case MONKEY_YELLOW:
     case MONKEY_DARK_BLUE:
@@ -1390,17 +1390,17 @@ s32 func_80035750(void) {
     }
 }
 
-void func_800357E0(void) {
-    Monkey_QueueSound(func_800356C0(), 0);
+void Monkey_NoticeTarget(void) {
+    Monkey_QueueSound(Monkey_GetVoiceSound(), 0);
     Monkey_SetState(7);
-    func_80038F00();
+    Monkey_SpawnRunDust();
 }
 
-/* func_8003581C: enter monkey state 0x1E at the current node f_F2 (from Monkey_TrySpecialAction when f_228 has
+/* Monkey_BoardVehicle: enter monkey state 0x1E at the current node f_F2 (from Monkey_TrySpecialAction when f_228 has
  * 0x800 and the node has flag 0x200): stores the node position (+0x234..) and the direction from
- * func_8003B880 (+0x240), sets flag 0x80000000 and clears 0x1000000, and starts sound 0x6050 unless
+ * Node_GetLinkInfo (+0x240), sets flag 0x80000000 and clears 0x1000000, and starts sound 0x6050 unless
  * the previous state was 0x1E or 0x20. */
-s32 func_8003581C(void) {
+s32 Monkey_BoardVehicle(void) {
     s32 prev = (*(M_3581C_8003581C * *)&g_CurMonkey)->f_78;
     V_3581C_8003581C v;
     s16 d[1];
@@ -1413,26 +1413,26 @@ s32 func_8003581C(void) {
     (*(M_3581C_8003581C * *)&g_CurMonkey)->f_248 |= 0x80000000;
     (*(M_3581C_8003581C * *)&g_CurMonkey)->f_4A = -0x4000;
     (*(M_3581C_8003581C * *)&g_CurMonkey)->f_248 &= ~0x1000000;
-    func_8003B880((*(M_3581C_8003581C * *)&g_CurMonkey)->f_F4, (*(M_3581C_8003581C * *)&g_CurMonkey)->f_F2, d);
+    Node_GetLinkInfo((*(M_3581C_8003581C * *)&g_CurMonkey)->f_F4, (*(M_3581C_8003581C * *)&g_CurMonkey)->f_F2, d);
     Node_GetPosition((*(M_3581C_8003581C * *)&g_CurMonkey)->f_F2, pv);
     (*(M_3581C_8003581C * *)&g_CurMonkey)->f_234 = v.x;
     (*(M_3581C_8003581C * *)&g_CurMonkey)->f_238 = v.y;
     { s32 z = v.z; (*(M_3581C_8003581C * *)&g_CurMonkey)->f_240 = d[0]; (*(M_3581C_8003581C * *)&g_CurMonkey)->f_23C = z; }
-    func_80038F00();
+    Monkey_SpawnRunDust();
     if (prev != 0x1E && prev != 0x20) {
         (*(M_3581C_8003581C * *)&g_CurMonkey)->f_15C = func_800882C4(1, 0x6050, (*(M_3581C_8003581C * *)&g_CurMonkey)->f_7C);
     }
     do { return 1; } while (0);
 }
 
-void func_80035918(s16 a) {
+void Monkey_StartNodeAnim(s16 a) {
     Monkey *m;
     s16 v;
     Monkey *n;
     MonkeyAnimEntry *t;
     g_CurMonkey->f_78 = 0x32;
     m = g_CurMonkey;
-    func_80034C08(a, &m->f_242, &v, &m->f_244, &m->f_246);
+    Node_GetAnimRef(a, &m->f_242, &v, &m->f_244, &m->f_246);
     n = g_CurMonkey;
     m = n;
     m->f_18 = G_GAME_80035918->f_81B8;
@@ -1443,7 +1443,7 @@ void func_80035918(s16 a) {
     Monkey_RestartAnim();
 }
 
-void func_800359B4(void) {
+void Monkey_NextNodeAnim(void) {
     Monkey_SetState(0x34);
     M2C_FIELD(g_CurMonkey, u16 *, 0x242) = (u16) (M2C_FIELD(g_CurMonkey, u16 *, 0x242) + 1);
 }
@@ -1452,29 +1452,29 @@ s32 func_800359F0(void) {
     u16 sp10;
 
     if (M2C_FIELD(g_CurMonkey, u8 *, 0x78) != 0x1D) {
-        func_80036B24();
+        Monkey_StartIntangible();
     }
     M2C_FIELD(g_CurMonkey, u8 *, 0x78) = 0x1DU;
     Monkey_RestartAnim();
-    func_8003B880(M2C_FIELD(g_CurMonkey, s16 *, 0xF4), M2C_FIELD(g_CurMonkey, s16 *, 0xF2), &sp10);
-    func_800355DC();
+    Node_GetLinkInfo(M2C_FIELD(g_CurMonkey, s16 *, 0xF4), M2C_FIELD(g_CurMonkey, s16 *, 0xF2), &sp10);
+    Monkey_UpdateGoal();
     M2C_FIELD(g_CurMonkey, u16 *, 0x128) = sp10;
     M2C_FIELD(g_CurMonkey, s16 *, 0x96) = 0;
     M2C_FIELD(g_CurMonkey, u16 *, 0xEC) = (u16) M2C_FIELD(g_CurMonkey, s16 *, 0xF4);
     return 1;
 }
 
-s32 func_80035A7C(void) {
+s32 Monkey_JumpToNode(void) {
     Monkey *m = g_CurMonkey;
     m->f_78 = 4;
     m->f_EC = m->f_F4;
     Monkey_RestartAnim();
     g_CurMonkey->f_172 = 5;
     g_CurMonkey->f_170 = g_CurMonkey->f_16C[Monkey_CurAnimIndex()].f_2 - g_CurMonkey->f_16C[Monkey_CurAnimIndex()].f_0 + 1;
-    func_800355DC();
+    Monkey_UpdateGoal();
     Monkey_StartNodeJump();
-    func_80038F00();
-    if (func_800339EC() != 0) {
+    Monkey_SpawnRunDust();
+    if (Stage_IsRaceOrBoss() != 0) {
         Monkey_QueueSound(0xB1, 0);
         Monkey_QueueSound(0x11, 0);
         Monkey_QueueSound(0x13, g_CurMonkey->f_16C[Monkey_CurAnimIndex()].f_2 - g_CurMonkey->f_16C[Monkey_CurAnimIndex()].f_0 - 1);
@@ -1485,10 +1485,10 @@ s32 func_80035A7C(void) {
     return 1;
 }
 
-void func_80035BD0(s16 st) {
+void Monkey_StartHitReaction(s16 st) {
     SVEC_80035BD0 a;
     SVEC_80035BD0 b;
-    if (func_80033C34() == 0) {
+    if (Monkey_IsJumping() == 0) {
         ((S_BC_80035BD0_80035BD0 *)g_CurMonkey)->f_BC = g_MonkeyTarget->f_24;
         ((S_BC_80035BD0_80035BD0 *)g_CurMonkey)->f_C0 = g_MonkeyTarget->f_28;
         ((S_BC_80035BD0_80035BD0 *)g_CurMonkey)->f_C4 = g_MonkeyTarget->f_2C;
@@ -1535,7 +1535,7 @@ void func_80035D18(void) {
     }
 }
 
-void func_80035DD8(void) {
+void Monkey_Land(void) {
     Monkey *m = g_CurMonkey;
     s16 v[3];
     Monkey_SetState(0x30);
@@ -1555,7 +1555,7 @@ void func_80035E6C(void) {
     Monkey_QueueSound(0x47, 3);
 }
 
-void func_80035EA4(void) {
+void Monkey_VehicleWrecked(void) {
     Monkey *m = g_CurMonkey;
     s16 v[3];
     v[0] = m->f_24;
@@ -1569,15 +1569,15 @@ void func_80035EA4(void) {
 }
 
 void func_80035F1C(void) {
-    if (func_80033C00() == 0) {
-        func_80039248();
+    if (Monkey_IsSwimming() == 0) {
+        Monkey_SplashIntoWater();
     }
     Monkey_SetState(0x24);
 }
 
 void func_80035F54(void) {
-    if (func_80033C00() == 0) {
-        func_80039248();
+    if (Monkey_IsSwimming() == 0) {
+        Monkey_SplashIntoWater();
     }
     Monkey_SetState(0xC);
 }
@@ -1589,7 +1589,7 @@ void func_80035F8C(void) {
 
 void func_80035FBC(void) {
     M2C_FIELD(g_CurMonkey, u16 *, 0xEC) = (u16) M2C_FIELD(g_CurMonkey, u16 *, 0xF4);
-    if (func_800339EC() != 0) {
+    if (Stage_IsRaceOrBoss() != 0) {
         M2C_FIELD(g_CurMonkey, s32 *, 0x12C) = (s32) M2C_FIELD(g_CurMonkey, s32 *, 0x24);
         M2C_FIELD(g_CurMonkey, s32 *, 0x130) = (s32) M2C_FIELD(g_CurMonkey, s32 *, 0x28);
         M2C_FIELD(g_CurMonkey, s32 *, 0x134) = (s32) M2C_FIELD(g_CurMonkey, s32 *, 0x2C);
@@ -1597,13 +1597,13 @@ void func_80035FBC(void) {
     Monkey_SetState(0x1A);
 }
 
-void func_8003601C(void) {
+void Monkey_StartClimb(void) {
     s16 sp10;
 
     M2C_FIELD(g_CurMonkey, s16 *, 0x94) = 0;
     M2C_FIELD(g_CurMonkey, u16 *, 0xEC) = (u16) M2C_FIELD(g_CurMonkey, s16 *, 0xF4);
-    func_8003B880(M2C_FIELD(g_CurMonkey, s16 *, 0xF4), M2C_FIELD(g_CurMonkey, s16 *, 0xF2), &sp10);
-    if ((((M2C_FIELD(g_CurMonkey, u8 *, 0x78) == 0x1A) && (func_800339EC() == 0)) || (M2C_FIELD(g_CurMonkey, u8 *, 0x78) == 0x35)) && (M2C_FIELD(g_CurMonkey, u8 *, 0x22E) == 2)) {
+    Node_GetLinkInfo(M2C_FIELD(g_CurMonkey, s16 *, 0xF4), M2C_FIELD(g_CurMonkey, s16 *, 0xF2), &sp10);
+    if ((((M2C_FIELD(g_CurMonkey, u8 *, 0x78) == 0x1A) && (Stage_IsRaceOrBoss() == 0)) || (M2C_FIELD(g_CurMonkey, u8 *, 0x78) == 0x35)) && (M2C_FIELD(g_CurMonkey, u8 *, 0x22E) == 2)) {
         M2C_FIELD(g_CurMonkey, s32 *, 0x28) = (s32) (M2C_FIELD(g_CurMonkey, s32 *, 0x28) + 0xC8);
     }
     Monkey_SetState(9);
@@ -1640,12 +1640,12 @@ void func_80036174(void) {
     }
 }
 
-s32 func_800361B4(void) {
+s32 Monkey_IsTargetNear(void) {
     s32 k;
-    if (func_800339EC() != 0) {
+    if (Stage_IsRaceOrBoss() != 0) {
         return 0;
     }
-    if (func_80033B10() != 0 && ((g_CurMonkey->f_248 >> 19) & 1)) {
+    if (Monkey_IsIdleLooking() != 0 && ((g_CurMonkey->f_248 >> 19) & 1)) {
         return 0;
     }
     k = (((S_70_800361B4_800361B4 *)g_MonkeyTarget)->f_70 & 0xF) < 2;
@@ -1658,7 +1658,7 @@ s32 func_800361B4(void) {
     return g_CurMonkey->f_20C < ((S_Kind_800361B4_800361B4 *)&g_MonkeyKinds[g_CurMonkey->f_7C])->f_1A;
 }
 
-void func_80036300(void) {
+void Monkey_StartIdle(void) {
     u16 r;
     Monkey *m;
     s32 k;
@@ -1670,7 +1670,7 @@ void func_80036300(void) {
     m->f_9A = k * 2 - (r * 2) % k;
 }
 
-void func_800363A4(void) {
+void Monkey_StartIdleAlert(void) {
     void *temp_s0;
 
     temp_s0 = g_CurMonkey;
@@ -1679,7 +1679,7 @@ void func_800363A4(void) {
     M2C_FIELD(temp_s0, s32 *, 0x248) = (s32) (M2C_FIELD(temp_s0, s32 *, 0x248) | 0x80000);
 }
 
-void func_800363E4(void) {
+void Monkey_StartLookout(void) {
     Monkey_SetState((Monkey_Rand() & 1) == 0 ? 0x16 : 0x26);
 }
 
@@ -1691,13 +1691,13 @@ void func_8003641C(void) {
     Monkey_QueueSound(0x46, 0x1E);
 }
 
-void func_80036460(void) {
+void Monkey_StartDrop(void) {
     if (M2C_FIELD(g_CurMonkey, u8 *, 0x78) != 0x2A) {
         M2C_FIELD(g_CurMonkey, u8 *, 0x78) = 0x2AU;
         Monkey_RestartAnim(0x2A);
         M2C_FIELD(g_CurMonkey, s8 *, 0xE3) = 0;
         M2C_FIELD(g_CurMonkey, u16 *, 0xE4) = (u16) M2C_FIELD(g_CurMonkey, u16 *, 0x28);
-        func_80036B78();
+        Monkey_EndIntangible();
     }
 }
 
@@ -1814,10 +1814,10 @@ void Monkey_StartNodeJump(void)
       g_CurMonkey->f_128 = (SquareRoot0(d100 / (c * 300)) * 110) / 100;
     }
   }
-  func_80038F00();
+  Monkey_SpawnRunDust();
 }
 
-s32 func_80036964(void) {
+s32 Monkey_StartLeap(void) {
     Monkey *m = g_CurMonkey;
     s32 a;
     Monkey *n;
@@ -1828,9 +1828,9 @@ s32 func_80036964(void) {
     Monkey_RestartAnim();
     n = g_CurMonkey;
     n->f_170 = n->f_16C[34].f_2 - n->f_16C[34].f_0 + 1;
-    func_800355DC();
+    Monkey_UpdateGoal();
     Monkey_StartNodeJump();
-    func_80038F00();
+    Monkey_SpawnRunDust();
     Monkey_QueueSound(0x44, 3);
     a = Monkey_CurAnimIndex();
     b = Monkey_CurAnimIndex();
@@ -1840,7 +1840,7 @@ s32 func_80036964(void) {
 
 void Monkey_QueueSound(s32, s32);
 
-void func_80036A34(void)
+void Monkey_StartHop(void)
 {
   int new_var;
   Monkey *m;
@@ -1866,17 +1866,17 @@ void func_80036A34(void)
   g_CurMonkey->f_128 = x;
   g_CurMonkey->f_140 = ((u16) g_CurMonkey->f_128) << 2;
   Monkey_QueueSound(0x47, 3);
-  func_80038F00();
+  Monkey_SpawnRunDust();
 }
 
-void func_80036B24(void) {
+void Monkey_StartIntangible(void) {
     M2C_FIELD(g_CurMonkey, s16 *, 0xF0) = 0;
     M2C_FIELD(g_CurMonkey, s32 *, 0x248) = (s32) (((M2C_FIELD(g_CurMonkey, s32 *, 0x248) | 0x40000000) & 0xFFFCFFFF) | 0x20000);
     Monkey_DisableCollision();
-    func_8003929C();
+    Monkey_SpawnPuff();
 }
 
-void func_80036B78(void)
+void Monkey_EndIntangible(void)
 {
   S_4D08 *p = g_CurMonkey;
   int new_var2;
@@ -1886,7 +1886,7 @@ void func_80036B78(void)
   new_var2 = 0xBFFFFFFF;
   p->unk248 = ((p->unk248 & new_var2) & 0xFFFCFFFF) | 0x10000;
   Monkey_EnableCollision();
-  func_8003929C();
+  Monkey_SpawnPuff();
 }
 
 /* Sets the current monkey's facing vector (+0x60/+0x64, 4096 = 1.0) to one of 8 compass
@@ -1931,7 +1931,7 @@ void Monkey_SetFacingDir(s16 dir) {
     }
 }
 
-void func_80036C84(void) {
+void Monkey_Explode(void) {
     Fx_DebrisExplosion(M2C_FIELD(g_CurMonkey, s16 *, 0x24), M2C_FIELD(g_CurMonkey, s16 *, 0x28), M2C_FIELD(g_CurMonkey, s16 *, 0x2C));
     Monkey_QueueSound(0x79, 0);
     Monkey_QueueSound(0x79, 2);
@@ -1948,8 +1948,8 @@ s32 Monkey_TrySpecialAction(void) {
     f = m->f_228;
     if (f & 0x100) {
         func_800359F0();
-    } else if ((f & 0x800) && (D_800B4D00[m->f_F4].f_0 & 0x200)) {
-        func_8003581C();
+    } else if ((f & 0x800) && (g_PathNodes[m->f_F4].f_0 & 0x200)) {
+        Monkey_BoardVehicle();
     } else {
         m = MSF;
         f = m->f_228;
@@ -1960,7 +1960,7 @@ s32 Monkey_TrySpecialAction(void) {
         } else if (f & 8) {
             Monkey_SetState(0xA);
         } else if (f & 4) {
-            func_8003601C();
+            Monkey_StartClimb();
         } else if (f & 0x10) {
             if (m->f_94 <= 0 && (u16)Monkey_Rand() % 100 < 100) {
                 func_80035F1C();
@@ -1968,25 +1968,25 @@ s32 Monkey_TrySpecialAction(void) {
                 func_80035F54();
             }
         } else if (f & 1) {
-            func_80035A7C();
+            Monkey_JumpToNode();
         } else if (f & 0x10000) {
-            func_80036964();
+            Monkey_StartLeap();
         } else if (f & 0x800000) {
             func_800360D8();
         } else if ((f & 0x1000000) && m->state == 0x3D) {
             func_8003612C();
-        } else if (MSF->state == 3 && !func_800339EC() && (u16)Monkey_Rand() % 100 < 10
-                   && (!(D_800B4D00[MSF->f_F2].f_0 & 1) || !(D_800B4D00[MSF->f_F4].f_0 & 1))
+        } else if (MSF->state == 3 && !Stage_IsRaceOrBoss() && (u16)Monkey_Rand() % 100 < 10
+                   && (!(g_PathNodes[MSF->f_F2].f_0 & 1) || !(g_PathNodes[MSF->f_F4].f_0 & 1))
                    && (u32)(MSF->f_218 - 300) < 0x1F5) {
-            func_80035A7C();
+            Monkey_JumpToNode();
         } else {
             r = 0;
         }
     }
-    if (r && !func_80033C34()) {
+    if (r && !Monkey_IsJumping()) {
         st = MSF->state;
         if (st != 9 && st != 0x1A) {
-            if (st != 0x35 && !(MSF->f_228 & 0x200) && !func_800339EC()) {
+            if (st != 0x35 && !(MSF->f_228 & 0x200) && !Stage_IsRaceOrBoss()) {
                 MSF->f_EC = -1;
             }
         }
@@ -2036,18 +2036,18 @@ s32 Monkey_TryReaction(s16 kind)
   roll = ((u16) Monkey_Rand()) % 100;
   if (roll < Monkey_AttackChance(kind))
   {
-    t = (struct S_D_800AEBB4_8003710C *) (off + ((s32) ((struct S_D_800AEBB4_8003710C *)&D_800AEBB4)));
+    t = (struct S_D_800AEBB4_8003710C *) (off + ((s32) ((struct S_D_800AEBB4_8003710C *)&g_MonkeyAttackWindows)));
     ((MR_8003710C_8003710C *) g_CurMonkey)->f_222 = t->mult * ((React_8003710C_8003710C *) (((((MR_8003710C_8003710C *) g_CurMonkey)->kind * 0x88) + ((s32) g_MonkeyKinds)) + off))->chance;
     if (kind == 1)
     {
       ((MR_8003710C_8003710C *) g_CurMonkey)->f_174 = 0x5A;
     }
-    if (func_800339CC() != 0)
+    if (Monkey_IsInVehicle() != 0)
     {
       return 1;
     }
     ((MR_8003710C_8003710C *) g_CurMonkey)->state = t->state;
-    if (!((D_800AE940[((MR_8003710C_8003710C *) g_CurMonkey)->state].f_4 >> 2) & 1))
+    if (!((g_MonkeyStateInfo[((MR_8003710C_8003710C *) g_CurMonkey)->state].f_4 >> 2) & 1))
     {
       ((MR_8003710C_8003710C *) g_CurMonkey)->f_96 = 0;
       ((MR_8003710C_8003710C *) g_CurMonkey)->f_128 = 0xC;
@@ -2060,52 +2060,52 @@ s32 Monkey_TryReaction(s16 kind)
     }
     if (kind == 7)
     {
-      Monkey_QueueSound(func_800356C0(), 0);
+      Monkey_QueueSound(Monkey_GetVoiceSound(), 0);
     }
     return 1;
   }
   return 0;
 }
 
-s32 func_8003738C(void) {
+s32 Monkey_TryAttackGroup0(void) {
     s32 i;
     s32 k;
-    if (D_800EC2CA != 0) {
+    if (g_SpikeInvulnTimer != 0) {
         return 100;
     }
     for (i = 0; i < 12; i++) {
         k = Monkey_Rand() & 7;
-        if ((D_800AEBB4[k].f_4 & 1) && Monkey_TryReaction(k) != 0) {
+        if ((g_MonkeyAttackWindows[k].f_4 & 1) && Monkey_TryReaction(k) != 0) {
             return k;
         }
     }
     return 100;
 }
 
-s32 func_80037420(void) {
+s32 Monkey_TryAttackGroup1(void) {
     s32 i;
     s32 k;
-    if (D_800EC2CA != 0) {
+    if (g_SpikeInvulnTimer != 0) {
         return 100;
     }
     for (i = 0; i < 12; i++) {
         k = Monkey_Rand() & 7;
-        if (((D_800AEBB4[k].f_4 >> 1) & 1) && Monkey_TryReaction(k) != 0) {
+        if (((g_MonkeyAttackWindows[k].f_4 >> 1) & 1) && Monkey_TryReaction(k) != 0) {
             return k;
         }
     }
     return 100;
 }
 
-s32 func_800374B8(void) {
+s32 Monkey_TryAttackGroup2(void) {
     s32 i;
     s32 k;
-    if (D_800EC2CA != 0) {
+    if (g_SpikeInvulnTimer != 0) {
         return 100;
     }
     for (i = 0; i < 12; i++) {
         k = Monkey_Rand() & 7;
-        if (((D_800AEBB4[k].f_4 >> 2) & 1) && Monkey_TryReaction(k) != 0) {
+        if (((g_MonkeyAttackWindows[k].f_4 >> 2) & 1) && Monkey_TryReaction(k) != 0) {
             return k;
         }
     }
@@ -2125,7 +2125,7 @@ void Monkey_PickNextAction(void) {
     if (MS->f_79 == 0) {
         ((u8 *)&MS->f_248)[1] = 0;
     }
-    if (func_800339EC() && (*(struct Game_80037550 *)&g_Game).f_812C != 3) {
+    if (Stage_IsRaceOrBoss() && (*(struct Game_80037550 *)&g_Game).f_812C != 3) {
         if (MS->state == 0xB) {
             Monkey_RestartAnim();
         } else {
@@ -2135,14 +2135,14 @@ void Monkey_PickNextAction(void) {
     }
     MS->f_79 = 1;
     near = (u32)(MS->f_20C - 300) < 0x4B1;
-    if (!func_800339EC() && MS->state == 0xB && near) {
+    if (!Stage_IsRaceOrBoss() && MS->state == 0xB && near) {
         goto leave;
     }
     if (((MS->f_248 >> 26) & 1) && near) {
         Monkey_SetState(0xB);
         goto after;
     }
-    if (((D_800AE940[MS->state].f_4 >> 3) & 1) && MS->f_222 > 0) {
+    if (((g_MonkeyStateInfo[MS->state].f_4 >> 3) & 1) && MS->f_222 > 0) {
     leave:
         Monkey_RestartAnim();
         goto after;
@@ -2154,7 +2154,7 @@ void Monkey_PickNextAction(void) {
         return;
     }
     if (((MS->f_248 >> 23) & 1) && MS->state == 3) {
-        if (func_8003738C() != 100) {
+        if (Monkey_TryAttackGroup0() != 100) {
             return;
         }
     }
@@ -2164,21 +2164,21 @@ void Monkey_PickNextAction(void) {
         Monkey_SetState(3);
     }
 after:
-    if (!func_80033C34()) {
+    if (!Monkey_IsJumping()) {
         st = MS->state;
         if (st != 9 && st != 0x1A) {
-            if (st != 0x35 && !(MS->f_228 & 0x200) && !func_800339EC()) {
+            if (st != 0x35 && !(MS->f_228 & 0x200) && !Stage_IsRaceOrBoss()) {
                 MS->f_EC = -1;
             }
         }
     }
 done:
-    if (walk && !func_80033C00()) {
-        func_80039248();
+    if (walk && !Monkey_IsSwimming()) {
+        Monkey_SplashIntoWater();
     }
 }
 
-void func_800378C0(void) {
+void Monkey_PickAction(void) {
     if (M2C_FIELD(g_CurMonkey, u8 *, 0x79) == 1) {
         Monkey_PickNextAction();
         return;
@@ -2196,17 +2196,17 @@ void Monkey_PickIdleAction(void) {
     if ((MX->f_248 >> 20) & 1) {
         return;
     }
-    if (func_800339EC()) {
+    if (Stage_IsRaceOrBoss()) {
         Monkey_PickNextAction();
         return;
     }
     MX->f_79 = 0;
-    if (((D_800AE940[MX->state].f_4 >> 3) & 1) && MX->f_222 > 0) {
+    if (((g_MonkeyStateInfo[MX->state].f_4 >> 3) & 1) && MX->f_222 > 0) {
         Monkey_RestartAnim();
     } else if (!Monkey_TrySpecialAction()) {
         if (KX[MX->kind].f_2 == 0 && KX[MX->kind].f_4 == 0) {
             if (KX[MX->kind].f_12 >= MX->f_20C || (u16)Monkey_Rand() % 100 < KX[MX->kind].f_8) {
-                func_80036300();
+                Monkey_StartIdle();
             } else {
                 Monkey_SetState(0);
             }
@@ -2214,8 +2214,8 @@ void Monkey_PickIdleAction(void) {
             Monkey_SetState(2);
         } else if (MX->state == 0x19) {
             Monkey_SetState(0x18);
-        } else if ((MX->state == 2 || func_80033B9C()) && (u16)Monkey_Rand() % 100 < KX[MX->kind].f_8) {
-            func_80036300();
+        } else if ((MX->state == 2 || Monkey_IsIdleLookDone()) && (u16)Monkey_Rand() % 100 < KX[MX->kind].f_8) {
+            Monkey_StartIdle();
         } else if (MX->state == 2 && (u16)Monkey_Rand() % 100 < 10) {
             if (!(Monkey_Rand() & 1)) {
                 Monkey_SetState(0x27);
@@ -2234,16 +2234,16 @@ void Monkey_PickIdleAction(void) {
             Monkey_SetState(2);
         }
     }
-    if (!func_80033C34()) {
+    if (!Monkey_IsJumping()) {
         st = MX->state;
         if (st != 9 && st != 0x1A) {
-            if (st != 0x35 && !(MX->f_228 & 0x200) && !func_800339EC()) {
+            if (st != 0x35 && !(MX->f_228 & 0x200) && !Stage_IsRaceOrBoss()) {
                 MX->f_EC = -1;
             }
         }
     }
-    if (walk && !func_80033C00()) {
-        func_80039248();
+    if (walk && !Monkey_IsSwimming()) {
+        Monkey_SplashIntoWater();
     }
 }
 
@@ -2273,9 +2273,9 @@ s32 Monkey_AvoidConeAngle(void) {
     return ((hi - d) * 60 / (hi - lo) << 12) / 360;
 }
 
-/* Returns 1 if the current monkey may do action `act` (of kind `a`): func_8003B880 gives the
+/* Returns 1 if the current monkey may do action `act` (of kind `a`): Node_GetLinkInfo gives the
  * action's requirement flags and a parameter, then each flag is checked: 0x40/0x80 a condition
- * (func_800335D0) that must hold / must not hold, 0x400 the target within `param` distance,
+ * (Link_IsInDoneState) that must hold / must not hold, 0x400 the target within `param` distance,
  * 0x1000 sub-state f_7C == param, 0x200000 / 0x400000 f_79 must / must not be 1, 0x40000
  * func_80052C4C(param) != 1, and actions flagged 0x100 only for the monkey's own action f_E6. */
 s32 Monkey_CanDoAction(s32 a, s32 act)
@@ -2283,14 +2283,14 @@ s32 Monkey_CanDoAction(s32 a, s32 act)
   V4_80037E8C_80037E8C tgt;
   V4_80037E8C_80037E8C pos;
   s32 param;
-  u32 f = func_8003B880(a, act, &param);
-  if ((f & 0x40) && (func_800335D0(param) == 0))
+  u32 f = Node_GetLinkInfo(a, act, &param);
+  if ((f & 0x40) && (Link_IsInDoneState(param) == 0))
   {
     return 0;
   }
   if (f & 0x80)
   {
-    if (func_800335D0(param) != 0)
+    if (Link_IsInDoneState(param) != 0)
     {
       if (param || g_CurMonkey) /* both arms return 0; only reproduces the original layout */
       {
@@ -2329,14 +2329,14 @@ s32 Monkey_CanDoAction(s32 a, s32 act)
   {
     return 0;
   }
-  if ((D_800B4D00[act].f_0 & 0x100) && (act != g_CurMonkey->f_E6))
+  if ((g_PathNodes[act].f_0 & 0x100) && (act != g_CurMonkey->f_E6))
   {
     return 0;
   }
   return 1;
 }
 
-void func_80038054(s16 i) {
+void Monkey_MarkBlockedLinks(s16 i) {
     Monkey *m = g_CurMonkey;
     s32 k;
     s32 n;
@@ -2344,7 +2344,7 @@ void func_80038054(s16 i) {
     for (k = 0x31, p = (u8 *)m + 0x31; k >= 0; k--, p--) {
         p[0x1DA] = 0;
     }
-    n = D_800B4D00[i].f_B;
+    n = g_PathNodes[i].f_B;
     for (k = 0; k < n; k++) {
         if (Monkey_CanDoAction(i, Node_GetLink(i, k)) == 0) {
             m->f_1DA[k] = 1;
@@ -2354,7 +2354,7 @@ void func_80038054(s16 i) {
 
 /* Chooses the next node for the current monkey. A monkey that noticed its target takes a random
  * link. Otherwise each usable link (not the previous node f_EC, not blocked in f_1DA) is scored
- * by the node's priority for this monkey's route group (D_800B4D00[n].f_14[f_7B]); the best one
+ * by the node's priority for this monkey's route group (g_PathNodes[n].f_14[f_7B]); the best one
  * is taken if it beats the current node (or `force`) and, for an alerted monkey (f_79), its link
  * score f_176 is under a cosine threshold. Returns the node, or -1 to stay. */
 s32 Monkey_PickGoalLink(s16 force)
@@ -2371,9 +2371,9 @@ s32 Monkey_PickGoalLink(s16 force)
   s16 j;
   s16 cp;
   s32 p;
-  if (func_800339EC())
+  if (Stage_IsRaceOrBoss())
   {
-    return Node_GetLink(g_CurMonkey->f_F2, ((u16) Monkey_Rand()) % D_800B4D00[g_CurMonkey->f_F2].f_B);
+    return Node_GetLink(g_CurMonkey->f_F2, ((u16) Monkey_Rand()) % g_PathNodes[g_CurMonkey->f_F2].f_B);
   }
   if (func_80032F24() != 0)
   {
@@ -2393,7 +2393,7 @@ s32 Monkey_PickGoalLink(s16 force)
   {
     thr = rcos(Monkey_AvoidConeAngle());
   }
-  if (func_80033C00())
+  if (Monkey_IsSwimming())
   {
     thr *= 2;
   }
@@ -2402,9 +2402,9 @@ s32 Monkey_PickGoalLink(s16 force)
   d.vz = g_MonkeyTarget->f_2C - g_CurMonkey->f_2C;
   best = -10000;
   bi = -1;
-  func_80038054(g_CurMonkey->f_F2);
+  Monkey_MarkBlockedLinks(g_CurMonkey->f_F2);
   n = 0;
-  for (i = 0; i < D_800B4D00[g_CurMonkey->f_F2].f_B; i++)
+  for (i = 0; i < g_PathNodes[g_CurMonkey->f_F2].f_B; i++)
   {
     j = Node_GetLink(g_CurMonkey->f_F2, i);
     if ((j == ((s16) g_CurMonkey->f_EC)) || (g_CurMonkey->f_1DA[i] != 0))
@@ -2412,15 +2412,15 @@ s32 Monkey_PickGoalLink(s16 force)
       continue;
     }
     links[n++] = j;
-    if (D_800B4D00[j].f_14[g_CurMonkey->f_7B] > best)
+    if (g_PathNodes[j].f_14[g_CurMonkey->f_7B] > best)
     {
-      best = D_800B4D00[j].f_14[g_CurMonkey->f_7B];
+      best = g_PathNodes[j].f_14[g_CurMonkey->f_7B];
       bi = i;
       bj = j;
     }
   }
 
-  cp = D_800B4D00[g_CurMonkey->f_F2].f_14[g_CurMonkey->f_7B];
+  cp = g_PathNodes[g_CurMonkey->f_F2].f_14[g_CurMonkey->f_7B];
   if ((best == 0) && (cp == 0))
   {
     if ((g_CurMonkey->f_248 >> 27) & 1)
@@ -2435,19 +2435,19 @@ s32 Monkey_PickGoalLink(s16 force)
   }
   if (bi >= 0)
   {
-    if ((((g_CurMonkey->f_79 == 0) || func_800339EC()) || (g_CurMonkey->f_78 == 0x3D)) || (g_CurMonkey->f_176[bi] < thr))
+    if ((((g_CurMonkey->f_79 == 0) || Stage_IsRaceOrBoss()) || (g_CurMonkey->f_78 == 0x3D)) || (g_CurMonkey->f_176[bi] < thr))
     {
       return bj;
     }
   }
-  for (i = 0; i < D_800B4D00[g_CurMonkey->f_F2].f_B; i++)
+  for (i = 0; i < g_PathNodes[g_CurMonkey->f_F2].f_B; i++)
   {
     j = Node_GetLink(g_CurMonkey->f_F2, i);
     if ((j == ((s16) g_CurMonkey->f_EC)) || (g_CurMonkey->f_1DA[i] != 0))
     {
       continue;
     }
-    p = D_800B4D00[j].f_14[g_CurMonkey->f_7B];
+    p = g_PathNodes[j].f_14[g_CurMonkey->f_7B];
     if ((cp < p) || (((best == 0) && (cp == 0)) && (p == 0)))
     {
       if ((g_CurMonkey->f_79 == 0) || (g_CurMonkey->f_176[i] < thr))
@@ -2463,16 +2463,16 @@ s32 Monkey_PickGoalLink(s16 force)
 s32 Node_LinkFlag(s16 n, s16 v)
 {
   s32 j;
-  s32 c = D_800B4D00[n].f_A;
+  s32 c = g_PathNodes[n].f_A;
   for (j = 0; j < c; j++)
   {
-    if (v < (D_800B4D00[n].f_C[j] & 0x3FFF))
+    if (v < (g_PathNodes[n].f_C[j] & 0x3FFF))
     {
       return 0;
     }
-    if ((D_800B4D00[n].f_C[j] & 0x3FFF) == v)
+    if ((g_PathNodes[n].f_C[j] & 0x3FFF) == v)
     {
-      return (s16)(D_800B4D00[n].f_C[j] & 0x4000);
+      return (s16)(g_PathNodes[n].f_C[j] & 0x4000);
     }
   }
 
@@ -2485,7 +2485,7 @@ void Monkey_SwapPathNodes(void) {
     temp_a0 = M2C_FIELD(g_CurMonkey, u16 *, 0xF2);
     M2C_FIELD(g_CurMonkey, u16 *, 0xF2) = (u16) M2C_FIELD(g_CurMonkey, u16 *, 0xF4);
     M2C_FIELD(g_CurMonkey, u16 *, 0xF4) = temp_a0;
-    func_800355DC();
+    Monkey_UpdateGoal();
 }
 
 s32 Monkey_CheckRouteAway(void) {
@@ -2494,7 +2494,7 @@ s32 Monkey_CheckRouteAway(void) {
     V4_800386C8_800386C8 pt;
     s32 ang;
     s16 d;
-    if (func_800339EC() != 0) {
+    if (Stage_IsRaceOrBoss() != 0) {
         return 1;
     }
     if (g_CurMonkey->f_F2 == (s16)g_CurMonkey->f_EC) {
@@ -2517,7 +2517,7 @@ s32 Monkey_CheckRouteAway(void) {
     toT.vx = g_MonkeyTarget->f_24 - g_CurMonkey->f_24;
     toT.vy = 0;
     toT.vz = g_MonkeyTarget->f_2C - g_CurMonkey->f_2C;
-    if (D_800B4D00[g_CurMonkey->f_F2].f_14[g_CurMonkey->f_7B] < D_800B4D00[g_CurMonkey->f_F4].f_14[g_CurMonkey->f_7B]) {
+    if (g_PathNodes[g_CurMonkey->f_F2].f_14[g_CurMonkey->f_7B] < g_PathNodes[g_CurMonkey->f_F4].f_14[g_CurMonkey->f_7B]) {
         Node_GetPosition(g_CurMonkey->f_F4, &pt);
         toP.vx = pt.x - g_CurMonkey->f_24;
         toP.vy = 0;
@@ -2542,7 +2542,7 @@ s32 Monkey_CheckRouteAway(void) {
     return 0;
 }
 
-void func_80038914(void) {
+void Monkey_MaybeTurnBack(void) {
     s16 a;
     s16 b;
 
@@ -2557,7 +2557,7 @@ void func_80038914(void) {
             if ((u16)Monkey_Rand() % 10 < 7) {
                 return;
             }
-            if (func_8003B534(&a, &b) == 0) {
+            if (Monkey_TargetDotNodes(&a, &b) == 0) {
                 return;
             }
             if (a <= rcos(0x2AA)) {
@@ -2571,8 +2571,8 @@ void func_80038914(void) {
     Monkey_SwapPathNodes();
 }
 
-s32 func_80038A1C(s16 a, s16 b) {
-    func_80035474();
+s32 Monkey_SelectGoalNode(s16 a, s16 b) {
+    Monkey_UpdateGoalDist();
     if (a != 0 || Monkey_IsTargetInRange() != 0) {
         s16 r = Monkey_PickGoalLink(b);
         if (r == -1) {
@@ -2590,7 +2590,7 @@ s32 func_80038A1C(s16 a, s16 b) {
  * chance per link of taking one already under the threshold cos(60 deg) (or cos of the
  * Monkey_AvoidConeAngleAlt angle when func_8003398C); if nothing beats the threshold it gives up unless
  * force, and when no link was scored at all it falls back to the first free link. With any == 0
- * and the target out of range it does func_80038914 instead. Returns 1 when it set off. */
+ * and the target out of range it does Monkey_MaybeTurnBack instead. Returns 1 when it set off. */
 s32 Monkey_PickNextNode(s16 any, s16 force) {
     s32 thr;
     s16 i;
@@ -2601,9 +2601,9 @@ s32 Monkey_PickNextNode(s16 any, s16 force) {
     s16 bestj;
 
     thr = rcos(0x2AA);
-    func_80038054(g_CurMonkey->f_F2);
+    Monkey_MarkBlockedLinks(g_CurMonkey->f_F2);
     if (g_CurMonkey->f_79 == 0) {
-        for (i = 0; i < D_800B4D00[g_CurMonkey->f_F2].f_B; i++) {
+        for (i = 0; i < g_PathNodes[g_CurMonkey->f_F2].f_B; i++) {
             j = Node_GetLink(g_CurMonkey->f_F2, i);
             if (j != (s16)g_CurMonkey->f_EC && g_CurMonkey->f_1DA[i] != 1) {
                 goto found1;
@@ -2614,14 +2614,14 @@ s32 Monkey_PickNextNode(s16 any, s16 force) {
     if (func_8003398C()) {
         thr = rcos((Monkey_AvoidConeAngleAlt() << 12) / 360);
     }
-    func_80035474();
+    Monkey_UpdateGoalDist();
     if (any == 0 && !Monkey_IsTargetInRange()) {
         goto notarget;
     }
     Monkey_ScoreLinks(g_CurMonkey->f_F2);
     best = 0x2000;
     bestj = -1;
-    for (i = 0; i < D_800B4D00[g_CurMonkey->f_F2].f_B; i++) {
+    for (i = 0; i < g_PathNodes[g_CurMonkey->f_F2].f_B; i++) {
         next = Node_GetLink(g_CurMonkey->f_F2, i);
         if (next == (s16)g_CurMonkey->f_EC || g_CurMonkey->f_1DA[i] == 1) {
             continue;
@@ -2644,17 +2644,17 @@ s32 Monkey_PickNextNode(s16 any, s16 force) {
         Monkey_GoToNode(bestj);
         return 1;
     }
-    if (D_800B4D00[g_CurMonkey->f_F2].f_B == 0) {
+    if (g_PathNodes[g_CurMonkey->f_F2].f_B == 0) {
         return 0;
     }
-    for (i = 0; i < D_800B4D00[g_CurMonkey->f_F2].f_B; i++) {
+    for (i = 0; i < g_PathNodes[g_CurMonkey->f_F2].f_B; i++) {
         j = Node_GetLink(g_CurMonkey->f_F2, i);
         if (j != (s16)g_CurMonkey->f_EC && g_CurMonkey->f_1DA[i] != 1) {
             goto found3;
         }
     }
 fail:
-    func_800355DC();
+    Monkey_UpdateGoal();
     return 0;
 found1:
     Monkey_GoToNode(j);
@@ -2663,14 +2663,14 @@ found3:
     Monkey_GoToNode(j);
     return 1;
 notarget:
-    func_80038914();
+    Monkey_MaybeTurnBack();
     return 1;
 }
 
-void func_80038F00(void) {
+void Monkey_SpawnRunDust(void) {
     s16 v[3];
     Monkey *m;
-    if (D_800AEB60 % 3 != 0) {
+    if (g_MonkeyFrame % 3 != 0) {
         return;
     }
     m = g_CurMonkey;
@@ -2680,7 +2680,7 @@ void func_80038F00(void) {
     if (m->f_78 == 0x1A || m->f_78 == 0x35) {
         return;
     }
-    if (func_80033C00() != 0) {
+    if (Monkey_IsSwimming() != 0) {
         return;
     }
     v[0] = g_CurMonkey->f_24;
@@ -2689,7 +2689,7 @@ void func_80038F00(void) {
     Effect_SpawnAt(9, v);
 }
 
-void func_80038FD8(void) {
+void Monkey_SpawnSmokeBurst(void) {
     s16 p[4];
     s16 v[4];
     s32 i;
@@ -2705,7 +2705,7 @@ void func_80038FD8(void) {
     }
 }
 
-void func_800390F8(void) {
+void Monkey_SpawnSmoke(void) {
     s16 p[4];
     s16 v[4];
 
@@ -2718,7 +2718,7 @@ void func_800390F8(void) {
     Effect_SpawnAt(7, v);
 }
 
-void func_80039200(void) {
+void Monkey_SpawnRipple(void) {
     Monkey *p = g_CurMonkey;
     s16 v[3];
     v[0] = p->f_24;
@@ -2727,7 +2727,7 @@ void func_80039200(void) {
     Effect_SpawnAt(0x14, v);
 }
 
-void func_80039248() {
+void Monkey_SplashIntoWater() {
     Monkey *p = g_CurMonkey;
     s16 v[3];
     v[0] = p->f_24;
@@ -2737,7 +2737,7 @@ void func_80039248() {
     Monkey_QueueSound(0x72, 1);
 }
 
-void func_8003929C(void) {
+void Monkey_SpawnPuff(void) {
     Monkey *p = g_CurMonkey;
     s16 v[3];
     v[0] = p->f_24;
@@ -2746,12 +2746,12 @@ void func_8003929C(void) {
     Effect_SpawnAt(5, v);
 }
 
-u32 func_800392E4(void *arg0) {
+u32 Collider_GetHitKind(void *arg0) {
     return (u32) M2C_FIELD(arg0, u32 *, 0x50) >> 0x1C;
 }
 
-s32 func_800392F0(void) {
-    s32 r = func_800392E4((*(M_392F0_800392F0 * *)&g_CurMonkey));
+s32 Monkey_CheckHit(void) {
+    s32 r = Collider_GetHitKind((*(M_392F0_800392F0 * *)&g_CurMonkey));
 
     if (((*(M_392F0_800392F0 * *)&g_CurMonkey)->f_78 == 0x1E || (*(M_392F0_800392F0 * *)&g_CurMonkey)->f_78 == 0x20) && r == 8) {
         (*(M_392F0_800392F0 * *)&g_CurMonkey)->f_126 = 0;
@@ -2764,7 +2764,7 @@ s32 func_800392F0(void) {
     if (r != 3) {
         return 0;
     }
-    if ((*(M_392F0_800392F0 * *)&g_CurMonkey)->f_78 != 2 && func_80033B10() == 0 && !((*(M_392F0_800392F0 * *)&g_CurMonkey)->f_228 & 0x8000)) {
+    if ((*(M_392F0_800392F0 * *)&g_CurMonkey)->f_78 != 2 && Monkey_IsIdleLooking() == 0 && !((*(M_392F0_800392F0 * *)&g_CurMonkey)->f_228 & 0x8000)) {
         goto miss;
     }
     if ((*(M_392F0_800392F0 * *)&g_CurMonkey)->f_124 <= 0) {
@@ -2792,8 +2792,8 @@ s32 Monkey_IsOffScreen(void) {
     if (Vec_DistXZ_SV(&g_CurMonkey->f_24, &g_CameraTarget) > 6000) {
         return 1;
     }
-    SetRotMatrix(&D_800E78C0);
-    SetTransMatrix(&D_800E78C0);
+    SetRotMatrix(&g_ViewMatrix);
+    SetTransMatrix(&g_ViewMatrix);
     v.vx = g_CurMonkey->f_24;
     v.vy = g_CurMonkey->f_28;
     v.vz = g_CurMonkey->f_2C;
@@ -2841,11 +2841,11 @@ extern s32 D_800A8A58;
 extern s32 *D_800B4D14_39588 asm("D_800B4D14");
 extern u8 *g_MonkeyKinds_39588 asm("g_MonkeyKinds");
 extern s16 D_800AEB64;
-extern T_39588 *D_800B4D0C_39588 asm("D_800B4D0C");
-extern U4D00_39588 *D_800B4D00_39588 asm("D_800B4D00");
-extern s16 D_800B4D18;
-extern u8 *D_800B4D1C_39588 asm("D_800B4D1C");
-extern char D_800A4930[];
+extern T_39588 *D_800B4D0C_39588 asm("g_MonkeyGoalGroups");
+extern U4D00_39588 *D_800B4D00_39588 asm("g_PathNodes");
+extern s16 g_PathNodeCount;
+extern u8 *D_800B4D1C_39588 asm("g_PathLinkInfo");
+extern char Monkey_StrTooMany[];
 void Monkey_ClearQueuedSounds(void);
 void Mem_ZeroWords(void *, s32);
 s32 VSync(s32);
@@ -2872,10 +2872,10 @@ void Monkey_InitAll(void) {
     for (i = 3; i >= 0; i--) {
         g_ActiveMonkeys_39588[i] = 0;
     }
-    if (D_800A8A58 != 0 || func_800339EC() != 0) {
-        D_800B4D10 = 0;
+    if (D_800A8A58 != 0 || Stage_IsRaceOrBoss() != 0) {
+        g_MonkeyRandSeed = 0;
     } else {
-        D_800B4D10 = VSync(-1) * 8991;
+        g_MonkeyRandSeed = VSync(-1) * 8991;
     }
     D_800B4D14_39588 = (s32 *)g_Game_39588.f_8240;
     g_MonkeyKinds_39588 = (u8 *)D_800B4D14_39588 + 0x2A;
@@ -2885,16 +2885,16 @@ void Monkey_InitAll(void) {
     } }
     if (*D_800B4D14_39588 != 0x11) {
         g_Game_39588.f_8184 = 0;
-        D_800AEB66 = 0;
-        D_800B4CF4 = 1;
+        g_MaxActiveMonkeys = 0;
+        g_AreaHasNoMonkeys = 1;
         return;
     }
-    D_800B4CF4 = 0;
+    g_AreaHasNoMonkeys = 0;
     if (((s16 *)D_800B4D14_39588)[0x14] >= 5) {
-        bios_printf(D_800A4930, 4);
-        D_800AEB66 = 4;
+        bios_printf(Monkey_StrTooMany, 4);
+        g_MaxActiveMonkeys = 4;
     } else {
-        D_800AEB66 = ((s16 *)D_800B4D14_39588)[0x14];
+        g_MaxActiveMonkeys = ((s16 *)D_800B4D14_39588)[0x14];
     }
     base = g_Game_39588.f_8240;
     g_Game_39588.f_81A4 = base + D_800B4D14_39588[2];
@@ -2903,14 +2903,14 @@ void Monkey_InitAll(void) {
     g_Game_39588.f_81B0 = base + D_800B4D14_39588[5];
     g_Game_39588.f_81B4 = base + D_800B4D14_39588[8];
     g_Game_39588.f_81B8 = base + D_800B4D14_39588[9];
-    D_800AEB64 = D_800AEB66;
+    D_800AEB64 = g_MaxActiveMonkeys;
     data = base + D_800B4D14_39588[1];
     if (data != 0) {
         D_800B4D0C_39588 = (T_39588 *)data;
         D_800B4D00_39588 = (U4D00_39588 *)(data + 0x488);
-        D_800B4D18 = (u32)(((s16 *)data)[1] - 0x488) / 24;
+        g_PathNodeCount = (u32)(((s16 *)data)[1] - 0x488) / 24;
         buf = (u16 *)(data + ((s16 *)data)[1]);
-        D_800B4D20 = ((u16 *)data)[2];
+        g_PathLinkInfoCount = ((u16 *)data)[2];
         D_800B4D1C_39588 = data + ((s16 *)data)[3];
     }
     for (i = 0; i < 8; i++) {
@@ -2952,7 +2952,7 @@ void Monkey_InitAll(void) {
     Monkey_InitDebugMenu();
     Debug_MonkeyParamMenu(0);
     if (g_Game_39588.f_8184 > 0) {
-        for (i = 0; i < D_800B4D18; i++) {
+        for (i = 0; i < g_PathNodeCount; i++) {
             D_800B4D00_39588[i].f_C = buf;
             buf += D_800B4D00_39588[i].f_A;
         }
@@ -2961,20 +2961,20 @@ void Monkey_InitAll(void) {
             Monkey_Spawn((s16)i, 0, 0);
         }
         Monkey_RestoreStates();
-        D_800AEB66 = D_800AEB66 < g_Game_39588.f_8184 ? D_800AEB66 : g_Game_39588.f_8184;
+        g_MaxActiveMonkeys = g_MaxActiveMonkeys < g_Game_39588.f_8184 ? g_MaxActiveMonkeys : g_Game_39588.f_8184;
         Monkey_SelectActive();
     }
 }
 
-INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", D_800A4930);
+INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", Monkey_StrTooMany);
 
 
-void func_80039B30(void) {
-    if (func_80033B10() == 0) {
-        func_80035474();
+void Monkey_UpdateTargetDist(void) {
+    if (Monkey_IsIdleLooking() == 0) {
+        Monkey_UpdateGoalDist();
     }
     g_CurMonkey->f_20C = Vec_Dist(&g_CurMonkey->f_24, &g_MonkeyTarget->f_24);
-    g_CurMonkey->f_21C = func_8003455C();
+    g_CurMonkey->f_21C = Monkey_AngleToTarget();
 }
 
 /* Helmet-light alert level of the current monkey (user: blue calm, yellow after losing sight of Spike
@@ -2996,8 +2996,8 @@ s32 Monkey_GetAlertLevel(void) {
 
 /* The light on the current monkey's helmet: its level comes from Monkey_GetAlertLevel (0, 0x1C0 or
  * 0x380 -> light kind 0, 1, 2) and flashes for 10 frames when it changes. It is shown while
- * flashing, in states flagged 8 in D_800AE940, or when func_80033C80/func_80033B10 say so; it
- * sits 100 above the head joint (D_800F4730[6]) at LOD 0-2, else at the monkey's position.
+ * flashing, in states flagged 8 in g_MonkeyStateInfo, or when Monkey_IsStunned/Monkey_IsIdleLooking say so; it
+ * sits 100 above the head joint (g_JointWorldMatrices[6]) at LOD 0-2, else at the monkey's position.
  * The do/while (0) around vis = 1 is needed to match. */
 void Monkey_UpdateHelmetLight(void) {
     SVECTOR v;
@@ -3023,8 +3023,8 @@ void Monkey_UpdateHelmetLight(void) {
         kind = 0;
         break;
     }
-    if (M_39C38->flash > 0 || (D_800AE940[M_39C38->state].f_4 >> 3 & 1) || func_80033C80() != 0 ||
-        func_80033B10() != 0) {
+    if (M_39C38->flash > 0 || (g_MonkeyStateInfo[M_39C38->state].f_4 >> 3 & 1) || Monkey_IsStunned() != 0 ||
+        Monkey_IsIdleLooking() != 0) {
         do {
             vis = 1;
         } while (0);
@@ -3038,10 +3038,10 @@ void Monkey_UpdateHelmetLight(void) {
         v.vx = 0;
         v.vy = 100;
         v.vz = 0;
-        ApplyMatrixSV(&D_800F4730[6], &v, &v);
-        v.vx += D_800F4730[6].t[0];
-        v.vy += D_800F4730[6].t[1] + 0xDC;
-        v.vz += D_800F4730[6].t[2];
+        ApplyMatrixSV(&g_JointWorldMatrices[6], &v, &v);
+        v.vx += g_JointWorldMatrices[6].t[0];
+        v.vy += g_JointWorldMatrices[6].t[1] + 0xDC;
+        v.vz += g_JointWorldMatrices[6].t[2];
         break;
     case 3:
         v.vx = M_39C38->x;
@@ -3058,14 +3058,14 @@ void Monkey_UpdateHelmetLight(void) {
     M_39C38->flash--;
 }
 
-void func_80039E50(Model_39E50_80039E50 *m) {
-    Model_ProjectVerts(m, &D_800E9C60[m->hdr->f_4], D_800E7D00);
-    func_80017CD4(&(*(Game_39E50_80039E50 *)&g_Game).db[(*(Game_39E50_80039E50 *)&g_Game).cur], D_800E7D00, m);
+void Monkey_DrawAttachment(Model_39E50_80039E50 *m) {
+    Model_ProjectVerts(m, &g_ModelMatrices[m->hdr->f_4], g_ProjVerts);
+    Model_Draw(&(*(Game_39E50_80039E50 *)&g_Game).db[(*(Game_39E50_80039E50 *)&g_Game).cur], g_ProjVerts, m);
 }
 
 /* Draws g_CurMonkey: only on frames where f_7A == 4, or f_7A == 3 and f_90 % 3 == 0.
  * Builds the body matrix (scaled by rcos/rsin of f_F0 while spawning in, per f_24A & 3),
- * draws it (plain when func_800339EC, else at detail level f_D5), adds stage extras
+ * draws it (plain when Stage_IsRaceOrBoss, else at detail level f_D5), adds stage extras
  * (stage 0x46 model; stage 0x24 model plus loop sound 0x602D while in state 0x1A),
  * the per-kind attachment models, and one more model picked by D_800AEBF8[kind f_0 >> 6]
  * (probably the helmet light). */
@@ -3076,10 +3076,10 @@ void Monkey_Draw(void) {
     Model_39ED4_80039ED4 *mdl;
 
     if (CM->f_7A == 4 || (CM->f_7A == 3 && CM->f_90 % 3 == 0)) {
-        if (func_80033C00()) {
+        if (Monkey_IsSwimming()) {
             Matrix_FromDirection(&CM->rot, CM->mat);
         } else {
-            func_80014804(&CM->rot, CM->mat);
+            Matrix_FromFacingXZ(&CM->rot, CM->mat);
         }
         if (CM->f_F0 <= 0) {
             if ((CM->f_24A & 3) == 2) {
@@ -3093,16 +3093,16 @@ void Monkey_Draw(void) {
         }
         Model_CalcJointMatrices(CM, 3);
         Model_ProjectBonedVerts(CM);
-        if (func_800339EC()) {
-            func_80017CD4((Db_39E50_80039E50 *)GDB->db[GDB->cur].ot, D_800E7D00, (Model_39E50_80039E50 *)CM);
+        if (Stage_IsRaceOrBoss()) {
+            Model_Draw((Db_39E50_80039E50 *)GDB->db[GDB->cur].ot, g_ProjVerts, (Model_39E50_80039E50 *)CM);
         } else if (CM->f_D5 == 3) {
-            func_80017D94(GDB->db[GDB->cur].ot, D_800E7D00, CM, 0);
+            Model_DrawNoFog(GDB->db[GDB->cur].ot, g_ProjVerts, CM, 0);
         } else {
             Monkey_UpdateHelmetLight();
-            func_80017D94(&GDB->db[GDB->cur].ot[4], D_800E7D00, CM, CM->f_14C + KIND(CM)->f_0);
+            Model_DrawNoFog(&GDB->db[GDB->cur].ot[4], g_ProjVerts, CM, CM->f_14C + KIND(CM)->f_0);
         }
         if (((GameS_39ED4_80039ED4 *)((u8 *)&g_Game))->f_8126 == 0x46) {
-            func_80039E50(&D_800F46B0);
+            Monkey_DrawAttachment(&D_800F46B0);
         }
         if (((GameS_39ED4_80039ED4 *)((u8 *)&g_Game))->f_8126 == 0x24) {
             if (CM->f_78 == 0x1A) {
@@ -3117,20 +3117,20 @@ void Monkey_Draw(void) {
                     CM->f_160 = -1;
                 }
             }
-            func_80039E50(mdl);
+            Monkey_DrawAttachment(mdl);
         }
         if (CM->f_78 != 0x1E && CM->f_78 != 0x20) {
             for (i = 0; i < 8; i++) {
                 if (KIND(CM)->parts[i].f_2 != 0) {
                     k = D_800AEBB4_[i].f_2;
                     if (k != -1) {
-                        func_80039E50(&D_800F4630[k]);
+                        Monkey_DrawAttachment(&g_MonkeyPropModels[k]);
                     }
                 }
             }
         }
-        if (!func_800339EC() && CM->f_D5 != 3) {
-            func_80039E50(&D_800F4630[D_800AEBF8[KIND(CM)->f_0 >> 6]]);
+        if (!Stage_IsRaceOrBoss() && CM->f_D5 != 3) {
+            Monkey_DrawAttachment(&g_MonkeyPropModels[D_800AEBF8[KIND(CM)->f_0 >> 6]]);
         }
     }
 }
@@ -3160,7 +3160,7 @@ void Monkey_UpdateLod(void) {
         }
     }
     if (cur != lod) {
-        func_80015AC0(g_CurMonkey, ((struct S_D_800EC350_8003A33C *)&g_Game)->f_81A4[lod]);
+        Model_BindBoned(g_CurMonkey, ((struct S_D_800EC350_8003A33C *)&g_Game)->f_81A4[lod]);
         g_CurMonkey->f_D5 = lod;
     }
 }
@@ -3169,7 +3169,7 @@ typedef struct { u8 pad0[0x18]; s32 f_18; u8 pad1C[0x8]; s32 x; s32 y; s32 z; s3
 typedef struct { u8 pad0[8]; s16 f_8[4]; } Spawn_3A414;
 extern struct { u8 pad0[0x816C]; u8 f_816C[0x48]; s32 f_81B4; u8 pad81B8[0x88]; s32 f_8240; } g_Game_3A414 asm("g_Game");
 extern struct { u8 pad0[0x18]; s32 f_18; } *D_800B4D14_3A414 asm("D_800B4D14");
-extern Spawn_3A414 *D_800B4D0C;
+extern Spawn_3A414 *g_MonkeyGoalGroups;
 #define CM_3A414 ((M_3A414 *)g_CurMonkey)
 
 void Monkey_Spawn(spawn, mode, sub)
@@ -3225,13 +3225,13 @@ void Monkey_Spawn(spawn, mode, sub)
     CM_3A414->f_D9 = 0;
     CM_3A414->f_16C = g_Game_3A414.f_8240 + D_800B4D14_3A414->f_18;
     if (CM_3A414->f_D6 == 0) {
-        node = (u16)Monkey_Rand() % D_800B4D18;
+        node = (u16)Monkey_Rand() % g_PathNodeCount;
     } else {
         i = (u16)Monkey_Rand() % CM_3A414->f_D6;
-        node = *(s16 *)((u8 *)D_800B4D0C + ((s16)spawn % g_MonkeyCount * 16 + i * 2) + 8);
+        node = *(s16 *)((u8 *)g_MonkeyGoalGroups + ((s16)spawn % g_MonkeyCount * 16 + i * 2) + 8);
     }
     if (node == -1) {
-        node = (u16)Monkey_Rand() % D_800B4D18;
+        node = (u16)Monkey_Rand() % g_PathNodeCount;
     }
     for (j = 5; j >= 0; j--) {
         CM_3A414->node[j] = node;
@@ -3239,7 +3239,7 @@ void Monkey_Spawn(spawn, mode, sub)
     Monkey_NodeEvents(CM_3A414->node[0]);
     Node_GetPosition(node, &v);
     m4 = CM_3A414;
-    if (!(D_800B4D00[m4->node[1]].f_0 & 0x400) || g_Game_3A414.f_816C[m4->f_7C] != 5) {
+    if (!(g_PathNodes[m4->node[1]].f_0 & 0x400) || g_Game_3A414.f_816C[m4->f_7C] != 5) {
         m4->x = v.vx;
         m4->y = v.vy;
         m4->z = v.vz;
@@ -3247,8 +3247,8 @@ void Monkey_Spawn(spawn, mode, sub)
     for (j = 5; j >= 0; j--) {
         CM_3A414->node[j] = node;
     }
-    if (func_800339EC()) {
-        CM_3A414->node[0] = Node_GetLink(CM_3A414->node[0], (u16)Monkey_Rand() % D_800B4D00[CM_3A414->node[0]].f_B);
+    if (Stage_IsRaceOrBoss()) {
+        CM_3A414->node[0] = Node_GetLink(CM_3A414->node[0], (u16)Monkey_Rand() % g_PathNodes[CM_3A414->node[0]].f_B);
     }
     if (!((CM_3A414->f_248 >> 30) & 1) && mode == 4) {
         Monkey_EnableCollision();
@@ -3264,12 +3264,12 @@ void Monkey_Spawn(spawn, mode, sub)
     m6->f_30 = 0;
     m6->f_34 = 0;
     m6->f_38 = 0;
-    if (((D_800AE940[m6->state].f_4 >> 4) & 1) && !func_800339EC()) {
+    if (((g_MonkeyStateInfo[m6->state].f_4 >> 4) & 1) && !Stage_IsRaceOrBoss()) {
         CM_3A414->f_46 = -0x100;
     } else {
         CM_3A414->f_46 = 0x100;
     }
-    if (func_800339EC() || (CM_3A414->f_228 & 0x2000000)) {
+    if (Stage_IsRaceOrBoss() || (CM_3A414->f_228 & 0x2000000)) {
         CM_3A414->f_4A = -0x4000;
     } else {
         CM_3A414->f_4A = -0x8000;
@@ -3286,8 +3286,8 @@ void Monkey_Spawn(spawn, mode, sub)
     m7->f_248 &= ~0x40000000;
     m7->f_248 &= ~0x80000000;
     m7->f_248 &= ~0x30000;
-    if (D_800B4D00[m7->node[0]].f_0 & 0x400) {
-        if (D_800B4D00[m7->node[1]].f_B == 1) {
+    if (g_PathNodes[m7->node[0]].f_0 & 0x400) {
+        if (g_PathNodes[m7->node[1]].f_B == 1) {
             CM_3A414->node[0] = Node_GetLink(m7->node[0], 0);
             Node_GetPosition(CM_3A414->node[0], &v);
         } else {
@@ -3296,20 +3296,20 @@ void Monkey_Spawn(spawn, mode, sub)
             v.vz += 100;
         }
         CM_3A414->f_BC = v;
-        func_80039B30();
+        Monkey_UpdateTargetDist();
     } else {
         Node_GetPosition(m7->node[0], &v);
         CM_3A414->f_BC = v;
         m8 = CM_3A414;
         m8->x -= 2;
         m8->z -= 2;
-        if (D_800B4D00[m8->node[0]].f_0 & 0x40) {
+        if (g_PathNodes[m8->node[0]].f_0 & 0x40) {
             m8->f_BC.vx = m8->x + 500;
             m8->f_BC.vy = m8->y;
             m8->f_BC.vz = m8->z + 500;
-            func_80039B30();
+            Monkey_UpdateTargetDist();
         } else {
-            func_80039B30();
+            Monkey_UpdateTargetDist();
             Monkey_ChooseRoute(0, 1);
         }
     }
@@ -3317,16 +3317,16 @@ void Monkey_Spawn(spawn, mode, sub)
     Monkey_StartLink(CM_3A414->node[1], CM_3A414->node[0]);
     Monkey_PickIdleAction();
     m9 = CM_3A414;
-    if (!(m9->f_228 & 2) && !(D_800B4D00[m9->node[0]].f_0 & 0x400)) {
+    if (!(m9->f_228 & 2) && !(g_PathNodes[m9->node[0]].f_0 & 0x400)) {
         CM_3A414->y = Floor_GetHeight(m9->x, m9->y - 200, m9->z);
     }
     Monkey_TurnToGoal();
     CM_3A414->f_D5 = 0xFF;
     Monkey_UpdateLod();
-    if (D_800B4D00[CM_3A414->node[0]].f_0 & 0x40) {
+    if (g_PathNodes[CM_3A414->node[0]].f_0 & 0x40) {
         Monkey_SetState(0xB);
     }
-    if (func_800339EC()) {
+    if (Stage_IsRaceOrBoss()) {
         Monkey_SetState(0xB);
     }
 }
@@ -3339,7 +3339,7 @@ void Monkey_ScoreLinks(s16 k) {
     d.vx = g_MonkeyTarget->f_24 - g_CurMonkey->f_24;
     d.vy = g_MonkeyTarget->f_28 - g_CurMonkey->f_28;
     d.vz = g_MonkeyTarget->f_2C - g_CurMonkey->f_2C;
-    for (i = 0; i < D_800B4D00[k].f_B; i++) {
+    for (i = 0; i < g_PathNodes[k].f_B; i++) {
         Node_GetPosition(Node_GetLink(k, i), &t);
         r.vx = t.vx - g_CurMonkey->f_24;
         r.vy = t.vy - g_CurMonkey->f_28;
@@ -3349,23 +3349,23 @@ void Monkey_ScoreLinks(s16 k) {
 }
 
 typedef struct { u8 pad0[0x7B]; u8 f_7B; u8 kind; u8 pad7D[0x5A]; u8 ngroups; u8 group; u8 count; u8 sizes[0xC]; s16 spot; s16 used; u8 padEA[4]; s16 f_EE; } MP_8003AD9C;
-extern u8 D_800AEB59;
-extern char D_800A4964[];
-extern char D_800A4988[];
+extern u8 g_MonkeyDebugPrint;
+extern char Monkey_StrGoal[];
+extern char Monkey_StrGoalNode[];
 typedef struct { u8 pad[0x88]; s16 t[1][8][8]; } T_8003AD9C;
 #define MP_3AD9C ((MP_8003AD9C *)g_CurMonkey)
 
-void func_8003AD9C(void) {
+void Monkey_PickGoalNode(void) {
     s16 r;
     u8 n;
     s32 i;
     s32 t;
     s16 u;
 
-    if (D_800AEB59 != 0) {
-        bios_printf(D_800A4964, MP_3AD9C->kind, MP_3AD9C->spot, MP_3AD9C->group);
+    if (g_MonkeyDebugPrint != 0) {
+        bios_printf(Monkey_StrGoal, MP_3AD9C->kind, MP_3AD9C->spot, MP_3AD9C->group);
     }
-    func_800407F0();
+    Monkey_ClearRouteMarks();
     if (MP_3AD9C->ngroups != 0) {
         if (MP_3AD9C->count < MP_3AD9C->sizes[MP_3AD9C->group]) {
             MP_3AD9C->count++;
@@ -3391,31 +3391,31 @@ void func_8003AD9C(void) {
                     r = 0;
                 }
             }
-            MP_3AD9C->spot = ((T_8003AD9C *)D_800B4D0C)->t[MP_3AD9C->kind][MP_3AD9C->group][r];
+            MP_3AD9C->spot = ((T_8003AD9C *)g_MonkeyGoalGroups)->t[MP_3AD9C->kind][MP_3AD9C->group][r];
             MP_3AD9C->used |= 1 << (s16)r;
         } else {
-            MP_3AD9C->spot = (u16)Monkey_Rand() % D_800B4D18;
+            MP_3AD9C->spot = (u16)Monkey_Rand() % g_PathNodeCount;
         }
     } else {
-        MP_3AD9C->spot = (u16)Monkey_Rand() % D_800B4D18;
+        MP_3AD9C->spot = (u16)Monkey_Rand() % g_PathNodeCount;
     }
-    D_800B4D00[MP_3AD9C->spot].f_14[MP_3AD9C->f_7B] = 1;
+    g_PathNodes[MP_3AD9C->spot].f_14[MP_3AD9C->f_7B] = 1;
     MP_3AD9C->f_EE = 1;
-    if (D_800AEB59 != 0) {
-        bios_printf(D_800A4988, MP_3AD9C->spot, MP_3AD9C->group);
+    if (g_MonkeyDebugPrint != 0) {
+        bios_printf(Monkey_StrGoalNode, MP_3AD9C->spot, MP_3AD9C->group);
     }
 }
 
-INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", D_800A4964);
-INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", D_800A4988);
+INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", Monkey_StrGoal);
+INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", Monkey_StrGoalNode);
 
 
 /* Route decision when g_CurMonkey reaches a path node (f_F2). A calm monkey (f_79 == 0) tries
- * func_80038A1C and else Monkey_PickNextNode. An alert one does the same (forced while
- * func_800339EC), state 0x3D jumps straight along link 0, and failing that it stays. Unless the
+ * Monkey_SelectGoalNode and else Monkey_PickNextNode. An alert one does the same (forced while
+ * Stage_IsRaceOrBoss), state 0x3D jumps straight along link 0, and failing that it stays. Unless the
  * chosen node is flagged 0x10000 (or force is 1) it then looks one node further: the lowest scored
  * link that does not lead back, else a random one of up to 10 candidates; with none it restores its
- * path history (f_F2[6]) and calls func_800363E4. Arriving at a new node fires Monkey_NodeEvents;
+ * path history (f_F2[6]) and calls Monkey_StartLookout. Arriving at a new node fires Monkey_NodeEvents;
  * Monkey_StartLink starts the move. Returns 1 when it moves. */
 u8 Monkey_ChooseRoute(s16 any, s16 force) {
     u16 hist[6];
@@ -3435,21 +3435,21 @@ u8 Monkey_ChooseRoute(s16 any, s16 force) {
     }
     if (((g_CurMonkey->f_248 >> 27) & 1) && g_CurMonkey->f_F2 == g_CurMonkey->f_E6) {
         func_8003398C();
-        func_8003AD9C();
+        Monkey_PickGoalNode();
     }
-    func_80038054(g_CurMonkey->f_F2);
+    Monkey_MarkBlockedLinks(g_CurMonkey->f_F2);
     Monkey_ScoreLinks(g_CurMonkey->f_F2);
     if (g_CurMonkey->f_79 == 0) {
-        if (func_80038A1C(any, 1) == 0) {
+        if (Monkey_SelectGoalNode(any, 1) == 0) {
             Monkey_PickNextNode(any, 1);
         }
         goto end;
     }
-    if (func_800339EC()) {
+    if (Stage_IsRaceOrBoss()) {
         force = 1;
     }
-    if (func_80038A1C(any, force) == 0) {
-        if (func_800339EC()) {
+    if (Monkey_SelectGoalNode(any, force) == 0) {
+        if (Stage_IsRaceOrBoss()) {
             goto stay;
         }
         if (g_CurMonkey->f_78 == 0x3D) {
@@ -3459,7 +3459,7 @@ u8 Monkey_ChooseRoute(s16 any, s16 force) {
             goto stay;
         }
     }
-    if (D_800B4D00[g_CurMonkey->f_F4].f_0 & 0x10000) {
+    if (g_PathNodes[g_CurMonkey->f_F4].f_0 & 0x10000) {
         goto end;
     }
     if (force == 1) {
@@ -3469,11 +3469,11 @@ u8 Monkey_ChooseRoute(s16 any, s16 force) {
         goto end;
     }
     Monkey_ScoreLinks(g_CurMonkey->f_F4);
-    func_80038054(g_CurMonkey->f_F4);
+    Monkey_MarkBlockedLinks(g_CurMonkey->f_F4);
     best = 0x40000000;
     bi = -1;
     n = 0;
-    for (i = 0; i < D_800B4D00[g_CurMonkey->f_F4].f_B; i++) {
+    for (i = 0; i < g_PathNodes[g_CurMonkey->f_F4].f_B; i++) {
         if (Node_GetLink(g_CurMonkey->f_F4, i) == g_CurMonkey->f_F2) {
             continue;
         }
@@ -3492,19 +3492,19 @@ u8 Monkey_ChooseRoute(s16 any, s16 force) {
     }
     if (bi != -1) {
         g_CurMonkey->f_F2 = Node_GetLink(g_CurMonkey->f_F4, bi);
-        func_800355DC();
+        Monkey_UpdateGoal();
         goto end;
     }
     if (n > 0) {
         g_CurMonkey->f_F2 = Node_GetLink(g_CurMonkey->f_F4, cand[(u16)Monkey_Rand() % n]);
-        func_800355DC();
+        Monkey_UpdateGoal();
         goto end;
     }
     m = g_CurMonkey;
     for (i = 0; i < 6; i++) {
         (&m->f_F2)[i] = hist[i];
     }
-    func_800363E4();
+    Monkey_StartLookout();
     moved = 0;
     goto end;
 stay:
@@ -3523,15 +3523,15 @@ end:
         Monkey_StartLink(g_CurMonkey->f_F4, g_CurMonkey->f_F2);
     }
     if (force && !moved) {
-        bios_printf(D_800A499C, (s16)start);
+        bios_printf(Monkey_StrSelectNodeFailed, (s16)start);
     }
     return moved;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", D_800A499C);
+INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", Monkey_StrSelectNodeFailed);
 
 
-s32 func_8003B534(s16 *a, s16 *b) {
+s32 Monkey_TargetDotNodes(s16 *a, s16 *b) {
     SVEC_8003B534 r;
     SVEC_8003B534 d;
     VEC_80040CFC_8003B534 t;
@@ -3551,7 +3551,7 @@ s32 func_8003B534(s16 *a, s16 *b) {
 }
 
 /* Put the monkey on the path link from -> to (if the nodes are linked): look the pair up in the
-   sorted link-flag table D_800B4D1C (count D_800B4D20) into f_228, then derive move settings:
+   sorted link-flag table g_PathLinkInfo (count g_PathLinkInfoCount) into f_228, then derive move settings:
    f_4A -0x4000 (special modes or flag 0x2000000) else -0x8000; flag 0x200 makes `from` the goal;
    flags 0x2000 / 0x4000000 clear bits 0x800000 / 0x40000 of f_248 (else set them). */
 void Monkey_StartLink(from, to)
@@ -3575,21 +3575,21 @@ void Monkey_StartLink(from, to)
     M_3B674->f_228 = 0;
     M_3B674->f_224 = from;
     M_3B674->f_226 = to;
-    for (i = 0; i < D_800B4D20; i++) {
-        if (lo < (*(Pair_8003B674_8003B674 * *)&D_800B4D1C)[i].a) {
+    for (i = 0; i < g_PathLinkInfoCount; i++) {
+        if (lo < (*(Pair_8003B674_8003B674 * *)&g_PathLinkInfo)[i].a) {
             break;
         }
-        if ((*(Pair_8003B674_8003B674 * *)&D_800B4D1C)[i].a == lo) {
-            if (hi < (*(Pair_8003B674_8003B674 * *)&D_800B4D1C)[i].b) {
+        if ((*(Pair_8003B674_8003B674 * *)&g_PathLinkInfo)[i].a == lo) {
+            if (hi < (*(Pair_8003B674_8003B674 * *)&g_PathLinkInfo)[i].b) {
                 break;
             }
-            if ((*(Pair_8003B674_8003B674 * *)&D_800B4D1C)[i].b == hi) {
-                M_3B674->f_228 = (*(Pair_8003B674_8003B674 * *)&D_800B4D1C)[i].flags;
+            if ((*(Pair_8003B674_8003B674 * *)&g_PathLinkInfo)[i].b == hi) {
+                M_3B674->f_228 = (*(Pair_8003B674_8003B674 * *)&g_PathLinkInfo)[i].flags;
                 break;
             }
         }
     }
-    if (func_800339EC() != 0 || (M_3B674->f_228 & 0x2000000)) {
+    if (Stage_IsRaceOrBoss() != 0 || (M_3B674->f_228 & 0x2000000)) {
         M_3B674->f_4A = -0x4000;
     } else {
         M_3B674->f_4A = -0x8000;
@@ -3609,7 +3609,7 @@ void Monkey_StartLink(from, to)
     }
 }
 
-s32 func_8003B880(s16 a, s16 b, s32 *out) {
+s32 Node_GetLinkInfo(s16 a, s16 b, s32 *out) {
     s16 lo = a;
     s16 hi = b;
     s32 i;
@@ -3620,17 +3620,17 @@ s32 func_8003B880(s16 a, s16 b, s32 *out) {
         hi = a;
         lo = b;
     }
-    for (i = 0; i < D_800B4D20; i++) {
-        if (lo < D_800B4D1C[i].f_0) {
+    for (i = 0; i < g_PathLinkInfoCount; i++) {
+        if (lo < g_PathLinkInfo[i].f_0) {
             return 0;
         }
-        if (D_800B4D1C[i].f_0 == lo) {
-            if (hi < D_800B4D1C[i].f_2) {
+        if (g_PathLinkInfo[i].f_0 == lo) {
+            if (hi < g_PathLinkInfo[i].f_2) {
                 return 0;
             }
-            if (D_800B4D1C[i].f_2 == hi) {
-                *out = D_800B4D1C[i].f_8;
-                return D_800B4D1C[i].f_4;
+            if (g_PathLinkInfo[i].f_2 == hi) {
+                *out = g_PathLinkInfo[i].f_8;
+                return g_PathLinkInfo[i].f_4;
             }
         }
     }
@@ -3642,10 +3642,10 @@ typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x30]; s16 f_60; u8 pad62[
 typedef struct { u16 f_0; s16 f_2; s16 f_4; u8 pad6[0x82]; } MK_8003B9C0;
 extern MV_8003B9C0 *g_CurMonkey_3B9C0 asm("g_CurMonkey");
 extern MK_8003B9C0 *g_MonkeyKinds_3B9C0 asm("g_MonkeyKinds");
-extern u32 D_800AEB60_3B9C0 asm("D_800AEB60");
-s32 func_80033C34_3B9C0(void) asm("func_80033C34");
-s32 func_800339EC_3B9C0(void) asm("func_800339EC");
-s32 func_80033C00_3B9C0(void) asm("func_80033C00");
+extern u32 D_800AEB60_3B9C0 asm("g_MonkeyFrame");
+s32 func_80033C34_3B9C0(void) asm("Monkey_IsJumping");
+s32 func_800339EC_3B9C0(void) asm("Stage_IsRaceOrBoss");
+s32 func_80033C00_3B9C0(void) asm("Monkey_IsSwimming");
 void Flare_Spawn_3B9C0(SV_8003B9C0 *, SV_8003B9C0 *, s32) asm("Flare_Spawn");
 s32 rsin_3B9C0(s32) asm("rsin");
 s32 rcos_3B9C0(s32) asm("rcos");
@@ -3764,7 +3764,7 @@ typedef struct { u8 pad0[0x60]; SV_8003C204 dir; u8 pad68[0x10]; u8 state; u8 pa
 #define MC_3C204 ((M_8003C204 *)g_CurMonkey)
 void Monkey_TurnToGoal(void);
 
-void func_8003C204(void) {
+void Monkey_StartTurn(void) {
     SV_8003C204 rot;
     SV_8003C204 save;
     VEC_80040CFC_80034EF8 a;
@@ -3791,7 +3791,7 @@ void func_8003C204(void) {
     }
     save = MC_3C204->dir;
     Monkey_TurnToGoal();
-    if (func_80033C00()) {
+    if (Monkey_IsSwimming()) {
         MC_3C204->f_100 = save.vx;
         MC_3C204->f_104 = save.vy;
         MC_3C204->f_108 = save.vz;
@@ -3838,10 +3838,10 @@ void func_8003C204(void) {
 
 typedef struct { u8 pad0[0x60]; SVECTOR f_60; u8 pad68[0x98]; s32 f_100; s32 f_104; s32 f_108; u8 pad10C[4]; s32 f_110; s32 f_114; s32 f_118; u8 pad11C[4]; s16 f_120; s16 f_122; } S_M_8003C568;
 s32 VectorNormalSS_3C568(void *, void *) asm("VectorNormalSS");
-/* func_8003C568: one step of a monkey turn (set up by func_8003C204): direction f_60 = the start
+/* Monkey_StepTurn: one step of a monkey turn (set up by Monkey_StartTurn): direction f_60 = the start
  * direction +0x100 blended toward the goal +0x110 by (f_122 - f_120) / f_122, normalised; f_120
  * counts the steps down. VectorNormalSS must be declared returning long (as in libgte). */
-void func_8003C568(void) {
+void Monkey_StepTurn(void) {
     S_M_8003C568 *m = (S_M_8003C568 *)g_CurMonkey;
     m->f_60.vx = m->f_100 + ((m->f_110 - m->f_100) * (m->f_122 - m->f_120)) / m->f_122;
     m->f_60.vy = m->f_104 + ((m->f_114 - m->f_104) * (m->f_122 - m->f_120)) / m->f_122;
@@ -3861,10 +3861,10 @@ void Monkey_StateMove(void) {
     s16 k;
 
     if (g_CurMonkey->f_78 == 3 || g_CurMonkey->f_78 == 8) {
-        func_80038F00();
+        Monkey_SpawnRunDust();
     }
     if (((g_CurMonkey->f_78 == 0x24 || g_CurMonkey->f_78 == 8) && g_CurMonkey->f_16C[Monkey_CurAnimIndex()].f_0 == g_CurMonkey->f_5C - 10)
-        || ((g_CurMonkey->f_78 == 0x1A || g_CurMonkey->f_78 == 0x35) && D_800AEB60 % 300 != 0)) {
+        || ((g_CurMonkey->f_78 == 0x1A || g_CurMonkey->f_78 == 0x35) && g_MonkeyFrame % 300 != 0)) {
         if ((s16)Monkey_CanSeeTarget(0)) {
             LOST = 0;
         } else {
@@ -3875,37 +3875,37 @@ void Monkey_StateMove(void) {
         if (Monkey_ChooseRoute(1, 1)) {
             st = g_CurMonkey->f_78;
             Monkey_PickNextAction();
-            if (g_CurMonkey->f_78 != 9 && !func_80033BE0()) {
-                func_8003C204();
+            if (g_CurMonkey->f_78 != 9 && !Monkey_IsNodeAnim()) {
+                Monkey_StartTurn();
             }
             if (g_CurMonkey->f_78 != st) {
                 return;
             }
         } else {
-            if (!func_800339EC() && g_CurMonkey->f_78 != 9 && !func_80033BE0() && g_CurMonkey->f_78 != 0x3D && g_CurMonkey->f_78 != 0x1A
-                && g_CurMonkey->f_78 != 0x35 && !func_80033C00() && g_CurMonkey->f_20C >= 200) {
+            if (!Stage_IsRaceOrBoss() && g_CurMonkey->f_78 != 9 && !Monkey_IsNodeAnim() && g_CurMonkey->f_78 != 0x3D && g_CurMonkey->f_78 != 0x1A
+                && g_CurMonkey->f_78 != 0x35 && !Monkey_IsSwimming() && g_CurMonkey->f_20C >= 200) {
                 Monkey_SetState(0);
                 return;
             }
             Monkey_ChooseRoute(0, 0);
             Monkey_TrySpecialAction();
-            if (g_CurMonkey->f_78 != 9 && !func_80033BE0()) {
-                func_8003C204();
+            if (g_CurMonkey->f_78 != 9 && !Monkey_IsNodeAnim()) {
+                Monkey_StartTurn();
             }
         }
     }
     if (Monkey_CheckStateTimer()) {
-        if (D_800AEB60 % 5 == 0 && Monkey_CanSeeTarget(1)) {
+        if (g_MonkeyFrame % 5 == 0 && Monkey_CanSeeTarget(1)) {
             Monkey_ChooseRoute(0, 0);
             goto check;
         }
         if ((g_CurMonkey->f_5C - g_CurMonkey->f_16C[Monkey_CurAnimIndex()].f_0) % 5 == 0 && ((g_CurMonkey->f_248 >> 23) & 1) && g_CurMonkey->f_78 == 8
-            && (k = func_80037420()) != 100) {
-            func_8003429C(k);
+            && (k = Monkey_TryAttackGroup1()) != 100) {
+            Monkey_DropWhileRunning(k);
         }
-        if (func_80033C00()) {
+        if (Monkey_IsSwimming()) {
             if (g_CurMonkey->f_120 > 0) {
-                func_8003C568();
+                Monkey_StepTurn();
             }
         } else if (g_CurMonkey->f_94 > 0 && g_MonkeyKinds[g_CurMonkey->f_7C].f_4 != 0) {
             ApplyMatrixSV(g_CurMonkey->f_9C, &g_CurMonkey->f_60, &g_CurMonkey->f_60);
@@ -3922,8 +3922,8 @@ void Monkey_StateMove(void) {
         Monkey_ChooseRoute(0, 0);
         Monkey_PickNextAction();
     check:
-        if (g_CurMonkey->f_78 != 9 && !func_80033BE0()) {
-            func_8003C204();
+        if (g_CurMonkey->f_78 != 9 && !Monkey_IsNodeAnim()) {
+            Monkey_StartTurn();
         }
         return;
     }
@@ -3935,7 +3935,7 @@ void Monkey_StateMove(void) {
     }
 }
 
-void func_8003CC3C(s32 lim) {
+void Monkey_TurnTowardTarget(s32 lim) {
     Monkey *m = g_CurMonkey;
     s32 a;
     s32 b;
@@ -3962,14 +3962,14 @@ void func_8003CC3C(s32 lim) {
     ApplyMatrixSV(&mt, (SVECTOR *)&g_CurMonkey->f_60, (SVECTOR *)&g_CurMonkey->f_60);
 }
 
-void func_8003CD24(s32 a) {
+void Monkey_FireWindow(s32 a) {
     switch (a) {
     case 0:
     case 5:
-        func_80033E4C(a);
+        Monkey_AimAndShoot(a);
         break;
     case 1:
-        func_80033DF0();
+        Monkey_FireMissile();
         break;
     }
 }
@@ -3984,25 +3984,25 @@ extern s8 D_800AEC0C_3CD84[] asm("D_800AEC0C");
 extern u16 D_800B8CA0_3CD84 asm("D_800B8CA0");
 extern u16 D_800B8CA2_3CD84 asm("D_800B8CA2");
 extern struct { u32 frame; } g_Game_3CD84 asm("g_Game");
-void func_800390F8_3CD84(void) asm("func_800390F8");
+void func_800390F8_3CD84(void) asm("Monkey_SpawnSmoke");
 void Monkey_TurnToGoal_3CD84(void) asm("Monkey_TurnToGoal");
 void Monkey_UpdateSpeed_3CD84(void) asm("Monkey_UpdateSpeed");
-void func_80038FD8_3CD84(void) asm("func_80038FD8");
+void func_80038FD8_3CD84(void) asm("Monkey_SpawnSmokeBurst");
 s32 Vec_Dist_3CD84(V_3CD84 *, V_3CD84 *) asm("Vec_Dist");
 s32 Vec_DistXZ_3CD84(V_3CD84 *, V_3CD84 *) asm("Vec_DistXZ");
 void func_800880D0_3CD84(s32, s32) asm("func_800880D0");
 u8 Monkey_ChooseRoute_3CD84(s16, s16) asm("Monkey_ChooseRoute");
-s32 func_800339EC_3CD84(void) asm("func_800339EC");
-s32 func_80033BE0_3CD84(void) asm("func_80033BE0");
-void func_8003C204_3CD84(void) asm("func_8003C204");
+s32 func_800339EC_3CD84(void) asm("Stage_IsRaceOrBoss");
+s32 func_80033BE0_3CD84(void) asm("Monkey_IsNodeAnim");
+void func_8003C204_3CD84(void) asm("Monkey_StartTurn");
 void func_80035E6C_3CD84(void) asm("func_80035E6C");
-void func_80036C84_3CD84(void) asm("func_80036C84");
+void func_80036C84_3CD84(void) asm("Monkey_Explode");
 s32 Monkey_CheckStateTimer_3CD84(void) asm("Monkey_CheckStateTimer");
 void Monkey_AimAtGoal_3CD84(void) asm("Monkey_AimAtGoal");
 s32 Floor_GetHeight_3CD84(s32, s32, s32) asm("Floor_GetHeight");
-void func_8003CC3C_3CD84(s32) asm("func_8003CC3C");
-void func_8003CD24_3CD84(s32) asm("func_8003CD24");
-s32 func_800374B8_3CD84(void) asm("func_800374B8");
+void func_8003CC3C_3CD84(s32) asm("Monkey_TurnTowardTarget");
+void func_8003CD24_3CD84(s32) asm("Monkey_FireWindow");
+s32 func_800374B8_3CD84(void) asm("Monkey_TryAttackGroup2");
 void Monkey_RestartAnim_3CD84() asm("Monkey_RestartAnim");
 void Monkey_GoToNode_3CD84(s16) asm("Monkey_GoToNode");
 s32 Node_GetLink_3CD84(s16, s16) asm("Node_GetLink");
@@ -4010,7 +4010,7 @@ u32 Monkey_Rand_3CD84(void) asm("Monkey_Rand");
 s32 rsin_3CD84(s32) asm("rsin");
 s32 rcos_3CD84(s32) asm("rcos");
 
-void func_8003CD84(void) {
+void Monkey_UpdateVehicle(void) {
     CM_3CD84->f_230++;
     CM_3CD84->f_24C &= ~4;
     if (CM_3CD84->f_230 < 30) {
@@ -4029,11 +4029,11 @@ void func_8003CD84(void) {
             CM_3CD84->f_78 = 0x1E;
             CM_3CD84->f_248 |= 0x1000000;
             CM_3CD84->f_EC = CM_3CD84->f_F2;
-            k = (u16)Monkey_Rand_3CD84() % D_800B4D00[CM_3CD84->f_F2].f_B;
+            k = (u16)Monkey_Rand_3CD84() % g_PathNodes[CM_3CD84->f_F2].f_B;
             r = ((s32 (*)(s16, s32))Node_GetLink_3CD84)(CM_3CD84->f_F2, k);
             old = CM_3CD84->f_F2;
             if ((s16)r == CM_3CD84->f_F4) {
-                CM_3CD84->f_F2 = Node_GetLink_3CD84(CM_3CD84->f_F2, (k + 1) % D_800B4D00[CM_3CD84->f_F2].f_B);
+                CM_3CD84->f_F2 = Node_GetLink_3CD84(CM_3CD84->f_F2, (k + 1) % g_PathNodes[CM_3CD84->f_F2].f_B);
             } else {
                 CM_3CD84->f_F2 = r;
             }
@@ -4086,10 +4086,10 @@ void func_8003CD84(void) {
                 D_800AEC08_3CD84[CM_3CD84->f_7B] = -D_800AEC08_3CD84[CM_3CD84->f_7B];
                 if (D_800AEC08_3CD84[CM_3CD84->f_7B] == -1) {
                     s32 rad;
-                    rad = CM_3CD84->f_240 * (rsin_3CD84((D_800AEB60 * 5) & 0xFFF) + 0x1000) / 8192;
-                    CM_3CD84->goal.x = CM_3CD84->f_234 + rad * rsin_3CD84((D_800AEB60 * 5) & 0xFFF) / 4096;
+                    rad = CM_3CD84->f_240 * (rsin_3CD84((g_MonkeyFrame * 5) & 0xFFF) + 0x1000) / 8192;
+                    CM_3CD84->goal.x = CM_3CD84->f_234 + rad * rsin_3CD84((g_MonkeyFrame * 5) & 0xFFF) / 4096;
                     CM_3CD84->goal.y = TGT_3CD84->pos.y - 500;
-                    CM_3CD84->goal.z = CM_3CD84->f_23C + rad * rcos_3CD84((D_800AEB60 * 5) & 0xFFF) / 4096;
+                    CM_3CD84->goal.z = CM_3CD84->f_23C + rad * rcos_3CD84((g_MonkeyFrame * 5) & 0xFFF) / 4096;
                 }
             }
         }
@@ -4103,22 +4103,22 @@ void func_8003CD84(void) {
                 if (a % 600 == 0) {
                     D_800AEC0C_3CD84[CM_3CD84->f_7B] = -D_800AEC0C_3CD84[CM_3CD84->f_7B];
                 }
-                CM_3CD84->goal.x = TGT_3CD84->pos.x + rsin_3CD84(D_800AEC0C_3CD84[CM_3CD84->f_7B] * D_800AEB60 * 30) * 1500 / 4096;
+                CM_3CD84->goal.x = TGT_3CD84->pos.x + rsin_3CD84(D_800AEC0C_3CD84[CM_3CD84->f_7B] * g_MonkeyFrame * 30) * 1500 / 4096;
                 m = CM_3CD84;
                 t = TGT_3CD84;
                 m->goal.y = t->pos.y < Floor_GetHeight_3CD84(m->goal.x, m->goal.y, m->goal.z) ? TGT_3CD84->pos.y - 500 : Floor_GetHeight_3CD84(CM_3CD84->goal.x, CM_3CD84->goal.y, CM_3CD84->goal.z) - 500;
-                CM_3CD84->goal.z = TGT_3CD84->pos.z + rcos_3CD84(D_800AEC0C_3CD84[CM_3CD84->f_7B] * D_800AEB60 * 30) * 1500 / 4096;
+                CM_3CD84->goal.z = TGT_3CD84->pos.z + rcos_3CD84(D_800AEC0C_3CD84[CM_3CD84->f_7B] * g_MonkeyFrame * 30) * 1500 / 4096;
             } else {
                 s32 rad;
                 s32 d2;
                 M_3CD84 *m;
                 M_3CD84 *t;
-                rad = CM_3CD84->f_240 / 2 + CM_3CD84->f_240 * (rsin_3CD84(D_800AEB60 & 0xFFF) + 0x1000) / 16384;
-                CM_3CD84->goal.x = CM_3CD84->f_234 + rad * rsin_3CD84((D_800AEB60 * 30) & 0xFFE) / 4096;
+                rad = CM_3CD84->f_240 / 2 + CM_3CD84->f_240 * (rsin_3CD84(g_MonkeyFrame & 0xFFF) + 0x1000) / 16384;
+                CM_3CD84->goal.x = CM_3CD84->f_234 + rad * rsin_3CD84((g_MonkeyFrame * 30) & 0xFFE) / 4096;
                 m = CM_3CD84;
                 t = TGT_3CD84;
                 m->goal.y = t->pos.y < Floor_GetHeight_3CD84(m->goal.x, m->goal.y, m->goal.z) ? TGT_3CD84->pos.y - 300 : Floor_GetHeight_3CD84(CM_3CD84->goal.x, CM_3CD84->goal.y, CM_3CD84->goal.z) - 300;
-                CM_3CD84->goal.z = CM_3CD84->f_23C + rad * rcos_3CD84((D_800AEB60 * 30) & 0xFFE) / 4096;
+                CM_3CD84->goal.z = CM_3CD84->f_23C + rad * rcos_3CD84((g_MonkeyFrame * 30) & 0xFFE) / 4096;
             }
         } else {
             CM_3CD84->f_24C |= 4;
@@ -4149,9 +4149,9 @@ void func_8003CD84(void) {
         s32 a;
         s32 b;
         s32 c;
-        a = rcos_3CD84((D_800AEB60 << 12) / 80);
-        b = rcos_3CD84((D_800AEB60 << 12) / 40);
-        c = rcos_3CD84(((D_800AEB60 - 1) << 12) / 40);
+        a = rcos_3CD84((g_MonkeyFrame << 12) / 80);
+        b = rcos_3CD84((g_MonkeyFrame << 12) / 40);
+        c = rcos_3CD84(((g_MonkeyFrame - 1) << 12) / 40);
         CM_3CD84->pos.y += CM_3CD84->vy + (a * 30 / 4096 + 60) * (b - c) / 4096;
     }
     {
@@ -4180,21 +4180,21 @@ void func_8003CD84(void) {
 
 /* Monkey state handler (from the per-state dispatch in Monkey_Update) for unalerted movement.
  * Every third frame (staggered by kind f_7C) it looks for Spike; if seen it either reacts
- * (func_800356C0 -> Monkey_QueueSound) or, for states flagged 0x40 in D_800AE940, sets f_79 and
- * calls func_800357E0. If the target is in range (states 0x1A/0x35 first re-aim at their path
+ * (Monkey_GetVoiceSound -> Monkey_QueueSound) or, for states flagged 0x40 in g_MonkeyStateInfo, sets f_79 and
+ * calls Monkey_NoticeTarget. If the target is in range (states 0x1A/0x35 first re-aim at their path
  * points f_F2/f_F4) it picks a new action. Otherwise, while the state timer runs, it turns the
  * velocity f_60 by the matrix at +0x9C for f_94 frames and moves the position by f_70..f_74. */
 void Monkey_StateRoam(void) {
     VEC_80040CFC_8003D9D4 a;
     VEC_80040CFC_8003D9D4 b;
     s16 state;
-    if ((D_800AEB60 + g_CurMonkey->f_7C) % 3 == 0 && Monkey_CanSeeTarget(1)) {
-        if (func_8003398C() || !((D_800AE940[g_CurMonkey->f_78].f_4 >> 6) & 1)) {
-            Monkey_QueueSound(func_800356C0(), 0);
+    if ((g_MonkeyFrame + g_CurMonkey->f_7C) % 3 == 0 && Monkey_CanSeeTarget(1)) {
+        if (func_8003398C() || !((g_MonkeyStateInfo[g_CurMonkey->f_78].f_4 >> 6) & 1)) {
+            Monkey_QueueSound(Monkey_GetVoiceSound(), 0);
             Monkey_PickNextAction();
         } else {
             g_CurMonkey->f_79 = 1;
-            func_800357E0();
+            Monkey_NoticeTarget();
         }
         return;
     }
@@ -4213,16 +4213,16 @@ void Monkey_StateRoam(void) {
         Monkey_ChooseRoute(1, 0);
         Monkey_PickIdleAction();
         if (g_CurMonkey->f_78 != 9) {
-            func_8003C204();
+            Monkey_StartTurn();
         }
         if (g_CurMonkey->f_78 != state) {
             return;
         }
     }
     if (Monkey_CheckStateTimer()) {
-        if (func_80033C00()) {
+        if (Monkey_IsSwimming()) {
             if (MD->f_120 > 0) {
-                func_8003C568();
+                Monkey_StepTurn();
             }
         } else if (MD->f_94 > 0) {
             ApplyMatrixSV(&MD->f_9C, (s32)&MD->f_60, &MD->f_60);
@@ -4241,10 +4241,10 @@ void Monkey_StateRoam(void) {
 #undef CM
 #undef KIND
 #define CM ((M_3DC7C_8003DC7C *)g_CurMonkey)
-#define NODE(i) ((Nd_3DC7C_8003DC7C *)D_800B4D00)[i]
-#define STF(s) (((struct S_D_800AE940_8003DC7C *)&D_800AE940)[s].flags >> 3 & 1)
+#define NODE(i) ((Nd_3DC7C_8003DC7C *)g_PathNodes)[i]
+#define STF(s) (((struct S_D_800AE940_8003DC7C *)&g_MonkeyStateInfo)[s].flags >> 3 & 1)
 #define KIND ((K_3DC7C_8003DC7C *)g_MonkeyKinds + CM->f_7C)
-void func_800355DC_t(u16) asm("func_800355DC");
+void func_800355DC_t(u16) asm("Monkey_UpdateGoal");
 /* Monkey_Update's handler for the states a monkey plays out in place (0, 1, 0xB, 0x16-0x18, 0x1B,
  * 0x1C, 0x21, 0x22, 0x26-0x2B, 0x37, 0x38, 0x42).
  * - On a node flagged 0x400 (states 0x29-0x2B move between two linked nodes): tracks whether it
@@ -4254,11 +4254,11 @@ void func_800355DC_t(u16) asm("func_800355DC");
  * - State 1 (idle) counts down +0x9A, then picks 0xD/0x10/0x13/0x3A, by the direction to Spike
  *   (+0x21C) when alerted (bit 19 of +0x248, or randomly when close), else at random.
  * - While the state's animation runs: kinds' attack windows (kind+0x1E: 8 x {on, ?, min, max}
- *   distance, indexed by the state) fire shots (func_80033DF0, func_80033E4C, func_800343B0,
- *   func_8003440C, Monkey_FireShot at given animation frames); +0x222 counts the attack down.
+ *   distance, indexed by the state) fire shots (Monkey_FireMissile, Monkey_AimAndShoot, Monkey_ThrowStone,
+ *   Monkey_ThrowCoconut, Monkey_FireShot at given animation frames); +0x222 counts the attack down.
  * - When it ends: idle-type states pick a new idle action; others decide (distance, node flags,
- *   sight checks every 150 frames) between func_800378C0 and Monkey_PickNextAction.
- * Finally states 0x1C/0x21/0x38/0xB/0x37 call func_8003CC3C with a range. The do/while (0) around
+ *   sight checks every 150 frames) between Monkey_PickAction and Monkey_PickNextAction.
+ * Finally states 0x1C/0x21/0x38/0xB/0x37 call Monkey_TurnTowardTarget with a range. The do/while (0) around
  * one Monkey_RestartAnim() is needed to match. */
 void Monkey_StateInPlace(void) {
     V4_3DC7C_8003DC7C b, a;
@@ -4276,14 +4276,14 @@ void Monkey_StateInPlace(void) {
     if (NODE(CM->f_F4).f_0 & 0x400) {
         if (CM->f_79 == 0) {
             if (Monkey_CanSeeTarget(1)) {
-                Monkey_QueueSound(func_800356C0(), 0);
+                Monkey_QueueSound(Monkey_GetVoiceSound(), 0);
                 CM->f_79 = 1;
                 CM->f_248.b[1] = 0;
             }
         } else if (CM->f_248.b[1] >= func_80033000()) {
             CM->f_79 = 0;
             CM->f_248.b[1] = 0;
-        } else if (D_800AEB60 % 300 == 0 && !Monkey_CanSeeTarget(1)) {
+        } else if (g_MonkeyFrame % 300 == 0 && !Monkey_CanSeeTarget(1)) {
             CM->f_248.b[1]++;
         }
         if (STF(CM->state) && !Monkey_CheckStateTimer()) {
@@ -4295,7 +4295,7 @@ void Monkey_StateInPlace(void) {
         }
         if (CM->state == 0x29 || STF(CM->state)) {
             if (func_80052C4C((s16)NODE(CM->f_F2).f_10 / 100) == 1) {
-                func_80036460();
+                Monkey_StartDrop();
                 t = CM->f_F2;
                 CM->f_F2 = CM->f_F4;
                 CM->f_F4 = t;
@@ -4318,7 +4318,7 @@ void Monkey_StateInPlace(void) {
                 }
             }
             if (!Monkey_CheckStateTimer()) {
-                if ((CM->f_248.w >> 23 & 1) && func_8003738C() != 100) {
+                if ((CM->f_248.w >> 23 & 1) && Monkey_TryAttackGroup0() != 100) {
                     return;
                 }
                 Monkey_RestartAnim();
@@ -4364,7 +4364,7 @@ void Monkey_StateInPlace(void) {
             (CM->f_20C < 2000 && 2000 - CM->f_20C > (u16)Monkey_Rand() % 2000 && (u16)Monkey_Rand() % 10 < 3)) {
             ang = CM->f_21C;
             if (CM->f_248.w >> 19 & 1) {
-                Monkey_QueueSound(func_80035750(), 0);
+                Monkey_QueueSound(Monkey_GetVoiceSound2(), 0);
             }
             if (ang - 0x156 < 0x555) {
                 CM->state = 0xD;
@@ -4396,19 +4396,19 @@ void Monkey_StateInPlace(void) {
     }
 
     if (Monkey_CheckStateTimer()) {
-        if (func_800339EC() && CM->state == 0xB && (*(struct Game_3DC7C *)&g_Game).f_812C == 3) {
+        if (Stage_IsRaceOrBoss() && CM->state == 0xB && (*(struct Game_3DC7C *)&g_Game).f_812C == 3) {
             Monkey_PickNextAction();
             D_800AEB5C = 0;
         }
         st = CM->state;
-        if (st == 1 && (D_800AEB60 + CM->f_7C) % 3 == 0 && Monkey_CanSeeTarget(1)) {
-            if (func_8003398C() || !(((struct S_D_800AE940_8003DC7C *)&D_800AE940)[CM->state].flags >> 6 & 1)) {
-                Monkey_QueueSound(func_800356C0(), 0);
+        if (st == 1 && (g_MonkeyFrame + CM->f_7C) % 3 == 0 && Monkey_CanSeeTarget(1)) {
+            if (func_8003398C() || !(((struct S_D_800AE940_8003DC7C *)&g_MonkeyStateInfo)[CM->state].flags >> 6 & 1)) {
+                Monkey_QueueSound(Monkey_GetVoiceSound(), 0);
                 Monkey_PickNextAction();
                 return;
             }
             CM->f_79 = 1;
-            func_800357E0();
+            Monkey_NoticeTarget();
             return;
         }
         f2 = NODE(CM->f_F4).f_0;
@@ -4432,20 +4432,20 @@ void Monkey_StateInPlace(void) {
             }
             if (STF(CM->state) && CM->f_222 > 0) {
                 if (CM->state == 0x22 && KIND->atk[1].on && CM->f_20C >= KIND->atk[1].min && CM->f_20C <= KIND->atk[1].max) {
-                    if (D_800AEB60 % 5 == 0) {
-                        func_80033DF0();
+                    if (g_MonkeyFrame % 5 == 0) {
+                        Monkey_FireMissile();
                     }
                 } else if (CM->state == 0x21 && KIND->atk[0].on && CM->f_20C >= KIND->atk[0].min && CM->f_20C <= KIND->atk[0].max) {
-                    func_80033E4C(0);
+                    Monkey_AimAndShoot(0);
                 } else if (CM->state == 0x38 && KIND->atk[5].on && CM->f_20C >= KIND->atk[5].min && CM->f_20C <= KIND->atk[5].max) {
-                    func_80033E4C(5);
+                    Monkey_AimAndShoot(5);
                 } else if (CM->state == 0x1C && KIND->atk[4].on && CM->f_20C >= KIND->atk[4].min && CM->f_20C <= KIND->atk[4].max) {
                     if (CM->f_16C[Monkey_CurAnimIndex()].f_0 == CM->f_5C - 10) {
-                        func_800343B0();
+                        Monkey_ThrowStone();
                     }
                 } else if (CM->state == 0x1B && KIND->atk[3].on && CM->f_20C >= KIND->atk[3].min && CM->f_20C <= KIND->atk[3].max) {
                     if (CM->f_16C[Monkey_CurAnimIndex()].f_0 == CM->f_5C - 25) {
-                        func_8003440C();
+                        Monkey_ThrowCoconut();
                     }
                 } else if (CM->state == 0x37 && KIND->atk[7].on && CM->f_20C >= KIND->atk[7].min && CM->f_20C <= KIND->atk[7].max) {
                     if ((CM->f_5C - CM->f_16C[Monkey_CurAnimIndex()].f_0) % 10 == 3 ||
@@ -4461,7 +4461,7 @@ void Monkey_StateInPlace(void) {
         goto tail;
     }
 
-    if (func_800339EC() && (*(struct Game_3DC7C *)&g_Game).f_812C != 3) {
+    if (Stage_IsRaceOrBoss() && (*(struct Game_3DC7C *)&g_Game).f_812C != 3) {
         Monkey_RestartAnim();
     } else if (CM->state == 0x37) {
         M_3DC7C_8003DC7C *m = CM;
@@ -4504,17 +4504,17 @@ void Monkey_StateInPlace(void) {
                 (mm->state == 0x38 && mm->f_222 <= 0) ||
                 (mm->state == 0x1B && mm->f_222 <= 0) ||
                 ((f & 4) && mm->f_22C == 0) ||
-                ((NODE(CM->f_F4).f_0 & 8) && !func_800339EC() && CM->f_20C < NODE(CM->f_F4).f_10) ||
+                ((NODE(CM->f_F4).f_0 & 8) && !Stage_IsRaceOrBoss() && CM->f_20C < NODE(CM->f_F4).f_10) ||
                 ((NODE(CM->f_F4).f_0 & 0x8000) && CM->f_20C >= 0x5DD) ||
                 ((NODE(CM->f_F4).f_0 & 0x10000) && func_80052C4C(NODE(CM->f_F4).f_10) == 2) ||
-                (CM->f_79 == 1 && !STF(CM->state) && !func_800349F4(CM->f_F4)) ||
-                (CM->state != 0x37 && !(NODE(CM->f_F4).f_0 & 0x10000) && !func_800349F4(CM->f_F4) &&
-                 (D_800AEB60 + CM->f_7C + 3) % 150 == 0 && !Monkey_CanSeeTarget(1)) ||
-                (CM->state != 0x37 && !func_800349F4(CM->f_F4) && CM->f_20C < 200)) {
+                (CM->f_79 == 1 && !STF(CM->state) && !Node_IsStopPoint(CM->f_F4)) ||
+                (CM->state != 0x37 && !(NODE(CM->f_F4).f_0 & 0x10000) && !Node_IsStopPoint(CM->f_F4) &&
+                 (g_MonkeyFrame + CM->f_7C + 3) % 150 == 0 && !Monkey_CanSeeTarget(1)) ||
+                (CM->state != 0x37 && !Node_IsStopPoint(CM->f_F4) && CM->f_20C < 200)) {
                 if (CM->state == 0xB && CM->f_20C - 300 >= 0x4B1U) {
                     Monkey_PickNextAction();
                 } else {
-                    func_800378C0();
+                    Monkey_PickAction();
                 }
             }
         }
@@ -4523,11 +4523,11 @@ void Monkey_StateInPlace(void) {
 tail:
     st3 = CM->state;
     if (st3 == 0x1C || st3 == 0x21 || st3 == 0x38) {
-        func_8003CC3C(0xAA);
-    } else if (st3 == 0xB && !func_800339EC()) {
-        func_8003CC3C(0x11C);
+        Monkey_TurnTowardTarget(0xAA);
+    } else if (st3 == 0xB && !Stage_IsRaceOrBoss()) {
+        Monkey_TurnTowardTarget(0x11C);
     } else if (CM->state == 0x37) {
-        func_8003CC3C(0x1FE);
+        Monkey_TurnTowardTarget(0x1FE);
     }
 }
 #undef CM
@@ -4537,15 +4537,15 @@ tail:
 #define CM ((M_39ED4_80039ED4 *)g_CurMonkey)
 #define KIND(m) ((K_39ED4_80039ED4 *)&g_MonkeyKinds[(m)->f_7C])
 
-void func_8003F18C(void) {
+void Monkey_StateIdleLook(void) {
     if (Monkey_CheckStateTimer() != 0) {
-        if ((D_800AEB60 + g_CurMonkey->f_7C) % 3 == 0 && Monkey_CanSeeTarget(1) != 0) {
-            if (func_8003398C() != 0 || !((((struct S_D_800AE940_8003F18C *)&D_800AE940)[g_CurMonkey->f_78].f_4 >> 6) & 1)) {
-                Monkey_QueueSound(func_800356C0(), 0);
+        if ((g_MonkeyFrame + g_CurMonkey->f_7C) % 3 == 0 && Monkey_CanSeeTarget(1) != 0) {
+            if (func_8003398C() != 0 || !((((struct S_D_800AE940_8003F18C *)&g_MonkeyStateInfo)[g_CurMonkey->f_78].f_4 >> 6) & 1)) {
+                Monkey_QueueSound(Monkey_GetVoiceSound(), 0);
                 Monkey_PickNextAction();
             } else {
                 g_CurMonkey->f_79 = 1;
-                func_800357E0();
+                Monkey_NoticeTarget();
             }
         }
         return;
@@ -4567,7 +4567,7 @@ void func_8003F18C(void) {
     }
 }
 
-void func_8003F308(void) {
+void Monkey_StateIdleScan(void) {
     Monkey *m = g_CurMonkey;
     s32 t;
     s32 k;
@@ -4594,11 +4594,11 @@ void func_8003F308(void) {
         if (Monkey_CanSeeTarget(k) != 0) {
             g_CurMonkey->f_79 = 1;
             if (func_8003398C() != 0) {
-                Monkey_QueueSound(func_800356C0(), 0);
+                Monkey_QueueSound(Monkey_GetVoiceSound(), 0);
                 Monkey_PickNextAction();
             } else {
                 g_CurMonkey->f_79 = 1;
-                func_800357E0();
+                Monkey_NoticeTarget();
             }
         }
         return;
@@ -4628,7 +4628,7 @@ void func_8003F308(void) {
 void func_8003F4B4(void) {
     if (Monkey_CheckStateTimer() == 0) {
         if (!(((Monkey_Rand() & 0xFFFF) % 6) & 0xFFFF)) {
-            func_80036300();
+            Monkey_StartIdle();
             return;
         }
         Monkey_PickIdleAction();
@@ -4637,12 +4637,12 @@ void func_8003F4B4(void) {
 
 typedef struct { u16 start; u16 end; u8 pad[4]; } AE_8003F530;
 typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x2C]; u16 frame; u8 pad5E[0x1A]; u8 state; u8 pad79[0x1D]; s16 t; u8 pad98[0x5A]; u16 f_F2; u8 padF4[0x34]; u16 dur; u8 pad12A[2]; s32 x0, y0, z0; u8 pad138[4]; s32 vx, vy, vz; u8 pad148[0x24]; AE_8003F530 *anims; u16 f_170; u16 f_172; } MJ_8003F530;
-s32 func_80040CFC_r3F530(s32) asm("func_80040CFC");
+s32 func_80040CFC_r3F530(s32) asm("Monkey_GetLinkHeight");
 s32 Monkey_ChooseRoute_r3F530(s32, s32) asm("Monkey_ChooseRoute");
 #define MIN_3F530(a, b) ((a) < (b) ? (a) : (b))
 #define MJ_3F530 ((MJ_8003F530 *)g_CurMonkey)
 
-s32 func_8003F530(void) {
+s32 Monkey_UpdateNodeJump(void) {
     VEC_80040CFC_80034EF8 v;
     s32 t = MJ_3F530->t;
     u16 tt = MJ_3F530->t;
@@ -4674,28 +4674,28 @@ s32 func_8003F530(void) {
         MJ_3F530->z = v.vz;
     }
     if (Monkey_ChooseRoute_r3F530(1, 0) != 0) {
-        func_800378C0();
+        Monkey_PickAction();
         return;
     }
-    if (func_800339EC() != 0) {
+    if (Stage_IsRaceOrBoss() != 0) {
         return;
     }
     if (MJ_3F530->state == 9 || MJ_3F530->state == 0x3D || MJ_3F530->state == 0x1A || MJ_3F530->state == 0x35) {
         return;
     }
-    if (func_80033C00() == 0) {
+    if (Monkey_IsSwimming() == 0) {
         Monkey_SetState(0);
     }
 }
 
 typedef struct { u16 start; u16 end; u8 pad[4]; } AE_8003F86C;
 typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x2C]; u16 frame; u8 pad5E[0x1A]; u8 state; u8 pad79[0x1D]; s16 t; u8 pad98[0x5A]; u16 f_F2; u8 padF4[0x34]; u16 dur; u8 pad12A[2]; s32 x0, y0, z0; u8 pad138[4]; s32 vx, vy, vz; u8 pad148[0x24]; AE_8003F86C *anims; } MJ_8003F86C;
-s32 func_80040CFC_r3F86C(s32) asm("func_80040CFC");
+s32 func_80040CFC_r3F86C(s32) asm("Monkey_GetLinkHeight");
 s32 Monkey_ChooseRoute_r3F86C(s32, s32) asm("Monkey_ChooseRoute");
 #define MIN_3F86C(a, b) ((a) < (b) ? (a) : (b))
 #define MJ_3F86C ((MJ_8003F86C *)g_CurMonkey)
 
-s32 func_8003F86C(void) {
+s32 Monkey_UpdateLeap(void) {
     VEC_80040CFC_80034EF8 v;
     s32 t;
     MJ_8003F86C *m1;
@@ -4734,16 +4734,16 @@ s32 func_8003F86C(void) {
             return;
         }
         if (Monkey_ChooseRoute_r3F86C(1, 0) != 0) {
-            func_800378C0();
+            Monkey_PickAction();
             return;
         }
-        if (func_800339EC() != 0) {
+        if (Stage_IsRaceOrBoss() != 0) {
             return;
         }
         if (MJ_3F86C->state == 9 || MJ_3F86C->state == 0x3D || MJ_3F86C->state == 0x1A || MJ_3F86C->state == 0x35) {
             return;
         }
-        if (func_80033C00() == 0) {
+        if (Monkey_IsSwimming() == 0) {
             Monkey_SetState(0);
         }
         return;
@@ -4753,7 +4753,7 @@ s32 func_8003F86C(void) {
 s32 func_8003FB44(void) {
     if (Monkey_IsTargetInRange() != 0) {
         Monkey_ChooseRoute(1, 1);
-        func_800378C0();
+        Monkey_PickAction();
     } else {
         if (g_CurMonkey->f_228 & 2) {
             g_CurMonkey->f_28 += g_CurMonkey->f_72;
@@ -4784,12 +4784,12 @@ void func_8003FC08(void) {
 
 void func_8003FCA8(void) {
     if (Monkey_CheckStateTimer() == 0) {
-        func_800378C0();
+        Monkey_PickAction();
     }
 }
 
 /* Falling/jump arc for the current monkey: height f_28 = f_E4 + 6 * t * t with t = f_92
- * (counting up each call). When that goes below the ground under it, lands (func_80035DD8)
+ * (counting up each call). When that goes below the ground under it, lands (Monkey_Land)
  * and snaps to the ground height. */
 void Monkey_UpdateFall(void) {
     Monkey *m = g_CurMonkey;
@@ -4797,7 +4797,7 @@ void Monkey_UpdateFall(void) {
     m->f_28 = m->f_E4 + (m->f_92 * 6) * m->f_92;
     y = Floor_GetHeight(m->f_24, m->f_28 + 0x32, m->f_2C);
     if (y < m->f_28) {
-        func_80035DD8();
+        Monkey_Land();
         g_CurMonkey->f_28 = y;
     }
     g_CurMonkey->f_92++;
@@ -4840,21 +4840,21 @@ void Monkey_UpdateJump(void) {
         return;
     }
     if (((s32 (*)(s32, s32))Monkey_ChooseRoute)(1, 0) != 0) {
-        func_800378C0();
+        Monkey_PickAction();
         return;
     }
-    if (func_800339EC() != 0) {
+    if (Stage_IsRaceOrBoss() != 0) {
         return;
     }
     if (MJ_3FD7C->state == 9 || MJ_3FD7C->state == 0x3D || MJ_3FD7C->state == 0x1A || MJ_3FD7C->state == 0x35) {
         return;
     }
-    if (func_80033C00() == 0) {
+    if (Monkey_IsSwimming() == 0) {
         Monkey_SetState(0);
     }
 }
 
-void func_8004002C(void) {
+void Monkey_ReturnToPath(void) {
     VEC_80040CFC_8004002C t;
     u16 i;
     u16 best = 60000;
@@ -4864,8 +4864,8 @@ void func_8004002C(void) {
     if (Monkey_CheckStateTimer() != 0) {
         return;
     }
-    for (i = 0; i < D_800B4D18; i++) {
-        if (D_800B4D00[i].f_0 & 0x2000) {
+    for (i = 0; i < g_PathNodeCount; i++) {
+        if (g_PathNodes[i].f_0 & 0x2000) {
             Node_GetPosition(i, &t);
             d = Vec_Dist((VEC_80034684_8004002C *)&g_CurMonkey->f_24, (VEC_80034684_8004002C *)&t);
             if (best > d) {
@@ -4883,7 +4883,7 @@ void func_8004002C(void) {
     }
 }
 
-void func_80040170(void)
+void Monkey_StateFaceTarget(void)
 {
   s16 new_var;
   void *temp_a0;
@@ -4906,9 +4906,9 @@ void func_80040170(void)
 int abs(int);
 typedef struct { u8 pad0[0x24]; s32 x, y, z; u8 pad30[0x4C]; u8 f_7C; u8 pad7D[0x18F]; s32 f_20C; u8 pad210[0x38]; u32 f_248; } M_800401F4;
 #define ML_401F4 ((M_800401F4 *)g_CurMonkey)
-void func_800154DC(void *, SVECTOR *);
+void Model_GetRootJointPos(void *, SVECTOR *);
 
-s32 func_800401F4(s32 mode) {
+s32 Monkey_HasLineOfSight(s32 mode) {
     SVECTOR t;
     s32 dx;
     s32 dz;
@@ -4927,18 +4927,18 @@ s32 func_800401F4(s32 mode) {
     if (ML_401F4->f_20C < 0xFA) {
         return 1;
     }
-    if (mode == 1 && !((D_800AEB60 + ML_401F4->f_7C) & 1)) {
+    if (mode == 1 && !((g_MonkeyFrame + ML_401F4->f_7C) & 1)) {
         return (ML_401F4->f_248 >> 28) & 1;
     }
     if (!g_MonkeyTargetIsRC) {
-        func_800154DC(g_MonkeyTarget, &t);
+        Model_GetRootJointPos(g_MonkeyTarget, &t);
     } else {
         t.vx = ((M_800401F4 *)g_MonkeyTarget)->x;
         t.vy = ((M_800401F4 *)g_MonkeyTarget)->y;
         t.vz = ((M_800401F4 *)g_MonkeyTarget)->z;
     }
-    SetRotMatrix(&D_800E78C0);
-    SetTransMatrix(&D_800E78C0);
+    SetRotMatrix(&g_ViewMatrix);
+    SetTransMatrix(&g_ViewMatrix);
     dist = Vec_DistXZ_SV((VEC_800345D4 *)&ML_401F4->x, &t);
     if (dist == 0) {
         return 1;
@@ -4991,7 +4991,7 @@ s32 Monkey_CanSeeTarget(u32 dir)
   s32 ok;
   u32 a;
   s32 r;
-  if (func_800339EC() != 0)
+  if (Stage_IsRaceOrBoss() != 0)
   {
     ((MV_800405C4_800405C4 *) g_CurMonkey)->bits.seen = 1;
     return 1;
@@ -5046,7 +5046,7 @@ s32 Monkey_CanSeeTarget(u32 dir)
 
     if (ok)
     {
-      r = func_800401F4(arg) & 1;
+      r = Monkey_HasLineOfSight(arg) & 1;
       ((MV_800405C4_800405C4 *) g_CurMonkey)->bits.near = r;
       ((MV_800405C4_800405C4 *) g_CurMonkey)->bits.seen = r;
       return r;
@@ -5063,11 +5063,11 @@ s32 Monkey_CanSeeTarget(u32 dir)
 INCLUDE_RODATA("asm/nonmatchings/game/80032E30_monkey", jtbl_800A4A98_pad);
 
 
-void func_800407F0(void) {
+void Monkey_ClearRouteMarks(void) {
     s32 i;
     Monkey *m;
-    for (i = 0; i < D_800B4D18; i++) {
-        D_800B4D00[i].f_14[g_CurMonkey->f_7B] = 0;
+    for (i = 0; i < g_PathNodeCount; i++) {
+        g_PathNodes[i].f_14[g_CurMonkey->f_7B] = 0;
     }
     m = g_CurMonkey;
     m->f_EA = 0;
@@ -5079,7 +5079,7 @@ typedef struct { u8 pad0[0x7B]; u8 slot; u8 pad7C[0x6E]; u16 f_EA; u8 padEC[2]; 
 #define MIN_4086C(a, b) ((a) < (b) ? (a) : (b))
 #define MP_4086C ((M_8004086C *)g_CurMonkey)
 
-void func_8004086C(void) {
+void Monkey_SpreadRouteMarks(void) {
     M_8004086C *m;
     M_8004086C *m2;
     s32 found;
@@ -5092,10 +5092,10 @@ void func_8004086C(void) {
     m = MP_4086C;
     found = 0;
     if ((m->f_248 >> 27) & 1) {
-        if (D_800B4D00[m->f_F2].f_14[m->slot] != 0) {
+        if (g_PathNodes[m->f_F2].f_14[m->slot] != 0) {
             return;
         }
-        if (D_800B4D00[m->f_F4].f_14[m->slot] != 0) {
+        if (g_PathNodes[m->f_F4].f_14[m->slot] != 0) {
             return;
         }
         m->f_248 &= ~0x08000000;
@@ -5105,24 +5105,24 @@ void func_8004086C(void) {
     m2->f_EA++;
     m2->f_248 &= ~0x08000000;
     if (m2->f_EA % 2 == 1 && !found) {
-        for (i = 0; i < D_800B4D18; i++) {
-            if (D_800B4D00[i].f_14[MP_4086C->slot] != 0) {
-                D_800B4D00[i].f_14[MP_4086C->slot] = MIN_4086C(D_800B4D00[i].f_14[MP_4086C->slot] + 1, 0xFF) < 1 ? 1 : MIN_4086C(D_800B4D00[i].f_14[MP_4086C->slot] + 1, 0xFF);
+        for (i = 0; i < g_PathNodeCount; i++) {
+            if (g_PathNodes[i].f_14[MP_4086C->slot] != 0) {
+                g_PathNodes[i].f_14[MP_4086C->slot] = MIN_4086C(g_PathNodes[i].f_14[MP_4086C->slot] + 1, 0xFF) < 1 ? 1 : MIN_4086C(g_PathNodes[i].f_14[MP_4086C->slot] + 1, 0xFF);
             }
         }
         return;
     }
     MP_4086C->f_248 &= ~0x08000000;
     count = 0;
-    for (i = 0; i < D_800B4D18; i++) {
-        if (D_800B4D00[i].f_14[MP_4086C->slot] != 0) {
+    for (i = 0; i < g_PathNodeCount; i++) {
+        if (g_PathNodes[i].f_14[MP_4086C->slot] != 0) {
             continue;
         }
-        for (j = 0; j < D_800B4D00[i].f_A; j++) {
-            l = D_800B4D00[i].f_C[j];
-            if (D_800B4D00[l & 0x3FFF].f_14[MP_4086C->slot] >= 2 && (l & 0x4000) && Monkey_CanDoAction(i, l & 0x3FFF)) {
+        for (j = 0; j < g_PathNodes[i].f_A; j++) {
+            l = g_PathNodes[i].f_C[j];
+            if (g_PathNodes[l & 0x3FFF].f_14[MP_4086C->slot] >= 2 && (l & 0x4000) && Monkey_CanDoAction(i, l & 0x3FFF)) {
                 count++;
-                D_800B4D00[i].f_14[MP_4086C->slot] = 1;
+                g_PathNodes[i].f_14[MP_4086C->slot] = 1;
             }
         }
     }
@@ -5131,8 +5131,8 @@ void func_8004086C(void) {
     if (count == 0) {
         m->f_248 |= 0x08000000;
         best = 0;
-        for (i = 0; i < D_800B4D18; i++) {
-            v = D_800B4D00[i].f_14[m->slot];
+        for (i = 0; i < g_PathNodeCount; i++) {
+            v = g_PathNodes[i].f_14[m->slot];
             if (v < (s16)best) {
                 v = (s16)best;
             }
@@ -5141,7 +5141,7 @@ void func_8004086C(void) {
     }
 }
 
-s32 func_80040BDC(VEC_80040CFC_80040BDC *a, VEC_80040CFC_80040BDC *b) {
+s32 Path_HeightAt(VEC_80040CFC_80040BDC *a, VEC_80040CFC_80040BDC *b) {
     s32 ax = a->vx;
     s32 bx = b->vx;
     s32 az = a->vz;
@@ -5164,7 +5164,7 @@ s32 func_80040BDC(VEC_80040CFC_80040BDC *a, VEC_80040CFC_80040BDC *b) {
     return by + (ay - by) * (m->f_24 - bx) / dx;
 }
 
-void func_80040CFC(s16 flag) {
+void Monkey_GetLinkHeight(s16 flag) {
     VEC_80040CFC a;
     VEC_80040CFC b;
     Node_GetPosition(g_CurMonkey->f_F2, &a);
@@ -5176,7 +5176,7 @@ void func_80040CFC(s16 flag) {
     } else {
         Node_GetPosition(g_CurMonkey->f_F4, &b);
     }
-    func_80040BDC(&a, &b);
+    Path_HeightAt(&a, &b);
 }
 
 extern Monkey *g_CurMonkey_NE asm("g_CurMonkey");
@@ -5193,7 +5193,7 @@ s32 Monkey_NodeEvents(s16 node)
     return 0;
   }
   {
-    if (D_800B4D00[node].f_0 & 0x20)
+    if (g_PathNodes[node].f_0 & 0x20)
     {
       g_CurMonkey->f_248 |= 0x4000000;
     }
@@ -5202,45 +5202,45 @@ s32 Monkey_NodeEvents(s16 node)
       g_CurMonkey->f_248 &= ~0x4000000;
     }
     g_CurMonkey->f_248 &= ~0x400000;
-    if ((g_CurMonkey->f_79 == 1) && (D_800B4D00[node].f_0 & 0x1000))
+    if ((g_CurMonkey->f_79 == 1) && (g_PathNodes[node].f_0 & 0x1000))
     {
       g_CurMonkey->f_96 = 0;
       g_CurMonkey->f_128 = 30;
       g_CurMonkey->f_24C |= 1;
       Monkey_QueueSound(0x27, 0);
     }
-    if (D_800B4D00[node].f_0 & 0x4000)
+    if (g_PathNodes[node].f_0 & 0x4000)
     {
-      Object_SetFlagCF((s16) D_800B4D00[node].f_10, 1);
+      Object_SetFlagCF((s16) g_PathNodes[node].f_10, 1);
     }
-    if (D_800B4D00[node].f_0 & 0x800)
+    if (g_PathNodes[node].f_0 & 0x800)
     {
-      Link_SendEvent(0, (s16) D_800B4D00[node].f_10, 0);
+      Link_SendEvent(0, (s16) g_PathNodes[node].f_10, 0);
     }
-    if (D_800B4D00[node].f_0 & 0x20000)
+    if (g_PathNodes[node].f_0 & 0x20000)
     {
-      Link_SendEvent(1, (s16) D_800B4D00[node].f_10, 0);
+      Link_SendEvent(1, (s16) g_PathNodes[node].f_10, 0);
     }
-    if (D_800B4D00[node].f_0 & 0x40000)
+    if (g_PathNodes[node].f_0 & 0x40000)
     {
-      Link_SendEvent(2, (s16) D_800B4D00[node].f_10, 0);
+      Link_SendEvent(2, (s16) g_PathNodes[node].f_10, 0);
     }
-    if (D_800B4D00[node].f_0 & 0x400)
+    if (g_PathNodes[node].f_0 & 0x400)
     {
       Node_GetJointRef(node, &out[0], &out[1], &out[2]);
       Monkey_SetState(0x29);
       r = 1;
     }
-    if ((g_CurMonkey->f_79 == 0) && (D_800B4D00[node].f_0 & 0x80000))
+    if ((g_CurMonkey->f_79 == 0) && (g_PathNodes[node].f_0 & 0x80000))
     {
-      func_80035918(node);
+      Monkey_StartNodeAnim(node);
       r = 1;
     }
-    if (D_800B4D00[node].f_0 & 4)
+    if (g_PathNodes[node].f_0 & 4)
     {
-      v = D_800B4D00[node].f_10;
+      v = g_PathNodes[node].f_10;
       keep = g_CurMonkey->f_79;
-      if (((s16) D_800B4D00[node].f_10) < 0)
+      if (((s16) g_PathNodes[node].f_10) < 0)
       {
         v = 0;
       }
@@ -5251,24 +5251,24 @@ s32 Monkey_NodeEvents(s16 node)
       g_CurMonkey->f_79 = keep;
     }
     else
-      if ((D_800B4D00[node].f_0 & 8) && func_800339EC())
+      if ((g_PathNodes[node].f_0 & 8) && Stage_IsRaceOrBoss())
     {
       w = g_CurMonkey->f_126;
-      Monkey_SetState((w == func_800392E4(g_CurMonkey)) ? (0x26) : (0x16));
+      Monkey_SetState((w == Collider_GetHitKind(g_CurMonkey)) ? (0x26) : (0x16));
       r = 1;
       g_CurMonkey_NE->f_248 |= 0x400000;
       g_CurMonkey_NE->f_79 = 0;
     }
     else
-      if ((D_800B4D00[node].f_0 & 8) && (((s16) D_800B4D00[node].f_10) < g_CurMonkey->f_20C))
+      if ((g_PathNodes[node].f_0 & 8) && (((s16) g_PathNodes[node].f_10) < g_CurMonkey->f_20C))
     {
-      func_800363E4();
+      Monkey_StartLookout();
       r = 1;
       g_CurMonkey->f_248 |= 0x400000;
       g_CurMonkey->f_79 = 0;
     }
     else
-      if ((D_800B4D00[node].f_0 & 0x8000) && (g_CurMonkey->f_20C < 1500))
+      if ((g_PathNodes[node].f_0 & 0x8000) && (g_CurMonkey->f_20C < 1500))
     {
       g_CurMonkey->f_248 |= 0x400000;
       Monkey_SetState(0x42);
@@ -5276,7 +5276,7 @@ s32 Monkey_NodeEvents(s16 node)
       g_CurMonkey->f_79 = 0;
     }
     else
-      if ((D_800B4D00[node].f_0 & 0x10000) && (func_80052C4C(((s16) D_800B4D00[g_CurMonkey->f_F4].f_10) / 100) != 2))
+      if ((g_PathNodes[node].f_0 & 0x10000) && (func_80052C4C(((s16) g_PathNodes[g_CurMonkey->f_F4].f_10) / 100) != 2))
     {
       g_CurMonkey->f_248 |= 0x400000;
       Monkey_SetState(0);
@@ -5291,7 +5291,7 @@ s32 Monkey_NodeEvents(s16 node)
   }
 }
 
-s32 func_80041280(void) {
+s32 Monkey_GetSurfaceKind(void) {
     return M2C_FIELD(Collision_GetShape(M2C_FIELD(g_CurMonkey, s32 *, 0x50) & 0xFFF), u16 *, 0x24) & 0xF0;
 }
 
@@ -5314,21 +5314,21 @@ typedef struct { u8 pad0[0x18]; s32 f_18; s32 f_1C; } Set_412B0;
 struct Game_412B0 { u8 pad0[0x8126]; u16 f_8126; u8 pad8128[0x8C]; s32 f_81B4; s32 f_81B8; u8 pad81BC[0x84]; s32 f_8240; };
 
 extern struct Game_412B0 g_Game412B0 asm("g_Game");
-extern St_412B0 D_800AE940_U[] asm("D_800AE940");
+extern St_412B0 D_800AE940_U[] asm("g_MonkeyStateInfo");
 extern Set_412B0 *D_800B4D14_U asm("D_800B4D14");
-s32 func_80040CFC_r(s32) asm("func_80040CFC");
-s16 func_80041280_s(void) asm("func_80041280");
-void func_80035BD0_i(s32) asm("func_80035BD0");
+s32 func_80040CFC_r(s32) asm("Monkey_GetLinkHeight");
+s16 func_80041280_s(void) asm("Monkey_GetSurfaceKind");
+void func_80035BD0_i(s32) asm("Monkey_StartHitReaction");
 u16 Monkey_CurAnimIndex_u(void) asm("Monkey_CurAnimIndex");
-s32 func_8003F530(void);
-s32 func_8003F86C(void);
-void func_8003CD84(void);
+s32 Monkey_UpdateNodeJump(void);
+s32 Monkey_UpdateLeap(void);
+void Monkey_UpdateVehicle(void);
 void RotMatrix(SV_412B0 *, void *);
 #undef CM
 #undef NODE
 #undef STF
 #define CM ((M_412B0 *)g_CurMonkey)
-#define NODE(i) ((Nd_412B0 *)D_800B4D00)[i]
+#define NODE(i) ((Nd_412B0 *)g_PathNodes)[i]
 #define STF(s) (D_800AE940_U[s].flags)
 /* Per-frame update of the current monkey: timers, turning towards its goal, animation stepping,
  * the state machine (Monkey_StateMove/Roam/InPlace and the other state handlers), speed, falling,
@@ -5353,10 +5353,10 @@ void Monkey_Update(void) {
     if ((CM->f_7A == 0) || (CM->f_7A == 2)) {
         return;
     }
-    if ((((((((CM->state != 2) && (!func_80033B10())) && (CM->state != 3)) && (CM->state != 8)) && (CM->state != 0xA)) && (!func_80033C00())) && (CM->state != 0x1A)) && (CM->state != 0x35)) {
+    if ((((((((CM->state != 2) && (!Monkey_IsIdleLooking())) && (CM->state != 3)) && (CM->state != 8)) && (CM->state != 0xA)) && (!Monkey_IsSwimming())) && (CM->state != 0x1A)) && (CM->state != 0x35)) {
         CM->f_94 = 0;
     }
-    if (func_80033C00()) {
+    if (Monkey_IsSwimming()) {
         Monkey_AimAtGoal();
     } else if (((((CM->f_94 <= 0) && (CM->state != 0)) && (CM->state != 0x42)) && (!((CM->f_248 >> 25) & 1))) && (CM->state != 7)) {
         Monkey_TurnToGoal();
@@ -5412,13 +5412,13 @@ void Monkey_Update(void) {
         case 0x10:
         case 0x13:
         case 0x3A:
-            func_8003F18C();
+            Monkey_StateIdleLook();
             break;
         case 0xE:
         case 0x11:
         case 0x14:
         case 0x3B:
-            func_8003F308();
+            Monkey_StateIdleScan();
             break;
         case 0xF:
         case 0x12:
@@ -5428,19 +5428,19 @@ void Monkey_Update(void) {
             break;
         case 0x4:
         case 0x1D:
-            func_8003F530();
+            Monkey_UpdateNodeJump();
             break;
         case 0x2C:
         case 0x2D:
         case 0x2E:
-            func_8003F86C();
+            Monkey_UpdateLeap();
             break;
         case 0x31:
             Monkey_UpdateJump();
             break;
         case 0x1E:
         case 0x20:
-            func_8003CD84();
+            Monkey_UpdateVehicle();
             break;
         case 0x36:
             if (!Monkey_CheckStateTimer()) {
@@ -5448,7 +5448,7 @@ void Monkey_Update(void) {
             }
             break;
         case 0x7:
-            func_80040170();
+            Monkey_StateFaceTarget();
             break;
         case 0x32:
             if (!Monkey_CheckStateTimer()) {
@@ -5468,7 +5468,7 @@ void Monkey_Update(void) {
                 Effect_SpawnAt(0x110, &v);
             }
             if (CM->f_20C < (((K_412B0 *) (&g_MonkeyKinds[CM->f_7C]))->f_1A * 3)) {
-                func_800359B4();
+                Monkey_NextNodeAnim();
                 break;
             }
             if (Monkey_CheckStateTimer()) {
@@ -5478,11 +5478,11 @@ void Monkey_Update(void) {
             if ((((u8 *) (&CM->f_248))[0] < CM->f_246) || (CM->f_244 >= CM->f_246)) {
                 goto restart;
             }
-            func_800359B4();
+            Monkey_NextNodeAnim();
             break;
         case 0x34:
             if (!Monkey_CheckStateTimer()) {
-                func_800378C0();
+                Monkey_PickAction();
                 Monkey_TurnToGoal();
             }
             break;
@@ -5549,7 +5549,7 @@ void Monkey_Update(void) {
             Monkey_UpdateFall();
             break;
         case 0x30:
-            func_8004002C();
+            Monkey_ReturnToPath();
             break;
         case 0x6:
             if (Monkey_CheckStateTimer()) {
@@ -5559,10 +5559,10 @@ void Monkey_Update(void) {
                 goto pick;
             }
         idle:
-            func_800363A4();
+            Monkey_StartIdleAlert();
             break;
         pick:
-            func_800378C0();
+            Monkey_PickAction();
             break;
         }
     }
@@ -5575,14 +5575,14 @@ void Monkey_Update(void) {
         Monkey_RestartAnim();
     }
     if ((CM->f_79 == 1) && (g_MonkeyKinds[CM->f_7C].f_4 == 0)) {
-        func_8003CC3C(0x22);
+        Monkey_TurnTowardTarget(0x22);
     }
-    if (((CM->f_228 & 0x4000) || (((Nd_412B0 *)D_800B4D00)[CM->f_F4].f_0 & 0x10)) || (CM->state == 0x1D)) {
+    if (((CM->f_228 & 0x4000) || (((Nd_412B0 *)g_PathNodes)[CM->f_F4].f_0 & 0x10)) || (CM->state == 0x1D)) {
         if (!((CM->f_248 >> 30) & 1)) {
-            func_80036B24();
+            Monkey_StartIntangible();
         }
     } else if ((CM->f_248 >> 30) & 1) {
-        func_80036B78();
+        Monkey_EndIntangible();
     }
     if (CM->f_124 > 0) {
         CM->f_124--;
@@ -5590,14 +5590,14 @@ void Monkey_Update(void) {
     if (!Monkey_CheckStateTimer()) {
         Monkey_RestartAnim();
     }
-    if ((!func_80033C34()) && (!(((Nd_412B0 *)D_800B4D00)[CM->f_F4].f_0 & 0x400))) {
-        u32 fl = ((Nd_412B0 *)D_800B4D00)[CM->f_F2].f_0;
+    if ((!Monkey_IsJumping()) && (!(((Nd_412B0 *)g_PathNodes)[CM->f_F4].f_0 & 0x400))) {
+        u32 fl = ((Nd_412B0 *)g_PathNodes)[CM->f_F2].f_0;
         s32 st;
         if ((((!(fl & 0x40)) && (((u8) (st = CM->state)) != 0x1E)) && (((u8) st) != 0x20)) && (((u32) (st - 0x2F)) >= 2)) {
             if (CM->f_228 & 2) {
-                if (func_800339EC() && (CM->state == 0x1A)) {
+                if (Stage_IsRaceOrBoss() && (CM->state == 0x1A)) {
                     CM->y = func_80040CFC_r(1);
-                } else if ((CM->f_228 & 0x20020) && func_80033C80()) {
+                } else if ((CM->f_228 & 0x20020) && Monkey_IsStunned()) {
                     CM->y = func_80040CFC_r(0) + 0x100;
                 } else {
                     CM->y = func_80040CFC_r(0);
@@ -5607,8 +5607,8 @@ void Monkey_Update(void) {
             }
         }
     }
-    if (func_80033C00() && ((phase = (s32) (D_800AEB60 % 50)) < 10)) {
-        func_80039200();
+    if (Monkey_IsSwimming() && ((phase = (s32) (g_MonkeyFrame % 50)) < 10)) {
+        Monkey_SpawnRipple();
     }
     Monkey_UpdateSpeed();
     if (CM->f_22C != 0) {
@@ -5622,25 +5622,25 @@ void Monkey_Update(void) {
     if (CM->f_E2 != 0) {
         CM->f_E2--;
     }
-    if (((((CM->f_7A == 4) && (!func_800339EC())) && (!((CM->f_248 >> 30) & 1))) && func_800392F0()) && (CM->state != 0x20)) {
+    if (((((CM->f_7A == 4) && (!Stage_IsRaceOrBoss())) && (!((CM->f_248 >> 30) & 1))) && Monkey_CheckHit()) && (CM->state != 0x20)) {
         if ((CM->state == 0x1E) && (CM->f_230 > 0xF0)) {
             if (CM->f_126 == 0xB) {
-                func_80035EA4();
+                Monkey_VehicleWrecked();
                 CM->f_8E -= 0xC8;
             }
         } else if ((CM->f_126 == 8) && Game_NotExiting()) {
             CM->f_7A = 3;
             Monkey_DisableCollision();
-            D_800AEB5A = CM->f_7C;
+            g_CaughtMonkeyKind = CM->f_7C;
         } else if (((CM->f_126 == 0xB) && (CM->f_E2 == 0)) && (!(CM->f_228 & 0x80000))) {
             if (!(CM->f_228 & 0x8000)) {
-                if (((Nd_412B0 *)D_800B4D00)[CM->f_F2].f_0 & 0x400) {
+                if (((Nd_412B0 *)g_PathNodes)[CM->f_F2].f_0 & 0x400) {
                     goto done_hit;
                 }
                 if (((CM->state == 0x1A) || (CM->state == 0x35)) || (CM->state == 9)) {
                     goto done_hit;
                 }
-                if (func_80033C00()) {
+                if (Monkey_IsSwimming()) {
                     goto done_hit;
                 }
             }
@@ -5678,7 +5678,7 @@ done_hit:
         CM->f_7A = 2;
         Monkey_SelectActive();
     }
-    if ((((CM->state != 9) && (!func_80033BE0())) && (CM->state != 0x29)) && (CM->state != 0x2B)) {
+    if ((((CM->state != 9) && (!Monkey_IsNodeAnim())) && (CM->state != 0x29)) && (CM->state != 0x2B)) {
         RotMatrix(&CM->f_84, mat);
         ApplyMatrixSV(mat, &CM->f_60, &CM->f_60);
         VectorNormalSS(&CM->f_60, &CM->f_60);
@@ -5686,29 +5686,29 @@ done_hit:
     CM->f_3C = CM->f_60;
     if ((((u32) ((((u16 *) (&CM->f_248))[1] & 3) - 1)) < 2) && (CM->f_F0 <= 0)) {
         CM->f_F0++;
-    } else if (((CM->f_79 == 0) && ((D_800AE940_U[CM->state].flags >> 6) & 1)) && func_800361B4()) {
-        if (func_800349F4(CM->f_F4)) {
-            u32 nf = ((Nd_412B0 *)D_800B4D00)[CM->f_F4].f_0;
+    } else if (((CM->f_79 == 0) && ((D_800AE940_U[CM->state].flags >> 6) & 1)) && Monkey_IsTargetNear()) {
+        if (Node_IsStopPoint(CM->f_F4)) {
+            u32 nf = ((Nd_412B0 *)g_PathNodes)[CM->f_F4].f_0;
             if ((nf & 4) && (CM->f_22C == 0)) {
                 goto react;
             }
-            if (((!(nf & 8)) || func_800339EC()) || (CM->f_20C >= ((Nd_412B0 *)D_800B4D00)[CM->f_F4].f_10)) {
+            if (((!(nf & 8)) || Stage_IsRaceOrBoss()) || (CM->f_20C >= ((Nd_412B0 *)g_PathNodes)[CM->f_F4].f_10)) {
                 goto skip_react;
             }
         }
     react:
         if (CM->state == 0x33) {
-            func_800359B4();
+            Monkey_NextNodeAnim();
         } else if (CM->state != 0x34) {
-            func_800363A4();
+            Monkey_StartIdleAlert();
         }
     }
 skip_react:
-    if (((CM->f_248 >> 19) & 1) && (!func_80033B10())) {
+    if (((CM->f_248 >> 19) & 1) && (!Monkey_IsIdleLooking())) {
         CM->f_248 &= 0xFFF7FFFF;
     }
     CM->f_5E = Monkey_CurAnimIndex_u();
-    if (((D_800AE940_U[CM->state].flags >> 4) & 1) && (!func_800339EC())) {
+    if (((D_800AE940_U[CM->state].flags >> 4) & 1) && (!Stage_IsRaceOrBoss())) {
         CM->f_46 = -0x100;
     } else {
         CM->f_46 = 0x100;
@@ -5728,9 +5728,9 @@ skip_react:
 /* Per frame, for each of the 4 active monkeys (if g_Game+0x8184 > 0): picks what it reacts to.
  * That is the RC car (g_RcCar, setting g_MonkeyTargetIsRC) when Spike's +0xF2 is 7 (the RC Car)
  * and the car is closer to the monkey than Spike, else Spike (g_MonkeyTarget). Then, unless the
- * monkey is caught (state 2), runs its AI: func_8003AD9C when its +0xEA timer passes 0xA8D, else
- * every D_800AEB66-th frame in its own slot (by +0x7B) func_8004086C unless func_800339EC; then
- * func_80039B30 and Monkey_Update. Declared s32 with no return value: the original keeps v0
+ * monkey is caught (state 2), runs its AI: Monkey_PickGoalNode when its +0xEA timer passes 0xA8D, else
+ * every g_MaxActiveMonkeys-th frame in its own slot (by +0x7B) Monkey_SpreadRouteMarks unless Stage_IsRaceOrBoss; then
+ * Monkey_UpdateTargetDist and Monkey_Update. Declared s32 with no return value: the original keeps v0
  * live at the exit. */
 s32 Monkey_UpdateAll(void) {
     s16 i;
@@ -5751,13 +5751,13 @@ s32 Monkey_UpdateAll(void) {
         }
         if (g_CurMonkey != 0 && g_CurMonkey->f_7A != 2) {
         if ((u16)g_CurMonkey->f_EA >= 0xA8D) {
-            func_8003AD9C();
-        } else if (D_800AEB60 % D_800AEB66 == g_CurMonkey->f_7B % D_800AEB66) {
-            if (func_800339EC() == 0) {
-                func_8004086C();
+            Monkey_PickGoalNode();
+        } else if (g_MonkeyFrame % g_MaxActiveMonkeys == g_CurMonkey->f_7B % g_MaxActiveMonkeys) {
+            if (Stage_IsRaceOrBoss() == 0) {
+                Monkey_SpreadRouteMarks();
             }
         }
-        func_80039B30();
+        Monkey_UpdateTargetDist();
         Monkey_Update();
         }
     }
@@ -5766,13 +5766,13 @@ s32 Monkey_UpdateAll(void) {
 extern Monkey g_MonkeysSA[] asm("g_Monkeys");
 extern VEC_80034684 D_800EC204;
 void Monkey_Spawn(s32, s32, s32);
-void func_800407F0(void);
+void Monkey_ClearRouteMarks(void);
 #define AM ((Monkey **)g_ActiveMonkeys)
-/* Picks which monkeys in the area get one of the D_800AEB66 active slots (g_ActiveMonkeys):
+/* Picks which monkeys in the area get one of the g_MaxActiveMonkeys active slots (g_ActiveMonkeys):
  * refreshes every monkey's distance to D_800EC204 (+0x210), then gives free slots in order and
  * otherwise replaces the farthest holder when a closer monkey is found (the bumped one goes back
  * to +0x7A = 1). Newly active monkeys are respawned into their slot (Monkey_Spawn(kind, 4, slot));
- * a slot whose kind changed is re-placed at its old node (+0xE6) or sent off by func_8003AD9C. */
+ * a slot whose kind changed is re-placed at its old node (+0xE6) or sent off by Monkey_PickGoalNode. */
 void Monkey_SelectActive(void) {
     Monkey *saved = g_CurMonkey;
     s16 kinds[4];
@@ -5786,7 +5786,7 @@ void Monkey_SelectActive(void) {
     u8 b;
     s32 st;
 
-    if (g_MonkeyCount == 0 || D_800AEB66 == 0) {
+    if (g_MonkeyCount == 0 || g_MaxActiveMonkeys == 0) {
         return;
     }
     for (j = 0; j < 4; j++) {
@@ -5815,7 +5815,7 @@ void Monkey_SelectActive(void) {
         if ((u8)(g_MonkeysSA[i].f_7A - 2) < 2) {
             continue;
         }
-        for (j = 0; j < D_800AEB66; j++) {
+        for (j = 0; j < g_MaxActiveMonkeys; j++) {
             if (AM[j] == 0) {
                 AM[j] = &g_MonkeysSA[i];
                 found = 1;
@@ -5833,17 +5833,17 @@ void Monkey_SelectActive(void) {
             AM[worst] = g_CurMonkey;
         }
     }
-    for (j = 0; j < D_800AEB66; j++) {
+    for (j = 0; j < g_MaxActiveMonkeys; j++) {
         g_CurMonkey = AM[j];
         if (g_CurMonkey != 0) {
             st = g_CurMonkey->f_7A;
             Monkey_Spawn(g_CurMonkey->f_7C, 4, j);
             if (st == 0) {
-                func_8003AD9C();
+                Monkey_PickGoalNode();
             }
         }
     }
-    for (j = 0; j < D_800AEB66; j++) {
+    for (j = 0; j < g_MaxActiveMonkeys; j++) {
         m = AM[j];
         if (m == 0 || kinds[j] == m->f_7C) {
             continue;
@@ -5852,13 +5852,13 @@ void Monkey_SelectActive(void) {
         g_CurMonkey = m;
         b = m->f_D8;
         if (n == -1) {
-            func_8003AD9C();
+            Monkey_PickGoalNode();
         } else {
-            func_800407F0();
+            Monkey_ClearRouteMarks();
             g_CurMonkey->f_E6 = n;
             g_CurMonkey->f_D8 = b;
         }
-        D_800B4D00[g_CurMonkey->f_E6].f_14[g_CurMonkey->f_7B] = 1;
+        g_PathNodes[g_CurMonkey->f_E6].f_14[g_CurMonkey->f_7B] = 1;
         g_CurMonkey->f_EE = 1;
     }
     g_CurMonkey = saved;
@@ -5889,20 +5889,20 @@ void Monkey_UpdateActive(void) {
             func_8008C3C0((*(M42B68_80042B68 * *)&g_CurMonkey)->f_80, (*(M42B68_80042B68 * *)&g_CurMonkey)->f_82);
             func_8008CBFC(D_800A4BBC, (*(M42B68_80042B68 * *)&g_CurMonkey)->f_7C);
         }
-        if ((D_800AEB60 + (*(M42B68_80042B68 * *)&g_CurMonkey)->f_7B) % 3 == 0) {
+        if ((g_MonkeyFrame + (*(M42B68_80042B68 * *)&g_CurMonkey)->f_7B) % 3 == 0) {
             Monkey_UpdateLod();
         }
         m = (*(M42B68_80042B68 * *)&g_CurMonkey);
         if (m->f_78 == 0x1E || m->f_78 == 0x20) {
-            D_800F4B30[0] = 0;
-            D_800F4B30[1] = 0;
-            D_800F4B30[2] = 0;
-            D_800F4B30[4] = 0;
-            D_800F4B30[6] = 0;
-            D_800F4B30[8] = 0;
-            D_800F4B30[10] = 0;
-            D_800F4B30[5] = -D_800AEB60 * 80;
-            D_800F4B30[9] = D_800AEB60 * 400;
+            g_JointAngles[0] = 0;
+            g_JointAngles[1] = 0;
+            g_JointAngles[2] = 0;
+            g_JointAngles[4] = 0;
+            g_JointAngles[6] = 0;
+            g_JointAngles[8] = 0;
+            g_JointAngles[10] = 0;
+            g_JointAngles[5] = -g_MonkeyFrame * 80;
+            g_JointAngles[9] = g_MonkeyFrame * 400;
         } else {
             Anim_BlendCurrentEntry();
         }
@@ -5947,20 +5947,20 @@ s32 Monkey_UpdateFrame(void)
 {
   s16 i;
   D_800AEB5C++;
-  if (func_800339EC() != 0)
+  if (Stage_IsRaceOrBoss() != 0)
   {
-    D_800AEB60 = D_800AEB5C;
+    g_MonkeyFrame = D_800AEB5C;
   }
   else
   {
-    D_800AEB60 = ((struct Game_80042E18 *) (&g_Game))->frame;
+    g_MonkeyFrame = ((struct Game_80042E18 *) (&g_Game))->frame;
   }
   for (i = 0; i < 8; i++)
   {
     g_CurMonkey = (Monkey *) (&((MD_80042E18_80042E18 *)&g_Monkeys)[i]);
     if (((MD_80042E18_80042E18 *) g_CurMonkey)->f_248.b21 == 1)
     {
-      if ((((MD_80042E18_80042E18 *) g_CurMonkey)->f_7A != 4) || (func_80033C80() == 0))
+      if ((((MD_80042E18_80042E18 *) g_CurMonkey)->f_7A != 4) || (Monkey_IsStunned() == 0))
       {
         ((MD_80042E18_80042E18 *) g_CurMonkey)->f_154 = -1;
         ((MD_80042E18_80042E18 *) g_CurMonkey)->f_248.b21 = 0;
@@ -5972,7 +5972,7 @@ s32 Monkey_UpdateFrame(void)
     }
   }
 
-  if ((D_800B4CF4 == 0) && (((struct Game_80042E18 *) (&g_Game))->f_8184 > 0))
+  if ((g_AreaHasNoMonkeys == 0) && (((struct Game_80042E18 *) (&g_Game))->f_8184 > 0))
   {
     if (!(((struct Game_80042E18 *) (&g_Game))->f_8100 & 2))
     {
@@ -5981,11 +5981,11 @@ s32 Monkey_UpdateFrame(void)
     Monkey_UpdateActive();
     func_8003A334();
     Monkey_UpdateQueuedSounds();
-    if (((D_800AEC10 != ((struct Game_80042E18 *) (&g_Game))->f_8184) || (D_800AEC12 != D_800AEB66)) || ((D_800AEB60 % 30) == 0))
+    if (((D_800AEC10 != ((struct Game_80042E18 *) (&g_Game))->f_8184) || (D_800AEC12 != g_MaxActiveMonkeys)) || ((g_MonkeyFrame % 30) == 0))
     {
       Monkey_SelectActive();
     }
     D_800AEC10 = ((struct Game_80042E18 *) (&g_Game))->f_8184;
-    D_800AEC12 = D_800AEB66;
+    D_800AEC12 = g_MaxActiveMonkeys;
   }
 }

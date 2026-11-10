@@ -176,7 +176,7 @@ typedef struct { unsigned addr : 24; unsigned len : 8; } PTag_69920;
 extern Spr_69920 D_800B9900_69920[] asm("D_800B9900");
 extern u8 g_Game;
 extern u8 *D_800EC354;
-extern u8 D_800E78C0[];
+extern u8 g_ViewMatrix[];
 #define gte_ldv0_69920(v) __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(v))
 #define gte_rtps_69920() __asm__ volatile ("nop; nop; rtps")
 #define gte_stsxy_69920(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
@@ -196,8 +196,8 @@ void func_80069920(void) {
     s16 x0, y0;
     u32 xa, xb, ya, yb;
 
-    SetRotMatrix(D_800E78C0);
-    SetTransMatrix(D_800E78C0);
+    SetRotMatrix(g_ViewMatrix);
+    SetTransMatrix(g_ViewMatrix);
     ot = G_DRAW.db[G_DRAW.cur].ot;
     p = (FT4_69920 *)G_DRAW.prim;
     for (i = 99, e = D_800B9900_69920; i >= 0; i--, e++) {
