@@ -19,7 +19,12 @@ s32 func_80136000(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", func_8013606C);
+/* Stage-select screen main loop: one world per Era plus single-stage worlds (Stadium Attack,
+   Gladiator Attack, Monkey Madness, Peak Point Matrix); per frame it spins the centrepiece, draws a
+   marker per stage of the current world and the time panel. On TV Tower (world 7, stage 2) the
+   camera eye rises to -0x578 so the view tilts up the skyscraper model; elsewhere it eases back to 0.
+   Near-miss C draft (31 diffs): wip/_ovl/drafts/393/StageSelect_Main.c */
+INCLUDE_ASM("asm/ovl/393/nonmatchings/393_stage_select", StageSelect_Main);
 
 #include "gte.h"
 void Model_DrawPrims(s32, u8 *, s32);
@@ -436,7 +441,7 @@ void VectorNormal(void *, void *);
 s32 SquareRoot0(s32);
 void ApplyMatrixLV(void *, void *, void *);
 
-void func_80138560(SVECTOR *eye, SVECTOR *at) {
+void StageSelect_SetCamera(SVECTOR *eye, SVECTOR *at) {
     VEC_391 d;
     VEC_391 n;
     s32 nx;
